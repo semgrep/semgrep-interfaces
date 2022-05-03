@@ -12,7 +12,7 @@
  * https://atd.readthedocs.io/en/latest/atdgen-tutorial.html?highlight=json#smooth-protocol-upgrades
  * for more information on how to smoothly extend the types in this file.
  *
- * This file currentlly contains also the type definitions for semgrep-core's
+ * This file currently contains also the type definitions for semgrep-core's
  * JSON output, meant for the semgrep Python wrapper.
  * TODO: when ATD gets a module system, we can split this file in
  * different files (e.g., in Output_from_core.atd), but for now it's simpler
@@ -362,11 +362,66 @@ type cli_output = {
     errors: cli_error list;
     results: cli_match list;
 
+    (* extra *)
+    paths: cli_paths;
+    ?time: cli_timing option;
+    (* seems unused, not in any results.json *)
+    ?stats: cli_stats option;
     (* TODO: see output.py
-       paths: (scanned:, ?skipped:, ?_comment:)
        ?stats: (targets:, loc:, profiler:)
-       ?time: ()
        (* only in TEXT *)
        ?color_output, per_finding_max_lines_limit, per_line_max_chars_limit
      *)
+}
+
+type cli_paths = {
+    scanned: string list;
+    (* TODO: either _comment or skipped: *)
+    ?_comment: string option;
+    ?skipped: cli_skipped_target list option;
+}
+
+(* TODO: could merge with skipped_target above *)
+type cli_skipped_target = {
+    path: string;
+    (* TODO: use a variant, reuse skip_reason above *)
+    reason: string;
+}
+
+(* TODO: could merge with core_timing above
+ * TODO: get rid of _build_time_json()
+ *)
+type cli_timing = {
+    rules: rule_id_dict list;
+    rules_parse_time: float;
+    profiling_times: cli_profiling_times;
+    targets: cli_target_times list;
+    total_bytes: int;
+  }
+
+(* TODO: should just use rule_id *)
+type rule_id_dict = {
+  id: rule_id;
+}
+
+(* TODO: get rid of profiler.dump_stats *)
+type cli_profiling_times = {
+   config_time: float;
+   core_time: float;
+   ignores_time: float;
+   total_time: float;
+}
+
+(* TODO: merge with target_time above? or aggregate of target_time for all rules? *)
+(* TODO get rid of _build_time_target_json *)
+type cli_target_times = {
+    path: string;
+    num_bytes: int;
+    match_times: float list;
+    parse_times: float list;
+    run_time: float;
+}
+
+type cli_stats = {
+    xxx: int;
 }
