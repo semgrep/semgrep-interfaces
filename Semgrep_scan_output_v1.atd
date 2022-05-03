@@ -425,6 +425,7 @@ type cli_profiling_times =
 type cli_target_times = {
     path: string;
     num_bytes: int;
+    (* each elt in the list refers to a rule in cli_timing.rules *)
     match_times: float list;
     parse_times: float list;
     run_time: float;
