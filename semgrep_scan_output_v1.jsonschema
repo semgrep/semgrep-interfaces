@@ -1,0 +1,331 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Translated by atdcat from 'Semgrep_scan_output_v1.atd'.",
+  "type": "object",
+  "required": [ "errors", "results", "paths" ],
+  "properties": {
+    "errors": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/cli_error" }
+    },
+    "results": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/cli_match" }
+    },
+    "paths": { "$ref": "#/definitions/cli_paths" },
+    "time": { "$ref": "#/definitions/cli_timing" }
+  },
+  "definitions": {
+    "position": {
+      "type": "object",
+      "required": [ "line", "col", "offset" ],
+      "properties": {
+        "line": { "type": "integer" },
+        "col": { "type": "integer" },
+        "offset": { "type": "integer" }
+      }
+    },
+    "location": {
+      "type": "object",
+      "required": [ "path", "start", "end" ],
+      "properties": {
+        "path": { "type": "string" },
+        "start": { "$ref": "#/definitions/position" },
+        "end": { "$ref": "#/definitions/position" }
+      }
+    },
+    "rule_id": { "type": "string" },
+    "core_match": {
+      "type": "object",
+      "required": [ "rule_id", "location", "extra" ],
+      "properties": {
+        "rule_id": { "$ref": "#/definitions/rule_id" },
+        "location": { "$ref": "#/definitions/location" },
+        "extra": { "$ref": "#/definitions/core_match_extra" }
+      }
+    },
+    "core_match_extra": {
+      "type": "object",
+      "required": [ "metavars" ],
+      "properties": {
+        "message": { "type": "string" },
+        "metavars": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/metavar_value" }
+        }
+      }
+    },
+    "metavar_value": {
+      "type": "object",
+      "required": [ "start", "end", "abstract_content", "unique_id" ],
+      "properties": {
+        "start": { "$ref": "#/definitions/position" },
+        "end": { "$ref": "#/definitions/position" },
+        "abstract_content": { "type": "string" },
+        "propagated_value": { "$ref": "#/definitions/svalue_value" },
+        "unique_id": { "$ref": "#/definitions/unique_id" }
+      }
+    },
+    "svalue_value": {
+      "type": "object",
+      "required": [ "svalue_abstract_content" ],
+      "properties": {
+        "svalue_start": { "$ref": "#/definitions/position" },
+        "svalue_end": { "$ref": "#/definitions/position" },
+        "svalue_abstract_content": { "type": "string" }
+      }
+    },
+    "unique_id": {
+      "type": "object",
+      "required": [ "type" ],
+      "properties": {
+        "type": { "$ref": "#/definitions/unique_id_type" },
+        "md5sum": { "type": "string" },
+        "sid": { "type": "integer" }
+      }
+    },
+    "unique_id_type": { "oneOf": [ { "const": "id" }, { "const": "AST" } ] },
+    "core_error": {
+      "type": "object",
+      "required": [ "error_type", "severity", "location", "message" ],
+      "properties": {
+        "rule_id": { "$ref": "#/definitions/rule_id" },
+        "error_type": { "type": "string" },
+        "severity": { "$ref": "#/definitions/core_severity" },
+        "location": { "$ref": "#/definitions/location" },
+        "message": { "type": "string" },
+        "details": { "type": "string" },
+        "yaml_path": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "core_severity": {
+      "oneOf": [ { "const": "error" }, { "const": "warning" } ]
+    },
+    "core_stats": {
+      "type": "object",
+      "required": [ "okfiles", "errorfiles" ],
+      "properties": {
+        "okfiles": { "type": "integer" },
+        "errorfiles": { "type": "integer" }
+      }
+    },
+    "skipped_target": {
+      "type": "object",
+      "required": [ "path", "reason", "details" ],
+      "properties": {
+        "path": { "type": "string" },
+        "reason": { "$ref": "#/definitions/skip_reason" },
+        "details": { "type": "string" },
+        "rule_id": { "$ref": "#/definitions/rule_id" }
+      }
+    },
+    "skip_reason": {
+      "oneOf": [
+        { "const": "excluded_by_config" },
+        { "const": "wrong_language" },
+        { "const": "too_big" },
+        { "const": "minified" },
+        { "const": "binary" },
+        { "const": "irrelevant_rule" },
+        { "const": "too_many_matches" }
+      ]
+    },
+    "skipped_rule": {
+      "type": "object",
+      "required": [ "rule_id", "details", "position" ],
+      "properties": {
+        "rule_id": { "$ref": "#/definitions/rule_id" },
+        "details": { "type": "string" },
+        "position": { "$ref": "#/definitions/position" }
+      }
+    },
+    "core_timing": {
+      "type": "object",
+      "required": [ "targets", "rules" ],
+      "properties": {
+        "targets": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/target_time" }
+        },
+        "rules": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/rule_id" }
+        },
+        "rules_parse_time": { "type": "number" }
+      }
+    },
+    "target_time": {
+      "type": "object",
+      "required": [ "path", "rule_times", "run_time" ],
+      "properties": {
+        "path": { "type": "string" },
+        "rule_times": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/rule_times" }
+        },
+        "run_time": { "type": "number" }
+      }
+    },
+    "rule_times": {
+      "type": "object",
+      "required": [ "rule_id", "parse_time", "match_time" ],
+      "properties": {
+        "rule_id": { "$ref": "#/definitions/rule_id" },
+        "parse_time": { "type": "number" },
+        "match_time": { "type": "number" }
+      }
+    },
+    "cve_result": {
+      "type": "object",
+      "required": [ "url", "filename", "funcnames" ],
+      "properties": {
+        "url": { "type": "string" },
+        "filename": { "type": "string" },
+        "funcnames": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "cve_results": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/cve_result" }
+    },
+    "core_match_results": {
+      "type": "object",
+      "required": [ "matches", "errors", "skipped", "stats" ],
+      "properties": {
+        "matches": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/core_match" }
+        },
+        "errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/core_error" }
+        },
+        "skipped": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/skipped_target" }
+        },
+        "skipped_rules": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/skipped_rule" }
+        },
+        "stats": { "$ref": "#/definitions/core_stats" },
+        "time": { "$ref": "#/definitions/core_timing" }
+      }
+    },
+    "cli_error": {
+      "type": "object",
+      "required": [ "code", "level", "type" ],
+      "properties": {
+        "code": { "type": "integer" },
+        "level": { "type": "string" },
+        "type": { "type": "string" },
+        "message": { "type": "string" },
+        "path": { "type": "string" },
+        "long_msg": { "type": "string" },
+        "short_msg": { "type": "string" }
+      }
+    },
+    "cli_match": {
+      "type": "object",
+      "required": [ "check_id", "path", "start", "end", "extra" ],
+      "properties": {
+        "check_id": { "$ref": "#/definitions/rule_id" },
+        "path": { "type": "string" },
+        "start": { "$ref": "#/definitions/position" },
+        "end": { "$ref": "#/definitions/position" },
+        "extra": { "$ref": "#/definitions/cli_match_extra" }
+      }
+    },
+    "cli_match_extra": {
+      "type": "object",
+      "required": [ "fingerprint", "lines", "message", "severity" ],
+      "properties": {
+        "fingerprint": { "type": "string" },
+        "lines": { "type": "string" },
+        "message": { "type": "string" },
+        "severity": { "type": "string" },
+        "fix": { "type": "string" },
+        "fix_regex": { "$ref": "#/definitions/fix_regex" },
+        "is_ignored": { "type": "boolean" },
+        "dependency_match_only": { "type": "boolean" }
+      }
+    },
+    "fix_regex": {
+      "type": "object",
+      "required": [ "regex", "replacement" ],
+      "properties": {
+        "regex": { "type": "string" },
+        "replacement": { "type": "string" }
+      }
+    },
+    "cli_output_extra": {
+      "type": "object",
+      "required": [ "paths" ],
+      "properties": {
+        "paths": { "$ref": "#/definitions/cli_paths" },
+        "time": { "$ref": "#/definitions/cli_timing" }
+      }
+    },
+    "cli_paths": {
+      "type": "object",
+      "required": [ "scanned" ],
+      "properties": {
+        "scanned": { "type": "array", "items": { "type": "string" } },
+        "_comment": { "type": "string" },
+        "skipped": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/cli_skipped_target" }
+        }
+      }
+    },
+    "cli_skipped_target": {
+      "type": "object",
+      "required": [ "path", "reason" ],
+      "properties": {
+        "path": { "type": "string" },
+        "reason": { "type": "string" }
+      }
+    },
+    "cli_timing": {
+      "type": "object",
+      "required": [
+        "rules", "rules_parse_time", "profiling_times", "targets",
+        "total_bytes"
+      ],
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/rule_id_dict" }
+        },
+        "rules_parse_time": { "type": "number" },
+        "profiling_times": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        },
+        "targets": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/cli_target_times" }
+        },
+        "total_bytes": { "type": "integer" }
+      }
+    },
+    "rule_id_dict": {
+      "type": "object",
+      "required": [ "id" ],
+      "properties": { "id": { "$ref": "#/definitions/rule_id" } }
+    },
+    "cli_target_times": {
+      "type": "object",
+      "required": [
+        "path", "num_bytes", "match_times", "parse_times", "run_time"
+      ],
+      "properties": {
+        "path": { "type": "string" },
+        "num_bytes": { "type": "integer" },
+        "match_times": { "type": "array", "items": { "type": "number" } },
+        "parse_times": { "type": "array", "items": { "type": "number" } },
+        "run_time": { "type": "number" }
+      }
+    }
+  }
+}
