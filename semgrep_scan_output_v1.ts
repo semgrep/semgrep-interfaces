@@ -170,6 +170,44 @@ export type FixRegex = {
 export type CliOutput = {
   errors: CliError[];
   results: CliMatch[];
+  paths: CliPaths;
+  time?: CliTiming;
+}
+
+export type CliOutputExtra = {
+  paths: CliPaths;
+  time?: CliTiming;
+}
+
+export type CliPaths = {
+  scanned: string[];
+  _comment?: string;
+  skipped?: CliSkippedTarget[];
+}
+
+export type CliSkippedTarget = {
+  path: string;
+  reason: string;
+}
+
+export type CliTiming = {
+  rules: RuleIdDict[];
+  rules_parse_time: number;
+  profiling_times: [string, number][];
+  targets: CliTargetTimes[];
+  total_bytes: Int;
+}
+
+export type RuleIdDict = {
+  id: RuleId;
+}
+
+export type CliTargetTimes = {
+  path: string;
+  num_bytes: Int;
+  match_times: number[];
+  parse_times: number[];
+  run_time: number;
 }
 
 export function writePosition(x: Position, context: any = x): any {
@@ -631,6 +669,8 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
   return {
     'errors': _atd_write_required_field('CliOutput', 'errors', _atd_write_array(writeCliError), x.errors, x),
     'results': _atd_write_required_field('CliOutput', 'results', _atd_write_array(writeCliMatch), x.results, x),
+    'paths': _atd_write_required_field('CliOutput', 'paths', writeCliPaths, x.paths, x),
+    'time': _atd_write_optional_field(writeCliTiming, x.time, x),
   };
 }
 
@@ -638,6 +678,104 @@ export function readCliOutput(x: any, context: any = x): CliOutput {
   return {
     errors: _atd_read_required_field('CliOutput', 'errors', _atd_read_array(readCliError), x['errors'], x),
     results: _atd_read_required_field('CliOutput', 'results', _atd_read_array(readCliMatch), x['results'], x),
+    paths: _atd_read_required_field('CliOutput', 'paths', readCliPaths, x['paths'], x),
+    time: _atd_read_optional_field(readCliTiming, x['time'], x),
+  };
+}
+
+export function writeCliOutputExtra(x: CliOutputExtra, context: any = x): any {
+  return {
+    'paths': _atd_write_required_field('CliOutputExtra', 'paths', writeCliPaths, x.paths, x),
+    'time': _atd_write_optional_field(writeCliTiming, x.time, x),
+  };
+}
+
+export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
+  return {
+    paths: _atd_read_required_field('CliOutputExtra', 'paths', readCliPaths, x['paths'], x),
+    time: _atd_read_optional_field(readCliTiming, x['time'], x),
+  };
+}
+
+export function writeCliPaths(x: CliPaths, context: any = x): any {
+  return {
+    'scanned': _atd_write_required_field('CliPaths', 'scanned', _atd_write_array(_atd_write_string), x.scanned, x),
+    '_comment': _atd_write_optional_field(_atd_write_string, x._comment, x),
+    'skipped': _atd_write_optional_field(_atd_write_array(writeCliSkippedTarget), x.skipped, x),
+  };
+}
+
+export function readCliPaths(x: any, context: any = x): CliPaths {
+  return {
+    scanned: _atd_read_required_field('CliPaths', 'scanned', _atd_read_array(_atd_read_string), x['scanned'], x),
+    _comment: _atd_read_optional_field(_atd_read_string, x['_comment'], x),
+    skipped: _atd_read_optional_field(_atd_read_array(readCliSkippedTarget), x['skipped'], x),
+  };
+}
+
+export function writeCliSkippedTarget(x: CliSkippedTarget, context: any = x): any {
+  return {
+    'path': _atd_write_required_field('CliSkippedTarget', 'path', _atd_write_string, x.path, x),
+    'reason': _atd_write_required_field('CliSkippedTarget', 'reason', _atd_write_string, x.reason, x),
+  };
+}
+
+export function readCliSkippedTarget(x: any, context: any = x): CliSkippedTarget {
+  return {
+    path: _atd_read_required_field('CliSkippedTarget', 'path', _atd_read_string, x['path'], x),
+    reason: _atd_read_required_field('CliSkippedTarget', 'reason', _atd_read_string, x['reason'], x),
+  };
+}
+
+export function writeCliTiming(x: CliTiming, context: any = x): any {
+  return {
+    'rules': _atd_write_required_field('CliTiming', 'rules', _atd_write_array(writeRuleIdDict), x.rules, x),
+    'rules_parse_time': _atd_write_required_field('CliTiming', 'rules_parse_time', _atd_write_float, x.rules_parse_time, x),
+    'profiling_times': _atd_write_required_field('CliTiming', 'profiling_times', _atd_write_assoc_array_to_object(_atd_write_float), x.profiling_times, x),
+    'targets': _atd_write_required_field('CliTiming', 'targets', _atd_write_array(writeCliTargetTimes), x.targets, x),
+    'total_bytes': _atd_write_required_field('CliTiming', 'total_bytes', _atd_write_int, x.total_bytes, x),
+  };
+}
+
+export function readCliTiming(x: any, context: any = x): CliTiming {
+  return {
+    rules: _atd_read_required_field('CliTiming', 'rules', _atd_read_array(readRuleIdDict), x['rules'], x),
+    rules_parse_time: _atd_read_required_field('CliTiming', 'rules_parse_time', _atd_read_float, x['rules_parse_time'], x),
+    profiling_times: _atd_read_required_field('CliTiming', 'profiling_times', _atd_read_assoc_object_into_array(_atd_read_float), x['profiling_times'], x),
+    targets: _atd_read_required_field('CliTiming', 'targets', _atd_read_array(readCliTargetTimes), x['targets'], x),
+    total_bytes: _atd_read_required_field('CliTiming', 'total_bytes', _atd_read_int, x['total_bytes'], x),
+  };
+}
+
+export function writeRuleIdDict(x: RuleIdDict, context: any = x): any {
+  return {
+    'id': _atd_write_required_field('RuleIdDict', 'id', writeRuleId, x.id, x),
+  };
+}
+
+export function readRuleIdDict(x: any, context: any = x): RuleIdDict {
+  return {
+    id: _atd_read_required_field('RuleIdDict', 'id', readRuleId, x['id'], x),
+  };
+}
+
+export function writeCliTargetTimes(x: CliTargetTimes, context: any = x): any {
+  return {
+    'path': _atd_write_required_field('CliTargetTimes', 'path', _atd_write_string, x.path, x),
+    'num_bytes': _atd_write_required_field('CliTargetTimes', 'num_bytes', _atd_write_int, x.num_bytes, x),
+    'match_times': _atd_write_required_field('CliTargetTimes', 'match_times', _atd_write_array(_atd_write_float), x.match_times, x),
+    'parse_times': _atd_write_required_field('CliTargetTimes', 'parse_times', _atd_write_array(_atd_write_float), x.parse_times, x),
+    'run_time': _atd_write_required_field('CliTargetTimes', 'run_time', _atd_write_float, x.run_time, x),
+  };
+}
+
+export function readCliTargetTimes(x: any, context: any = x): CliTargetTimes {
+  return {
+    path: _atd_read_required_field('CliTargetTimes', 'path', _atd_read_string, x['path'], x),
+    num_bytes: _atd_read_required_field('CliTargetTimes', 'num_bytes', _atd_read_int, x['num_bytes'], x),
+    match_times: _atd_read_required_field('CliTargetTimes', 'match_times', _atd_read_array(_atd_read_float), x['match_times'], x),
+    parse_times: _atd_read_required_field('CliTargetTimes', 'parse_times', _atd_read_array(_atd_read_float), x['parse_times'], x),
+    run_time: _atd_read_required_field('CliTargetTimes', 'run_time', _atd_read_float, x['run_time'], x),
   };
 }
 

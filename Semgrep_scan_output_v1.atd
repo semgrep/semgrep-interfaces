@@ -285,7 +285,7 @@ type core_match_results
   (* skipped_rules was introduced  in semgrep 0.86 *)
   ?skipped_rules: skipped_rule list option;
   stats: core_stats;
-  (* TODO: rename timing? *)
+  (* TODO: rename timing *)
   ?time: core_timing option;
 }
 
@@ -294,6 +294,7 @@ type core_match_results
 (* CLI Errors (called SemgrepError in error.py) *)
 (*****************************************************************************)
 
+(* TODO: replace SemgrepCoreError in error.py or use CliError as component *)
 (* TODO: try to make it as close as possible to 'error' above *)
 type cli_error = {
   code: int;
@@ -317,6 +318,7 @@ type cli_error = {
 (* Match result (called RuleMatch in rule_matches.py) *)
 (*****************************************************************************)
 
+(* TODO: replace RuleMatch in rule_matches.py or use CliMatch as component *)
 (* TODO: try to make it as close as possible to 'match_' above *)
 type cli_match = {
   check_id: rule_id;
@@ -324,6 +326,7 @@ type cli_match = {
   extra: cli_match_extra;
 }
 
+(* TODO: use CliMatchExtra as component in RuleMatch *)
 (* TODO: try to make it as close as possible to 'match_extra' above *)
 type cli_match_extra = {
   (* TODO: inherit match_extra; but need ?metavars because of dependency_aware code *)
@@ -332,7 +335,7 @@ type cli_match_extra = {
   lines: string;
   message: string;
   (* TODO: metadata: json; *)
-  (* TODO: use a variant *)
+  (* TODO: use a variant for severity *)
   severity: string;
 
   ?fix: string option;
@@ -357,26 +360,25 @@ type fix_regex = {
 (* TODO: Note that the generated code for the type below is not yet used
  * in output.py but at least those types serve as a spec.
  *)
-
 type cli_output = {
     errors: cli_error list;
     results: cli_match list;
+    inherit cli_output_extra;
+  }
 
-    (* extra *)
+type cli_output_extra = {
     paths: cli_paths;
     ?time: cli_timing option;
     (* seems unused, not in any results.json *)
-    ?stats: cli_stats option;
-    (* TODO: see output.py
-       ?stats: (targets:, loc:, profiler:)
-       (* only in TEXT *)
+    (* ?stats: cli_stats option; *)
+    (* used only in TEXT format:
        ?color_output, per_finding_max_lines_limit, per_line_max_chars_limit
      *)
 }
 
 type cli_paths = {
     scanned: string list;
-    (* TODO: either _comment or skipped: *)
+    (* TODO: either _comment or skipped:, use a variant *)
     ?_comment: string option;
     ?skipped: cli_skipped_target list option;
 }
@@ -390,11 +392,14 @@ type cli_skipped_target = {
 
 (* TODO: could merge with core_timing above
  * TODO: get rid of _build_time_json()
+ * coupling: if you change the JSON schema below, you probably need to
+ * also modify perf/run-benchmarks. Run locally  $ ./run-benchmarks --dummy --upload
  *)
 type cli_timing = {
     rules: rule_id_dict list;
     rules_parse_time: float;
-    profiling_times: cli_profiling_times;
+    (* TODO: define a cli_profiling_times with more precise keys *)
+    profiling_times: (string * float) list <json repr="object"> <python repr="dict">;
     targets: cli_target_times list;
     total_bytes: int;
   }
@@ -405,14 +410,17 @@ type rule_id_dict = {
 }
 
 (* TODO: get rid of profiler.dump_stats *)
-type cli_profiling_times = {
+(* TODO 
+type cli_profiling_times = 
+{
    config_time: float;
    core_time: float;
    ignores_time: float;
    total_time: float;
 }
+*)
 
-(* TODO: merge with target_time above? or aggregate of target_time for all rules? *)
+(* This is the aggregate of target_time for all rules? *)
 (* TODO get rid of _build_time_target_json *)
 type cli_target_times = {
     path: string;
@@ -422,6 +430,10 @@ type cli_target_times = {
     run_time: float;
 }
 
+(* TODO: the stats: field seems unused (could not find it in any e2e/.../results.json) *)
+(*
 type cli_stats = {
-    xxx: int;
+    (* (targets:, loc:, profiler:) *)
+      xxx: int;
 }
+*)

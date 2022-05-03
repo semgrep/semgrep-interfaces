@@ -729,6 +729,34 @@ class SkippedRule:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class RuleIdDict:
+    """Original type: rule_id_dict = { ... }"""
+
+    id: RuleId
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'RuleIdDict':
+        if isinstance(x, dict):
+            return cls(
+                id=RuleId.from_json(x['id']) if 'id' in x else _atd_missing_json_field('RuleIdDict', 'id'),
+            )
+        else:
+            _atd_bad_json('RuleIdDict', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['id'] = (lambda x: x.to_json())(self.id)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'RuleIdDict':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class MetavarValue:
     """Original type: metavar_value = { ... }"""
@@ -1183,6 +1211,185 @@ class CoreMatchResults:
 
 
 @dataclass
+class CliTargetTimes:
+    """Original type: cli_target_times = { ... }"""
+
+    path: str
+    num_bytes: int
+    match_times: List[float]
+    parse_times: List[float]
+    run_time: float
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CliTargetTimes':
+        if isinstance(x, dict):
+            return cls(
+                path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('CliTargetTimes', 'path'),
+                num_bytes=_atd_read_int(x['num_bytes']) if 'num_bytes' in x else _atd_missing_json_field('CliTargetTimes', 'num_bytes'),
+                match_times=_atd_read_list(_atd_read_float)(x['match_times']) if 'match_times' in x else _atd_missing_json_field('CliTargetTimes', 'match_times'),
+                parse_times=_atd_read_list(_atd_read_float)(x['parse_times']) if 'parse_times' in x else _atd_missing_json_field('CliTargetTimes', 'parse_times'),
+                run_time=_atd_read_float(x['run_time']) if 'run_time' in x else _atd_missing_json_field('CliTargetTimes', 'run_time'),
+            )
+        else:
+            _atd_bad_json('CliTargetTimes', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['path'] = _atd_write_string(self.path)
+        res['num_bytes'] = _atd_write_int(self.num_bytes)
+        res['match_times'] = _atd_write_list(_atd_write_float)(self.match_times)
+        res['parse_times'] = _atd_write_list(_atd_write_float)(self.parse_times)
+        res['run_time'] = _atd_write_float(self.run_time)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CliTargetTimes':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CliTiming:
+    """Original type: cli_timing = { ... }"""
+
+    rules: List[RuleIdDict]
+    rules_parse_time: float
+    profiling_times: Dict[str, float]
+    targets: List[CliTargetTimes]
+    total_bytes: int
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CliTiming':
+        if isinstance(x, dict):
+            return cls(
+                rules=_atd_read_list(RuleIdDict.from_json)(x['rules']) if 'rules' in x else _atd_missing_json_field('CliTiming', 'rules'),
+                rules_parse_time=_atd_read_float(x['rules_parse_time']) if 'rules_parse_time' in x else _atd_missing_json_field('CliTiming', 'rules_parse_time'),
+                profiling_times=_atd_read_assoc_object_into_dict(_atd_read_float)(x['profiling_times']) if 'profiling_times' in x else _atd_missing_json_field('CliTiming', 'profiling_times'),
+                targets=_atd_read_list(CliTargetTimes.from_json)(x['targets']) if 'targets' in x else _atd_missing_json_field('CliTiming', 'targets'),
+                total_bytes=_atd_read_int(x['total_bytes']) if 'total_bytes' in x else _atd_missing_json_field('CliTiming', 'total_bytes'),
+            )
+        else:
+            _atd_bad_json('CliTiming', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['rules'] = _atd_write_list((lambda x: x.to_json()))(self.rules)
+        res['rules_parse_time'] = _atd_write_float(self.rules_parse_time)
+        res['profiling_times'] = _atd_write_assoc_dict_to_object(_atd_write_float)(self.profiling_times)
+        res['targets'] = _atd_write_list((lambda x: x.to_json()))(self.targets)
+        res['total_bytes'] = _atd_write_int(self.total_bytes)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CliTiming':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CliSkippedTarget:
+    """Original type: cli_skipped_target = { ... }"""
+
+    path: str
+    reason: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CliSkippedTarget':
+        if isinstance(x, dict):
+            return cls(
+                path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('CliSkippedTarget', 'path'),
+                reason=_atd_read_string(x['reason']) if 'reason' in x else _atd_missing_json_field('CliSkippedTarget', 'reason'),
+            )
+        else:
+            _atd_bad_json('CliSkippedTarget', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['path'] = _atd_write_string(self.path)
+        res['reason'] = _atd_write_string(self.reason)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CliSkippedTarget':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CliPaths:
+    """Original type: cli_paths = { ... }"""
+
+    scanned: List[str]
+    _comment: Optional[str] = None
+    skipped: Optional[List[CliSkippedTarget]] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CliPaths':
+        if isinstance(x, dict):
+            return cls(
+                scanned=_atd_read_list(_atd_read_string)(x['scanned']) if 'scanned' in x else _atd_missing_json_field('CliPaths', 'scanned'),
+                _comment=_atd_read_string(x['_comment']) if '_comment' in x else None,
+                skipped=_atd_read_list(CliSkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
+            )
+        else:
+            _atd_bad_json('CliPaths', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['scanned'] = _atd_write_list(_atd_write_string)(self.scanned)
+        if self._comment is not None:
+            res['_comment'] = _atd_write_string(self._comment)
+        if self.skipped is not None:
+            res['skipped'] = _atd_write_list((lambda x: x.to_json()))(self.skipped)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CliPaths':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CliOutputExtra:
+    """Original type: cli_output_extra = { ... }"""
+
+    paths: CliPaths
+    time: Optional[CliTiming] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CliOutputExtra':
+        if isinstance(x, dict):
+            return cls(
+                paths=CliPaths.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutputExtra', 'paths'),
+                time=CliTiming.from_json(x['time']) if 'time' in x else None,
+            )
+        else:
+            _atd_bad_json('CliOutputExtra', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['paths'] = (lambda x: x.to_json())(self.paths)
+        if self.time is not None:
+            res['time'] = (lambda x: x.to_json())(self.time)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CliOutputExtra':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class CliMatchExtra:
     """Original type: cli_match_extra = { ... }"""
 
@@ -1331,6 +1538,8 @@ class CliOutput:
 
     errors: List[CliError]
     results: List[CliMatch]
+    paths: CliPaths
+    time: Optional[CliTiming] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutput':
@@ -1338,6 +1547,8 @@ class CliOutput:
             return cls(
                 errors=_atd_read_list(CliError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CliOutput', 'errors'),
                 results=_atd_read_list(CliMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CliOutput', 'results'),
+                paths=CliPaths.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutput', 'paths'),
+                time=CliTiming.from_json(x['time']) if 'time' in x else None,
             )
         else:
             _atd_bad_json('CliOutput', x)
@@ -1346,6 +1557,9 @@ class CliOutput:
         res: Dict[str, Any] = {}
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['results'] = _atd_write_list((lambda x: x.to_json()))(self.results)
+        res['paths'] = (lambda x: x.to_json())(self.paths)
+        if self.time is not None:
+            res['time'] = (lambda x: x.to_json())(self.time)
         return res
 
     @classmethod
