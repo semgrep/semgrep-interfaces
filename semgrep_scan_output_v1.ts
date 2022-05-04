@@ -139,11 +139,13 @@ export type CliError = {
   code: Int;
   level: string;
   type_: string;
+  rule_id?: RuleId;
   message?: string;
   path?: string;
   long_msg?: string;
   short_msg?: string;
   spans?: RawJson;
+  help?: string;
 }
 
 export type CliMatch = {
@@ -599,11 +601,13 @@ export function writeCliError(x: CliError, context: any = x): any {
     'code': _atd_write_required_field('CliError', 'code', _atd_write_int, x.code, x),
     'level': _atd_write_required_field('CliError', 'level', _atd_write_string, x.level, x),
     'type': _atd_write_required_field('CliError', 'type_', _atd_write_string, x.type_, x),
+    'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
     'message': _atd_write_optional_field(_atd_write_string, x.message, x),
     'path': _atd_write_optional_field(_atd_write_string, x.path, x),
     'long_msg': _atd_write_optional_field(_atd_write_string, x.long_msg, x),
     'short_msg': _atd_write_optional_field(_atd_write_string, x.short_msg, x),
     'spans': _atd_write_optional_field(writeRawJson, x.spans, x),
+    'help': _atd_write_optional_field(_atd_write_string, x.help, x),
   };
 }
 
@@ -612,11 +616,13 @@ export function readCliError(x: any, context: any = x): CliError {
     code: _atd_read_required_field('CliError', 'code', _atd_read_int, x['code'], x),
     level: _atd_read_required_field('CliError', 'level', _atd_read_string, x['level'], x),
     type_: _atd_read_required_field('CliError', 'type', _atd_read_string, x['type'], x),
+    rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
     message: _atd_read_optional_field(_atd_read_string, x['message'], x),
     path: _atd_read_optional_field(_atd_read_string, x['path'], x),
     long_msg: _atd_read_optional_field(_atd_read_string, x['long_msg'], x),
     short_msg: _atd_read_optional_field(_atd_read_string, x['short_msg'], x),
     spans: _atd_read_optional_field(readRawJson, x['spans'], x),
+    help: _atd_read_optional_field(_atd_read_string, x['help'], x),
   };
 }
 

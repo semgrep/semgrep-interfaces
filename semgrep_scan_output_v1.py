@@ -1530,11 +1530,13 @@ class CliError:
     code: int
     level: str
     type_: str
+    rule_id: Optional[RuleId] = None
     message: Optional[str] = None
     path: Optional[str] = None
     long_msg: Optional[str] = None
     short_msg: Optional[str] = None
     spans: Optional[RawJson] = None
+    help: Optional[str] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliError':
@@ -1543,11 +1545,13 @@ class CliError:
                 code=_atd_read_int(x['code']) if 'code' in x else _atd_missing_json_field('CliError', 'code'),
                 level=_atd_read_string(x['level']) if 'level' in x else _atd_missing_json_field('CliError', 'level'),
                 type_=_atd_read_string(x['type']) if 'type' in x else _atd_missing_json_field('CliError', 'type'),
+                rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else None,
                 message=_atd_read_string(x['message']) if 'message' in x else None,
                 path=_atd_read_string(x['path']) if 'path' in x else None,
                 long_msg=_atd_read_string(x['long_msg']) if 'long_msg' in x else None,
                 short_msg=_atd_read_string(x['short_msg']) if 'short_msg' in x else None,
                 spans=RawJson.from_json(x['spans']) if 'spans' in x else None,
+                help=_atd_read_string(x['help']) if 'help' in x else None,
             )
         else:
             _atd_bad_json('CliError', x)
@@ -1557,6 +1561,8 @@ class CliError:
         res['code'] = _atd_write_int(self.code)
         res['level'] = _atd_write_string(self.level)
         res['type'] = _atd_write_string(self.type_)
+        if self.rule_id is not None:
+            res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
         if self.message is not None:
             res['message'] = _atd_write_string(self.message)
         if self.path is not None:
@@ -1567,6 +1573,8 @@ class CliError:
             res['short_msg'] = _atd_write_string(self.short_msg)
         if self.spans is not None:
             res['spans'] = (lambda x: x.to_json())(self.spans)
+        if self.help is not None:
+            res['help'] = _atd_write_string(self.help)
         return res
 
     @classmethod
