@@ -235,6 +235,13 @@ def _atd_write_nullable(write_elt: Callable[[Any], Any]) \
 ############################################################################
 
 
+
+class Abstract:
+    @classmethod
+    def from_json(cls, x: Any) -> Any:
+        return x
+
+
 @dataclass
 class ID:
     """Original type: unique_id_type = [ ... | ID | ... ]"""
@@ -751,6 +758,27 @@ class RuleIdDict:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'RuleIdDict':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class RawJson:
+    """Original type: raw_json"""
+
+    value: Any
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'RawJson':
+        return cls(Abstract.from_json(x))
+
+    def to_json(self) -> Any:
+        return (lambda x: x.to_json())(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'RawJson':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1396,11 +1424,13 @@ class CliMatchExtra:
     fingerprint: str
     lines: str
     message: str
+    metadata: RawJson
     severity: str
     fix: Optional[str] = None
     fix_regex: Optional[FixRegex] = None
     is_ignored: Optional[bool] = None
     dependency_match_only: Optional[bool] = None
+    dependency_matches: Optional[RawJson] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliMatchExtra':
@@ -1409,11 +1439,13 @@ class CliMatchExtra:
                 fingerprint=_atd_read_string(x['fingerprint']) if 'fingerprint' in x else _atd_missing_json_field('CliMatchExtra', 'fingerprint'),
                 lines=_atd_read_string(x['lines']) if 'lines' in x else _atd_missing_json_field('CliMatchExtra', 'lines'),
                 message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('CliMatchExtra', 'message'),
+                metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else _atd_missing_json_field('CliMatchExtra', 'metadata'),
                 severity=_atd_read_string(x['severity']) if 'severity' in x else _atd_missing_json_field('CliMatchExtra', 'severity'),
                 fix=_atd_read_string(x['fix']) if 'fix' in x else None,
                 fix_regex=FixRegex.from_json(x['fix_regex']) if 'fix_regex' in x else None,
                 is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else None,
                 dependency_match_only=_atd_read_bool(x['dependency_match_only']) if 'dependency_match_only' in x else None,
+                dependency_matches=RawJson.from_json(x['dependency_matches']) if 'dependency_matches' in x else None,
             )
         else:
             _atd_bad_json('CliMatchExtra', x)
@@ -1423,6 +1455,7 @@ class CliMatchExtra:
         res['fingerprint'] = _atd_write_string(self.fingerprint)
         res['lines'] = _atd_write_string(self.lines)
         res['message'] = _atd_write_string(self.message)
+        res['metadata'] = (lambda x: x.to_json())(self.metadata)
         res['severity'] = _atd_write_string(self.severity)
         if self.fix is not None:
             res['fix'] = _atd_write_string(self.fix)
@@ -1432,6 +1465,8 @@ class CliMatchExtra:
             res['is_ignored'] = _atd_write_bool(self.is_ignored)
         if self.dependency_match_only is not None:
             res['dependency_match_only'] = _atd_write_bool(self.dependency_match_only)
+        if self.dependency_matches is not None:
+            res['dependency_matches'] = (lambda x: x.to_json())(self.dependency_matches)
         return res
 
     @classmethod
@@ -1493,6 +1528,7 @@ class CliError:
     path: Optional[str] = None
     long_msg: Optional[str] = None
     short_msg: Optional[str] = None
+    spans: Optional[RawJson] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliError':
@@ -1505,6 +1541,7 @@ class CliError:
                 path=_atd_read_string(x['path']) if 'path' in x else None,
                 long_msg=_atd_read_string(x['long_msg']) if 'long_msg' in x else None,
                 short_msg=_atd_read_string(x['short_msg']) if 'short_msg' in x else None,
+                spans=RawJson.from_json(x['spans']) if 'spans' in x else None,
             )
         else:
             _atd_bad_json('CliError', x)
@@ -1522,6 +1559,8 @@ class CliError:
             res['long_msg'] = _atd_write_string(self.long_msg)
         if self.short_msg is not None:
             res['short_msg'] = _atd_write_string(self.short_msg)
+        if self.spans is not None:
+            res['spans'] = (lambda x: x.to_json())(self.spans)
         return res
 
     @classmethod

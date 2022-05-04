@@ -40,15 +40,23 @@
  *
  * TODO:
  *   - see the TODO: and LATER: tags in this file
+ *   - see the use of 'raw_json' type, try to transform as a real type when
+ *     possible ('metadata:' can't for example, but the other like span: might
  *)
 
 (*****************************************************************************)
 (* Imports *)
 (*****************************************************************************)
-(* LATER: not supported yet by atdpy
-type json <ocaml module="Yojson.Safe" t="t"> = abstract
- *)
+(* LATER: hack because abstract below is not supported well yet by atdpy *)
+<python text="
+class Abstract:
+    @classmethod
+    def from_json(cls, x: Any) -> Any:
+        return x">
 
+(* escape hatch *)
+type raw_json <ocaml module="Yojson.Safe" t="t"> = abstract
+                                          
 (*****************************************************************************)
 (* Location *)
 (*****************************************************************************)
@@ -316,7 +324,7 @@ type cli_error = {
   (* for invalid rules *)
   ?long_msg: string option;
   ?short_msg: string option;
-  (* TODO ?spans: json option; *) (* TODO: see invalid_rule.json *)
+  ?spans: raw_json option; (* TODO: see invalid_rule.json *)
 }
 
 (*****************************************************************************)
@@ -338,8 +346,11 @@ type cli_match_extra = {
   (* added by the CLI (see formatter/json.py) *)
   fingerprint: string;
   lines: string;
+
+  (* fields coming from the rule *)
+  
   message: string;
-  (* TODO: metadata: json; *)
+  metadata: raw_json;
   (* LATER: use a variant for severity *)
   severity: string;
 
@@ -350,7 +361,7 @@ type cli_match_extra = {
 
   (* added by dependency_aware code *)
   ?dependency_match_only: bool option;
-  (* TODO: ?dependency_matches: json option; *)
+  ?dependency_matches: raw_json option;
 }
 
 type fix_regex = {

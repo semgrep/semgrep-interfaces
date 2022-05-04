@@ -8,6 +8,8 @@
 //   of type 'Foo'.
 
 
+export type RawJson = any
+
 export type Position = {
   line: Int;
   col: Int;
@@ -141,6 +143,7 @@ export type CliError = {
   path?: string;
   long_msg?: string;
   short_msg?: string;
+  spans?: RawJson;
 }
 
 export type CliMatch = {
@@ -155,11 +158,13 @@ export type CliMatchExtra = {
   fingerprint: string;
   lines: string;
   message: string;
+  metadata: RawJson;
   severity: string;
   fix?: string;
   fix_regex?: FixRegex;
   is_ignored?: boolean;
   dependency_match_only?: boolean;
+  dependency_matches?: RawJson;
 }
 
 export type FixRegex = {
@@ -208,6 +213,14 @@ export type CliTargetTimes = {
   match_times: number[];
   parse_times: number[];
   run_time: number;
+}
+
+export function writeRawJson(x: RawJson, context: any = x): any {
+  return writeAbstract(x, context);
+}
+
+export function readRawJson(x: any, context: any = x): RawJson {
+  return readAbstract(x, context);
 }
 
 export function writePosition(x: Position, context: any = x): any {
@@ -590,6 +603,7 @@ export function writeCliError(x: CliError, context: any = x): any {
     'path': _atd_write_optional_field(_atd_write_string, x.path, x),
     'long_msg': _atd_write_optional_field(_atd_write_string, x.long_msg, x),
     'short_msg': _atd_write_optional_field(_atd_write_string, x.short_msg, x),
+    'spans': _atd_write_optional_field(writeRawJson, x.spans, x),
   };
 }
 
@@ -602,6 +616,7 @@ export function readCliError(x: any, context: any = x): CliError {
     path: _atd_read_optional_field(_atd_read_string, x['path'], x),
     long_msg: _atd_read_optional_field(_atd_read_string, x['long_msg'], x),
     short_msg: _atd_read_optional_field(_atd_read_string, x['short_msg'], x),
+    spans: _atd_read_optional_field(readRawJson, x['spans'], x),
   };
 }
 
@@ -630,11 +645,13 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'fingerprint': _atd_write_required_field('CliMatchExtra', 'fingerprint', _atd_write_string, x.fingerprint, x),
     'lines': _atd_write_required_field('CliMatchExtra', 'lines', _atd_write_string, x.lines, x),
     'message': _atd_write_required_field('CliMatchExtra', 'message', _atd_write_string, x.message, x),
+    'metadata': _atd_write_required_field('CliMatchExtra', 'metadata', writeRawJson, x.metadata, x),
     'severity': _atd_write_required_field('CliMatchExtra', 'severity', _atd_write_string, x.severity, x),
     'fix': _atd_write_optional_field(_atd_write_string, x.fix, x),
     'fix_regex': _atd_write_optional_field(writeFixRegex, x.fix_regex, x),
     'is_ignored': _atd_write_optional_field(_atd_write_bool, x.is_ignored, x),
     'dependency_match_only': _atd_write_optional_field(_atd_write_bool, x.dependency_match_only, x),
+    'dependency_matches': _atd_write_optional_field(writeRawJson, x.dependency_matches, x),
   };
 }
 
@@ -643,11 +660,13 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     fingerprint: _atd_read_required_field('CliMatchExtra', 'fingerprint', _atd_read_string, x['fingerprint'], x),
     lines: _atd_read_required_field('CliMatchExtra', 'lines', _atd_read_string, x['lines'], x),
     message: _atd_read_required_field('CliMatchExtra', 'message', _atd_read_string, x['message'], x),
+    metadata: _atd_read_required_field('CliMatchExtra', 'metadata', readRawJson, x['metadata'], x),
     severity: _atd_read_required_field('CliMatchExtra', 'severity', _atd_read_string, x['severity'], x),
     fix: _atd_read_optional_field(_atd_read_string, x['fix'], x),
     fix_regex: _atd_read_optional_field(readFixRegex, x['fix_regex'], x),
     is_ignored: _atd_read_optional_field(_atd_read_bool, x['is_ignored'], x),
     dependency_match_only: _atd_read_optional_field(_atd_read_bool, x['dependency_match_only'], x),
+    dependency_matches: _atd_read_optional_field(readRawJson, x['dependency_matches'], x),
   };
 }
 
