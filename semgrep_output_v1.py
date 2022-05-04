@@ -887,6 +887,74 @@ class Location:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class Finding:
+    """Original type: finding = { ... }"""
+
+    check_id: RuleId
+    path: str
+    line: int
+    column: int
+    end_line: int
+    end_column: int
+    message: str
+    severity: int
+    index: int
+    commit_date: str
+    syntactic_id: str
+    metadata: RawJson
+    is_blocking: bool
+    fixed_lines: Optional[List[str]] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Finding':
+        if isinstance(x, dict):
+            return cls(
+                check_id=RuleId.from_json(x['check_id']) if 'check_id' in x else _atd_missing_json_field('Finding', 'check_id'),
+                path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('Finding', 'path'),
+                line=_atd_read_int(x['line']) if 'line' in x else _atd_missing_json_field('Finding', 'line'),
+                column=_atd_read_int(x['column']) if 'column' in x else _atd_missing_json_field('Finding', 'column'),
+                end_line=_atd_read_int(x['end_line']) if 'end_line' in x else _atd_missing_json_field('Finding', 'end_line'),
+                end_column=_atd_read_int(x['end_column']) if 'end_column' in x else _atd_missing_json_field('Finding', 'end_column'),
+                message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('Finding', 'message'),
+                severity=_atd_read_int(x['severity']) if 'severity' in x else _atd_missing_json_field('Finding', 'severity'),
+                index=_atd_read_int(x['index']) if 'index' in x else _atd_missing_json_field('Finding', 'index'),
+                commit_date=_atd_read_string(x['commit_date']) if 'commit_date' in x else _atd_missing_json_field('Finding', 'commit_date'),
+                syntactic_id=_atd_read_string(x['syntactic_id']) if 'syntactic_id' in x else _atd_missing_json_field('Finding', 'syntactic_id'),
+                metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else _atd_missing_json_field('Finding', 'metadata'),
+                is_blocking=_atd_read_bool(x['is_blocking']) if 'is_blocking' in x else _atd_missing_json_field('Finding', 'is_blocking'),
+                fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
+            )
+        else:
+            _atd_bad_json('Finding', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['check_id'] = (lambda x: x.to_json())(self.check_id)
+        res['path'] = _atd_write_string(self.path)
+        res['line'] = _atd_write_int(self.line)
+        res['column'] = _atd_write_int(self.column)
+        res['end_line'] = _atd_write_int(self.end_line)
+        res['end_column'] = _atd_write_int(self.end_column)
+        res['message'] = _atd_write_string(self.message)
+        res['severity'] = _atd_write_int(self.severity)
+        res['index'] = _atd_write_int(self.index)
+        res['commit_date'] = _atd_write_string(self.commit_date)
+        res['syntactic_id'] = _atd_write_string(self.syntactic_id)
+        res['metadata'] = (lambda x: x.to_json())(self.metadata)
+        res['is_blocking'] = _atd_write_bool(self.is_blocking)
+        if self.fixed_lines is not None:
+            res['fixed_lines'] = _atd_write_list(_atd_write_string)(self.fixed_lines)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Finding':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class CveResult:
     """Original type: cve_result = { ... }"""
@@ -1611,6 +1679,43 @@ class CliOutput:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'CliOutput':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ApiScansFindings:
+    """Original type: api_scans_findings = { ... }"""
+
+    findings: List[Finding]
+    searched_paths: List[str]
+    rule_ids: List[str]
+    cai_ids: List[str]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ApiScansFindings':
+        if isinstance(x, dict):
+            return cls(
+                findings=_atd_read_list(Finding.from_json)(x['findings']) if 'findings' in x else _atd_missing_json_field('ApiScansFindings', 'findings'),
+                searched_paths=_atd_read_list(_atd_read_string)(x['searched_paths']) if 'searched_paths' in x else _atd_missing_json_field('ApiScansFindings', 'searched_paths'),
+                rule_ids=_atd_read_list(_atd_read_string)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('ApiScansFindings', 'rule_ids'),
+                cai_ids=_atd_read_list(_atd_read_string)(x['cai_ids']) if 'cai_ids' in x else _atd_missing_json_field('ApiScansFindings', 'cai_ids'),
+            )
+        else:
+            _atd_bad_json('ApiScansFindings', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['findings'] = _atd_write_list((lambda x: x.to_json()))(self.findings)
+        res['searched_paths'] = _atd_write_list(_atd_write_string)(self.searched_paths)
+        res['rule_ids'] = _atd_write_list(_atd_write_string)(self.rule_ids)
+        res['cai_ids'] = _atd_write_list(_atd_write_string)(self.cai_ids)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ApiScansFindings':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

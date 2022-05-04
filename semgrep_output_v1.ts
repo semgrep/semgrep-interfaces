@@ -215,6 +215,30 @@ export type CliTargetTimes = {
   run_time: number;
 }
 
+export type ApiScansFindings = {
+  findings: Finding[];
+  searched_paths: string[];
+  rule_ids: string[];
+  cai_ids: string[];
+}
+
+export type Finding = {
+  check_id: RuleId;
+  path: string;
+  line: Int;
+  column: Int;
+  end_line: Int;
+  end_column: Int;
+  message: string;
+  severity: Int;
+  index: Int;
+  commit_date: string;
+  syntactic_id: string;
+  metadata: RawJson;
+  is_blocking: boolean;
+  fixed_lines?: string[];
+}
+
 export function writeRawJson(x: RawJson, context: any = x): any {
   return writeAbstract(x, context);
 }
@@ -795,6 +819,62 @@ export function readCliTargetTimes(x: any, context: any = x): CliTargetTimes {
     match_times: _atd_read_required_field('CliTargetTimes', 'match_times', _atd_read_array(_atd_read_float), x['match_times'], x),
     parse_times: _atd_read_required_field('CliTargetTimes', 'parse_times', _atd_read_array(_atd_read_float), x['parse_times'], x),
     run_time: _atd_read_required_field('CliTargetTimes', 'run_time', _atd_read_float, x['run_time'], x),
+  };
+}
+
+export function writeApiScansFindings(x: ApiScansFindings, context: any = x): any {
+  return {
+    'findings': _atd_write_required_field('ApiScansFindings', 'findings', _atd_write_array(writeFinding), x.findings, x),
+    'searched_paths': _atd_write_required_field('ApiScansFindings', 'searched_paths', _atd_write_array(_atd_write_string), x.searched_paths, x),
+    'rule_ids': _atd_write_required_field('ApiScansFindings', 'rule_ids', _atd_write_array(_atd_write_string), x.rule_ids, x),
+    'cai_ids': _atd_write_required_field('ApiScansFindings', 'cai_ids', _atd_write_array(_atd_write_string), x.cai_ids, x),
+  };
+}
+
+export function readApiScansFindings(x: any, context: any = x): ApiScansFindings {
+  return {
+    findings: _atd_read_required_field('ApiScansFindings', 'findings', _atd_read_array(readFinding), x['findings'], x),
+    searched_paths: _atd_read_required_field('ApiScansFindings', 'searched_paths', _atd_read_array(_atd_read_string), x['searched_paths'], x),
+    rule_ids: _atd_read_required_field('ApiScansFindings', 'rule_ids', _atd_read_array(_atd_read_string), x['rule_ids'], x),
+    cai_ids: _atd_read_required_field('ApiScansFindings', 'cai_ids', _atd_read_array(_atd_read_string), x['cai_ids'], x),
+  };
+}
+
+export function writeFinding(x: Finding, context: any = x): any {
+  return {
+    'check_id': _atd_write_required_field('Finding', 'check_id', writeRuleId, x.check_id, x),
+    'path': _atd_write_required_field('Finding', 'path', _atd_write_string, x.path, x),
+    'line': _atd_write_required_field('Finding', 'line', _atd_write_int, x.line, x),
+    'column': _atd_write_required_field('Finding', 'column', _atd_write_int, x.column, x),
+    'end_line': _atd_write_required_field('Finding', 'end_line', _atd_write_int, x.end_line, x),
+    'end_column': _atd_write_required_field('Finding', 'end_column', _atd_write_int, x.end_column, x),
+    'message': _atd_write_required_field('Finding', 'message', _atd_write_string, x.message, x),
+    'severity': _atd_write_required_field('Finding', 'severity', _atd_write_int, x.severity, x),
+    'index': _atd_write_required_field('Finding', 'index', _atd_write_int, x.index, x),
+    'commit_date': _atd_write_required_field('Finding', 'commit_date', _atd_write_string, x.commit_date, x),
+    'syntactic_id': _atd_write_required_field('Finding', 'syntactic_id', _atd_write_string, x.syntactic_id, x),
+    'metadata': _atd_write_required_field('Finding', 'metadata', writeRawJson, x.metadata, x),
+    'is_blocking': _atd_write_required_field('Finding', 'is_blocking', _atd_write_bool, x.is_blocking, x),
+    'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
+  };
+}
+
+export function readFinding(x: any, context: any = x): Finding {
+  return {
+    check_id: _atd_read_required_field('Finding', 'check_id', readRuleId, x['check_id'], x),
+    path: _atd_read_required_field('Finding', 'path', _atd_read_string, x['path'], x),
+    line: _atd_read_required_field('Finding', 'line', _atd_read_int, x['line'], x),
+    column: _atd_read_required_field('Finding', 'column', _atd_read_int, x['column'], x),
+    end_line: _atd_read_required_field('Finding', 'end_line', _atd_read_int, x['end_line'], x),
+    end_column: _atd_read_required_field('Finding', 'end_column', _atd_read_int, x['end_column'], x),
+    message: _atd_read_required_field('Finding', 'message', _atd_read_string, x['message'], x),
+    severity: _atd_read_required_field('Finding', 'severity', _atd_read_int, x['severity'], x),
+    index: _atd_read_required_field('Finding', 'index', _atd_read_int, x['index'], x),
+    commit_date: _atd_read_required_field('Finding', 'commit_date', _atd_read_string, x['commit_date'], x),
+    syntactic_id: _atd_read_required_field('Finding', 'syntactic_id', _atd_read_string, x['syntactic_id'], x),
+    metadata: _atd_read_required_field('Finding', 'metadata', readRawJson, x['metadata'], x),
+    is_blocking: _atd_read_required_field('Finding', 'is_blocking', _atd_read_bool, x['is_blocking'], x),
+    fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
   };
 }
 
