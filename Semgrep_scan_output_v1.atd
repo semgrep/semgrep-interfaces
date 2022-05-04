@@ -14,7 +14,7 @@
  *
  * This file currently contains also the type definitions for semgrep-core's
  * JSON output, meant for the semgrep Python wrapper.
- * TODO: when ATD gets a module system, we can split this file in
+ * LATER: when ATD gets a module system, we can split this file in
  * different files (e.g., in Output_from_core.atd), but for now it's simpler
  * to have everything in one file.
  *
@@ -37,12 +37,15 @@
  *  - the schema for the generic AST dump is in AST_generic_v1.atd
  *  - The parsing stats of semgrep-core -parsing_stats -json have its own
  *    Parsing_stats.atd
+ *
+ * TODO:
+ *   - see the TODO: and LATER: tags in this file
  *)
 
 (*****************************************************************************)
 (* Imports *)
 (*****************************************************************************)
-(* TODO: not supported yet by atdpy
+(* LATER: not supported yet by atdpy
 type json <ocaml module="Yojson.Safe" t="t"> = abstract
  *)
 
@@ -169,7 +172,7 @@ type unique_id_type
 type core_error
   <python decorator="dataclass(frozen=True)"> = {
   ?rule_id: rule_id option;
-  (* TODO: use a variant. Define Semgrep_error_code.error_kind here *)
+  (* LATER: use a variant. Define Semgrep_error_code.error_kind here *)
   error_type: string;
   severity: core_severity;
   location: location;
@@ -243,6 +246,8 @@ type core_timing
   ?rules_parse_time: float option; (* not used in spacegrep *)
 }
 
+(* later: could refactor [target_time] and [rule_times] to be equal
+ * to cli_target_times *)
 type target_time
   <python decorator="dataclass(frozen=True)"> = {
   path: string;
@@ -285,7 +290,7 @@ type core_match_results
   (* skipped_rules was introduced  in semgrep 0.86 *)
   ?skipped_rules: skipped_rule list option;
   stats: core_stats;
-  (* TODO: rename timing *)
+  (* LATER: rename timing *)
   ?time: core_timing option;
 }
 
@@ -302,7 +307,7 @@ type cli_error = {
   level: string;
   type_ <json name="type">: string;
 
-  (* TODO: use a variant instead of all those ?xxx types *)
+  (* LATER: use a variant instead of all those ?xxx types *)
 
   (* for most parsing errors those are set *)
   ?message: string option; (* contains error location *)
@@ -335,7 +340,7 @@ type cli_match_extra = {
   lines: string;
   message: string;
   (* TODO: metadata: json; *)
-  (* TODO: use a variant for severity *)
+  (* LATER: use a variant for severity *)
   severity: string;
 
   ?fix: string option;
@@ -378,41 +383,38 @@ type cli_output_extra = {
 
 type cli_paths = {
     scanned: string list;
-    (* TODO: either _comment or skipped:, use a variant *)
+    (* LATER: either _comment or skipped:, use a variant *)
     ?_comment: string option;
     ?skipped: cli_skipped_target list option;
 }
 
-(* TODO: could merge with skipped_target above *)
+(* LATER: could merge with skipped_target above *)
 type cli_skipped_target = {
     path: string;
-    (* TODO: use a variant, reuse skip_reason above *)
+    (* LATER: use a variant, reuse skip_reason above *)
     reason: string;
 }
 
-(* TODO: could merge with core_timing above
- * TODO: get rid of _build_time_json()
+(* LATER: could merge with core_timing above
  * coupling: if you change the JSON schema below, you probably need to
  * also modify perf/run-benchmarks. Run locally  $ ./run-benchmarks --dummy --upload
  *)
 type cli_timing = {
     rules: rule_id_dict list;
     rules_parse_time: float;
-    (* TODO: define a cli_profiling_times with more precise keys *)
+    (* LATER: define a cli_profiling_times with more precise keys *)
     profiling_times: (string * float) list <json repr="object"> <python repr="dict">;
     targets: cli_target_times list;
     total_bytes: int;
   }
 
-(* TODO: should just use rule_id *)
+(* LATER: should just use rule_id *)
 type rule_id_dict = {
   id: rule_id;
 }
 
-(* TODO: get rid of profiler.dump_stats *)
-(* TODO 
-type cli_profiling_times = 
-{
+(* LATER: get rid of profiler.dump_stats
+type cli_profiling_times = {
    config_time: float;
    core_time: float;
    ignores_time: float;
@@ -420,8 +422,7 @@ type cli_profiling_times =
 }
 *)
 
-(* This is the aggregate of target_time for all rules? *)
-(* TODO get rid of _build_time_target_json *)
+(* similar to the [target_time] and [rule_times] type above *)
 type cli_target_times = {
     path: string;
     num_bytes: int;
