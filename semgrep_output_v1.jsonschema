@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "Translated by atdcat from 'Semgrep_scan_output_v1.atd'.",
+  "description": "Translated by atdcat from 'Semgrep_output_v1.atd'.",
   "type": "object",
   "required": [ "errors", "results", "paths" ],
   "properties": {
@@ -16,6 +16,7 @@
     "time": { "$ref": "#/definitions/cli_timing" }
   },
   "definitions": {
+    "raw_json": { "$ref": "#/definitions/abstract" },
     "position": {
       "type": "object",
       "required": [ "line", "col", "offset" ],
@@ -44,15 +45,16 @@
         "extra": { "$ref": "#/definitions/core_match_extra" }
       }
     },
+    "metavars": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/metavar_value" }
+    },
     "core_match_extra": {
       "type": "object",
       "required": [ "metavars" ],
       "properties": {
         "message": { "type": "string" },
-        "metavars": {
-          "type": "object",
-          "additionalProperties": { "$ref": "#/definitions/metavar_value" }
-        }
+        "metavars": { "$ref": "#/definitions/metavars" }
       }
     },
     "metavar_value": {
@@ -219,10 +221,13 @@
         "code": { "type": "integer" },
         "level": { "type": "string" },
         "type": { "type": "string" },
+        "rule_id": { "$ref": "#/definitions/rule_id" },
         "message": { "type": "string" },
         "path": { "type": "string" },
         "long_msg": { "type": "string" },
-        "short_msg": { "type": "string" }
+        "short_msg": { "type": "string" },
+        "spans": { "$ref": "#/definitions/raw_json" },
+        "help": { "type": "string" }
       }
     },
     "cli_match": {
@@ -238,24 +243,21 @@
     },
     "cli_match_extra": {
       "type": "object",
-      "required": [ "fingerprint", "lines", "message", "severity" ],
+      "required": [
+        "fingerprint", "lines", "message", "metadata", "severity"
+      ],
       "properties": {
+        "metavars": { "$ref": "#/definitions/metavars" },
         "fingerprint": { "type": "string" },
         "lines": { "type": "string" },
         "message": { "type": "string" },
+        "metadata": { "$ref": "#/definitions/raw_json" },
         "severity": { "type": "string" },
         "fix": { "type": "string" },
-        "fix_regex": { "$ref": "#/definitions/fix_regex" },
+        "fix_regex": { "$ref": "#/definitions/raw_json" },
         "is_ignored": { "type": "boolean" },
-        "dependency_match_only": { "type": "boolean" }
-      }
-    },
-    "fix_regex": {
-      "type": "object",
-      "required": [ "regex", "replacement" ],
-      "properties": {
-        "regex": { "type": "string" },
-        "replacement": { "type": "string" }
+        "dependency_match_only": { "type": "boolean" },
+        "dependency_matches": { "$ref": "#/definitions/raw_json" }
       }
     },
     "cli_output_extra": {
@@ -325,6 +327,43 @@
         "match_times": { "type": "array", "items": { "type": "number" } },
         "parse_times": { "type": "array", "items": { "type": "number" } },
         "run_time": { "type": "number" }
+      }
+    },
+    "api_scans_findings": {
+      "type": "object",
+      "required": [ "findings", "searched_paths", "rule_ids", "cai_ids" ],
+      "properties": {
+        "findings": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/finding" }
+        },
+        "searched_paths": { "type": "array", "items": { "type": "string" } },
+        "rule_ids": { "type": "array", "items": { "type": "string" } },
+        "cai_ids": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "required": [
+        "check_id", "path", "line", "column", "end_line", "end_column",
+        "message", "severity", "index", "commit_date", "syntactic_id",
+        "metadata", "is_blocking"
+      ],
+      "properties": {
+        "check_id": { "$ref": "#/definitions/rule_id" },
+        "path": { "type": "string" },
+        "line": { "type": "integer" },
+        "column": { "type": "integer" },
+        "end_line": { "type": "integer" },
+        "end_column": { "type": "integer" },
+        "message": { "type": "string" },
+        "severity": { "type": "integer" },
+        "index": { "type": "integer" },
+        "commit_date": { "type": "string" },
+        "syntactic_id": { "type": "string" },
+        "metadata": { "$ref": "#/definitions/raw_json" },
+        "is_blocking": { "type": "boolean" },
+        "fixed_lines": { "type": "array", "items": { "type": "string" } }
       }
     }
   }
