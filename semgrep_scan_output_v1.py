@@ -832,6 +832,27 @@ class MetavarValue:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class Metavars:
+    """Original type: metavars"""
+
+    value: Dict[str, MetavarValue]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Metavars':
+        return cls(_atd_read_assoc_object_into_dict(MetavarValue.from_json)(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_assoc_dict_to_object((lambda x: x.to_json()))(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Metavars':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class Location:
     """Original type: location = { ... }"""
@@ -860,37 +881,6 @@ class Location:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Location':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class FixRegex:
-    """Original type: fix_regex = { ... }"""
-
-    regex: str
-    replacement: str
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'FixRegex':
-        if isinstance(x, dict):
-            return cls(
-                regex=_atd_read_string(x['regex']) if 'regex' in x else _atd_missing_json_field('FixRegex', 'regex'),
-                replacement=_atd_read_string(x['replacement']) if 'replacement' in x else _atd_missing_json_field('FixRegex', 'replacement'),
-            )
-        else:
-            _atd_bad_json('FixRegex', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['regex'] = _atd_write_string(self.regex)
-        res['replacement'] = _atd_write_string(self.replacement)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'FixRegex':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1088,14 +1078,14 @@ class CoreSeverity:
 class CoreMatchExtra:
     """Original type: core_match_extra = { ... }"""
 
-    metavars: Dict[str, MetavarValue]
+    metavars: Metavars
     message: Optional[str] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreMatchExtra':
         if isinstance(x, dict):
             return cls(
-                metavars=_atd_read_assoc_object_into_dict(MetavarValue.from_json)(x['metavars']) if 'metavars' in x else _atd_missing_json_field('CoreMatchExtra', 'metavars'),
+                metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else _atd_missing_json_field('CoreMatchExtra', 'metavars'),
                 message=_atd_read_string(x['message']) if 'message' in x else None,
             )
         else:
@@ -1103,7 +1093,7 @@ class CoreMatchExtra:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['metavars'] = _atd_write_assoc_dict_to_object((lambda x: x.to_json()))(self.metavars)
+        res['metavars'] = (lambda x: x.to_json())(self.metavars)
         if self.message is not None:
             res['message'] = _atd_write_string(self.message)
         return res
@@ -1432,8 +1422,9 @@ class CliMatchExtra:
     message: str
     metadata: RawJson
     severity: str
+    metavars: Optional[Metavars] = None
     fix: Optional[str] = None
-    fix_regex: Optional[FixRegex] = None
+    fix_regex: Optional[RawJson] = None
     is_ignored: Optional[bool] = None
     dependency_match_only: Optional[bool] = None
     dependency_matches: Optional[RawJson] = None
@@ -1447,8 +1438,9 @@ class CliMatchExtra:
                 message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('CliMatchExtra', 'message'),
                 metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else _atd_missing_json_field('CliMatchExtra', 'metadata'),
                 severity=_atd_read_string(x['severity']) if 'severity' in x else _atd_missing_json_field('CliMatchExtra', 'severity'),
+                metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else None,
                 fix=_atd_read_string(x['fix']) if 'fix' in x else None,
-                fix_regex=FixRegex.from_json(x['fix_regex']) if 'fix_regex' in x else None,
+                fix_regex=RawJson.from_json(x['fix_regex']) if 'fix_regex' in x else None,
                 is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else None,
                 dependency_match_only=_atd_read_bool(x['dependency_match_only']) if 'dependency_match_only' in x else None,
                 dependency_matches=RawJson.from_json(x['dependency_matches']) if 'dependency_matches' in x else None,
@@ -1463,6 +1455,8 @@ class CliMatchExtra:
         res['message'] = _atd_write_string(self.message)
         res['metadata'] = (lambda x: x.to_json())(self.metadata)
         res['severity'] = _atd_write_string(self.severity)
+        if self.metavars is not None:
+            res['metavars'] = (lambda x: x.to_json())(self.metavars)
         if self.fix is not None:
             res['fix'] = _atd_write_string(self.fix)
         if self.fix_regex is not None:

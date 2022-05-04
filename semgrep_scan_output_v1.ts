@@ -30,9 +30,11 @@ export type CoreMatch = {
   extra: CoreMatchExtra;
 }
 
+export type Metavars = [string, MetavarValue][]
+
 export type CoreMatchExtra = {
   message?: string;
-  metavars: [string, MetavarValue][];
+  metavars: Metavars;
 }
 
 export type MetavarValue = {
@@ -157,21 +159,17 @@ export type CliMatch = {
 }
 
 export type CliMatchExtra = {
+  metavars?: Metavars;
   fingerprint: string;
   lines: string;
   message: string;
   metadata: RawJson;
   severity: string;
   fix?: string;
-  fix_regex?: FixRegex;
+  fix_regex?: RawJson;
   is_ignored?: boolean;
   dependency_match_only?: boolean;
   dependency_matches?: RawJson;
-}
-
-export type FixRegex = {
-  regex: string;
-  replacement: string;
 }
 
 export type CliOutput = {
@@ -281,17 +279,25 @@ export function readCoreMatch(x: any, context: any = x): CoreMatch {
   };
 }
 
+export function writeMetavars(x: Metavars, context: any = x): any {
+  return _atd_write_assoc_array_to_object(writeMetavarValue)(x, context);
+}
+
+export function readMetavars(x: any, context: any = x): Metavars {
+  return _atd_read_assoc_object_into_array(readMetavarValue)(x, context);
+}
+
 export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
   return {
     'message': _atd_write_optional_field(_atd_write_string, x.message, x),
-    'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', _atd_write_assoc_array_to_object(writeMetavarValue), x.metavars, x),
+    'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
   };
 }
 
 export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
   return {
     message: _atd_read_optional_field(_atd_read_string, x['message'], x),
-    metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', _atd_read_assoc_object_into_array(readMetavarValue), x['metavars'], x),
+    metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
   };
 }
 
@@ -648,13 +654,14 @@ export function readCliMatch(x: any, context: any = x): CliMatch {
 
 export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
   return {
+    'metavars': _atd_write_optional_field(writeMetavars, x.metavars, x),
     'fingerprint': _atd_write_required_field('CliMatchExtra', 'fingerprint', _atd_write_string, x.fingerprint, x),
     'lines': _atd_write_required_field('CliMatchExtra', 'lines', _atd_write_string, x.lines, x),
     'message': _atd_write_required_field('CliMatchExtra', 'message', _atd_write_string, x.message, x),
     'metadata': _atd_write_required_field('CliMatchExtra', 'metadata', writeRawJson, x.metadata, x),
     'severity': _atd_write_required_field('CliMatchExtra', 'severity', _atd_write_string, x.severity, x),
     'fix': _atd_write_optional_field(_atd_write_string, x.fix, x),
-    'fix_regex': _atd_write_optional_field(writeFixRegex, x.fix_regex, x),
+    'fix_regex': _atd_write_optional_field(writeRawJson, x.fix_regex, x),
     'is_ignored': _atd_write_optional_field(_atd_write_bool, x.is_ignored, x),
     'dependency_match_only': _atd_write_optional_field(_atd_write_bool, x.dependency_match_only, x),
     'dependency_matches': _atd_write_optional_field(writeRawJson, x.dependency_matches, x),
@@ -663,30 +670,17 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
 
 export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
   return {
+    metavars: _atd_read_optional_field(readMetavars, x['metavars'], x),
     fingerprint: _atd_read_required_field('CliMatchExtra', 'fingerprint', _atd_read_string, x['fingerprint'], x),
     lines: _atd_read_required_field('CliMatchExtra', 'lines', _atd_read_string, x['lines'], x),
     message: _atd_read_required_field('CliMatchExtra', 'message', _atd_read_string, x['message'], x),
     metadata: _atd_read_required_field('CliMatchExtra', 'metadata', readRawJson, x['metadata'], x),
     severity: _atd_read_required_field('CliMatchExtra', 'severity', _atd_read_string, x['severity'], x),
     fix: _atd_read_optional_field(_atd_read_string, x['fix'], x),
-    fix_regex: _atd_read_optional_field(readFixRegex, x['fix_regex'], x),
+    fix_regex: _atd_read_optional_field(readRawJson, x['fix_regex'], x),
     is_ignored: _atd_read_optional_field(_atd_read_bool, x['is_ignored'], x),
     dependency_match_only: _atd_read_optional_field(_atd_read_bool, x['dependency_match_only'], x),
     dependency_matches: _atd_read_optional_field(readRawJson, x['dependency_matches'], x),
-  };
-}
-
-export function writeFixRegex(x: FixRegex, context: any = x): any {
-  return {
-    'regex': _atd_write_required_field('FixRegex', 'regex', _atd_write_string, x.regex, x),
-    'replacement': _atd_write_required_field('FixRegex', 'replacement', _atd_write_string, x.replacement, x),
-  };
-}
-
-export function readFixRegex(x: any, context: any = x): FixRegex {
-  return {
-    regex: _atd_read_required_field('FixRegex', 'regex', _atd_read_string, x['regex'], x),
-    replacement: _atd_read_required_field('FixRegex', 'replacement', _atd_read_string, x['replacement'], x),
   };
 }
 

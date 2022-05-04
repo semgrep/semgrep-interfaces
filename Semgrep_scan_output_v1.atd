@@ -41,7 +41,7 @@
  * TODO:
  *   - see the TODO: and LATER: tags in this file
  *   - see the use of 'raw_json' type, try to transform as a real type when
- *     possible ('metadata:' can't for example, but the other like span: might
+ *     possible ('metadata:' can't for example, but the other like span: might)
  *)
 
 (*****************************************************************************)
@@ -98,21 +98,23 @@ type core_match
   extra: core_match_extra;
 }
 
-type core_match_extra
-  <python decorator="dataclass(frozen=True)"> = {
-  ?message: string option; (* rule.message (?) *)
-
-  (*
+(*
      name/value map of the matched metavariables.
      The leading '$' must be included in the metavariable name.
 
      TODO: semgrep-core always return a metavars, but dependency_aware Python code
      does not always generate a metavars (and match_extra is inherited
      in final_extra, hence the '?' below)
-  *)
-  metavars: (string * metavar_value) list
-    <json repr="object">
-    <python repr="dict">;
+*)
+type metavars = (string * metavar_value) list
+               <json repr="object">
+               <python repr="dict">
+
+type core_match_extra
+  <python decorator="dataclass(frozen=True)"> = {
+  ?message: string option; (* rule.message (?) *)
+
+  metavars: metavars;
 }
 
 type metavar_value
@@ -318,6 +320,10 @@ type core_match_results
 
 (* TODO: replace SemgrepCoreError in error.py or use CliError as component *)
 (* TODO: try to make it as close as possible to 'error' above *)
+(* LATER: maybe replace those dataclasses.replace() in error.py
+ * with direct assign to the field? after all we didn't generate
+ * a frozen dataclass here
+ *)
 type cli_error = {
   code: int;
   (* TODO: use a variant *)
@@ -356,6 +362,8 @@ type cli_match = {
 (* TODO: try to make it as close as possible to 'match_extra' above *)
 type cli_match_extra = {
   (* TODO: inherit match_extra; but need ?metavars because of dependency_aware code *)
+  ?metavars: metavars option;
+
   (* added by the CLI (see formatter/json.py) *)
   fingerprint: string;
   lines: string;
@@ -368,7 +376,7 @@ type cli_match_extra = {
 
   (* fields derived from the rule *)
   ?fix: string option;
-  ?fix_regex: fix_regex option;
+  ?fix_regex: raw_json option;
 
   (* extra fields *)
   ?is_ignored: bool option;
@@ -377,10 +385,12 @@ type cli_match_extra = {
   ?dependency_matches: raw_json option;
 }
 
+(* TODO
 type fix_regex = {
   regex: string;
   replacement: string;
 }
+ *)
 
 (*****************************************************************************)
 (* Semgrep CLI final output *)
