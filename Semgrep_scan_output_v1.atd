@@ -49,10 +49,16 @@
 (*****************************************************************************)
 (* LATER: hack because abstract below is not supported well yet by atdpy *)
 <python text="
+@dataclass
+class _Identity:
+    value: Any
+    def to_json(self) -> Any:
+        self.value
 class Abstract:
     @classmethod
     def from_json(cls, x: Any) -> Any:
-        return x">
+        return _Identity(x)
+">
 
 (* escape hatch *)
 type raw_json <ocaml module="Yojson.Safe" t="t"> = abstract
@@ -348,17 +354,17 @@ type cli_match_extra = {
   lines: string;
 
   (* fields coming from the rule *)
-  
   message: string;
   metadata: raw_json;
   (* LATER: use a variant for severity *)
   severity: string;
 
+  (* fields derived from the rule *)
   ?fix: string option;
   ?fix_regex: fix_regex option;
 
+  (* extra fields *)
   ?is_ignored: bool option;
-
   (* added by dependency_aware code *)
   ?dependency_match_only: bool option;
   ?dependency_matches: raw_json option;
