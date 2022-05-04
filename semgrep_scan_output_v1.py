@@ -240,7 +240,7 @@ def _atd_write_nullable(write_elt: Callable[[Any], Any]) \
 class _Identity:
     value: Any
     def to_json(self) -> Any:
-        self.value
+        return self.value
 class Abstract:
     @classmethod
     def from_json(cls, x: Any) -> Any:

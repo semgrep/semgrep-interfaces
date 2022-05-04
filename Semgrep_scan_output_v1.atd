@@ -47,13 +47,16 @@
 (*****************************************************************************)
 (* Imports *)
 (*****************************************************************************)
-(* LATER: hack because abstract below is not supported well yet by atdpy *)
+(* LATER: hack because abstract below is not supported well yet by atdpy
+ * NOTE: if you build manually datastructures with RawJson, you need
+ * to call via RawJson(_Identity(stuff)).
+ *)
 <python text="
 @dataclass
 class _Identity:
     value: Any
     def to_json(self) -> Any:
-        self.value
+        return self.value
 class Abstract:
     @classmethod
     def from_json(cls, x: Any) -> Any:
