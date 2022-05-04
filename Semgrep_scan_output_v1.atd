@@ -383,6 +383,8 @@ type cli_match_extra = {
   (* added by dependency_aware code *)
   ?dependency_match_only: bool option;
   ?dependency_matches: raw_json option;
+
+  (* less: fixed_lines: but seems to be used only when sending findings *)
 }
 
 (* TODO
@@ -475,5 +477,27 @@ type cli_stats = {
 *)
 
 (*****************************************************************************)
-(* Semgrep App backend output *)
+(* Semgrep CLI findings output for the App *)
 (*****************************************************************************)
+(* TODO: see rule_matches.to_app_finding_format()
+
+            "check_id": self.rule_id,
+            "path": str(self.path),
+            "line": self.start.line,
+            "column": self.start.col,
+            "end_line": self.end.line,
+            "end_column": self.end.col,
+            "message": self.message,
+            "severity": app_severity,
+            "index": self.index,
+            "commit_date": commit_date_app_format,
+            "syntactic_id": self.syntactic_id,
+            "metadata": self.metadata,
+            "is_blocking": self.is_blocking,
+  and also "fixed_lines"
+*) 
+
+(*****************************************************************************)
+(* Semgrep App backend input/output *)
+(*****************************************************************************)
+(* TODO *)
