@@ -888,6 +888,41 @@ class Location:
 
 
 @dataclass
+class FixRegex:
+    """Original type: fix_regex = { ... }"""
+
+    regex: str
+    replacement: str
+    count: Optional[int] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FixRegex':
+        if isinstance(x, dict):
+            return cls(
+                regex=_atd_read_string(x['regex']) if 'regex' in x else _atd_missing_json_field('FixRegex', 'regex'),
+                replacement=_atd_read_string(x['replacement']) if 'replacement' in x else _atd_missing_json_field('FixRegex', 'replacement'),
+                count=_atd_read_int(x['count']) if 'count' in x else None,
+            )
+        else:
+            _atd_bad_json('FixRegex', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['regex'] = _atd_write_string(self.regex)
+        res['replacement'] = _atd_write_string(self.replacement)
+        if self.count is not None:
+            res['count'] = _atd_write_int(self.count)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FixRegex':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Finding:
     """Original type: finding = { ... }"""
 
@@ -1492,7 +1527,7 @@ class CliMatchExtra:
     severity: str
     metavars: Optional[Metavars] = None
     fix: Optional[str] = None
-    fix_regex: Optional[RawJson] = None
+    fix_regex: Optional[FixRegex] = None
     is_ignored: Optional[bool] = None
     dependency_match_only: Optional[bool] = None
     dependency_matches: Optional[RawJson] = None
@@ -1508,7 +1543,7 @@ class CliMatchExtra:
                 severity=_atd_read_string(x['severity']) if 'severity' in x else _atd_missing_json_field('CliMatchExtra', 'severity'),
                 metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else None,
                 fix=_atd_read_string(x['fix']) if 'fix' in x else None,
-                fix_regex=RawJson.from_json(x['fix_regex']) if 'fix_regex' in x else None,
+                fix_regex=FixRegex.from_json(x['fix_regex']) if 'fix_regex' in x else None,
                 is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else None,
                 dependency_match_only=_atd_read_bool(x['dependency_match_only']) if 'dependency_match_only' in x else None,
                 dependency_matches=RawJson.from_json(x['dependency_matches']) if 'dependency_matches' in x else None,

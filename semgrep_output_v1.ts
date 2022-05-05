@@ -166,10 +166,16 @@ export type CliMatchExtra = {
   metadata: RawJson;
   severity: string;
   fix?: string;
-  fix_regex?: RawJson;
+  fix_regex?: FixRegex;
   is_ignored?: boolean;
   dependency_match_only?: boolean;
   dependency_matches?: RawJson;
+}
+
+export type FixRegex = {
+  regex: string;
+  replacement: string;
+  count?: Int;
 }
 
 export type CliOutput = {
@@ -685,7 +691,7 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'metadata': _atd_write_required_field('CliMatchExtra', 'metadata', writeRawJson, x.metadata, x),
     'severity': _atd_write_required_field('CliMatchExtra', 'severity', _atd_write_string, x.severity, x),
     'fix': _atd_write_optional_field(_atd_write_string, x.fix, x),
-    'fix_regex': _atd_write_optional_field(writeRawJson, x.fix_regex, x),
+    'fix_regex': _atd_write_optional_field(writeFixRegex, x.fix_regex, x),
     'is_ignored': _atd_write_optional_field(_atd_write_bool, x.is_ignored, x),
     'dependency_match_only': _atd_write_optional_field(_atd_write_bool, x.dependency_match_only, x),
     'dependency_matches': _atd_write_optional_field(writeRawJson, x.dependency_matches, x),
@@ -701,10 +707,26 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     metadata: _atd_read_required_field('CliMatchExtra', 'metadata', readRawJson, x['metadata'], x),
     severity: _atd_read_required_field('CliMatchExtra', 'severity', _atd_read_string, x['severity'], x),
     fix: _atd_read_optional_field(_atd_read_string, x['fix'], x),
-    fix_regex: _atd_read_optional_field(readRawJson, x['fix_regex'], x),
+    fix_regex: _atd_read_optional_field(readFixRegex, x['fix_regex'], x),
     is_ignored: _atd_read_optional_field(_atd_read_bool, x['is_ignored'], x),
     dependency_match_only: _atd_read_optional_field(_atd_read_bool, x['dependency_match_only'], x),
     dependency_matches: _atd_read_optional_field(readRawJson, x['dependency_matches'], x),
+  };
+}
+
+export function writeFixRegex(x: FixRegex, context: any = x): any {
+  return {
+    'regex': _atd_write_required_field('FixRegex', 'regex', _atd_write_string, x.regex, x),
+    'replacement': _atd_write_required_field('FixRegex', 'replacement', _atd_write_string, x.replacement, x),
+    'count': _atd_write_optional_field(_atd_write_int, x.count, x),
+  };
+}
+
+export function readFixRegex(x: any, context: any = x): FixRegex {
+  return {
+    regex: _atd_read_required_field('FixRegex', 'regex', _atd_read_string, x['regex'], x),
+    replacement: _atd_read_required_field('FixRegex', 'replacement', _atd_read_string, x['replacement'], x),
+    count: _atd_read_optional_field(_atd_read_int, x['count'], x),
   };
 }
 

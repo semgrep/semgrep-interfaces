@@ -376,7 +376,7 @@ type cli_match_extra = {
 
   (* fields derived from the rule *)
   ?fix: string option;
-  ?fix_regex: raw_json option;
+  ?fix_regex: fix_regex option;
 
   (* extra fields *)
   ?is_ignored: bool option;
@@ -387,12 +387,11 @@ type cli_match_extra = {
   (* less: fixed_lines: but seems to be used only when sending findings *)
 }
 
-(* TODO
 type fix_regex = {
   regex: string;
   replacement: string;
+  ?count: int option;
 }
- *)
 
 (*****************************************************************************)
 (* Semgrep CLI final output *)
