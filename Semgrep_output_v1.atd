@@ -428,7 +428,10 @@ type cli_match_extra = {
   ?dependency_match_only: bool option;
   ?dependency_matches: raw_json option;
 
-  (* less: fixed_lines: but seems to be used only when sending findings *)
+  (* TODO: done with monkey patching right now in the Python code,
+   * and seems to be used only when sending findings to the App.
+   *)
+  ?fixed_lines: string list option;
 }
 
 type fix_regex = {

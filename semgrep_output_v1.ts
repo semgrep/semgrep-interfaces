@@ -193,6 +193,7 @@ export type CliMatchExtra = {
   is_ignored?: boolean;
   dependency_match_only?: boolean;
   dependency_matches?: RawJson;
+  fixed_lines?: string[];
 }
 
 export type FixRegex = {
@@ -778,6 +779,7 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'is_ignored': _atd_write_optional_field(_atd_write_bool, x.is_ignored, x),
     'dependency_match_only': _atd_write_optional_field(_atd_write_bool, x.dependency_match_only, x),
     'dependency_matches': _atd_write_optional_field(writeRawJson, x.dependency_matches, x),
+    'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
   };
 }
 
@@ -794,6 +796,7 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     is_ignored: _atd_read_optional_field(_atd_read_bool, x['is_ignored'], x),
     dependency_match_only: _atd_read_optional_field(_atd_read_bool, x['dependency_match_only'], x),
     dependency_matches: _atd_read_optional_field(readRawJson, x['dependency_matches'], x),
+    fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
   };
 }
 

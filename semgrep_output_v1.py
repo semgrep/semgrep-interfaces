@@ -1654,6 +1654,7 @@ class CliMatchExtra:
     is_ignored: Optional[bool] = None
     dependency_match_only: Optional[bool] = None
     dependency_matches: Optional[RawJson] = None
+    fixed_lines: Optional[List[str]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliMatchExtra':
@@ -1670,6 +1671,7 @@ class CliMatchExtra:
                 is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else None,
                 dependency_match_only=_atd_read_bool(x['dependency_match_only']) if 'dependency_match_only' in x else None,
                 dependency_matches=RawJson.from_json(x['dependency_matches']) if 'dependency_matches' in x else None,
+                fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
             )
         else:
             _atd_bad_json('CliMatchExtra', x)
@@ -1693,6 +1695,8 @@ class CliMatchExtra:
             res['dependency_match_only'] = _atd_write_bool(self.dependency_match_only)
         if self.dependency_matches is not None:
             res['dependency_matches'] = (lambda x: x.to_json())(self.dependency_matches)
+        if self.fixed_lines is not None:
+            res['fixed_lines'] = _atd_write_list(_atd_write_string)(self.fixed_lines)
         return res
 
     @classmethod
