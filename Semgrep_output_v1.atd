@@ -197,6 +197,7 @@ type core_error
   location: location;
   message: string;
   ?details: string option;
+  (* ??? for error when parsing a rule? *)
   ?yaml_path: string list option;
 }
 
@@ -328,7 +329,9 @@ type cli_error = {
   code: int;
   (* TODO: use a variant *)
   level: string;
-  (* TODO: use a variant *)
+  (* TODO: use a variant (Pattern parse error | InvalidRuleSchemaError | ... 
+   * or inherit/extend core_error.error_type
+   *)
   type_ <json name="type">: string;
 
   (* LATER: use a variant instead of all those ?xxx types *)
@@ -339,13 +342,54 @@ type cli_error = {
   ?message: string option; (* contains error location *)
   ?path: string option;
 
-  (* for invalid rules *)
+  (* for invalid rules, for ErrorWithSpan *)
   ?long_msg: string option;
   ?short_msg: string option;
-  ?spans: raw_json option; (* TODO: see invalid_rule.json *)
+  ?spans: error_span list option;
   ?help: string option;
 }
 
+(* TODO: get rid of rule_lang.Span *)
+type error_span = {
+    (* TODO: use a variant, so don't have to put all those '?' and nullable *)
+    inherit legacy_span;
+
+    (* for InvalidRuleSchemaError *)
+    (* LATER: could inherit location; but file: vs path: *)
+    (* TODO: all those fields are actually mandatory when the error_span            
+     * is not a legact_span *)
+    ?file: string option;
+    ?start: position_bis option;
+    ?end <ocaml name="end_">: position_bis option;
+    ?source_hash: string option;
+    (* those are really optional *)
+    ?context_start: position_bis nullable option;
+    ?context_end: position_bis nullable option;
+  }
+
+(* LATER: merge with position, no offset: here, make it an option in position? 
+ * TODO: get rid of rule_lang.Position
+*)
+type position_bis = {
+  line: int; (* starts from 1 *)
+  col: int; (* starts from 1 *)
+  }
+
+(* from rule_lang.py in the Span class
+ * "The path to the pattern in the yaml rule
+ *  and an adjusted start/end within just the pattern
+ *  Used to report playground parse errors in the simpler editor"
+ *)
+type legacy_span = {
+  (* for Pattern parse error *)
+  config_start: position_bis nullable;
+  config_end: position_bis nullable;
+  (* LATER: what is that?? e.g. ["rule"; "1"; "pattern"] means? 
+   * see also yaml_path in core_error
+  *)
+  config_path: string list nullable;
+}
+    
 (*****************************************************************************)
 (* Match result (called RuleMatch in rule_matches.py) *)
 (*****************************************************************************)
@@ -483,10 +527,8 @@ type cli_stats = {
 *)
 type api_scans_findings = {
    findings: finding list;
-   (* TODO: can't yet in atdpy 2.5.0
-     token: string option;
-     gitlab_token: string option;
-   *)
+   token: string nullable;
+   gitlab_token: string nullable;
    searched_paths: string list;
    (* TODO: rule_id list *)
    rule_ids: string list;

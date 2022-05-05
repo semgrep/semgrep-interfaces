@@ -791,6 +791,37 @@ class RawJson:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class PositionBis:
+    """Original type: position_bis = { ... }"""
+
+    line: int
+    col: int
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'PositionBis':
+        if isinstance(x, dict):
+            return cls(
+                line=_atd_read_int(x['line']) if 'line' in x else _atd_missing_json_field('PositionBis', 'line'),
+                col=_atd_read_int(x['col']) if 'col' in x else _atd_missing_json_field('PositionBis', 'col'),
+            )
+        else:
+            _atd_bad_json('PositionBis', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['line'] = _atd_write_int(self.line)
+        res['col'] = _atd_write_int(self.col)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'PositionBis':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class MetavarValue:
     """Original type: metavar_value = { ... }"""
@@ -881,6 +912,40 @@ class Location:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Location':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class LegacySpan:
+    """Original type: legacy_span = { ... }"""
+
+    config_start: Optional[PositionBis]
+    config_end: Optional[PositionBis]
+    config_path: Optional[List[str]]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'LegacySpan':
+        if isinstance(x, dict):
+            return cls(
+                config_start=_atd_read_nullable(PositionBis.from_json)(x['config_start']) if 'config_start' in x else _atd_missing_json_field('LegacySpan', 'config_start'),
+                config_end=_atd_read_nullable(PositionBis.from_json)(x['config_end']) if 'config_end' in x else _atd_missing_json_field('LegacySpan', 'config_end'),
+                config_path=_atd_read_nullable(_atd_read_list(_atd_read_string))(x['config_path']) if 'config_path' in x else _atd_missing_json_field('LegacySpan', 'config_path'),
+            )
+        else:
+            _atd_bad_json('LegacySpan', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['config_start'] = _atd_write_nullable((lambda x: x.to_json()))(self.config_start)
+        res['config_end'] = _atd_write_nullable((lambda x: x.to_json()))(self.config_end)
+        res['config_path'] = _atd_write_nullable(_atd_write_list(_atd_write_string))(self.config_path)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'LegacySpan':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -984,6 +1049,64 @@ class Finding:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Finding':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ErrorSpan:
+    """Original type: error_span = { ... }"""
+
+    config_start: Optional[PositionBis]
+    config_end: Optional[PositionBis]
+    config_path: Optional[List[str]]
+    file: Optional[str] = None
+    start: Optional[PositionBis] = None
+    end: Optional[PositionBis] = None
+    source_hash: Optional[str] = None
+    context_start: Optional[Optional[PositionBis]] = None
+    context_end: Optional[Optional[PositionBis]] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ErrorSpan':
+        if isinstance(x, dict):
+            return cls(
+                config_start=_atd_read_nullable(PositionBis.from_json)(x['config_start']) if 'config_start' in x else _atd_missing_json_field('ErrorSpan', 'config_start'),
+                config_end=_atd_read_nullable(PositionBis.from_json)(x['config_end']) if 'config_end' in x else _atd_missing_json_field('ErrorSpan', 'config_end'),
+                config_path=_atd_read_nullable(_atd_read_list(_atd_read_string))(x['config_path']) if 'config_path' in x else _atd_missing_json_field('ErrorSpan', 'config_path'),
+                file=_atd_read_string(x['file']) if 'file' in x else None,
+                start=PositionBis.from_json(x['start']) if 'start' in x else None,
+                end=PositionBis.from_json(x['end']) if 'end' in x else None,
+                source_hash=_atd_read_string(x['source_hash']) if 'source_hash' in x else None,
+                context_start=_atd_read_nullable(PositionBis.from_json)(x['context_start']) if 'context_start' in x else None,
+                context_end=_atd_read_nullable(PositionBis.from_json)(x['context_end']) if 'context_end' in x else None,
+            )
+        else:
+            _atd_bad_json('ErrorSpan', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['config_start'] = _atd_write_nullable((lambda x: x.to_json()))(self.config_start)
+        res['config_end'] = _atd_write_nullable((lambda x: x.to_json()))(self.config_end)
+        res['config_path'] = _atd_write_nullable(_atd_write_list(_atd_write_string))(self.config_path)
+        if self.file is not None:
+            res['file'] = _atd_write_string(self.file)
+        if self.start is not None:
+            res['start'] = (lambda x: x.to_json())(self.start)
+        if self.end is not None:
+            res['end'] = (lambda x: x.to_json())(self.end)
+        if self.source_hash is not None:
+            res['source_hash'] = _atd_write_string(self.source_hash)
+        if self.context_start is not None:
+            res['context_start'] = _atd_write_nullable((lambda x: x.to_json()))(self.context_start)
+        if self.context_end is not None:
+            res['context_end'] = _atd_write_nullable((lambda x: x.to_json()))(self.context_end)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ErrorSpan':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1632,7 +1755,7 @@ class CliError:
     path: Optional[str] = None
     long_msg: Optional[str] = None
     short_msg: Optional[str] = None
-    spans: Optional[RawJson] = None
+    spans: Optional[List[ErrorSpan]] = None
     help: Optional[str] = None
 
     @classmethod
@@ -1647,7 +1770,7 @@ class CliError:
                 path=_atd_read_string(x['path']) if 'path' in x else None,
                 long_msg=_atd_read_string(x['long_msg']) if 'long_msg' in x else None,
                 short_msg=_atd_read_string(x['short_msg']) if 'short_msg' in x else None,
-                spans=RawJson.from_json(x['spans']) if 'spans' in x else None,
+                spans=_atd_read_list(ErrorSpan.from_json)(x['spans']) if 'spans' in x else None,
                 help=_atd_read_string(x['help']) if 'help' in x else None,
             )
         else:
@@ -1669,7 +1792,7 @@ class CliError:
         if self.short_msg is not None:
             res['short_msg'] = _atd_write_string(self.short_msg)
         if self.spans is not None:
-            res['spans'] = (lambda x: x.to_json())(self.spans)
+            res['spans'] = _atd_write_list((lambda x: x.to_json()))(self.spans)
         if self.help is not None:
             res['help'] = _atd_write_string(self.help)
         return res
@@ -1725,6 +1848,8 @@ class ApiScansFindings:
     """Original type: api_scans_findings = { ... }"""
 
     findings: List[Finding]
+    token: Optional[str]
+    gitlab_token: Optional[str]
     searched_paths: List[str]
     rule_ids: List[str]
     cai_ids: List[str]
@@ -1734,6 +1859,8 @@ class ApiScansFindings:
         if isinstance(x, dict):
             return cls(
                 findings=_atd_read_list(Finding.from_json)(x['findings']) if 'findings' in x else _atd_missing_json_field('ApiScansFindings', 'findings'),
+                token=_atd_read_nullable(_atd_read_string)(x['token']) if 'token' in x else _atd_missing_json_field('ApiScansFindings', 'token'),
+                gitlab_token=_atd_read_nullable(_atd_read_string)(x['gitlab_token']) if 'gitlab_token' in x else _atd_missing_json_field('ApiScansFindings', 'gitlab_token'),
                 searched_paths=_atd_read_list(_atd_read_string)(x['searched_paths']) if 'searched_paths' in x else _atd_missing_json_field('ApiScansFindings', 'searched_paths'),
                 rule_ids=_atd_read_list(_atd_read_string)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('ApiScansFindings', 'rule_ids'),
                 cai_ids=_atd_read_list(_atd_read_string)(x['cai_ids']) if 'cai_ids' in x else _atd_missing_json_field('ApiScansFindings', 'cai_ids'),
@@ -1744,6 +1871,8 @@ class ApiScansFindings:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['findings'] = _atd_write_list((lambda x: x.to_json()))(self.findings)
+        res['token'] = _atd_write_nullable(_atd_write_string)(self.token)
+        res['gitlab_token'] = _atd_write_nullable(_atd_write_string)(self.gitlab_token)
         res['searched_paths'] = _atd_write_list(_atd_write_string)(self.searched_paths)
         res['rule_ids'] = _atd_write_list(_atd_write_string)(self.rule_ids)
         res['cai_ids'] = _atd_write_list(_atd_write_string)(self.cai_ids)

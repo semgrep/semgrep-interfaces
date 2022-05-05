@@ -146,8 +146,31 @@ export type CliError = {
   path?: string;
   long_msg?: string;
   short_msg?: string;
-  spans?: RawJson;
+  spans?: ErrorSpan[];
   help?: string;
+}
+
+export type ErrorSpan = {
+  config_start: (PositionBis | null);
+  config_end: (PositionBis | null);
+  config_path: (string[] | null);
+  file?: string;
+  start?: PositionBis;
+  end?: PositionBis;
+  source_hash?: string;
+  context_start?: (PositionBis | null);
+  context_end?: (PositionBis | null);
+}
+
+export type PositionBis = {
+  line: Int;
+  col: Int;
+}
+
+export type LegacySpan = {
+  config_start: (PositionBis | null);
+  config_end: (PositionBis | null);
+  config_path: (string[] | null);
 }
 
 export type CliMatch = {
@@ -223,6 +246,8 @@ export type CliTargetTimes = {
 
 export type ApiScansFindings = {
   findings: Finding[];
+  token: (string | null);
+  gitlab_token: (string | null);
   searched_paths: string[];
   rule_ids: string[];
   cai_ids: string[];
@@ -642,7 +667,7 @@ export function writeCliError(x: CliError, context: any = x): any {
     'path': _atd_write_optional_field(_atd_write_string, x.path, x),
     'long_msg': _atd_write_optional_field(_atd_write_string, x.long_msg, x),
     'short_msg': _atd_write_optional_field(_atd_write_string, x.short_msg, x),
-    'spans': _atd_write_optional_field(writeRawJson, x.spans, x),
+    'spans': _atd_write_optional_field(_atd_write_array(writeErrorSpan), x.spans, x),
     'help': _atd_write_optional_field(_atd_write_string, x.help, x),
   };
 }
@@ -657,8 +682,66 @@ export function readCliError(x: any, context: any = x): CliError {
     path: _atd_read_optional_field(_atd_read_string, x['path'], x),
     long_msg: _atd_read_optional_field(_atd_read_string, x['long_msg'], x),
     short_msg: _atd_read_optional_field(_atd_read_string, x['short_msg'], x),
-    spans: _atd_read_optional_field(readRawJson, x['spans'], x),
+    spans: _atd_read_optional_field(_atd_read_array(readErrorSpan), x['spans'], x),
     help: _atd_read_optional_field(_atd_read_string, x['help'], x),
+  };
+}
+
+export function writeErrorSpan(x: ErrorSpan, context: any = x): any {
+  return {
+    'config_start': _atd_write_required_field('ErrorSpan', 'config_start', writePositionBis, x.config_start, x),
+    'config_end': _atd_write_required_field('ErrorSpan', 'config_end', writePositionBis, x.config_end, x),
+    'config_path': _atd_write_required_field('ErrorSpan', 'config_path', _atd_write_array(_atd_write_string), x.config_path, x),
+    'file': _atd_write_optional_field(_atd_write_string, x.file, x),
+    'start': _atd_write_optional_field(writePositionBis, x.start, x),
+    'end': _atd_write_optional_field(writePositionBis, x.end, x),
+    'source_hash': _atd_write_optional_field(_atd_write_string, x.source_hash, x),
+    'context_start': _atd_write_optional_field(writePositionBis, x.context_start, x),
+    'context_end': _atd_write_optional_field(writePositionBis, x.context_end, x),
+  };
+}
+
+export function readErrorSpan(x: any, context: any = x): ErrorSpan {
+  return {
+    config_start: _atd_read_required_field('ErrorSpan', 'config_start', _atd_read_nullable(readPositionBis), x['config_start'], x),
+    config_end: _atd_read_required_field('ErrorSpan', 'config_end', _atd_read_nullable(readPositionBis), x['config_end'], x),
+    config_path: _atd_read_required_field('ErrorSpan', 'config_path', _atd_read_nullable(_atd_read_array(_atd_read_string)), x['config_path'], x),
+    file: _atd_read_optional_field(_atd_read_string, x['file'], x),
+    start: _atd_read_optional_field(readPositionBis, x['start'], x),
+    end: _atd_read_optional_field(readPositionBis, x['end'], x),
+    source_hash: _atd_read_optional_field(_atd_read_string, x['source_hash'], x),
+    context_start: _atd_read_optional_field(_atd_read_nullable(readPositionBis), x['context_start'], x),
+    context_end: _atd_read_optional_field(_atd_read_nullable(readPositionBis), x['context_end'], x),
+  };
+}
+
+export function writePositionBis(x: PositionBis, context: any = x): any {
+  return {
+    'line': _atd_write_required_field('PositionBis', 'line', _atd_write_int, x.line, x),
+    'col': _atd_write_required_field('PositionBis', 'col', _atd_write_int, x.col, x),
+  };
+}
+
+export function readPositionBis(x: any, context: any = x): PositionBis {
+  return {
+    line: _atd_read_required_field('PositionBis', 'line', _atd_read_int, x['line'], x),
+    col: _atd_read_required_field('PositionBis', 'col', _atd_read_int, x['col'], x),
+  };
+}
+
+export function writeLegacySpan(x: LegacySpan, context: any = x): any {
+  return {
+    'config_start': _atd_write_required_field('LegacySpan', 'config_start', writePositionBis, x.config_start, x),
+    'config_end': _atd_write_required_field('LegacySpan', 'config_end', writePositionBis, x.config_end, x),
+    'config_path': _atd_write_required_field('LegacySpan', 'config_path', _atd_write_array(_atd_write_string), x.config_path, x),
+  };
+}
+
+export function readLegacySpan(x: any, context: any = x): LegacySpan {
+  return {
+    config_start: _atd_read_required_field('LegacySpan', 'config_start', _atd_read_nullable(readPositionBis), x['config_start'], x),
+    config_end: _atd_read_required_field('LegacySpan', 'config_end', _atd_read_nullable(readPositionBis), x['config_end'], x),
+    config_path: _atd_read_required_field('LegacySpan', 'config_path', _atd_read_nullable(_atd_read_array(_atd_read_string)), x['config_path'], x),
   };
 }
 
@@ -847,6 +930,8 @@ export function readCliTargetTimes(x: any, context: any = x): CliTargetTimes {
 export function writeApiScansFindings(x: ApiScansFindings, context: any = x): any {
   return {
     'findings': _atd_write_required_field('ApiScansFindings', 'findings', _atd_write_array(writeFinding), x.findings, x),
+    'token': _atd_write_required_field('ApiScansFindings', 'token', _atd_write_string, x.token, x),
+    'gitlab_token': _atd_write_required_field('ApiScansFindings', 'gitlab_token', _atd_write_string, x.gitlab_token, x),
     'searched_paths': _atd_write_required_field('ApiScansFindings', 'searched_paths', _atd_write_array(_atd_write_string), x.searched_paths, x),
     'rule_ids': _atd_write_required_field('ApiScansFindings', 'rule_ids', _atd_write_array(_atd_write_string), x.rule_ids, x),
     'cai_ids': _atd_write_required_field('ApiScansFindings', 'cai_ids', _atd_write_array(_atd_write_string), x.cai_ids, x),
@@ -856,6 +941,8 @@ export function writeApiScansFindings(x: ApiScansFindings, context: any = x): an
 export function readApiScansFindings(x: any, context: any = x): ApiScansFindings {
   return {
     findings: _atd_read_required_field('ApiScansFindings', 'findings', _atd_read_array(readFinding), x['findings'], x),
+    token: _atd_read_required_field('ApiScansFindings', 'token', _atd_read_nullable(_atd_read_string), x['token'], x),
+    gitlab_token: _atd_read_required_field('ApiScansFindings', 'gitlab_token', _atd_read_nullable(_atd_read_string), x['gitlab_token'], x),
     searched_paths: _atd_read_required_field('ApiScansFindings', 'searched_paths', _atd_read_array(_atd_read_string), x['searched_paths'], x),
     rule_ids: _atd_read_required_field('ApiScansFindings', 'rule_ids', _atd_read_array(_atd_read_string), x['rule_ids'], x),
     cai_ids: _atd_read_required_field('ApiScansFindings', 'cai_ids', _atd_read_array(_atd_read_string), x['cai_ids'], x),
