@@ -6,8 +6,8 @@
  */
 
 export type RuleId = string;
-export type RawJson = unknown;
 export type UniqueIdType = "id" | "AST";
+export type RawJson = unknown;
 
 /**
  * Translated by atdcat from 'Semgrep_output_v1.atd'.
@@ -27,8 +27,23 @@ export interface CliError {
   path?: string;
   long_msg?: string;
   short_msg?: string;
-  spans?: RawJson;
+  spans?: ErrorSpan[];
   help?: string;
+}
+export interface ErrorSpan {
+  config_start: PositionBis;
+  config_end: PositionBis;
+  config_path: string[] | null;
+  file?: string;
+  start?: PositionBis;
+  end?: PositionBis;
+  source_hash?: string;
+  context_start?: PositionBis;
+  context_end?: PositionBis;
+}
+export interface PositionBis {
+  line: number;
+  col: number;
 }
 export interface CliMatch {
   check_id: RuleId;
@@ -50,10 +65,11 @@ export interface CliMatchExtra {
   metadata: RawJson;
   severity: string;
   fix?: string;
-  fix_regex?: RawJson;
+  fix_regex?: FixRegex;
   is_ignored?: boolean;
   dependency_match_only?: boolean;
   dependency_matches?: RawJson;
+  fixed_lines?: string[];
 }
 export interface Metavars {
   [k: string]: MetavarValue;
@@ -74,6 +90,11 @@ export interface UniqueId {
   type: UniqueIdType;
   md5sum?: string;
   sid?: number;
+}
+export interface FixRegex {
+  regex: string;
+  replacement: string;
+  count?: number;
 }
 export interface CliPaths {
   scanned: string[];
