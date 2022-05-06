@@ -743,6 +743,27 @@ class SkippedRule:
 
 
 @dataclass
+class Semver:
+    """Original type: semver"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Semver':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Semver':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class RuleIdDict:
     """Original type: rule_id_dict = { ... }"""
 
@@ -1816,6 +1837,7 @@ class CliOutput:
     errors: List[CliError]
     results: List[CliMatch]
     paths: CliPaths
+    version: Optional[Semver] = None
     time: Optional[CliTiming] = None
 
     @classmethod
@@ -1825,6 +1847,7 @@ class CliOutput:
                 errors=_atd_read_list(CliError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CliOutput', 'errors'),
                 results=_atd_read_list(CliMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CliOutput', 'results'),
                 paths=CliPaths.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutput', 'paths'),
+                version=Semver.from_json(x['version']) if 'version' in x else None,
                 time=CliTiming.from_json(x['time']) if 'time' in x else None,
             )
         else:
@@ -1835,6 +1858,8 @@ class CliOutput:
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['results'] = _atd_write_list((lambda x: x.to_json()))(self.results)
         res['paths'] = (lambda x: x.to_json())(self.paths)
+        if self.version is not None:
+            res['version'] = (lambda x: x.to_json())(self.version)
         if self.time is not None:
             res['time'] = (lambda x: x.to_json())(self.time)
         return res

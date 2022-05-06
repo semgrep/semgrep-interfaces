@@ -1,10 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "cli_output",
-  "description": "Translated by atdcat from 'Semgrep_output_v1.atd'.",
+  "description": "Translated by atdcat from 'Semgrep_output_v0.atd'.",
   "type": "object",
   "required": [ "errors", "results", "paths" ],
   "properties": {
+    "version": { "$ref": "#/definitions/semver" },
     "errors": {
       "type": "array",
       "items": { "$ref": "#/definitions/cli_error" }
@@ -16,9 +16,9 @@
     "paths": { "$ref": "#/definitions/cli_paths" },
     "time": { "$ref": "#/definitions/cli_timing" }
   },
-  "additionalProperties": false,
   "definitions": {
-    "raw_json": {},
+    "raw_json": { "$ref": "#/definitions/abstract" },
+    "semver": { "type": "string" },
     "position": {
       "type": "object",
       "required": [ "line", "col", "offset" ],
@@ -26,8 +26,7 @@
         "line": { "type": "integer" },
         "col": { "type": "integer" },
         "offset": { "type": "integer" }
-      },
-      "additionalProperties": false
+      }
     },
     "location": {
       "type": "object",
@@ -36,8 +35,7 @@
         "path": { "type": "string" },
         "start": { "$ref": "#/definitions/position" },
         "end": { "$ref": "#/definitions/position" }
-      },
-      "additionalProperties": false
+      }
     },
     "rule_id": { "type": "string" },
     "core_match": {
@@ -47,8 +45,7 @@
         "rule_id": { "$ref": "#/definitions/rule_id" },
         "location": { "$ref": "#/definitions/location" },
         "extra": { "$ref": "#/definitions/core_match_extra" }
-      },
-      "additionalProperties": false
+      }
     },
     "metavars": {
       "type": "object",
@@ -60,8 +57,7 @@
       "properties": {
         "message": { "type": "string" },
         "metavars": { "$ref": "#/definitions/metavars" }
-      },
-      "additionalProperties": false
+      }
     },
     "metavar_value": {
       "type": "object",
@@ -72,8 +68,7 @@
         "abstract_content": { "type": "string" },
         "propagated_value": { "$ref": "#/definitions/svalue_value" },
         "unique_id": { "$ref": "#/definitions/unique_id" }
-      },
-      "additionalProperties": false
+      }
     },
     "svalue_value": {
       "type": "object",
@@ -82,8 +77,7 @@
         "svalue_start": { "$ref": "#/definitions/position" },
         "svalue_end": { "$ref": "#/definitions/position" },
         "svalue_abstract_content": { "type": "string" }
-      },
-      "additionalProperties": false
+      }
     },
     "unique_id": {
       "type": "object",
@@ -92,8 +86,7 @@
         "type": { "$ref": "#/definitions/unique_id_type" },
         "md5sum": { "type": "string" },
         "sid": { "type": "integer" }
-      },
-      "additionalProperties": false
+      }
     },
     "unique_id_type": { "oneOf": [ { "const": "id" }, { "const": "AST" } ] },
     "core_error": {
@@ -107,8 +100,7 @@
         "message": { "type": "string" },
         "details": { "type": "string" },
         "yaml_path": { "type": "array", "items": { "type": "string" } }
-      },
-      "additionalProperties": false
+      }
     },
     "core_severity": {
       "oneOf": [ { "const": "error" }, { "const": "warning" } ]
@@ -119,8 +111,7 @@
       "properties": {
         "okfiles": { "type": "integer" },
         "errorfiles": { "type": "integer" }
-      },
-      "additionalProperties": false
+      }
     },
     "skipped_target": {
       "type": "object",
@@ -130,8 +121,7 @@
         "reason": { "$ref": "#/definitions/skip_reason" },
         "details": { "type": "string" },
         "rule_id": { "$ref": "#/definitions/rule_id" }
-      },
-      "additionalProperties": false
+      }
     },
     "skip_reason": {
       "oneOf": [
@@ -151,8 +141,7 @@
         "rule_id": { "$ref": "#/definitions/rule_id" },
         "details": { "type": "string" },
         "position": { "$ref": "#/definitions/position" }
-      },
-      "additionalProperties": false
+      }
     },
     "core_timing": {
       "type": "object",
@@ -167,8 +156,7 @@
           "items": { "$ref": "#/definitions/rule_id" }
         },
         "rules_parse_time": { "type": "number" }
-      },
-      "additionalProperties": false
+      }
     },
     "target_time": {
       "type": "object",
@@ -180,8 +168,7 @@
           "items": { "$ref": "#/definitions/rule_times" }
         },
         "run_time": { "type": "number" }
-      },
-      "additionalProperties": false
+      }
     },
     "rule_times": {
       "type": "object",
@@ -190,8 +177,7 @@
         "rule_id": { "$ref": "#/definitions/rule_id" },
         "parse_time": { "type": "number" },
         "match_time": { "type": "number" }
-      },
-      "additionalProperties": false
+      }
     },
     "cve_result": {
       "type": "object",
@@ -200,8 +186,7 @@
         "url": { "type": "string" },
         "filename": { "type": "string" },
         "funcnames": { "type": "array", "items": { "type": "string" } }
-      },
-      "additionalProperties": false
+      }
     },
     "cve_results": {
       "type": "array",
@@ -229,8 +214,7 @@
         },
         "stats": { "$ref": "#/definitions/core_stats" },
         "time": { "$ref": "#/definitions/core_timing" }
-      },
-      "additionalProperties": false
+      }
     },
     "cli_error": {
       "type": "object",
@@ -249,8 +233,7 @@
           "items": { "$ref": "#/definitions/error_span" }
         },
         "help": { "type": "string" }
-      },
-      "additionalProperties": false
+      }
     },
     "error_span": {
       "type": "object",
@@ -268,8 +251,7 @@
         "source_hash": { "type": "string" },
         "context_start": { "$ref": "#/definitions/position_bis" },
         "context_end": { "$ref": "#/definitions/position_bis" }
-      },
-      "additionalProperties": false
+      }
     },
     "position_bis": {
       "type": "object",
@@ -277,8 +259,7 @@
       "properties": {
         "line": { "type": "integer" },
         "col": { "type": "integer" }
-      },
-      "additionalProperties": false
+      }
     },
     "legacy_span": {
       "type": "object",
@@ -290,8 +271,7 @@
           "type": [ "array", "null" ],
           "items": { "type": "string" }
         }
-      },
-      "additionalProperties": false
+      }
     },
     "cli_match": {
       "type": "object",
@@ -302,8 +282,7 @@
         "start": { "$ref": "#/definitions/position" },
         "end": { "$ref": "#/definitions/position" },
         "extra": { "$ref": "#/definitions/cli_match_extra" }
-      },
-      "additionalProperties": false
+      }
     },
     "cli_match_extra": {
       "type": "object",
@@ -323,8 +302,7 @@
         "dependency_match_only": { "type": "boolean" },
         "dependency_matches": { "$ref": "#/definitions/raw_json" },
         "fixed_lines": { "type": "array", "items": { "type": "string" } }
-      },
-      "additionalProperties": false
+      }
     },
     "fix_regex": {
       "type": "object",
@@ -333,8 +311,7 @@
         "regex": { "type": "string" },
         "replacement": { "type": "string" },
         "count": { "type": "integer" }
-      },
-      "additionalProperties": false
+      }
     },
     "cli_output_extra": {
       "type": "object",
@@ -342,8 +319,7 @@
       "properties": {
         "paths": { "$ref": "#/definitions/cli_paths" },
         "time": { "$ref": "#/definitions/cli_timing" }
-      },
-      "additionalProperties": false
+      }
     },
     "cli_paths": {
       "type": "object",
@@ -355,8 +331,7 @@
           "type": "array",
           "items": { "$ref": "#/definitions/cli_skipped_target" }
         }
-      },
-      "additionalProperties": false
+      }
     },
     "cli_skipped_target": {
       "type": "object",
@@ -364,8 +339,7 @@
       "properties": {
         "path": { "type": "string" },
         "reason": { "type": "string" }
-      },
-      "additionalProperties": false
+      }
     },
     "cli_timing": {
       "type": "object",
@@ -388,14 +362,12 @@
           "items": { "$ref": "#/definitions/cli_target_times" }
         },
         "total_bytes": { "type": "integer" }
-      },
-      "additionalProperties": false
+      }
     },
     "rule_id_dict": {
       "type": "object",
       "required": [ "id" ],
-      "properties": { "id": { "$ref": "#/definitions/rule_id" } },
-      "additionalProperties": false
+      "properties": { "id": { "$ref": "#/definitions/rule_id" } }
     },
     "cli_target_times": {
       "type": "object",
@@ -408,8 +380,7 @@
         "match_times": { "type": "array", "items": { "type": "number" } },
         "parse_times": { "type": "array", "items": { "type": "number" } },
         "run_time": { "type": "number" }
-      },
-      "additionalProperties": false
+      }
     },
     "api_scans_findings": {
       "type": "object",
@@ -427,8 +398,7 @@
         "searched_paths": { "type": "array", "items": { "type": "string" } },
         "rule_ids": { "type": "array", "items": { "type": "string" } },
         "cai_ids": { "type": "array", "items": { "type": "string" } }
-      },
-      "additionalProperties": false
+      }
     },
     "finding": {
       "type": "object",
@@ -452,8 +422,7 @@
         "metadata": { "$ref": "#/definitions/raw_json" },
         "is_blocking": { "type": "boolean" },
         "fixed_lines": { "type": "array", "items": { "type": "string" } }
-      },
-      "additionalProperties": false
+      }
     }
   }
 }

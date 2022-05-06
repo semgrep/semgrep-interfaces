@@ -1,16 +1,26 @@
 (*****************************************************************************)
 (* Prelude *)
 (*****************************************************************************)
-(* Type definitions for Semgrep CLI JSON output.
+(* Type definitions for Semgrep CLI JSON output format using ATD.
  *
- * This specifies for now only the JSON format of the 'scan' (default) command.
+ * This file specifies for now mostly the JSON format of the 'scan' command
+ * (the default command of semgrep).
  *
- * This file has the _v1 suffix to explicitely represent the
+ * For the definitions of the Semgrep input, see the rule_schema.yaml file
+ * in the semgrep repository.
+ *
+ * This file has the _v0 suffix to explicitely represent the
  * version of this JSON format. If you need to extend this file, please
  * be careful because you may break consumers of this format (e.g., the
- * Semgrep playground or Semgrep App backend). See
+ * Semgrep playground or Semgrep App backend or external users of this JSON). See
  * https://atd.readthedocs.io/en/latest/atdgen-tutorial.html?highlight=json#smooth-protocol-upgrades
  * for more information on how to smoothly extend the types in this file.
+ *
+ * The versioning of this file should match the versioning of Semgrep.
+ * Any backward incompatible changes should require to upgrade the major version
+ * of Semgrep as this JSON output is part of the "API" of Semgrep
+ * (any incompatible changes to the rule format should also require a major
+ *  version upgrade).
  *
  * This file currently contains also the type definitions for semgrep-core's
  * JSON output, meant for the semgrep Python wrapper.
@@ -33,15 +43,13 @@
  *    use by spacegrep when it was separate from semgrep-core. It's now also used
  *    in JSON_report.ml
  *
- * There are other very important form of outputs which are not specified here:
+ * There are other important form of outputs which are not specified here:
  *  - the schema for the generic AST dump is in AST_generic_v1.atd
  *  - The parsing stats of semgrep-core -parsing_stats -json have its own
  *    Parsing_stats.atd
  *
  * TODO:
- *   - see the TODO: and LATER: tags in this file
- *   - see the use of 'raw_json' type, try to transform as a real type when
- *     possible ('metadata:' can't for example, but the other like span: might)
+ *   - see the TODO: (high-prio) and LATER: (low-prio) tags in this file
  *)
 
 (*****************************************************************************)
@@ -65,7 +73,13 @@ class Abstract:
 
 (* escape hatch *)
 type raw_json <ocaml module="Yojson.Safe" t="t"> = abstract
-                                          
+
+(*****************************************************************************)
+(* Versioning *)
+(*****************************************************************************)
+(* semantic versioning, see http://semver.org/spec/v2.0.0.html *)
+type semver = string (* e.g., "0.91.0" *)
+
 (*****************************************************************************)
 (* Location *)
 (*****************************************************************************)
@@ -73,7 +87,7 @@ type position
   <python decorator="dataclass(frozen=True, order=True)"> = {
   line: int; (* starts from 1 *)
   col: int; (* starts from 1 *)
-  (* TODO: seems optional in some CLI output *)
+  (* TODO: seems optional in some CLI output, merge with position_bis *)
   offset: int; (* byte position from the beginning of the file, starts at 0 *)
 }
 
@@ -98,17 +112,14 @@ type core_match
   extra: core_match_extra;
 }
 
-(*
-     name/value map of the matched metavariables.
-     The leading '$' must be included in the metavariable name.
-
-     TODO: semgrep-core always return a metavars, but dependency_aware Python code
-     does not always generate a metavars (and match_extra is inherited
-     in final_extra, hence the '?' below)
+(* Name/value map of the matched metavariables.
+ * The leading '$' must be included in the metavariable name.
+ * TODO: semgrep-core always return a metavars, but dependency_aware Python code
+ * does not always generate a metavars
 *)
 type metavars = (string * metavar_value) list
-               <json repr="object">
-               <python repr="dict">
+   <json repr="object">
+   <python repr="dict">
 
 type core_match_extra
   <python decorator="dataclass(frozen=True)"> = {
@@ -130,23 +141,23 @@ type metavar_value
   ?propagated_value: svalue_value option;
 
   (* The unique ID of a metavariable indicates the kind object that was
-     captured for equality purposes. In the simplest case, this is only
-     the name of the metavariable. In semgrep, it can additionally include
-     a disambiguator. For example, consider this target code:
-
-       let foo = 1;
-       {
-         let foo = 2;
-       }
-
-     The pattern '$X' would match the first 'foo' and the second 'foo'.
-     In semgrep, these two 'foo's are identified as different variables,
-     and this is done by setting the metavariable capture's unique ID to
-     something like foo-1' and 'foo-2'. Even though their contents look
-     identical, they're not the same thing.
-
-     Spacegrep doesn't make this analysis, so these two captures will
-     be considered identical, which is not as good.
+   * captured for equality purposes. In the simplest case, this is only
+   * the name of the metavariable. In semgrep, it can additionally include
+   * a disambiguator. For example, consider this target code:
+   *
+   *   let foo = 1;
+   *   {
+   *     let foo = 2;
+   *   }
+   *
+   * The pattern '$X' would match the first 'foo' and the second 'foo'.
+   * In semgrep, these two 'foo's are identified as different variables,
+   * and this is done by setting the metavariable capture's unique ID to
+   * something like foo-1' and 'foo-2'. Even though their contents look
+   * identical, they're not the same thing.
+   *
+   * Spacegrep doesn't make this analysis, so these two captures will
+   * be considered identical, which is not as good.
   *)
   unique_id: unique_id;
 }
@@ -158,17 +169,16 @@ type svalue_value
   svalue_abstract_content: string; (* value? *)
 }
 
-(*
-   This is just the variant for type=AST.
-   In order to accommodate two record types into one variant, use
-   the atdgen feature called a json adapter.
+(* This is just the variant for type=AST.
+ * In order to accommodate two record types into one variant, use
+ * the atdgen feature called a json adapter.
 *)
 type unique_id
   <python decorator="dataclass(frozen=True)"> = {
-  (* pad: we should use a sum type here because it's either
-     AST of md5sum | Id of sid * ... but that would require
-     to update the python side, so for now I use optional
-     fields, but really at least one of md5sum or sid should be a Some
+  (* TODO: we should use a sum type here because it's either
+   * AST of md5sum | Id of sid * ... but that would require
+   * to update the python side, so for now I use optional
+   * fields, but really at least one of md5sum or sid should be a Some
    *)
   type_ <json name="type">: unique_id_type;
   (* AST case *)
@@ -218,10 +228,9 @@ type core_stats
 (* Skipping information *)
 (*****************************************************************************)
 
-(*
-   If the 'rule_id' field is missing, the target is assumed to have
-   been skipped for all the rules.
-*)
+(* If the 'rule_id' field is missing, the target is assumed to have
+ *  been skipped for all the rules.
+ *)
 type skipped_target
   <python decorator="dataclass(frozen=True)"> = {
   path: string;
@@ -230,9 +239,7 @@ type skipped_target
   ?rule_id: rule_id option;
 }
 
-(*
-   A reason for skipping a target file or a pair (target, rule).
-*)
+(* A reason for skipping a target file or a pair (target, rule). *)
 type skip_reason
   <python decorator="dataclass(frozen=True)"> = [
   | Excluded_by_config <json name="excluded_by_config">
@@ -448,6 +455,9 @@ type fix_regex = {
  * in output.py but at least those types serve as a spec.
  *)
 type cli_output = {
+    (* since: 0.92 *)
+    ?version: semver option;
+    
     errors: cli_error list;
     results: cli_match list;
     inherit cli_output_extra;
@@ -529,6 +539,7 @@ type cli_stats = {
  * there is also api_scans_meta, api_scans_ignores, and api_scans_complete
 *)
 type api_scans_findings = {
+  (* TODO: ?version: semver option; *)
    findings: finding list;
    token: string nullable;
    gitlab_token: string nullable;

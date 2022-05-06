@@ -10,6 +10,8 @@
 
 export type RawJson = any
 
+export type Semver = string
+
 export type Position = {
   line: Int;
   col: Int;
@@ -203,6 +205,7 @@ export type FixRegex = {
 }
 
 export type CliOutput = {
+  version?: Semver;
   errors: CliError[];
   results: CliMatch[];
   paths: CliPaths;
@@ -277,6 +280,14 @@ export function writeRawJson(x: RawJson, context: any = x): any {
 
 export function readRawJson(x: any, context: any = x): RawJson {
   return readAbstract(x, context);
+}
+
+export function writeSemver(x: Semver, context: any = x): any {
+  return _atd_write_string(x, context);
+}
+
+export function readSemver(x: any, context: any = x): Semver {
+  return _atd_read_string(x, context);
 }
 
 export function writePosition(x: Position, context: any = x): any {
@@ -818,6 +829,7 @@ export function readFixRegex(x: any, context: any = x): FixRegex {
 
 export function writeCliOutput(x: CliOutput, context: any = x): any {
   return {
+    'version': _atd_write_optional_field(writeSemver, x.version, x),
     'errors': _atd_write_required_field('CliOutput', 'errors', _atd_write_array(writeCliError), x.errors, x),
     'results': _atd_write_required_field('CliOutput', 'results', _atd_write_array(writeCliMatch), x.results, x),
     'paths': _atd_write_required_field('CliOutput', 'paths', writeCliPaths, x.paths, x),
@@ -827,6 +839,7 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
 
 export function readCliOutput(x: any, context: any = x): CliOutput {
   return {
+    version: _atd_read_optional_field(readSemver, x['version'], x),
     errors: _atd_read_required_field('CliOutput', 'errors', _atd_read_array(readCliError), x['errors'], x),
     results: _atd_read_required_field('CliOutput', 'results', _atd_read_array(readCliMatch), x['results'], x),
     paths: _atd_read_required_field('CliOutput', 'paths', readCliPaths, x['paths'], x),
