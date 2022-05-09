@@ -103,7 +103,7 @@
       "required": [ "error_type", "severity", "location", "message" ],
       "properties": {
         "rule_id": { "$ref": "#/definitions/rule_id" },
-        "error_type": { "type": "string" },
+        "error_type": { "type": "#/definitions/core_error_kind" },
         "severity": { "$ref": "#/definitions/core_severity" },
         "location": { "$ref": "#/definitions/location" },
         "message": { "type": "string" },
