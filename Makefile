@@ -3,8 +3,18 @@
 
 VER=v0
 
+FILES= \
+  Semgrep_output_$(VER)_j.ml \
+  Semgrep_output_$(VER)_j.mli \
+  semgrep_output_$(VER).py \
+  semgrep_output_$(VER).ts \
+  semgrep_output_$(VER).jsonschema
+
 .PHONY: build
-build: semgrep_output_$(VER).py semgrep_output_$(VER).ts semgrep_output_$(VER).jsonschema
+build: $(FILES)
+
+Semgrep_output_$(VER)_j.ml Semgrep_output_$(VER)_j.mli: Semgrep_output_$(VER).atd
+	atdgen -j -j-std $<
 
 semgrep_output_$(VER).py: Semgrep_output_$(VER).atd
 	atdpy $<
@@ -15,3 +25,7 @@ semgrep_output_$(VER).ts: Semgrep_output_$(VER).atd
 # need atdcat >= 2.6.0
 semgrep_output_$(VER).jsonschema: Semgrep_output_$(VER).atd
 	atdcat -jsonschema cli_output $< > $@
+
+clean:
+	rm -f $(FILES)
+

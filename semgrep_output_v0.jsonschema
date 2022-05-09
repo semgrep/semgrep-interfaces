@@ -94,13 +94,30 @@
       "required": [ "error_type", "severity", "location", "message" ],
       "properties": {
         "rule_id": { "$ref": "#/definitions/rule_id" },
-        "error_type": { "type": "string" },
+        "error_type": { "$ref": "#/definitions/core_error_kind" },
         "severity": { "$ref": "#/definitions/core_severity" },
         "location": { "$ref": "#/definitions/location" },
         "message": { "type": "string" },
         "details": { "type": "string" },
         "yaml_path": { "type": "array", "items": { "type": "string" } }
       }
+    },
+    "core_error_kind": {
+      "oneOf": [
+        { "const": "Lexical error" },
+        { "const": "Syntax error" },
+        { "const": "Other syntax error" },
+        { "const": "AST builder error" },
+        { "const": "Rule parse error" },
+        { "const": "Pattern parse error" },
+        { "const": "Invalid YAML" },
+        { "const": "Internal matching error" },
+        { "const": "Semgrep match found" },
+        { "const": "Too many matches" },
+        { "const": "Fatal error" },
+        { "const": "Timeout" },
+        { "const": "Out of memory" }
+      ]
     },
     "core_severity": {
       "oneOf": [ { "const": "error" }, { "const": "warning" } ]

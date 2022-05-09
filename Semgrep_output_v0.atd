@@ -201,15 +201,36 @@ type unique_id_type
 type core_error
   <python decorator="dataclass(frozen=True)"> = {
   ?rule_id: rule_id option;
-  (* LATER: use a variant. Define Semgrep_error_code.error_kind here *)
-  error_type: string;
+  error_type: core_error_kind;
   severity: core_severity;
   location: location;
   message: string;
   ?details: string option;
   (* ??? for error when parsing a rule? *)
   ?yaml_path: string list option;
-}
+  }
+
+type core_error_kind
+  <python decorator="dataclass(frozen=True, order=True)"> = [
+  (* File parsing related errors *)
+  | LexicalError <json name="Lexical error">
+  | ParseError (* a.k.a SyntaxError *) <json name="Syntax error">
+  | SpecifiedParseError <json name="Other syntax error">
+  | AstBuilderError <json name="AST builder error">
+  (* pattern parsing related errors *)
+  | RuleParseError <json name="Rule parse error">
+  | PatternParseError <json name="Pattern parse error">
+  | InvalidYaml <json name="Invalid YAML">
+  (* matching (semgrep) related *)
+  | MatchingError (* internal error, e.g., NoTokenLocation *) <json name="Internal matching error">
+  | SemgrepMatchFound (* TODO of string (* check_id *) *) <json name="Semgrep match found">
+  | TooManyMatches <json name="Too many matches">
+  (* other *)
+  | FatalError (* missing file, OCaml errors, etc. *) <json name="Fatal error">
+  | Timeout <json name="Timeout">
+  | OutOfMemory <json name="Out of memory">
+] <ocaml repr="classic">
+  
 
 type core_severity
   <python decorator="dataclass(frozen=True)"> = [
@@ -294,7 +315,6 @@ type rule_times
 (*****************************************************************************)
 (* Synthesizing from diffs (see locate_patched_functions in Synthesizing.mli) *)
 (*****************************************************************************)
-
 type cve_result
   <python decorator="dataclass(frozen=True)"> = {
    url: string;
@@ -308,19 +328,19 @@ type cve_results
 (*****************************************************************************)
 (* Semgrep-core final output  *)
 (*****************************************************************************)
-
 type core_match_results
   <python decorator="dataclass(frozen=True)"> = {
   matches: core_match list;
   errors: core_error list;
+
   skipped_targets <json name="skipped">: skipped_target list;
   (* skipped_rules was introduced  in semgrep 0.86 *)
   ?skipped_rules: skipped_rule list option;
+
   stats: core_stats;
   (* LATER: rename timing *)
   ?time: core_timing option;
 }
-
 
 (*****************************************************************************)
 (* CLI Errors (called SemgrepError in error.py) *)
@@ -336,8 +356,10 @@ type cli_error = {
   code: int;
   (* TODO: use a variant *)
   level: string;
-  (* TODO: use a variant (Pattern parse error | InvalidRuleSchemaError | ... 
-   * or inherit/extend core_error.error_type
+  (* TODO: use a variant that or inherit/extend core_error_kind
+   * Right now we can't just use core_error_kind because SemgrepException
+   * can also use self.__name__ for the type_, so we need to list
+   * all the possible classes here (see error.py)
    *)
   type_ <json name="type">: string;
 

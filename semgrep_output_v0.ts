@@ -65,13 +65,28 @@ export type UniqueIdType =
 
 export type CoreError = {
   rule_id?: RuleId;
-  error_type: string;
+  error_type: CoreErrorKind;
   severity: CoreSeverity;
   location: Location;
   message: string;
   details?: string;
   yaml_path?: string[];
 }
+
+export type CoreErrorKind =
+| { kind: 'LexicalError' /* JSON: "Lexical error" */ }
+| { kind: 'ParseError' /* JSON: "Syntax error" */ }
+| { kind: 'SpecifiedParseError' /* JSON: "Other syntax error" */ }
+| { kind: 'AstBuilderError' /* JSON: "AST builder error" */ }
+| { kind: 'RuleParseError' /* JSON: "Rule parse error" */ }
+| { kind: 'PatternParseError' /* JSON: "Pattern parse error" */ }
+| { kind: 'InvalidYaml' /* JSON: "Invalid YAML" */ }
+| { kind: 'MatchingError' /* JSON: "Internal matching error" */ }
+| { kind: 'SemgrepMatchFound' /* JSON: "Semgrep match found" */ }
+| { kind: 'TooManyMatches' /* JSON: "Too many matches" */ }
+| { kind: 'FatalError' /* JSON: "Fatal error" */ }
+| { kind: 'Timeout' }
+| { kind: 'OutOfMemory' /* JSON: "Out of memory" */ }
 
 export type CoreSeverity =
 | { kind: 'Error' /* JSON: "error" */ }
@@ -444,7 +459,7 @@ export function readUniqueIdType(x: any, context: any = x): UniqueIdType {
 export function writeCoreError(x: CoreError, context: any = x): any {
   return {
     'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
-    'error_type': _atd_write_required_field('CoreError', 'error_type', _atd_write_string, x.error_type, x),
+    'error_type': _atd_write_required_field('CoreError', 'error_type', writeCoreErrorKind, x.error_type, x),
     'severity': _atd_write_required_field('CoreError', 'severity', writeCoreSeverity, x.severity, x),
     'location': _atd_write_required_field('CoreError', 'location', writeLocation, x.location, x),
     'message': _atd_write_required_field('CoreError', 'message', _atd_write_string, x.message, x),
@@ -456,13 +471,78 @@ export function writeCoreError(x: CoreError, context: any = x): any {
 export function readCoreError(x: any, context: any = x): CoreError {
   return {
     rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
-    error_type: _atd_read_required_field('CoreError', 'error_type', _atd_read_string, x['error_type'], x),
+    error_type: _atd_read_required_field('CoreError', 'error_type', readCoreErrorKind, x['error_type'], x),
     severity: _atd_read_required_field('CoreError', 'severity', readCoreSeverity, x['severity'], x),
     location: _atd_read_required_field('CoreError', 'location', readLocation, x['location'], x),
     message: _atd_read_required_field('CoreError', 'message', _atd_read_string, x['message'], x),
     details: _atd_read_optional_field(_atd_read_string, x['details'], x),
     yaml_path: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['yaml_path'], x),
   };
+}
+
+export function writeCoreErrorKind(x: CoreErrorKind, context: any = x): any {
+  switch (x.kind) {
+    case 'LexicalError':
+      return 'Lexical error'
+    case 'ParseError':
+      return 'Syntax error'
+    case 'SpecifiedParseError':
+      return 'Other syntax error'
+    case 'AstBuilderError':
+      return 'AST builder error'
+    case 'RuleParseError':
+      return 'Rule parse error'
+    case 'PatternParseError':
+      return 'Pattern parse error'
+    case 'InvalidYaml':
+      return 'Invalid YAML'
+    case 'MatchingError':
+      return 'Internal matching error'
+    case 'SemgrepMatchFound':
+      return 'Semgrep match found'
+    case 'TooManyMatches':
+      return 'Too many matches'
+    case 'FatalError':
+      return 'Fatal error'
+    case 'Timeout':
+      return 'Timeout'
+    case 'OutOfMemory':
+      return 'Out of memory'
+  }
+}
+
+export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
+  switch (x) {
+    case 'Lexical error':
+      return { kind: 'LexicalError' }
+    case 'Syntax error':
+      return { kind: 'ParseError' }
+    case 'Other syntax error':
+      return { kind: 'SpecifiedParseError' }
+    case 'AST builder error':
+      return { kind: 'AstBuilderError' }
+    case 'Rule parse error':
+      return { kind: 'RuleParseError' }
+    case 'Pattern parse error':
+      return { kind: 'PatternParseError' }
+    case 'Invalid YAML':
+      return { kind: 'InvalidYaml' }
+    case 'Internal matching error':
+      return { kind: 'MatchingError' }
+    case 'Semgrep match found':
+      return { kind: 'SemgrepMatchFound' }
+    case 'Too many matches':
+      return { kind: 'TooManyMatches' }
+    case 'Fatal error':
+      return { kind: 'FatalError' }
+    case 'Timeout':
+      return { kind: 'Timeout' }
+    case 'Out of memory':
+      return { kind: 'OutOfMemory' }
+    default:
+      _atd_bad_json('CoreErrorKind', x, context)
+      throw new Error('impossible')
+  }
 }
 
 export function writeCoreSeverity(x: CoreSeverity, context: any = x): any {
