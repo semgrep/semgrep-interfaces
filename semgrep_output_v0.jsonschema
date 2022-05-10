@@ -254,18 +254,18 @@
     },
     "error_span": {
       "type": "object",
-      "required": [ "config_start", "config_end", "config_path" ],
+      "required": [ "file", "start", "end" ],
       "properties": {
+        "file": { "type": "string" },
+        "start": { "$ref": "#/definitions/position_bis" },
+        "end": { "$ref": "#/definitions/position_bis" },
+        "source_hash": { "type": "string" },
         "config_start": { "$ref": "#/definitions/position_bis" },
         "config_end": { "$ref": "#/definitions/position_bis" },
         "config_path": {
           "type": [ "array", "null" ],
           "items": { "type": "string" }
         },
-        "file": { "type": "string" },
-        "start": { "$ref": "#/definitions/position_bis" },
-        "end": { "$ref": "#/definitions/position_bis" },
-        "source_hash": { "type": "string" },
         "context_start": { "$ref": "#/definitions/position_bis" },
         "context_end": { "$ref": "#/definitions/position_bis" }
       }
@@ -276,18 +276,6 @@
       "properties": {
         "line": { "type": "integer" },
         "col": { "type": "integer" }
-      }
-    },
-    "legacy_span": {
-      "type": "object",
-      "required": [ "config_start", "config_end", "config_path" ],
-      "properties": {
-        "config_start": { "$ref": "#/definitions/position_bis" },
-        "config_end": { "$ref": "#/definitions/position_bis" },
-        "config_path": {
-          "type": [ "array", "null" ],
-          "items": { "type": "string" }
-        }
       }
     },
     "cli_match": {

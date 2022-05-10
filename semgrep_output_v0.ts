@@ -168,13 +168,13 @@ export type CliError = {
 }
 
 export type ErrorSpan = {
-  config_start: (PositionBis | null);
-  config_end: (PositionBis | null);
-  config_path: (string[] | null);
-  file?: string;
-  start?: PositionBis;
-  end?: PositionBis;
+  file: string;
+  start: PositionBis;
+  end: PositionBis;
   source_hash?: string;
+  config_start?: (PositionBis | null);
+  config_end?: (PositionBis | null);
+  config_path?: (string[] | null);
   context_start?: (PositionBis | null);
   context_end?: (PositionBis | null);
 }
@@ -182,12 +182,6 @@ export type ErrorSpan = {
 export type PositionBis = {
   line: Int;
   col: Int;
-}
-
-export type LegacySpan = {
-  config_start: (PositionBis | null);
-  config_end: (PositionBis | null);
-  config_path: (string[] | null);
 }
 
 export type CliMatch = {
@@ -781,13 +775,13 @@ export function readCliError(x: any, context: any = x): CliError {
 
 export function writeErrorSpan(x: ErrorSpan, context: any = x): any {
   return {
-    'config_start': _atd_write_required_field('ErrorSpan', 'config_start', writePositionBis, x.config_start, x),
-    'config_end': _atd_write_required_field('ErrorSpan', 'config_end', writePositionBis, x.config_end, x),
-    'config_path': _atd_write_required_field('ErrorSpan', 'config_path', _atd_write_array(_atd_write_string), x.config_path, x),
-    'file': _atd_write_optional_field(_atd_write_string, x.file, x),
-    'start': _atd_write_optional_field(writePositionBis, x.start, x),
-    'end': _atd_write_optional_field(writePositionBis, x.end, x),
+    'file': _atd_write_required_field('ErrorSpan', 'file', _atd_write_string, x.file, x),
+    'start': _atd_write_required_field('ErrorSpan', 'start', writePositionBis, x.start, x),
+    'end': _atd_write_required_field('ErrorSpan', 'end', writePositionBis, x.end, x),
     'source_hash': _atd_write_optional_field(_atd_write_string, x.source_hash, x),
+    'config_start': _atd_write_optional_field(writePositionBis, x.config_start, x),
+    'config_end': _atd_write_optional_field(writePositionBis, x.config_end, x),
+    'config_path': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.config_path, x),
     'context_start': _atd_write_optional_field(writePositionBis, x.context_start, x),
     'context_end': _atd_write_optional_field(writePositionBis, x.context_end, x),
   };
@@ -795,13 +789,13 @@ export function writeErrorSpan(x: ErrorSpan, context: any = x): any {
 
 export function readErrorSpan(x: any, context: any = x): ErrorSpan {
   return {
-    config_start: _atd_read_required_field('ErrorSpan', 'config_start', _atd_read_nullable(readPositionBis), x['config_start'], x),
-    config_end: _atd_read_required_field('ErrorSpan', 'config_end', _atd_read_nullable(readPositionBis), x['config_end'], x),
-    config_path: _atd_read_required_field('ErrorSpan', 'config_path', _atd_read_nullable(_atd_read_array(_atd_read_string)), x['config_path'], x),
-    file: _atd_read_optional_field(_atd_read_string, x['file'], x),
-    start: _atd_read_optional_field(readPositionBis, x['start'], x),
-    end: _atd_read_optional_field(readPositionBis, x['end'], x),
+    file: _atd_read_required_field('ErrorSpan', 'file', _atd_read_string, x['file'], x),
+    start: _atd_read_required_field('ErrorSpan', 'start', readPositionBis, x['start'], x),
+    end: _atd_read_required_field('ErrorSpan', 'end', readPositionBis, x['end'], x),
     source_hash: _atd_read_optional_field(_atd_read_string, x['source_hash'], x),
+    config_start: _atd_read_optional_field(_atd_read_nullable(readPositionBis), x['config_start'], x),
+    config_end: _atd_read_optional_field(_atd_read_nullable(readPositionBis), x['config_end'], x),
+    config_path: _atd_read_optional_field(_atd_read_nullable(_atd_read_array(_atd_read_string)), x['config_path'], x),
     context_start: _atd_read_optional_field(_atd_read_nullable(readPositionBis), x['context_start'], x),
     context_end: _atd_read_optional_field(_atd_read_nullable(readPositionBis), x['context_end'], x),
   };
@@ -818,22 +812,6 @@ export function readPositionBis(x: any, context: any = x): PositionBis {
   return {
     line: _atd_read_required_field('PositionBis', 'line', _atd_read_int, x['line'], x),
     col: _atd_read_required_field('PositionBis', 'col', _atd_read_int, x['col'], x),
-  };
-}
-
-export function writeLegacySpan(x: LegacySpan, context: any = x): any {
-  return {
-    'config_start': _atd_write_required_field('LegacySpan', 'config_start', writePositionBis, x.config_start, x),
-    'config_end': _atd_write_required_field('LegacySpan', 'config_end', writePositionBis, x.config_end, x),
-    'config_path': _atd_write_required_field('LegacySpan', 'config_path', _atd_write_array(_atd_write_string), x.config_path, x),
-  };
-}
-
-export function readLegacySpan(x: any, context: any = x): LegacySpan {
-  return {
-    config_start: _atd_read_required_field('LegacySpan', 'config_start', _atd_read_nullable(readPositionBis), x['config_start'], x),
-    config_end: _atd_read_required_field('LegacySpan', 'config_end', _atd_read_nullable(readPositionBis), x['config_end'], x),
-    config_path: _atd_read_required_field('LegacySpan', 'config_path', _atd_read_nullable(_atd_read_array(_atd_read_string)), x['config_path'], x),
   };
 }
 

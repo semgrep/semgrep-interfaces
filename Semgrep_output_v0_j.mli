@@ -80,12 +80,6 @@ type location = Semgrep_output_v0_t.location = {
   end_ (*atd end *): position
 }
 
-type legacy_span = Semgrep_output_v0_t.legacy_span = {
-  config_start: position_bis option;
-  config_end: position_bis option;
-  config_path: string list option
-}
-
 type fix_regex = Semgrep_output_v0_t.fix_regex = {
   regex: string;
   replacement: string;
@@ -110,13 +104,13 @@ type finding = Semgrep_output_v0_t.finding = {
 }
 
 type error_span = Semgrep_output_v0_t.error_span = {
-  config_start: position_bis option;
-  config_end: position_bis option;
-  config_path: string list option;
-  file: string option;
-  start: position_bis option;
-  end_ (*atd end *): position_bis option;
+  file: string;
+  start: position_bis;
+  end_ (*atd end *): position_bis;
   source_hash: string option;
+  config_start: position_bis option option;
+  config_end: position_bis option option;
+  config_path: string list option option;
   context_start: position_bis option option;
   context_end: position_bis option option
 }
@@ -602,26 +596,6 @@ val read_location :
 val location_of_string :
   string -> location
   (** Deserialize JSON data of type {!location}. *)
-
-val write_legacy_span :
-  Bi_outbuf.t -> legacy_span -> unit
-  (** Output a JSON value of type {!legacy_span}. *)
-
-val string_of_legacy_span :
-  ?len:int -> legacy_span -> string
-  (** Serialize a value of type {!legacy_span}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_legacy_span :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> legacy_span
-  (** Input JSON data of type {!legacy_span}. *)
-
-val legacy_span_of_string :
-  string -> legacy_span
-  (** Deserialize JSON data of type {!legacy_span}. *)
 
 val write_fix_regex :
   Bi_outbuf.t -> fix_regex -> unit
