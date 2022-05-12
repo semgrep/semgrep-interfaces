@@ -1050,11 +1050,11 @@ class ErrorSpan:
     start: PositionBis
     end: PositionBis
     source_hash: Optional[str] = None
-    config_start: Optional[PositionBis] = None
-    config_end: Optional[PositionBis] = None
-    config_path: Optional[List[str]] = None
-    context_start: Optional[PositionBis] = None
-    context_end: Optional[PositionBis] = None
+    config_start: Optional[Optional[PositionBis]] = None
+    config_end: Optional[Optional[PositionBis]] = None
+    config_path: Optional[Optional[List[str]]] = None
+    context_start: Optional[Optional[PositionBis]] = None
+    context_end: Optional[Optional[PositionBis]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ErrorSpan':
@@ -2118,8 +2118,8 @@ class ApiScansFindings:
     """Original type: api_scans_findings = { ... }"""
 
     findings: List[Finding]
-    token: str
-    gitlab_token: str
+    token: Optional[str]
+    gitlab_token: Optional[str]
     searched_paths: List[str]
     rule_ids: List[str]
     cai_ids: List[str]
