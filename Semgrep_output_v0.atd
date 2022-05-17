@@ -380,18 +380,25 @@ type cli_error = {
 
 (* TODO: get rid of rule_lang.Span *)
 type error_span = {
-    (* TODO: use a variant, so don't have to put all those '?' and nullable *)
-    inherit legacy_span;
-
     (* for InvalidRuleSchemaError *)
     (* LATER: could inherit location; but file: vs path: *)
-    (* TODO: all those fields are actually mandatory when the error_span            
-     * is not a legact_span *)
-    ?file: string option;
-    ?start: position_bis option;
-    ?end <ocaml name="end_">: position_bis option;
+    (* TODO: source hash should probably also be mandatory? *)
+    file: string;
+    start: position_bis;
+    end <ocaml name="end_">: position_bis;
     ?source_hash: string option;
-    (* those are really optional *)
+
+    (*  The path to the pattern in the yaml rule
+     *  and an adjusted start/end within just the pattern
+     *  Used to report playground parse errors in the simple editor
+     *
+     *  TODO: remove this or add back simple editor error highlighting
+     *)
+    ?config_start: position_bis nullable option;
+    ?config_end: position_bis nullable option;
+    ?config_path: string list nullable option;
+    
+    (* LATER: what is this for? *)
     ?context_start: position_bis nullable option;
     ?context_end: position_bis nullable option;
   }
@@ -409,15 +416,7 @@ type position_bis = {
  *  and an adjusted start/end within just the pattern
  *  Used to report playground parse errors in the simpler editor"
  *)
-type legacy_span = {
-  (* for Pattern parse error *)
-  config_start: position_bis nullable;
-  config_end: position_bis nullable;
-  (* LATER: what is that?? e.g. ["rule"; "1"; "pattern"] means? 
-   * see also yaml_path in core_error
-  *)
-  config_path: string list nullable;
-}
+
     
 (*****************************************************************************)
 (* Match result (called RuleMatch in rule_matches.py) *)

@@ -940,40 +940,6 @@ class Location:
 
 
 @dataclass
-class LegacySpan:
-    """Original type: legacy_span = { ... }"""
-
-    config_start: Optional[PositionBis]
-    config_end: Optional[PositionBis]
-    config_path: Optional[List[str]]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'LegacySpan':
-        if isinstance(x, dict):
-            return cls(
-                config_start=_atd_read_nullable(PositionBis.from_json)(x['config_start']) if 'config_start' in x else _atd_missing_json_field('LegacySpan', 'config_start'),
-                config_end=_atd_read_nullable(PositionBis.from_json)(x['config_end']) if 'config_end' in x else _atd_missing_json_field('LegacySpan', 'config_end'),
-                config_path=_atd_read_nullable(_atd_read_list(_atd_read_string))(x['config_path']) if 'config_path' in x else _atd_missing_json_field('LegacySpan', 'config_path'),
-            )
-        else:
-            _atd_bad_json('LegacySpan', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['config_start'] = _atd_write_nullable((lambda x: x.to_json()))(self.config_start)
-        res['config_end'] = _atd_write_nullable((lambda x: x.to_json()))(self.config_end)
-        res['config_path'] = _atd_write_nullable(_atd_write_list(_atd_write_string))(self.config_path)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'LegacySpan':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class FixRegex:
     """Original type: fix_regex = { ... }"""
 
@@ -1080,13 +1046,13 @@ class Finding:
 class ErrorSpan:
     """Original type: error_span = { ... }"""
 
-    config_start: Optional[PositionBis]
-    config_end: Optional[PositionBis]
-    config_path: Optional[List[str]]
-    file: Optional[str] = None
-    start: Optional[PositionBis] = None
-    end: Optional[PositionBis] = None
+    file: str
+    start: PositionBis
+    end: PositionBis
     source_hash: Optional[str] = None
+    config_start: Optional[Optional[PositionBis]] = None
+    config_end: Optional[Optional[PositionBis]] = None
+    config_path: Optional[Optional[List[str]]] = None
     context_start: Optional[Optional[PositionBis]] = None
     context_end: Optional[Optional[PositionBis]] = None
 
@@ -1094,13 +1060,13 @@ class ErrorSpan:
     def from_json(cls, x: Any) -> 'ErrorSpan':
         if isinstance(x, dict):
             return cls(
-                config_start=_atd_read_nullable(PositionBis.from_json)(x['config_start']) if 'config_start' in x else _atd_missing_json_field('ErrorSpan', 'config_start'),
-                config_end=_atd_read_nullable(PositionBis.from_json)(x['config_end']) if 'config_end' in x else _atd_missing_json_field('ErrorSpan', 'config_end'),
-                config_path=_atd_read_nullable(_atd_read_list(_atd_read_string))(x['config_path']) if 'config_path' in x else _atd_missing_json_field('ErrorSpan', 'config_path'),
-                file=_atd_read_string(x['file']) if 'file' in x else None,
-                start=PositionBis.from_json(x['start']) if 'start' in x else None,
-                end=PositionBis.from_json(x['end']) if 'end' in x else None,
+                file=_atd_read_string(x['file']) if 'file' in x else _atd_missing_json_field('ErrorSpan', 'file'),
+                start=PositionBis.from_json(x['start']) if 'start' in x else _atd_missing_json_field('ErrorSpan', 'start'),
+                end=PositionBis.from_json(x['end']) if 'end' in x else _atd_missing_json_field('ErrorSpan', 'end'),
                 source_hash=_atd_read_string(x['source_hash']) if 'source_hash' in x else None,
+                config_start=_atd_read_nullable(PositionBis.from_json)(x['config_start']) if 'config_start' in x else None,
+                config_end=_atd_read_nullable(PositionBis.from_json)(x['config_end']) if 'config_end' in x else None,
+                config_path=_atd_read_nullable(_atd_read_list(_atd_read_string))(x['config_path']) if 'config_path' in x else None,
                 context_start=_atd_read_nullable(PositionBis.from_json)(x['context_start']) if 'context_start' in x else None,
                 context_end=_atd_read_nullable(PositionBis.from_json)(x['context_end']) if 'context_end' in x else None,
             )
@@ -1109,17 +1075,17 @@ class ErrorSpan:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['config_start'] = _atd_write_nullable((lambda x: x.to_json()))(self.config_start)
-        res['config_end'] = _atd_write_nullable((lambda x: x.to_json()))(self.config_end)
-        res['config_path'] = _atd_write_nullable(_atd_write_list(_atd_write_string))(self.config_path)
-        if self.file is not None:
-            res['file'] = _atd_write_string(self.file)
-        if self.start is not None:
-            res['start'] = (lambda x: x.to_json())(self.start)
-        if self.end is not None:
-            res['end'] = (lambda x: x.to_json())(self.end)
+        res['file'] = _atd_write_string(self.file)
+        res['start'] = (lambda x: x.to_json())(self.start)
+        res['end'] = (lambda x: x.to_json())(self.end)
         if self.source_hash is not None:
             res['source_hash'] = _atd_write_string(self.source_hash)
+        if self.config_start is not None:
+            res['config_start'] = _atd_write_nullable((lambda x: x.to_json()))(self.config_start)
+        if self.config_end is not None:
+            res['config_end'] = _atd_write_nullable((lambda x: x.to_json()))(self.config_end)
+        if self.config_path is not None:
+            res['config_path'] = _atd_write_nullable(_atd_write_list(_atd_write_string))(self.config_path)
         if self.context_start is not None:
             res['context_start'] = _atd_write_nullable((lambda x: x.to_json()))(self.context_start)
         if self.context_end is not None:
