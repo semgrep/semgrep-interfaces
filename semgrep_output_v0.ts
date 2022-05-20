@@ -284,11 +284,11 @@ export type Finding = {
 }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
-  return writeAbstract(x, context);
+  return ((x: any): any => x)(x, context);
 }
 
 export function readRawJson(x: any, context: any = x): RawJson {
-  return readAbstract(x, context);
+  return ((x: any): any => x)(x, context);
 }
 
 export function writeSemver(x: Semver, context: any = x): any {

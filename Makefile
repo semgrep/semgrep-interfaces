@@ -1,5 +1,6 @@
 # If you want to modify the .atd, you will need to install via OPAM
-# 'atd' (>= 2.6.0), 'atdpy', and 'atdts' to regenerate the code
+# 'atd', 'atdpy', and 'atdts' to regenerate the code. See the setup
+# target below.
 
 VER=v0
 
@@ -29,3 +30,5 @@ semgrep_output_$(VER).jsonschema: Semgrep_output_$(VER).atd
 clean:
 	rm -f $(FILES)
 
+setup:
+	opam install --deps-only .

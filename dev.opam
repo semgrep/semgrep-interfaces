@@ -1,0 +1,13 @@
+# This is meant to be installed with 'opam install --deps-only .'
+#
+opam-version: "2.0"
+maintainer: "r2c"
+authors: "r2c"
+homepage: "n/a"
+bug-reports: "n/a"
+synopsis: "OCaml development dependencies"
+
+depends: [
+  "atdpy" {>= "2.7.0"}
+  "atdts" {>= "2.7.0"}
+]

@@ -235,19 +235,6 @@ def _atd_write_nullable(write_elt: Callable[[Any], Any]) \
 ############################################################################
 
 
-
-@dataclass
-class _Identity:
-    value: Any
-    def to_json(self) -> Any:
-        return self.value
-class Abstract:
-    @classmethod
-    def from_json(cls, x: Any) -> Any:
-        return _Identity(x)
-
-
-
 @dataclass
 class ID:
     """Original type: unique_id_type = [ ... | ID | ... ]"""
@@ -799,10 +786,10 @@ class RawJson:
 
     @classmethod
     def from_json(cls, x: Any) -> 'RawJson':
-        return cls(Abstract.from_json(x))
+        return cls((lambda x: x)(x))
 
     def to_json(self) -> Any:
-        return (lambda x: x.to_json())(self.value)
+        return (lambda x: x)(self.value)
 
     @classmethod
     def from_json_string(cls, x: str) -> 'RawJson':

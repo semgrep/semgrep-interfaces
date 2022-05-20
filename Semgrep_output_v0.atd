@@ -55,21 +55,6 @@
 (*****************************************************************************)
 (* Imports *)
 (*****************************************************************************)
-(* LATER: hack because abstract below is not supported well yet by atdpy
- * NOTE: if you build manually datastructures with RawJson, you need
- * to call via RawJson(_Identity(stuff)).
- *)
-<python text="
-@dataclass
-class _Identity:
-    value: Any
-    def to_json(self) -> Any:
-        return self.value
-class Abstract:
-    @classmethod
-    def from_json(cls, x: Any) -> Any:
-        return _Identity(x)
-">
 
 (* escape hatch *)
 type raw_json <ocaml module="Yojson.Safe" t="t"> = abstract

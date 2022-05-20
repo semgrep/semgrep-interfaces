@@ -1,5 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "cli_output",
   "description": "Translated by atdcat from 'Semgrep_output_v0.atd'.",
   "type": "object",
   "required": [ "errors", "results", "paths" ],
@@ -17,7 +18,7 @@
     "time": { "$ref": "#/definitions/cli_timing" }
   },
   "definitions": {
-    "raw_json": { "$ref": "#/definitions/abstract" },
+    "raw_json": {},
     "semver": { "type": "string" },
     "position": {
       "type": "object",
