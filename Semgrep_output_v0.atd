@@ -202,7 +202,11 @@ type core_error_kind
   | ParseError (* a.k.a SyntaxError *) <json name="Syntax error">
   | SpecifiedParseError <json name="Other syntax error">
   | AstBuilderError <json name="AST builder error">
-  (* pattern parsing related errors *)
+  (* Pattern parsing related errors.
+   * There are more precise info about the error in
+   * Rule.invalid_rule_error_kind in Rule.ml.
+   * TODO? should we move invalid_rule_error_kind here?
+   *)
   | RuleParseError <json name="Rule parse error">
   | PatternParseError <json name="Pattern parse error">
   | InvalidYaml <json name="Invalid YAML">
