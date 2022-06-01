@@ -68,6 +68,7 @@ type semver = string (* e.g., "0.91.0" *)
 (*****************************************************************************)
 (* Location *)
 (*****************************************************************************)
+(* note that there is no filename here like in 'location' below *)
 type position
   <python decorator="dataclass(frozen=True, order=True)"> = {
   line: int; (* starts from 1 *)
@@ -97,6 +98,12 @@ type core_match
   extra: core_match_extra;
 }
 
+type core_match_extra
+  <python decorator="dataclass(frozen=True)"> = {
+  ?message: string option; (* rule.message (?) *)
+  metavars: metavars;
+}
+
 (* Name/value map of the matched metavariables.
  * The leading '$' must be included in the metavariable name.
  * TODO: semgrep-core always return a metavars, but dependency_aware Python code
@@ -105,13 +112,6 @@ type core_match
 type metavars = (string * metavar_value) list
    <json repr="object">
    <python repr="dict">
-
-type core_match_extra
-  <python decorator="dataclass(frozen=True)"> = {
-  ?message: string option; (* rule.message (?) *)
-
-  metavars: metavars;
-}
 
 type metavar_value
   <python decorator="dataclass(frozen=True)"> = {
@@ -461,9 +461,6 @@ type fix_regex = {
 (* Semgrep CLI final output *)
 (*****************************************************************************)
 
-(* TODO: Note that the generated code for the type below is not yet used
- * in output.py but at least those types serve as a spec.
- *)
 type cli_output = {
     (* since: 0.92 *)
     ?version: semver option;
@@ -578,8 +575,3 @@ type finding = {
   is_blocking: bool;
   ?fixed_lines: string list option;
 }
-
-(*****************************************************************************)
-(* Semgrep App backend input/output *)
-(*****************************************************************************)
-(* TODO *)
