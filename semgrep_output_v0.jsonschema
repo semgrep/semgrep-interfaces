@@ -48,10 +48,6 @@
         "extra": { "$ref": "#/definitions/core_match_extra" }
       }
     },
-    "metavars": {
-      "type": "object",
-      "additionalProperties": { "$ref": "#/definitions/metavar_value" }
-    },
     "core_match_extra": {
       "type": "object",
       "required": [ "metavars" ],
@@ -59,6 +55,10 @@
         "message": { "type": "string" },
         "metavars": { "$ref": "#/definitions/metavars" }
       }
+    },
+    "metavars": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/metavar_value" }
     },
     "metavar_value": {
       "type": "object",
@@ -427,7 +427,16 @@
         "syntactic_id": { "type": "string" },
         "metadata": { "$ref": "#/definitions/raw_json" },
         "is_blocking": { "type": "boolean" },
-        "fixed_lines": { "type": "array", "items": { "type": "string" } }
+        "fixed_lines": { "type": "array", "items": { "type": "string" } },
+        "sca_info": { "$ref": "#/definitions/sca_info" }
+      }
+    },
+    "sca_info": {
+      "type": "object",
+      "required": [ "dependency_match_only", "dependency_matches" ],
+      "properties": {
+        "dependency_match_only": { "type": "boolean" },
+        "dependency_matches": { "$ref": "#/definitions/raw_json" }
       }
     }
   }
