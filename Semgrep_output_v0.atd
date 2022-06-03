@@ -574,10 +574,4 @@ type finding = {
   metadata: raw_json;
   is_blocking: bool;
   ?fixed_lines: string list option;
-  ?sca_info: sca_info option;
-}
-
-type sca_info = {
-  dependency_match_only: bool;
-  dependency_matches: raw_json;
 }
