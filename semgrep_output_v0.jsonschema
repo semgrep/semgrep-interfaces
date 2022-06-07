@@ -99,8 +99,7 @@
         "severity": { "$ref": "#/definitions/core_severity" },
         "location": { "$ref": "#/definitions/location" },
         "message": { "type": "string" },
-        "details": { "type": "string" },
-        "yaml_path": { "type": "array", "items": { "type": "string" } }
+        "details": { "type": "string" }
       }
     },
     "core_error_kind": {
@@ -110,7 +109,15 @@
         { "const": "Other syntax error" },
         { "const": "AST builder error" },
         { "const": "Rule parse error" },
-        { "const": "Pattern parse error" },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "Pattern parse error" },
+            { "type": "array", "items": { "type": "string" } }
+          ]
+        },
         { "const": "Invalid YAML" },
         { "const": "Internal matching error" },
         { "const": "Semgrep match found" },

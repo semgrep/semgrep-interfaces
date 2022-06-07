@@ -153,7 +153,7 @@ type core_error_kind = Semgrep_output_v0_t.core_error_kind =
   | SpecifiedParseError
   | AstBuilderError
   | RuleParseError
-  | PatternParseError
+  | PatternParseError of string list
   | InvalidYaml
   | MatchingError
   | SemgrepMatchFound
@@ -170,8 +170,7 @@ type core_error = Semgrep_output_v0_t.core_error = {
   severity: core_severity;
   location: location;
   message: string;
-  details: string option;
-  yaml_path: string list option
+  details: string option
 }
 
 type core_match_results = Semgrep_output_v0_t.core_match_results = {

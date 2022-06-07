@@ -191,10 +191,12 @@ type core_error
   location: location;
   message: string;
   ?details: string option;
-  (* ??? for error when parsing a rule? *)
-  ?yaml_path: string list option;
   }
 
+(* coupling: if you add a constructor here with arguments, you probably need to adjust
+ * _error_type_string() in semgrep/.../error.py
+ * TODO? move all those <json name="..."> in _error_type_string()
+ *)
 type core_error_kind
   <python decorator="dataclass(frozen=True, order=True)"> = [
   (* File parsing related errors *)
@@ -208,7 +210,8 @@ type core_error_kind
    * TODO? should we move invalid_rule_error_kind here?
    *)
   | RuleParseError <json name="Rule parse error">
-  | PatternParseError <json name="Pattern parse error">
+  (* the string list is the "YAML path" of the pattern, e.g. ["rules"; "1"; ...] *)
+  | PatternParseError <json name="Pattern parse error"> of string list
   | InvalidYaml <json name="Invalid YAML">
   (* matching (semgrep) related *)
   | MatchingError (* internal error, e.g., NoTokenLocation *) <json name="Internal matching error">

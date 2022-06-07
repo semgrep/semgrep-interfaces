@@ -70,7 +70,6 @@ export type CoreError = {
   location: Location;
   message: string;
   details?: string;
-  yaml_path?: string[];
 }
 
 export type CoreErrorKind =
@@ -79,7 +78,7 @@ export type CoreErrorKind =
 | { kind: 'SpecifiedParseError' /* JSON: "Other syntax error" */ }
 | { kind: 'AstBuilderError' /* JSON: "AST builder error" */ }
 | { kind: 'RuleParseError' /* JSON: "Rule parse error" */ }
-| { kind: 'PatternParseError' /* JSON: "Pattern parse error" */ }
+| { kind: 'PatternParseError' /* JSON: "Pattern parse error" */; value: string[] }
 | { kind: 'InvalidYaml' /* JSON: "Invalid YAML" */ }
 | { kind: 'MatchingError' /* JSON: "Internal matching error" */ }
 | { kind: 'SemgrepMatchFound' /* JSON: "Semgrep match found" */ }
@@ -459,7 +458,6 @@ export function writeCoreError(x: CoreError, context: any = x): any {
     'location': _atd_write_required_field('CoreError', 'location', writeLocation, x.location, x),
     'message': _atd_write_required_field('CoreError', 'message', _atd_write_string, x.message, x),
     'details': _atd_write_optional_field(_atd_write_string, x.details, x),
-    'yaml_path': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.yaml_path, x),
   };
 }
 
@@ -471,7 +469,6 @@ export function readCoreError(x: any, context: any = x): CoreError {
     location: _atd_read_required_field('CoreError', 'location', readLocation, x['location'], x),
     message: _atd_read_required_field('CoreError', 'message', _atd_read_string, x['message'], x),
     details: _atd_read_optional_field(_atd_read_string, x['details'], x),
-    yaml_path: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['yaml_path'], x),
   };
 }
 
@@ -488,7 +485,7 @@ export function writeCoreErrorKind(x: CoreErrorKind, context: any = x): any {
     case 'RuleParseError':
       return 'Rule parse error'
     case 'PatternParseError':
-      return 'Pattern parse error'
+      return ['Pattern parse error', _atd_write_array(_atd_write_string)(x.value, x)]
     case 'InvalidYaml':
       return 'Invalid YAML'
     case 'MatchingError':
@@ -521,8 +518,6 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
         return { kind: 'AstBuilderError' }
       case 'Rule parse error':
         return { kind: 'RuleParseError' }
-      case 'Pattern parse error':
-        return { kind: 'PatternParseError' }
       case 'Invalid YAML':
         return { kind: 'InvalidYaml' }
       case 'Internal matching error':
@@ -545,6 +540,8 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
   else {
     _atd_check_json_tuple(2, x, context)
     switch (x[0]) {
+      case 'Pattern parse error':
+        return { kind: 'PatternParseError', value: _atd_write_array(_atd_write_string)(x[1], x) }
       case 'PartialParsing':
         return { kind: 'PartialParsing', value: _atd_write_array(writeLocation)(x[1], x) }
       default:

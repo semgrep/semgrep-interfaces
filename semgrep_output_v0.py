@@ -1427,16 +1427,17 @@ class RuleParseError:
 
 @dataclass
 class PatternParseError:
-    """Original type: core_error_kind = [ ... | PatternParseError | ... ]"""
+    """Original type: core_error_kind = [ ... | PatternParseError of ... | ... ]"""
+
+    value: List[str]
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
         return 'PatternParseError'
 
-    @staticmethod
-    def to_json() -> Any:
-        return 'Pattern parse error'
+    def to_json(self) -> Any:
+        return ['Pattern parse error', _atd_write_list(_atd_write_string)(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1603,8 +1604,6 @@ class CoreErrorKind:
                 return cls(AstBuilderError())
             if x == 'Rule parse error':
                 return cls(RuleParseError())
-            if x == 'Pattern parse error':
-                return cls(PatternParseError())
             if x == 'Invalid YAML':
                 return cls(InvalidYaml())
             if x == 'Internal matching error':
@@ -1622,6 +1621,8 @@ class CoreErrorKind:
             _atd_bad_json('CoreErrorKind', x)
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
+            if cons == 'Pattern parse error':
+                return cls(PatternParseError(_atd_read_list(_atd_read_string)(x[1])))
             if cons == 'PartialParsing':
                 return cls(PartialParsing(_atd_read_list(Location.from_json)(x[1])))
             _atd_bad_json('CoreErrorKind', x)
@@ -1648,7 +1649,6 @@ class CoreError:
     message: str
     rule_id: Optional[RuleId] = None
     details: Optional[str] = None
-    yaml_path: Optional[List[str]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreError':
@@ -1660,7 +1660,6 @@ class CoreError:
                 message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('CoreError', 'message'),
                 rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else None,
                 details=_atd_read_string(x['details']) if 'details' in x else None,
-                yaml_path=_atd_read_list(_atd_read_string)(x['yaml_path']) if 'yaml_path' in x else None,
             )
         else:
             _atd_bad_json('CoreError', x)
@@ -1675,8 +1674,6 @@ class CoreError:
             res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
         if self.details is not None:
             res['details'] = _atd_write_string(self.details)
-        if self.yaml_path is not None:
-            res['yaml_path'] = _atd_write_list(_atd_write_string)(self.yaml_path)
         return res
 
     @classmethod
