@@ -148,9 +148,20 @@ type core_match = Semgrep_output_v0_t.core_match = {
 }
 
 type core_error_kind = Semgrep_output_v0_t.core_error_kind = 
-    LexicalError | ParseError | SpecifiedParseError | AstBuilderError
-  | RuleParseError | PatternParseError | InvalidYaml | MatchingError
-  | SemgrepMatchFound | TooManyMatches | FatalError | Timeout | OutOfMemory
+    LexicalError
+  | ParseError
+  | SpecifiedParseError
+  | AstBuilderError
+  | RuleParseError
+  | PatternParseError
+  | InvalidYaml
+  | MatchingError
+  | SemgrepMatchFound
+  | TooManyMatches
+  | FatalError
+  | Timeout
+  | OutOfMemory
+  | PartialParsing of location list
 
 
 type core_error = Semgrep_output_v0_t.core_error = {

@@ -32,12 +32,12 @@ export type CoreMatch = {
   extra: CoreMatchExtra;
 }
 
-export type Metavars = [string, MetavarValue][]
-
 export type CoreMatchExtra = {
   message?: string;
   metavars: Metavars;
 }
+
+export type Metavars = [string, MetavarValue][]
 
 export type MetavarValue = {
   start: Position;
@@ -87,6 +87,7 @@ export type CoreErrorKind =
 | { kind: 'FatalError' /* JSON: "Fatal error" */ }
 | { kind: 'Timeout' }
 | { kind: 'OutOfMemory' /* JSON: "Out of memory" */ }
+| { kind: 'PartialParsing'; value: Location[] }
 
 export type CoreSeverity =
 | { kind: 'Error' /* JSON: "error" */ }
@@ -355,14 +356,6 @@ export function readCoreMatch(x: any, context: any = x): CoreMatch {
   };
 }
 
-export function writeMetavars(x: Metavars, context: any = x): any {
-  return _atd_write_assoc_array_to_object(writeMetavarValue)(x, context);
-}
-
-export function readMetavars(x: any, context: any = x): Metavars {
-  return _atd_read_assoc_object_into_array(readMetavarValue)(x, context);
-}
-
 export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
   return {
     'message': _atd_write_optional_field(_atd_write_string, x.message, x),
@@ -375,6 +368,14 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     message: _atd_read_optional_field(_atd_read_string, x['message'], x),
     metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
   };
+}
+
+export function writeMetavars(x: Metavars, context: any = x): any {
+  return _atd_write_assoc_array_to_object(writeMetavarValue)(x, context);
+}
+
+export function readMetavars(x: any, context: any = x): Metavars {
+  return _atd_read_assoc_object_into_array(readMetavarValue)(x, context);
 }
 
 export function writeMetavarValue(x: MetavarValue, context: any = x): any {
@@ -502,40 +503,54 @@ export function writeCoreErrorKind(x: CoreErrorKind, context: any = x): any {
       return 'Timeout'
     case 'OutOfMemory':
       return 'Out of memory'
+    case 'PartialParsing':
+      return ['PartialParsing', _atd_write_array(writeLocation)(x.value, x)]
   }
 }
 
 export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
-  switch (x) {
-    case 'Lexical error':
-      return { kind: 'LexicalError' }
-    case 'Syntax error':
-      return { kind: 'ParseError' }
-    case 'Other syntax error':
-      return { kind: 'SpecifiedParseError' }
-    case 'AST builder error':
-      return { kind: 'AstBuilderError' }
-    case 'Rule parse error':
-      return { kind: 'RuleParseError' }
-    case 'Pattern parse error':
-      return { kind: 'PatternParseError' }
-    case 'Invalid YAML':
-      return { kind: 'InvalidYaml' }
-    case 'Internal matching error':
-      return { kind: 'MatchingError' }
-    case 'Semgrep match found':
-      return { kind: 'SemgrepMatchFound' }
-    case 'Too many matches':
-      return { kind: 'TooManyMatches' }
-    case 'Fatal error':
-      return { kind: 'FatalError' }
-    case 'Timeout':
-      return { kind: 'Timeout' }
-    case 'Out of memory':
-      return { kind: 'OutOfMemory' }
-    default:
-      _atd_bad_json('CoreErrorKind', x, context)
-      throw new Error('impossible')
+  if (typeof x === 'string') {
+    switch (x) {
+      case 'Lexical error':
+        return { kind: 'LexicalError' }
+      case 'Syntax error':
+        return { kind: 'ParseError' }
+      case 'Other syntax error':
+        return { kind: 'SpecifiedParseError' }
+      case 'AST builder error':
+        return { kind: 'AstBuilderError' }
+      case 'Rule parse error':
+        return { kind: 'RuleParseError' }
+      case 'Pattern parse error':
+        return { kind: 'PatternParseError' }
+      case 'Invalid YAML':
+        return { kind: 'InvalidYaml' }
+      case 'Internal matching error':
+        return { kind: 'MatchingError' }
+      case 'Semgrep match found':
+        return { kind: 'SemgrepMatchFound' }
+      case 'Too many matches':
+        return { kind: 'TooManyMatches' }
+      case 'Fatal error':
+        return { kind: 'FatalError' }
+      case 'Timeout':
+        return { kind: 'Timeout' }
+      case 'Out of memory':
+        return { kind: 'OutOfMemory' }
+      default:
+        _atd_bad_json('CoreErrorKind', x, context)
+        throw new Error('impossible')
+    }
+  }
+  else {
+    _atd_check_json_tuple(2, x, context)
+    switch (x[0]) {
+      case 'PartialParsing':
+        return { kind: 'PartialParsing', value: _atd_write_array(writeLocation)(x[1], x) }
+      default:
+        _atd_bad_json('CoreErrorKind', x, context)
+        throw new Error('impossible')
+    }
   }
 }
 

@@ -48,10 +48,6 @@
         "extra": { "$ref": "#/definitions/core_match_extra" }
       }
     },
-    "metavars": {
-      "type": "object",
-      "additionalProperties": { "$ref": "#/definitions/metavar_value" }
-    },
     "core_match_extra": {
       "type": "object",
       "required": [ "metavars" ],
@@ -59,6 +55,10 @@
         "message": { "type": "string" },
         "metavars": { "$ref": "#/definitions/metavars" }
       }
+    },
+    "metavars": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/metavar_value" }
     },
     "metavar_value": {
       "type": "object",
@@ -117,7 +117,19 @@
         { "const": "Too many matches" },
         { "const": "Fatal error" },
         { "const": "Timeout" },
-        { "const": "Out of memory" }
+        { "const": "Out of memory" },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "PartialParsing" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/location" }
+            }
+          ]
+        }
       ]
     },
     "core_severity": {

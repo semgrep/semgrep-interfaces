@@ -218,6 +218,8 @@ type core_error_kind
   | FatalError (* missing file, OCaml errors, etc. *) <json name="Fatal error">
   | Timeout <json name="Timeout">
   | OutOfMemory <json name="Out of memory">
+  (* since semgrep 0.97 *)
+  | PartialParsing of location list (* list of skipped tokens *)
 ] <ocaml repr="classic">
   
 

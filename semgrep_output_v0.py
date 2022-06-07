@@ -1561,11 +1561,29 @@ class OutOfMemory:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class PartialParsing:
+    """Original type: core_error_kind = [ ... | PartialParsing of ... | ... ]"""
+
+    value: List[Location]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PartialParsing'
+
+    def to_json(self) -> Any:
+        return ['PartialParsing', _atd_write_list((lambda x: x.to_json()))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True, order=True)
 class CoreErrorKind:
     """Original type: core_error_kind = [ ... ]"""
 
-    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, PatternParseError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory]
+    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, PatternParseError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, PartialParsing]
 
     @property
     def kind(self) -> str:
@@ -1601,6 +1619,11 @@ class CoreErrorKind:
                 return cls(Timeout())
             if x == 'Out of memory':
                 return cls(OutOfMemory())
+            _atd_bad_json('CoreErrorKind', x)
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'PartialParsing':
+                return cls(PartialParsing(_atd_read_list(Location.from_json)(x[1])))
             _atd_bad_json('CoreErrorKind', x)
         _atd_bad_json('CoreErrorKind', x)
 
