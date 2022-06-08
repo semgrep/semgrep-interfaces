@@ -751,6 +751,58 @@ class Semver:
 
 
 @dataclass
+class RawJson:
+    """Original type: raw_json"""
+
+    value: Any
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'RawJson':
+        return cls((lambda x: x)(x))
+
+    def to_json(self) -> Any:
+        return (lambda x: x)(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'RawJson':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScaInfo:
+    """Original type: sca_info = { ... }"""
+
+    dependency_match_only: bool
+    dependency_matches: RawJson
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaInfo':
+        if isinstance(x, dict):
+            return cls(
+                dependency_match_only=_atd_read_bool(x['dependency_match_only']) if 'dependency_match_only' in x else _atd_missing_json_field('ScaInfo', 'dependency_match_only'),
+                dependency_matches=RawJson.from_json(x['dependency_matches']) if 'dependency_matches' in x else _atd_missing_json_field('ScaInfo', 'dependency_matches'),
+            )
+        else:
+            _atd_bad_json('ScaInfo', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['dependency_match_only'] = _atd_write_bool(self.dependency_match_only)
+        res['dependency_matches'] = (lambda x: x.to_json())(self.dependency_matches)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaInfo':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class RuleIdDict:
     """Original type: rule_id_dict = { ... }"""
 
@@ -772,27 +824,6 @@ class RuleIdDict:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'RuleIdDict':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class RawJson:
-    """Original type: raw_json"""
-
-    value: Any
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'RawJson':
-        return cls((lambda x: x)(x))
-
-    def to_json(self) -> Any:
-        return (lambda x: x)(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'RawJson':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -979,6 +1010,7 @@ class Finding:
     metadata: RawJson
     is_blocking: bool
     fixed_lines: Optional[List[str]] = None
+    sca_info: Optional[ScaInfo] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Finding':
@@ -998,6 +1030,7 @@ class Finding:
                 metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else _atd_missing_json_field('Finding', 'metadata'),
                 is_blocking=_atd_read_bool(x['is_blocking']) if 'is_blocking' in x else _atd_missing_json_field('Finding', 'is_blocking'),
                 fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
+                sca_info=ScaInfo.from_json(x['sca_info']) if 'sca_info' in x else None,
             )
         else:
             _atd_bad_json('Finding', x)
@@ -1019,6 +1052,8 @@ class Finding:
         res['is_blocking'] = _atd_write_bool(self.is_blocking)
         if self.fixed_lines is not None:
             res['fixed_lines'] = _atd_write_list(_atd_write_string)(self.fixed_lines)
+        if self.sca_info is not None:
+            res['sca_info'] = (lambda x: x.to_json())(self.sca_info)
         return res
 
     @classmethod
