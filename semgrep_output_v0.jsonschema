@@ -439,7 +439,16 @@
         "syntactic_id": { "type": "string" },
         "metadata": { "$ref": "#/definitions/raw_json" },
         "is_blocking": { "type": "boolean" },
-        "fixed_lines": { "type": "array", "items": { "type": "string" } }
+        "fixed_lines": { "type": "array", "items": { "type": "string" } },
+        "sca_info": { "$ref": "#/definitions/sca_info" }
+      }
+    },
+    "sca_info": {
+      "type": "object",
+      "required": [ "dependency_match_only", "dependency_matches" ],
+      "properties": {
+        "dependency_match_only": { "type": "boolean" },
+        "dependency_matches": { "$ref": "#/definitions/raw_json" }
       }
     }
   }

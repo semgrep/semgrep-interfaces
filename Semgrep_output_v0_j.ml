@@ -55,9 +55,14 @@ type skipped_rule = Semgrep_output_v0_t.skipped_rule = {
 
 type semver = Semgrep_output_v0_t.semver
 
-type rule_id_dict = Semgrep_output_v0_t.rule_id_dict = { id: rule_id }
-
 type raw_json = Yojson.Safe.t
+
+type sca_info = Semgrep_output_v0_t.sca_info = {
+  dependency_match_only: bool;
+  dependency_matches: raw_json
+}
+
+type rule_id_dict = Semgrep_output_v0_t.rule_id_dict = { id: rule_id }
 
 type position_bis = Semgrep_output_v0_t.position_bis = {
   line: int;
@@ -100,7 +105,8 @@ type finding = Semgrep_output_v0_t.finding = {
   syntactic_id: string;
   metadata: raw_json;
   is_blocking: bool;
-  fixed_lines: string list option
+  fixed_lines: string list option;
+  sca_info: sca_info option
 }
 
 type error_span = Semgrep_output_v0_t.error_span = {
@@ -2140,6 +2146,171 @@ let read_semver = (
 )
 let semver_of_string s =
   read_semver (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_raw_json = (
+  Yojson.Safe.write_t
+)
+let string_of_raw_json ?(len = 1024) x =
+  let ob = Bi_outbuf.create len in
+  write_raw_json ob x;
+  Bi_outbuf.contents ob
+let read_raw_json = (
+  Yojson.Safe.read_t
+)
+let raw_json_of_string s =
+  read_raw_json (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_sca_info : _ -> sca_info -> _ = (
+  fun ob (x : sca_info) ->
+    Bi_outbuf.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Bi_outbuf.add_char ob ',';
+    Bi_outbuf.add_string ob "\"dependency_match_only\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.dependency_match_only;
+    if !is_first then
+      is_first := false
+    else
+      Bi_outbuf.add_char ob ',';
+    Bi_outbuf.add_string ob "\"dependency_matches\":";
+    (
+      write_raw_json
+    )
+      ob x.dependency_matches;
+    Bi_outbuf.add_char ob '}';
+)
+let string_of_sca_info ?(len = 1024) x =
+  let ob = Bi_outbuf.create len in
+  write_sca_info ob x;
+  Bi_outbuf.contents ob
+let read_sca_info = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_dependency_match_only = ref (None) in
+    let field_dependency_matches = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg "out-of-bounds substring position or length";
+          match len with
+            | 18 -> (
+                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'm' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'c' && String.unsafe_get s (pos+15) = 'h' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 's' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | 21 -> (
+                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'm' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'c' && String.unsafe_get s (pos+15) = 'h' && String.unsafe_get s (pos+16) = '_' && String.unsafe_get s (pos+17) = 'o' && String.unsafe_get s (pos+18) = 'n' && String.unsafe_get s (pos+19) = 'l' && String.unsafe_get s (pos+20) = 'y' then (
+                  0
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_dependency_match_only := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_dependency_matches := (
+              Some (
+                (
+                  read_raw_json
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg "out-of-bounds substring position or length";
+            match len with
+              | 18 -> (
+                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'm' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'c' && String.unsafe_get s (pos+15) = 'h' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 's' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 21 -> (
+                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'm' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'c' && String.unsafe_get s (pos+15) = 'h' && String.unsafe_get s (pos+16) = '_' && String.unsafe_get s (pos+17) = 'o' && String.unsafe_get s (pos+18) = 'n' && String.unsafe_get s (pos+19) = 'l' && String.unsafe_get s (pos+20) = 'y' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_dependency_match_only := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_dependency_matches := (
+                Some (
+                  (
+                    read_raw_json
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            dependency_match_only = (match !field_dependency_match_only with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "dependency_match_only");
+            dependency_matches = (match !field_dependency_matches with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "dependency_matches");
+          }
+         : sca_info)
+      )
+)
+let sca_info_of_string s =
+  read_sca_info (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_rule_id_dict : _ -> rule_id_dict -> _ = (
   fun ob (x : rule_id_dict) ->
     Bi_outbuf.add_char ob '{';
@@ -2238,18 +2409,6 @@ let read_rule_id_dict = (
 )
 let rule_id_dict_of_string s =
   read_rule_id_dict (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_raw_json = (
-  Yojson.Safe.write_t
-)
-let string_of_raw_json ?(len = 1024) x =
-  let ob = Bi_outbuf.create len in
-  write_raw_json ob x;
-  Bi_outbuf.contents ob
-let read_raw_json = (
-  Yojson.Safe.read_t
-)
-let raw_json_of_string s =
-  read_raw_json (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_position_bis : _ -> position_bis -> _ = (
   fun ob (x : position_bis) ->
     Bi_outbuf.add_char ob '{';
@@ -3275,6 +3434,63 @@ let read__8 = (
 )
 let _8_of_string s =
   read__8 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__43 = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_sca_info
+  )
+)
+let string_of__43 ?(len = 1024) x =
+  let ob = Bi_outbuf.create len in
+  write__43 ob x;
+  Bi_outbuf.contents ob
+let read__43 = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_sca_info
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_sca_info
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _43_of_string s =
+  read__43 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_finding : _ -> finding -> _ = (
   fun ob (x : finding) ->
     Bi_outbuf.add_char ob '{';
@@ -3407,6 +3623,17 @@ let write_finding : _ -> finding -> _ = (
       )
         ob x;
     );
+    (match x.sca_info with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Bi_outbuf.add_char ob ',';
+      Bi_outbuf.add_string ob "\"sca_info\":";
+      (
+        write_sca_info
+      )
+        ob x;
+    );
     Bi_outbuf.add_char ob '}';
 )
 let string_of_finding ?(len = 1024) x =
@@ -3431,6 +3658,7 @@ let read_finding = (
     let field_metadata = ref (None) in
     let field_is_blocking = ref (None) in
     let field_fixed_lines = ref (None) in
+    let field_sca_info = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -3513,12 +3741,26 @@ let read_finding = (
                       )
                     )
                   | 's' -> (
-                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'v' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'y' then (
-                        7
-                      )
-                      else (
-                        -1
-                      )
+                      match String.unsafe_get s (pos+1) with
+                        | 'c' -> (
+                            if String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'f' && String.unsafe_get s (pos+7) = 'o' then (
+                              14
+                            )
+                            else (
+                              -1
+                            )
+                          )
+                        | 'e' -> (
+                            if String.unsafe_get s (pos+2) = 'v' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'y' then (
+                              7
+                            )
+                            else (
+                              -1
+                            )
+                          )
+                        | _ -> (
+                            -1
+                          )
                     )
                   | _ -> (
                       -1
@@ -3692,6 +3934,16 @@ let read_finding = (
                 )
               );
             )
+          | 14 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_sca_info := (
+                Some (
+                  (
+                    read_sca_info
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -3778,12 +4030,26 @@ let read_finding = (
                         )
                       )
                     | 's' -> (
-                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'v' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'y' then (
-                          7
-                        )
-                        else (
-                          -1
-                        )
+                        match String.unsafe_get s (pos+1) with
+                          | 'c' -> (
+                              if String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'f' && String.unsafe_get s (pos+7) = 'o' then (
+                                14
+                              )
+                              else (
+                                -1
+                              )
+                            )
+                          | 'e' -> (
+                              if String.unsafe_get s (pos+2) = 'v' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'y' then (
+                                7
+                              )
+                              else (
+                                -1
+                              )
+                            )
+                          | _ -> (
+                              -1
+                            )
                       )
                     | _ -> (
                         -1
@@ -3957,6 +4223,16 @@ let read_finding = (
                   )
                 );
               )
+            | 14 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_sca_info := (
+                  Some (
+                    (
+                      read_sca_info
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -3980,6 +4256,7 @@ let read_finding = (
             metadata = (match !field_metadata with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "metadata");
             is_blocking = (match !field_is_blocking with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "is_blocking");
             fixed_lines = !field_fixed_lines;
+            sca_info = !field_sca_info;
           }
          : finding)
       )

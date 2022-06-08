@@ -282,6 +282,12 @@ export type Finding = {
   metadata: RawJson;
   is_blocking: boolean;
   fixed_lines?: string[];
+  sca_info?: ScaInfo;
+}
+
+export type ScaInfo = {
+  dependency_match_only: boolean;
+  dependency_matches: RawJson;
 }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
@@ -1054,6 +1060,7 @@ export function writeFinding(x: Finding, context: any = x): any {
     'metadata': _atd_write_required_field('Finding', 'metadata', writeRawJson, x.metadata, x),
     'is_blocking': _atd_write_required_field('Finding', 'is_blocking', _atd_write_bool, x.is_blocking, x),
     'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
+    'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
   };
 }
 
@@ -1073,6 +1080,21 @@ export function readFinding(x: any, context: any = x): Finding {
     metadata: _atd_read_required_field('Finding', 'metadata', readRawJson, x['metadata'], x),
     is_blocking: _atd_read_required_field('Finding', 'is_blocking', _atd_read_bool, x['is_blocking'], x),
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
+    sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
+  };
+}
+
+export function writeScaInfo(x: ScaInfo, context: any = x): any {
+  return {
+    'dependency_match_only': _atd_write_required_field('ScaInfo', 'dependency_match_only', _atd_write_bool, x.dependency_match_only, x),
+    'dependency_matches': _atd_write_required_field('ScaInfo', 'dependency_matches', writeRawJson, x.dependency_matches, x),
+  };
+}
+
+export function readScaInfo(x: any, context: any = x): ScaInfo {
+  return {
+    dependency_match_only: _atd_read_required_field('ScaInfo', 'dependency_match_only', _atd_read_bool, x['dependency_match_only'], x),
+    dependency_matches: _atd_read_required_field('ScaInfo', 'dependency_matches', readRawJson, x['dependency_matches'], x),
   };
 }
 

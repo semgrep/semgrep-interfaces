@@ -55,9 +55,14 @@ type skipped_rule = Semgrep_output_v0_t.skipped_rule = {
 
 type semver = Semgrep_output_v0_t.semver
 
-type rule_id_dict = Semgrep_output_v0_t.rule_id_dict = { id: rule_id }
-
 type raw_json = Yojson.Safe.t
+
+type sca_info = Semgrep_output_v0_t.sca_info = {
+  dependency_match_only: bool;
+  dependency_matches: raw_json
+}
+
+type rule_id_dict = Semgrep_output_v0_t.rule_id_dict = { id: rule_id }
 
 type position_bis = Semgrep_output_v0_t.position_bis = {
   line: int;
@@ -100,7 +105,8 @@ type finding = Semgrep_output_v0_t.finding = {
   syntactic_id: string;
   metadata: raw_json;
   is_blocking: bool;
-  fixed_lines: string list option
+  fixed_lines: string list option;
+  sca_info: sca_info option
 }
 
 type error_span = Semgrep_output_v0_t.error_span = {
@@ -488,26 +494,6 @@ val semver_of_string :
   string -> semver
   (** Deserialize JSON data of type {!semver}. *)
 
-val write_rule_id_dict :
-  Bi_outbuf.t -> rule_id_dict -> unit
-  (** Output a JSON value of type {!rule_id_dict}. *)
-
-val string_of_rule_id_dict :
-  ?len:int -> rule_id_dict -> string
-  (** Serialize a value of type {!rule_id_dict}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_rule_id_dict :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> rule_id_dict
-  (** Input JSON data of type {!rule_id_dict}. *)
-
-val rule_id_dict_of_string :
-  string -> rule_id_dict
-  (** Deserialize JSON data of type {!rule_id_dict}. *)
-
 val write_raw_json :
   Bi_outbuf.t -> raw_json -> unit
   (** Output a JSON value of type {!raw_json}. *)
@@ -527,6 +513,46 @@ val read_raw_json :
 val raw_json_of_string :
   string -> raw_json
   (** Deserialize JSON data of type {!raw_json}. *)
+
+val write_sca_info :
+  Bi_outbuf.t -> sca_info -> unit
+  (** Output a JSON value of type {!sca_info}. *)
+
+val string_of_sca_info :
+  ?len:int -> sca_info -> string
+  (** Serialize a value of type {!sca_info}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_info :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_info
+  (** Input JSON data of type {!sca_info}. *)
+
+val sca_info_of_string :
+  string -> sca_info
+  (** Deserialize JSON data of type {!sca_info}. *)
+
+val write_rule_id_dict :
+  Bi_outbuf.t -> rule_id_dict -> unit
+  (** Output a JSON value of type {!rule_id_dict}. *)
+
+val string_of_rule_id_dict :
+  ?len:int -> rule_id_dict -> string
+  (** Serialize a value of type {!rule_id_dict}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_rule_id_dict :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> rule_id_dict
+  (** Input JSON data of type {!rule_id_dict}. *)
+
+val rule_id_dict_of_string :
+  string -> rule_id_dict
+  (** Deserialize JSON data of type {!rule_id_dict}. *)
 
 val write_position_bis :
   Bi_outbuf.t -> position_bis -> unit
