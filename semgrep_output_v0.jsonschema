@@ -430,7 +430,7 @@
       "required": [
         "check_id", "path", "line", "column", "end_line", "end_column",
         "message", "severity", "index", "commit_date", "syntactic_id",
-        "metadata", "is_blocking"
+        "pattern_based_id", "metadata", "is_blocking"
       ],
       "properties": {
         "check_id": { "$ref": "#/definitions/rule_id" },
@@ -444,6 +444,7 @@
         "index": { "type": "integer" },
         "commit_date": { "type": "string" },
         "syntactic_id": { "type": "string" },
+        "pattern_based_id": { "type": "string" },
         "metadata": { "$ref": "#/definitions/raw_json" },
         "is_blocking": { "type": "boolean" },
         "fixed_lines": { "type": "array", "items": { "type": "string" } },

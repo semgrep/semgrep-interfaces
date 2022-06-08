@@ -1007,6 +1007,7 @@ class Finding:
     index: int
     commit_date: str
     syntactic_id: str
+    pattern_based_id: str
     metadata: RawJson
     is_blocking: bool
     fixed_lines: Optional[List[str]] = None
@@ -1027,6 +1028,7 @@ class Finding:
                 index=_atd_read_int(x['index']) if 'index' in x else _atd_missing_json_field('Finding', 'index'),
                 commit_date=_atd_read_string(x['commit_date']) if 'commit_date' in x else _atd_missing_json_field('Finding', 'commit_date'),
                 syntactic_id=_atd_read_string(x['syntactic_id']) if 'syntactic_id' in x else _atd_missing_json_field('Finding', 'syntactic_id'),
+                pattern_based_id=_atd_read_string(x['pattern_based_id']) if 'pattern_based_id' in x else _atd_missing_json_field('Finding', 'pattern_based_id'),
                 metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else _atd_missing_json_field('Finding', 'metadata'),
                 is_blocking=_atd_read_bool(x['is_blocking']) if 'is_blocking' in x else _atd_missing_json_field('Finding', 'is_blocking'),
                 fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
@@ -1048,6 +1050,7 @@ class Finding:
         res['index'] = _atd_write_int(self.index)
         res['commit_date'] = _atd_write_string(self.commit_date)
         res['syntactic_id'] = _atd_write_string(self.syntactic_id)
+        res['pattern_based_id'] = _atd_write_string(self.pattern_based_id)
         res['metadata'] = (lambda x: x.to_json())(self.metadata)
         res['is_blocking'] = _atd_write_bool(self.is_blocking)
         if self.fixed_lines is not None:

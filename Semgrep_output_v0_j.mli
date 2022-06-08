@@ -103,6 +103,7 @@ type finding = Semgrep_output_v0_t.finding = {
   index: int;
   commit_date: string;
   syntactic_id: string;
+  pattern_based_id: string;
   metadata: raw_json;
   is_blocking: bool;
   fixed_lines: string list option;

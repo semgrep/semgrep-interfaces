@@ -103,6 +103,7 @@ type finding = Semgrep_output_v0_t.finding = {
   index: int;
   commit_date: string;
   syntactic_id: string;
+  pattern_based_id: string;
   metadata: raw_json;
   is_blocking: bool;
   fixed_lines: string list option;
@@ -3597,6 +3598,15 @@ let write_finding : _ -> finding -> _ = (
       is_first := false
     else
       Bi_outbuf.add_char ob ',';
+    Bi_outbuf.add_string ob "\"pattern_based_id\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.pattern_based_id;
+    if !is_first then
+      is_first := false
+    else
+      Bi_outbuf.add_char ob ',';
     Bi_outbuf.add_string ob "\"metadata\":";
     (
       write_raw_json
@@ -3654,6 +3664,7 @@ let read_finding = (
     let field_index = ref (None) in
     let field_commit_date = ref (None) in
     let field_syntactic_id = ref (None) in
+    let field_pattern_based_id = ref (None) in
     let field_metadata = ref (None) in
     let field_is_blocking = ref (None) in
     let field_fixed_lines = ref (None) in
@@ -3733,7 +3744,7 @@ let read_finding = (
                     )
                   | 'm' -> (
                       if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'a' then (
-                        11
+                        12
                       )
                       else (
                         -1
@@ -3743,7 +3754,7 @@ let read_finding = (
                       match String.unsafe_get s (pos+1) with
                         | 'c' -> (
                             if String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'f' && String.unsafe_get s (pos+7) = 'o' then (
-                              14
+                              15
                             )
                             else (
                               -1
@@ -3785,7 +3796,7 @@ let read_finding = (
                     )
                   | 'f' -> (
                       if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' then (
-                        13
+                        14
                       )
                       else (
                         -1
@@ -3793,7 +3804,7 @@ let read_finding = (
                     )
                   | 'i' -> (
                       if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'c' && String.unsafe_get s (pos+7) = 'k' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'g' then (
-                        12
+                        13
                       )
                       else (
                         -1
@@ -3806,6 +3817,14 @@ let read_finding = (
             | 12 -> (
                 if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'd' then (
                   10
+                )
+                else (
+                  -1
+                )
+              )
+            | 16 -> (
+                if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'b' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'd' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 'd' then (
+                  11
                 )
                 else (
                   -1
@@ -3908,6 +3927,14 @@ let read_finding = (
               )
             );
           | 11 ->
+            field_pattern_based_id := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | 12 ->
             field_metadata := (
               Some (
                 (
@@ -3915,7 +3942,7 @@ let read_finding = (
                 ) p lb
               )
             );
-          | 12 ->
+          | 13 ->
             field_is_blocking := (
               Some (
                 (
@@ -3923,7 +3950,7 @@ let read_finding = (
                 ) p lb
               )
             );
-          | 13 ->
+          | 14 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_fixed_lines := (
                 Some (
@@ -3933,7 +3960,7 @@ let read_finding = (
                 )
               );
             )
-          | 14 ->
+          | 15 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_sca_info := (
                 Some (
@@ -4022,7 +4049,7 @@ let read_finding = (
                       )
                     | 'm' -> (
                         if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'a' then (
-                          11
+                          12
                         )
                         else (
                           -1
@@ -4032,7 +4059,7 @@ let read_finding = (
                         match String.unsafe_get s (pos+1) with
                           | 'c' -> (
                               if String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'f' && String.unsafe_get s (pos+7) = 'o' then (
-                                14
+                                15
                               )
                               else (
                                 -1
@@ -4074,7 +4101,7 @@ let read_finding = (
                       )
                     | 'f' -> (
                         if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' then (
-                          13
+                          14
                         )
                         else (
                           -1
@@ -4082,7 +4109,7 @@ let read_finding = (
                       )
                     | 'i' -> (
                         if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'c' && String.unsafe_get s (pos+7) = 'k' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'g' then (
-                          12
+                          13
                         )
                         else (
                           -1
@@ -4095,6 +4122,14 @@ let read_finding = (
               | 12 -> (
                   if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'd' then (
                     10
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 16 -> (
+                  if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'b' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'd' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 'd' then (
+                    11
                   )
                   else (
                     -1
@@ -4197,6 +4232,14 @@ let read_finding = (
                 )
               );
             | 11 ->
+              field_pattern_based_id := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | 12 ->
               field_metadata := (
                 Some (
                   (
@@ -4204,7 +4247,7 @@ let read_finding = (
                   ) p lb
                 )
               );
-            | 12 ->
+            | 13 ->
               field_is_blocking := (
                 Some (
                   (
@@ -4212,7 +4255,7 @@ let read_finding = (
                   ) p lb
                 )
               );
-            | 13 ->
+            | 14 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_fixed_lines := (
                   Some (
@@ -4222,7 +4265,7 @@ let read_finding = (
                   )
                 );
               )
-            | 14 ->
+            | 15 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_sca_info := (
                   Some (
@@ -4252,6 +4295,7 @@ let read_finding = (
             index = (match !field_index with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "index");
             commit_date = (match !field_commit_date with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_date");
             syntactic_id = (match !field_syntactic_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "syntactic_id");
+            pattern_based_id = (match !field_pattern_based_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "pattern_based_id");
             metadata = (match !field_metadata with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "metadata");
             is_blocking = (match !field_is_blocking with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "is_blocking");
             fixed_lines = !field_fixed_lines;
