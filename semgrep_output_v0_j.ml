@@ -103,7 +103,7 @@ type finding = Semgrep_output_v0_t.finding = {
   index: int;
   commit_date: string;
   syntactic_id: string;
-  pattern_based_id: string;
+  match_based_id: string option;
   metadata: raw_json;
   is_blocking: bool;
   fixed_lines: string list option;
@@ -3594,15 +3594,17 @@ let write_finding : _ -> finding -> _ = (
       Yojson.Safe.write_string
     )
       ob x.syntactic_id;
-    if !is_first then
-      is_first := false
-    else
-      Bi_outbuf.add_char ob ',';
-    Bi_outbuf.add_string ob "\"pattern_based_id\":";
-    (
-      Yojson.Safe.write_string
-    )
-      ob x.pattern_based_id;
+    (match x.match_based_id with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Bi_outbuf.add_char ob ',';
+      Bi_outbuf.add_string ob "\"match_based_id\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
     if !is_first then
       is_first := false
     else
@@ -3664,7 +3666,7 @@ let read_finding = (
     let field_index = ref (None) in
     let field_commit_date = ref (None) in
     let field_syntactic_id = ref (None) in
-    let field_pattern_based_id = ref (None) in
+    let field_match_based_id = ref (None) in
     let field_metadata = ref (None) in
     let field_is_blocking = ref (None) in
     let field_fixed_lines = ref (None) in
@@ -3822,8 +3824,8 @@ let read_finding = (
                   -1
                 )
               )
-            | 16 -> (
-                if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'b' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'd' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 'd' then (
+            | 14 -> (
+                if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'h' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'd' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'd' then (
                   11
                 )
                 else (
@@ -3927,13 +3929,15 @@ let read_finding = (
               )
             );
           | 11 ->
-            field_pattern_based_id := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_match_based_id := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
           | 12 ->
             field_metadata := (
               Some (
@@ -4127,8 +4131,8 @@ let read_finding = (
                     -1
                   )
                 )
-              | 16 -> (
-                  if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'b' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'd' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 'd' then (
+              | 14 -> (
+                  if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'h' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'd' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'd' then (
                     11
                   )
                   else (
@@ -4232,13 +4236,15 @@ let read_finding = (
                 )
               );
             | 11 ->
-              field_pattern_based_id := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_match_based_id := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
             | 12 ->
               field_metadata := (
                 Some (
@@ -4295,7 +4301,7 @@ let read_finding = (
             index = (match !field_index with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "index");
             commit_date = (match !field_commit_date with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_date");
             syntactic_id = (match !field_syntactic_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "syntactic_id");
-            pattern_based_id = (match !field_pattern_based_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "pattern_based_id");
+            match_based_id = !field_match_based_id;
             metadata = (match !field_metadata with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "metadata");
             is_blocking = (match !field_is_blocking with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "is_blocking");
             fixed_lines = !field_fixed_lines;
