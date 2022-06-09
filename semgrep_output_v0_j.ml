@@ -1,4 +1,4 @@
-(* Auto-generated from "Semgrep_output_v0.atd" *)
+(* Auto-generated from "semgrep_output_v0.atd" *)
 [@@@ocaml.warning "-27-32-33-35-39"]
 
 type unique_id_type = Semgrep_output_v0_t.unique_id_type
