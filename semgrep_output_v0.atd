@@ -576,6 +576,8 @@ type finding = {
   index: int;
   commit_date: string;
   syntactic_id: string;
+  (* since semgrep 0.98 *)
+  ?match_based_id: string option;
   metadata: raw_json;
   is_blocking: bool;
   ?fixed_lines: string list option;

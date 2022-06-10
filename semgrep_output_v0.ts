@@ -278,6 +278,7 @@ export type Finding = {
   index: Int;
   commit_date: string;
   syntactic_id: string;
+  match_based_id?: string;
   metadata: RawJson;
   is_blocking: boolean;
   fixed_lines?: string[];
@@ -1054,6 +1055,7 @@ export function writeFinding(x: Finding, context: any = x): any {
     'index': _atd_write_required_field('Finding', 'index', _atd_write_int, x.index, x),
     'commit_date': _atd_write_required_field('Finding', 'commit_date', _atd_write_string, x.commit_date, x),
     'syntactic_id': _atd_write_required_field('Finding', 'syntactic_id', _atd_write_string, x.syntactic_id, x),
+    'match_based_id': _atd_write_optional_field(_atd_write_string, x.match_based_id, x),
     'metadata': _atd_write_required_field('Finding', 'metadata', writeRawJson, x.metadata, x),
     'is_blocking': _atd_write_required_field('Finding', 'is_blocking', _atd_write_bool, x.is_blocking, x),
     'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
@@ -1074,6 +1076,7 @@ export function readFinding(x: any, context: any = x): Finding {
     index: _atd_read_required_field('Finding', 'index', _atd_read_int, x['index'], x),
     commit_date: _atd_read_required_field('Finding', 'commit_date', _atd_read_string, x['commit_date'], x),
     syntactic_id: _atd_read_required_field('Finding', 'syntactic_id', _atd_read_string, x['syntactic_id'], x),
+    match_based_id: _atd_read_optional_field(_atd_read_string, x['match_based_id'], x),
     metadata: _atd_read_required_field('Finding', 'metadata', readRawJson, x['metadata'], x),
     is_blocking: _atd_read_required_field('Finding', 'is_blocking', _atd_read_bool, x['is_blocking'], x),
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
