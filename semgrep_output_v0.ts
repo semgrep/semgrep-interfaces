@@ -548,9 +548,9 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
     _atd_check_json_tuple(2, x, context)
     switch (x[0]) {
       case 'Pattern parse error':
-        return { kind: 'PatternParseError', value: _atd_write_array(_atd_write_string)(x[1], x) }
+        return { kind: 'PatternParseError', value: _atd_read_array(_atd_read_string)(x[1], x) }
       case 'PartialParsing':
-        return { kind: 'PartialParsing', value: _atd_write_array(writeLocation)(x[1], x) }
+        return { kind: 'PartialParsing', value: _atd_read_array(readLocation)(x[1], x) }
       default:
         _atd_bad_json('CoreErrorKind', x, context)
         throw new Error('impossible')
