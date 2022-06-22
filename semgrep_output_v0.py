@@ -235,7 +235,7 @@ def _atd_write_nullable(write_elt: Callable[[Any], Any]) \
 ############################################################################
 
 
-@dataclass
+@dataclass(frozen=True)
 class ID:
     """Original type: unique_id_type = [ ... | ID | ... ]"""
 
@@ -252,7 +252,7 @@ class ID:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class AST:
     """Original type: unique_id_type = [ ... | AST | ... ]"""
 
@@ -496,7 +496,7 @@ class SvalueValue:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class ExcludedByConfig:
     """Original type: skip_reason = [ ... | Excluded_by_config | ... ]"""
 
@@ -513,7 +513,7 @@ class ExcludedByConfig:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class WrongLanguage:
     """Original type: skip_reason = [ ... | Wrong_language | ... ]"""
 
@@ -530,7 +530,7 @@ class WrongLanguage:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class TooBig:
     """Original type: skip_reason = [ ... | Too_big | ... ]"""
 
@@ -547,7 +547,7 @@ class TooBig:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Minified:
     """Original type: skip_reason = [ ... | Minified | ... ]"""
 
@@ -564,7 +564,7 @@ class Minified:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Binary:
     """Original type: skip_reason = [ ... | Binary | ... ]"""
 
@@ -581,7 +581,7 @@ class Binary:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class IrrelevantRule:
     """Original type: skip_reason = [ ... | Irrelevant_rule | ... ]"""
 
@@ -598,7 +598,7 @@ class IrrelevantRule:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class TooManyMatches:
     """Original type: skip_reason = [ ... | Too_many_matches | ... ]"""
 
@@ -1247,7 +1247,7 @@ class CoreStats:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Error:
     """Original type: core_severity = [ ... | Error | ... ]"""
 
@@ -1264,7 +1264,7 @@ class Error:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Warning:
     """Original type: core_severity = [ ... | Warning | ... ]"""
 
@@ -1379,7 +1379,7 @@ class CoreMatch:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True, order=True)
 class LexicalError:
     """Original type: core_error_kind = [ ... | LexicalError | ... ]"""
 
@@ -1396,7 +1396,7 @@ class LexicalError:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True, order=True)
 class ParseError:
     """Original type: core_error_kind = [ ... | ParseError | ... ]"""
 
@@ -1413,7 +1413,7 @@ class ParseError:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True, order=True)
 class SpecifiedParseError:
     """Original type: core_error_kind = [ ... | SpecifiedParseError | ... ]"""
 
@@ -1430,7 +1430,7 @@ class SpecifiedParseError:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True, order=True)
 class AstBuilderError:
     """Original type: core_error_kind = [ ... | AstBuilderError | ... ]"""
 
@@ -1447,7 +1447,7 @@ class AstBuilderError:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True, order=True)
 class RuleParseError:
     """Original type: core_error_kind = [ ... | RuleParseError | ... ]"""
 
@@ -1464,7 +1464,7 @@ class RuleParseError:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True, order=True)
 class PatternParseError:
     """Original type: core_error_kind = [ ... | PatternParseError of ... | ... ]"""
 
@@ -1482,7 +1482,7 @@ class PatternParseError:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True, order=True)
 class InvalidYaml:
     """Original type: core_error_kind = [ ... | InvalidYaml | ... ]"""
 
@@ -1499,7 +1499,7 @@ class InvalidYaml:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True, order=True)
 class MatchingError:
     """Original type: core_error_kind = [ ... | MatchingError | ... ]"""
 
@@ -1516,7 +1516,7 @@ class MatchingError:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True, order=True)
 class SemgrepMatchFound:
     """Original type: core_error_kind = [ ... | SemgrepMatchFound | ... ]"""
 
@@ -1533,7 +1533,7 @@ class SemgrepMatchFound:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True, order=True)
 class TooManyMatches_:
     """Original type: core_error_kind = [ ... | TooManyMatches | ... ]"""
 
@@ -1550,7 +1550,7 @@ class TooManyMatches_:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True, order=True)
 class FatalError:
     """Original type: core_error_kind = [ ... | FatalError | ... ]"""
 
@@ -1567,7 +1567,7 @@ class FatalError:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True, order=True)
 class Timeout:
     """Original type: core_error_kind = [ ... | Timeout | ... ]"""
 
@@ -1584,7 +1584,7 @@ class Timeout:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True, order=True)
 class OutOfMemory:
     """Original type: core_error_kind = [ ... | OutOfMemory | ... ]"""
 
@@ -1601,7 +1601,7 @@ class OutOfMemory:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True, order=True)
 class PartialParsing:
     """Original type: core_error_kind = [ ... | PartialParsing of ... | ... ]"""
 
