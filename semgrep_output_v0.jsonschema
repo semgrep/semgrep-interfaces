@@ -53,7 +53,22 @@
       "required": [ "metavars" ],
       "properties": {
         "message": { "type": "string" },
-        "metavars": { "$ref": "#/definitions/metavars" }
+        "metavars": { "$ref": "#/definitions/metavars" },
+        "dataflow_trace": { "$ref": "#/definitions/dataflow_trace" }
+      }
+    },
+    "dataflow_trace": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "taint_source": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/location" }
+        },
+        "intermediate_vars": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/location" }
+        }
       }
     },
     "metavars": {
@@ -326,7 +341,8 @@
         "is_ignored": { "type": "boolean" },
         "dependency_match_only": { "type": "boolean" },
         "dependency_matches": { "$ref": "#/definitions/raw_json" },
-        "fixed_lines": { "type": "array", "items": { "type": "string" } }
+        "fixed_lines": { "type": "array", "items": { "type": "string" } },
+        "dataflow_trace": { "$ref": "#/definitions/dataflow_trace" }
       }
     },
     "fix_regex": {

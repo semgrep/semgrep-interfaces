@@ -108,6 +108,24 @@ type core_match_extra
   <python decorator="dataclass(frozen=True)"> = {
   ?message: string option; (* rule.message (?) *)
   metavars: metavars;
+  ?dataflow_trace: dataflow_trace option;
+}
+
+(* Provides information about dataflow that leads to a finding. For now, just
+ * provides taint traces (i.e. information about the taint source and how the
+ * source reaches the sink). In the future, we may want to include more dataflow
+ * information. For example, we may want to explain how constant propagation
+ * leads to a finding. *)
+type dataflow_trace
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {
+  ?taint_source: location list option;
+  (* Intermediate variables which are involved in the dataflow. For taint, this
+   * explains how the taint flows from the source to the sink. *)
+  ?intermediate_vars: location list option;
+  (* For now, omitting the taint sink, since it's redundant data except for
+   * certain cases that only appear with DeepSemgrep. We can add it in later
+   * without breaking consumers. *)
 }
 
 (* Name/value map of the matched metavariables.
@@ -477,6 +495,10 @@ type cli_match_extra <ocaml attr="deriving show"> = {
    * and seems to be used only when sending findings to the App.
    *)
   ?fixed_lines: string list option;
+
+  (* For now, present only for taint findings. May be extended to others later
+   * on. *)
+  ?dataflow_trace: dataflow_trace option;
 }
 
 type fix_regex <ocaml attr="deriving show"> = {

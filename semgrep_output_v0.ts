@@ -35,6 +35,12 @@ export type CoreMatch = {
 export type CoreMatchExtra = {
   message?: string;
   metavars: Metavars;
+  dataflow_trace?: DataflowTrace;
+}
+
+export type DataflowTrace = {
+  taint_source?: Location[];
+  intermediate_vars?: Location[];
 }
 
 export type Metavars = [string, MetavarValue][]
@@ -205,6 +211,7 @@ export type CliMatchExtra = {
   dependency_match_only?: boolean;
   dependency_matches?: RawJson;
   fixed_lines?: string[];
+  dataflow_trace?: DataflowTrace;
 }
 
 export type FixRegex = {
@@ -366,6 +373,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
   return {
     'message': _atd_write_optional_field(_atd_write_string, x.message, x),
     'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
+    'dataflow_trace': _atd_write_optional_field(writeDataflowTrace, x.dataflow_trace, x),
   };
 }
 
@@ -373,6 +381,21 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
   return {
     message: _atd_read_optional_field(_atd_read_string, x['message'], x),
     metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
+    dataflow_trace: _atd_read_optional_field(readDataflowTrace, x['dataflow_trace'], x),
+  };
+}
+
+export function writeDataflowTrace(x: DataflowTrace, context: any = x): any {
+  return {
+    'taint_source': _atd_write_optional_field(_atd_write_array(writeLocation), x.taint_source, x),
+    'intermediate_vars': _atd_write_optional_field(_atd_write_array(writeLocation), x.intermediate_vars, x),
+  };
+}
+
+export function readDataflowTrace(x: any, context: any = x): DataflowTrace {
+  return {
+    taint_source: _atd_read_optional_field(_atd_read_array(readLocation), x['taint_source'], x),
+    intermediate_vars: _atd_read_optional_field(_atd_read_array(readLocation), x['intermediate_vars'], x),
   };
 }
 
@@ -868,6 +891,7 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'dependency_match_only': _atd_write_optional_field(_atd_write_bool, x.dependency_match_only, x),
     'dependency_matches': _atd_write_optional_field(writeRawJson, x.dependency_matches, x),
     'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
+    'dataflow_trace': _atd_write_optional_field(writeDataflowTrace, x.dataflow_trace, x),
   };
 }
 
@@ -885,6 +909,7 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     dependency_match_only: _atd_read_optional_field(_atd_read_bool, x['dependency_match_only'], x),
     dependency_matches: _atd_read_optional_field(readRawJson, x['dependency_matches'], x),
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
+    dataflow_trace: _atd_read_optional_field(readDataflowTrace, x['dataflow_trace'], x),
   };
 }
 

@@ -1127,6 +1127,39 @@ class ErrorSpan:
 
 
 @dataclass(frozen=True)
+class DataflowTrace:
+    """Original type: dataflow_trace = { ... }"""
+
+    taint_source: Optional[List[Location]] = None
+    intermediate_vars: Optional[List[Location]] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DataflowTrace':
+        if isinstance(x, dict):
+            return cls(
+                taint_source=_atd_read_list(Location.from_json)(x['taint_source']) if 'taint_source' in x else None,
+                intermediate_vars=_atd_read_list(Location.from_json)(x['intermediate_vars']) if 'intermediate_vars' in x else None,
+            )
+        else:
+            _atd_bad_json('DataflowTrace', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        if self.taint_source is not None:
+            res['taint_source'] = _atd_write_list((lambda x: x.to_json()))(self.taint_source)
+        if self.intermediate_vars is not None:
+            res['intermediate_vars'] = _atd_write_list((lambda x: x.to_json()))(self.intermediate_vars)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DataflowTrace':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class CveResult:
     """Original type: cve_result = { ... }"""
 
@@ -1319,6 +1352,7 @@ class CoreMatchExtra:
 
     metavars: Metavars
     message: Optional[str] = None
+    dataflow_trace: Optional[DataflowTrace] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreMatchExtra':
@@ -1326,6 +1360,7 @@ class CoreMatchExtra:
             return cls(
                 metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else _atd_missing_json_field('CoreMatchExtra', 'metavars'),
                 message=_atd_read_string(x['message']) if 'message' in x else None,
+                dataflow_trace=DataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
             )
         else:
             _atd_bad_json('CoreMatchExtra', x)
@@ -1335,6 +1370,8 @@ class CoreMatchExtra:
         res['metavars'] = (lambda x: x.to_json())(self.metavars)
         if self.message is not None:
             res['message'] = _atd_write_string(self.message)
+        if self.dataflow_trace is not None:
+            res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
         return res
 
     @classmethod
@@ -1963,6 +2000,7 @@ class CliMatchExtra:
     dependency_match_only: Optional[bool] = None
     dependency_matches: Optional[RawJson] = None
     fixed_lines: Optional[List[str]] = None
+    dataflow_trace: Optional[DataflowTrace] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliMatchExtra':
@@ -1980,6 +2018,7 @@ class CliMatchExtra:
                 dependency_match_only=_atd_read_bool(x['dependency_match_only']) if 'dependency_match_only' in x else None,
                 dependency_matches=RawJson.from_json(x['dependency_matches']) if 'dependency_matches' in x else None,
                 fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
+                dataflow_trace=DataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
             )
         else:
             _atd_bad_json('CliMatchExtra', x)
@@ -2005,6 +2044,8 @@ class CliMatchExtra:
             res['dependency_matches'] = (lambda x: x.to_json())(self.dependency_matches)
         if self.fixed_lines is not None:
             res['fixed_lines'] = _atd_write_list(_atd_write_string)(self.fixed_lines)
+        if self.dataflow_trace is not None:
+            res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
         return res
 
     @classmethod
