@@ -105,6 +105,12 @@ type fix_regex = Semgrep_output_v0_t.fix_regex = {
 }
   [@@deriving show]
 
+type dataflow_trace = Semgrep_output_v0_t.dataflow_trace = {
+  taint_source: location list option;
+  intermediate_vars: location list option
+}
+  [@@deriving show]
+
 type finding = Semgrep_output_v0_t.finding = {
   check_id: rule_id;
   path: string;
@@ -121,7 +127,8 @@ type finding = Semgrep_output_v0_t.finding = {
   metadata: raw_json;
   is_blocking: bool;
   fixed_lines: string list option;
-  sca_info: sca_info option
+  sca_info: sca_info option;
+  dataflow_trace: dataflow_trace option
 }
   [@@deriving show]
 
@@ -135,12 +142,6 @@ type error_span = Semgrep_output_v0_t.error_span = {
   config_path: string list option option;
   context_start: position_bis option option;
   context_end: position_bis option option
-}
-  [@@deriving show]
-
-type dataflow_trace = Semgrep_output_v0_t.dataflow_trace = {
-  taint_source: location list option;
-  intermediate_vars: location list option
 }
   [@@deriving show]
 
@@ -697,6 +698,26 @@ val fix_regex_of_string :
   string -> fix_regex
   (** Deserialize JSON data of type {!type:fix_regex}. *)
 
+val write_dataflow_trace :
+  Bi_outbuf.t -> dataflow_trace -> unit
+  (** Output a JSON value of type {!type:dataflow_trace}. *)
+
+val string_of_dataflow_trace :
+  ?len:int -> dataflow_trace -> string
+  (** Serialize a value of type {!type:dataflow_trace}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_dataflow_trace :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dataflow_trace
+  (** Input JSON data of type {!type:dataflow_trace}. *)
+
+val dataflow_trace_of_string :
+  string -> dataflow_trace
+  (** Deserialize JSON data of type {!type:dataflow_trace}. *)
+
 val write_finding :
   Bi_outbuf.t -> finding -> unit
   (** Output a JSON value of type {!type:finding}. *)
@@ -736,26 +757,6 @@ val read_error_span :
 val error_span_of_string :
   string -> error_span
   (** Deserialize JSON data of type {!type:error_span}. *)
-
-val write_dataflow_trace :
-  Bi_outbuf.t -> dataflow_trace -> unit
-  (** Output a JSON value of type {!type:dataflow_trace}. *)
-
-val string_of_dataflow_trace :
-  ?len:int -> dataflow_trace -> string
-  (** Serialize a value of type {!type:dataflow_trace}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_dataflow_trace :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dataflow_trace
-  (** Input JSON data of type {!type:dataflow_trace}. *)
-
-val dataflow_trace_of_string :
-  string -> dataflow_trace
-  (** Deserialize JSON data of type {!type:dataflow_trace}. *)
 
 val write_cve_result :
   Bi_outbuf.t -> cve_result -> unit

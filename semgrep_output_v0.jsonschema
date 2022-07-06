@@ -464,7 +464,8 @@
         "metadata": { "$ref": "#/definitions/raw_json" },
         "is_blocking": { "type": "boolean" },
         "fixed_lines": { "type": "array", "items": { "type": "string" } },
-        "sca_info": { "$ref": "#/definitions/sca_info" }
+        "sca_info": { "$ref": "#/definitions/sca_info" },
+        "dataflow_trace": { "$ref": "#/definitions/dataflow_trace" }
       }
     },
     "sca_info": {
