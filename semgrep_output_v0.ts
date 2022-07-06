@@ -290,6 +290,7 @@ export type Finding = {
   is_blocking: boolean;
   fixed_lines?: string[];
   sca_info?: ScaInfo;
+  dataflow_trace?: DataflowTrace;
 }
 
 export type ScaInfo = {
@@ -1085,6 +1086,7 @@ export function writeFinding(x: Finding, context: any = x): any {
     'is_blocking': _atd_write_required_field('Finding', 'is_blocking', _atd_write_bool, x.is_blocking, x),
     'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
     'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
+    'dataflow_trace': _atd_write_optional_field(writeDataflowTrace, x.dataflow_trace, x),
   };
 }
 
@@ -1106,6 +1108,7 @@ export function readFinding(x: any, context: any = x): Finding {
     is_blocking: _atd_read_required_field('Finding', 'is_blocking', _atd_read_bool, x['is_blocking'], x),
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
     sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
+    dataflow_trace: _atd_read_optional_field(readDataflowTrace, x['dataflow_trace'], x),
   };
 }
 

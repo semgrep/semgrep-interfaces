@@ -627,6 +627,7 @@ type finding <ocaml attr="deriving show"> = {
   is_blocking: bool;
   ?fixed_lines: string list option;
   ?sca_info: sca_info option;
+  ?dataflow_trace: dataflow_trace option;
 }
 
 type sca_info <ocaml attr="deriving show"> = {
