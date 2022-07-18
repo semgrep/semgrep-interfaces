@@ -1770,8 +1770,8 @@ class CoreMatchResults:
 
     matches: List[CoreMatch]
     errors: List[CoreError]
-    skipped_targets: List[SkippedTarget]
     stats: CoreStats
+    skipped_targets: Optional[List[SkippedTarget]] = None
     skipped_rules: Optional[List[SkippedRule]] = None
     time: Optional[CoreTiming] = None
 
@@ -1781,8 +1781,8 @@ class CoreMatchResults:
             return cls(
                 matches=_atd_read_list(CoreMatch.from_json)(x['matches']) if 'matches' in x else _atd_missing_json_field('CoreMatchResults', 'matches'),
                 errors=_atd_read_list(CoreError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CoreMatchResults', 'errors'),
-                skipped_targets=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else _atd_missing_json_field('CoreMatchResults', 'skipped'),
                 stats=CoreStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CoreMatchResults', 'stats'),
+                skipped_targets=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else None,
                 time=CoreTiming.from_json(x['time']) if 'time' in x else None,
             )
@@ -1793,8 +1793,9 @@ class CoreMatchResults:
         res: Dict[str, Any] = {}
         res['matches'] = _atd_write_list((lambda x: x.to_json()))(self.matches)
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
-        res['skipped'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_targets)
         res['stats'] = (lambda x: x.to_json())(self.stats)
+        if self.skipped_targets is not None:
+            res['skipped'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_targets)
         if self.skipped_rules is not None:
             res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         if self.time is not None:

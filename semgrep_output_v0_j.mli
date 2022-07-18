@@ -215,7 +215,7 @@ type core_error = Semgrep_output_v0_t.core_error = {
 type core_match_results = Semgrep_output_v0_t.core_match_results = {
   matches: core_match list;
   errors: core_error list;
-  skipped_targets: skipped_target list;
+  skipped_targets: skipped_target list option;
   skipped_rules: skipped_rule list option;
   stats: core_stats;
   time: core_timing option

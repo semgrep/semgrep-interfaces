@@ -246,7 +246,7 @@
     },
     "core_match_results": {
       "type": "object",
-      "required": [ "matches", "errors", "skipped", "stats" ],
+      "required": [ "matches", "errors", "stats" ],
       "properties": {
         "matches": {
           "type": "array",
