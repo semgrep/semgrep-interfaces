@@ -1,6 +1,6 @@
 $id: https://raw.githubusercontent.com/returntocorp/semgrep/develop/cli/src/semgrep/rule_schema.yaml
 $schema: http://json-schema.org/draft-07/schema#
-$comment: "!!if you modify this file, you probably also need to update the one in semgrep-app:server/semgrep_app/rule_schema.yaml!!"
+$comment: "!!If you modify this file, you need to update the submodule in returntocorp/semgrep and returntocorp/semgrep-app!!"
 $defs:
   patterns-content:
     type: array
