@@ -368,7 +368,7 @@ type core_match_results
   matches: core_match list;
   errors: core_error list;
 
-  skipped_targets <json name="skipped">: skipped_target list;
+  ?skipped_targets <json name="skipped">: skipped_target list option;
   (* skipped_rules was introduced  in semgrep 0.86 *)
   ?skipped_rules: skipped_rule list option;
 
