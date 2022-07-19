@@ -105,9 +105,23 @@ type fix_regex = Semgrep_output_v0_t.fix_regex = {
 }
   [@@deriving show]
 
-type dataflow_trace = Semgrep_output_v0_t.dataflow_trace = {
-  taint_source: location list option;
-  intermediate_vars: location list option
+type cli_match_taint_source = Semgrep_output_v0_t.cli_match_taint_source = {
+  location: location;
+  content: string
+}
+  [@@deriving show]
+
+type cli_match_intermediate_var =
+  Semgrep_output_v0_t.cli_match_intermediate_var = {
+  location: location;
+  content: string
+}
+  [@@deriving show]
+
+type cli_match_dataflow_trace =
+  Semgrep_output_v0_t.cli_match_dataflow_trace = {
+  taint_source: cli_match_taint_source option;
+  intermediate_vars: cli_match_intermediate_var list option
 }
   [@@deriving show]
 
@@ -128,7 +142,7 @@ type finding = Semgrep_output_v0_t.finding = {
   is_blocking: bool;
   fixed_lines: string list option;
   sca_info: sca_info option;
-  dataflow_trace: dataflow_trace option
+  dataflow_trace: cli_match_dataflow_trace option
 }
   [@@deriving show]
 
@@ -170,10 +184,23 @@ type core_stats = Semgrep_output_v0_t.core_stats = {
 type core_severity = Semgrep_output_v0_t.core_severity =  Error | Warning 
   [@@deriving show]
 
+type core_match_intermediate_var =
+  Semgrep_output_v0_t.core_match_intermediate_var = {
+  location: location
+}
+  [@@deriving show]
+
+type core_match_dataflow_trace =
+  Semgrep_output_v0_t.core_match_dataflow_trace = {
+  taint_source: location option;
+  intermediate_vars: core_match_intermediate_var list option
+}
+  [@@deriving show]
+
 type core_match_extra = Semgrep_output_v0_t.core_match_extra = {
   message: string option;
   metavars: metavars;
-  dataflow_trace: dataflow_trace option
+  dataflow_trace: core_match_dataflow_trace option
 }
   [@@deriving show]
 
@@ -272,7 +299,7 @@ type cli_match_extra = Semgrep_output_v0_t.cli_match_extra = {
   dependency_match_only: bool option;
   dependency_matches: raw_json option;
   fixed_lines: string list option;
-  dataflow_trace: dataflow_trace option
+  dataflow_trace: cli_match_dataflow_trace option
 }
   [@@deriving show]
 
@@ -698,25 +725,65 @@ val fix_regex_of_string :
   string -> fix_regex
   (** Deserialize JSON data of type {!type:fix_regex}. *)
 
-val write_dataflow_trace :
-  Bi_outbuf.t -> dataflow_trace -> unit
-  (** Output a JSON value of type {!type:dataflow_trace}. *)
+val write_cli_match_taint_source :
+  Bi_outbuf.t -> cli_match_taint_source -> unit
+  (** Output a JSON value of type {!type:cli_match_taint_source}. *)
 
-val string_of_dataflow_trace :
-  ?len:int -> dataflow_trace -> string
-  (** Serialize a value of type {!type:dataflow_trace}
+val string_of_cli_match_taint_source :
+  ?len:int -> cli_match_taint_source -> string
+  (** Serialize a value of type {!type:cli_match_taint_source}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_dataflow_trace :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dataflow_trace
-  (** Input JSON data of type {!type:dataflow_trace}. *)
+val read_cli_match_taint_source :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match_taint_source
+  (** Input JSON data of type {!type:cli_match_taint_source}. *)
 
-val dataflow_trace_of_string :
-  string -> dataflow_trace
-  (** Deserialize JSON data of type {!type:dataflow_trace}. *)
+val cli_match_taint_source_of_string :
+  string -> cli_match_taint_source
+  (** Deserialize JSON data of type {!type:cli_match_taint_source}. *)
+
+val write_cli_match_intermediate_var :
+  Bi_outbuf.t -> cli_match_intermediate_var -> unit
+  (** Output a JSON value of type {!type:cli_match_intermediate_var}. *)
+
+val string_of_cli_match_intermediate_var :
+  ?len:int -> cli_match_intermediate_var -> string
+  (** Serialize a value of type {!type:cli_match_intermediate_var}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_cli_match_intermediate_var :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match_intermediate_var
+  (** Input JSON data of type {!type:cli_match_intermediate_var}. *)
+
+val cli_match_intermediate_var_of_string :
+  string -> cli_match_intermediate_var
+  (** Deserialize JSON data of type {!type:cli_match_intermediate_var}. *)
+
+val write_cli_match_dataflow_trace :
+  Bi_outbuf.t -> cli_match_dataflow_trace -> unit
+  (** Output a JSON value of type {!type:cli_match_dataflow_trace}. *)
+
+val string_of_cli_match_dataflow_trace :
+  ?len:int -> cli_match_dataflow_trace -> string
+  (** Serialize a value of type {!type:cli_match_dataflow_trace}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_cli_match_dataflow_trace :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match_dataflow_trace
+  (** Input JSON data of type {!type:cli_match_dataflow_trace}. *)
+
+val cli_match_dataflow_trace_of_string :
+  string -> cli_match_dataflow_trace
+  (** Deserialize JSON data of type {!type:cli_match_dataflow_trace}. *)
 
 val write_finding :
   Bi_outbuf.t -> finding -> unit
@@ -857,6 +924,46 @@ val read_core_severity :
 val core_severity_of_string :
   string -> core_severity
   (** Deserialize JSON data of type {!type:core_severity}. *)
+
+val write_core_match_intermediate_var :
+  Bi_outbuf.t -> core_match_intermediate_var -> unit
+  (** Output a JSON value of type {!type:core_match_intermediate_var}. *)
+
+val string_of_core_match_intermediate_var :
+  ?len:int -> core_match_intermediate_var -> string
+  (** Serialize a value of type {!type:core_match_intermediate_var}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_core_match_intermediate_var :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_match_intermediate_var
+  (** Input JSON data of type {!type:core_match_intermediate_var}. *)
+
+val core_match_intermediate_var_of_string :
+  string -> core_match_intermediate_var
+  (** Deserialize JSON data of type {!type:core_match_intermediate_var}. *)
+
+val write_core_match_dataflow_trace :
+  Bi_outbuf.t -> core_match_dataflow_trace -> unit
+  (** Output a JSON value of type {!type:core_match_dataflow_trace}. *)
+
+val string_of_core_match_dataflow_trace :
+  ?len:int -> core_match_dataflow_trace -> string
+  (** Serialize a value of type {!type:core_match_dataflow_trace}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_core_match_dataflow_trace :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_match_dataflow_trace
+  (** Input JSON data of type {!type:core_match_dataflow_trace}. *)
+
+val core_match_dataflow_trace_of_string :
+  string -> core_match_dataflow_trace
+  (** Deserialize JSON data of type {!type:core_match_dataflow_trace}. *)
 
 val write_core_match_extra :
   Bi_outbuf.t -> core_match_extra -> unit
