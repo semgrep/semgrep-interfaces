@@ -424,7 +424,6 @@ $defs:
   id:
     title: Rule ID to attach to findings
     type: string
-    pattern: ^[\w.-]+$
 type: object
 properties:
   rules:
