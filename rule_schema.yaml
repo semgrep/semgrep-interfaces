@@ -322,7 +322,6 @@ $defs:
           base:
             type: integer
         required:
-          - metavariable
           - comparison
         additionalProperties: false
     required:
