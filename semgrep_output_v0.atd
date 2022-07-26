@@ -108,7 +108,7 @@ type core_match_extra
   <python decorator="dataclass(frozen=True)"> = {
   ?message: string option; (* rule.message (?) *)
   metavars: metavars;
-  ?dataflow_trace: dataflow_trace option;
+  ?dataflow_trace: core_match_dataflow_trace option;
 }
 
 (* Provides information about dataflow that leads to a finding. For now, just
@@ -116,16 +116,24 @@ type core_match_extra
  * source reaches the sink). In the future, we may want to include more dataflow
  * information. For example, we may want to explain how constant propagation
  * leads to a finding. *)
-type dataflow_trace
+type core_match_dataflow_trace
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
-  ?taint_source: location list option;
+  ?taint_source: location option;
   (* Intermediate variables which are involved in the dataflow. For taint, this
    * explains how the taint flows from the source to the sink. *)
-  ?intermediate_vars: location list option;
+  ?intermediate_vars: core_match_intermediate_var list option;
   (* For now, omitting the taint sink, since it's redundant data except for
    * certain cases that only appear with DeepSemgrep. We can add it in later
    * without breaking consumers. *)
+}
+
+type core_match_intermediate_var
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {
+  location: location;
+  (* Making this its own type rather than inlining `location` because Iago has
+   * plans to extend this with more information *)
 }
 
 (* Name/value map of the matched metavariables.
@@ -452,6 +460,38 @@ type position_bis <ocaml attr="deriving show"> = {
  *  Used to report playground parse errors in the simpler editor"
  *)
 
+type cli_match_dataflow_trace
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {
+  ?taint_source: cli_match_taint_source option;
+  (* Intermediate variables which are involved in the dataflow. For taint, this
+   * explains how the taint flows from the source to the sink. *)
+  ?intermediate_vars: cli_match_intermediate_var list option;
+  (* For now, omitting the taint sink, since it's redundant data except for
+   * certain cases that only appear with DeepSemgrep. We can add it in later
+   * without breaking consumers. *)
+}
+
+type cli_match_taint_source
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {
+  location: location;
+  (* Unlike abstract_content, this is the actual text read from the
+   * corresponding source file *)
+  content: string;
+}
+
+type cli_match_intermediate_var
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {
+  location: location;
+  (* Unlike abstract_content, this is the actual text read from the
+   * corresponding source file *)
+  content: string;
+  (* This type happens to be the same as cli_match_taint_source for now, but
+   * it's split out because Iago has plans to extend this with more information
+   * *)
+}
 
 (*****************************************************************************)
 (* Match result (called RuleMatch in rule_matches.py) *)
@@ -498,7 +538,7 @@ type cli_match_extra <ocaml attr="deriving show"> = {
 
   (* For now, present only for taint findings. May be extended to others later
    * on. *)
-  ?dataflow_trace: dataflow_trace option;
+  ?dataflow_trace: cli_match_dataflow_trace option;
 }
 
 type fix_regex <ocaml attr="deriving show"> = {
@@ -627,7 +667,7 @@ type finding <ocaml attr="deriving show"> = {
   is_blocking: bool;
   ?fixed_lines: string list option;
   ?sca_info: sca_info option;
-  ?dataflow_trace: dataflow_trace option;
+  ?dataflow_trace: cli_match_dataflow_trace option;
 }
 
 type sca_info <ocaml attr="deriving show"> = {

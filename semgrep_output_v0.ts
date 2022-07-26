@@ -35,12 +35,16 @@ export type CoreMatch = {
 export type CoreMatchExtra = {
   message?: string;
   metavars: Metavars;
-  dataflow_trace?: DataflowTrace;
+  dataflow_trace?: CoreMatchDataflowTrace;
 }
 
-export type DataflowTrace = {
-  taint_source?: Location[];
-  intermediate_vars?: Location[];
+export type CoreMatchDataflowTrace = {
+  taint_source?: Location;
+  intermediate_vars?: CoreMatchIntermediateVar[];
+}
+
+export type CoreMatchIntermediateVar = {
+  location: Location;
 }
 
 export type Metavars = [string, MetavarValue][]
@@ -190,6 +194,21 @@ export type PositionBis = {
   col: Int;
 }
 
+export type CliMatchDataflowTrace = {
+  taint_source?: CliMatchTaintSource;
+  intermediate_vars?: CliMatchIntermediateVar[];
+}
+
+export type CliMatchTaintSource = {
+  location: Location;
+  content: string;
+}
+
+export type CliMatchIntermediateVar = {
+  location: Location;
+  content: string;
+}
+
 export type CliMatch = {
   check_id: RuleId;
   path: string;
@@ -211,7 +230,7 @@ export type CliMatchExtra = {
   dependency_match_only?: boolean;
   dependency_matches?: RawJson;
   fixed_lines?: string[];
-  dataflow_trace?: DataflowTrace;
+  dataflow_trace?: CliMatchDataflowTrace;
 }
 
 export type FixRegex = {
@@ -290,7 +309,7 @@ export type Finding = {
   is_blocking: boolean;
   fixed_lines?: string[];
   sca_info?: ScaInfo;
-  dataflow_trace?: DataflowTrace;
+  dataflow_trace?: CliMatchDataflowTrace;
 }
 
 export type ScaInfo = {
@@ -374,7 +393,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
   return {
     'message': _atd_write_optional_field(_atd_write_string, x.message, x),
     'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
-    'dataflow_trace': _atd_write_optional_field(writeDataflowTrace, x.dataflow_trace, x),
+    'dataflow_trace': _atd_write_optional_field(writeCoreMatchDataflowTrace, x.dataflow_trace, x),
   };
 }
 
@@ -382,21 +401,33 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
   return {
     message: _atd_read_optional_field(_atd_read_string, x['message'], x),
     metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
-    dataflow_trace: _atd_read_optional_field(readDataflowTrace, x['dataflow_trace'], x),
+    dataflow_trace: _atd_read_optional_field(readCoreMatchDataflowTrace, x['dataflow_trace'], x),
   };
 }
 
-export function writeDataflowTrace(x: DataflowTrace, context: any = x): any {
+export function writeCoreMatchDataflowTrace(x: CoreMatchDataflowTrace, context: any = x): any {
   return {
-    'taint_source': _atd_write_optional_field(_atd_write_array(writeLocation), x.taint_source, x),
-    'intermediate_vars': _atd_write_optional_field(_atd_write_array(writeLocation), x.intermediate_vars, x),
+    'taint_source': _atd_write_optional_field(writeLocation, x.taint_source, x),
+    'intermediate_vars': _atd_write_optional_field(_atd_write_array(writeCoreMatchIntermediateVar), x.intermediate_vars, x),
   };
 }
 
-export function readDataflowTrace(x: any, context: any = x): DataflowTrace {
+export function readCoreMatchDataflowTrace(x: any, context: any = x): CoreMatchDataflowTrace {
   return {
-    taint_source: _atd_read_optional_field(_atd_read_array(readLocation), x['taint_source'], x),
-    intermediate_vars: _atd_read_optional_field(_atd_read_array(readLocation), x['intermediate_vars'], x),
+    taint_source: _atd_read_optional_field(readLocation, x['taint_source'], x),
+    intermediate_vars: _atd_read_optional_field(_atd_read_array(readCoreMatchIntermediateVar), x['intermediate_vars'], x),
+  };
+}
+
+export function writeCoreMatchIntermediateVar(x: CoreMatchIntermediateVar, context: any = x): any {
+  return {
+    'location': _atd_write_required_field('CoreMatchIntermediateVar', 'location', writeLocation, x.location, x),
+  };
+}
+
+export function readCoreMatchIntermediateVar(x: any, context: any = x): CoreMatchIntermediateVar {
+  return {
+    location: _atd_read_required_field('CoreMatchIntermediateVar', 'location', readLocation, x['location'], x),
   };
 }
 
@@ -858,6 +889,48 @@ export function readPositionBis(x: any, context: any = x): PositionBis {
   };
 }
 
+export function writeCliMatchDataflowTrace(x: CliMatchDataflowTrace, context: any = x): any {
+  return {
+    'taint_source': _atd_write_optional_field(writeCliMatchTaintSource, x.taint_source, x),
+    'intermediate_vars': _atd_write_optional_field(_atd_write_array(writeCliMatchIntermediateVar), x.intermediate_vars, x),
+  };
+}
+
+export function readCliMatchDataflowTrace(x: any, context: any = x): CliMatchDataflowTrace {
+  return {
+    taint_source: _atd_read_optional_field(readCliMatchTaintSource, x['taint_source'], x),
+    intermediate_vars: _atd_read_optional_field(_atd_read_array(readCliMatchIntermediateVar), x['intermediate_vars'], x),
+  };
+}
+
+export function writeCliMatchTaintSource(x: CliMatchTaintSource, context: any = x): any {
+  return {
+    'location': _atd_write_required_field('CliMatchTaintSource', 'location', writeLocation, x.location, x),
+    'content': _atd_write_required_field('CliMatchTaintSource', 'content', _atd_write_string, x.content, x),
+  };
+}
+
+export function readCliMatchTaintSource(x: any, context: any = x): CliMatchTaintSource {
+  return {
+    location: _atd_read_required_field('CliMatchTaintSource', 'location', readLocation, x['location'], x),
+    content: _atd_read_required_field('CliMatchTaintSource', 'content', _atd_read_string, x['content'], x),
+  };
+}
+
+export function writeCliMatchIntermediateVar(x: CliMatchIntermediateVar, context: any = x): any {
+  return {
+    'location': _atd_write_required_field('CliMatchIntermediateVar', 'location', writeLocation, x.location, x),
+    'content': _atd_write_required_field('CliMatchIntermediateVar', 'content', _atd_write_string, x.content, x),
+  };
+}
+
+export function readCliMatchIntermediateVar(x: any, context: any = x): CliMatchIntermediateVar {
+  return {
+    location: _atd_read_required_field('CliMatchIntermediateVar', 'location', readLocation, x['location'], x),
+    content: _atd_read_required_field('CliMatchIntermediateVar', 'content', _atd_read_string, x['content'], x),
+  };
+}
+
 export function writeCliMatch(x: CliMatch, context: any = x): any {
   return {
     'check_id': _atd_write_required_field('CliMatch', 'check_id', writeRuleId, x.check_id, x),
@@ -892,7 +965,7 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'dependency_match_only': _atd_write_optional_field(_atd_write_bool, x.dependency_match_only, x),
     'dependency_matches': _atd_write_optional_field(writeRawJson, x.dependency_matches, x),
     'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
-    'dataflow_trace': _atd_write_optional_field(writeDataflowTrace, x.dataflow_trace, x),
+    'dataflow_trace': _atd_write_optional_field(writeCliMatchDataflowTrace, x.dataflow_trace, x),
   };
 }
 
@@ -910,7 +983,7 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     dependency_match_only: _atd_read_optional_field(_atd_read_bool, x['dependency_match_only'], x),
     dependency_matches: _atd_read_optional_field(readRawJson, x['dependency_matches'], x),
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
-    dataflow_trace: _atd_read_optional_field(readDataflowTrace, x['dataflow_trace'], x),
+    dataflow_trace: _atd_read_optional_field(readCliMatchDataflowTrace, x['dataflow_trace'], x),
   };
 }
 
@@ -1086,7 +1159,7 @@ export function writeFinding(x: Finding, context: any = x): any {
     'is_blocking': _atd_write_required_field('Finding', 'is_blocking', _atd_write_bool, x.is_blocking, x),
     'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
     'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
-    'dataflow_trace': _atd_write_optional_field(writeDataflowTrace, x.dataflow_trace, x),
+    'dataflow_trace': _atd_write_optional_field(writeCliMatchDataflowTrace, x.dataflow_trace, x),
   };
 }
 
@@ -1108,7 +1181,7 @@ export function readFinding(x: any, context: any = x): Finding {
     is_blocking: _atd_read_required_field('Finding', 'is_blocking', _atd_read_bool, x['is_blocking'], x),
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
     sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
-    dataflow_trace: _atd_read_optional_field(readDataflowTrace, x['dataflow_trace'], x),
+    dataflow_trace: _atd_read_optional_field(readCliMatchDataflowTrace, x['dataflow_trace'], x),
   };
 }
 
