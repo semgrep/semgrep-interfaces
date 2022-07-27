@@ -229,7 +229,9 @@ type core_error
 type core_error_kind
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True, order=True)"> = [
-  (* File parsing related errors *)
+  (* File parsing related errors; if you add a target parse error then
+     metrics for cli need to be updated. See cli/src/semgrep/parsing_data.py.
+  *)
   | LexicalError <json name="Lexical error">
   | ParseError (* a.k.a SyntaxError *) <json name="Syntax error">
   | SpecifiedParseError <json name="Other syntax error">
@@ -366,6 +368,7 @@ type core_match_results
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
   matches: core_match list;
+  (* errors are guaranteed to be duplicate free; see also Report.ml *)
   errors: core_error list;
 
   ?skipped_targets <json name="skipped">: skipped_target list option;
