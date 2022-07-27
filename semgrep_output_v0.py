@@ -236,108 +236,6 @@ def _atd_write_nullable(write_elt: Callable[[Any], Any]) \
 
 
 @dataclass(frozen=True)
-class ID:
-    """Original type: unique_id_type = [ ... | ID | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'ID'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'id'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class AST:
-    """Original type: unique_id_type = [ ... | AST | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'AST'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'AST'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class UniqueIdType:
-    """Original type: unique_id_type = [ ... ]"""
-
-    value: Union[ID, AST]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'UniqueIdType':
-        if isinstance(x, str):
-            if x == 'id':
-                return cls(ID())
-            if x == 'AST':
-                return cls(AST())
-            _atd_bad_json('UniqueIdType', x)
-        _atd_bad_json('UniqueIdType', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'UniqueIdType':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class UniqueId:
-    """Original type: unique_id = { ... }"""
-
-    type_: UniqueIdType
-    md5sum: Optional[str] = None
-    sid: Optional[int] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'UniqueId':
-        if isinstance(x, dict):
-            return cls(
-                type_=UniqueIdType.from_json(x['type']) if 'type' in x else _atd_missing_json_field('UniqueId', 'type'),
-                md5sum=_atd_read_string(x['md5sum']) if 'md5sum' in x else None,
-                sid=_atd_read_int(x['sid']) if 'sid' in x else None,
-            )
-        else:
-            _atd_bad_json('UniqueId', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['type'] = (lambda x: x.to_json())(self.type_)
-        if self.md5sum is not None:
-            res['md5sum'] = _atd_write_string(self.md5sum)
-        if self.sid is not None:
-            res['sid'] = _atd_write_int(self.sid)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'UniqueId':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
 class RuleId:
     """Original type: rule_id"""
 
@@ -868,7 +766,6 @@ class MetavarValue:
     start: Position
     end: Position
     abstract_content: str
-    unique_id: UniqueId
     propagated_value: Optional[SvalueValue] = None
 
     @classmethod
@@ -878,7 +775,6 @@ class MetavarValue:
                 start=Position.from_json(x['start']) if 'start' in x else _atd_missing_json_field('MetavarValue', 'start'),
                 end=Position.from_json(x['end']) if 'end' in x else _atd_missing_json_field('MetavarValue', 'end'),
                 abstract_content=_atd_read_string(x['abstract_content']) if 'abstract_content' in x else _atd_missing_json_field('MetavarValue', 'abstract_content'),
-                unique_id=UniqueId.from_json(x['unique_id']) if 'unique_id' in x else _atd_missing_json_field('MetavarValue', 'unique_id'),
                 propagated_value=SvalueValue.from_json(x['propagated_value']) if 'propagated_value' in x else None,
             )
         else:
@@ -889,7 +785,6 @@ class MetavarValue:
         res['start'] = (lambda x: x.to_json())(self.start)
         res['end'] = (lambda x: x.to_json())(self.end)
         res['abstract_content'] = _atd_write_string(self.abstract_content)
-        res['unique_id'] = (lambda x: x.to_json())(self.unique_id)
         if self.propagated_value is not None:
             res['propagated_value'] = (lambda x: x.to_json())(self.propagated_value)
         return res

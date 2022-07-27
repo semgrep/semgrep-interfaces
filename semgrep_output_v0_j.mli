@@ -1,15 +1,6 @@
 (* Auto-generated from "semgrep_output_v0.atd" *)
 [@@@ocaml.warning "-27-32-33-35-39"]
 
-type unique_id_type = Semgrep_output_v0_t.unique_id_type [@@deriving show]
-
-type unique_id = Semgrep_output_v0_t.unique_id = {
-  type_: unique_id_type;
-  md5sum: string option;
-  sid: int option
-}
-  [@@deriving show]
-
 type rule_id = Semgrep_output_v0_t.rule_id [@@deriving show]
 
 type rule_times = Semgrep_output_v0_t.rule_times = {
@@ -84,8 +75,7 @@ type metavar_value = Semgrep_output_v0_t.metavar_value = {
   start: position;
   end_ (*atd end *): position;
   abstract_content: string;
-  propagated_value: svalue_value option;
-  unique_id: unique_id
+  propagated_value: svalue_value option
 }
   [@@deriving show]
 
@@ -344,46 +334,6 @@ type api_scans_findings = Semgrep_output_v0_t.api_scans_findings = {
   cai_ids: string list
 }
   [@@deriving show]
-
-val write_unique_id_type :
-  Bi_outbuf.t -> unique_id_type -> unit
-  (** Output a JSON value of type {!type:unique_id_type}. *)
-
-val string_of_unique_id_type :
-  ?len:int -> unique_id_type -> string
-  (** Serialize a value of type {!type:unique_id_type}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_unique_id_type :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> unique_id_type
-  (** Input JSON data of type {!type:unique_id_type}. *)
-
-val unique_id_type_of_string :
-  string -> unique_id_type
-  (** Deserialize JSON data of type {!type:unique_id_type}. *)
-
-val write_unique_id :
-  Bi_outbuf.t -> unique_id -> unit
-  (** Output a JSON value of type {!type:unique_id}. *)
-
-val string_of_unique_id :
-  ?len:int -> unique_id -> string
-  (** Serialize a value of type {!type:unique_id}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_unique_id :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> unique_id
-  (** Input JSON data of type {!type:unique_id}. *)
-
-val unique_id_of_string :
-  string -> unique_id
-  (** Deserialize JSON data of type {!type:unique_id}. *)
 
 val write_rule_id :
   Bi_outbuf.t -> rule_id -> unit
