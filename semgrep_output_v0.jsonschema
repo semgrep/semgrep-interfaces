@@ -81,13 +81,12 @@
     },
     "metavar_value": {
       "type": "object",
-      "required": [ "start", "end", "abstract_content", "unique_id" ],
+      "required": [ "start", "end", "abstract_content" ],
       "properties": {
         "start": { "$ref": "#/definitions/position" },
         "end": { "$ref": "#/definitions/position" },
         "abstract_content": { "type": "string" },
-        "propagated_value": { "$ref": "#/definitions/svalue_value" },
-        "unique_id": { "$ref": "#/definitions/unique_id" }
+        "propagated_value": { "$ref": "#/definitions/svalue_value" }
       }
     },
     "svalue_value": {
@@ -99,16 +98,6 @@
         "svalue_abstract_content": { "type": "string" }
       }
     },
-    "unique_id": {
-      "type": "object",
-      "required": [ "type" ],
-      "properties": {
-        "type": { "$ref": "#/definitions/unique_id_type" },
-        "md5sum": { "type": "string" },
-        "sid": { "type": "integer" }
-      }
-    },
-    "unique_id_type": { "oneOf": [ { "const": "id" }, { "const": "AST" } ] },
     "core_error": {
       "type": "object",
       "required": [ "error_type", "severity", "location", "message" ],

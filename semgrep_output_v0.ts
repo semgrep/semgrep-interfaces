@@ -54,7 +54,6 @@ export type MetavarValue = {
   end: Position;
   abstract_content: string;
   propagated_value?: SvalueValue;
-  unique_id: UniqueId;
 }
 
 export type SvalueValue = {
@@ -62,16 +61,6 @@ export type SvalueValue = {
   svalue_end?: Position;
   svalue_abstract_content: string;
 }
-
-export type UniqueId = {
-  type_: UniqueIdType;
-  md5sum?: string;
-  sid?: Int;
-}
-
-export type UniqueIdType =
-| { kind: 'ID' /* JSON: "id" */ }
-| { kind: 'AST' }
 
 export type CoreError = {
   rule_id?: RuleId;
@@ -445,7 +434,6 @@ export function writeMetavarValue(x: MetavarValue, context: any = x): any {
     'end': _atd_write_required_field('MetavarValue', 'end', writePosition, x.end, x),
     'abstract_content': _atd_write_required_field('MetavarValue', 'abstract_content', _atd_write_string, x.abstract_content, x),
     'propagated_value': _atd_write_optional_field(writeSvalueValue, x.propagated_value, x),
-    'unique_id': _atd_write_required_field('MetavarValue', 'unique_id', writeUniqueId, x.unique_id, x),
   };
 }
 
@@ -455,7 +443,6 @@ export function readMetavarValue(x: any, context: any = x): MetavarValue {
     end: _atd_read_required_field('MetavarValue', 'end', readPosition, x['end'], x),
     abstract_content: _atd_read_required_field('MetavarValue', 'abstract_content', _atd_read_string, x['abstract_content'], x),
     propagated_value: _atd_read_optional_field(readSvalueValue, x['propagated_value'], x),
-    unique_id: _atd_read_required_field('MetavarValue', 'unique_id', readUniqueId, x['unique_id'], x),
   };
 }
 
@@ -473,43 +460,6 @@ export function readSvalueValue(x: any, context: any = x): SvalueValue {
     svalue_end: _atd_read_optional_field(readPosition, x['svalue_end'], x),
     svalue_abstract_content: _atd_read_required_field('SvalueValue', 'svalue_abstract_content', _atd_read_string, x['svalue_abstract_content'], x),
   };
-}
-
-export function writeUniqueId(x: UniqueId, context: any = x): any {
-  return {
-    'type': _atd_write_required_field('UniqueId', 'type_', writeUniqueIdType, x.type_, x),
-    'md5sum': _atd_write_optional_field(_atd_write_string, x.md5sum, x),
-    'sid': _atd_write_optional_field(_atd_write_int, x.sid, x),
-  };
-}
-
-export function readUniqueId(x: any, context: any = x): UniqueId {
-  return {
-    type_: _atd_read_required_field('UniqueId', 'type', readUniqueIdType, x['type'], x),
-    md5sum: _atd_read_optional_field(_atd_read_string, x['md5sum'], x),
-    sid: _atd_read_optional_field(_atd_read_int, x['sid'], x),
-  };
-}
-
-export function writeUniqueIdType(x: UniqueIdType, context: any = x): any {
-  switch (x.kind) {
-    case 'ID':
-      return 'id'
-    case 'AST':
-      return 'AST'
-  }
-}
-
-export function readUniqueIdType(x: any, context: any = x): UniqueIdType {
-  switch (x) {
-    case 'id':
-      return { kind: 'ID' }
-    case 'AST':
-      return { kind: 'AST' }
-    default:
-      _atd_bad_json('UniqueIdType', x, context)
-      throw new Error('impossible')
-  }
 }
 
 export function writeCoreError(x: CoreError, context: any = x): any {
@@ -603,9 +553,9 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
     _atd_check_json_tuple(2, x, context)
     switch (x[0]) {
       case 'Pattern parse error':
-        return { kind: 'PatternParseError', value: _atd_read_array(_atd_read_string)(x[1], x) }
+        return { kind: 'PatternParseError', value: _atd_write_array(_atd_write_string)(x[1], x) }
       case 'PartialParsing':
-        return { kind: 'PartialParsing', value: _atd_read_array(readLocation)(x[1], x) }
+        return { kind: 'PartialParsing', value: _atd_write_array(writeLocation)(x[1], x) }
       default:
         _atd_bad_json('CoreErrorKind', x, context)
         throw new Error('impossible')

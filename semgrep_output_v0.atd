@@ -157,27 +157,6 @@ type metavar_value
   end <ocaml name="end_">: position;
   abstract_content: string; (* value? *)
   ?propagated_value: svalue_value option;
-
-  (* The unique ID of a metavariable indicates the kind object that was
-   * captured for equality purposes. In the simplest case, this is only
-   * the name of the metavariable. In semgrep, it can additionally include
-   * a disambiguator. For example, consider this target code:
-   *
-   *   let foo = 1;
-   *   {
-   *     let foo = 2;
-   *   }
-   *
-   * The pattern '$X' would match the first 'foo' and the second 'foo'.
-   * In semgrep, these two 'foo's are identified as different variables,
-   * and this is done by setting the metavariable capture's unique ID to
-   * something like foo-1' and 'foo-2'. Even though their contents look
-   * identical, they're not the same thing.
-   *
-   * Spacegrep doesn't make this analysis, so these two captures will
-   * be considered identical, which is not as good.
-  *)
-  unique_id: unique_id;
 }
 
 type svalue_value
@@ -187,32 +166,6 @@ type svalue_value
   ?svalue_end: position option;
   svalue_abstract_content: string; (* value? *)
 }
-
-(* This is just the variant for type=AST.
- * In order to accommodate two record types into one variant, use
- * the atdgen feature called a json adapter.
-*)
-type unique_id
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = {
-  (* TODO: we should use a sum type here because it's either
-   * AST of md5sum | Id of sid * ... but that would require
-   * to update the python side, so for now I use optional
-   * fields, but really at least one of md5sum or sid should be a Some
-   *)
-  type_ <json name="type">: unique_id_type;
-  (* AST case *)
-  ?md5sum: string option;
-  (* ID case *)
-  ?sid: int option;
-}
-
-type unique_id_type
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = [
-  | ID <json name="id">
-  | AST
-]
 
 (*****************************************************************************)
 (* Core Errors *)
