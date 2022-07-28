@@ -720,6 +720,8 @@ type keyword_attribute = [
   | Generator (* '*' in JS *) | Async
   | Recursive | MutuallyRecursive
   | Inline
+  (* Swift *)
+  | Throws | Rethrows
   (* for methods *)
   | Ctor | Dtor
   | Getter | Setter
