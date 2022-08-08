@@ -145,6 +145,11 @@ type metavars <ocaml attr="deriving show"> = (string * metavar_value) list
    <json repr="object">
    <python repr="dict">
 
+(* TODO: should just inherit location. Maybe it was optimized to not contain
+ * the filename, which might be redundant with the information in core_match,
+ * but with deep-semgrep a metavar could also refer to code in another file,
+ * so simpler to generalize and 'inherit location'.
+ *)
 type metavar_value
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
