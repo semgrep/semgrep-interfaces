@@ -5,6 +5,14 @@ type matching_operation = Semgrep_output_v0_t.matching_operation =
     And
   | Or
   | XPat of string
+  | Negation
+  | Filter of string
+  | Taint
+  | TaintSource
+  | TaintSink
+  | TaintSanitizer
+  | EllipsisAndStmts
+  | ClassHeaderAndElems
 
   [@@deriving show { with_path = false}]
 
@@ -337,7 +345,8 @@ type cli_output = Semgrep_output_v0_t.cli_output = {
   errors: cli_error list;
   results: cli_match list;
   paths: cli_paths;
-  time: cli_timing option
+  time: cli_timing option;
+  explanations: matching_explanation list option
 }
   [@@deriving show]
 

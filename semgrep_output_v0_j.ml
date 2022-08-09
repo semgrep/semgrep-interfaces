@@ -5,6 +5,14 @@ type matching_operation = Semgrep_output_v0_t.matching_operation =
     And
   | Or
   | XPat of string
+  | Negation
+  | Filter of string
+  | Taint
+  | TaintSource
+  | TaintSink
+  | TaintSanitizer
+  | EllipsisAndStmts
+  | ClassHeaderAndElems
 
   [@@deriving show { with_path = false}]
 
@@ -337,7 +345,8 @@ type cli_output = Semgrep_output_v0_t.cli_output = {
   errors: cli_error list;
   results: cli_match list;
   paths: cli_paths;
-  time: cli_timing option
+  time: cli_timing option;
+  explanations: matching_explanation list option
 }
   [@@deriving show]
 
@@ -419,6 +428,19 @@ let write_matching_operation : _ -> matching_operation -> _ = (
           Yojson.Safe.write_string
         ) ob x;
         Bi_outbuf.add_char ob ']'
+      | Negation -> Bi_outbuf.add_string ob "\"Negation\""
+      | Filter x ->
+        Bi_outbuf.add_string ob "[\"Filter\",";
+        (
+          Yojson.Safe.write_string
+        ) ob x;
+        Bi_outbuf.add_char ob ']'
+      | Taint -> Bi_outbuf.add_string ob "\"Taint\""
+      | TaintSource -> Bi_outbuf.add_string ob "\"TaintSource\""
+      | TaintSink -> Bi_outbuf.add_string ob "\"TaintSink\""
+      | TaintSanitizer -> Bi_outbuf.add_string ob "\"TaintSanitizer\""
+      | EllipsisAndStmts -> Bi_outbuf.add_string ob "\"EllipsisAndStmts\""
+      | ClassHeaderAndElems -> Bi_outbuf.add_string ob "\"ClassHeaderAndElems\""
 )
 let string_of_matching_operation ?(len = 1024) x =
   let ob = Bi_outbuf.create len in
@@ -447,6 +469,43 @@ let read_matching_operation = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (XPat x : matching_operation)
+            | "Negation" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Negation : matching_operation)
+            | "Filter" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Filter x : matching_operation)
+            | "Taint" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Taint : matching_operation)
+            | "TaintSource" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (TaintSource : matching_operation)
+            | "TaintSink" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (TaintSink : matching_operation)
+            | "TaintSanitizer" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (TaintSanitizer : matching_operation)
+            | "EllipsisAndStmts" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (EllipsisAndStmts : matching_operation)
+            | "ClassHeaderAndElems" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (ClassHeaderAndElems : matching_operation)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -456,6 +515,20 @@ let read_matching_operation = (
               (And : matching_operation)
             | "Or" ->
               (Or : matching_operation)
+            | "Negation" ->
+              (Negation : matching_operation)
+            | "Taint" ->
+              (Taint : matching_operation)
+            | "TaintSource" ->
+              (TaintSource : matching_operation)
+            | "TaintSink" ->
+              (TaintSink : matching_operation)
+            | "TaintSanitizer" ->
+              (TaintSanitizer : matching_operation)
+            | "EllipsisAndStmts" ->
+              (EllipsisAndStmts : matching_operation)
+            | "ClassHeaderAndElems" ->
+              (ClassHeaderAndElems : matching_operation)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -472,6 +545,17 @@ let read_matching_operation = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               (XPat x : matching_operation)
+            | "Filter" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Filter x : matching_operation)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -11977,6 +12061,17 @@ let write_cli_output : _ -> cli_output -> _ = (
       )
         ob x;
     );
+    (match x.explanations with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Bi_outbuf.add_char ob ',';
+      Bi_outbuf.add_string ob "\"explanations\":";
+      (
+        write__16
+      )
+        ob x;
+    );
     Bi_outbuf.add_char ob '}';
 )
 let string_of_cli_output ?(len = 1024) x =
@@ -11992,6 +12087,7 @@ let read_cli_output = (
     let field_results = ref (None) in
     let field_paths = ref (None) in
     let field_time = ref (None) in
+    let field_explanations = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -12047,6 +12143,14 @@ let read_cli_output = (
                       -1
                     )
               )
+            | 12 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
+                  5
+                )
+                else (
+                  -1
+                )
+              )
             | _ -> (
                 -1
               )
@@ -12095,6 +12199,16 @@ let read_cli_output = (
                 Some (
                   (
                     read_cli_timing
+                  ) p lb
+                )
+              );
+            )
+          | 5 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_explanations := (
+                Some (
+                  (
+                    read__16
                   ) p lb
                 )
               );
@@ -12158,6 +12272,14 @@ let read_cli_output = (
                         -1
                       )
                 )
+              | 12 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
+                    5
+                  )
+                  else (
+                    -1
+                  )
+                )
               | _ -> (
                   -1
                 )
@@ -12210,6 +12332,16 @@ let read_cli_output = (
                   )
                 );
               )
+            | 5 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_explanations := (
+                  Some (
+                    (
+                      read__16
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -12224,6 +12356,7 @@ let read_cli_output = (
             results = (match !field_results with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "results");
             paths = (match !field_paths with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "paths");
             time = !field_time;
+            explanations = !field_explanations;
           }
          : cli_output)
       )

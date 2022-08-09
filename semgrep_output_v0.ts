@@ -147,6 +147,14 @@ export type MatchingOperation =
 | { kind: 'And' }
 | { kind: 'Or' }
 | { kind: 'XPat'; value: string }
+| { kind: 'Negation' }
+| { kind: 'Filter'; value: string }
+| { kind: 'Taint' }
+| { kind: 'TaintSource' }
+| { kind: 'TaintSink' }
+| { kind: 'TaintSanitizer' }
+| { kind: 'EllipsisAndStmts' }
+| { kind: 'ClassHeaderAndElems' }
 
 export type CveResult = {
   url: string;
@@ -247,6 +255,7 @@ export type CliOutput = {
   results: CliMatch[];
   paths: CliPaths;
   time?: CliTiming;
+  explanations?: MatchingExplanation[];
 }
 
 export type CliOutputExtra = {
@@ -760,6 +769,22 @@ export function writeMatchingOperation(x: MatchingOperation, context: any = x): 
       return 'Or'
     case 'XPat':
       return ['XPat', _atd_write_string(x.value, x)]
+    case 'Negation':
+      return 'Negation'
+    case 'Filter':
+      return ['Filter', _atd_write_string(x.value, x)]
+    case 'Taint':
+      return 'Taint'
+    case 'TaintSource':
+      return 'TaintSource'
+    case 'TaintSink':
+      return 'TaintSink'
+    case 'TaintSanitizer':
+      return 'TaintSanitizer'
+    case 'EllipsisAndStmts':
+      return 'EllipsisAndStmts'
+    case 'ClassHeaderAndElems':
+      return 'ClassHeaderAndElems'
   }
 }
 
@@ -770,6 +795,20 @@ export function readMatchingOperation(x: any, context: any = x): MatchingOperati
         return { kind: 'And' }
       case 'Or':
         return { kind: 'Or' }
+      case 'Negation':
+        return { kind: 'Negation' }
+      case 'Taint':
+        return { kind: 'Taint' }
+      case 'TaintSource':
+        return { kind: 'TaintSource' }
+      case 'TaintSink':
+        return { kind: 'TaintSink' }
+      case 'TaintSanitizer':
+        return { kind: 'TaintSanitizer' }
+      case 'EllipsisAndStmts':
+        return { kind: 'EllipsisAndStmts' }
+      case 'ClassHeaderAndElems':
+        return { kind: 'ClassHeaderAndElems' }
       default:
         _atd_bad_json('MatchingOperation', x, context)
         throw new Error('impossible')
@@ -780,6 +819,8 @@ export function readMatchingOperation(x: any, context: any = x): MatchingOperati
     switch (x[0]) {
       case 'XPat':
         return { kind: 'XPat', value: _atd_write_string(x[1], x) }
+      case 'Filter':
+        return { kind: 'Filter', value: _atd_write_string(x[1], x) }
       default:
         _atd_bad_json('MatchingOperation', x, context)
         throw new Error('impossible')
@@ -1028,6 +1069,7 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
     'results': _atd_write_required_field('CliOutput', 'results', _atd_write_array(writeCliMatch), x.results, x),
     'paths': _atd_write_required_field('CliOutput', 'paths', writeCliPaths, x.paths, x),
     'time': _atd_write_optional_field(writeCliTiming, x.time, x),
+    'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
   };
 }
 
@@ -1038,6 +1080,7 @@ export function readCliOutput(x: any, context: any = x): CliOutput {
     results: _atd_read_required_field('CliOutput', 'results', _atd_read_array(readCliMatch), x['results'], x),
     paths: _atd_read_required_field('CliOutput', 'paths', readCliPaths, x['paths'], x),
     time: _atd_read_optional_field(readCliTiming, x['time'], x),
+    explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
   };
 }
 

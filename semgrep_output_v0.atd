@@ -349,6 +349,18 @@ type matching_operation
    * see semgrep-core/src/core/XPattern.ml
    *)
   | XPat of string
+  (* TODO *)
+  | Negation
+  (* TODO "metavar-regex:xxx" | "metavar-comparison:xxx" | "metavar-pattern" *)
+  | Filter of string
+  (* TODO tainting "operations" *)
+  | Taint
+  | TaintSource
+  | TaintSink
+  | TaintSanitizer
+  (* TODO subpatterns *)
+  | EllipsisAndStmts
+  | ClassHeaderAndElems
 ] <ocaml repr="classic">
 
 (*****************************************************************************)
@@ -561,7 +573,10 @@ type cli_output <ocaml attr="deriving show"> = {
     errors: cli_error list;
     results: cli_match list;
     inherit cli_output_extra;
-  }
+
+    (* since semgrep 0.109? *)
+    ?explanations: matching_explanation list option;
+}
 
 type cli_output_extra <ocaml attr="deriving show"> = {
     paths: cli_paths;

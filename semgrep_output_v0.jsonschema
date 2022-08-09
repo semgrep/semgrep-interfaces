@@ -15,7 +15,11 @@
       "items": { "$ref": "#/definitions/cli_match" }
     },
     "paths": { "$ref": "#/definitions/cli_paths" },
-    "time": { "$ref": "#/definitions/cli_timing" }
+    "time": { "$ref": "#/definitions/cli_timing" },
+    "explanations": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/matching_explanation" }
+    }
   },
   "definitions": {
     "raw_json": {},
@@ -249,7 +253,20 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [ { "const": "XPat" }, { "type": "string" } ]
-        }
+        },
+        { "const": "Negation" },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [ { "const": "Filter" }, { "type": "string" } ]
+        },
+        { "const": "Taint" },
+        { "const": "TaintSource" },
+        { "const": "TaintSink" },
+        { "const": "TaintSanitizer" },
+        { "const": "EllipsisAndStmts" },
+        { "const": "ClassHeaderAndElems" }
       ]
     },
     "cve_result": {
