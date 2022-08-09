@@ -430,7 +430,11 @@
       "required": [ "paths" ],
       "properties": {
         "paths": { "$ref": "#/definitions/cli_paths" },
-        "time": { "$ref": "#/definitions/cli_timing" }
+        "time": { "$ref": "#/definitions/cli_timing" },
+        "explanations": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/matching_explanation" }
+        }
       }
     },
     "cli_paths": {

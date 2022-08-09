@@ -296,7 +296,8 @@ type cli_paths = Semgrep_output_v0_t.cli_paths = {
 
 type cli_output_extra = Semgrep_output_v0_t.cli_output_extra = {
   paths: cli_paths;
-  time: cli_timing option
+  time: cli_timing option;
+  explanations: matching_explanation list option
 }
   [@@deriving show]
 
@@ -9884,6 +9885,17 @@ let write_cli_output_extra : _ -> cli_output_extra -> _ = (
       )
         ob x;
     );
+    (match x.explanations with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Bi_outbuf.add_char ob ',';
+      Bi_outbuf.add_string ob "\"explanations\":";
+      (
+        write__16
+      )
+        ob x;
+    );
     Bi_outbuf.add_char ob '}';
 )
 let string_of_cli_output_extra ?(len = 1024) x =
@@ -9896,6 +9908,7 @@ let read_cli_output_extra = (
     Yojson.Safe.read_lcurl p lb;
     let field_paths = ref (None) in
     let field_time = ref (None) in
+    let field_explanations = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -9916,6 +9929,14 @@ let read_cli_output_extra = (
             | 5 -> (
                 if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' && String.unsafe_get s (pos+4) = 's' then (
                   0
+                )
+                else (
+                  -1
+                )
+              )
+            | 12 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
+                  2
                 )
                 else (
                   -1
@@ -9943,6 +9964,16 @@ let read_cli_output_extra = (
                 Some (
                   (
                     read_cli_timing
+                  ) p lb
+                )
+              );
+            )
+          | 2 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_explanations := (
+                Some (
+                  (
+                    read__16
                   ) p lb
                 )
               );
@@ -9976,6 +10007,14 @@ let read_cli_output_extra = (
                     -1
                   )
                 )
+              | 12 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
+                    2
+                  )
+                  else (
+                    -1
+                  )
+                )
               | _ -> (
                   -1
                 )
@@ -10002,6 +10041,16 @@ let read_cli_output_extra = (
                   )
                 );
               )
+            | 2 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_explanations := (
+                  Some (
+                    (
+                      read__16
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -10013,6 +10062,7 @@ let read_cli_output_extra = (
           {
             paths = (match !field_paths with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "paths");
             time = !field_time;
+            explanations = !field_explanations;
           }
          : cli_output_extra)
       )

@@ -261,6 +261,7 @@ export type CliOutput = {
 export type CliOutputExtra = {
   paths: CliPaths;
   time?: CliTiming;
+  explanations?: MatchingExplanation[];
 }
 
 export type CliPaths = {
@@ -1088,6 +1089,7 @@ export function writeCliOutputExtra(x: CliOutputExtra, context: any = x): any {
   return {
     'paths': _atd_write_required_field('CliOutputExtra', 'paths', writeCliPaths, x.paths, x),
     'time': _atd_write_optional_field(writeCliTiming, x.time, x),
+    'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
   };
 }
 
@@ -1095,6 +1097,7 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
   return {
     paths: _atd_read_required_field('CliOutputExtra', 'paths', readCliPaths, x['paths'], x),
     time: _atd_read_optional_field(readCliTiming, x['time'], x),
+    explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
   };
 }
 

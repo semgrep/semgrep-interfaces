@@ -296,7 +296,8 @@ type cli_paths = Semgrep_output_v0_t.cli_paths = {
 
 type cli_output_extra = Semgrep_output_v0_t.cli_output_extra = {
   paths: cli_paths;
-  time: cli_timing option
+  time: cli_timing option;
+  explanations: matching_explanation list option
 }
   [@@deriving show]
 

@@ -573,9 +573,6 @@ type cli_output <ocaml attr="deriving show"> = {
     errors: cli_error list;
     results: cli_match list;
     inherit cli_output_extra;
-
-    (* since semgrep 0.109? *)
-    ?explanations: matching_explanation list option;
 }
 
 type cli_output_extra <ocaml attr="deriving show"> = {
@@ -586,6 +583,8 @@ type cli_output_extra <ocaml attr="deriving show"> = {
     (* used only in TEXT format:
        ?color_output, per_finding_max_lines_limit, per_line_max_chars_limit
      *)
+    (* since semgrep 0.109? *)
+    ?explanations: matching_explanation list option;
 }
 
 type cli_paths <ocaml attr="deriving show"> = {
