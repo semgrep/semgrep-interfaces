@@ -289,10 +289,147 @@ class XPat:
 
 
 @dataclass(frozen=True)
+class Negation:
+    """Original type: matching_operation = [ ... | Negation | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Negation'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Negation'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Filter:
+    """Original type: matching_operation = [ ... | Filter of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Filter'
+
+    def to_json(self) -> Any:
+        return ['Filter', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Taint:
+    """Original type: matching_operation = [ ... | Taint | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Taint'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Taint'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class TaintSource:
+    """Original type: matching_operation = [ ... | TaintSource | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'TaintSource'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'TaintSource'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class TaintSink:
+    """Original type: matching_operation = [ ... | TaintSink | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'TaintSink'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'TaintSink'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class TaintSanitizer:
+    """Original type: matching_operation = [ ... | TaintSanitizer | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'TaintSanitizer'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'TaintSanitizer'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class EllipsisAndStmts:
+    """Original type: matching_operation = [ ... | EllipsisAndStmts | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'EllipsisAndStmts'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'EllipsisAndStmts'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ClassHeaderAndElems:
+    """Original type: matching_operation = [ ... | ClassHeaderAndElems | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ClassHeaderAndElems'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'ClassHeaderAndElems'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class MatchingOperation:
     """Original type: matching_operation = [ ... ]"""
 
-    value: Union[And, Or, XPat]
+    value: Union[And, Or, XPat, Negation, Filter, Taint, TaintSource, TaintSink, TaintSanitizer, EllipsisAndStmts, ClassHeaderAndElems]
 
     @property
     def kind(self) -> str:
@@ -306,11 +443,27 @@ class MatchingOperation:
                 return cls(And())
             if x == 'Or':
                 return cls(Or())
+            if x == 'Negation':
+                return cls(Negation())
+            if x == 'Taint':
+                return cls(Taint())
+            if x == 'TaintSource':
+                return cls(TaintSource())
+            if x == 'TaintSink':
+                return cls(TaintSink())
+            if x == 'TaintSanitizer':
+                return cls(TaintSanitizer())
+            if x == 'EllipsisAndStmts':
+                return cls(EllipsisAndStmts())
+            if x == 'ClassHeaderAndElems':
+                return cls(ClassHeaderAndElems())
             _atd_bad_json('MatchingOperation', x)
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'XPat':
                 return cls(XPat(_atd_read_string(x[1])))
+            if cons == 'Filter':
+                return cls(Filter(_atd_read_string(x[1])))
             _atd_bad_json('MatchingOperation', x)
         _atd_bad_json('MatchingOperation', x)
 
@@ -2321,6 +2474,7 @@ class CliOutput:
     paths: CliPaths
     version: Optional[Semver] = None
     time: Optional[CliTiming] = None
+    explanations: Optional[List[MatchingExplanation]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutput':
@@ -2331,6 +2485,7 @@ class CliOutput:
                 paths=CliPaths.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutput', 'paths'),
                 version=Semver.from_json(x['version']) if 'version' in x else None,
                 time=CliTiming.from_json(x['time']) if 'time' in x else None,
+                explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
             )
         else:
             _atd_bad_json('CliOutput', x)
@@ -2344,6 +2499,8 @@ class CliOutput:
             res['version'] = (lambda x: x.to_json())(self.version)
         if self.time is not None:
             res['time'] = (lambda x: x.to_json())(self.time)
+        if self.explanations is not None:
+            res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
         return res
 
     @classmethod
