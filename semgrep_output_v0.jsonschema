@@ -224,6 +224,34 @@
         "match_time": { "type": "number" }
       }
     },
+    "matching_explanation": {
+      "type": "object",
+      "required": [ "op", "children", "matches", "loc" ],
+      "properties": {
+        "op": { "$ref": "#/definitions/matching_operation" },
+        "children": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/matching_explanation" }
+        },
+        "matches": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/core_match" }
+        },
+        "loc": { "$ref": "#/definitions/location" }
+      }
+    },
+    "matching_operation": {
+      "oneOf": [
+        { "const": "And" },
+        { "const": "Or" },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [ { "const": "XPat" }, { "type": "string" } ]
+        }
+      ]
+    },
     "cve_result": {
       "type": "object",
       "required": [ "url", "filename", "funcnames" ],
@@ -256,6 +284,10 @@
         "skipped_rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
+        },
+        "explanations": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/matching_explanation" }
         },
         "stats": { "$ref": "#/definitions/core_stats" },
         "time": { "$ref": "#/definitions/core_timing" }
