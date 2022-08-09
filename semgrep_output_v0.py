@@ -2265,6 +2265,7 @@ class CliOutputExtra:
 
     paths: CliPaths
     time: Optional[CliTiming] = None
+    explanations: Optional[List[MatchingExplanation]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutputExtra':
@@ -2272,6 +2273,7 @@ class CliOutputExtra:
             return cls(
                 paths=CliPaths.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutputExtra', 'paths'),
                 time=CliTiming.from_json(x['time']) if 'time' in x else None,
+                explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
             )
         else:
             _atd_bad_json('CliOutputExtra', x)
@@ -2281,6 +2283,8 @@ class CliOutputExtra:
         res['paths'] = (lambda x: x.to_json())(self.paths)
         if self.time is not None:
             res['time'] = (lambda x: x.to_json())(self.time)
+        if self.explanations is not None:
+            res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
         return res
 
     @classmethod
