@@ -1,7 +1,80 @@
 (* Auto-generated from "semgrep_output_v0.atd" *)
 [@@@ocaml.warning "-27-32-33-35-39"]
 
+type matching_operation = Semgrep_output_v0_t.matching_operation = 
+    And
+  | Or
+  | XPat of string
+
+  [@@deriving show { with_path = false}]
+
+type position = Semgrep_output_v0_t.position = {
+  line: int;
+  col: int;
+  offset: int
+}
+  [@@deriving show]
+
+type location = Semgrep_output_v0_t.location = {
+  path: string;
+  start: position;
+  end_ (*atd end *): position
+}
+  [@@deriving show]
+
+type core_match_intermediate_var =
+  Semgrep_output_v0_t.core_match_intermediate_var = {
+  location: location
+}
+  [@@deriving show]
+
+type core_match_dataflow_trace =
+  Semgrep_output_v0_t.core_match_dataflow_trace = {
+  taint_source: location option;
+  intermediate_vars: core_match_intermediate_var list option
+}
+  [@@deriving show]
+
 type rule_id = Semgrep_output_v0_t.rule_id [@@deriving show]
+
+type svalue_value = Semgrep_output_v0_t.svalue_value = {
+  svalue_start: position option;
+  svalue_end: position option;
+  svalue_abstract_content: string
+}
+  [@@deriving show]
+
+type metavar_value = Semgrep_output_v0_t.metavar_value = {
+  start: position;
+  end_ (*atd end *): position;
+  abstract_content: string;
+  propagated_value: svalue_value option
+}
+  [@@deriving show]
+
+type metavars = Semgrep_output_v0_t.metavars [@@deriving show]
+
+type core_match_extra = Semgrep_output_v0_t.core_match_extra = {
+  message: string option;
+  metavars: metavars;
+  dataflow_trace: core_match_dataflow_trace option
+}
+  [@@deriving show]
+
+type core_match = Semgrep_output_v0_t.core_match = {
+  rule_id: rule_id;
+  location: location;
+  extra: core_match_extra
+}
+  [@@deriving show]
+
+type matching_explanation = Semgrep_output_v0_t.matching_explanation = {
+  op: matching_operation;
+  children: matching_explanation list;
+  matches: core_match list;
+  loc: location
+}
+  [@@deriving show]
 
 type rule_times = Semgrep_output_v0_t.rule_times = {
   rule_id: rule_id;
@@ -14,20 +87,6 @@ type target_time = Semgrep_output_v0_t.target_time = {
   path: string;
   rule_times: rule_times list;
   run_time: float
-}
-  [@@deriving show]
-
-type position = Semgrep_output_v0_t.position = {
-  line: int;
-  col: int;
-  offset: int
-}
-  [@@deriving show]
-
-type svalue_value = Semgrep_output_v0_t.svalue_value = {
-  svalue_start: position option;
-  svalue_end: position option;
-  svalue_abstract_content: string
 }
   [@@deriving show]
 
@@ -68,23 +127,6 @@ type rule_id_dict = Semgrep_output_v0_t.rule_id_dict = { id: rule_id }
 type position_bis = Semgrep_output_v0_t.position_bis = {
   line: int;
   col: int
-}
-  [@@deriving show]
-
-type metavar_value = Semgrep_output_v0_t.metavar_value = {
-  start: position;
-  end_ (*atd end *): position;
-  abstract_content: string;
-  propagated_value: svalue_value option
-}
-  [@@deriving show]
-
-type metavars = Semgrep_output_v0_t.metavars [@@deriving show]
-
-type location = Semgrep_output_v0_t.location = {
-  path: string;
-  start: position;
-  end_ (*atd end *): position
 }
   [@@deriving show]
 
@@ -174,33 +216,6 @@ type core_stats = Semgrep_output_v0_t.core_stats = {
 type core_severity = Semgrep_output_v0_t.core_severity =  Error | Warning 
   [@@deriving show]
 
-type core_match_intermediate_var =
-  Semgrep_output_v0_t.core_match_intermediate_var = {
-  location: location
-}
-  [@@deriving show]
-
-type core_match_dataflow_trace =
-  Semgrep_output_v0_t.core_match_dataflow_trace = {
-  taint_source: location option;
-  intermediate_vars: core_match_intermediate_var list option
-}
-  [@@deriving show]
-
-type core_match_extra = Semgrep_output_v0_t.core_match_extra = {
-  message: string option;
-  metavars: metavars;
-  dataflow_trace: core_match_dataflow_trace option
-}
-  [@@deriving show]
-
-type core_match = Semgrep_output_v0_t.core_match = {
-  rule_id: rule_id;
-  location: location;
-  extra: core_match_extra
-}
-  [@@deriving show]
-
 type core_error_kind = Semgrep_output_v0_t.core_error_kind = 
     LexicalError
   | ParseError
@@ -234,6 +249,7 @@ type core_match_results = Semgrep_output_v0_t.core_match_results = {
   errors: core_error list;
   skipped_targets: skipped_target list option;
   skipped_rules: skipped_rule list option;
+  explanations: matching_explanation list option;
   stats: core_stats;
   time: core_timing option
 }
@@ -335,6 +351,106 @@ type api_scans_findings = Semgrep_output_v0_t.api_scans_findings = {
 }
   [@@deriving show]
 
+val write_matching_operation :
+  Bi_outbuf.t -> matching_operation -> unit
+  (** Output a JSON value of type {!type:matching_operation}. *)
+
+val string_of_matching_operation :
+  ?len:int -> matching_operation -> string
+  (** Serialize a value of type {!type:matching_operation}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_matching_operation :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> matching_operation
+  (** Input JSON data of type {!type:matching_operation}. *)
+
+val matching_operation_of_string :
+  string -> matching_operation
+  (** Deserialize JSON data of type {!type:matching_operation}. *)
+
+val write_position :
+  Bi_outbuf.t -> position -> unit
+  (** Output a JSON value of type {!type:position}. *)
+
+val string_of_position :
+  ?len:int -> position -> string
+  (** Serialize a value of type {!type:position}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_position :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> position
+  (** Input JSON data of type {!type:position}. *)
+
+val position_of_string :
+  string -> position
+  (** Deserialize JSON data of type {!type:position}. *)
+
+val write_location :
+  Bi_outbuf.t -> location -> unit
+  (** Output a JSON value of type {!type:location}. *)
+
+val string_of_location :
+  ?len:int -> location -> string
+  (** Serialize a value of type {!type:location}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_location :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> location
+  (** Input JSON data of type {!type:location}. *)
+
+val location_of_string :
+  string -> location
+  (** Deserialize JSON data of type {!type:location}. *)
+
+val write_core_match_intermediate_var :
+  Bi_outbuf.t -> core_match_intermediate_var -> unit
+  (** Output a JSON value of type {!type:core_match_intermediate_var}. *)
+
+val string_of_core_match_intermediate_var :
+  ?len:int -> core_match_intermediate_var -> string
+  (** Serialize a value of type {!type:core_match_intermediate_var}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_core_match_intermediate_var :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_match_intermediate_var
+  (** Input JSON data of type {!type:core_match_intermediate_var}. *)
+
+val core_match_intermediate_var_of_string :
+  string -> core_match_intermediate_var
+  (** Deserialize JSON data of type {!type:core_match_intermediate_var}. *)
+
+val write_core_match_dataflow_trace :
+  Bi_outbuf.t -> core_match_dataflow_trace -> unit
+  (** Output a JSON value of type {!type:core_match_dataflow_trace}. *)
+
+val string_of_core_match_dataflow_trace :
+  ?len:int -> core_match_dataflow_trace -> string
+  (** Serialize a value of type {!type:core_match_dataflow_trace}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_core_match_dataflow_trace :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_match_dataflow_trace
+  (** Input JSON data of type {!type:core_match_dataflow_trace}. *)
+
+val core_match_dataflow_trace_of_string :
+  string -> core_match_dataflow_trace
+  (** Deserialize JSON data of type {!type:core_match_dataflow_trace}. *)
+
 val write_rule_id :
   Bi_outbuf.t -> rule_id -> unit
   (** Output a JSON value of type {!type:rule_id}. *)
@@ -354,6 +470,126 @@ val read_rule_id :
 val rule_id_of_string :
   string -> rule_id
   (** Deserialize JSON data of type {!type:rule_id}. *)
+
+val write_svalue_value :
+  Bi_outbuf.t -> svalue_value -> unit
+  (** Output a JSON value of type {!type:svalue_value}. *)
+
+val string_of_svalue_value :
+  ?len:int -> svalue_value -> string
+  (** Serialize a value of type {!type:svalue_value}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_svalue_value :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> svalue_value
+  (** Input JSON data of type {!type:svalue_value}. *)
+
+val svalue_value_of_string :
+  string -> svalue_value
+  (** Deserialize JSON data of type {!type:svalue_value}. *)
+
+val write_metavar_value :
+  Bi_outbuf.t -> metavar_value -> unit
+  (** Output a JSON value of type {!type:metavar_value}. *)
+
+val string_of_metavar_value :
+  ?len:int -> metavar_value -> string
+  (** Serialize a value of type {!type:metavar_value}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_metavar_value :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> metavar_value
+  (** Input JSON data of type {!type:metavar_value}. *)
+
+val metavar_value_of_string :
+  string -> metavar_value
+  (** Deserialize JSON data of type {!type:metavar_value}. *)
+
+val write_metavars :
+  Bi_outbuf.t -> metavars -> unit
+  (** Output a JSON value of type {!type:metavars}. *)
+
+val string_of_metavars :
+  ?len:int -> metavars -> string
+  (** Serialize a value of type {!type:metavars}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_metavars :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> metavars
+  (** Input JSON data of type {!type:metavars}. *)
+
+val metavars_of_string :
+  string -> metavars
+  (** Deserialize JSON data of type {!type:metavars}. *)
+
+val write_core_match_extra :
+  Bi_outbuf.t -> core_match_extra -> unit
+  (** Output a JSON value of type {!type:core_match_extra}. *)
+
+val string_of_core_match_extra :
+  ?len:int -> core_match_extra -> string
+  (** Serialize a value of type {!type:core_match_extra}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_core_match_extra :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_match_extra
+  (** Input JSON data of type {!type:core_match_extra}. *)
+
+val core_match_extra_of_string :
+  string -> core_match_extra
+  (** Deserialize JSON data of type {!type:core_match_extra}. *)
+
+val write_core_match :
+  Bi_outbuf.t -> core_match -> unit
+  (** Output a JSON value of type {!type:core_match}. *)
+
+val string_of_core_match :
+  ?len:int -> core_match -> string
+  (** Serialize a value of type {!type:core_match}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_core_match :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_match
+  (** Input JSON data of type {!type:core_match}. *)
+
+val core_match_of_string :
+  string -> core_match
+  (** Deserialize JSON data of type {!type:core_match}. *)
+
+val write_matching_explanation :
+  Bi_outbuf.t -> matching_explanation -> unit
+  (** Output a JSON value of type {!type:matching_explanation}. *)
+
+val string_of_matching_explanation :
+  ?len:int -> matching_explanation -> string
+  (** Serialize a value of type {!type:matching_explanation}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_matching_explanation :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> matching_explanation
+  (** Input JSON data of type {!type:matching_explanation}. *)
+
+val matching_explanation_of_string :
+  string -> matching_explanation
+  (** Deserialize JSON data of type {!type:matching_explanation}. *)
 
 val write_rule_times :
   Bi_outbuf.t -> rule_times -> unit
@@ -394,46 +630,6 @@ val read_target_time :
 val target_time_of_string :
   string -> target_time
   (** Deserialize JSON data of type {!type:target_time}. *)
-
-val write_position :
-  Bi_outbuf.t -> position -> unit
-  (** Output a JSON value of type {!type:position}. *)
-
-val string_of_position :
-  ?len:int -> position -> string
-  (** Serialize a value of type {!type:position}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_position :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> position
-  (** Input JSON data of type {!type:position}. *)
-
-val position_of_string :
-  string -> position
-  (** Deserialize JSON data of type {!type:position}. *)
-
-val write_svalue_value :
-  Bi_outbuf.t -> svalue_value -> unit
-  (** Output a JSON value of type {!type:svalue_value}. *)
-
-val string_of_svalue_value :
-  ?len:int -> svalue_value -> string
-  (** Serialize a value of type {!type:svalue_value}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_svalue_value :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> svalue_value
-  (** Input JSON data of type {!type:svalue_value}. *)
-
-val svalue_value_of_string :
-  string -> svalue_value
-  (** Deserialize JSON data of type {!type:svalue_value}. *)
 
 val write_skip_reason :
   Bi_outbuf.t -> skip_reason -> unit
@@ -594,66 +790,6 @@ val read_position_bis :
 val position_bis_of_string :
   string -> position_bis
   (** Deserialize JSON data of type {!type:position_bis}. *)
-
-val write_metavar_value :
-  Bi_outbuf.t -> metavar_value -> unit
-  (** Output a JSON value of type {!type:metavar_value}. *)
-
-val string_of_metavar_value :
-  ?len:int -> metavar_value -> string
-  (** Serialize a value of type {!type:metavar_value}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_metavar_value :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> metavar_value
-  (** Input JSON data of type {!type:metavar_value}. *)
-
-val metavar_value_of_string :
-  string -> metavar_value
-  (** Deserialize JSON data of type {!type:metavar_value}. *)
-
-val write_metavars :
-  Bi_outbuf.t -> metavars -> unit
-  (** Output a JSON value of type {!type:metavars}. *)
-
-val string_of_metavars :
-  ?len:int -> metavars -> string
-  (** Serialize a value of type {!type:metavars}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_metavars :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> metavars
-  (** Input JSON data of type {!type:metavars}. *)
-
-val metavars_of_string :
-  string -> metavars
-  (** Deserialize JSON data of type {!type:metavars}. *)
-
-val write_location :
-  Bi_outbuf.t -> location -> unit
-  (** Output a JSON value of type {!type:location}. *)
-
-val string_of_location :
-  ?len:int -> location -> string
-  (** Serialize a value of type {!type:location}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_location :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> location
-  (** Input JSON data of type {!type:location}. *)
-
-val location_of_string :
-  string -> location
-  (** Deserialize JSON data of type {!type:location}. *)
 
 val write_fix_regex :
   Bi_outbuf.t -> fix_regex -> unit
@@ -874,86 +1010,6 @@ val read_core_severity :
 val core_severity_of_string :
   string -> core_severity
   (** Deserialize JSON data of type {!type:core_severity}. *)
-
-val write_core_match_intermediate_var :
-  Bi_outbuf.t -> core_match_intermediate_var -> unit
-  (** Output a JSON value of type {!type:core_match_intermediate_var}. *)
-
-val string_of_core_match_intermediate_var :
-  ?len:int -> core_match_intermediate_var -> string
-  (** Serialize a value of type {!type:core_match_intermediate_var}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_core_match_intermediate_var :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_match_intermediate_var
-  (** Input JSON data of type {!type:core_match_intermediate_var}. *)
-
-val core_match_intermediate_var_of_string :
-  string -> core_match_intermediate_var
-  (** Deserialize JSON data of type {!type:core_match_intermediate_var}. *)
-
-val write_core_match_dataflow_trace :
-  Bi_outbuf.t -> core_match_dataflow_trace -> unit
-  (** Output a JSON value of type {!type:core_match_dataflow_trace}. *)
-
-val string_of_core_match_dataflow_trace :
-  ?len:int -> core_match_dataflow_trace -> string
-  (** Serialize a value of type {!type:core_match_dataflow_trace}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_core_match_dataflow_trace :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_match_dataflow_trace
-  (** Input JSON data of type {!type:core_match_dataflow_trace}. *)
-
-val core_match_dataflow_trace_of_string :
-  string -> core_match_dataflow_trace
-  (** Deserialize JSON data of type {!type:core_match_dataflow_trace}. *)
-
-val write_core_match_extra :
-  Bi_outbuf.t -> core_match_extra -> unit
-  (** Output a JSON value of type {!type:core_match_extra}. *)
-
-val string_of_core_match_extra :
-  ?len:int -> core_match_extra -> string
-  (** Serialize a value of type {!type:core_match_extra}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_core_match_extra :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_match_extra
-  (** Input JSON data of type {!type:core_match_extra}. *)
-
-val core_match_extra_of_string :
-  string -> core_match_extra
-  (** Deserialize JSON data of type {!type:core_match_extra}. *)
-
-val write_core_match :
-  Bi_outbuf.t -> core_match -> unit
-  (** Output a JSON value of type {!type:core_match}. *)
-
-val string_of_core_match :
-  ?len:int -> core_match -> string
-  (** Serialize a value of type {!type:core_match}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_core_match :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_match
-  (** Input JSON data of type {!type:core_match}. *)
-
-val core_match_of_string :
-  string -> core_match
-  (** Deserialize JSON data of type {!type:core_match}. *)
 
 val write_core_error_kind :
   Bi_outbuf.t -> core_error_kind -> unit
