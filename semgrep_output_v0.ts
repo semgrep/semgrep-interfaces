@@ -36,6 +36,7 @@ export type CoreMatchExtra = {
   message?: string;
   metavars: Metavars;
   dataflow_trace?: CoreMatchDataflowTrace;
+  applied_fix?: string;
 }
 
 export type CoreMatchDataflowTrace = {
@@ -383,6 +384,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
     'message': _atd_write_optional_field(_atd_write_string, x.message, x),
     'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
     'dataflow_trace': _atd_write_optional_field(writeCoreMatchDataflowTrace, x.dataflow_trace, x),
+    'applied_fix': _atd_write_optional_field(_atd_write_string, x.applied_fix, x),
   };
 }
 
@@ -391,6 +393,7 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     message: _atd_read_optional_field(_atd_read_string, x['message'], x),
     metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
     dataflow_trace: _atd_read_optional_field(readCoreMatchDataflowTrace, x['dataflow_trace'], x),
+    applied_fix: _atd_read_optional_field(_atd_read_string, x['applied_fix'], x),
   };
 }
 
@@ -553,9 +556,9 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
     _atd_check_json_tuple(2, x, context)
     switch (x[0]) {
       case 'Pattern parse error':
-        return { kind: 'PatternParseError', value: _atd_write_array(_atd_write_string)(x[1], x) }
+        return { kind: 'PatternParseError', value: _atd_read_array(_atd_read_string)(x[1], x) }
       case 'PartialParsing':
-        return { kind: 'PartialParsing', value: _atd_write_array(writeLocation)(x[1], x) }
+        return { kind: 'PartialParsing', value: _atd_read_array(readLocation)(x[1], x) }
       default:
         _atd_bad_json('CoreErrorKind', x, context)
         throw new Error('impossible')

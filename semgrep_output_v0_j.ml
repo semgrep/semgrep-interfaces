@@ -190,7 +190,8 @@ type core_match_dataflow_trace =
 type core_match_extra = Semgrep_output_v0_t.core_match_extra = {
   message: string option;
   metavars: metavars;
-  dataflow_trace: core_match_dataflow_trace option
+  dataflow_trace: core_match_dataflow_trace option;
+  applied_fix: string option
 }
   [@@deriving show]
 
@@ -6670,6 +6671,17 @@ let write_core_match_extra : _ -> core_match_extra -> _ = (
       )
         ob x;
     );
+    (match x.applied_fix with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Bi_outbuf.add_char ob ',';
+      Bi_outbuf.add_string ob "\"applied_fix\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
     Bi_outbuf.add_char ob '}';
 )
 let string_of_core_match_extra ?(len = 1024) x =
@@ -6683,6 +6695,7 @@ let read_core_match_extra = (
     let field_message = ref (None) in
     let field_metavars = ref (None) in
     let field_dataflow_trace = ref (None) in
+    let field_applied_fix = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -6703,6 +6716,14 @@ let read_core_match_extra = (
             | 8 -> (
                 if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'v' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' then (
                   1
+                )
+                else (
+                  -1
+                )
+              )
+            | 11 -> (
+                if String.unsafe_get s pos = 'a' && String.unsafe_get s (pos+1) = 'p' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'x' then (
+                  3
                 )
                 else (
                   -1
@@ -6752,6 +6773,16 @@ let read_core_match_extra = (
                 )
               );
             )
+          | 3 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_applied_fix := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -6776,6 +6807,14 @@ let read_core_match_extra = (
               | 8 -> (
                   if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'v' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' then (
                     1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 11 -> (
+                  if String.unsafe_get s pos = 'a' && String.unsafe_get s (pos+1) = 'p' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'x' then (
+                    3
                   )
                   else (
                     -1
@@ -6825,6 +6864,16 @@ let read_core_match_extra = (
                   )
                 );
               )
+            | 3 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_applied_fix := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -6837,6 +6886,7 @@ let read_core_match_extra = (
             message = !field_message;
             metavars = (match !field_metavars with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "metavars");
             dataflow_trace = !field_dataflow_trace;
+            applied_fix = !field_applied_fix;
           }
          : core_match_extra)
       )

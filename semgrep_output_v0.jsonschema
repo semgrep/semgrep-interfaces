@@ -56,7 +56,8 @@
         "metavars": { "$ref": "#/definitions/metavars" },
         "dataflow_trace": {
           "$ref": "#/definitions/core_match_dataflow_trace"
-        }
+        },
+        "applied_fix": { "type": "string" }
       }
     },
     "core_match_dataflow_trace": {

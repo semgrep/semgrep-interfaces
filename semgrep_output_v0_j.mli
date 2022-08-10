@@ -190,7 +190,8 @@ type core_match_dataflow_trace =
 type core_match_extra = Semgrep_output_v0_t.core_match_extra = {
   message: string option;
   metavars: metavars;
-  dataflow_trace: core_match_dataflow_trace option
+  dataflow_trace: core_match_dataflow_trace option;
+  applied_fix: string option
 }
   [@@deriving show]
 

@@ -109,6 +109,7 @@ type core_match_extra
   ?message: string option; (* rule.message (?) *)
   metavars: metavars;
   ?dataflow_trace: core_match_dataflow_trace option;
+  ?applied_fix: string option;
 }
 
 (* Provides information about dataflow that leads to a finding. For now, just
