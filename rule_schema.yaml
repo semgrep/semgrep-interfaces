@@ -21,6 +21,7 @@ $defs:
         - $ref: "#/$defs/metavariable-regex"
         - $ref: "#/$defs/metavariable-pattern"
         - $ref: "#/$defs/metavariable-comparison"
+        - $ref: "#/$defs/ref-content" 
   pattern-either-content:
     type: array
     title: "Return finding where any of the nested conditions are true"
@@ -31,6 +32,7 @@ $defs:
         - $ref: "#/$defs/pattern-inside"
         - $ref: "#/$defs/pattern"
         - $ref: "#/$defs/pattern-regex"
+        - $ref: "#/$defs/ref-content" 
   taint-content:
     type: array
     items:
@@ -47,6 +49,8 @@ $defs:
               $ref: "#/$defs/patterns-content"
             pattern-either:
               $ref: "#/$defs/pattern-either-content"
+            ref:
+              $ref: "#/$defs/ref-content"
           oneOf:
             - required:
                 - pattern
@@ -88,6 +92,8 @@ $defs:
                       - patterns
                   - required:
                       - pattern-either
+            - required:
+                - ref
   r2c-internal-project-depends-on-content:
     type: object
     title: "One or more dependencies that the project contains in a lock file"
@@ -408,6 +414,13 @@ $defs:
     required:
       - pattern-not
     additionalProperties: false
+  ref-content:
+    properties:
+      ref:
+        title: Replace with the result of the invoked function
+    required:
+      - ref
+    additionalProperties: false
   pattern-where-python:
     type: object
     properties:
@@ -516,6 +529,11 @@ properties:
           $ref: "#/$defs/pattern-either-content"
         r2c-internal-project-depends-on:
           $ref: "#/$defs/r2c-internal-project-depends-on-content"
+        uses:
+          title: Link to templates to use
+          type: array
+          items:
+            type: object
         extract:
           title: Metavariable whose content to use as the extracted result for subsequent rules
           type: string
