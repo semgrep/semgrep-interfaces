@@ -172,7 +172,7 @@ type core_stats = Semgrep_output_v0_t.core_stats = {
   [@@deriving show]
 
 type core_severity = Semgrep_output_v0_t.core_severity =  Error | Warning 
-  [@@deriving show]
+  [@@deriving show, eq]
 
 type core_match_intermediate_var =
   Semgrep_output_v0_t.core_match_intermediate_var = {
@@ -211,6 +211,8 @@ type core_error_kind = Semgrep_output_v0_t.core_error_kind =
   | InvalidYaml
   | MatchingError
   | SemgrepMatchFound
+  | MetacheckMatchInternal of core_severity
+  | MetacheckMatch
   | TooManyMatches
   | FatalError
   | Timeout

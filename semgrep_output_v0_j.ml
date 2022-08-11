@@ -172,7 +172,7 @@ type core_stats = Semgrep_output_v0_t.core_stats = {
   [@@deriving show]
 
 type core_severity = Semgrep_output_v0_t.core_severity =  Error | Warning 
-  [@@deriving show]
+  [@@deriving show, eq]
 
 type core_match_intermediate_var =
   Semgrep_output_v0_t.core_match_intermediate_var = {
@@ -211,6 +211,8 @@ type core_error_kind = Semgrep_output_v0_t.core_error_kind =
   | InvalidYaml
   | MatchingError
   | SemgrepMatchFound
+  | MetacheckMatchInternal of core_severity
+  | MetacheckMatch
   | TooManyMatches
   | FatalError
   | Timeout
@@ -7072,6 +7074,13 @@ let write_core_error_kind : _ -> core_error_kind -> _ = (
       | InvalidYaml -> Bi_outbuf.add_string ob "\"Invalid YAML\""
       | MatchingError -> Bi_outbuf.add_string ob "\"Internal matching error\""
       | SemgrepMatchFound -> Bi_outbuf.add_string ob "\"Semgrep match found\""
+      | MetacheckMatchInternal x ->
+        Bi_outbuf.add_string ob "[\"MetacheckMatchInternal\",";
+        (
+          write_core_severity
+        ) ob x;
+        Bi_outbuf.add_char ob ']'
+      | MetacheckMatch -> Bi_outbuf.add_string ob "\"Metachecker found an error\""
       | TooManyMatches -> Bi_outbuf.add_string ob "\"Too many matches\""
       | FatalError -> Bi_outbuf.add_string ob "\"Fatal error\""
       | Timeout -> Bi_outbuf.add_string ob "\"Timeout\""
@@ -7134,6 +7143,19 @@ let read_core_error_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (SemgrepMatchFound : core_error_kind)
+            | "MetacheckMatchInternal" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_core_severity
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (MetacheckMatchInternal x : core_error_kind)
+            | "Metachecker found an error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (MetacheckMatch : core_error_kind)
             | "Too many matches" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -7180,6 +7202,8 @@ let read_core_error_kind = (
               (MatchingError : core_error_kind)
             | "Semgrep match found" ->
               (SemgrepMatchFound : core_error_kind)
+            | "Metachecker found an error" ->
+              (MetacheckMatch : core_error_kind)
             | "Too many matches" ->
               (TooManyMatches : core_error_kind)
             | "Fatal error" ->
@@ -7204,6 +7228,17 @@ let read_core_error_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               (PatternParseError x : core_error_kind)
+            | "MetacheckMatchInternal" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_core_severity
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (MetacheckMatchInternal x : core_error_kind)
             | "PartialParsing" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;

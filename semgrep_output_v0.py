@@ -1593,6 +1593,41 @@ class SemgrepMatchFound:
 
 
 @dataclass(frozen=True, order=True)
+class MetacheckMatchInternal:
+    """Original type: core_error_kind = [ ... | MetacheckMatchInternal of ... | ... ]"""
+
+    value: CoreSeverity
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'MetacheckMatchInternal'
+
+    def to_json(self) -> Any:
+        return ['MetacheckMatchInternal', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class MetacheckMatch:
+    """Original type: core_error_kind = [ ... | MetacheckMatch | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'MetacheckMatch'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Metachecker found an error'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
 class TooManyMatches_:
     """Original type: core_error_kind = [ ... | TooManyMatches | ... ]"""
 
@@ -1682,7 +1717,7 @@ class PartialParsing:
 class CoreErrorKind:
     """Original type: core_error_kind = [ ... ]"""
 
-    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, PatternParseError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, PartialParsing]
+    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, PatternParseError, InvalidYaml, MatchingError, SemgrepMatchFound, MetacheckMatchInternal, MetacheckMatch, TooManyMatches_, FatalError, Timeout, OutOfMemory, PartialParsing]
 
     @property
     def kind(self) -> str:
@@ -1708,6 +1743,8 @@ class CoreErrorKind:
                 return cls(MatchingError())
             if x == 'Semgrep match found':
                 return cls(SemgrepMatchFound())
+            if x == 'Metachecker found an error':
+                return cls(MetacheckMatch())
             if x == 'Too many matches':
                 return cls(TooManyMatches_())
             if x == 'Fatal error':
@@ -1721,6 +1758,8 @@ class CoreErrorKind:
             cons = x[0]
             if cons == 'Pattern parse error':
                 return cls(PatternParseError(_atd_read_list(_atd_read_string)(x[1])))
+            if cons == 'MetacheckMatchInternal':
+                return cls(MetacheckMatchInternal(CoreSeverity.from_json(x[1])))
             if cons == 'PartialParsing':
                 return cls(PartialParsing(_atd_read_list(Location.from_json)(x[1])))
             _atd_bad_json('CoreErrorKind', x)

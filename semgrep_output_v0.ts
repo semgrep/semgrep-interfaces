@@ -81,6 +81,8 @@ export type CoreErrorKind =
 | { kind: 'InvalidYaml' /* JSON: "Invalid YAML" */ }
 | { kind: 'MatchingError' /* JSON: "Internal matching error" */ }
 | { kind: 'SemgrepMatchFound' /* JSON: "Semgrep match found" */ }
+| { kind: 'MetacheckMatchInternal'; value: CoreSeverity }
+| { kind: 'MetacheckMatch' /* JSON: "Metachecker found an error" */ }
 | { kind: 'TooManyMatches' /* JSON: "Too many matches" */ }
 | { kind: 'FatalError' /* JSON: "Fatal error" */ }
 | { kind: 'Timeout' }
@@ -504,6 +506,10 @@ export function writeCoreErrorKind(x: CoreErrorKind, context: any = x): any {
       return 'Internal matching error'
     case 'SemgrepMatchFound':
       return 'Semgrep match found'
+    case 'MetacheckMatchInternal':
+      return ['MetacheckMatchInternal', writeCoreSeverity(x.value, x)]
+    case 'MetacheckMatch':
+      return 'Metachecker found an error'
     case 'TooManyMatches':
       return 'Too many matches'
     case 'FatalError':
@@ -536,6 +542,8 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
         return { kind: 'MatchingError' }
       case 'Semgrep match found':
         return { kind: 'SemgrepMatchFound' }
+      case 'Metachecker found an error':
+        return { kind: 'MetacheckMatch' }
       case 'Too many matches':
         return { kind: 'TooManyMatches' }
       case 'Fatal error':
@@ -553,9 +561,11 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
     _atd_check_json_tuple(2, x, context)
     switch (x[0]) {
       case 'Pattern parse error':
-        return { kind: 'PatternParseError', value: _atd_write_array(_atd_write_string)(x[1], x) }
+        return { kind: 'PatternParseError', value: _atd_read_array(_atd_read_string)(x[1], x) }
+      case 'MetacheckMatchInternal':
+        return { kind: 'MetacheckMatchInternal', value: readCoreSeverity(x[1], x) }
       case 'PartialParsing':
-        return { kind: 'PartialParsing', value: _atd_write_array(writeLocation)(x[1], x) }
+        return { kind: 'PartialParsing', value: _atd_read_array(readLocation)(x[1], x) }
       default:
         _atd_bad_json('CoreErrorKind', x, context)
         throw new Error('impossible')

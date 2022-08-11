@@ -210,6 +210,9 @@ type core_error_kind
   (* matching (semgrep) related *)
   | MatchingError (* internal error, e.g., NoTokenLocation *) <json name="Internal matching error">
   | SemgrepMatchFound (* TODO of string (* check_id *) *) <json name="Semgrep match found">
+  | MetacheckMatchInternal of core_severity
+  | MetacheckMatch
+  <json name="Metachecker found an error">
   | TooManyMatches <json name="Too many matches">
   (* other *)
   | FatalError (* missing file, OCaml errors, etc. *) <json name="Fatal error">
@@ -221,7 +224,7 @@ type core_error_kind
 
 
 type core_severity
-  <ocaml attr="deriving show">
+  <ocaml attr="deriving show, eq">
   <python decorator="dataclass(frozen=True)"> = [
   | Error <json name="error">
   | Warning <json name="warning">

@@ -129,6 +129,16 @@
         { "const": "Invalid YAML" },
         { "const": "Internal matching error" },
         { "const": "Semgrep match found" },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "MetacheckMatchInternal" },
+            { "$ref": "#/definitions/core_severity" }
+          ]
+        },
+        { "const": "Metachecker found an error" },
         { "const": "Too many matches" },
         { "const": "Fatal error" },
         { "const": "Timeout" },
