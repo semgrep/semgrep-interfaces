@@ -699,6 +699,8 @@ let write_keyword_attribute = (
       | `Recursive -> Bi_outbuf.add_string ob "\"Recursive\""
       | `MutuallyRecursive -> Bi_outbuf.add_string ob "\"MutuallyRecursive\""
       | `Inline -> Bi_outbuf.add_string ob "\"Inline\""
+      | `Throws -> Bi_outbuf.add_string ob "\"Throws\""
+      | `Rethrows -> Bi_outbuf.add_string ob "\"Rethrows\""
       | `Ctor -> Bi_outbuf.add_string ob "\"Ctor\""
       | `Dtor -> Bi_outbuf.add_string ob "\"Dtor\""
       | `Getter -> Bi_outbuf.add_string ob "\"Getter\""
@@ -796,6 +798,14 @@ let read_keyword_attribute = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Inline
+            | "Throws" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Throws
+            | "Rethrows" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Rethrows
             | "Ctor" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -865,6 +875,10 @@ let read_keyword_attribute = (
               `MutuallyRecursive
             | "Inline" ->
               `Inline
+            | "Throws" ->
+              `Throws
+            | "Rethrows" ->
+              `Rethrows
             | "Ctor" ->
               `Ctor
             | "Dtor" ->

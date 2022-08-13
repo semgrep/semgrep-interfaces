@@ -145,6 +145,11 @@ type metavars <ocaml attr="deriving show"> = (string * metavar_value) list
    <json repr="object">
    <python repr="dict">
 
+(* TODO: should just inherit location. Maybe it was optimized to not contain
+ * the filename, which might be redundant with the information in core_match,
+ * but with deep-semgrep a metavar could also refer to code in another file,
+ * so simpler to generalize and 'inherit location'.
+ *)
 type metavar_value
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
@@ -309,6 +314,56 @@ type rule_times
 }
 
 (*****************************************************************************)
+(* Matching explanations *)
+(*****************************************************************************)
+(* coupling: semgrep-core/src/core/Matching_explanation.ml
+ * LATER: merge with Matching_explanation.t at some point
+ *)
+type matching_explanation
+     <ocaml attr="deriving show">
+     <python decorator="dataclass(frozen=True)"> = {
+    op: matching_operation;
+    children: matching_explanation list;
+    (* result matches at this node (can be empty when we reach a nomatch) *)
+    matches: core_match list;
+    (* location in the rule file! not target file.
+     * This tries to delimit the part of the rule relevant to the current
+     * operation (e.g., the position of the 'patterns:' token in the rule
+     * for the And operation).
+     *)
+    loc: location;
+    }
+(* TODO:
+ * - Negation
+ * - Where filters (metavar-comparison, etc)
+ * - tainting source/sink/sanitizer
+ * - subpattern EllipsisAndStmt, ClassHeaderAndElems
+ *)
+type matching_operation
+  <ocaml attr="deriving show { with_path = false}">
+  <python decorator="dataclass(frozen=True)"> = [
+  | And
+  | Or
+  (* XPat for eXtended pattern. Can be a spacegrep pattern, a
+   * regexp pattern, or a proper semgrep pattern.
+   * see semgrep-core/src/core/XPattern.ml
+   *)
+  | XPat of string
+  (* TODO *)
+  | Negation
+  (* TODO "metavar-regex:xxx" | "metavar-comparison:xxx" | "metavar-pattern" *)
+  | Filter of string
+  (* TODO tainting "operations" *)
+  | Taint
+  | TaintSource
+  | TaintSink
+  | TaintSanitizer
+  (* TODO subpatterns *)
+  | EllipsisAndStmts
+  | ClassHeaderAndElems
+] <ocaml repr="classic">
+
+(*****************************************************************************)
 (* Synthesizing from diffs (see locate_patched_functions in Synthesizing.mli) *)
 (*****************************************************************************)
 type cve_result
@@ -334,8 +389,11 @@ type core_match_results
   errors: core_error list;
 
   ?skipped_targets <json name="skipped">: skipped_target list option;
-  (* skipped_rules was introduced  in semgrep 0.86 *)
+  (* sinced semgrep 0.86 *)
   ?skipped_rules: skipped_rule list option;
+
+  (* since semgrep 0.109? *)
+  ?explanations: matching_explanation list option;
 
   stats: core_stats;
   (* LATER: rename timing *)
@@ -515,7 +573,7 @@ type cli_output <ocaml attr="deriving show"> = {
     errors: cli_error list;
     results: cli_match list;
     inherit cli_output_extra;
-  }
+}
 
 type cli_output_extra <ocaml attr="deriving show"> = {
     paths: cli_paths;
@@ -525,6 +583,8 @@ type cli_output_extra <ocaml attr="deriving show"> = {
     (* used only in TEXT format:
        ?color_output, per_finding_max_lines_limit, per_line_max_chars_limit
      *)
+    (* since semgrep 0.109? *)
+    ?explanations: matching_explanation list option;
 }
 
 type cli_paths <ocaml attr="deriving show"> = {

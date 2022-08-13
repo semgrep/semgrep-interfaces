@@ -136,6 +136,26 @@ export type RuleTimes = {
   match_time: number;
 }
 
+export type MatchingExplanation = {
+  op: MatchingOperation;
+  children: MatchingExplanation[];
+  matches: CoreMatch[];
+  loc: Location;
+}
+
+export type MatchingOperation =
+| { kind: 'And' }
+| { kind: 'Or' }
+| { kind: 'XPat'; value: string }
+| { kind: 'Negation' }
+| { kind: 'Filter'; value: string }
+| { kind: 'Taint' }
+| { kind: 'TaintSource' }
+| { kind: 'TaintSink' }
+| { kind: 'TaintSanitizer' }
+| { kind: 'EllipsisAndStmts' }
+| { kind: 'ClassHeaderAndElems' }
+
 export type CveResult = {
   url: string;
   filename: string;
@@ -149,6 +169,7 @@ export type CoreMatchResults = {
   errors: CoreError[];
   skipped_targets?: SkippedTarget[];
   skipped_rules?: SkippedRule[];
+  explanations?: MatchingExplanation[];
   stats: CoreStats;
   time?: CoreTiming;
 }
@@ -234,11 +255,13 @@ export type CliOutput = {
   results: CliMatch[];
   paths: CliPaths;
   time?: CliTiming;
+  explanations?: MatchingExplanation[];
 }
 
 export type CliOutputExtra = {
   paths: CliPaths;
   time?: CliTiming;
+  explanations?: MatchingExplanation[];
 }
 
 export type CliPaths = {
@@ -721,6 +744,91 @@ export function readRuleTimes(x: any, context: any = x): RuleTimes {
   };
 }
 
+export function writeMatchingExplanation(x: MatchingExplanation, context: any = x): any {
+  return {
+    'op': _atd_write_required_field('MatchingExplanation', 'op', writeMatchingOperation, x.op, x),
+    'children': _atd_write_required_field('MatchingExplanation', 'children', _atd_write_array(writeMatchingExplanation), x.children, x),
+    'matches': _atd_write_required_field('MatchingExplanation', 'matches', _atd_write_array(writeCoreMatch), x.matches, x),
+    'loc': _atd_write_required_field('MatchingExplanation', 'loc', writeLocation, x.loc, x),
+  };
+}
+
+export function readMatchingExplanation(x: any, context: any = x): MatchingExplanation {
+  return {
+    op: _atd_read_required_field('MatchingExplanation', 'op', readMatchingOperation, x['op'], x),
+    children: _atd_read_required_field('MatchingExplanation', 'children', _atd_read_array(readMatchingExplanation), x['children'], x),
+    matches: _atd_read_required_field('MatchingExplanation', 'matches', _atd_read_array(readCoreMatch), x['matches'], x),
+    loc: _atd_read_required_field('MatchingExplanation', 'loc', readLocation, x['loc'], x),
+  };
+}
+
+export function writeMatchingOperation(x: MatchingOperation, context: any = x): any {
+  switch (x.kind) {
+    case 'And':
+      return 'And'
+    case 'Or':
+      return 'Or'
+    case 'XPat':
+      return ['XPat', _atd_write_string(x.value, x)]
+    case 'Negation':
+      return 'Negation'
+    case 'Filter':
+      return ['Filter', _atd_write_string(x.value, x)]
+    case 'Taint':
+      return 'Taint'
+    case 'TaintSource':
+      return 'TaintSource'
+    case 'TaintSink':
+      return 'TaintSink'
+    case 'TaintSanitizer':
+      return 'TaintSanitizer'
+    case 'EllipsisAndStmts':
+      return 'EllipsisAndStmts'
+    case 'ClassHeaderAndElems':
+      return 'ClassHeaderAndElems'
+  }
+}
+
+export function readMatchingOperation(x: any, context: any = x): MatchingOperation {
+  if (typeof x === 'string') {
+    switch (x) {
+      case 'And':
+        return { kind: 'And' }
+      case 'Or':
+        return { kind: 'Or' }
+      case 'Negation':
+        return { kind: 'Negation' }
+      case 'Taint':
+        return { kind: 'Taint' }
+      case 'TaintSource':
+        return { kind: 'TaintSource' }
+      case 'TaintSink':
+        return { kind: 'TaintSink' }
+      case 'TaintSanitizer':
+        return { kind: 'TaintSanitizer' }
+      case 'EllipsisAndStmts':
+        return { kind: 'EllipsisAndStmts' }
+      case 'ClassHeaderAndElems':
+        return { kind: 'ClassHeaderAndElems' }
+      default:
+        _atd_bad_json('MatchingOperation', x, context)
+        throw new Error('impossible')
+    }
+  }
+  else {
+    _atd_check_json_tuple(2, x, context)
+    switch (x[0]) {
+      case 'XPat':
+        return { kind: 'XPat', value: _atd_write_string(x[1], x) }
+      case 'Filter':
+        return { kind: 'Filter', value: _atd_write_string(x[1], x) }
+      default:
+        _atd_bad_json('MatchingOperation', x, context)
+        throw new Error('impossible')
+    }
+  }
+}
+
 export function writeCveResult(x: CveResult, context: any = x): any {
   return {
     'url': _atd_write_required_field('CveResult', 'url', _atd_write_string, x.url, x),
@@ -751,6 +859,7 @@ export function writeCoreMatchResults(x: CoreMatchResults, context: any = x): an
     'errors': _atd_write_required_field('CoreMatchResults', 'errors', _atd_write_array(writeCoreError), x.errors, x),
     'skipped': _atd_write_optional_field(_atd_write_array(writeSkippedTarget), x.skipped_targets, x),
     'skipped_rules': _atd_write_optional_field(_atd_write_array(writeSkippedRule), x.skipped_rules, x),
+    'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'stats': _atd_write_required_field('CoreMatchResults', 'stats', writeCoreStats, x.stats, x),
     'time': _atd_write_optional_field(writeCoreTiming, x.time, x),
   };
@@ -762,6 +871,7 @@ export function readCoreMatchResults(x: any, context: any = x): CoreMatchResults
     errors: _atd_read_required_field('CoreMatchResults', 'errors', _atd_read_array(readCoreError), x['errors'], x),
     skipped_targets: _atd_read_optional_field(_atd_read_array(readSkippedTarget), x['skipped'], x),
     skipped_rules: _atd_read_optional_field(_atd_read_array(readSkippedRule), x['skipped_rules'], x),
+    explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     stats: _atd_read_required_field('CoreMatchResults', 'stats', readCoreStats, x['stats'], x),
     time: _atd_read_optional_field(readCoreTiming, x['time'], x),
   };
@@ -960,6 +1070,7 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
     'results': _atd_write_required_field('CliOutput', 'results', _atd_write_array(writeCliMatch), x.results, x),
     'paths': _atd_write_required_field('CliOutput', 'paths', writeCliPaths, x.paths, x),
     'time': _atd_write_optional_field(writeCliTiming, x.time, x),
+    'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
   };
 }
 
@@ -970,6 +1081,7 @@ export function readCliOutput(x: any, context: any = x): CliOutput {
     results: _atd_read_required_field('CliOutput', 'results', _atd_read_array(readCliMatch), x['results'], x),
     paths: _atd_read_required_field('CliOutput', 'paths', readCliPaths, x['paths'], x),
     time: _atd_read_optional_field(readCliTiming, x['time'], x),
+    explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
   };
 }
 
@@ -977,6 +1089,7 @@ export function writeCliOutputExtra(x: CliOutputExtra, context: any = x): any {
   return {
     'paths': _atd_write_required_field('CliOutputExtra', 'paths', writeCliPaths, x.paths, x),
     'time': _atd_write_optional_field(writeCliTiming, x.time, x),
+    'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
   };
 }
 
@@ -984,6 +1097,7 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
   return {
     paths: _atd_read_required_field('CliOutputExtra', 'paths', readCliPaths, x['paths'], x),
     time: _atd_read_optional_field(readCliTiming, x['time'], x),
+    explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
   };
 }
 

@@ -7,6 +7,7 @@ methods and functions to convert data from/to JSON.
 # Disable flake8 entirely on this file:
 # flake8: noqa
 
+from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, NoReturn, Optional, Tuple, Union
 
@@ -236,6 +237,377 @@ def _atd_write_nullable(write_elt: Callable[[Any], Any]) \
 
 
 @dataclass(frozen=True)
+class And:
+    """Original type: matching_operation = [ ... | And | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'And'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'And'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Or:
+    """Original type: matching_operation = [ ... | Or | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Or'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Or'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class XPat:
+    """Original type: matching_operation = [ ... | XPat of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'XPat'
+
+    def to_json(self) -> Any:
+        return ['XPat', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Negation:
+    """Original type: matching_operation = [ ... | Negation | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Negation'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Negation'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Filter:
+    """Original type: matching_operation = [ ... | Filter of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Filter'
+
+    def to_json(self) -> Any:
+        return ['Filter', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Taint:
+    """Original type: matching_operation = [ ... | Taint | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Taint'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Taint'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class TaintSource:
+    """Original type: matching_operation = [ ... | TaintSource | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'TaintSource'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'TaintSource'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class TaintSink:
+    """Original type: matching_operation = [ ... | TaintSink | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'TaintSink'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'TaintSink'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class TaintSanitizer:
+    """Original type: matching_operation = [ ... | TaintSanitizer | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'TaintSanitizer'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'TaintSanitizer'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class EllipsisAndStmts:
+    """Original type: matching_operation = [ ... | EllipsisAndStmts | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'EllipsisAndStmts'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'EllipsisAndStmts'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ClassHeaderAndElems:
+    """Original type: matching_operation = [ ... | ClassHeaderAndElems | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ClassHeaderAndElems'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'ClassHeaderAndElems'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class MatchingOperation:
+    """Original type: matching_operation = [ ... ]"""
+
+    value: Union[And, Or, XPat, Negation, Filter, Taint, TaintSource, TaintSink, TaintSanitizer, EllipsisAndStmts, ClassHeaderAndElems]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'MatchingOperation':
+        if isinstance(x, str):
+            if x == 'And':
+                return cls(And())
+            if x == 'Or':
+                return cls(Or())
+            if x == 'Negation':
+                return cls(Negation())
+            if x == 'Taint':
+                return cls(Taint())
+            if x == 'TaintSource':
+                return cls(TaintSource())
+            if x == 'TaintSink':
+                return cls(TaintSink())
+            if x == 'TaintSanitizer':
+                return cls(TaintSanitizer())
+            if x == 'EllipsisAndStmts':
+                return cls(EllipsisAndStmts())
+            if x == 'ClassHeaderAndElems':
+                return cls(ClassHeaderAndElems())
+            _atd_bad_json('MatchingOperation', x)
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'XPat':
+                return cls(XPat(_atd_read_string(x[1])))
+            if cons == 'Filter':
+                return cls(Filter(_atd_read_string(x[1])))
+            _atd_bad_json('MatchingOperation', x)
+        _atd_bad_json('MatchingOperation', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'MatchingOperation':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class Position:
+    """Original type: position = { ... }"""
+
+    line: int
+    col: int
+    offset: int
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Position':
+        if isinstance(x, dict):
+            return cls(
+                line=_atd_read_int(x['line']) if 'line' in x else _atd_missing_json_field('Position', 'line'),
+                col=_atd_read_int(x['col']) if 'col' in x else _atd_missing_json_field('Position', 'col'),
+                offset=_atd_read_int(x['offset']) if 'offset' in x else _atd_missing_json_field('Position', 'offset'),
+            )
+        else:
+            _atd_bad_json('Position', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['line'] = _atd_write_int(self.line)
+        res['col'] = _atd_write_int(self.col)
+        res['offset'] = _atd_write_int(self.offset)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Position':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Location:
+    """Original type: location = { ... }"""
+
+    path: str
+    start: Position
+    end: Position
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Location':
+        if isinstance(x, dict):
+            return cls(
+                path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('Location', 'path'),
+                start=Position.from_json(x['start']) if 'start' in x else _atd_missing_json_field('Location', 'start'),
+                end=Position.from_json(x['end']) if 'end' in x else _atd_missing_json_field('Location', 'end'),
+            )
+        else:
+            _atd_bad_json('Location', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['path'] = _atd_write_string(self.path)
+        res['start'] = (lambda x: x.to_json())(self.start)
+        res['end'] = (lambda x: x.to_json())(self.end)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Location':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class CoreMatchIntermediateVar:
+    """Original type: core_match_intermediate_var = { ... }"""
+
+    location: Location
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CoreMatchIntermediateVar':
+        if isinstance(x, dict):
+            return cls(
+                location=Location.from_json(x['location']) if 'location' in x else _atd_missing_json_field('CoreMatchIntermediateVar', 'location'),
+            )
+        else:
+            _atd_bad_json('CoreMatchIntermediateVar', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['location'] = (lambda x: x.to_json())(self.location)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CoreMatchIntermediateVar':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class CoreMatchDataflowTrace:
+    """Original type: core_match_dataflow_trace = { ... }"""
+
+    taint_source: Optional[Location] = None
+    intermediate_vars: Optional[List[CoreMatchIntermediateVar]] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CoreMatchDataflowTrace':
+        if isinstance(x, dict):
+            return cls(
+                taint_source=Location.from_json(x['taint_source']) if 'taint_source' in x else None,
+                intermediate_vars=_atd_read_list(CoreMatchIntermediateVar.from_json)(x['intermediate_vars']) if 'intermediate_vars' in x else None,
+            )
+        else:
+            _atd_bad_json('CoreMatchDataflowTrace', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        if self.taint_source is not None:
+            res['taint_source'] = (lambda x: x.to_json())(self.taint_source)
+        if self.intermediate_vars is not None:
+            res['intermediate_vars'] = _atd_write_list((lambda x: x.to_json()))(self.intermediate_vars)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CoreMatchDataflowTrace':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class RuleId:
     """Original type: rule_id"""
 
@@ -250,6 +622,208 @@ class RuleId:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'RuleId':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class SvalueValue:
+    """Original type: svalue_value = { ... }"""
+
+    svalue_abstract_content: str
+    svalue_start: Optional[Position] = None
+    svalue_end: Optional[Position] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SvalueValue':
+        if isinstance(x, dict):
+            return cls(
+                svalue_abstract_content=_atd_read_string(x['svalue_abstract_content']) if 'svalue_abstract_content' in x else _atd_missing_json_field('SvalueValue', 'svalue_abstract_content'),
+                svalue_start=Position.from_json(x['svalue_start']) if 'svalue_start' in x else None,
+                svalue_end=Position.from_json(x['svalue_end']) if 'svalue_end' in x else None,
+            )
+        else:
+            _atd_bad_json('SvalueValue', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['svalue_abstract_content'] = _atd_write_string(self.svalue_abstract_content)
+        if self.svalue_start is not None:
+            res['svalue_start'] = (lambda x: x.to_json())(self.svalue_start)
+        if self.svalue_end is not None:
+            res['svalue_end'] = (lambda x: x.to_json())(self.svalue_end)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SvalueValue':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class MetavarValue:
+    """Original type: metavar_value = { ... }"""
+
+    start: Position
+    end: Position
+    abstract_content: str
+    propagated_value: Optional[SvalueValue] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'MetavarValue':
+        if isinstance(x, dict):
+            return cls(
+                start=Position.from_json(x['start']) if 'start' in x else _atd_missing_json_field('MetavarValue', 'start'),
+                end=Position.from_json(x['end']) if 'end' in x else _atd_missing_json_field('MetavarValue', 'end'),
+                abstract_content=_atd_read_string(x['abstract_content']) if 'abstract_content' in x else _atd_missing_json_field('MetavarValue', 'abstract_content'),
+                propagated_value=SvalueValue.from_json(x['propagated_value']) if 'propagated_value' in x else None,
+            )
+        else:
+            _atd_bad_json('MetavarValue', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['start'] = (lambda x: x.to_json())(self.start)
+        res['end'] = (lambda x: x.to_json())(self.end)
+        res['abstract_content'] = _atd_write_string(self.abstract_content)
+        if self.propagated_value is not None:
+            res['propagated_value'] = (lambda x: x.to_json())(self.propagated_value)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'MetavarValue':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Metavars:
+    """Original type: metavars"""
+
+    value: Dict[str, MetavarValue]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Metavars':
+        return cls(_atd_read_assoc_object_into_dict(MetavarValue.from_json)(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_assoc_dict_to_object((lambda x: x.to_json()))(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Metavars':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class CoreMatchExtra:
+    """Original type: core_match_extra = { ... }"""
+
+    metavars: Metavars
+    message: Optional[str] = None
+    dataflow_trace: Optional[CoreMatchDataflowTrace] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CoreMatchExtra':
+        if isinstance(x, dict):
+            return cls(
+                metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else _atd_missing_json_field('CoreMatchExtra', 'metavars'),
+                message=_atd_read_string(x['message']) if 'message' in x else None,
+                dataflow_trace=CoreMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
+            )
+        else:
+            _atd_bad_json('CoreMatchExtra', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['metavars'] = (lambda x: x.to_json())(self.metavars)
+        if self.message is not None:
+            res['message'] = _atd_write_string(self.message)
+        if self.dataflow_trace is not None:
+            res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CoreMatchExtra':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class CoreMatch:
+    """Original type: core_match = { ... }"""
+
+    rule_id: RuleId
+    location: Location
+    extra: CoreMatchExtra
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CoreMatch':
+        if isinstance(x, dict):
+            return cls(
+                rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else _atd_missing_json_field('CoreMatch', 'rule_id'),
+                location=Location.from_json(x['location']) if 'location' in x else _atd_missing_json_field('CoreMatch', 'location'),
+                extra=CoreMatchExtra.from_json(x['extra']) if 'extra' in x else _atd_missing_json_field('CoreMatch', 'extra'),
+            )
+        else:
+            _atd_bad_json('CoreMatch', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
+        res['location'] = (lambda x: x.to_json())(self.location)
+        res['extra'] = (lambda x: x.to_json())(self.extra)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CoreMatch':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class MatchingExplanation:
+    """Original type: matching_explanation = { ... }"""
+
+    op: MatchingOperation
+    children: List[MatchingExplanation]
+    matches: List[CoreMatch]
+    loc: Location
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'MatchingExplanation':
+        if isinstance(x, dict):
+            return cls(
+                op=MatchingOperation.from_json(x['op']) if 'op' in x else _atd_missing_json_field('MatchingExplanation', 'op'),
+                children=_atd_read_list(MatchingExplanation.from_json)(x['children']) if 'children' in x else _atd_missing_json_field('MatchingExplanation', 'children'),
+                matches=_atd_read_list(CoreMatch.from_json)(x['matches']) if 'matches' in x else _atd_missing_json_field('MatchingExplanation', 'matches'),
+                loc=Location.from_json(x['loc']) if 'loc' in x else _atd_missing_json_field('MatchingExplanation', 'loc'),
+            )
+        else:
+            _atd_bad_json('MatchingExplanation', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['op'] = (lambda x: x.to_json())(self.op)
+        res['children'] = _atd_write_list((lambda x: x.to_json()))(self.children)
+        res['matches'] = _atd_write_list((lambda x: x.to_json()))(self.matches)
+        res['loc'] = (lambda x: x.to_json())(self.loc)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'MatchingExplanation':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -318,76 +892,6 @@ class TargetTime:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'TargetTime':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class Position:
-    """Original type: position = { ... }"""
-
-    line: int
-    col: int
-    offset: int
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Position':
-        if isinstance(x, dict):
-            return cls(
-                line=_atd_read_int(x['line']) if 'line' in x else _atd_missing_json_field('Position', 'line'),
-                col=_atd_read_int(x['col']) if 'col' in x else _atd_missing_json_field('Position', 'col'),
-                offset=_atd_read_int(x['offset']) if 'offset' in x else _atd_missing_json_field('Position', 'offset'),
-            )
-        else:
-            _atd_bad_json('Position', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['line'] = _atd_write_int(self.line)
-        res['col'] = _atd_write_int(self.col)
-        res['offset'] = _atd_write_int(self.offset)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Position':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class SvalueValue:
-    """Original type: svalue_value = { ... }"""
-
-    svalue_abstract_content: str
-    svalue_start: Optional[Position] = None
-    svalue_end: Optional[Position] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'SvalueValue':
-        if isinstance(x, dict):
-            return cls(
-                svalue_abstract_content=_atd_read_string(x['svalue_abstract_content']) if 'svalue_abstract_content' in x else _atd_missing_json_field('SvalueValue', 'svalue_abstract_content'),
-                svalue_start=Position.from_json(x['svalue_start']) if 'svalue_start' in x else None,
-                svalue_end=Position.from_json(x['svalue_end']) if 'svalue_end' in x else None,
-            )
-        else:
-            _atd_bad_json('SvalueValue', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['svalue_abstract_content'] = _atd_write_string(self.svalue_abstract_content)
-        if self.svalue_start is not None:
-            res['svalue_start'] = (lambda x: x.to_json())(self.svalue_start)
-        if self.svalue_end is not None:
-            res['svalue_end'] = (lambda x: x.to_json())(self.svalue_end)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'SvalueValue':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -753,99 +1257,6 @@ class PositionBis:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'PositionBis':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class MetavarValue:
-    """Original type: metavar_value = { ... }"""
-
-    start: Position
-    end: Position
-    abstract_content: str
-    propagated_value: Optional[SvalueValue] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'MetavarValue':
-        if isinstance(x, dict):
-            return cls(
-                start=Position.from_json(x['start']) if 'start' in x else _atd_missing_json_field('MetavarValue', 'start'),
-                end=Position.from_json(x['end']) if 'end' in x else _atd_missing_json_field('MetavarValue', 'end'),
-                abstract_content=_atd_read_string(x['abstract_content']) if 'abstract_content' in x else _atd_missing_json_field('MetavarValue', 'abstract_content'),
-                propagated_value=SvalueValue.from_json(x['propagated_value']) if 'propagated_value' in x else None,
-            )
-        else:
-            _atd_bad_json('MetavarValue', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['start'] = (lambda x: x.to_json())(self.start)
-        res['end'] = (lambda x: x.to_json())(self.end)
-        res['abstract_content'] = _atd_write_string(self.abstract_content)
-        if self.propagated_value is not None:
-            res['propagated_value'] = (lambda x: x.to_json())(self.propagated_value)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'MetavarValue':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Metavars:
-    """Original type: metavars"""
-
-    value: Dict[str, MetavarValue]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Metavars':
-        return cls(_atd_read_assoc_object_into_dict(MetavarValue.from_json)(x))
-
-    def to_json(self) -> Any:
-        return _atd_write_assoc_dict_to_object((lambda x: x.to_json()))(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Metavars':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Location:
-    """Original type: location = { ... }"""
-
-    path: str
-    start: Position
-    end: Position
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Location':
-        if isinstance(x, dict):
-            return cls(
-                path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('Location', 'path'),
-                start=Position.from_json(x['start']) if 'start' in x else _atd_missing_json_field('Location', 'start'),
-                end=Position.from_json(x['end']) if 'end' in x else _atd_missing_json_field('Location', 'end'),
-            )
-        else:
-            _atd_bad_json('Location', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['path'] = _atd_write_string(self.path)
-        res['start'] = (lambda x: x.to_json())(self.start)
-        res['end'] = (lambda x: x.to_json())(self.end)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Location':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1307,137 +1718,6 @@ class CoreSeverity:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
-class CoreMatchIntermediateVar:
-    """Original type: core_match_intermediate_var = { ... }"""
-
-    location: Location
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CoreMatchIntermediateVar':
-        if isinstance(x, dict):
-            return cls(
-                location=Location.from_json(x['location']) if 'location' in x else _atd_missing_json_field('CoreMatchIntermediateVar', 'location'),
-            )
-        else:
-            _atd_bad_json('CoreMatchIntermediateVar', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['location'] = (lambda x: x.to_json())(self.location)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CoreMatchIntermediateVar':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class CoreMatchDataflowTrace:
-    """Original type: core_match_dataflow_trace = { ... }"""
-
-    taint_source: Optional[Location] = None
-    intermediate_vars: Optional[List[CoreMatchIntermediateVar]] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CoreMatchDataflowTrace':
-        if isinstance(x, dict):
-            return cls(
-                taint_source=Location.from_json(x['taint_source']) if 'taint_source' in x else None,
-                intermediate_vars=_atd_read_list(CoreMatchIntermediateVar.from_json)(x['intermediate_vars']) if 'intermediate_vars' in x else None,
-            )
-        else:
-            _atd_bad_json('CoreMatchDataflowTrace', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        if self.taint_source is not None:
-            res['taint_source'] = (lambda x: x.to_json())(self.taint_source)
-        if self.intermediate_vars is not None:
-            res['intermediate_vars'] = _atd_write_list((lambda x: x.to_json()))(self.intermediate_vars)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CoreMatchDataflowTrace':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class CoreMatchExtra:
-    """Original type: core_match_extra = { ... }"""
-
-    metavars: Metavars
-    message: Optional[str] = None
-    dataflow_trace: Optional[CoreMatchDataflowTrace] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CoreMatchExtra':
-        if isinstance(x, dict):
-            return cls(
-                metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else _atd_missing_json_field('CoreMatchExtra', 'metavars'),
-                message=_atd_read_string(x['message']) if 'message' in x else None,
-                dataflow_trace=CoreMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
-            )
-        else:
-            _atd_bad_json('CoreMatchExtra', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['metavars'] = (lambda x: x.to_json())(self.metavars)
-        if self.message is not None:
-            res['message'] = _atd_write_string(self.message)
-        if self.dataflow_trace is not None:
-            res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CoreMatchExtra':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class CoreMatch:
-    """Original type: core_match = { ... }"""
-
-    rule_id: RuleId
-    location: Location
-    extra: CoreMatchExtra
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CoreMatch':
-        if isinstance(x, dict):
-            return cls(
-                rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else _atd_missing_json_field('CoreMatch', 'rule_id'),
-                location=Location.from_json(x['location']) if 'location' in x else _atd_missing_json_field('CoreMatch', 'location'),
-                extra=CoreMatchExtra.from_json(x['extra']) if 'extra' in x else _atd_missing_json_field('CoreMatch', 'extra'),
-            )
-        else:
-            _atd_bad_json('CoreMatch', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
-        res['location'] = (lambda x: x.to_json())(self.location)
-        res['extra'] = (lambda x: x.to_json())(self.extra)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CoreMatch':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass(frozen=True, order=True)
 class LexicalError:
     """Original type: core_error_kind = [ ... | LexicalError | ... ]"""
@@ -1791,6 +2071,7 @@ class CoreMatchResults:
     stats: CoreStats
     skipped_targets: Optional[List[SkippedTarget]] = None
     skipped_rules: Optional[List[SkippedRule]] = None
+    explanations: Optional[List[MatchingExplanation]] = None
     time: Optional[CoreTiming] = None
 
     @classmethod
@@ -1802,6 +2083,7 @@ class CoreMatchResults:
                 stats=CoreStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CoreMatchResults', 'stats'),
                 skipped_targets=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else None,
+                explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 time=CoreTiming.from_json(x['time']) if 'time' in x else None,
             )
         else:
@@ -1816,6 +2098,8 @@ class CoreMatchResults:
             res['skipped'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_targets)
         if self.skipped_rules is not None:
             res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
+        if self.explanations is not None:
+            res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
         if self.time is not None:
             res['time'] = (lambda x: x.to_json())(self.time)
         return res
@@ -1981,6 +2265,7 @@ class CliOutputExtra:
 
     paths: CliPaths
     time: Optional[CliTiming] = None
+    explanations: Optional[List[MatchingExplanation]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutputExtra':
@@ -1988,6 +2273,7 @@ class CliOutputExtra:
             return cls(
                 paths=CliPaths.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutputExtra', 'paths'),
                 time=CliTiming.from_json(x['time']) if 'time' in x else None,
+                explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
             )
         else:
             _atd_bad_json('CliOutputExtra', x)
@@ -1997,6 +2283,8 @@ class CliOutputExtra:
         res['paths'] = (lambda x: x.to_json())(self.paths)
         if self.time is not None:
             res['time'] = (lambda x: x.to_json())(self.time)
+        if self.explanations is not None:
+            res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
         return res
 
     @classmethod
@@ -2190,6 +2478,7 @@ class CliOutput:
     paths: CliPaths
     version: Optional[Semver] = None
     time: Optional[CliTiming] = None
+    explanations: Optional[List[MatchingExplanation]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutput':
@@ -2200,6 +2489,7 @@ class CliOutput:
                 paths=CliPaths.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutput', 'paths'),
                 version=Semver.from_json(x['version']) if 'version' in x else None,
                 time=CliTiming.from_json(x['time']) if 'time' in x else None,
+                explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
             )
         else:
             _atd_bad_json('CliOutput', x)
@@ -2213,6 +2503,8 @@ class CliOutput:
             res['version'] = (lambda x: x.to_json())(self.version)
         if self.time is not None:
             res['time'] = (lambda x: x.to_json())(self.time)
+        if self.explanations is not None:
+            res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
         return res
 
     @classmethod
