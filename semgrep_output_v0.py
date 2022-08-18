@@ -7,6 +7,7 @@ methods and functions to convert data from/to JSON.
 # Disable flake8 entirely on this file:
 # flake8: noqa
 
+# Import annotations to allow forward references
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, NoReturn, Optional, Tuple, Union
@@ -1152,21 +1153,269 @@ class Semver:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
-class RawJson:
-    """Original type: raw_json"""
+@dataclass(frozen=True)
+class Npm:
+    """Original type: ecosystem = [ ... | Npm | ... ]"""
 
-    value: Any
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Npm'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Npm'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Pypi:
+    """Original type: ecosystem = [ ... | Pypi | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Pypi'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Pypi'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Gem:
+    """Original type: ecosystem = [ ... | Gem | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Gem'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Gem'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Gomod:
+    """Original type: ecosystem = [ ... | Gomod | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Gomod'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Gomod'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Cargo:
+    """Original type: ecosystem = [ ... | Cargo | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Cargo'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Cargo'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Maven:
+    """Original type: ecosystem = [ ... | Maven | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Maven'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Maven'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Gradle:
+    """Original type: ecosystem = [ ... | Gradle | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Gradle'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Gradle'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Ecosystem:
+    """Original type: ecosystem = [ ... ]"""
+
+    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Gradle]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
 
     @classmethod
-    def from_json(cls, x: Any) -> 'RawJson':
-        return cls((lambda x: x)(x))
+    def from_json(cls, x: Any) -> 'Ecosystem':
+        if isinstance(x, str):
+            if x == 'Npm':
+                return cls(Npm())
+            if x == 'Pypi':
+                return cls(Pypi())
+            if x == 'Gem':
+                return cls(Gem())
+            if x == 'Gomod':
+                return cls(Gomod())
+            if x == 'Cargo':
+                return cls(Cargo())
+            if x == 'Maven':
+                return cls(Maven())
+            if x == 'Gradle':
+                return cls(Gradle())
+            _atd_bad_json('Ecosystem', x)
+        _atd_bad_json('Ecosystem', x)
 
     def to_json(self) -> Any:
-        return (lambda x: x)(self.value)
+        return self.value.to_json()
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'RawJson':
+    def from_json_string(cls, x: str) -> 'Ecosystem':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class FoundDependency:
+    """Original type: found_dependency = { ... }"""
+
+    package: str
+    version: str
+    ecosystem: Ecosystem
+    allowed_hashes: Dict[str, List[str]]
+    resolved_url: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FoundDependency':
+        if isinstance(x, dict):
+            return cls(
+                package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('FoundDependency', 'package'),
+                version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('FoundDependency', 'version'),
+                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('FoundDependency', 'ecosystem'),
+                allowed_hashes=_atd_read_assoc_object_into_dict(_atd_read_list(_atd_read_string))(x['allowed_hashes']) if 'allowed_hashes' in x else _atd_missing_json_field('FoundDependency', 'allowed_hashes'),
+                resolved_url=_atd_read_string(x['resolved_url']) if 'resolved_url' in x else _atd_missing_json_field('FoundDependency', 'resolved_url'),
+            )
+        else:
+            _atd_bad_json('FoundDependency', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['package'] = _atd_write_string(self.package)
+        res['version'] = _atd_write_string(self.version)
+        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
+        res['allowed_hashes'] = _atd_write_assoc_dict_to_object(_atd_write_list(_atd_write_string))(self.allowed_hashes)
+        res['resolved_url'] = _atd_write_string(self.resolved_url)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FoundDependency':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DependencyPattern:
+    """Original type: dependency_pattern = { ... }"""
+
+    ecosystem: Ecosystem
+    package: str
+    semver_range: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencyPattern':
+        if isinstance(x, dict):
+            return cls(
+                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('DependencyPattern', 'ecosystem'),
+                package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('DependencyPattern', 'package'),
+                semver_range=_atd_read_string(x['semver_range']) if 'semver_range' in x else _atd_missing_json_field('DependencyPattern', 'semver_range'),
+            )
+        else:
+            _atd_bad_json('DependencyPattern', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
+        res['package'] = _atd_write_string(self.package)
+        res['semver_range'] = _atd_write_string(self.semver_range)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencyPattern':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DependencyMatch:
+    """Original type: dependency_match = { ... }"""
+
+    dependency_pattern: DependencyPattern
+    found_dependency: FoundDependency
+    lockfile: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencyMatch':
+        if isinstance(x, dict):
+            return cls(
+                dependency_pattern=DependencyPattern.from_json(x['dependency_pattern']) if 'dependency_pattern' in x else _atd_missing_json_field('DependencyMatch', 'dependency_pattern'),
+                found_dependency=FoundDependency.from_json(x['found_dependency']) if 'found_dependency' in x else _atd_missing_json_field('DependencyMatch', 'found_dependency'),
+                lockfile=_atd_read_string(x['lockfile']) if 'lockfile' in x else _atd_missing_json_field('DependencyMatch', 'lockfile'),
+            )
+        else:
+            _atd_bad_json('DependencyMatch', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['dependency_pattern'] = (lambda x: x.to_json())(self.dependency_pattern)
+        res['found_dependency'] = (lambda x: x.to_json())(self.found_dependency)
+        res['lockfile'] = _atd_write_string(self.lockfile)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencyMatch':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1177,23 +1426,26 @@ class RawJson:
 class ScaInfo:
     """Original type: sca_info = { ... }"""
 
-    dependency_match_only: bool
-    dependency_matches: RawJson
+    reachable: bool
+    reachability_rule: bool
+    dependency_match: DependencyMatch
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScaInfo':
         if isinstance(x, dict):
             return cls(
-                dependency_match_only=_atd_read_bool(x['dependency_match_only']) if 'dependency_match_only' in x else _atd_missing_json_field('ScaInfo', 'dependency_match_only'),
-                dependency_matches=RawJson.from_json(x['dependency_matches']) if 'dependency_matches' in x else _atd_missing_json_field('ScaInfo', 'dependency_matches'),
+                reachable=_atd_read_bool(x['reachable']) if 'reachable' in x else _atd_missing_json_field('ScaInfo', 'reachable'),
+                reachability_rule=_atd_read_bool(x['reachability_rule']) if 'reachability_rule' in x else _atd_missing_json_field('ScaInfo', 'reachability_rule'),
+                dependency_match=DependencyMatch.from_json(x['dependency_match']) if 'dependency_match' in x else _atd_missing_json_field('ScaInfo', 'dependency_match'),
             )
         else:
             _atd_bad_json('ScaInfo', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['dependency_match_only'] = _atd_write_bool(self.dependency_match_only)
-        res['dependency_matches'] = (lambda x: x.to_json())(self.dependency_matches)
+        res['reachable'] = _atd_write_bool(self.reachable)
+        res['reachability_rule'] = _atd_write_bool(self.reachability_rule)
+        res['dependency_match'] = (lambda x: x.to_json())(self.dependency_match)
         return res
 
     @classmethod
@@ -1226,6 +1478,27 @@ class RuleIdDict:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'RuleIdDict':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class RawJson:
+    """Original type: raw_json"""
+
+    value: Any
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'RawJson':
+        return cls((lambda x: x)(x))
+
+    def to_json(self) -> Any:
+        return (lambda x: x)(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'RawJson':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

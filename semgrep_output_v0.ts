@@ -295,6 +295,41 @@ export type CliTargetTimes = {
   run_time: number;
 }
 
+export type ScaInfo = {
+  reachable: boolean;
+  reachability_rule: boolean;
+  dependency_match: DependencyMatch;
+}
+
+export type DependencyMatch = {
+  dependency_pattern: DependencyPattern;
+  found_dependency: FoundDependency;
+  lockfile: string;
+}
+
+export type Ecosystem =
+| { kind: 'Npm' }
+| { kind: 'Pypi' }
+| { kind: 'Gem' }
+| { kind: 'Gomod' }
+| { kind: 'Cargo' }
+| { kind: 'Maven' }
+| { kind: 'Gradle' }
+
+export type DependencyPattern = {
+  ecosystem: Ecosystem;
+  package_: string;
+  semver_range: string;
+}
+
+export type FoundDependency = {
+  package_: string;
+  version: string;
+  ecosystem: Ecosystem;
+  allowed_hashes: [string, string[]][];
+  resolved_url: string;
+}
+
 export type ApiScansFindings = {
   findings: Finding[];
   token: (string | null);
@@ -322,11 +357,6 @@ export type Finding = {
   fixed_lines?: string[];
   sca_info?: ScaInfo;
   dataflow_trace?: CliMatchDataflowTrace;
-}
-
-export type ScaInfo = {
-  dependency_match_only: boolean;
-  dependency_matches: RawJson;
 }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
@@ -576,9 +606,9 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
     _atd_check_json_tuple(2, x, context)
     switch (x[0]) {
       case 'Pattern parse error':
-        return { kind: 'PatternParseError', value: _atd_write_array(_atd_write_string)(x[1], x) }
+        return { kind: 'PatternParseError', value: _atd_read_array(_atd_read_string)(x[1], x) }
       case 'PartialParsing':
-        return { kind: 'PartialParsing', value: _atd_write_array(writeLocation)(x[1], x) }
+        return { kind: 'PartialParsing', value: _atd_read_array(readLocation)(x[1], x) }
       default:
         _atd_bad_json('CoreErrorKind', x, context)
         throw new Error('impossible')
@@ -819,9 +849,9 @@ export function readMatchingOperation(x: any, context: any = x): MatchingOperati
     _atd_check_json_tuple(2, x, context)
     switch (x[0]) {
       case 'XPat':
-        return { kind: 'XPat', value: _atd_write_string(x[1], x) }
+        return { kind: 'XPat', value: _atd_read_string(x[1], x) }
       case 'Filter':
-        return { kind: 'Filter', value: _atd_write_string(x[1], x) }
+        return { kind: 'Filter', value: _atd_read_string(x[1], x) }
       default:
         _atd_bad_json('MatchingOperation', x, context)
         throw new Error('impossible')
@@ -913,11 +943,11 @@ export function writeErrorSpan(x: ErrorSpan, context: any = x): any {
     'start': _atd_write_required_field('ErrorSpan', 'start', writePositionBis, x.start, x),
     'end': _atd_write_required_field('ErrorSpan', 'end', writePositionBis, x.end, x),
     'source_hash': _atd_write_optional_field(_atd_write_string, x.source_hash, x),
-    'config_start': _atd_write_optional_field(writePositionBis, x.config_start, x),
-    'config_end': _atd_write_optional_field(writePositionBis, x.config_end, x),
-    'config_path': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.config_path, x),
-    'context_start': _atd_write_optional_field(writePositionBis, x.context_start, x),
-    'context_end': _atd_write_optional_field(writePositionBis, x.context_end, x),
+    'config_start': _atd_write_optional_field(_atd_write_nullable(writePositionBis), x.config_start, x),
+    'config_end': _atd_write_optional_field(_atd_write_nullable(writePositionBis), x.config_end, x),
+    'config_path': _atd_write_optional_field(_atd_write_nullable(_atd_write_array(_atd_write_string)), x.config_path, x),
+    'context_start': _atd_write_optional_field(_atd_write_nullable(writePositionBis), x.context_start, x),
+    'context_end': _atd_write_optional_field(_atd_write_nullable(writePositionBis), x.context_end, x),
   };
 }
 
@@ -1183,11 +1213,120 @@ export function readCliTargetTimes(x: any, context: any = x): CliTargetTimes {
   };
 }
 
+export function writeScaInfo(x: ScaInfo, context: any = x): any {
+  return {
+    'reachable': _atd_write_required_field('ScaInfo', 'reachable', _atd_write_bool, x.reachable, x),
+    'reachability_rule': _atd_write_required_field('ScaInfo', 'reachability_rule', _atd_write_bool, x.reachability_rule, x),
+    'dependency_match': _atd_write_required_field('ScaInfo', 'dependency_match', writeDependencyMatch, x.dependency_match, x),
+  };
+}
+
+export function readScaInfo(x: any, context: any = x): ScaInfo {
+  return {
+    reachable: _atd_read_required_field('ScaInfo', 'reachable', _atd_read_bool, x['reachable'], x),
+    reachability_rule: _atd_read_required_field('ScaInfo', 'reachability_rule', _atd_read_bool, x['reachability_rule'], x),
+    dependency_match: _atd_read_required_field('ScaInfo', 'dependency_match', readDependencyMatch, x['dependency_match'], x),
+  };
+}
+
+export function writeDependencyMatch(x: DependencyMatch, context: any = x): any {
+  return {
+    'dependency_pattern': _atd_write_required_field('DependencyMatch', 'dependency_pattern', writeDependencyPattern, x.dependency_pattern, x),
+    'found_dependency': _atd_write_required_field('DependencyMatch', 'found_dependency', writeFoundDependency, x.found_dependency, x),
+    'lockfile': _atd_write_required_field('DependencyMatch', 'lockfile', _atd_write_string, x.lockfile, x),
+  };
+}
+
+export function readDependencyMatch(x: any, context: any = x): DependencyMatch {
+  return {
+    dependency_pattern: _atd_read_required_field('DependencyMatch', 'dependency_pattern', readDependencyPattern, x['dependency_pattern'], x),
+    found_dependency: _atd_read_required_field('DependencyMatch', 'found_dependency', readFoundDependency, x['found_dependency'], x),
+    lockfile: _atd_read_required_field('DependencyMatch', 'lockfile', _atd_read_string, x['lockfile'], x),
+  };
+}
+
+export function writeEcosystem(x: Ecosystem, context: any = x): any {
+  switch (x.kind) {
+    case 'Npm':
+      return 'Npm'
+    case 'Pypi':
+      return 'Pypi'
+    case 'Gem':
+      return 'Gem'
+    case 'Gomod':
+      return 'Gomod'
+    case 'Cargo':
+      return 'Cargo'
+    case 'Maven':
+      return 'Maven'
+    case 'Gradle':
+      return 'Gradle'
+  }
+}
+
+export function readEcosystem(x: any, context: any = x): Ecosystem {
+  switch (x) {
+    case 'Npm':
+      return { kind: 'Npm' }
+    case 'Pypi':
+      return { kind: 'Pypi' }
+    case 'Gem':
+      return { kind: 'Gem' }
+    case 'Gomod':
+      return { kind: 'Gomod' }
+    case 'Cargo':
+      return { kind: 'Cargo' }
+    case 'Maven':
+      return { kind: 'Maven' }
+    case 'Gradle':
+      return { kind: 'Gradle' }
+    default:
+      _atd_bad_json('Ecosystem', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeDependencyPattern(x: DependencyPattern, context: any = x): any {
+  return {
+    'ecosystem': _atd_write_required_field('DependencyPattern', 'ecosystem', writeEcosystem, x.ecosystem, x),
+    'package': _atd_write_required_field('DependencyPattern', 'package', _atd_write_string, x.package_, x),
+    'semver_range': _atd_write_required_field('DependencyPattern', 'semver_range', _atd_write_string, x.semver_range, x),
+  };
+}
+
+export function readDependencyPattern(x: any, context: any = x): DependencyPattern {
+  return {
+    ecosystem: _atd_read_required_field('DependencyPattern', 'ecosystem', readEcosystem, x['ecosystem'], x),
+    package_: _atd_read_required_field('DependencyPattern', 'package', _atd_read_string, x['package'], x),
+    semver_range: _atd_read_required_field('DependencyPattern', 'semver_range', _atd_read_string, x['semver_range'], x),
+  };
+}
+
+export function writeFoundDependency(x: FoundDependency, context: any = x): any {
+  return {
+    'package': _atd_write_required_field('FoundDependency', 'package', _atd_write_string, x.package_, x),
+    'version': _atd_write_required_field('FoundDependency', 'version', _atd_write_string, x.version, x),
+    'ecosystem': _atd_write_required_field('FoundDependency', 'ecosystem', writeEcosystem, x.ecosystem, x),
+    'allowed_hashes': _atd_write_required_field('FoundDependency', 'allowed_hashes', _atd_write_assoc_array_to_object(_atd_write_array(_atd_write_string)), x.allowed_hashes, x),
+    'resolved_url': _atd_write_required_field('FoundDependency', 'resolved_url', _atd_write_string, x.resolved_url, x),
+  };
+}
+
+export function readFoundDependency(x: any, context: any = x): FoundDependency {
+  return {
+    package_: _atd_read_required_field('FoundDependency', 'package', _atd_read_string, x['package'], x),
+    version: _atd_read_required_field('FoundDependency', 'version', _atd_read_string, x['version'], x),
+    ecosystem: _atd_read_required_field('FoundDependency', 'ecosystem', readEcosystem, x['ecosystem'], x),
+    allowed_hashes: _atd_read_required_field('FoundDependency', 'allowed_hashes', _atd_read_assoc_object_into_array(_atd_read_array(_atd_read_string)), x['allowed_hashes'], x),
+    resolved_url: _atd_read_required_field('FoundDependency', 'resolved_url', _atd_read_string, x['resolved_url'], x),
+  };
+}
+
 export function writeApiScansFindings(x: ApiScansFindings, context: any = x): any {
   return {
     'findings': _atd_write_required_field('ApiScansFindings', 'findings', _atd_write_array(writeFinding), x.findings, x),
-    'token': _atd_write_required_field('ApiScansFindings', 'token', _atd_write_string, x.token, x),
-    'gitlab_token': _atd_write_required_field('ApiScansFindings', 'gitlab_token', _atd_write_string, x.gitlab_token, x),
+    'token': _atd_write_required_field('ApiScansFindings', 'token', _atd_write_nullable(_atd_write_string), x.token, x),
+    'gitlab_token': _atd_write_required_field('ApiScansFindings', 'gitlab_token', _atd_write_nullable(_atd_write_string), x.gitlab_token, x),
     'searched_paths': _atd_write_required_field('ApiScansFindings', 'searched_paths', _atd_write_array(_atd_write_string), x.searched_paths, x),
     'rule_ids': _atd_write_required_field('ApiScansFindings', 'rule_ids', _atd_write_array(_atd_write_string), x.rule_ids, x),
     'cai_ids': _atd_write_required_field('ApiScansFindings', 'cai_ids', _atd_write_array(_atd_write_string), x.cai_ids, x),
@@ -1246,20 +1385,6 @@ export function readFinding(x: any, context: any = x): Finding {
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
     sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
     dataflow_trace: _atd_read_optional_field(readCliMatchDataflowTrace, x['dataflow_trace'], x),
-  };
-}
-
-export function writeScaInfo(x: ScaInfo, context: any = x): any {
-  return {
-    'dependency_match_only': _atd_write_required_field('ScaInfo', 'dependency_match_only', _atd_write_bool, x.dependency_match_only, x),
-    'dependency_matches': _atd_write_required_field('ScaInfo', 'dependency_matches', writeRawJson, x.dependency_matches, x),
-  };
-}
-
-export function readScaInfo(x: any, context: any = x): ScaInfo {
-  return {
-    dependency_match_only: _atd_read_required_field('ScaInfo', 'dependency_match_only', _atd_read_bool, x['dependency_match_only'], x),
-    dependency_matches: _atd_read_required_field('ScaInfo', 'dependency_matches', readRawJson, x['dependency_matches'], x),
   };
 }
 
@@ -1544,7 +1669,7 @@ function _atd_write_option<T>(write_elt: (x: T, context: any) => any):
   return write_option
 }
 
-function _atd_write_nullable<T>(write_elt: (x: T | null, context: any) => any):
+function _atd_write_nullable<T>(write_elt: (x: T, context: any) => any):
   (x: T | null, context: any) => any {
   function write_option(x: T | null, context: any): any {
     if (x === null)

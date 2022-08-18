@@ -498,6 +498,63 @@
         "run_time": { "type": "number" }
       }
     },
+    "sca_info": {
+      "type": "object",
+      "required": [ "reachable", "reachability_rule", "dependency_match" ],
+      "properties": {
+        "reachable": { "type": "boolean" },
+        "reachability_rule": { "type": "boolean" },
+        "dependency_match": { "$ref": "#/definitions/dependency_match" }
+      }
+    },
+    "dependency_match": {
+      "type": "object",
+      "required": [ "dependency_pattern", "found_dependency", "lockfile" ],
+      "properties": {
+        "dependency_pattern": { "$ref": "#/definitions/dependency_pattern" },
+        "found_dependency": { "$ref": "#/definitions/found_dependency" },
+        "lockfile": { "type": "string" }
+      }
+    },
+    "ecosystem": {
+      "oneOf": [
+        { "const": "Npm" },
+        { "const": "Pypi" },
+        { "const": "Gem" },
+        { "const": "Gomod" },
+        { "const": "Cargo" },
+        { "const": "Maven" },
+        { "const": "Gradle" }
+      ]
+    },
+    "dependency_pattern": {
+      "type": "object",
+      "required": [ "ecosystem", "package", "semver_range" ],
+      "properties": {
+        "ecosystem": { "$ref": "#/definitions/ecosystem" },
+        "package": { "type": "string" },
+        "semver_range": { "type": "string" }
+      }
+    },
+    "found_dependency": {
+      "type": "object",
+      "required": [
+        "package", "version", "ecosystem", "allowed_hashes", "resolved_url"
+      ],
+      "properties": {
+        "package": { "type": "string" },
+        "version": { "type": "string" },
+        "ecosystem": { "$ref": "#/definitions/ecosystem" },
+        "allowed_hashes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "resolved_url": { "type": "string" }
+      }
+    },
     "api_scans_findings": {
       "type": "object",
       "required": [
@@ -543,14 +600,6 @@
         "dataflow_trace": {
           "$ref": "#/definitions/cli_match_dataflow_trace"
         }
-      }
-    },
-    "sca_info": {
-      "type": "object",
-      "required": [ "dependency_match_only", "dependency_matches" ],
-      "properties": {
-        "dependency_match_only": { "type": "boolean" },
-        "dependency_matches": { "$ref": "#/definitions/raw_json" }
       }
     }
   }

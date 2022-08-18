@@ -646,6 +646,50 @@ type cli_stats <ocaml attr="deriving show"> = {
 }
 *)
 
+
+(*****************************************************************************)
+(* Semgrep CLI findings output for the App *)
+(*****************************************************************************)
+
+type sca_info <ocaml attr="deriving show"> = {
+  reachable: bool;
+  reachability_rule: bool;
+  dependency_match: dependency_match;
+}
+
+
+type dependency_match <ocaml attr="deriving show"> = {
+  dependency_pattern: dependency_pattern;
+  found_dependency: found_dependency;
+  lockfile: string;
+}
+
+type ecosystem 
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = [
+  | Npm
+  | Pypi
+  | Gem
+  | Gomod
+  | Cargo
+  | Maven
+  | Gradle
+]
+
+type dependency_pattern <ocaml attr="deriving show"> = {
+  ecosystem: ecosystem;
+  package: string;
+  semver_range: string;
+}
+
+type found_dependency <ocaml attr="deriving show"> = {
+  package: string;
+  version: string;
+  ecosystem: ecosystem;
+  allowed_hashes: (string * string list) list <json repr="object"> <python repr="dict">;
+  resolved_url: string;
+}
+
 (*****************************************************************************)
 (* Semgrep CLI findings output for the App *)
 (*****************************************************************************)
@@ -685,9 +729,4 @@ type finding <ocaml attr="deriving show"> = {
   ?fixed_lines: string list option;
   ?sca_info: sca_info option;
   ?dataflow_trace: cli_match_dataflow_trace option;
-}
-
-type sca_info <ocaml attr="deriving show"> = {
-  dependency_match_only: bool;
-  dependency_matches: raw_json;
 }
