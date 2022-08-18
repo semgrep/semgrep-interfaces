@@ -647,7 +647,7 @@ type cli_stats <ocaml attr="deriving show"> = {
 
 
 (*****************************************************************************)
-(* Semgrep CLI findings output for the App *)
+(* Supply Chain Info *)
 (*****************************************************************************)
 
 type sca_info <ocaml attr="deriving show"> = {
