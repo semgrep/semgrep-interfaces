@@ -653,6 +653,7 @@ type cli_stats <ocaml attr="deriving show"> = {
 type sca_info <ocaml attr="deriving show"> = {
   reachable: bool;
   reachability_rule: bool;
+  sca_finding_schema: int;
   dependency_match: dependency_match;
 }
 

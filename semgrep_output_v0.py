@@ -1429,6 +1429,7 @@ class ScaInfo:
 
     reachable: bool
     reachability_rule: bool
+    sca_finding_schema: int
     dependency_match: DependencyMatch
 
     @classmethod
@@ -1437,6 +1438,7 @@ class ScaInfo:
             return cls(
                 reachable=_atd_read_bool(x['reachable']) if 'reachable' in x else _atd_missing_json_field('ScaInfo', 'reachable'),
                 reachability_rule=_atd_read_bool(x['reachability_rule']) if 'reachability_rule' in x else _atd_missing_json_field('ScaInfo', 'reachability_rule'),
+                sca_finding_schema=_atd_read_int(x['sca_finding_schema']) if 'sca_finding_schema' in x else _atd_missing_json_field('ScaInfo', 'sca_finding_schema'),
                 dependency_match=DependencyMatch.from_json(x['dependency_match']) if 'dependency_match' in x else _atd_missing_json_field('ScaInfo', 'dependency_match'),
             )
         else:
@@ -1446,6 +1448,7 @@ class ScaInfo:
         res: Dict[str, Any] = {}
         res['reachable'] = _atd_write_bool(self.reachable)
         res['reachability_rule'] = _atd_write_bool(self.reachability_rule)
+        res['sca_finding_schema'] = _atd_write_int(self.sca_finding_schema)
         res['dependency_match'] = (lambda x: x.to_json())(self.dependency_match)
         return res
 

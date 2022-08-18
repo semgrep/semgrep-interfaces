@@ -499,10 +499,14 @@
     },
     "sca_info": {
       "type": "object",
-      "required": [ "reachable", "reachability_rule", "dependency_match" ],
+      "required": [
+        "reachable", "reachability_rule", "sca_finding_schema",
+        "dependency_match"
+      ],
       "properties": {
         "reachable": { "type": "boolean" },
         "reachability_rule": { "type": "boolean" },
+        "sca_finding_schema": { "type": "integer" },
         "dependency_match": { "$ref": "#/definitions/dependency_match" }
       }
     },

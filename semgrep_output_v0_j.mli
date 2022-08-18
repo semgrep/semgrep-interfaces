@@ -149,6 +149,7 @@ type dependency_match = Semgrep_output_v0_t.dependency_match = {
 type sca_info = Semgrep_output_v0_t.sca_info = {
   reachable: bool;
   reachability_rule: bool;
+  sca_finding_schema: int;
   dependency_match: dependency_match
 }
   [@@deriving show]

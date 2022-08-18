@@ -297,6 +297,7 @@ export type CliTargetTimes = {
 export type ScaInfo = {
   reachable: boolean;
   reachability_rule: boolean;
+  sca_finding_schema: Int;
   dependency_match: DependencyMatch;
 }
 
@@ -1214,6 +1215,7 @@ export function writeScaInfo(x: ScaInfo, context: any = x): any {
   return {
     'reachable': _atd_write_required_field('ScaInfo', 'reachable', _atd_write_bool, x.reachable, x),
     'reachability_rule': _atd_write_required_field('ScaInfo', 'reachability_rule', _atd_write_bool, x.reachability_rule, x),
+    'sca_finding_schema': _atd_write_required_field('ScaInfo', 'sca_finding_schema', _atd_write_int, x.sca_finding_schema, x),
     'dependency_match': _atd_write_required_field('ScaInfo', 'dependency_match', writeDependencyMatch, x.dependency_match, x),
   };
 }
@@ -1222,6 +1224,7 @@ export function readScaInfo(x: any, context: any = x): ScaInfo {
   return {
     reachable: _atd_read_required_field('ScaInfo', 'reachable', _atd_read_bool, x['reachable'], x),
     reachability_rule: _atd_read_required_field('ScaInfo', 'reachability_rule', _atd_read_bool, x['reachability_rule'], x),
+    sca_finding_schema: _atd_read_required_field('ScaInfo', 'sca_finding_schema', _atd_read_int, x['sca_finding_schema'], x),
     dependency_match: _atd_read_required_field('ScaInfo', 'dependency_match', readDependencyMatch, x['dependency_match'], x),
   };
 }
