@@ -237,8 +237,7 @@ export type CliMatchExtra = {
   fix?: string;
   fix_regex?: FixRegex;
   is_ignored?: boolean;
-  dependency_match_only?: boolean;
-  dependency_matches?: RawJson;
+  sca_info?: ScaInfo;
   fixed_lines?: string[];
   dataflow_trace?: CliMatchDataflowTrace;
 }
@@ -327,7 +326,7 @@ export type FoundDependency = {
   version: string;
   ecosystem: Ecosystem;
   allowed_hashes: [string, string[]][];
-  resolved_url: string;
+  resolved_url?: string;
 }
 
 export type ApiScansFindings = {
@@ -1052,8 +1051,7 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'fix': _atd_write_optional_field(_atd_write_string, x.fix, x),
     'fix_regex': _atd_write_optional_field(writeFixRegex, x.fix_regex, x),
     'is_ignored': _atd_write_optional_field(_atd_write_bool, x.is_ignored, x),
-    'dependency_match_only': _atd_write_optional_field(_atd_write_bool, x.dependency_match_only, x),
-    'dependency_matches': _atd_write_optional_field(writeRawJson, x.dependency_matches, x),
+    'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
     'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
     'dataflow_trace': _atd_write_optional_field(writeCliMatchDataflowTrace, x.dataflow_trace, x),
   };
@@ -1070,8 +1068,7 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     fix: _atd_read_optional_field(_atd_read_string, x['fix'], x),
     fix_regex: _atd_read_optional_field(readFixRegex, x['fix_regex'], x),
     is_ignored: _atd_read_optional_field(_atd_read_bool, x['is_ignored'], x),
-    dependency_match_only: _atd_read_optional_field(_atd_read_bool, x['dependency_match_only'], x),
-    dependency_matches: _atd_read_optional_field(readRawJson, x['dependency_matches'], x),
+    sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
     dataflow_trace: _atd_read_optional_field(readCliMatchDataflowTrace, x['dataflow_trace'], x),
   };
@@ -1308,7 +1305,7 @@ export function writeFoundDependency(x: FoundDependency, context: any = x): any 
     'version': _atd_write_required_field('FoundDependency', 'version', _atd_write_string, x.version, x),
     'ecosystem': _atd_write_required_field('FoundDependency', 'ecosystem', writeEcosystem, x.ecosystem, x),
     'allowed_hashes': _atd_write_required_field('FoundDependency', 'allowed_hashes', _atd_write_assoc_array_to_object(_atd_write_array(_atd_write_string)), x.allowed_hashes, x),
-    'resolved_url': _atd_write_required_field('FoundDependency', 'resolved_url', _atd_write_string, x.resolved_url, x),
+    'resolved_url': _atd_write_optional_field(_atd_write_string, x.resolved_url, x),
   };
 }
 
@@ -1318,7 +1315,7 @@ export function readFoundDependency(x: any, context: any = x): FoundDependency {
     version: _atd_read_required_field('FoundDependency', 'version', _atd_read_string, x['version'], x),
     ecosystem: _atd_read_required_field('FoundDependency', 'ecosystem', readEcosystem, x['ecosystem'], x),
     allowed_hashes: _atd_read_required_field('FoundDependency', 'allowed_hashes', _atd_read_assoc_object_into_array(_atd_read_array(_atd_read_string)), x['allowed_hashes'], x),
-    resolved_url: _atd_read_required_field('FoundDependency', 'resolved_url', _atd_read_string, x['resolved_url'], x),
+    resolved_url: _atd_read_optional_field(_atd_read_string, x['resolved_url'], x),
   };
 }
 

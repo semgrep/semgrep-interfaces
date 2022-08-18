@@ -128,7 +128,7 @@ type found_dependency = Semgrep_output_v0_t.found_dependency = {
   version: string;
   ecosystem: ecosystem;
   allowed_hashes: (string * string list) list;
-  resolved_url: string
+  resolved_url: string option
 }
   [@@deriving show]
 
@@ -337,8 +337,7 @@ type cli_match_extra = Semgrep_output_v0_t.cli_match_extra = {
   fix: string option;
   fix_regex: fix_regex option;
   is_ignored: bool option;
-  dependency_match_only: bool option;
-  dependency_matches: raw_json option;
+  sca_info: sca_info option;
   fixed_lines: string list option;
   dataflow_trace: cli_match_dataflow_trace option
 }

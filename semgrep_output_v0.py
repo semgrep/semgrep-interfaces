@@ -1322,7 +1322,7 @@ class FoundDependency:
     version: str
     ecosystem: Ecosystem
     allowed_hashes: Dict[str, List[str]]
-    resolved_url: str
+    resolved_url: Optional[str] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'FoundDependency':
@@ -1332,7 +1332,7 @@ class FoundDependency:
                 version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('FoundDependency', 'version'),
                 ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('FoundDependency', 'ecosystem'),
                 allowed_hashes=_atd_read_assoc_object_into_dict(_atd_read_list(_atd_read_string))(x['allowed_hashes']) if 'allowed_hashes' in x else _atd_missing_json_field('FoundDependency', 'allowed_hashes'),
-                resolved_url=_atd_read_string(x['resolved_url']) if 'resolved_url' in x else _atd_missing_json_field('FoundDependency', 'resolved_url'),
+                resolved_url=_atd_read_string(x['resolved_url']) if 'resolved_url' in x else None,
             )
         else:
             _atd_bad_json('FoundDependency', x)
@@ -1343,7 +1343,8 @@ class FoundDependency:
         res['version'] = _atd_write_string(self.version)
         res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
         res['allowed_hashes'] = _atd_write_assoc_dict_to_object(_atd_write_list(_atd_write_string))(self.allowed_hashes)
-        res['resolved_url'] = _atd_write_string(self.resolved_url)
+        if self.resolved_url is not None:
+            res['resolved_url'] = _atd_write_string(self.resolved_url)
         return res
 
     @classmethod
@@ -2581,8 +2582,7 @@ class CliMatchExtra:
     fix: Optional[str] = None
     fix_regex: Optional[FixRegex] = None
     is_ignored: Optional[bool] = None
-    dependency_match_only: Optional[bool] = None
-    dependency_matches: Optional[RawJson] = None
+    sca_info: Optional[ScaInfo] = None
     fixed_lines: Optional[List[str]] = None
     dataflow_trace: Optional[CliMatchDataflowTrace] = None
 
@@ -2599,8 +2599,7 @@ class CliMatchExtra:
                 fix=_atd_read_string(x['fix']) if 'fix' in x else None,
                 fix_regex=FixRegex.from_json(x['fix_regex']) if 'fix_regex' in x else None,
                 is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else None,
-                dependency_match_only=_atd_read_bool(x['dependency_match_only']) if 'dependency_match_only' in x else None,
-                dependency_matches=RawJson.from_json(x['dependency_matches']) if 'dependency_matches' in x else None,
+                sca_info=ScaInfo.from_json(x['sca_info']) if 'sca_info' in x else None,
                 fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
                 dataflow_trace=CliMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
             )
@@ -2622,10 +2621,8 @@ class CliMatchExtra:
             res['fix_regex'] = (lambda x: x.to_json())(self.fix_regex)
         if self.is_ignored is not None:
             res['is_ignored'] = _atd_write_bool(self.is_ignored)
-        if self.dependency_match_only is not None:
-            res['dependency_match_only'] = _atd_write_bool(self.dependency_match_only)
-        if self.dependency_matches is not None:
-            res['dependency_matches'] = (lambda x: x.to_json())(self.dependency_matches)
+        if self.sca_info is not None:
+            res['sca_info'] = (lambda x: x.to_json())(self.sca_info)
         if self.fixed_lines is not None:
             res['fixed_lines'] = _atd_write_list(_atd_write_string)(self.fixed_lines)
         if self.dataflow_trace is not None:

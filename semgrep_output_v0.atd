@@ -543,8 +543,7 @@ type cli_match_extra <ocaml attr="deriving show"> = {
   (* extra fields *)
   ?is_ignored: bool option;
   (* added by dependency_aware code *)
-  ?dependency_match_only: bool option;
-  ?dependency_matches: raw_json option;
+  ?sca_info: sca_info option;
 
   (* TODO: done with monkey patching right now in the Python code,
    * and seems to be used only when sending findings to the App.
@@ -687,7 +686,7 @@ type found_dependency <ocaml attr="deriving show"> = {
   version: string;
   ecosystem: ecosystem;
   allowed_hashes: (string * string list) list <json repr="object"> <python repr="dict">;
-  resolved_url: string;
+  ?resolved_url: string option;
 }
 
 (*****************************************************************************)

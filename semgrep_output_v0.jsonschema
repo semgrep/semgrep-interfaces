@@ -408,8 +408,7 @@
         "fix": { "type": "string" },
         "fix_regex": { "$ref": "#/definitions/fix_regex" },
         "is_ignored": { "type": "boolean" },
-        "dependency_match_only": { "type": "boolean" },
-        "dependency_matches": { "$ref": "#/definitions/raw_json" },
+        "sca_info": { "$ref": "#/definitions/sca_info" },
         "fixed_lines": { "type": "array", "items": { "type": "string" } },
         "dataflow_trace": {
           "$ref": "#/definitions/cli_match_dataflow_trace"
@@ -538,9 +537,7 @@
     },
     "found_dependency": {
       "type": "object",
-      "required": [
-        "package", "version", "ecosystem", "allowed_hashes", "resolved_url"
-      ],
+      "required": [ "package", "version", "ecosystem", "allowed_hashes" ],
       "properties": {
         "package": { "type": "string" },
         "version": { "type": "string" },
