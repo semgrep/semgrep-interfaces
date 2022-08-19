@@ -308,13 +308,13 @@ export type DependencyMatch = {
 }
 
 export type Ecosystem =
-| { kind: 'Npm' }
-| { kind: 'Pypi' }
-| { kind: 'Gem' }
-| { kind: 'Gomod' }
-| { kind: 'Cargo' }
-| { kind: 'Maven' }
-| { kind: 'Gradle' }
+| { kind: 'Npm' /* JSON: "npm" */ }
+| { kind: 'Pypi' /* JSON: "pypi" */ }
+| { kind: 'Gem' /* JSON: "gem" */ }
+| { kind: 'Gomod' /* JSON: "gomod" */ }
+| { kind: 'Cargo' /* JSON: "cargo" */ }
+| { kind: 'Maven' /* JSON: "maven" */ }
+| { kind: 'Gradle' /* JSON: "gradle" */ }
 
 export type DependencyPattern = {
   ecosystem: Ecosystem;
@@ -1248,37 +1248,37 @@ export function readDependencyMatch(x: any, context: any = x): DependencyMatch {
 export function writeEcosystem(x: Ecosystem, context: any = x): any {
   switch (x.kind) {
     case 'Npm':
-      return 'Npm'
+      return 'npm'
     case 'Pypi':
-      return 'Pypi'
+      return 'pypi'
     case 'Gem':
-      return 'Gem'
+      return 'gem'
     case 'Gomod':
-      return 'Gomod'
+      return 'gomod'
     case 'Cargo':
-      return 'Cargo'
+      return 'cargo'
     case 'Maven':
-      return 'Maven'
+      return 'maven'
     case 'Gradle':
-      return 'Gradle'
+      return 'gradle'
   }
 }
 
 export function readEcosystem(x: any, context: any = x): Ecosystem {
   switch (x) {
-    case 'Npm':
+    case 'npm':
       return { kind: 'Npm' }
-    case 'Pypi':
+    case 'pypi':
       return { kind: 'Pypi' }
-    case 'Gem':
+    case 'gem':
       return { kind: 'Gem' }
-    case 'Gomod':
+    case 'gomod':
       return { kind: 'Gomod' }
-    case 'Cargo':
+    case 'cargo':
       return { kind: 'Cargo' }
-    case 'Maven':
+    case 'maven':
       return { kind: 'Maven' }
-    case 'Gradle':
+    case 'gradle':
       return { kind: 'Gradle' }
     default:
       _atd_bad_json('Ecosystem', x, context)

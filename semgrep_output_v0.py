@@ -1164,7 +1164,7 @@ class Npm:
 
     @staticmethod
     def to_json() -> Any:
-        return 'Npm'
+        return 'npm'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1181,7 +1181,7 @@ class Pypi:
 
     @staticmethod
     def to_json() -> Any:
-        return 'Pypi'
+        return 'pypi'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1198,7 +1198,7 @@ class Gem:
 
     @staticmethod
     def to_json() -> Any:
-        return 'Gem'
+        return 'gem'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1215,7 +1215,7 @@ class Gomod:
 
     @staticmethod
     def to_json() -> Any:
-        return 'Gomod'
+        return 'gomod'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1232,7 +1232,7 @@ class Cargo:
 
     @staticmethod
     def to_json() -> Any:
-        return 'Cargo'
+        return 'cargo'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1249,7 +1249,7 @@ class Maven:
 
     @staticmethod
     def to_json() -> Any:
-        return 'Maven'
+        return 'maven'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1266,7 +1266,7 @@ class Gradle:
 
     @staticmethod
     def to_json() -> Any:
-        return 'Gradle'
+        return 'gradle'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1286,19 +1286,19 @@ class Ecosystem:
     @classmethod
     def from_json(cls, x: Any) -> 'Ecosystem':
         if isinstance(x, str):
-            if x == 'Npm':
+            if x == 'npm':
                 return cls(Npm())
-            if x == 'Pypi':
+            if x == 'pypi':
                 return cls(Pypi())
-            if x == 'Gem':
+            if x == 'gem':
                 return cls(Gem())
-            if x == 'Gomod':
+            if x == 'gomod':
                 return cls(Gomod())
-            if x == 'Cargo':
+            if x == 'cargo':
                 return cls(Cargo())
-            if x == 'Maven':
+            if x == 'maven':
                 return cls(Maven())
-            if x == 'Gradle':
+            if x == 'gradle':
                 return cls(Gradle())
             _atd_bad_json('Ecosystem', x)
         _atd_bad_json('Ecosystem', x)

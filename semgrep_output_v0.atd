@@ -667,13 +667,13 @@ type dependency_match <ocaml attr="deriving show"> = {
 type ecosystem 
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = [
-  | Npm
-  | Pypi
-  | Gem
-  | Gomod
-  | Cargo
-  | Maven
-  | Gradle
+  | Npm <json name="npm">
+  | Pypi  <json name="pypi">
+  | Gem <json name="gem">
+  | Gomod <json name="gomod">
+  | Cargo <json name="cargo">
+  | Maven <json name="maven">
+  | Gradle <json name="gradle">
 ]
 
 type dependency_pattern <ocaml attr="deriving show"> = {

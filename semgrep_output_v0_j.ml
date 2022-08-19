@@ -3765,13 +3765,13 @@ let semver_of_string s =
 let write_ecosystem = (
   fun ob x ->
     match x with
-      | `Npm -> Bi_outbuf.add_string ob "\"Npm\""
-      | `Pypi -> Bi_outbuf.add_string ob "\"Pypi\""
-      | `Gem -> Bi_outbuf.add_string ob "\"Gem\""
-      | `Gomod -> Bi_outbuf.add_string ob "\"Gomod\""
-      | `Cargo -> Bi_outbuf.add_string ob "\"Cargo\""
-      | `Maven -> Bi_outbuf.add_string ob "\"Maven\""
-      | `Gradle -> Bi_outbuf.add_string ob "\"Gradle\""
+      | `Npm -> Bi_outbuf.add_string ob "\"npm\""
+      | `Pypi -> Bi_outbuf.add_string ob "\"pypi\""
+      | `Gem -> Bi_outbuf.add_string ob "\"gem\""
+      | `Gomod -> Bi_outbuf.add_string ob "\"gomod\""
+      | `Cargo -> Bi_outbuf.add_string ob "\"cargo\""
+      | `Maven -> Bi_outbuf.add_string ob "\"maven\""
+      | `Gradle -> Bi_outbuf.add_string ob "\"gradle\""
 )
 let string_of_ecosystem ?(len = 1024) x =
   let ob = Bi_outbuf.create len in
@@ -3783,31 +3783,31 @@ let read_ecosystem = (
     match Yojson.Safe.start_any_variant p lb with
       | `Edgy_bracket -> (
           match Yojson.Safe.read_ident p lb with
-            | "Npm" ->
+            | "npm" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Npm
-            | "Pypi" ->
+            | "pypi" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Pypi
-            | "Gem" ->
+            | "gem" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Gem
-            | "Gomod" ->
+            | "gomod" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Gomod
-            | "Cargo" ->
+            | "cargo" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Cargo
-            | "Maven" ->
+            | "maven" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Maven
-            | "Gradle" ->
+            | "gradle" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Gradle
@@ -3816,19 +3816,19 @@ let read_ecosystem = (
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
-            | "Npm" ->
+            | "npm" ->
               `Npm
-            | "Pypi" ->
+            | "pypi" ->
               `Pypi
-            | "Gem" ->
+            | "gem" ->
               `Gem
-            | "Gomod" ->
+            | "gomod" ->
               `Gomod
-            | "Cargo" ->
+            | "cargo" ->
               `Cargo
-            | "Maven" ->
+            | "maven" ->
               `Maven
-            | "Gradle" ->
+            | "gradle" ->
               `Gradle
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x

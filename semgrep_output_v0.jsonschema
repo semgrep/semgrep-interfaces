@@ -521,13 +521,13 @@
     },
     "ecosystem": {
       "oneOf": [
-        { "const": "Npm" },
-        { "const": "Pypi" },
-        { "const": "Gem" },
-        { "const": "Gomod" },
-        { "const": "Cargo" },
-        { "const": "Maven" },
-        { "const": "Gradle" }
+        { "const": "npm" },
+        { "const": "pypi" },
+        { "const": "gem" },
+        { "const": "gomod" },
+        { "const": "cargo" },
+        { "const": "maven" },
+        { "const": "gradle" }
       ]
     },
     "dependency_pattern": {
