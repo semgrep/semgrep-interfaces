@@ -543,8 +543,7 @@ type cli_match_extra <ocaml attr="deriving show"> = {
   (* extra fields *)
   ?is_ignored: bool option;
   (* added by dependency_aware code *)
-  ?dependency_match_only: bool option;
-  ?dependency_matches: raw_json option;
+  ?sca_info: sca_info option;
 
   (* TODO: done with monkey patching right now in the Python code,
    * and seems to be used only when sending findings to the App.
@@ -646,6 +645,51 @@ type cli_stats <ocaml attr="deriving show"> = {
 }
 *)
 
+
+(*****************************************************************************)
+(* Supply Chain Info *)
+(*****************************************************************************)
+
+type sca_info <ocaml attr="deriving show"> = {
+  reachable: bool;
+  reachability_rule: bool;
+  sca_finding_schema: int;
+  dependency_match: dependency_match;
+}
+
+
+type dependency_match <ocaml attr="deriving show"> = {
+  dependency_pattern: dependency_pattern;
+  found_dependency: found_dependency;
+  lockfile: string;
+}
+
+type ecosystem 
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = [
+  | Npm <json name="npm">
+  | Pypi  <json name="pypi">
+  | Gem <json name="gem">
+  | Gomod <json name="gomod">
+  | Cargo <json name="cargo">
+  | Maven <json name="maven">
+  | Gradle <json name="gradle">
+]
+
+type dependency_pattern <ocaml attr="deriving show"> = {
+  ecosystem: ecosystem;
+  package: string;
+  semver_range: string;
+}
+
+type found_dependency <ocaml attr="deriving show"> = {
+  package: string;
+  version: string;
+  ecosystem: ecosystem;
+  allowed_hashes: (string * string list) list <json repr="object"> <python repr="dict">;
+  ?resolved_url: string option;
+}
+
 (*****************************************************************************)
 (* Semgrep CLI findings output for the App *)
 (*****************************************************************************)
@@ -685,9 +729,4 @@ type finding <ocaml attr="deriving show"> = {
   ?fixed_lines: string list option;
   ?sca_info: sca_info option;
   ?dataflow_trace: cli_match_dataflow_trace option;
-}
-
-type sca_info <ocaml attr="deriving show"> = {
-  dependency_match_only: bool;
-  dependency_matches: raw_json;
 }
