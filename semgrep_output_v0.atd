@@ -344,6 +344,7 @@ type matching_operation
   <python decorator="dataclass(frozen=True)"> = [
   | And
   | Or
+  | Inside
   (* XPat for eXtended pattern. Can be a spacegrep pattern, a
    * regexp pattern, or a proper semgrep pattern.
    * see semgrep-core/src/core/XPattern.ml
