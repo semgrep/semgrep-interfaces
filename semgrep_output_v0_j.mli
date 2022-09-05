@@ -4,6 +4,7 @@
 type matching_operation = Semgrep_output_v0_t.matching_operation = 
     And
   | Or
+  | Inside
   | XPat of string
   | Negation
   | Filter of string
