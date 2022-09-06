@@ -677,6 +677,14 @@ type ecosystem
   | Gradle <json name="gradle">
 ]
 
+type transitivity 
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = [
+    | Direct <json name="direct">
+    | Transitive <json name="transitive">
+    | Unknown <json name="unknown">
+  ]
+
 type dependency_pattern <ocaml attr="deriving show"> = {
   ecosystem: ecosystem;
   package: string;
@@ -689,6 +697,7 @@ type found_dependency <ocaml attr="deriving show"> = {
   ecosystem: ecosystem;
   allowed_hashes: (string * string list) list <json repr="object"> <python repr="dict">;
   ?resolved_url: string option;
+  transitivity: transitivity;
 }
 
 (*****************************************************************************)

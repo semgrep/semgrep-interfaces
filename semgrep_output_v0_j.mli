@@ -85,6 +85,8 @@ type matching_explanation = Semgrep_output_v0_t.matching_explanation = {
 }
   [@@deriving show]
 
+type transitivity = Semgrep_output_v0_t.transitivity [@@deriving show]
+
 type rule_times = Semgrep_output_v0_t.rule_times = {
   rule_id: rule_id;
   parse_time: float;
@@ -129,7 +131,8 @@ type found_dependency = Semgrep_output_v0_t.found_dependency = {
   version: string;
   ecosystem: ecosystem;
   allowed_hashes: (string * string list) list;
-  resolved_url: string option
+  resolved_url: string option;
+  transitivity: transitivity
 }
   [@@deriving show]
 
@@ -627,6 +630,26 @@ val read_matching_explanation :
 val matching_explanation_of_string :
   string -> matching_explanation
   (** Deserialize JSON data of type {!type:matching_explanation}. *)
+
+val write_transitivity :
+  Bi_outbuf.t -> transitivity -> unit
+  (** Output a JSON value of type {!type:transitivity}. *)
+
+val string_of_transitivity :
+  ?len:int -> transitivity -> string
+  (** Serialize a value of type {!type:transitivity}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_transitivity :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> transitivity
+  (** Input JSON data of type {!type:transitivity}. *)
+
+val transitivity_of_string :
+  string -> transitivity
+  (** Deserialize JSON data of type {!type:transitivity}. *)
 
 val write_rule_times :
   Bi_outbuf.t -> rule_times -> unit
