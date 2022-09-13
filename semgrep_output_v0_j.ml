@@ -85,6 +85,8 @@ type matching_explanation = Semgrep_output_v0_t.matching_explanation = {
 }
   [@@deriving show]
 
+type transitivity = Semgrep_output_v0_t.transitivity [@@deriving show]
+
 type rule_times = Semgrep_output_v0_t.rule_times = {
   rule_id: rule_id;
   parse_time: float;
@@ -129,7 +131,8 @@ type found_dependency = Semgrep_output_v0_t.found_dependency = {
   version: string;
   ecosystem: ecosystem;
   allowed_hashes: (string * string list) list;
-  resolved_url: string option
+  resolved_url: string option;
+  transitivity: transitivity
 }
   [@@deriving show]
 
@@ -2737,6 +2740,57 @@ and read_matching_explanation = (
 )
 and matching_explanation_of_string s =
   read_matching_explanation (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_transitivity = (
+  fun ob x ->
+    match x with
+      | `Direct -> Bi_outbuf.add_string ob "\"direct\""
+      | `Transitive -> Bi_outbuf.add_string ob "\"transitive\""
+      | `Unknown -> Bi_outbuf.add_string ob "\"unknown\""
+)
+let string_of_transitivity ?(len = 1024) x =
+  let ob = Bi_outbuf.create len in
+  write_transitivity ob x;
+  Bi_outbuf.contents ob
+let read_transitivity = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "direct" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Direct
+            | "transitive" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Transitive
+            | "unknown" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Unknown
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "direct" ->
+              `Direct
+            | "transitive" ->
+              `Transitive
+            | "unknown" ->
+              `Unknown
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let transitivity_of_string s =
+  read_transitivity (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_rule_times : _ -> rule_times -> _ = (
   fun ob (x : rule_times) ->
     Bi_outbuf.add_char ob '{';
@@ -3936,6 +3990,15 @@ let write_found_dependency : _ -> found_dependency -> _ = (
       )
         ob x;
     );
+    if !is_first then
+      is_first := false
+    else
+      Bi_outbuf.add_char ob ',';
+    Bi_outbuf.add_string ob "\"transitivity\":";
+    (
+      write_transitivity
+    )
+      ob x.transitivity;
     Bi_outbuf.add_char ob '}';
 )
 let string_of_found_dependency ?(len = 1024) x =
@@ -3951,6 +4014,7 @@ let read_found_dependency = (
     let field_ecosystem = ref (None) in
     let field_allowed_hashes = ref (None) in
     let field_resolved_url = ref (None) in
+    let field_transitivity = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -3991,12 +4055,26 @@ let read_found_dependency = (
                 )
               )
             | 12 -> (
-                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'v' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'l' then (
-                  4
-                )
-                else (
-                  -1
-                )
+                match String.unsafe_get s pos with
+                  | 'r' -> (
+                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'v' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'l' then (
+                        4
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 't' -> (
+                      if String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'v' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'y' then (
+                        5
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
               )
             | 14 -> (
                 if String.unsafe_get s pos = 'a' && String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'w' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'h' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 's' then (
@@ -4056,6 +4134,14 @@ let read_found_dependency = (
                 )
               );
             )
+          | 5 ->
+            field_transitivity := (
+              Some (
+                (
+                  read_transitivity
+                ) p lb
+              )
+            );
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -4100,12 +4186,26 @@ let read_found_dependency = (
                   )
                 )
               | 12 -> (
-                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'v' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'l' then (
-                    4
-                  )
-                  else (
-                    -1
-                  )
+                  match String.unsafe_get s pos with
+                    | 'r' -> (
+                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'v' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'l' then (
+                          4
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 't' -> (
+                        if String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'v' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'y' then (
+                          5
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
                 )
               | 14 -> (
                   if String.unsafe_get s pos = 'a' && String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'w' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'h' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 's' then (
@@ -4165,6 +4265,14 @@ let read_found_dependency = (
                   )
                 );
               )
+            | 5 ->
+              field_transitivity := (
+                Some (
+                  (
+                    read_transitivity
+                  ) p lb
+                )
+              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -4179,6 +4287,7 @@ let read_found_dependency = (
             ecosystem = (match !field_ecosystem with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "ecosystem");
             allowed_hashes = (match !field_allowed_hashes with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "allowed_hashes");
             resolved_url = !field_resolved_url;
+            transitivity = (match !field_transitivity with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "transitivity");
           }
          : found_dependency)
       )

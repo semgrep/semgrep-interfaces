@@ -146,6 +146,7 @@ export type MatchingExplanation = {
 export type MatchingOperation =
 | { kind: 'And' }
 | { kind: 'Or' }
+| { kind: 'Inside' }
 | { kind: 'XPat'; value: string }
 | { kind: 'Negation' }
 | { kind: 'Filter'; value: string }
@@ -316,6 +317,11 @@ export type Ecosystem =
 | { kind: 'Maven' /* JSON: "maven" */ }
 | { kind: 'Gradle' /* JSON: "gradle" */ }
 
+export type Transitivity =
+| { kind: 'Direct' /* JSON: "direct" */ }
+| { kind: 'Transitive' /* JSON: "transitive" */ }
+| { kind: 'Unknown' /* JSON: "unknown" */ }
+
 export type DependencyPattern = {
   ecosystem: Ecosystem;
   package_: string;
@@ -328,6 +334,7 @@ export type FoundDependency = {
   ecosystem: Ecosystem;
   allowed_hashes: [string, string[]][];
   resolved_url?: string;
+  transitivity: Transitivity;
 }
 
 export type ApiScansFindings = {
@@ -798,6 +805,8 @@ export function writeMatchingOperation(x: MatchingOperation, context: any = x): 
       return 'And'
     case 'Or':
       return 'Or'
+    case 'Inside':
+      return 'Inside'
     case 'XPat':
       return ['XPat', _atd_write_string(x.value, x)]
     case 'Negation':
@@ -826,6 +835,8 @@ export function readMatchingOperation(x: any, context: any = x): MatchingOperati
         return { kind: 'And' }
       case 'Or':
         return { kind: 'Or' }
+      case 'Inside':
+        return { kind: 'Inside' }
       case 'Negation':
         return { kind: 'Negation' }
       case 'Taint':
@@ -1286,6 +1297,31 @@ export function readEcosystem(x: any, context: any = x): Ecosystem {
   }
 }
 
+export function writeTransitivity(x: Transitivity, context: any = x): any {
+  switch (x.kind) {
+    case 'Direct':
+      return 'direct'
+    case 'Transitive':
+      return 'transitive'
+    case 'Unknown':
+      return 'unknown'
+  }
+}
+
+export function readTransitivity(x: any, context: any = x): Transitivity {
+  switch (x) {
+    case 'direct':
+      return { kind: 'Direct' }
+    case 'transitive':
+      return { kind: 'Transitive' }
+    case 'unknown':
+      return { kind: 'Unknown' }
+    default:
+      _atd_bad_json('Transitivity', x, context)
+      throw new Error('impossible')
+  }
+}
+
 export function writeDependencyPattern(x: DependencyPattern, context: any = x): any {
   return {
     'ecosystem': _atd_write_required_field('DependencyPattern', 'ecosystem', writeEcosystem, x.ecosystem, x),
@@ -1309,6 +1345,7 @@ export function writeFoundDependency(x: FoundDependency, context: any = x): any 
     'ecosystem': _atd_write_required_field('FoundDependency', 'ecosystem', writeEcosystem, x.ecosystem, x),
     'allowed_hashes': _atd_write_required_field('FoundDependency', 'allowed_hashes', _atd_write_assoc_array_to_object(_atd_write_array(_atd_write_string)), x.allowed_hashes, x),
     'resolved_url': _atd_write_optional_field(_atd_write_string, x.resolved_url, x),
+    'transitivity': _atd_write_required_field('FoundDependency', 'transitivity', writeTransitivity, x.transitivity, x),
   };
 }
 
@@ -1319,6 +1356,7 @@ export function readFoundDependency(x: any, context: any = x): FoundDependency {
     ecosystem: _atd_read_required_field('FoundDependency', 'ecosystem', readEcosystem, x['ecosystem'], x),
     allowed_hashes: _atd_read_required_field('FoundDependency', 'allowed_hashes', _atd_read_assoc_object_into_array(_atd_read_array(_atd_read_string)), x['allowed_hashes'], x),
     resolved_url: _atd_read_optional_field(_atd_read_string, x['resolved_url'], x),
+    transitivity: _atd_read_required_field('FoundDependency', 'transitivity', readTransitivity, x['transitivity'], x),
   };
 }
 

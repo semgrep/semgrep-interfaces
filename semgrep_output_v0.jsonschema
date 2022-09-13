@@ -248,6 +248,7 @@
       "oneOf": [
         { "const": "And" },
         { "const": "Or" },
+        { "const": "Inside" },
         {
           "type": "array",
           "minItems": 2,
@@ -530,6 +531,13 @@
         { "const": "gradle" }
       ]
     },
+    "transitivity": {
+      "oneOf": [
+        { "const": "direct" },
+        { "const": "transitive" },
+        { "const": "unknown" }
+      ]
+    },
     "dependency_pattern": {
       "type": "object",
       "required": [ "ecosystem", "package", "semver_range" ],
@@ -541,7 +549,9 @@
     },
     "found_dependency": {
       "type": "object",
-      "required": [ "package", "version", "ecosystem", "allowed_hashes" ],
+      "required": [
+        "package", "version", "ecosystem", "allowed_hashes", "transitivity"
+      ],
       "properties": {
         "package": { "type": "string" },
         "version": { "type": "string" },
@@ -553,7 +563,8 @@
             "items": { "type": "string" }
           }
         },
-        "resolved_url": { "type": "string" }
+        "resolved_url": { "type": "string" },
+        "transitivity": { "$ref": "#/definitions/transitivity" }
       }
     },
     "api_scans_findings": {

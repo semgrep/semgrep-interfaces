@@ -272,6 +272,23 @@ class Or:
 
 
 @dataclass(frozen=True)
+class Inside:
+    """Original type: matching_operation = [ ... | Inside | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Inside'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Inside'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class XPat:
     """Original type: matching_operation = [ ... | XPat of ... | ... ]"""
 
@@ -430,7 +447,7 @@ class ClassHeaderAndElems:
 class MatchingOperation:
     """Original type: matching_operation = [ ... ]"""
 
-    value: Union[And, Or, XPat, Negation, Filter, Taint, TaintSource, TaintSink, TaintSanitizer, EllipsisAndStmts, ClassHeaderAndElems]
+    value: Union[And, Or, Inside, XPat, Negation, Filter, Taint, TaintSource, TaintSink, TaintSanitizer, EllipsisAndStmts, ClassHeaderAndElems]
 
     @property
     def kind(self) -> str:
@@ -444,6 +461,8 @@ class MatchingOperation:
                 return cls(And())
             if x == 'Or':
                 return cls(Or())
+            if x == 'Inside':
+                return cls(Inside())
             if x == 'Negation':
                 return cls(Negation())
             if x == 'Taint':
@@ -825,6 +844,91 @@ class MatchingExplanation:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'MatchingExplanation':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Direct:
+    """Original type: transitivity = [ ... | Direct | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Direct'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'direct'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Transitive:
+    """Original type: transitivity = [ ... | Transitive | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Transitive'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'transitive'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Unknown:
+    """Original type: transitivity = [ ... | Unknown | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Unknown'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'unknown'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Transitivity:
+    """Original type: transitivity = [ ... ]"""
+
+    value: Union[Direct, Transitive, Unknown]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Transitivity':
+        if isinstance(x, str):
+            if x == 'direct':
+                return cls(Direct())
+            if x == 'transitive':
+                return cls(Transitive())
+            if x == 'unknown':
+                return cls(Unknown())
+            _atd_bad_json('Transitivity', x)
+        _atd_bad_json('Transitivity', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Transitivity':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1322,6 +1426,7 @@ class FoundDependency:
     version: str
     ecosystem: Ecosystem
     allowed_hashes: Dict[str, List[str]]
+    transitivity: Transitivity
     resolved_url: Optional[str] = None
 
     @classmethod
@@ -1332,6 +1437,7 @@ class FoundDependency:
                 version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('FoundDependency', 'version'),
                 ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('FoundDependency', 'ecosystem'),
                 allowed_hashes=_atd_read_assoc_object_into_dict(_atd_read_list(_atd_read_string))(x['allowed_hashes']) if 'allowed_hashes' in x else _atd_missing_json_field('FoundDependency', 'allowed_hashes'),
+                transitivity=Transitivity.from_json(x['transitivity']) if 'transitivity' in x else _atd_missing_json_field('FoundDependency', 'transitivity'),
                 resolved_url=_atd_read_string(x['resolved_url']) if 'resolved_url' in x else None,
             )
         else:
@@ -1343,6 +1449,7 @@ class FoundDependency:
         res['version'] = _atd_write_string(self.version)
         res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
         res['allowed_hashes'] = _atd_write_assoc_dict_to_object(_atd_write_list(_atd_write_string))(self.allowed_hashes)
+        res['transitivity'] = (lambda x: x.to_json())(self.transitivity)
         if self.resolved_url is not None:
             res['resolved_url'] = _atd_write_string(self.resolved_url)
         return res
