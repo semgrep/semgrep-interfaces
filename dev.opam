@@ -8,6 +8,6 @@ bug-reports: "n/a"
 synopsis: "OCaml development dependencies"
 
 depends: [
-  "atdpy" {>= "2.7.0"}
-  "atdts" {>= "2.7.0"}
+  "atdpy" {>= "2.10.0"}
+  "atdts" {>= "2.10.0"}
 ]
