@@ -132,7 +132,8 @@ type found_dependency = Semgrep_output_v0_t.found_dependency = {
   ecosystem: ecosystem;
   allowed_hashes: (string * string list) list;
   resolved_url: string option;
-  transitivity: transitivity
+  transitivity: transitivity;
+  line_number: int option
 }
   [@@deriving show]
 

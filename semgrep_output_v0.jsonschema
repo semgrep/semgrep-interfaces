@@ -564,7 +564,8 @@
           }
         },
         "resolved_url": { "type": "string" },
-        "transitivity": { "$ref": "#/definitions/transitivity" }
+        "transitivity": { "$ref": "#/definitions/transitivity" },
+        "line_number": { "type": "integer" }
       }
     },
     "api_scans_findings": {
