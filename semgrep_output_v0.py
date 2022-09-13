@@ -1428,6 +1428,7 @@ class FoundDependency:
     allowed_hashes: Dict[str, List[str]]
     transitivity: Transitivity
     resolved_url: Optional[str] = None
+    line_number: Optional[int] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'FoundDependency':
@@ -1439,6 +1440,7 @@ class FoundDependency:
                 allowed_hashes=_atd_read_assoc_object_into_dict(_atd_read_list(_atd_read_string))(x['allowed_hashes']) if 'allowed_hashes' in x else _atd_missing_json_field('FoundDependency', 'allowed_hashes'),
                 transitivity=Transitivity.from_json(x['transitivity']) if 'transitivity' in x else _atd_missing_json_field('FoundDependency', 'transitivity'),
                 resolved_url=_atd_read_string(x['resolved_url']) if 'resolved_url' in x else None,
+                line_number=_atd_read_int(x['line_number']) if 'line_number' in x else None,
             )
         else:
             _atd_bad_json('FoundDependency', x)
@@ -1452,6 +1454,8 @@ class FoundDependency:
         res['transitivity'] = (lambda x: x.to_json())(self.transitivity)
         if self.resolved_url is not None:
             res['resolved_url'] = _atd_write_string(self.resolved_url)
+        if self.line_number is not None:
+            res['line_number'] = _atd_write_int(self.line_number)
         return res
 
     @classmethod

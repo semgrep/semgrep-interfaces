@@ -698,6 +698,7 @@ type found_dependency <ocaml attr="deriving show"> = {
   allowed_hashes: (string * string list) list <json repr="object"> <python repr="dict">;
   ?resolved_url: string option;
   transitivity: transitivity;
+  ?line_number: int option;
 }
 
 (*****************************************************************************)
