@@ -750,6 +750,7 @@ class CoreMatchExtra:
     metavars: Metavars
     message: Optional[str] = None
     dataflow_trace: Optional[CoreMatchDataflowTrace] = None
+    rendered_fix: Optional[str] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreMatchExtra':
@@ -758,6 +759,7 @@ class CoreMatchExtra:
                 metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else _atd_missing_json_field('CoreMatchExtra', 'metavars'),
                 message=_atd_read_string(x['message']) if 'message' in x else None,
                 dataflow_trace=CoreMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
+                rendered_fix=_atd_read_string(x['rendered_fix']) if 'rendered_fix' in x else None,
             )
         else:
             _atd_bad_json('CoreMatchExtra', x)
@@ -769,6 +771,8 @@ class CoreMatchExtra:
             res['message'] = _atd_write_string(self.message)
         if self.dataflow_trace is not None:
             res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
+        if self.rendered_fix is not None:
+            res['rendered_fix'] = _atd_write_string(self.rendered_fix)
         return res
 
     @classmethod
