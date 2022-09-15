@@ -36,6 +36,7 @@ export type CoreMatchExtra = {
   message?: string;
   metavars: Metavars;
   dataflow_trace?: CoreMatchDataflowTrace;
+  rendered_fix?: string;
 }
 
 export type CoreMatchDataflowTrace = {
@@ -444,6 +445,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
     'message': _atd_write_optional_field(_atd_write_string, x.message, x),
     'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
     'dataflow_trace': _atd_write_optional_field(writeCoreMatchDataflowTrace, x.dataflow_trace, x),
+    'rendered_fix': _atd_write_optional_field(_atd_write_string, x.rendered_fix, x),
   };
 }
 
@@ -452,6 +454,7 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     message: _atd_read_optional_field(_atd_read_string, x['message'], x),
     metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
     dataflow_trace: _atd_read_optional_field(readCoreMatchDataflowTrace, x['dataflow_trace'], x),
+    rendered_fix: _atd_read_optional_field(_atd_read_string, x['rendered_fix'], x),
   };
 }
 

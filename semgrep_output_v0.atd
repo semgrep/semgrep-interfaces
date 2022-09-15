@@ -109,6 +109,10 @@ type core_match_extra
   ?message: string option; (* rule.message (?) *)
   metavars: metavars;
   ?dataflow_trace: core_match_dataflow_trace option;
+  (* If present, semgrep-core was able to compute a string that should be
+   * inserted in place of the text in the matched range in order to fix the
+   * finding. *)
+  ?rendered_fix: string option;
 }
 
 (* Provides information about dataflow that leads to a finding. For now, just
