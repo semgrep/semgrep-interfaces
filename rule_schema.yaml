@@ -661,4 +661,3 @@ properties:
               pattern-propagators: false
               pattern-sanitizers: false
               join: false
-
