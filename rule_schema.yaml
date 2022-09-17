@@ -377,7 +377,10 @@ $defs:
     properties:
       focus-metavariable:
         title: Focus on what a given metavariable is matching
-        type: string
+        items:
+          OneOf:
+            - string
+            - array
     required:
       - focus-metavariable
     additionalProperties: false
