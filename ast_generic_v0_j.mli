@@ -9,6 +9,8 @@ type const_type = Ast_generic_v0_t.const_type
 
 type container_operator = Ast_generic_v0_t.container_operator
 
+type dot_operator = Ast_generic_v0_t.dot_operator
+
 type function_kind = Ast_generic_v0_t.function_kind
 
 type incr_decr = Ast_generic_v0_t.incr_decr
@@ -281,6 +283,26 @@ val read_container_operator :
 val container_operator_of_string :
   string -> container_operator
   (** Deserialize JSON data of type {!type:container_operator}. *)
+
+val write_dot_operator :
+  Bi_outbuf.t -> dot_operator -> unit
+  (** Output a JSON value of type {!type:dot_operator}. *)
+
+val string_of_dot_operator :
+  ?len:int -> dot_operator -> string
+  (** Serialize a value of type {!type:dot_operator}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_dot_operator :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dot_operator
+  (** Input JSON data of type {!type:dot_operator}. *)
+
+val dot_operator_of_string :
+  string -> dot_operator
+  (** Deserialize JSON data of type {!type:dot_operator}. *)
 
 val write_function_kind :
   Bi_outbuf.t -> function_kind -> unit

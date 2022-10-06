@@ -242,7 +242,7 @@ type expr = [
    * In the last case it should be rewritten as a (N IdQualified) with a
    * qualifier though.
   *)
-  | DotAccess of (expr * tok (* ., ::, ->, # *) * name_or_dynamic)
+  | DotAccess of (expr * dot_operator wrap_ (* ., ::, ->, # *) * name_or_dynamic)
 
   (* in Js ArrayAccess is also abused to perform DotAccess (..., FDynamic) *)
   | ArrayAccess of (expr * expr bracket)
@@ -307,6 +307,11 @@ type container_operator = [
   | List | Set
   | Dict (* a.k.a Hash or Map (combine with Tuple to get Key/value pair) *)
   ]
+
+type dot_operator = [
+  | Dot
+  | QuestDot
+]
 
 (* It's useful to keep track in the AST of all those special identifiers.
  * They need to be handled in a special way by certain analysis and just
