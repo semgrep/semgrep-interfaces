@@ -3884,7 +3884,6 @@ let write_ecosystem = (
       | `Gomod -> Bi_outbuf.add_string ob "\"gomod\""
       | `Cargo -> Bi_outbuf.add_string ob "\"cargo\""
       | `Maven -> Bi_outbuf.add_string ob "\"maven\""
-      | `Gradle -> Bi_outbuf.add_string ob "\"gradle\""
 )
 let string_of_ecosystem ?(len = 1024) x =
   let ob = Bi_outbuf.create len in
@@ -3920,10 +3919,6 @@ let read_ecosystem = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Maven
-            | "gradle" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Gradle
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -3941,8 +3936,6 @@ let read_ecosystem = (
               `Cargo
             | "maven" ->
               `Maven
-            | "gradle" ->
-              `Gradle
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

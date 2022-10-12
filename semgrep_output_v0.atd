@@ -678,7 +678,6 @@ type ecosystem
   | Gomod <json name="gomod">
   | Cargo <json name="cargo">
   | Maven <json name="maven">
-  | Gradle <json name="gradle">
 ]
 
 type transitivity 

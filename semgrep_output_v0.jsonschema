@@ -528,8 +528,7 @@
         { "const": "gem" },
         { "const": "gomod" },
         { "const": "cargo" },
-        { "const": "maven" },
-        { "const": "gradle" }
+        { "const": "maven" }
       ]
     },
     "transitivity": {
