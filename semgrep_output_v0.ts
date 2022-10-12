@@ -316,7 +316,6 @@ export type Ecosystem =
 | { kind: 'Gomod' /* JSON: "gomod" */ }
 | { kind: 'Cargo' /* JSON: "cargo" */ }
 | { kind: 'Maven' /* JSON: "maven" */ }
-| { kind: 'Gradle' /* JSON: "gradle" */ }
 
 export type Transitivity =
 | { kind: 'Direct' /* JSON: "direct" */ }
@@ -1274,8 +1273,6 @@ export function writeEcosystem(x: Ecosystem, context: any = x): any {
       return 'cargo'
     case 'Maven':
       return 'maven'
-    case 'Gradle':
-      return 'gradle'
   }
 }
 
@@ -1293,8 +1290,6 @@ export function readEcosystem(x: any, context: any = x): Ecosystem {
       return { kind: 'Cargo' }
     case 'maven':
       return { kind: 'Maven' }
-    case 'gradle':
-      return { kind: 'Gradle' }
     default:
       _atd_bad_json('Ecosystem', x, context)
       throw new Error('impossible')

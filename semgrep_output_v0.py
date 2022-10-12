@@ -1364,27 +1364,10 @@ class Maven:
 
 
 @dataclass(frozen=True)
-class Gradle:
-    """Original type: ecosystem = [ ... | Gradle | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Gradle'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'gradle'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
 class Ecosystem:
     """Original type: ecosystem = [ ... ]"""
 
-    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Gradle]
+    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven]
 
     @property
     def kind(self) -> str:
@@ -1406,8 +1389,6 @@ class Ecosystem:
                 return cls(Cargo())
             if x == 'maven':
                 return cls(Maven())
-            if x == 'gradle':
-                return cls(Gradle())
             _atd_bad_json('Ecosystem', x)
         _atd_bad_json('Ecosystem', x)
 
