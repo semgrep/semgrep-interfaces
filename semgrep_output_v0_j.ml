@@ -163,7 +163,7 @@ type sca_info = Semgrep_output_v0_t.sca_info = {
 type rule_id_dict = Semgrep_output_v0_t.rule_id_dict = { id: rule_id }
   [@@deriving show]
 
-type raw_json = Yojson.Safe.t [@@deriving show]
+type raw_json = Yojson.Basic.t [@@deriving show]
 
 type position_bis = Semgrep_output_v0_t.position_bis = {
   line: int;
@@ -5174,14 +5174,14 @@ let read_rule_id_dict = (
 let rule_id_dict_of_string s =
   read_rule_id_dict (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_raw_json = (
-  Yojson.Safe.write_t
+  Yojson.Basic.write_t
 )
 let string_of_raw_json ?(len = 1024) x =
   let ob = Bi_outbuf.create len in
   write_raw_json ob x;
   Bi_outbuf.contents ob
 let read_raw_json = (
-  Yojson.Safe.read_t
+  Yojson.Basic.read_t
 )
 let raw_json_of_string s =
   read_raw_json (Yojson.Safe.init_lexer ()) (Lexing.from_string s)

@@ -163,7 +163,7 @@ type sca_info = Semgrep_output_v0_t.sca_info = {
 type rule_id_dict = Semgrep_output_v0_t.rule_id_dict = { id: rule_id }
   [@@deriving show]
 
-type raw_json = Yojson.Safe.t [@@deriving show]
+type raw_json = Yojson.Basic.t [@@deriving show]
 
 type position_bis = Semgrep_output_v0_t.position_bis = {
   line: int;

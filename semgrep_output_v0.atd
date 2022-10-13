@@ -57,7 +57,7 @@
 (*****************************************************************************)
 
 (* escape hatch *)
-type raw_json <ocaml module="Yojson.Safe" t="t" attr="deriving show"> = abstract
+type raw_json <ocaml module="Yojson.Basic" t="t" attr="deriving show"> = abstract
 
 (*****************************************************************************)
 (* Versioning *)
