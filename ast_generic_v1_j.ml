@@ -1,29 +1,29 @@
-(* Auto-generated from "ast_generic_v0.atd" *)
+(* Auto-generated from "ast_generic_v1.atd" *)
 [@@@ocaml.warning "-27-32-33-35-39"]
 
-type class_kind = Ast_generic_v0_t.class_kind
+type class_kind = Ast_generic_v1_t.class_kind
 
-type concat_string_kind = Ast_generic_v0_t.concat_string_kind
+type concat_string_kind = Ast_generic_v1_t.concat_string_kind
 
-type const_type = Ast_generic_v0_t.const_type
+type const_type = Ast_generic_v1_t.const_type
 
-type container_operator = Ast_generic_v0_t.container_operator
+type container_operator = Ast_generic_v1_t.container_operator
 
-type function_kind = Ast_generic_v0_t.function_kind
+type function_kind = Ast_generic_v1_t.function_kind
 
-type incr_decr = Ast_generic_v0_t.incr_decr
+type incr_decr = Ast_generic_v1_t.incr_decr
 
-type keyword_attribute = Ast_generic_v0_t.keyword_attribute
+type keyword_attribute = Ast_generic_v1_t.keyword_attribute
 
-type operator = Ast_generic_v0_t.operator
+type operator = Ast_generic_v1_t.operator
 
-type prefix_postfix = Ast_generic_v0_t.prefix_postfix
+type prefix_postfix = Ast_generic_v1_t.prefix_postfix
 
-type sid = Ast_generic_v0_t.sid
+type sid = Ast_generic_v1_t.sid
 
-type special = Ast_generic_v0_t.special
+type special = Ast_generic_v1_t.special
 
-type token_location = Ast_generic_v0_t.token_location = {
+type token_location = Ast_generic_v1_t.token_location = {
   str: string;
   charpos: int;
   line: int;
@@ -31,53 +31,53 @@ type token_location = Ast_generic_v0_t.token_location = {
   filename: string
 }
 
-type token = Ast_generic_v0_t.token
+type token = Ast_generic_v1_t.token
 
-type tok = Ast_generic_v0_t.tok
+type tok = Ast_generic_v1_t.tok
 
-type 'a bracket = 'a Ast_generic_v0_t.bracket
+type 'a bracket = 'a Ast_generic_v1_t.bracket
 
-type sc = Ast_generic_v0_t.sc
+type sc = Ast_generic_v1_t.sc
 
-type 'a wrap_ = 'a Ast_generic_v0_t.wrap_
+type 'a wrap_ = 'a Ast_generic_v1_t.wrap_
 
-type ident = Ast_generic_v0_t.ident
+type ident = Ast_generic_v1_t.ident
 
-type dotted_ident = Ast_generic_v0_t.dotted_ident
+type dotted_ident = Ast_generic_v1_t.dotted_ident
 
-type label = Ast_generic_v0_t.label
+type label = Ast_generic_v1_t.label
 
-type literal = Ast_generic_v0_t.literal
+type literal = Ast_generic_v1_t.literal
 
-type constness = Ast_generic_v0_t.constness
+type constness = Ast_generic_v1_t.constness
 
-type module_name = Ast_generic_v0_t.module_name
+type module_name = Ast_generic_v1_t.module_name
 
-type resolved_name_kind = Ast_generic_v0_t.resolved_name_kind
+type resolved_name_kind = Ast_generic_v1_t.resolved_name_kind
 
-type resolved_name = Ast_generic_v0_t.resolved_name
+type resolved_name = Ast_generic_v1_t.resolved_name
 
-type xml_kind = Ast_generic_v0_t.xml_kind
+type xml_kind = Ast_generic_v1_t.xml_kind
 
-type action = Ast_generic_v0_t.action
+type action = Ast_generic_v1_t.action
 
-and alias = Ast_generic_v0_t.alias
+and alias = Ast_generic_v1_t.alias
 
-and any = Ast_generic_v0_t.any
+and any = Ast_generic_v1_t.any
 
-and argument = Ast_generic_v0_t.argument
+and argument = Ast_generic_v1_t.argument
 
-and arguments = Ast_generic_v0_t.arguments
+and arguments = Ast_generic_v1_t.arguments
 
-and attribute = Ast_generic_v0_t.attribute
+and attribute = Ast_generic_v1_t.attribute
 
-and case = Ast_generic_v0_t.case
+and case = Ast_generic_v1_t.case
 
-and case_and_body = Ast_generic_v0_t.case_and_body
+and case_and_body = Ast_generic_v1_t.case_and_body
 
-and catch = Ast_generic_v0_t.catch
+and catch = Ast_generic_v1_t.catch
 
-and class_definition = Ast_generic_v0_t.class_definition = {
+and class_definition = Ast_generic_v1_t.class_definition = {
   ckind: class_kind wrap_;
   cextends: type_ list;
   cimplements: type_ list;
@@ -86,70 +86,70 @@ and class_definition = Ast_generic_v0_t.class_definition = {
   cbody: field list bracket
 }
 
-and definition = Ast_generic_v0_t.definition
+and definition = Ast_generic_v1_t.definition
 
-and definition_kind = Ast_generic_v0_t.definition_kind
+and definition_kind = Ast_generic_v1_t.definition_kind
 
-and directive = Ast_generic_v0_t.directive
+and directive = Ast_generic_v1_t.directive
 
-and entity = Ast_generic_v0_t.entity = {
+and entity = Ast_generic_v1_t.entity = {
   name: name_or_dynamic;
   attrs: attribute list;
   tparams: type_parameter list
 }
 
-and expr = Ast_generic_v0_t.expr
+and expr = Ast_generic_v1_t.expr
 
-and field = Ast_generic_v0_t.field
+and field = Ast_generic_v1_t.field
 
-and finally = Ast_generic_v0_t.finally
+and finally = Ast_generic_v1_t.finally
 
-and for_header = Ast_generic_v0_t.for_header
+and for_header = Ast_generic_v1_t.for_header
 
-and for_var_or_expr = Ast_generic_v0_t.for_var_or_expr
+and for_var_or_expr = Ast_generic_v1_t.for_var_or_expr
 
-and function_definition = Ast_generic_v0_t.function_definition = {
+and function_definition = Ast_generic_v1_t.function_definition = {
   fkind: function_kind wrap_;
   fparams: parameters;
   frettype: type_ option;
   fbody: stmt
 }
 
-and id_info = Ast_generic_v0_t.id_info = {
+and id_info = Ast_generic_v1_t.id_info = {
   id_resolved: resolved_name option;
   id_type: type_ option;
   id_constness: constness option
 }
 
-and item = Ast_generic_v0_t.item
+and item = Ast_generic_v1_t.item
 
-and label_ident = Ast_generic_v0_t.label_ident
+and label_ident = Ast_generic_v1_t.label_ident
 
-and macro_definition = Ast_generic_v0_t.macro_definition = {
+and macro_definition = Ast_generic_v1_t.macro_definition = {
   macroparams: ident list;
   macrobody: any list
 }
 
-and module_definition = Ast_generic_v0_t.module_definition = {
+and module_definition = Ast_generic_v1_t.module_definition = {
   mbody: module_definition_kind
 }
 
-and module_definition_kind = Ast_generic_v0_t.module_definition_kind
+and module_definition_kind = Ast_generic_v1_t.module_definition_kind
 
-and name = Ast_generic_v0_t.name
+and name = Ast_generic_v1_t.name
 
-and name_info = Ast_generic_v0_t.name_info = {
+and name_info = Ast_generic_v1_t.name_info = {
   name_qualifier: qualifier option;
   name_typeargs: type_arguments option
 }
 
-and name_or_dynamic = Ast_generic_v0_t.name_or_dynamic
+and name_or_dynamic = Ast_generic_v1_t.name_or_dynamic
 
-and or_type_element = Ast_generic_v0_t.or_type_element
+and or_type_element = Ast_generic_v1_t.or_type_element
 
-and parameter = Ast_generic_v0_t.parameter
+and parameter = Ast_generic_v1_t.parameter
 
-and parameter_classic = Ast_generic_v0_t.parameter_classic = {
+and parameter_classic = Ast_generic_v1_t.parameter_classic = {
   pname: ident option;
   ptype: type_ option;
   pdefault: expr option;
@@ -157,50 +157,50 @@ and parameter_classic = Ast_generic_v0_t.parameter_classic = {
   pinfo: id_info
 }
 
-and parameters = Ast_generic_v0_t.parameters
+and parameters = Ast_generic_v1_t.parameters
 
-and pattern = Ast_generic_v0_t.pattern
+and pattern = Ast_generic_v1_t.pattern
 
-and qualifier = Ast_generic_v0_t.qualifier
+and qualifier = Ast_generic_v1_t.qualifier
 
-and stmt = Ast_generic_v0_t.stmt = { s: stmt_kind; s_id: int }
+and stmt = Ast_generic_v1_t.stmt = { s: stmt_kind; s_id: int }
 
-and stmt_kind = Ast_generic_v0_t.stmt_kind
+and stmt_kind = Ast_generic_v1_t.stmt_kind
 
-and type_ = Ast_generic_v0_t.type_
+and type_ = Ast_generic_v1_t.type_
 
-and type_argument = Ast_generic_v0_t.type_argument
+and type_argument = Ast_generic_v1_t.type_argument
 
-and type_arguments = Ast_generic_v0_t.type_arguments
+and type_arguments = Ast_generic_v1_t.type_arguments
 
-and type_definition = Ast_generic_v0_t.type_definition = {
+and type_definition = Ast_generic_v1_t.type_definition = {
   tbody: type_definition_kind
 }
 
-and type_definition_kind = Ast_generic_v0_t.type_definition_kind
+and type_definition_kind = Ast_generic_v1_t.type_definition_kind
 
-and type_parameter = Ast_generic_v0_t.type_parameter
+and type_parameter = Ast_generic_v1_t.type_parameter
 
-and type_parameter_constraint = Ast_generic_v0_t.type_parameter_constraint
+and type_parameter_constraint = Ast_generic_v1_t.type_parameter_constraint
 
-and variable_definition = Ast_generic_v0_t.variable_definition = {
+and variable_definition = Ast_generic_v1_t.variable_definition = {
   vinit: expr option;
   vtype: type_ option
 }
 
-and xml = Ast_generic_v0_t.xml = {
+and xml = Ast_generic_v1_t.xml = {
   xml_kind: xml_kind;
   xml_attrs: xml_attribute list;
   xml_body: xml_body list
 }
 
-and xml_attr_value = Ast_generic_v0_t.xml_attr_value
+and xml_attr_value = Ast_generic_v1_t.xml_attr_value
 
-and xml_attribute = Ast_generic_v0_t.xml_attribute
+and xml_attribute = Ast_generic_v1_t.xml_attribute
 
-and xml_body = Ast_generic_v0_t.xml_body
+and xml_body = Ast_generic_v1_t.xml_body
 
-type program = Ast_generic_v0_t.program
+type program = Ast_generic_v1_t.program
 
 let write__21 = (
   Atdgen_runtime.Oj_run.write_std_option (

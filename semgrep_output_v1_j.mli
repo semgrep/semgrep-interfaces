@@ -1,7 +1,7 @@
-(* Auto-generated from "semgrep_output_v0.atd" *)
+(* Auto-generated from "semgrep_output_v1.atd" *)
 [@@@ocaml.warning "-27-32-33-35-39"]
 
-type matching_operation = Semgrep_output_v0_t.matching_operation = 
+type matching_operation = Semgrep_output_v1_t.matching_operation = 
     And
   | Or
   | Inside
@@ -17,14 +17,14 @@ type matching_operation = Semgrep_output_v0_t.matching_operation =
 
   [@@deriving show { with_path = false}]
 
-type position = Semgrep_output_v0_t.position = {
+type position = Semgrep_output_v1_t.position = {
   line: int;
   col: int;
   offset: int
 }
   [@@deriving show]
 
-type location = Semgrep_output_v0_t.location = {
+type location = Semgrep_output_v1_t.location = {
   path: string;
   start: position;
   end_ (*atd end *): position
@@ -32,28 +32,28 @@ type location = Semgrep_output_v0_t.location = {
   [@@deriving show]
 
 type core_match_intermediate_var =
-  Semgrep_output_v0_t.core_match_intermediate_var = {
+  Semgrep_output_v1_t.core_match_intermediate_var = {
   location: location
 }
   [@@deriving show]
 
 type core_match_dataflow_trace =
-  Semgrep_output_v0_t.core_match_dataflow_trace = {
+  Semgrep_output_v1_t.core_match_dataflow_trace = {
   taint_source: location option;
   intermediate_vars: core_match_intermediate_var list option
 }
   [@@deriving show]
 
-type rule_id = Semgrep_output_v0_t.rule_id [@@deriving show]
+type rule_id = Semgrep_output_v1_t.rule_id [@@deriving show]
 
-type svalue_value = Semgrep_output_v0_t.svalue_value = {
+type svalue_value = Semgrep_output_v1_t.svalue_value = {
   svalue_start: position option;
   svalue_end: position option;
   svalue_abstract_content: string
 }
   [@@deriving show]
 
-type metavar_value = Semgrep_output_v0_t.metavar_value = {
+type metavar_value = Semgrep_output_v1_t.metavar_value = {
   start: position;
   end_ (*atd end *): position;
   abstract_content: string;
@@ -61,9 +61,9 @@ type metavar_value = Semgrep_output_v0_t.metavar_value = {
 }
   [@@deriving show]
 
-type metavars = Semgrep_output_v0_t.metavars [@@deriving show]
+type metavars = Semgrep_output_v1_t.metavars [@@deriving show]
 
-type core_match_extra = Semgrep_output_v0_t.core_match_extra = {
+type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   message: string option;
   metavars: metavars;
   dataflow_trace: core_match_dataflow_trace option;
@@ -71,14 +71,14 @@ type core_match_extra = Semgrep_output_v0_t.core_match_extra = {
 }
   [@@deriving show]
 
-type core_match = Semgrep_output_v0_t.core_match = {
+type core_match = Semgrep_output_v1_t.core_match = {
   rule_id: rule_id;
   location: location;
   extra: core_match_extra
 }
   [@@deriving show]
 
-type matching_explanation = Semgrep_output_v0_t.matching_explanation = {
+type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
   op: matching_operation;
   children: matching_explanation list;
   matches: core_match list;
@@ -86,29 +86,29 @@ type matching_explanation = Semgrep_output_v0_t.matching_explanation = {
 }
   [@@deriving show]
 
-type transitivity = Semgrep_output_v0_t.transitivity [@@deriving show]
+type transitivity = Semgrep_output_v1_t.transitivity [@@deriving show]
 
-type rule_times = Semgrep_output_v0_t.rule_times = {
+type rule_times = Semgrep_output_v1_t.rule_times = {
   rule_id: rule_id;
   parse_time: float;
   match_time: float
 }
   [@@deriving show]
 
-type target_time = Semgrep_output_v0_t.target_time = {
+type target_time = Semgrep_output_v1_t.target_time = {
   path: string;
   rule_times: rule_times list;
   run_time: float
 }
   [@@deriving show]
 
-type skip_reason = Semgrep_output_v0_t.skip_reason = 
+type skip_reason = Semgrep_output_v1_t.skip_reason = 
     Excluded_by_config | Wrong_language | Too_big | Minified | Binary
   | Irrelevant_rule | Too_many_matches
 
   [@@deriving show]
 
-type skipped_target = Semgrep_output_v0_t.skipped_target = {
+type skipped_target = Semgrep_output_v1_t.skipped_target = {
   path: string;
   reason: skip_reason;
   details: string;
@@ -116,18 +116,18 @@ type skipped_target = Semgrep_output_v0_t.skipped_target = {
 }
   [@@deriving show]
 
-type skipped_rule = Semgrep_output_v0_t.skipped_rule = {
+type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
   rule_id: rule_id;
   details: string;
   position: position
 }
   [@@deriving show]
 
-type semver = Semgrep_output_v0_t.semver [@@deriving show]
+type semver = Semgrep_output_v1_t.semver [@@deriving show]
 
-type ecosystem = Semgrep_output_v0_t.ecosystem [@@deriving show]
+type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show]
 
-type found_dependency = Semgrep_output_v0_t.found_dependency = {
+type found_dependency = Semgrep_output_v1_t.found_dependency = {
   package: string;
   version: string;
   ecosystem: ecosystem;
@@ -138,21 +138,21 @@ type found_dependency = Semgrep_output_v0_t.found_dependency = {
 }
   [@@deriving show]
 
-type dependency_pattern = Semgrep_output_v0_t.dependency_pattern = {
+type dependency_pattern = Semgrep_output_v1_t.dependency_pattern = {
   ecosystem: ecosystem;
   package: string;
   semver_range: string
 }
   [@@deriving show]
 
-type dependency_match = Semgrep_output_v0_t.dependency_match = {
+type dependency_match = Semgrep_output_v1_t.dependency_match = {
   dependency_pattern: dependency_pattern;
   found_dependency: found_dependency;
   lockfile: string
 }
   [@@deriving show]
 
-type sca_info = Semgrep_output_v0_t.sca_info = {
+type sca_info = Semgrep_output_v1_t.sca_info = {
   reachable: bool;
   reachability_rule: bool;
   sca_finding_schema: int;
@@ -160,45 +160,45 @@ type sca_info = Semgrep_output_v0_t.sca_info = {
 }
   [@@deriving show]
 
-type rule_id_dict = Semgrep_output_v0_t.rule_id_dict = { id: rule_id }
+type rule_id_dict = Semgrep_output_v1_t.rule_id_dict = { id: rule_id }
   [@@deriving show]
 
 type raw_json = Yojson.Basic.t [@@deriving show]
 
-type position_bis = Semgrep_output_v0_t.position_bis = {
+type position_bis = Semgrep_output_v1_t.position_bis = {
   line: int;
   col: int
 }
   [@@deriving show]
 
-type fix_regex = Semgrep_output_v0_t.fix_regex = {
+type fix_regex = Semgrep_output_v1_t.fix_regex = {
   regex: string;
   replacement: string;
   count: int option
 }
   [@@deriving show]
 
-type cli_match_taint_source = Semgrep_output_v0_t.cli_match_taint_source = {
+type cli_match_taint_source = Semgrep_output_v1_t.cli_match_taint_source = {
   location: location;
   content: string
 }
   [@@deriving show]
 
 type cli_match_intermediate_var =
-  Semgrep_output_v0_t.cli_match_intermediate_var = {
+  Semgrep_output_v1_t.cli_match_intermediate_var = {
   location: location;
   content: string
 }
   [@@deriving show]
 
 type cli_match_dataflow_trace =
-  Semgrep_output_v0_t.cli_match_dataflow_trace = {
+  Semgrep_output_v1_t.cli_match_dataflow_trace = {
   taint_source: cli_match_taint_source option;
   intermediate_vars: cli_match_intermediate_var list option
 }
   [@@deriving show]
 
-type finding = Semgrep_output_v0_t.finding = {
+type finding = Semgrep_output_v1_t.finding = {
   check_id: rule_id;
   path: string;
   line: int;
@@ -219,7 +219,7 @@ type finding = Semgrep_output_v0_t.finding = {
 }
   [@@deriving show]
 
-type error_span = Semgrep_output_v0_t.error_span = {
+type error_span = Semgrep_output_v1_t.error_span = {
   file: string;
   start: position_bis;
   end_ (*atd end *): position_bis;
@@ -232,32 +232,32 @@ type error_span = Semgrep_output_v0_t.error_span = {
 }
   [@@deriving show]
 
-type cve_result = Semgrep_output_v0_t.cve_result = {
+type cve_result = Semgrep_output_v1_t.cve_result = {
   url: string;
   filename: string;
   funcnames: string list
 }
   [@@deriving show]
 
-type cve_results = Semgrep_output_v0_t.cve_results [@@deriving show]
+type cve_results = Semgrep_output_v1_t.cve_results [@@deriving show]
 
-type core_timing = Semgrep_output_v0_t.core_timing = {
+type core_timing = Semgrep_output_v1_t.core_timing = {
   targets: target_time list;
   rules: rule_id list;
   rules_parse_time: float option
 }
   [@@deriving show]
 
-type core_stats = Semgrep_output_v0_t.core_stats = {
+type core_stats = Semgrep_output_v1_t.core_stats = {
   okfiles: int;
   errorfiles: int
 }
   [@@deriving show]
 
-type core_severity = Semgrep_output_v0_t.core_severity =  Error | Warning 
+type core_severity = Semgrep_output_v1_t.core_severity =  Error | Warning 
   [@@deriving show]
 
-type core_error_kind = Semgrep_output_v0_t.core_error_kind = 
+type core_error_kind = Semgrep_output_v1_t.core_error_kind = 
     LexicalError
   | ParseError
   | SpecifiedParseError
@@ -275,7 +275,7 @@ type core_error_kind = Semgrep_output_v0_t.core_error_kind =
 
   [@@deriving show]
 
-type core_error = Semgrep_output_v0_t.core_error = {
+type core_error = Semgrep_output_v1_t.core_error = {
   rule_id: rule_id option;
   error_type: core_error_kind;
   severity: core_severity;
@@ -285,7 +285,7 @@ type core_error = Semgrep_output_v0_t.core_error = {
 }
   [@@deriving show]
 
-type core_match_results = Semgrep_output_v0_t.core_match_results = {
+type core_match_results = Semgrep_output_v1_t.core_match_results = {
   matches: core_match list;
   errors: core_error list;
   skipped_targets: skipped_target list option;
@@ -296,7 +296,7 @@ type core_match_results = Semgrep_output_v0_t.core_match_results = {
 }
   [@@deriving show]
 
-type cli_target_times = Semgrep_output_v0_t.cli_target_times = {
+type cli_target_times = Semgrep_output_v1_t.cli_target_times = {
   path: string;
   num_bytes: int;
   match_times: float list;
@@ -305,7 +305,7 @@ type cli_target_times = Semgrep_output_v0_t.cli_target_times = {
 }
   [@@deriving show]
 
-type cli_timing = Semgrep_output_v0_t.cli_timing = {
+type cli_timing = Semgrep_output_v1_t.cli_timing = {
   rules: rule_id_dict list;
   rules_parse_time: float;
   profiling_times: (string * float) list;
@@ -314,27 +314,27 @@ type cli_timing = Semgrep_output_v0_t.cli_timing = {
 }
   [@@deriving show]
 
-type cli_skipped_target = Semgrep_output_v0_t.cli_skipped_target = {
+type cli_skipped_target = Semgrep_output_v1_t.cli_skipped_target = {
   path: string;
   reason: string
 }
   [@@deriving show]
 
-type cli_paths = Semgrep_output_v0_t.cli_paths = {
+type cli_paths = Semgrep_output_v1_t.cli_paths = {
   scanned: string list;
   _comment: string option;
   skipped: cli_skipped_target list option
 }
   [@@deriving show]
 
-type cli_output_extra = Semgrep_output_v0_t.cli_output_extra = {
+type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   paths: cli_paths;
   time: cli_timing option;
   explanations: matching_explanation list option
 }
   [@@deriving show]
 
-type cli_match_extra = Semgrep_output_v0_t.cli_match_extra = {
+type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   metavars: metavars option;
   fingerprint: string;
   lines: string;
@@ -350,7 +350,7 @@ type cli_match_extra = Semgrep_output_v0_t.cli_match_extra = {
 }
   [@@deriving show]
 
-type cli_match = Semgrep_output_v0_t.cli_match = {
+type cli_match = Semgrep_output_v1_t.cli_match = {
   check_id: rule_id;
   path: string;
   start: position;
@@ -359,7 +359,7 @@ type cli_match = Semgrep_output_v0_t.cli_match = {
 }
   [@@deriving show]
 
-type cli_error = Semgrep_output_v0_t.cli_error = {
+type cli_error = Semgrep_output_v1_t.cli_error = {
   code: int;
   level: string;
   type_: string;
@@ -373,7 +373,7 @@ type cli_error = Semgrep_output_v0_t.cli_error = {
 }
   [@@deriving show]
 
-type cli_output = Semgrep_output_v0_t.cli_output = {
+type cli_output = Semgrep_output_v1_t.cli_output = {
   version: semver option;
   errors: cli_error list;
   results: cli_match list;
@@ -383,7 +383,7 @@ type cli_output = Semgrep_output_v0_t.cli_output = {
 }
   [@@deriving show]
 
-type api_scans_findings = Semgrep_output_v0_t.api_scans_findings = {
+type api_scans_findings = Semgrep_output_v1_t.api_scans_findings = {
   findings: finding list;
   token: string option;
   gitlab_token: string option;
