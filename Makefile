@@ -2,7 +2,7 @@
 # 'atd', 'atdpy', and 'atdts' to regenerate the code. See the setup
 # target below.
 
-VER=v0
+VER=v1
 
 # Those files are in lowercase because atdpy/atdts seems to
 # generate lowercase files, even though the input is capitalized

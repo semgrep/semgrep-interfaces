@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "cli_output",
-  "description": "Translated by atdcat from 'semgrep_output_v0.atd'.",
+  "description": "Translated by atdcat from 'semgrep_output_v1.atd'.",
   "type": "object",
   "required": [ "errors", "results", "paths" ],
   "properties": {
