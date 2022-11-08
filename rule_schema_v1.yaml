@@ -416,6 +416,7 @@ $defs:
     type: object
     properties:
       pattern-inside:
+        title: Return findings only from within snippets Semgrep pattern matches
         $ref: "#/$defs/general-pattern-content"
     required:
       - pattern-inside
@@ -424,6 +425,7 @@ $defs:
     type: object
     properties:
       pattern-not-inside:
+        title: Do not return findings from within snippets Semgrep pattern matches
         $ref: "#/$defs/general-pattern-content"
     required:
       - pattern-not-inside
@@ -432,6 +434,7 @@ $defs:
     type: object
     properties:
       pattern-not:
+        title: Do not return finding where Semgrep pattern matches exactly
         $ref: "#/$defs/general-pattern-content"
     required:
       - pattern-not
