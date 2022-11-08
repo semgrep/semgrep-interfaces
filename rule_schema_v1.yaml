@@ -6,30 +6,39 @@ $defs:
     title: "Return finding where code matches against the following pattern"
     oneOf:
     - type: string
-    - type: object
-      oneOf:
-        - required: [ pattern ]
-        - required: [ pattern-regex ]
-        - required: [ patterns ]
-        - required: [ pattern-either ]
-        - required: [ pattern-not ]
-        - required: [ pattern-inside ]
-        - required: [ pattern-not-inside ]
-      properties:
-        pattern:
-          type: string
-        pattern-regex:
-          type: string
-        patterns:
-          $ref: "#/$defs/patterns-content"
-        pattern-either:
-          $ref: "#/$defs/pattern-either-content"
-        pattern-not:
-          $ref: "#/$defs/general-pattern-content"
-        pattern-inside:
-          $ref: "#/$defs/general-pattern-content"
-        pattern-not-inside:
-          $ref: "#/$defs/general-pattern-content"
+    # This is scuffed, but it seems that `allOf` does not short circuit.
+    # This schema can potentially run on things which are not objects (such as lists), and if that happens,
+    # the validator will crash when it checks the keys of the object.
+    # I would normally just use `allOf`, but since it doensn't short circuit, I had to instead make it this
+    # weird `if-then-else` thing to properly skip the keys check on a non-object.
+    - if:
+        type: object
+      then:
+        oneOf:
+          - required: [ pattern ]
+          - required: [ pattern-regex ]
+          - required: [ patterns ]
+          - required: [ pattern-either ]
+          - required: [ pattern-not ]
+          - required: [ pattern-inside ]
+          - required: [ pattern-not-inside ]
+        properties:
+          pattern:
+            type: string
+          pattern-regex:
+            type: string
+          patterns:
+            $ref: "#/$defs/patterns-content"
+          pattern-either:
+            $ref: "#/$defs/pattern-either-content"
+          pattern-not:
+            $ref: "#/$defs/general-pattern-content"
+          pattern-inside:
+            $ref: "#/$defs/general-pattern-content"
+          pattern-not-inside:
+            $ref: "#/$defs/general-pattern-content"
+      else:
+        type: object
   patterns-content:
     type: array
     title: "Return finding where all of the nested conditions are true"
