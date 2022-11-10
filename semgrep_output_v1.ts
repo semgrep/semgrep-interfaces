@@ -39,9 +39,14 @@ export type CoreMatchExtra = {
   rendered_fix?: string;
 }
 
+export type CoreMatchCallTrace =
+| { kind: 'CoreLoc'; value: Location }
+| { kind: 'CoreCall'; value: [Location, CoreMatchIntermediateVar[], CoreMatchCallTrace] }
+
 export type CoreMatchDataflowTrace = {
-  taint_source?: Location;
+  taint_source?: CoreMatchCallTrace;
   intermediate_vars?: CoreMatchIntermediateVar[];
+  taint_sink?: CoreMatchCallTrace;
 }
 
 export type CoreMatchIntermediateVar = {
@@ -206,9 +211,14 @@ export type PositionBis = {
   col: Int;
 }
 
+export type CliMatchCallTrace =
+| { kind: 'CliLoc'; value: [Location, string] }
+| { kind: 'CliCall'; value: [[Location, string], CliMatchIntermediateVar[], CliMatchCallTrace] }
+
 export type CliMatchDataflowTrace = {
-  taint_source?: CliMatchTaintSource;
+  taint_source?: CliMatchCallTrace;
   intermediate_vars?: CliMatchIntermediateVar[];
+  taint_sink?: CliMatchCallTrace;
 }
 
 export type CliMatchTaintSource = {
@@ -457,17 +467,41 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
   };
 }
 
+export function writeCoreMatchCallTrace(x: CoreMatchCallTrace, context: any = x): any {
+  switch (x.kind) {
+    case 'CoreLoc':
+      return ['CoreLoc', writeLocation(x.value, x)]
+    case 'CoreCall':
+      return ['CoreCall', ((x, context) => [writeLocation(x[0], x), _atd_write_array(writeCoreMatchIntermediateVar)(x[1], x), writeCoreMatchCallTrace(x[2], x)])(x.value, x)]
+  }
+}
+
+export function readCoreMatchCallTrace(x: any, context: any = x): CoreMatchCallTrace {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'CoreLoc':
+      return { kind: 'CoreLoc', value: readLocation(x[1], x) }
+    case 'CoreCall':
+      return { kind: 'CoreCall', value: ((x, context): [Location, CoreMatchIntermediateVar[], CoreMatchCallTrace] => { _atd_check_json_tuple(3, x, context); return [readLocation(x[0], x), _atd_read_array(readCoreMatchIntermediateVar)(x[1], x), readCoreMatchCallTrace(x[2], x)] })(x[1], x) }
+    default:
+      _atd_bad_json('CoreMatchCallTrace', x, context)
+      throw new Error('impossible')
+  }
+}
+
 export function writeCoreMatchDataflowTrace(x: CoreMatchDataflowTrace, context: any = x): any {
   return {
-    'taint_source': _atd_write_optional_field(writeLocation, x.taint_source, x),
+    'taint_source': _atd_write_optional_field(writeCoreMatchCallTrace, x.taint_source, x),
     'intermediate_vars': _atd_write_optional_field(_atd_write_array(writeCoreMatchIntermediateVar), x.intermediate_vars, x),
+    'taint_sink': _atd_write_optional_field(writeCoreMatchCallTrace, x.taint_sink, x),
   };
 }
 
 export function readCoreMatchDataflowTrace(x: any, context: any = x): CoreMatchDataflowTrace {
   return {
-    taint_source: _atd_read_optional_field(readLocation, x['taint_source'], x),
+    taint_source: _atd_read_optional_field(readCoreMatchCallTrace, x['taint_source'], x),
     intermediate_vars: _atd_read_optional_field(_atd_read_array(readCoreMatchIntermediateVar), x['intermediate_vars'], x),
+    taint_sink: _atd_read_optional_field(readCoreMatchCallTrace, x['taint_sink'], x),
   };
 }
 
@@ -993,17 +1027,41 @@ export function readPositionBis(x: any, context: any = x): PositionBis {
   };
 }
 
+export function writeCliMatchCallTrace(x: CliMatchCallTrace, context: any = x): any {
+  switch (x.kind) {
+    case 'CliLoc':
+      return ['CliLoc', ((x, context) => [writeLocation(x[0], x), _atd_write_string(x[1], x)])(x.value, x)]
+    case 'CliCall':
+      return ['CliCall', ((x, context) => [((x, context) => [writeLocation(x[0], x), _atd_write_string(x[1], x)])(x[0], x), _atd_write_array(writeCliMatchIntermediateVar)(x[1], x), writeCliMatchCallTrace(x[2], x)])(x.value, x)]
+  }
+}
+
+export function readCliMatchCallTrace(x: any, context: any = x): CliMatchCallTrace {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'CliLoc':
+      return { kind: 'CliLoc', value: ((x, context): [Location, string] => { _atd_check_json_tuple(2, x, context); return [readLocation(x[0], x), _atd_read_string(x[1], x)] })(x[1], x) }
+    case 'CliCall':
+      return { kind: 'CliCall', value: ((x, context): [[Location, string], CliMatchIntermediateVar[], CliMatchCallTrace] => { _atd_check_json_tuple(3, x, context); return [((x, context): [Location, string] => { _atd_check_json_tuple(2, x, context); return [readLocation(x[0], x), _atd_read_string(x[1], x)] })(x[0], x), _atd_read_array(readCliMatchIntermediateVar)(x[1], x), readCliMatchCallTrace(x[2], x)] })(x[1], x) }
+    default:
+      _atd_bad_json('CliMatchCallTrace', x, context)
+      throw new Error('impossible')
+  }
+}
+
 export function writeCliMatchDataflowTrace(x: CliMatchDataflowTrace, context: any = x): any {
   return {
-    'taint_source': _atd_write_optional_field(writeCliMatchTaintSource, x.taint_source, x),
+    'taint_source': _atd_write_optional_field(writeCliMatchCallTrace, x.taint_source, x),
     'intermediate_vars': _atd_write_optional_field(_atd_write_array(writeCliMatchIntermediateVar), x.intermediate_vars, x),
+    'taint_sink': _atd_write_optional_field(writeCliMatchCallTrace, x.taint_sink, x),
   };
 }
 
 export function readCliMatchDataflowTrace(x: any, context: any = x): CliMatchDataflowTrace {
   return {
-    taint_source: _atd_read_optional_field(readCliMatchTaintSource, x['taint_source'], x),
+    taint_source: _atd_read_optional_field(readCliMatchCallTrace, x['taint_source'], x),
     intermediate_vars: _atd_read_optional_field(_atd_read_array(readCliMatchIntermediateVar), x['intermediate_vars'], x),
+    taint_sink: _atd_read_optional_field(readCliMatchCallTrace, x['taint_sink'], x),
   };
 }
 
