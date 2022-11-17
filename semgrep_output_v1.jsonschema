@@ -5,7 +5,7 @@
   "type": "object",
   "required": [ "errors", "results", "paths" ],
   "properties": {
-    "version": { "$ref": "#/definitions/semver" },
+    "version": { "$ref": "#/definitions/version" },
     "errors": {
       "type": "array",
       "items": { "$ref": "#/definitions/cli_error" }
@@ -23,7 +23,7 @@
   },
   "definitions": {
     "raw_json": {},
-    "semver": { "type": "string" },
+    "version": { "type": "string" },
     "position": {
       "type": "object",
       "required": [ "line", "col", "offset" ],

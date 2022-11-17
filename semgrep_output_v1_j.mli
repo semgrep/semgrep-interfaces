@@ -86,6 +86,8 @@ type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
 }
   [@@deriving show]
 
+type version = Semgrep_output_v1_t.version [@@deriving show]
+
 type transitivity = Semgrep_output_v1_t.transitivity [@@deriving show]
 
 type rule_times = Semgrep_output_v1_t.rule_times = {
@@ -122,8 +124,6 @@ type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
   position: position
 }
   [@@deriving show]
-
-type semver = Semgrep_output_v1_t.semver [@@deriving show]
 
 type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show]
 
@@ -374,7 +374,7 @@ type cli_error = Semgrep_output_v1_t.cli_error = {
   [@@deriving show]
 
 type cli_output = Semgrep_output_v1_t.cli_output = {
-  version: semver option;
+  version: version option;
   errors: cli_error list;
   results: cli_match list;
   paths: cli_paths;
@@ -633,6 +633,26 @@ val matching_explanation_of_string :
   string -> matching_explanation
   (** Deserialize JSON data of type {!type:matching_explanation}. *)
 
+val write_version :
+  Bi_outbuf.t -> version -> unit
+  (** Output a JSON value of type {!type:version}. *)
+
+val string_of_version :
+  ?len:int -> version -> string
+  (** Serialize a value of type {!type:version}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_version :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> version
+  (** Input JSON data of type {!type:version}. *)
+
+val version_of_string :
+  string -> version
+  (** Deserialize JSON data of type {!type:version}. *)
+
 val write_transitivity :
   Bi_outbuf.t -> transitivity -> unit
   (** Output a JSON value of type {!type:transitivity}. *)
@@ -752,26 +772,6 @@ val read_skipped_rule :
 val skipped_rule_of_string :
   string -> skipped_rule
   (** Deserialize JSON data of type {!type:skipped_rule}. *)
-
-val write_semver :
-  Bi_outbuf.t -> semver -> unit
-  (** Output a JSON value of type {!type:semver}. *)
-
-val string_of_semver :
-  ?len:int -> semver -> string
-  (** Serialize a value of type {!type:semver}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_semver :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> semver
-  (** Input JSON data of type {!type:semver}. *)
-
-val semver_of_string :
-  string -> semver
-  (** Deserialize JSON data of type {!type:semver}. *)
 
 val write_ecosystem :
   Bi_outbuf.t -> ecosystem -> unit
