@@ -1,15 +1,15 @@
 (*****************************************************************************)
 (* Prelude *)
 (*****************************************************************************)
-(* Type definitions for Semgrep CLI JSON output format using ATD.
+(* Specification of the Semgrep CLI JSON output format using ATD
+ * (see https://atd.readthedocs.io/en/latest/ for more information on ATD).
  *
- * This file specifies for now mostly the JSON format of the 'scan' command
- * (the default command of semgrep).
+ * This file specifies for now mostly the JSON format of the 'semgrep scan'
+ * command, the default command of semgrep.
  *
- * For the definitions of the Semgrep input, see the rule_schema.yaml file
- * in the semgrep repository.
+ * For the definitions of the Semgrep input, see rule_schema_v1.yaml.
  *
- * This file has the _v0 suffix to explicitely represent the
+ * This file has the _v1 suffix to explicitely represent the
  * version of this JSON format. If you need to extend this file, please
  * be careful because you may break consumers of this format (e.g., the
  * Semgrep playground or Semgrep App backend or external users of this JSON). See
@@ -27,6 +27,8 @@
  * LATER: when ATD gets a module system, we can split this file in
  * different files (e.g., in Output_from_core.atd), but for now it's simpler
  * to have everything in one file.
+ * LATER: when osemgrep is done, we probably can even remove those intermediate
+ * types.
  *
  * This file is translated into OCaml modules by atdgen:
  *  - Xxx_t: type definitions
@@ -62,8 +64,7 @@ type raw_json <ocaml module="Yojson.Basic" t="t" attr="deriving show"> = abstrac
 (*****************************************************************************)
 (* Versioning *)
 (*****************************************************************************)
-(* semantic versioning, see http://semver.org/spec/v2.0.0.html *)
-type semver <ocaml attr="deriving show"> = string (* e.g., "0.91.0" *)
+type version <ocaml attr="deriving show"> = string (* e.g., "1.1.0" *)
 
 (*****************************************************************************)
 (* Location *)
@@ -88,12 +89,18 @@ type location
 }
 
 (*****************************************************************************)
-(* Core Match result *)
+(* Rule id *)
 (*****************************************************************************)
 
+(* e.g., "javascript.security.do-not-use-eval" *)
 type rule_id
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = string
+
+(*****************************************************************************)
+(* Core Match result *)
+(*****************************************************************************)
+(* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
 
 type core_match
   <ocaml attr="deriving show">
@@ -140,6 +147,10 @@ type core_match_intermediate_var
    * plans to extend this with more information *)
 }
 
+(*****************************************************************************)
+(* Metavariables *)
+(*****************************************************************************)
+
 (* Name/value map of the matched metavariables.
  * The leading '$' must be included in the metavariable name.
  * TODO: semgrep-core always return a metavars, but dependency_aware Python code
@@ -179,6 +190,7 @@ type svalue_value
 (*****************************************************************************)
 (* Core Errors *)
 (*****************************************************************************)
+(* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
 
 (* See Semgrep_error_code.ml *)
 type core_error
@@ -285,6 +297,7 @@ type skipped_rule
 (*****************************************************************************)
 (* Core Profiling information *)
 (*****************************************************************************)
+(* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
 
 type core_timing
   <ocaml attr="deriving show">
@@ -322,7 +335,7 @@ type rule_times
 (*****************************************************************************)
 (* coupling: semgrep-core/src/core/Matching_explanation.ml
  * LATER: merge with Matching_explanation.t at some point
- *)
+ * EXPERIMENTAL *)
 type matching_explanation
      <ocaml attr="deriving show">
      <python decorator="dataclass(frozen=True)"> = {
@@ -371,6 +384,7 @@ type matching_operation
 (*****************************************************************************)
 (* Synthesizing from diffs (see locate_patched_functions in Synthesizing.mli) *)
 (*****************************************************************************)
+(* EXPERIMENTAL *)
 type cve_result
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
@@ -386,6 +400,7 @@ type cve_results
 (*****************************************************************************)
 (* Semgrep-core final output  *)
 (*****************************************************************************)
+(* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
 type core_match_results
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
@@ -409,15 +424,11 @@ type core_match_results
 (* CLI Errors (called SemgrepError in error.py) *)
 (*****************************************************************************)
 
-(* TODO: replace SemgrepCoreError in error.py or use CliError as component *)
-(* TODO: try to make it as close as possible to 'error' above *)
-(* LATER: maybe replace those dataclasses.replace() in error.py
- * with direct assign to the field? after all we didn't generate
- * a frozen dataclass here
- *)
+(* TODO: try to make it as close as possible to 'core_error' above *)
 type cli_error<ocaml attr="deriving show"> = {
+  (* exit code? *)
   code: int;
-  (* TODO: use a variant *)
+  (* TODO: use a variant (Warning | Error | ...) *)
   level: string;
   (* TODO: use a variant that or inherit/extend core_error_kind
    * Right now we can't just use core_error_kind because SemgrepException
@@ -441,7 +452,6 @@ type cli_error<ocaml attr="deriving show"> = {
   ?help: string option;
 }
 
-(* TODO: get rid of rule_lang.Span *)
 type error_span <ocaml attr="deriving show"> = {
     (* for InvalidRuleSchemaError *)
     (* LATER: could inherit location; but file: vs path: *)
@@ -479,7 +489,7 @@ type position_bis <ocaml attr="deriving show"> = {
  *  and an adjusted start/end within just the pattern
  *  Used to report playground parse errors in the simpler editor"
  *)
-
+(* EXPERIMENTAL *)
 type cli_match_dataflow_trace
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
@@ -492,6 +502,7 @@ type cli_match_dataflow_trace
    * without breaking consumers. *)
 }
 
+(* EXPERIMENTAL *)
 type cli_match_taint_source
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
@@ -501,6 +512,7 @@ type cli_match_taint_source
   content: string;
 }
 
+(* EXPERIMENTAL *)
 type cli_match_intermediate_var
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
@@ -514,19 +526,17 @@ type cli_match_intermediate_var
 }
 
 (*****************************************************************************)
-(* Match result (called RuleMatch in rule_matches.py) *)
+(* Match result *)
 (*****************************************************************************)
 
-(* TODO: replace RuleMatch in rule_matches.py or use CliMatch as component *)
-(* TODO: try to make it as close as possible to 'match_' above *)
+(* TODO: try to make it as close as possible to 'core_match' above *)
 type cli_match <ocaml attr="deriving show"> = {
   check_id: rule_id;
   inherit location;
   extra: cli_match_extra;
 }
 
-(* TODO: use CliMatchExtra as component in RuleMatch *)
-(* TODO: try to make it as close as possible to 'match_extra' above *)
+(* TODO: try to make it as close as possible to 'core_match_extra' above *)
 type cli_match_extra <ocaml attr="deriving show"> = {
   (* TODO: inherit match_extra; but need ?metavars because of dependency_aware code *)
   ?metavars: metavars option;
@@ -547,7 +557,7 @@ type cli_match_extra <ocaml attr="deriving show"> = {
 
   (* extra fields *)
   ?is_ignored: bool option;
-  (* added by dependency_aware code *)
+  (* EXPERIMENTAL: added by dependency_aware code *)
   ?sca_info: sca_info option;
 
   (* TODO: done with monkey patching right now in the Python code,
@@ -555,8 +565,8 @@ type cli_match_extra <ocaml attr="deriving show"> = {
    *)
   ?fixed_lines: string list option;
 
-  (* For now, present only for taint findings. May be extended to others later
-   * on. *)
+  (* EXPERIMENTAL: For now, present only for taint findings. May be extended to others
+   * later on. *)
   ?dataflow_trace: cli_match_dataflow_trace option;
 }
 
@@ -572,7 +582,7 @@ type fix_regex <ocaml attr="deriving show"> = {
 
 type cli_output <ocaml attr="deriving show"> = {
     (* since: 0.92 *)
-    ?version: semver option;
+    ?version: version option;
 
     errors: cli_error list;
     results: cli_match list;
@@ -587,7 +597,7 @@ type cli_output_extra <ocaml attr="deriving show"> = {
     (* used only in TEXT format:
        ?color_output, per_finding_max_lines_limit, per_line_max_chars_limit
      *)
-    (* since semgrep 0.109? *)
+    (* EXPERIMENTAL: since semgrep 0.109? *)
     ?explanations: matching_explanation list option;
 }
 
@@ -650,18 +660,16 @@ type cli_stats <ocaml attr="deriving show"> = {
 }
 *)
 
-
 (*****************************************************************************)
 (* Supply Chain Info *)
 (*****************************************************************************)
-
+(* EXPERIMENTAL *)
 type sca_info <ocaml attr="deriving show"> = {
   reachable: bool;
   reachability_rule: bool;
   sca_finding_schema: int;
   dependency_match: dependency_match;
 }
-
 
 type dependency_match <ocaml attr="deriving show"> = {
   dependency_pattern: dependency_pattern;
@@ -709,9 +717,10 @@ type found_dependency <ocaml attr="deriving show"> = {
 (*****************************************************************************)
 (* TODO: see semgrep/app/scans.py
  * there is also api_scans_meta, api_scans_ignores, and api_scans_complete
+ * EXPERIMENTAL
 *)
 type api_scans_findings <ocaml attr="deriving show"> = {
-  (* TODO: ?version: semver option; *)
+  (* TODO: ?version: version option; *)
    findings: finding list;
    token: string nullable;
    gitlab_token: string nullable;

@@ -854,6 +854,27 @@ class MatchingExplanation:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class Version:
+    """Original type: version"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Version':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Version':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class Direct:
     """Original type: transitivity = [ ... | Direct | ... ]"""
@@ -1234,27 +1255,6 @@ class SkippedRule:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'SkippedRule':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Semver:
-    """Original type: semver"""
-
-    value: str
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Semver':
-        return cls(_atd_read_string(x))
-
-    def to_json(self) -> Any:
-        return _atd_write_string(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Semver':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -2845,7 +2845,7 @@ class CliOutput:
     errors: List[CliError]
     results: List[CliMatch]
     paths: CliPaths
-    version: Optional[Semver] = None
+    version: Optional[Version] = None
     time: Optional[CliTiming] = None
     explanations: Optional[List[MatchingExplanation]] = None
 
@@ -2856,7 +2856,7 @@ class CliOutput:
                 errors=_atd_read_list(CliError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CliOutput', 'errors'),
                 results=_atd_read_list(CliMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CliOutput', 'results'),
                 paths=CliPaths.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutput', 'paths'),
-                version=Semver.from_json(x['version']) if 'version' in x else None,
+                version=Version.from_json(x['version']) if 'version' in x else None,
                 time=CliTiming.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
             )

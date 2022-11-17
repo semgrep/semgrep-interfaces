@@ -86,6 +86,8 @@ type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
 }
   [@@deriving show]
 
+type version = Semgrep_output_v1_t.version [@@deriving show]
+
 type transitivity = Semgrep_output_v1_t.transitivity [@@deriving show]
 
 type rule_times = Semgrep_output_v1_t.rule_times = {
@@ -122,8 +124,6 @@ type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
   position: position
 }
   [@@deriving show]
-
-type semver = Semgrep_output_v1_t.semver [@@deriving show]
 
 type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show]
 
@@ -374,7 +374,7 @@ type cli_error = Semgrep_output_v1_t.cli_error = {
   [@@deriving show]
 
 type cli_output = Semgrep_output_v1_t.cli_output = {
-  version: semver option;
+  version: version option;
   errors: cli_error list;
   results: cli_match list;
   paths: cli_paths;
@@ -2791,6 +2791,18 @@ and read_matching_explanation = (
 )
 and matching_explanation_of_string s =
   read_matching_explanation (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_version = (
+  Yojson.Safe.write_string
+)
+let string_of_version ?(len = 1024) x =
+  let ob = Bi_outbuf.create len in
+  write_version ob x;
+  Bi_outbuf.contents ob
+let read_version = (
+  Atdgen_runtime.Oj_run.read_string
+)
+let version_of_string s =
+  read_version (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_transitivity = (
   fun ob x ->
     match x with
@@ -3863,18 +3875,6 @@ let read_skipped_rule = (
 )
 let skipped_rule_of_string s =
   read_skipped_rule (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_semver = (
-  Yojson.Safe.write_string
-)
-let string_of_semver ?(len = 1024) x =
-  let ob = Bi_outbuf.create len in
-  write_semver ob x;
-  Bi_outbuf.contents ob
-let read_semver = (
-  Atdgen_runtime.Oj_run.read_string
-)
-let semver_of_string s =
-  read_semver (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_ecosystem = (
   fun ob x ->
     match x with
@@ -13022,7 +13022,7 @@ let _43_of_string s =
   read__43 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__42 = (
   Atdgen_runtime.Oj_run.write_std_option (
-    write_semver
+    write_version
   )
 )
 let string_of__42 ?(len = 1024) x =
@@ -13042,7 +13042,7 @@ let read__42 = (
             | "Some" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read_semver
+                  read_version
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -13065,7 +13065,7 @@ let read__42 = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read_semver
+                  read_version
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -13088,7 +13088,7 @@ let write_cli_output : _ -> cli_output -> _ = (
         Bi_outbuf.add_char ob ',';
       Bi_outbuf.add_string ob "\"version\":";
       (
-        write_semver
+        write_version
       )
         ob x;
     );
@@ -13233,7 +13233,7 @@ let read_cli_output = (
               field_version := (
                 Some (
                   (
-                    read_semver
+                    read_version
                   ) p lb
                 )
               );
@@ -13362,7 +13362,7 @@ let read_cli_output = (
                 field_version := (
                   Some (
                     (
-                      read_semver
+                      read_version
                     ) p lb
                   )
                 );

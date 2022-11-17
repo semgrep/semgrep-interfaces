@@ -1,6 +1,6 @@
 (* Yoann Padioleau
  *
- * Copyright (C) 2021 r2c
+ * Copyright (C) 2021, 2022 r2c
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -19,11 +19,12 @@
 (* Type definitions for the generic AST in the ATD format.
  * See https://github.com/ahrefs/atd for more information on ATD.
  *
- * Those definitions will be useful to export the generic AST to JSON,
- * so that other languages (e.g., Python) can leverage the generic AST.
+ * Those definitions are useful to export the generic AST to JSON,
+ * so that other languages (e.g., Python, Javascript) can leverage the
+ * generic AST.
  * Those definitions can also be exported in a typed form to
- * other typed languages (e.g., Java), which provides stronger guarantees
- * when working on the generic AST.
+ * other typed languages (e.g., Java, Scala, Typescript, Mypy), which provides
+ * stronger guarantees when working on the generic AST.
  *
  * DO NOT MODIFY THIS FILE. The "API" defined here should be stable
  * across multiple versions of Semgrep. If you really want to change
@@ -106,6 +107,7 @@ type sid = int (* a single unique gensym'ed number *)
 
 type resolved_name = (resolved_name_kind * sid)
 
+(* EXPERIMENTAL *)
 type resolved_name_kind = [
   (* Global is useful in codemap/efuns to highlight differently and warn
    * about the use of globals inside functions.
@@ -181,6 +183,7 @@ type name_or_dynamic = [
 (* Naming/typing *)
 (*****************************************************************************)
 
+(* EXPERIMENTAL *)
 type id_info = {
   id_resolved: resolved_name option; (* variable tagger (naming) *)
   id_type:     type_         option; (* type checker (typing) *)
@@ -317,6 +320,7 @@ type container_operator = [
  * polluate too much expr with too many constructs.
 *)
 
+(* EXPERIMENTAL *)
 type special = [
   (* special vars *)
   | This | Super (* called 'base' in C# *)
@@ -406,6 +410,7 @@ type incr_decr = [Incr | Decr] (* '++', '--' *)
 
 type prefix_postfix = [Prefix | Postfix]
 
+(* EXPERIMENTAL *)
 type concat_string_kind = [
   (* many languages do not require a special syntax to use interpolated
    * strings e.g. simply "this is {a}". Javascript uses backquotes.
@@ -1035,6 +1040,7 @@ type program = item list
 (* Any *)
 (*****************************************************************************)
 
+(* EXPERIMENTAL *)
 type any = [
 
   | E of expr

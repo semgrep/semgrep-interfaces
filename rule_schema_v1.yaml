@@ -1,16 +1,20 @@
+# Specification of the Semgrep rule YAML syntax, using JSON schema to specify the syntax.
 $id: https://raw.githubusercontent.com/returntocorp/semgrep-interfaces/main/rule_schema_v1.yaml
 $schema: http://json-schema.org/draft-07/schema#
 $comment: "!!If you modify this file, you need to update the submodule in returntocorp/semgrep and returntocorp/semgrep-app!!"
+$comment: "!!If you add new syntax to this file, you probably need to add some EXPERIMENTAL comment before!!"
 $defs:
   general-pattern-content:
     title: "Return finding where code matches against the following pattern"
     oneOf:
     - type: string
-    # This is scuffed, but it seems that `allOf` does not short circuit.
-    # This schema can potentially run on things which are not objects (such as lists), and if that happens,
-    # the validator will crash when it checks the keys of the object.
-    # I would normally just use `allOf`, but since it doensn't short circuit, I had to instead make it this
-    # weird `if-then-else` thing to properly skip the keys check on a non-object.
+    # This is scuffed, but it seems that `allOf` does not short
+    # circuit.  This schema can potentially run on things which are
+    # not objects (such as lists), and if that happens, the validator
+    # will crash when it checks the keys of the object.  I would
+    # normally just use `allOf`, but since it doensn't short circuit,
+    # I had to instead make it this weird `if-then-else` thing to
+    # properly skip the keys check on a non-object.
     - if:
         type: object
       then:
@@ -53,11 +57,11 @@ $defs:
         - $ref: "#/$defs/pattern"
         - $ref: "#/$defs/pattern-regex"
         - $ref: "#/$defs/pattern-not-regex"
-        - $ref: "#/$defs/pattern-where-python"
         - $ref: "#/$defs/metavariable-analysis"
         - $ref: "#/$defs/metavariable-regex"
         - $ref: "#/$defs/metavariable-pattern"
         - $ref: "#/$defs/metavariable-comparison"
+        - $ref: "#/$defs/pattern-where-python"
   pattern-either-content:
     type: array
     title: "Return finding where any of the nested conditions are true"
@@ -125,6 +129,7 @@ $defs:
                       - patterns
                   - required:
                       - pattern-either
+  # EXPERIMENTAL
   r2c-internal-project-depends-on-content:
     type: object
     title: "One or more dependencies that the project contains in a lock file"
@@ -167,6 +172,7 @@ $defs:
                 - package
             - required:
                 - version
+  # EXPERIMENTAL
   join-content:
     type: object
     title: "Join one or more rules together based on metavariable contents"
@@ -448,6 +454,7 @@ $defs:
     required:
       - pattern-not
     additionalProperties: false
+  # DEPRECATED
   pattern-where-python:
     type: object
     properties:
@@ -484,6 +491,7 @@ properties:
           enum:
             - search
             - taint
+            # EXPERIMENTAL
             - join
             - extract
         languages:
@@ -506,16 +514,19 @@ properties:
             - ERROR
             - WARNING
             - INFO
+            # EXPERIMENTAL
             - INVENTORY
             - EXPERIMENT
         pattern-sinks:
           $ref: "#/$defs/taint-content"
         pattern-sources:
           $ref: "#/$defs/taint-content"
-        pattern-propagators:
-          $ref: "#/$defs/taint-content"
         pattern-sanitizers:
           $ref: "#/$defs/taint-content"
+        # EXPERIMENTAL
+        pattern-propagators:
+          $ref: "#/$defs/taint-content"
+        # EXPERIMENTAL
         join:
           $ref: "#/$defs/join-content"
         fix:
@@ -554,8 +565,10 @@ properties:
           $ref: "#/$defs/patterns-content"
         pattern-either:
           $ref: "#/$defs/pattern-either-content"
+        # EXPERIMENTAL
         r2c-internal-project-depends-on:
           $ref: "#/$defs/r2c-internal-project-depends-on-content"
+        # EXPERIMENTAL
         extract:
           title: Metavariable whose content to use as the extracted result for subsequent rules
           type: string
@@ -571,6 +584,7 @@ properties:
       additionalProperties: false
 
       allOf:
+        # EXPERIMENTAL
         - if:
             properties:
               mode:
@@ -623,6 +637,7 @@ properties:
               pattern-either: false
               pattern-regex: false
               join: false
+        # EXPERIMENTAL
         - if:
             properties:
               mode:
@@ -687,6 +702,7 @@ properties:
                     - pattern-either
                 - required:
                     - pattern-regex
+                # EXPERIMENTAL
                 - required:
                     - r2c-internal-project-depends-on
             properties:

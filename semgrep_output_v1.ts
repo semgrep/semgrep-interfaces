@@ -10,7 +10,7 @@
 
 export type RawJson = any
 
-export type Semver = string
+export type Version = string
 
 export type Position = {
   line: Int;
@@ -251,7 +251,7 @@ export type FixRegex = {
 }
 
 export type CliOutput = {
-  version?: Semver;
+  version?: Version;
   errors: CliError[];
   results: CliMatch[];
   paths: CliPaths;
@@ -375,11 +375,11 @@ export function readRawJson(x: any, context: any = x): RawJson {
   return ((x: any): any => x)(x, context);
 }
 
-export function writeSemver(x: Semver, context: any = x): any {
+export function writeVersion(x: Version, context: any = x): any {
   return _atd_write_string(x, context);
 }
 
-export function readSemver(x: any, context: any = x): Semver {
+export function readVersion(x: any, context: any = x): Version {
   return _atd_read_string(x, context);
 }
 
@@ -1107,7 +1107,7 @@ export function readFixRegex(x: any, context: any = x): FixRegex {
 
 export function writeCliOutput(x: CliOutput, context: any = x): any {
   return {
-    'version': _atd_write_optional_field(writeSemver, x.version, x),
+    'version': _atd_write_optional_field(writeVersion, x.version, x),
     'errors': _atd_write_required_field('CliOutput', 'errors', _atd_write_array(writeCliError), x.errors, x),
     'results': _atd_write_required_field('CliOutput', 'results', _atd_write_array(writeCliMatch), x.results, x),
     'paths': _atd_write_required_field('CliOutput', 'paths', writeCliPaths, x.paths, x),
@@ -1118,7 +1118,7 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
 
 export function readCliOutput(x: any, context: any = x): CliOutput {
   return {
-    version: _atd_read_optional_field(readSemver, x['version'], x),
+    version: _atd_read_optional_field(readVersion, x['version'], x),
     errors: _atd_read_required_field('CliOutput', 'errors', _atd_read_array(readCliError), x['errors'], x),
     results: _atd_read_required_field('CliOutput', 'results', _atd_read_array(readCliMatch), x['results'], x),
     paths: _atd_read_required_field('CliOutput', 'paths', readCliPaths, x['paths'], x),
