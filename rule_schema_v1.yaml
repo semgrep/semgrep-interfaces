@@ -1,8 +1,10 @@
 # Specification of the Semgrep rule YAML syntax, using JSON schema to specify the syntax.
 $id: https://raw.githubusercontent.com/returntocorp/semgrep-interfaces/main/rule_schema_v1.yaml
 $schema: http://json-schema.org/draft-07/schema#
-$comment: "!!If you modify this file, you need to update the submodule in returntocorp/semgrep and returntocorp/semgrep-app!!"
-$comment: "!!If you add new syntax to this file, you probably need to add some EXPERIMENTAL comment before!!"
+#!!If you modify this file, you need to update the submodule in returntocorp/semgrep
+#  and returntocorp/semgrep-app!!
+#!!If you add new syntax to this file, you probably need to add some EXPERIMENTAL
+#  comment before!!
 $defs:
   general-pattern-content:
     title: "Return finding where code matches against the following pattern"
