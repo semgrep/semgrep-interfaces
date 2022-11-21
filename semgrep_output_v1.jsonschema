@@ -64,15 +64,52 @@
         "rendered_fix": { "type": "string" }
       }
     },
+    "core_match_call_trace": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CoreLoc" },
+            { "$ref": "#/definitions/location" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CoreCall" },
+            {
+              "type": "array",
+              "minItems": 3,
+              "items": false,
+              "prefixItems": [
+                { "$ref": "#/definitions/location" },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/core_match_intermediate_var"
+                  }
+                },
+                { "$ref": "#/definitions/core_match_call_trace" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
     "core_match_dataflow_trace": {
       "type": "object",
       "required": [],
       "properties": {
-        "taint_source": { "$ref": "#/definitions/location" },
+        "taint_source": { "$ref": "#/definitions/core_match_call_trace" },
         "intermediate_vars": {
           "type": "array",
           "items": { "$ref": "#/definitions/core_match_intermediate_var" }
-        }
+        },
+        "taint_sink": { "$ref": "#/definitions/core_match_call_trace" }
       }
     },
     "core_match_intermediate_var": {
@@ -357,15 +394,68 @@
         "col": { "type": "integer" }
       }
     },
+    "cli_match_call_trace": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CliLoc" },
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "$ref": "#/definitions/location" },
+                { "type": "string" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CliCall" },
+            {
+              "type": "array",
+              "minItems": 3,
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": false,
+                  "prefixItems": [
+                    { "$ref": "#/definitions/location" },
+                    { "type": "string" }
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/cli_match_intermediate_var"
+                  }
+                },
+                { "$ref": "#/definitions/cli_match_call_trace" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
     "cli_match_dataflow_trace": {
       "type": "object",
       "required": [],
       "properties": {
-        "taint_source": { "$ref": "#/definitions/cli_match_taint_source" },
+        "taint_source": { "$ref": "#/definitions/cli_match_call_trace" },
         "intermediate_vars": {
           "type": "array",
           "items": { "$ref": "#/definitions/cli_match_intermediate_var" }
-        }
+        },
+        "taint_sink": { "$ref": "#/definitions/cli_match_call_trace" }
       }
     },
     "cli_match_taint_source": {
