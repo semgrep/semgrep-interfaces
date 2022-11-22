@@ -1001,7 +1001,7 @@ type macro_definition = {
 type directive = [
   (* newvar: *)
   | ImportFrom of (tok (* 'import'/'from' for Python, 'include' for C *) *
-                  module_name * ident * alias option) (* as name alias *)
+                  module_name * (ident * alias option (* as name alias *)) list)
 
   | ImportAs   of (tok * module_name * alias option) (* as name *)
   (* bad practice! hard to resolve name locally *)
