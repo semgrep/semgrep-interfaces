@@ -122,6 +122,13 @@ type core_match_extra
   ?rendered_fix: string option;
 }
 
+type core_match_call_trace
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True, order=True)"> = [
+  | CoreLoc of location
+  | CoreCall of (location * core_match_intermediate_var list * core_match_call_trace) 
+] <ocaml repr="classic">
+
 (* Provides information about dataflow that leads to a finding. For now, just
  * provides taint traces (i.e. information about the taint source and how the
  * source reaches the sink). In the future, we may want to include more dataflow
@@ -130,13 +137,14 @@ type core_match_extra
 type core_match_dataflow_trace
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
-  ?taint_source: location option;
+  ?taint_source: core_match_call_trace option;
   (* Intermediate variables which are involved in the dataflow. For taint, this
    * explains how the taint flows from the source to the sink. *)
   ?intermediate_vars: core_match_intermediate_var list option;
   (* For now, omitting the taint sink, since it's redundant data except for
    * certain cases that only appear with DeepSemgrep. We can add it in later
    * without breaking consumers. *)
+  ?taint_sink: core_match_call_trace option;
 }
 
 type core_match_intermediate_var
@@ -484,6 +492,13 @@ type position_bis <ocaml attr="deriving show"> = {
   col: int; (* starts from 1 *)
   }
 
+type cli_match_call_trace
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True, order=True)"> = [
+  | CliLoc of (location * string)
+  | CliCall of ((location * string) * cli_match_intermediate_var list * cli_match_call_trace) 
+] <ocaml repr="classic">
+
 (* from rule_lang.py in the Span class
  * "The path to the pattern in the yaml rule
  *  and an adjusted start/end within just the pattern
@@ -493,13 +508,14 @@ type position_bis <ocaml attr="deriving show"> = {
 type cli_match_dataflow_trace
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
-  ?taint_source: cli_match_taint_source option;
+  ?taint_source: cli_match_call_trace option;
   (* Intermediate variables which are involved in the dataflow. For taint, this
    * explains how the taint flows from the source to the sink. *)
   ?intermediate_vars: cli_match_intermediate_var list option;
   (* For now, omitting the taint sink, since it's redundant data except for
    * certain cases that only appear with DeepSemgrep. We can add it in later
    * without breaking consumers. *)
+  ?taint_sink: cli_match_call_trace option;
 }
 
 (* EXPERIMENTAL *)
