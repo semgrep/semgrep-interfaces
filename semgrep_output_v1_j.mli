@@ -349,7 +349,8 @@ type cli_paths = Semgrep_output_v1_t.cli_paths = {
 type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   paths: cli_paths;
   time: cli_timing option;
-  explanations: matching_explanation list option
+  explanations: matching_explanation list option;
+  max_ocaml_heap_words: int
 }
   [@@deriving show]
 
@@ -398,7 +399,8 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   results: cli_match list;
   paths: cli_paths;
   time: cli_timing option;
-  explanations: matching_explanation list option
+  explanations: matching_explanation list option;
+  max_ocaml_heap_words: int
 }
   [@@deriving show]
 

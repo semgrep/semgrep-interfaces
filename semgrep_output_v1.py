@@ -2755,6 +2755,7 @@ class CliOutputExtra:
     """Original type: cli_output_extra = { ... }"""
 
     paths: CliPaths
+    max_ocaml_heap_words: int
     time: Optional[CliTiming] = None
     explanations: Optional[List[MatchingExplanation]] = None
 
@@ -2763,6 +2764,7 @@ class CliOutputExtra:
         if isinstance(x, dict):
             return cls(
                 paths=CliPaths.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutputExtra', 'paths'),
+                max_ocaml_heap_words=_atd_read_int(x['max_ocaml_heap_words']) if 'max_ocaml_heap_words' in x else _atd_missing_json_field('CliOutputExtra', 'max_ocaml_heap_words'),
                 time=CliTiming.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
             )
@@ -2772,6 +2774,7 @@ class CliOutputExtra:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['paths'] = (lambda x: x.to_json())(self.paths)
+        res['max_ocaml_heap_words'] = _atd_write_int(self.max_ocaml_heap_words)
         if self.time is not None:
             res['time'] = (lambda x: x.to_json())(self.time)
         if self.explanations is not None:
@@ -2963,6 +2966,7 @@ class CliOutput:
     errors: List[CliError]
     results: List[CliMatch]
     paths: CliPaths
+    max_ocaml_heap_words: int
     version: Optional[Version] = None
     time: Optional[CliTiming] = None
     explanations: Optional[List[MatchingExplanation]] = None
@@ -2974,6 +2978,7 @@ class CliOutput:
                 errors=_atd_read_list(CliError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CliOutput', 'errors'),
                 results=_atd_read_list(CliMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CliOutput', 'results'),
                 paths=CliPaths.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutput', 'paths'),
+                max_ocaml_heap_words=_atd_read_int(x['max_ocaml_heap_words']) if 'max_ocaml_heap_words' in x else _atd_missing_json_field('CliOutput', 'max_ocaml_heap_words'),
                 version=Version.from_json(x['version']) if 'version' in x else None,
                 time=CliTiming.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
@@ -2986,6 +2991,7 @@ class CliOutput:
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['results'] = _atd_write_list((lambda x: x.to_json()))(self.results)
         res['paths'] = (lambda x: x.to_json())(self.paths)
+        res['max_ocaml_heap_words'] = _atd_write_int(self.max_ocaml_heap_words)
         if self.version is not None:
             res['version'] = (lambda x: x.to_json())(self.version)
         if self.time is not None:

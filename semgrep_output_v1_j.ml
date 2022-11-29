@@ -349,7 +349,8 @@ type cli_paths = Semgrep_output_v1_t.cli_paths = {
 type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   paths: cli_paths;
   time: cli_timing option;
-  explanations: matching_explanation list option
+  explanations: matching_explanation list option;
+  max_ocaml_heap_words: int
 }
   [@@deriving show]
 
@@ -398,7 +399,8 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   results: cli_match list;
   paths: cli_paths;
   time: cli_timing option;
-  explanations: matching_explanation list option
+  explanations: matching_explanation list option;
+  max_ocaml_heap_words: int
 }
   [@@deriving show]
 
@@ -11622,6 +11624,15 @@ let write_cli_output_extra : _ -> cli_output_extra -> _ = (
       )
         ob x;
     );
+    if !is_first then
+      is_first := false
+    else
+      Bi_outbuf.add_char ob ',';
+    Bi_outbuf.add_string ob "\"max_ocaml_heap_words\":";
+    (
+      Yojson.Safe.write_int
+    )
+      ob x.max_ocaml_heap_words;
     Bi_outbuf.add_char ob '}';
 )
 let string_of_cli_output_extra ?(len = 1024) x =
@@ -11635,6 +11646,7 @@ let read_cli_output_extra = (
     let field_paths = ref (None) in
     let field_time = ref (None) in
     let field_explanations = ref (None) in
+    let field_max_ocaml_heap_words = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -11663,6 +11675,14 @@ let read_cli_output_extra = (
             | 12 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
                   2
+                )
+                else (
+                  -1
+                )
+              )
+            | 20 -> (
+                if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'l' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'p' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'w' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 'r' && String.unsafe_get s (pos+18) = 'd' && String.unsafe_get s (pos+19) = 's' then (
+                  3
                 )
                 else (
                   -1
@@ -11704,6 +11724,14 @@ let read_cli_output_extra = (
                 )
               );
             )
+          | 3 ->
+            field_max_ocaml_heap_words := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_int
+                ) p lb
+              )
+            );
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -11736,6 +11764,14 @@ let read_cli_output_extra = (
               | 12 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
                     2
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 20 -> (
+                  if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'l' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'p' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'w' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 'r' && String.unsafe_get s (pos+18) = 'd' && String.unsafe_get s (pos+19) = 's' then (
+                    3
                   )
                   else (
                     -1
@@ -11777,6 +11813,14 @@ let read_cli_output_extra = (
                   )
                 );
               )
+            | 3 ->
+              field_max_ocaml_heap_words := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_int
+                  ) p lb
+                )
+              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -11789,6 +11833,7 @@ let read_cli_output_extra = (
             paths = (match !field_paths with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "paths");
             time = !field_time;
             explanations = !field_explanations;
+            max_ocaml_heap_words = (match !field_max_ocaml_heap_words with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "max_ocaml_heap_words");
           }
          : cli_output_extra)
       )
@@ -13754,6 +13799,15 @@ let write_cli_output : _ -> cli_output -> _ = (
       )
         ob x;
     );
+    if !is_first then
+      is_first := false
+    else
+      Bi_outbuf.add_char ob ',';
+    Bi_outbuf.add_string ob "\"max_ocaml_heap_words\":";
+    (
+      Yojson.Safe.write_int
+    )
+      ob x.max_ocaml_heap_words;
     Bi_outbuf.add_char ob '}';
 )
 let string_of_cli_output ?(len = 1024) x =
@@ -13770,6 +13824,7 @@ let read_cli_output = (
     let field_paths = ref (None) in
     let field_time = ref (None) in
     let field_explanations = ref (None) in
+    let field_max_ocaml_heap_words = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -13828,6 +13883,14 @@ let read_cli_output = (
             | 12 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
                   5
+                )
+                else (
+                  -1
+                )
+              )
+            | 20 -> (
+                if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'l' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'p' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'w' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 'r' && String.unsafe_get s (pos+18) = 'd' && String.unsafe_get s (pos+19) = 's' then (
+                  6
                 )
                 else (
                   -1
@@ -13895,6 +13958,14 @@ let read_cli_output = (
                 )
               );
             )
+          | 6 ->
+            field_max_ocaml_heap_words := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_int
+                ) p lb
+              )
+            );
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -13962,6 +14033,14 @@ let read_cli_output = (
                     -1
                   )
                 )
+              | 20 -> (
+                  if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'l' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'p' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'w' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 'r' && String.unsafe_get s (pos+18) = 'd' && String.unsafe_get s (pos+19) = 's' then (
+                    6
+                  )
+                  else (
+                    -1
+                  )
+                )
               | _ -> (
                   -1
                 )
@@ -14024,6 +14103,14 @@ let read_cli_output = (
                   )
                 );
               )
+            | 6 ->
+              field_max_ocaml_heap_words := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_int
+                  ) p lb
+                )
+              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -14039,6 +14126,7 @@ let read_cli_output = (
             paths = (match !field_paths with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "paths");
             time = !field_time;
             explanations = !field_explanations;
+            max_ocaml_heap_words = (match !field_max_ocaml_heap_words with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "max_ocaml_heap_words");
           }
          : cli_output)
       )

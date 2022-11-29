@@ -3,7 +3,7 @@
   "title": "cli_output",
   "description": "Translated by atdcat from 'semgrep_output_v1.atd'.",
   "type": "object",
-  "required": [ "errors", "results", "paths" ],
+  "required": [ "errors", "results", "paths", "max_ocaml_heap_words" ],
   "properties": {
     "version": { "$ref": "#/definitions/version" },
     "errors": {
@@ -19,7 +19,8 @@
     "explanations": {
       "type": "array",
       "items": { "$ref": "#/definitions/matching_explanation" }
-    }
+    },
+    "max_ocaml_heap_words": { "type": "integer" }
   },
   "definitions": {
     "raw_json": {},
@@ -519,14 +520,15 @@
     },
     "cli_output_extra": {
       "type": "object",
-      "required": [ "paths" ],
+      "required": [ "paths", "max_ocaml_heap_words" ],
       "properties": {
         "paths": { "$ref": "#/definitions/cli_paths" },
         "time": { "$ref": "#/definitions/cli_timing" },
         "explanations": {
           "type": "array",
           "items": { "$ref": "#/definitions/matching_explanation" }
-        }
+        },
+        "max_ocaml_heap_words": { "type": "integer" }
       }
     },
     "cli_paths": {
