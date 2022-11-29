@@ -604,7 +604,6 @@ type cli_output <ocaml attr="deriving show"> = {
 
     errors: cli_error list;
     results: cli_match list;
-
     inherit cli_output_extra;
 }
 
@@ -628,7 +627,7 @@ type cli_paths <ocaml attr="deriving show"> = {
 }
 
 (* LATER: could merge with skipped_target above *)
-type cli_skipped_target <ocaml attr="deriving show"> ={
+type cli_skipped_target <ocaml attr="deriving show"> = {
     path: string;
     (* LATER: use a variant, reuse skip_reason above *)
     reason: string;
