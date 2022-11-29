@@ -426,6 +426,8 @@ type core_match_results
   stats: core_stats;
   (* LATER: rename timing *)
   ?time: core_timing option;
+
+  max_ocaml_heap_words : int;
 }
 
 (*****************************************************************************)
@@ -615,6 +617,8 @@ type cli_output_extra <ocaml attr="deriving show"> = {
      *)
     (* EXPERIMENTAL: since semgrep 0.109? *)
     ?explanations: matching_explanation list option;
+
+    max_ocaml_heap_words: int;
 }
 
 type cli_paths <ocaml attr="deriving show"> = {

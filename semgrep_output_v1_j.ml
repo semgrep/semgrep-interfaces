@@ -105,9 +105,6 @@ type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
 }
   [@@deriving show]
 
-<<<<<<< HEAD
-type version = Semgrep_output_v1_t.version [@@deriving show]
-=======
 type cli_match_call_trace = Semgrep_output_v1_t.cli_match_call_trace = 
     CliLoc of (location * string)
   | CliCall
@@ -118,7 +115,8 @@ type cli_match_call_trace = Semgrep_output_v1_t.cli_match_call_trace =
       )
 
   [@@deriving show]
->>>>>>> b20637e (change and update atd)
+
+type version = Semgrep_output_v1_t.version [@@deriving show]
 
 type transitivity = Semgrep_output_v1_t.transitivity [@@deriving show]
 
@@ -312,7 +310,8 @@ type core_match_results = Semgrep_output_v1_t.core_match_results = {
   skipped_rules: skipped_rule list option;
   explanations: matching_explanation list option;
   stats: core_stats;
-  time: core_timing option
+  time: core_timing option;
+  max_ocaml_heap_words: int
 }
   [@@deriving show]
 
@@ -10059,6 +10058,15 @@ let write_core_match_results : _ -> core_match_results -> _ = (
       )
         ob x;
     );
+    if !is_first then
+      is_first := false
+    else
+      Bi_outbuf.add_char ob ',';
+    Bi_outbuf.add_string ob "\"max_ocaml_heap_words\":";
+    (
+      Yojson.Safe.write_int
+    )
+      ob x.max_ocaml_heap_words;
     Bi_outbuf.add_char ob '}';
 )
 let string_of_core_match_results ?(len = 1024) x =
@@ -10076,6 +10084,7 @@ let read_core_match_results = (
     let field_explanations = ref (None) in
     let field_stats = ref (None) in
     let field_time = ref (None) in
+    let field_max_ocaml_heap_words = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -10142,6 +10151,14 @@ let read_core_match_results = (
             | 13 -> (
                 if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
                   3
+                )
+                else (
+                  -1
+                )
+              )
+            | 20 -> (
+                if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'l' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'p' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'w' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 'r' && String.unsafe_get s (pos+18) = 'd' && String.unsafe_get s (pos+19) = 's' then (
+                  7
                 )
                 else (
                   -1
@@ -10219,6 +10236,14 @@ let read_core_match_results = (
                 )
               );
             )
+          | 7 ->
+            field_max_ocaml_heap_words := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_int
+                ) p lb
+              )
+            );
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -10289,6 +10314,14 @@ let read_core_match_results = (
               | 13 -> (
                   if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
                     3
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 20 -> (
+                  if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'l' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'p' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'w' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 'r' && String.unsafe_get s (pos+18) = 'd' && String.unsafe_get s (pos+19) = 's' then (
+                    7
                   )
                   else (
                     -1
@@ -10366,6 +10399,14 @@ let read_core_match_results = (
                   )
                 );
               )
+            | 7 ->
+              field_max_ocaml_heap_words := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_int
+                  ) p lb
+                )
+              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -10382,6 +10423,7 @@ let read_core_match_results = (
             explanations = !field_explanations;
             stats = (match !field_stats with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "stats");
             time = !field_time;
+            max_ocaml_heap_words = (match !field_max_ocaml_heap_words with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "max_ocaml_heap_words");
           }
          : core_match_results)
       )

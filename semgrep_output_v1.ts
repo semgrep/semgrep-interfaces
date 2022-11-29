@@ -179,6 +179,7 @@ export type CoreMatchResults = {
   explanations?: MatchingExplanation[];
   stats: CoreStats;
   time?: CoreTiming;
+  max_ocaml_heap_words: Int;
 }
 
 export type CliError = {
@@ -940,6 +941,7 @@ export function writeCoreMatchResults(x: CoreMatchResults, context: any = x): an
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'stats': _atd_write_required_field('CoreMatchResults', 'stats', writeCoreStats, x.stats, x),
     'time': _atd_write_optional_field(writeCoreTiming, x.time, x),
+    'max_ocaml_heap_words': _atd_write_required_field('CoreMatchResults', 'max_ocaml_heap_words', _atd_write_int, x.max_ocaml_heap_words, x),
   };
 }
 
@@ -952,6 +954,7 @@ export function readCoreMatchResults(x: any, context: any = x): CoreMatchResults
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     stats: _atd_read_required_field('CoreMatchResults', 'stats', readCoreStats, x['stats'], x),
     time: _atd_read_optional_field(readCoreTiming, x['time'], x),
+    max_ocaml_heap_words: _atd_read_required_field('CoreMatchResults', 'max_ocaml_heap_words', _atd_read_int, x['max_ocaml_heap_words'], x),
   };
 }
 

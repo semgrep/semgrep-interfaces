@@ -105,9 +105,6 @@ type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
 }
   [@@deriving show]
 
-<<<<<<< HEAD
-type version = Semgrep_output_v1_t.version [@@deriving show]
-=======
 type cli_match_call_trace = Semgrep_output_v1_t.cli_match_call_trace = 
     CliLoc of (location * string)
   | CliCall
@@ -118,7 +115,8 @@ type cli_match_call_trace = Semgrep_output_v1_t.cli_match_call_trace =
       )
 
   [@@deriving show]
->>>>>>> b20637e (change and update atd)
+
+type version = Semgrep_output_v1_t.version [@@deriving show]
 
 type transitivity = Semgrep_output_v1_t.transitivity [@@deriving show]
 
@@ -312,7 +310,8 @@ type core_match_results = Semgrep_output_v1_t.core_match_results = {
   skipped_rules: skipped_rule list option;
   explanations: matching_explanation list option;
   stats: core_stats;
-  time: core_timing option
+  time: core_timing option;
+  max_ocaml_heap_words: int
 }
   [@@deriving show]
 
@@ -699,15 +698,6 @@ val matching_explanation_of_string :
   string -> matching_explanation
   (** Deserialize JSON data of type {!type:matching_explanation}. *)
 
-<<<<<<< HEAD
-val write_version :
-  Bi_outbuf.t -> version -> unit
-  (** Output a JSON value of type {!type:version}. *)
-
-val string_of_version :
-  ?len:int -> version -> string
-  (** Serialize a value of type {!type:version}
-=======
 val write_cli_match_call_trace :
   Bi_outbuf.t -> cli_match_call_trace -> unit
   (** Output a JSON value of type {!type:cli_match_call_trace}. *)
@@ -715,21 +705,11 @@ val write_cli_match_call_trace :
 val string_of_cli_match_call_trace :
   ?len:int -> cli_match_call_trace -> string
   (** Serialize a value of type {!type:cli_match_call_trace}
->>>>>>> b20637e (change and update atd)
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-<<<<<<< HEAD
-val read_version :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> version
-  (** Input JSON data of type {!type:version}. *)
-
-val version_of_string :
-  string -> version
-  (** Deserialize JSON data of type {!type:version}. *)
-=======
 val read_cli_match_call_trace :
   Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match_call_trace
   (** Input JSON data of type {!type:cli_match_call_trace}. *)
@@ -737,7 +717,26 @@ val read_cli_match_call_trace :
 val cli_match_call_trace_of_string :
   string -> cli_match_call_trace
   (** Deserialize JSON data of type {!type:cli_match_call_trace}. *)
->>>>>>> b20637e (change and update atd)
+
+val write_version :
+  Bi_outbuf.t -> version -> unit
+  (** Output a JSON value of type {!type:version}. *)
+
+val string_of_version :
+  ?len:int -> version -> string
+  (** Serialize a value of type {!type:version}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_version :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> version
+  (** Input JSON data of type {!type:version}. *)
+
+val version_of_string :
+  string -> version
+  (** Deserialize JSON data of type {!type:version}. *)
 
 val write_transitivity :
   Bi_outbuf.t -> transitivity -> unit
