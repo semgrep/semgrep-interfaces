@@ -589,7 +589,7 @@ type type_ = [
    * Most record types are defined via a TypeDef and are then referenced
    * via a TyName. Here we have flexible record types (a.k.a. rows in OCaml).
   *)
-  | TyRecordAnon of (class_kind wrap (* 'struct/shape', fake in other *)* field list bracket)
+  | TyRecordAnon of (class_kind wrap_ (* 'struct/shape', fake in other *)* field list bracket)
 
   (* For languages such as Python which abuse expr to represent types.*)
   | TyExpr of expr
@@ -730,7 +730,7 @@ type type_parameter_classic = {
   (* for Rust/C++. Similar to parameter_classic, but with type here. *)
   tp_default : type_ option;
   (* declaration-site variance (Kotlin/Hack/Scala) *)
-  tp_variance : variance wrap option;
+  tp_variance : variance wrap_ option;
 }
 
 (* TODO bracket *)

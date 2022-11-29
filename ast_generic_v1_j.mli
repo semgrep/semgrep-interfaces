@@ -211,7 +211,7 @@ and type_parameter_classic = Ast_generic_v1_t.type_parameter_classic = {
   tp_attrs: attribute list;
   tp_bounds: type_ list;
   tp_default: type_ option;
-  tp_variance: variance option
+  tp_variance: variance wrap_ option
 }
 
 and type_parameters = Ast_generic_v1_t.type_parameters
