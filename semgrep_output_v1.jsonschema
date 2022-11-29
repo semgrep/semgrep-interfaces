@@ -19,8 +19,7 @@
     "explanations": {
       "type": "array",
       "items": { "$ref": "#/definitions/matching_explanation" }
-    },
-    "max_ocaml_heap_words": { "type": "integer" }
+    }
   },
   "definitions": {
     "raw_json": {},
@@ -233,7 +232,7 @@
     },
     "core_timing": {
       "type": "object",
-      "required": [ "targets", "rules" ],
+      "required": [ "targets", "rules", "max_ocaml_heap_words" ],
       "properties": {
         "targets": {
           "type": "array",
@@ -243,7 +242,8 @@
           "type": "array",
           "items": { "$ref": "#/definitions/rule_id" }
         },
-        "rules_parse_time": { "type": "number" }
+        "rules_parse_time": { "type": "number" },
+        "max_ocaml_heap_words": { "type": "integer" }
       }
     },
     "target_time": {
@@ -324,7 +324,7 @@
     },
     "core_match_results": {
       "type": "object",
-      "required": [ "matches", "errors", "stats", "max_ocaml_heap_words" ],
+      "required": [ "matches", "errors", "stats" ],
       "properties": {
         "matches": {
           "type": "array",
@@ -347,8 +347,7 @@
           "items": { "$ref": "#/definitions/matching_explanation" }
         },
         "stats": { "$ref": "#/definitions/core_stats" },
-        "time": { "$ref": "#/definitions/core_timing" },
-        "max_ocaml_heap_words": { "type": "integer" }
+        "time": { "$ref": "#/definitions/core_timing" }
       }
     },
     "cli_error": {
@@ -527,8 +526,7 @@
         "explanations": {
           "type": "array",
           "items": { "$ref": "#/definitions/matching_explanation" }
-        },
-        "max_ocaml_heap_words": { "type": "integer" }
+        }
       }
     },
     "cli_paths": {
@@ -571,7 +569,8 @@
           "type": "array",
           "items": { "$ref": "#/definitions/cli_target_times" }
         },
-        "total_bytes": { "type": "integer" }
+        "total_bytes": { "type": "integer" },
+        "max_ocaml_heap_words": { "type": "integer" }
       }
     },
     "rule_id_dict": {

@@ -2080,6 +2080,7 @@ class CoreTiming:
 
     targets: List[TargetTime]
     rules: List[RuleId]
+    max_ocaml_heap_words: int
     rules_parse_time: Optional[float] = None
 
     @classmethod
@@ -2088,6 +2089,7 @@ class CoreTiming:
             return cls(
                 targets=_atd_read_list(TargetTime.from_json)(x['targets']) if 'targets' in x else _atd_missing_json_field('CoreTiming', 'targets'),
                 rules=_atd_read_list(RuleId.from_json)(x['rules']) if 'rules' in x else _atd_missing_json_field('CoreTiming', 'rules'),
+                max_ocaml_heap_words=_atd_read_int(x['max_ocaml_heap_words']) if 'max_ocaml_heap_words' in x else _atd_missing_json_field('CoreTiming', 'max_ocaml_heap_words'),
                 rules_parse_time=_atd_read_float(x['rules_parse_time']) if 'rules_parse_time' in x else None,
             )
         else:
@@ -2097,6 +2099,7 @@ class CoreTiming:
         res: Dict[str, Any] = {}
         res['targets'] = _atd_write_list((lambda x: x.to_json()))(self.targets)
         res['rules'] = _atd_write_list((lambda x: x.to_json()))(self.rules)
+        res['max_ocaml_heap_words'] = _atd_write_int(self.max_ocaml_heap_words)
         if self.rules_parse_time is not None:
             res['rules_parse_time'] = _atd_write_float(self.rules_parse_time)
         return res
@@ -2557,7 +2560,6 @@ class CoreMatchResults:
     matches: List[CoreMatch]
     errors: List[CoreError]
     stats: CoreStats
-    max_ocaml_heap_words: int
     skipped_targets: Optional[List[SkippedTarget]] = None
     skipped_rules: Optional[List[SkippedRule]] = None
     explanations: Optional[List[MatchingExplanation]] = None
@@ -2570,7 +2572,6 @@ class CoreMatchResults:
                 matches=_atd_read_list(CoreMatch.from_json)(x['matches']) if 'matches' in x else _atd_missing_json_field('CoreMatchResults', 'matches'),
                 errors=_atd_read_list(CoreError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CoreMatchResults', 'errors'),
                 stats=CoreStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CoreMatchResults', 'stats'),
-                max_ocaml_heap_words=_atd_read_int(x['max_ocaml_heap_words']) if 'max_ocaml_heap_words' in x else _atd_missing_json_field('CoreMatchResults', 'max_ocaml_heap_words'),
                 skipped_targets=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
@@ -2584,7 +2585,6 @@ class CoreMatchResults:
         res['matches'] = _atd_write_list((lambda x: x.to_json()))(self.matches)
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['stats'] = (lambda x: x.to_json())(self.stats)
-        res['max_ocaml_heap_words'] = _atd_write_int(self.max_ocaml_heap_words)
         if self.skipped_targets is not None:
             res['skipped'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_targets)
         if self.skipped_rules is not None:
@@ -2652,6 +2652,7 @@ class CliTiming:
     profiling_times: Dict[str, float]
     targets: List[CliTargetTimes]
     total_bytes: int
+    max_ocaml_heap_words: Optional[int] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliTiming':
@@ -2662,6 +2663,7 @@ class CliTiming:
                 profiling_times=_atd_read_assoc_object_into_dict(_atd_read_float)(x['profiling_times']) if 'profiling_times' in x else _atd_missing_json_field('CliTiming', 'profiling_times'),
                 targets=_atd_read_list(CliTargetTimes.from_json)(x['targets']) if 'targets' in x else _atd_missing_json_field('CliTiming', 'targets'),
                 total_bytes=_atd_read_int(x['total_bytes']) if 'total_bytes' in x else _atd_missing_json_field('CliTiming', 'total_bytes'),
+                max_ocaml_heap_words=_atd_read_int(x['max_ocaml_heap_words']) if 'max_ocaml_heap_words' in x else None,
             )
         else:
             _atd_bad_json('CliTiming', x)
@@ -2673,6 +2675,8 @@ class CliTiming:
         res['profiling_times'] = _atd_write_assoc_dict_to_object(_atd_write_float)(self.profiling_times)
         res['targets'] = _atd_write_list((lambda x: x.to_json()))(self.targets)
         res['total_bytes'] = _atd_write_int(self.total_bytes)
+        if self.max_ocaml_heap_words is not None:
+            res['max_ocaml_heap_words'] = _atd_write_int(self.max_ocaml_heap_words)
         return res
 
     @classmethod
@@ -2757,7 +2761,6 @@ class CliOutputExtra:
     paths: CliPaths
     time: Optional[CliTiming] = None
     explanations: Optional[List[MatchingExplanation]] = None
-    max_ocaml_heap_words: Optional[int] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutputExtra':
@@ -2766,7 +2769,6 @@ class CliOutputExtra:
                 paths=CliPaths.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutputExtra', 'paths'),
                 time=CliTiming.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
-                max_ocaml_heap_words=_atd_read_int(x['max_ocaml_heap_words']) if 'max_ocaml_heap_words' in x else None,
             )
         else:
             _atd_bad_json('CliOutputExtra', x)
@@ -2778,8 +2780,6 @@ class CliOutputExtra:
             res['time'] = (lambda x: x.to_json())(self.time)
         if self.explanations is not None:
             res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
-        if self.max_ocaml_heap_words is not None:
-            res['max_ocaml_heap_words'] = _atd_write_int(self.max_ocaml_heap_words)
         return res
 
     @classmethod
@@ -2970,7 +2970,6 @@ class CliOutput:
     version: Optional[Version] = None
     time: Optional[CliTiming] = None
     explanations: Optional[List[MatchingExplanation]] = None
-    max_ocaml_heap_words: Optional[int] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutput':
@@ -2982,7 +2981,6 @@ class CliOutput:
                 version=Version.from_json(x['version']) if 'version' in x else None,
                 time=CliTiming.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
-                max_ocaml_heap_words=_atd_read_int(x['max_ocaml_heap_words']) if 'max_ocaml_heap_words' in x else None,
             )
         else:
             _atd_bad_json('CliOutput', x)
@@ -2998,8 +2996,6 @@ class CliOutput:
             res['time'] = (lambda x: x.to_json())(self.time)
         if self.explanations is not None:
             res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
-        if self.max_ocaml_heap_words is not None:
-            res['max_ocaml_heap_words'] = _atd_write_int(self.max_ocaml_heap_words)
         return res
 
     @classmethod

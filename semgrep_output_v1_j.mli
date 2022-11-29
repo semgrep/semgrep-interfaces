@@ -262,7 +262,8 @@ type cve_results = Semgrep_output_v1_t.cve_results [@@deriving show]
 type core_timing = Semgrep_output_v1_t.core_timing = {
   targets: target_time list;
   rules: rule_id list;
-  rules_parse_time: float option
+  rules_parse_time: float option;
+  max_ocaml_heap_words: int
 }
   [@@deriving show]
 
@@ -310,8 +311,7 @@ type core_match_results = Semgrep_output_v1_t.core_match_results = {
   skipped_rules: skipped_rule list option;
   explanations: matching_explanation list option;
   stats: core_stats;
-  time: core_timing option;
-  max_ocaml_heap_words: int
+  time: core_timing option
 }
   [@@deriving show]
 
@@ -329,7 +329,8 @@ type cli_timing = Semgrep_output_v1_t.cli_timing = {
   rules_parse_time: float;
   profiling_times: (string * float) list;
   targets: cli_target_times list;
-  total_bytes: int
+  total_bytes: int;
+  max_ocaml_heap_words: int option
 }
   [@@deriving show]
 
@@ -349,8 +350,7 @@ type cli_paths = Semgrep_output_v1_t.cli_paths = {
 type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   paths: cli_paths;
   time: cli_timing option;
-  explanations: matching_explanation list option;
-  max_ocaml_heap_words: int option
+  explanations: matching_explanation list option
 }
   [@@deriving show]
 
@@ -399,8 +399,7 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   results: cli_match list;
   paths: cli_paths;
   time: cli_timing option;
-  explanations: matching_explanation list option;
-  max_ocaml_heap_words: int option
+  explanations: matching_explanation list option
 }
   [@@deriving show]
 

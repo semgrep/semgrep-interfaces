@@ -128,6 +128,7 @@ export type CoreTiming = {
   targets: TargetTime[];
   rules: RuleId[];
   rules_parse_time?: number;
+  max_ocaml_heap_words: Int;
 }
 
 export type TargetTime = {
@@ -179,7 +180,6 @@ export type CoreMatchResults = {
   explanations?: MatchingExplanation[];
   stats: CoreStats;
   time?: CoreTiming;
-  max_ocaml_heap_words: Int;
 }
 
 export type CliError = {
@@ -268,14 +268,12 @@ export type CliOutput = {
   paths: CliPaths;
   time?: CliTiming;
   explanations?: MatchingExplanation[];
-  max_ocaml_heap_words?: Int;
 }
 
 export type CliOutputExtra = {
   paths: CliPaths;
   time?: CliTiming;
   explanations?: MatchingExplanation[];
-  max_ocaml_heap_words?: Int;
 }
 
 export type CliPaths = {
@@ -295,6 +293,7 @@ export type CliTiming = {
   profiling_times: [string, number][];
   targets: CliTargetTimes[];
   total_bytes: Int;
+  max_ocaml_heap_words?: Int;
 }
 
 export type RuleIdDict = {
@@ -778,6 +777,7 @@ export function writeCoreTiming(x: CoreTiming, context: any = x): any {
     'targets': _atd_write_required_field('CoreTiming', 'targets', _atd_write_array(writeTargetTime), x.targets, x),
     'rules': _atd_write_required_field('CoreTiming', 'rules', _atd_write_array(writeRuleId), x.rules, x),
     'rules_parse_time': _atd_write_optional_field(_atd_write_float, x.rules_parse_time, x),
+    'max_ocaml_heap_words': _atd_write_required_field('CoreTiming', 'max_ocaml_heap_words', _atd_write_int, x.max_ocaml_heap_words, x),
   };
 }
 
@@ -786,6 +786,7 @@ export function readCoreTiming(x: any, context: any = x): CoreTiming {
     targets: _atd_read_required_field('CoreTiming', 'targets', _atd_read_array(readTargetTime), x['targets'], x),
     rules: _atd_read_required_field('CoreTiming', 'rules', _atd_read_array(readRuleId), x['rules'], x),
     rules_parse_time: _atd_read_optional_field(_atd_read_float, x['rules_parse_time'], x),
+    max_ocaml_heap_words: _atd_read_required_field('CoreTiming', 'max_ocaml_heap_words', _atd_read_int, x['max_ocaml_heap_words'], x),
   };
 }
 
@@ -943,7 +944,6 @@ export function writeCoreMatchResults(x: CoreMatchResults, context: any = x): an
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'stats': _atd_write_required_field('CoreMatchResults', 'stats', writeCoreStats, x.stats, x),
     'time': _atd_write_optional_field(writeCoreTiming, x.time, x),
-    'max_ocaml_heap_words': _atd_write_required_field('CoreMatchResults', 'max_ocaml_heap_words', _atd_write_int, x.max_ocaml_heap_words, x),
   };
 }
 
@@ -956,7 +956,6 @@ export function readCoreMatchResults(x: any, context: any = x): CoreMatchResults
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     stats: _atd_read_required_field('CoreMatchResults', 'stats', readCoreStats, x['stats'], x),
     time: _atd_read_optional_field(readCoreTiming, x['time'], x),
-    max_ocaml_heap_words: _atd_read_required_field('CoreMatchResults', 'max_ocaml_heap_words', _atd_read_int, x['max_ocaml_heap_words'], x),
   };
 }
 
@@ -1176,7 +1175,6 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
     'paths': _atd_write_required_field('CliOutput', 'paths', writeCliPaths, x.paths, x),
     'time': _atd_write_optional_field(writeCliTiming, x.time, x),
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
-    'max_ocaml_heap_words': _atd_write_optional_field(_atd_write_int, x.max_ocaml_heap_words, x),
   };
 }
 
@@ -1188,7 +1186,6 @@ export function readCliOutput(x: any, context: any = x): CliOutput {
     paths: _atd_read_required_field('CliOutput', 'paths', readCliPaths, x['paths'], x),
     time: _atd_read_optional_field(readCliTiming, x['time'], x),
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
-    max_ocaml_heap_words: _atd_read_optional_field(_atd_read_int, x['max_ocaml_heap_words'], x),
   };
 }
 
@@ -1197,7 +1194,6 @@ export function writeCliOutputExtra(x: CliOutputExtra, context: any = x): any {
     'paths': _atd_write_required_field('CliOutputExtra', 'paths', writeCliPaths, x.paths, x),
     'time': _atd_write_optional_field(writeCliTiming, x.time, x),
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
-    'max_ocaml_heap_words': _atd_write_optional_field(_atd_write_int, x.max_ocaml_heap_words, x),
   };
 }
 
@@ -1206,7 +1202,6 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
     paths: _atd_read_required_field('CliOutputExtra', 'paths', readCliPaths, x['paths'], x),
     time: _atd_read_optional_field(readCliTiming, x['time'], x),
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
-    max_ocaml_heap_words: _atd_read_optional_field(_atd_read_int, x['max_ocaml_heap_words'], x),
   };
 }
 
@@ -1247,6 +1242,7 @@ export function writeCliTiming(x: CliTiming, context: any = x): any {
     'profiling_times': _atd_write_required_field('CliTiming', 'profiling_times', _atd_write_assoc_array_to_object(_atd_write_float), x.profiling_times, x),
     'targets': _atd_write_required_field('CliTiming', 'targets', _atd_write_array(writeCliTargetTimes), x.targets, x),
     'total_bytes': _atd_write_required_field('CliTiming', 'total_bytes', _atd_write_int, x.total_bytes, x),
+    'max_ocaml_heap_words': _atd_write_optional_field(_atd_write_int, x.max_ocaml_heap_words, x),
   };
 }
 
@@ -1257,6 +1253,7 @@ export function readCliTiming(x: any, context: any = x): CliTiming {
     profiling_times: _atd_read_required_field('CliTiming', 'profiling_times', _atd_read_assoc_object_into_array(_atd_read_float), x['profiling_times'], x),
     targets: _atd_read_required_field('CliTiming', 'targets', _atd_read_array(readCliTargetTimes), x['targets'], x),
     total_bytes: _atd_read_required_field('CliTiming', 'total_bytes', _atd_read_int, x['total_bytes'], x),
+    max_ocaml_heap_words: _atd_read_optional_field(_atd_read_int, x['max_ocaml_heap_words'], x),
   };
 }
 
