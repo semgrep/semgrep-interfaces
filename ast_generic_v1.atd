@@ -974,22 +974,27 @@ type program = item list
 
 (* EXPERIMENTAL *)
 type any = [
-
   | E of expr
   | S of stmt
-  | Ss of stmt list
-
-  (* also used for semgrep *)
   | T of type_
   | P of pattern
   | At of attribute
   | Fld of field
-  | Args of argument list
-
+  | Ar of argument
+  | Pa of parameter
+  | Ta of type_argument
+  | Tp of type_parameter
+  | Ce of catch_exn
+  | Cs of case
+  | ForOrIfComp of for_or_if_comp
+  | En of entity
   (* misc *)
   | I of ident
+  | Modn of module_name
+  | Di of dotted_ident
+  | Lbli of label_ident
   | Str of string wrap_
-
   | Tk of tok
   | TodoK of todo_kind
+  | Anys of (any list)
   ]
