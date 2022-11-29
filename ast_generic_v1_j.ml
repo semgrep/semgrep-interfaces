@@ -188,9 +188,7 @@ and qualified_info = Ast_generic_v1_t.qualified_info = {
 
 and qualifier = Ast_generic_v1_t.qualifier
 
-and stmt = Ast_generic_v1_t.stmt = { s: stmt_kind; s_id: int }
-
-and stmt_kind = Ast_generic_v1_t.stmt_kind
+and stmt = Ast_generic_v1_t.stmt
 
 and svalue = Ast_generic_v1_t.svalue
 
@@ -5195,7 +5193,7 @@ and write_any = (
       | `TodoK x ->
         Bi_outbuf.add_string ob "[\"TodoK\",";
         (
-          write__1
+          write_todo_kind
         ) ob x;
         Bi_outbuf.add_char ob ']'
 )
@@ -5438,12 +5436,6 @@ and write_case_and_body = (
             Bi_outbuf.add_char ob ']';
         ) ob x;
         Bi_outbuf.add_char ob ']'
-      | `CaseEllipsis x ->
-        Bi_outbuf.add_string ob "[\"CaseEllipsis\",";
-        (
-          write_tok
-        ) ob x;
-        Bi_outbuf.add_char ob ']'
 )
 and string_of_case_and_body ?(len = 1024) x =
   let ob = Bi_outbuf.create len in
@@ -5682,12 +5674,6 @@ and write_definition_kind = (
         Bi_outbuf.add_char ob ']'
       | `VarDef x ->
         Bi_outbuf.add_string ob "[\"VarDef\",";
-        (
-          write_variable_definition
-        ) ob x;
-        Bi_outbuf.add_char ob ']'
-      | `FieldDefColon x ->
-        Bi_outbuf.add_string ob "[\"FieldDefColon\",";
         (
           write_variable_definition
         ) ob x;
@@ -6430,62 +6416,6 @@ and write_expr = (
           write__17
         ) ob x;
         Bi_outbuf.add_char ob ']'
-      | `Ellipsis x ->
-        Bi_outbuf.add_string ob "[\"Ellipsis\",";
-        (
-          write_tok
-        ) ob x;
-        Bi_outbuf.add_char ob ']'
-      | `DeepEllipsis x ->
-        Bi_outbuf.add_string ob "[\"DeepEllipsis\",";
-        (
-          write__17
-        ) ob x;
-        Bi_outbuf.add_char ob ']'
-      | `TypedMetavar x ->
-        Bi_outbuf.add_string ob "[\"TypedMetavar\",";
-        (
-          fun ob x ->
-            Bi_outbuf.add_char ob '[';
-            (let x, _, _ = x in
-            (
-              write_ident
-            ) ob x
-            );
-            Bi_outbuf.add_char ob ',';
-            (let _, x, _ = x in
-            (
-              write_tok
-            ) ob x
-            );
-            Bi_outbuf.add_char ob ',';
-            (let _, _, x = x in
-            (
-              write_type_
-            ) ob x
-            );
-            Bi_outbuf.add_char ob ']';
-        ) ob x;
-        Bi_outbuf.add_char ob ']'
-      | `DotAccessEllipsis x ->
-        Bi_outbuf.add_string ob "[\"DotAccessEllipsis\",";
-        (
-          fun ob x ->
-            Bi_outbuf.add_char ob '[';
-            (let x, _ = x in
-            (
-              write_expr
-            ) ob x
-            );
-            Bi_outbuf.add_char ob ',';
-            (let _, x = x in
-            (
-              write_tok
-            ) ob x
-            );
-            Bi_outbuf.add_char ob ']';
-        ) ob x;
-        Bi_outbuf.add_char ob ']'
       | `StmtExpr x ->
         Bi_outbuf.add_string ob "[\"StmtExpr\",";
         (
@@ -6634,12 +6564,6 @@ and write_for_header = (
         Bi_outbuf.add_string ob "[\"MultiForEach\",";
         (
           write__42
-        ) ob x;
-        Bi_outbuf.add_char ob ']'
-      | `ForEllipsis x ->
-        Bi_outbuf.add_string ob "[\"ForEllipsis\",";
-        (
-          write_tok
         ) ob x;
         Bi_outbuf.add_char ob ']'
       | `ForIn x ->
@@ -7034,12 +6958,6 @@ and write_multi_for_each = (
             Bi_outbuf.add_char ob ']';
         ) ob x;
         Bi_outbuf.add_char ob ']'
-      | `FEllipsis x ->
-        Bi_outbuf.add_string ob "[\"FEllipsis\",";
-        (
-          write_tok
-        ) ob x;
-        Bi_outbuf.add_char ob ']'
 )
 and string_of_multi_for_each ?(len = 1024) x =
   let ob = Bi_outbuf.create len in
@@ -7213,12 +7131,6 @@ and write_parameter = (
             ) ob x
             );
             Bi_outbuf.add_char ob ']';
-        ) ob x;
-        Bi_outbuf.add_char ob ']'
-      | `ParamEllipsis x ->
-        Bi_outbuf.add_string ob "[\"ParamEllipsis\",";
-        (
-          write_tok
         ) ob x;
         Bi_outbuf.add_char ob ']'
       | `OtherParam x ->
@@ -7492,12 +7404,6 @@ and write_pattern = (
           write_type_
         ) ob x;
         Bi_outbuf.add_char ob ']'
-      | `PatEllipsis x ->
-        Bi_outbuf.add_string ob "[\"PatEllipsis\",";
-        (
-          write_tok
-        ) ob x;
-        Bi_outbuf.add_char ob ']'
       | `OtherPat x ->
         Bi_outbuf.add_string ob "[\"OtherPat\",";
         (
@@ -7614,35 +7520,7 @@ and string_of_qualifier ?(len = 1024) x =
   let ob = Bi_outbuf.create len in
   write_qualifier ob x;
   Bi_outbuf.contents ob
-and write_stmt : _ -> stmt -> _ = (
-  fun ob (x : stmt) ->
-    Bi_outbuf.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Bi_outbuf.add_char ob ',';
-    Bi_outbuf.add_string ob "\"s\":";
-    (
-      write_stmt_kind
-    )
-      ob x.s;
-    if !is_first then
-      is_first := false
-    else
-      Bi_outbuf.add_char ob ',';
-    Bi_outbuf.add_string ob "\"s_id\":";
-    (
-      Yojson.Safe.write_int
-    )
-      ob x.s_id;
-    Bi_outbuf.add_char ob '}';
-)
-and string_of_stmt ?(len = 1024) x =
-  let ob = Bi_outbuf.create len in
-  write_stmt ob x;
-  Bi_outbuf.contents ob
-and write_stmt_kind = (
+and write_stmt = (
   fun ob x ->
     match x with
       | `ExprStmt x ->
@@ -8052,9 +7930,9 @@ and write_stmt_kind = (
         ) ob x;
         Bi_outbuf.add_char ob ']'
 )
-and string_of_stmt_kind ?(len = 1024) x =
+and string_of_stmt ?(len = 1024) x =
   let ob = Bi_outbuf.create len in
-  write_stmt_kind ob x;
+  write_stmt ob x;
   Bi_outbuf.contents ob
 and write_svalue = (
   fun ob x ->
@@ -8312,12 +8190,6 @@ and write_type_ = (
             Bi_outbuf.add_char ob ']';
         ) ob x;
         Bi_outbuf.add_char ob ']'
-      | `TyEllipsis x ->
-        Bi_outbuf.add_string ob "[\"TyEllipsis\",";
-        (
-          write_tok
-        ) ob x;
-        Bi_outbuf.add_char ob ']'
       | `TyExpr x ->
         Bi_outbuf.add_string ob "[\"TyExpr\",";
         (
@@ -8517,12 +8389,6 @@ and write_type_parameter = (
           write_type_parameter_classic
         ) ob x;
         Bi_outbuf.add_char ob ']'
-      | `TParamEllipsis x ->
-        Bi_outbuf.add_string ob "[\"TParamEllipsis\",";
-        (
-          write_tok
-        ) ob x;
-        Bi_outbuf.add_char ob ']'
       | `OtherTypeParam x ->
         Bi_outbuf.add_string ob "[\"OtherTypeParam\",";
         (
@@ -8713,12 +8579,6 @@ and write_xml_attribute = (
         Bi_outbuf.add_string ob "[\"XmlAttrExpr\",";
         (
           write__17
-        ) ob x;
-        Bi_outbuf.add_char ob ']'
-      | `XmlEllipsis x ->
-        Bi_outbuf.add_string ob "[\"XmlEllipsis\",";
-        (
-          write_tok
         ) ob x;
         Bi_outbuf.add_char ob ']'
 )
@@ -10598,7 +10458,7 @@ and read_any = (
             | "TodoK" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read__1
+                  read_todo_kind
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -10740,7 +10600,7 @@ and read_any = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read__1
+                  read_todo_kind
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -11797,15 +11657,6 @@ and read_case_and_body = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `CasesAndBody x
-            | "CaseEllipsis" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `CaseEllipsis x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -11868,17 +11719,6 @@ and read_case_and_body = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `CasesAndBody x
-            | "CaseEllipsis" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `CaseEllipsis x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -12717,15 +12557,6 @@ and read_definition_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `VarDef x
-            | "FieldDefColon" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_variable_definition
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `FieldDefColon x
             | "ClassDef" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -12871,17 +12702,6 @@ and read_definition_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `VarDef x
-            | "FieldDefColon" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_variable_definition
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `FieldDefColon x
             | "ClassDef" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -15218,135 +15038,6 @@ and read_expr = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `ParenExpr x
-            | "Ellipsis" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Ellipsis x
-            | "DeepEllipsis" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__17
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `DeepEllipsis x
-            | "TypedMetavar" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  fun p lb ->
-                    Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                    let len = ref 0 in
-                    let end_of_tuple = ref false in
-                    (try
-                      let x0 =
-                        let x =
-                          (
-                            read_ident
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x1 =
-                        let x =
-                          (
-                            read_tok
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x2 =
-                        let x =
-                          (
-                            read_type_
-                          ) p lb
-                        in
-                        incr len;
-                        (try
-                          Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
-                        x
-                      in
-                      if not !end_of_tuple then (
-                        try
-                          while true do
-                            Yojson.Safe.skip_json p lb;
-                            Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                          done
-                        with Yojson.End_of_tuple -> ()
-                      );
-                      (x0, x1, x2)
-                    with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1; 2 ]);
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `TypedMetavar x
-            | "DotAccessEllipsis" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  fun p lb ->
-                    Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                    let len = ref 0 in
-                    let end_of_tuple = ref false in
-                    (try
-                      let x0 =
-                        let x =
-                          (
-                            read_expr
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x1 =
-                        let x =
-                          (
-                            read_tok
-                          ) p lb
-                        in
-                        incr len;
-                        (try
-                          Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
-                        x
-                      in
-                      if not !end_of_tuple then (
-                        try
-                          while true do
-                            Yojson.Safe.skip_json p lb;
-                            Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                          done
-                        with Yojson.End_of_tuple -> ()
-                      );
-                      (x0, x1)
-                    with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `DotAccessEllipsis x
             | "StmtExpr" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -16465,143 +16156,6 @@ and read_expr = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `ParenExpr x
-            | "Ellipsis" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `Ellipsis x
-            | "DeepEllipsis" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__17
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `DeepEllipsis x
-            | "TypedMetavar" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  fun p lb ->
-                    Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                    let len = ref 0 in
-                    let end_of_tuple = ref false in
-                    (try
-                      let x0 =
-                        let x =
-                          (
-                            read_ident
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x1 =
-                        let x =
-                          (
-                            read_tok
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x2 =
-                        let x =
-                          (
-                            read_type_
-                          ) p lb
-                        in
-                        incr len;
-                        (try
-                          Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
-                        x
-                      in
-                      if not !end_of_tuple then (
-                        try
-                          while true do
-                            Yojson.Safe.skip_json p lb;
-                            Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                          done
-                        with Yojson.End_of_tuple -> ()
-                      );
-                      (x0, x1, x2)
-                    with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1; 2 ]);
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `TypedMetavar x
-            | "DotAccessEllipsis" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  fun p lb ->
-                    Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                    let len = ref 0 in
-                    let end_of_tuple = ref false in
-                    (try
-                      let x0 =
-                        let x =
-                          (
-                            read_expr
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x1 =
-                        let x =
-                          (
-                            read_tok
-                          ) p lb
-                        in
-                        incr len;
-                        (try
-                          Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
-                        x
-                      in
-                      if not !end_of_tuple then (
-                        try
-                          while true do
-                            Yojson.Safe.skip_json p lb;
-                            Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                          done
-                        with Yojson.End_of_tuple -> ()
-                      );
-                      (x0, x1)
-                    with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `DotAccessEllipsis x
             | "StmtExpr" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -16963,15 +16517,6 @@ and read_for_header = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `MultiForEach x
-            | "ForEllipsis" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `ForEllipsis x
             | "ForIn" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -17117,17 +16662,6 @@ and read_for_header = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `MultiForEach x
-            | "ForEllipsis" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `ForEllipsis x
             | "ForIn" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -18681,15 +18215,6 @@ and read_multi_for_each = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `FECond x
-            | "FEllipsis" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `FEllipsis x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -18774,17 +18299,6 @@ and read_multi_for_each = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `FECond x
-            | "FEllipsis" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `FEllipsis x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -19489,15 +19003,6 @@ and read_parameter = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `ParamHashSplat x
-            | "ParamEllipsis" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `ParamEllipsis x
             | "OtherParam" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -19684,17 +19189,6 @@ and read_parameter = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `ParamHashSplat x
-            | "ParamEllipsis" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `ParamEllipsis x
             | "OtherParam" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -20458,15 +19952,6 @@ and read_pattern = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `PatType x
-            | "PatEllipsis" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `PatEllipsis x
             | "OtherPat" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -20998,17 +20483,6 @@ and read_pattern = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `PatType x
-            | "PatEllipsis" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `PatEllipsis x
             | "OtherPat" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -21511,131 +20985,6 @@ and qualifier_of_string s =
 and read_stmt = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_s = ref (None) in
-    let field_s_id = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg "out-of-bounds substring position or length";
-          match len with
-            | 1 -> (
-                if String.unsafe_get s pos = 's' then (
-                  0
-                )
-                else (
-                  -1
-                )
-              )
-            | 4 -> (
-                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = '_' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'd' then (
-                  1
-                )
-                else (
-                  -1
-                )
-              )
-            | _ -> (
-                -1
-              )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_s := (
-              Some (
-                (
-                  read_stmt_kind
-                ) p lb
-              )
-            );
-          | 1 ->
-            field_s_id := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_int
-                ) p lb
-              )
-            );
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg "out-of-bounds substring position or length";
-            match len with
-              | 1 -> (
-                  if String.unsafe_get s pos = 's' then (
-                    0
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 4 -> (
-                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = '_' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'd' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_s := (
-                Some (
-                  (
-                    read_stmt_kind
-                  ) p lb
-                )
-              );
-            | 1 ->
-              field_s_id := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_int
-                  ) p lb
-                )
-              );
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            s = (match !field_s with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "s");
-            s_id = (match !field_s_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "s_id");
-          }
-         : stmt)
-      )
-)
-and stmt_of_string s =
-  read_stmt (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-and read_stmt_kind = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
     match Yojson.Safe.start_any_variant p lb with
       | `Edgy_bracket -> (
           match Yojson.Safe.read_ident p lb with
@@ -23653,8 +23002,8 @@ and read_stmt_kind = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-and stmt_kind_of_string s =
-  read_stmt_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+and stmt_of_string s =
+  read_stmt (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 and read_svalue = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
@@ -24307,15 +23656,6 @@ and read_type_ = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `TyRecordAnon x
-            | "TyEllipsis" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `TyEllipsis x
             | "TyExpr" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -24971,17 +24311,6 @@ and read_type_ = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `TyRecordAnon x
-            | "TyEllipsis" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `TyEllipsis x
             | "TyExpr" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -25742,15 +25071,6 @@ and read_type_parameter = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `TP x
-            | "TParamEllipsis" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `TParamEllipsis x
             | "OtherTypeParam" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -25822,17 +25142,6 @@ and read_type_parameter = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `TP x
-            | "TParamEllipsis" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `TParamEllipsis x
             | "OtherTypeParam" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -26520,15 +25829,6 @@ and read_xml_attribute = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `XmlAttrExpr x
-            | "XmlEllipsis" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `XmlEllipsis x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -26613,17 +25913,6 @@ and read_xml_attribute = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `XmlAttrExpr x
-            | "XmlEllipsis" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_tok
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `XmlEllipsis x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

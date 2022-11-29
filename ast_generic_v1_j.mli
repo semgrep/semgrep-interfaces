@@ -188,9 +188,7 @@ and qualified_info = Ast_generic_v1_t.qualified_info = {
 
 and qualifier = Ast_generic_v1_t.qualifier
 
-and stmt = Ast_generic_v1_t.stmt = { s: stmt_kind; s_id: int }
-
-and stmt_kind = Ast_generic_v1_t.stmt_kind
+and stmt = Ast_generic_v1_t.stmt
 
 and svalue = Ast_generic_v1_t.svalue
 
@@ -1684,26 +1682,6 @@ val read_stmt :
 val stmt_of_string :
   string -> stmt
   (** Deserialize JSON data of type {!type:stmt}. *)
-
-val write_stmt_kind :
-  Bi_outbuf.t -> stmt_kind -> unit
-  (** Output a JSON value of type {!type:stmt_kind}. *)
-
-val string_of_stmt_kind :
-  ?len:int -> stmt_kind -> string
-  (** Serialize a value of type {!type:stmt_kind}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_stmt_kind :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> stmt_kind
-  (** Input JSON data of type {!type:stmt_kind}. *)
-
-val stmt_kind_of_string :
-  string -> stmt_kind
-  (** Deserialize JSON data of type {!type:stmt_kind}. *)
 
 val write_svalue :
   Bi_outbuf.t -> svalue -> unit
