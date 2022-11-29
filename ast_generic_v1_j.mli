@@ -39,6 +39,8 @@ type 'a bracket = 'a Ast_generic_v1_t.bracket
 
 type sc = Ast_generic_v1_t.sc
 
+type variance = Ast_generic_v1_t.variance
+
 type 'a wrap_ = 'a Ast_generic_v1_t.wrap_
 
 type ident = Ast_generic_v1_t.ident
@@ -49,19 +51,17 @@ type label = Ast_generic_v1_t.label
 
 type literal = Ast_generic_v1_t.literal
 
-type constness = Ast_generic_v1_t.constness
-
 type module_name = Ast_generic_v1_t.module_name
 
 type resolved_name_kind = Ast_generic_v1_t.resolved_name_kind
 
 type resolved_name = Ast_generic_v1_t.resolved_name
 
+type todo_kind = Ast_generic_v1_t.todo_kind
+
 type xml_kind = Ast_generic_v1_t.xml_kind
 
-type action = Ast_generic_v1_t.action
-
-and alias = Ast_generic_v1_t.alias
+type alias = Ast_generic_v1_t.alias
 
 and any = Ast_generic_v1_t.any
 
@@ -77,14 +77,22 @@ and case_and_body = Ast_generic_v1_t.case_and_body
 
 and catch = Ast_generic_v1_t.catch
 
+and catch_exn = Ast_generic_v1_t.catch_exn
+
 and class_definition = Ast_generic_v1_t.class_definition = {
   ckind: class_kind wrap_;
-  cextends: type_ list;
+  cextends: class_parent list;
   cimplements: type_ list;
   cmixins: type_ list;
   cparams: parameters;
   cbody: field list bracket
 }
+
+and class_parent = Ast_generic_v1_t.class_parent
+
+and comprehension = Ast_generic_v1_t.comprehension
+
+and condition = Ast_generic_v1_t.condition
 
 and definition = Ast_generic_v1_t.definition
 
@@ -93,32 +101,47 @@ and definition_kind = Ast_generic_v1_t.definition_kind
 and directive = Ast_generic_v1_t.directive
 
 and entity = Ast_generic_v1_t.entity = {
-  name: name_or_dynamic;
+  name: entity_name;
   attrs: attribute list;
-  tparams: type_parameter list
+  tparams: type_parameters
+}
+
+and entity_name = Ast_generic_v1_t.entity_name
+
+and enum_entry_definition = Ast_generic_v1_t.enum_entry_definition = {
+  ee_args: arguments option;
+  ee_body: field list bracket option
 }
 
 and expr = Ast_generic_v1_t.expr
 
 and field = Ast_generic_v1_t.field
 
+and field_name = Ast_generic_v1_t.field_name
+
 and finally = Ast_generic_v1_t.finally
+
+and for_each = Ast_generic_v1_t.for_each
 
 and for_header = Ast_generic_v1_t.for_header
 
+and for_or_if_comp = Ast_generic_v1_t.for_or_if_comp
+
 and for_var_or_expr = Ast_generic_v1_t.for_var_or_expr
+
+and function_body = Ast_generic_v1_t.function_body
 
 and function_definition = Ast_generic_v1_t.function_definition = {
   fkind: function_kind wrap_;
   fparams: parameters;
   frettype: type_ option;
-  fbody: stmt
+  fbody: function_body
 }
 
 and id_info = Ast_generic_v1_t.id_info = {
   id_resolved: resolved_name option;
   id_type: type_ option;
-  id_constness: constness option
+  id_svalue: svalue option
 }
 
 and item = Ast_generic_v1_t.item
@@ -136,14 +159,9 @@ and module_definition = Ast_generic_v1_t.module_definition = {
 
 and module_definition_kind = Ast_generic_v1_t.module_definition_kind
 
+and multi_for_each = Ast_generic_v1_t.multi_for_each
+
 and name = Ast_generic_v1_t.name
-
-and name_info = Ast_generic_v1_t.name_info = {
-  name_qualifier: qualifier option;
-  name_typeargs: type_arguments option
-}
-
-and name_or_dynamic = Ast_generic_v1_t.name_or_dynamic
 
 and or_type_element = Ast_generic_v1_t.or_type_element
 
@@ -161,11 +179,18 @@ and parameters = Ast_generic_v1_t.parameters
 
 and pattern = Ast_generic_v1_t.pattern
 
+and qualified_info = Ast_generic_v1_t.qualified_info = {
+  name_last: (ident * type_arguments option);
+  name_middle: qualifier option;
+  name_top: tok option;
+  name_info: id_info
+}
+
 and qualifier = Ast_generic_v1_t.qualifier
 
-and stmt = Ast_generic_v1_t.stmt = { s: stmt_kind; s_id: int }
+and stmt = Ast_generic_v1_t.stmt
 
-and stmt_kind = Ast_generic_v1_t.stmt_kind
+and svalue = Ast_generic_v1_t.svalue
 
 and type_ = Ast_generic_v1_t.type_
 
@@ -181,7 +206,15 @@ and type_definition_kind = Ast_generic_v1_t.type_definition_kind
 
 and type_parameter = Ast_generic_v1_t.type_parameter
 
-and type_parameter_constraint = Ast_generic_v1_t.type_parameter_constraint
+and type_parameter_classic = Ast_generic_v1_t.type_parameter_classic = {
+  tp_id: ident;
+  tp_attrs: attribute list;
+  tp_bounds: type_ list;
+  tp_default: type_ option;
+  tp_variance: variance wrap_ option
+}
+
+and type_parameters = Ast_generic_v1_t.type_parameters
 
 and variable_definition = Ast_generic_v1_t.variable_definition = {
   vinit: expr option;
@@ -526,6 +559,26 @@ val sc_of_string :
   string -> sc
   (** Deserialize JSON data of type {!type:sc}. *)
 
+val write_variance :
+  Bi_outbuf.t -> variance -> unit
+  (** Output a JSON value of type {!type:variance}. *)
+
+val string_of_variance :
+  ?len:int -> variance -> string
+  (** Serialize a value of type {!type:variance}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_variance :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> variance
+  (** Input JSON data of type {!type:variance}. *)
+
+val variance_of_string :
+  string -> variance
+  (** Deserialize JSON data of type {!type:variance}. *)
+
 val write_wrap_ :
   (Bi_outbuf.t -> 'a -> unit) ->
   Bi_outbuf.t -> 'a wrap_ -> unit
@@ -630,26 +683,6 @@ val literal_of_string :
   string -> literal
   (** Deserialize JSON data of type {!type:literal}. *)
 
-val write_constness :
-  Bi_outbuf.t -> constness -> unit
-  (** Output a JSON value of type {!type:constness}. *)
-
-val string_of_constness :
-  ?len:int -> constness -> string
-  (** Serialize a value of type {!type:constness}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_constness :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> constness
-  (** Input JSON data of type {!type:constness}. *)
-
-val constness_of_string :
-  string -> constness
-  (** Deserialize JSON data of type {!type:constness}. *)
-
 val write_module_name :
   Bi_outbuf.t -> module_name -> unit
   (** Output a JSON value of type {!type:module_name}. *)
@@ -710,6 +743,26 @@ val resolved_name_of_string :
   string -> resolved_name
   (** Deserialize JSON data of type {!type:resolved_name}. *)
 
+val write_todo_kind :
+  Bi_outbuf.t -> todo_kind -> unit
+  (** Output a JSON value of type {!type:todo_kind}. *)
+
+val string_of_todo_kind :
+  ?len:int -> todo_kind -> string
+  (** Serialize a value of type {!type:todo_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_todo_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> todo_kind
+  (** Input JSON data of type {!type:todo_kind}. *)
+
+val todo_kind_of_string :
+  string -> todo_kind
+  (** Deserialize JSON data of type {!type:todo_kind}. *)
+
 val write_xml_kind :
   Bi_outbuf.t -> xml_kind -> unit
   (** Output a JSON value of type {!type:xml_kind}. *)
@@ -729,26 +782,6 @@ val read_xml_kind :
 val xml_kind_of_string :
   string -> xml_kind
   (** Deserialize JSON data of type {!type:xml_kind}. *)
-
-val write_action :
-  Bi_outbuf.t -> action -> unit
-  (** Output a JSON value of type {!type:action}. *)
-
-val string_of_action :
-  ?len:int -> action -> string
-  (** Serialize a value of type {!type:action}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_action :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> action
-  (** Input JSON data of type {!type:action}. *)
-
-val action_of_string :
-  string -> action
-  (** Deserialize JSON data of type {!type:action}. *)
 
 val write_alias :
   Bi_outbuf.t -> alias -> unit
@@ -910,6 +943,26 @@ val catch_of_string :
   string -> catch
   (** Deserialize JSON data of type {!type:catch}. *)
 
+val write_catch_exn :
+  Bi_outbuf.t -> catch_exn -> unit
+  (** Output a JSON value of type {!type:catch_exn}. *)
+
+val string_of_catch_exn :
+  ?len:int -> catch_exn -> string
+  (** Serialize a value of type {!type:catch_exn}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_catch_exn :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> catch_exn
+  (** Input JSON data of type {!type:catch_exn}. *)
+
+val catch_exn_of_string :
+  string -> catch_exn
+  (** Deserialize JSON data of type {!type:catch_exn}. *)
+
 val write_class_definition :
   Bi_outbuf.t -> class_definition -> unit
   (** Output a JSON value of type {!type:class_definition}. *)
@@ -929,6 +982,66 @@ val read_class_definition :
 val class_definition_of_string :
   string -> class_definition
   (** Deserialize JSON data of type {!type:class_definition}. *)
+
+val write_class_parent :
+  Bi_outbuf.t -> class_parent -> unit
+  (** Output a JSON value of type {!type:class_parent}. *)
+
+val string_of_class_parent :
+  ?len:int -> class_parent -> string
+  (** Serialize a value of type {!type:class_parent}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_class_parent :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> class_parent
+  (** Input JSON data of type {!type:class_parent}. *)
+
+val class_parent_of_string :
+  string -> class_parent
+  (** Deserialize JSON data of type {!type:class_parent}. *)
+
+val write_comprehension :
+  Bi_outbuf.t -> comprehension -> unit
+  (** Output a JSON value of type {!type:comprehension}. *)
+
+val string_of_comprehension :
+  ?len:int -> comprehension -> string
+  (** Serialize a value of type {!type:comprehension}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_comprehension :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> comprehension
+  (** Input JSON data of type {!type:comprehension}. *)
+
+val comprehension_of_string :
+  string -> comprehension
+  (** Deserialize JSON data of type {!type:comprehension}. *)
+
+val write_condition :
+  Bi_outbuf.t -> condition -> unit
+  (** Output a JSON value of type {!type:condition}. *)
+
+val string_of_condition :
+  ?len:int -> condition -> string
+  (** Serialize a value of type {!type:condition}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_condition :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> condition
+  (** Input JSON data of type {!type:condition}. *)
+
+val condition_of_string :
+  string -> condition
+  (** Deserialize JSON data of type {!type:condition}. *)
 
 val write_definition :
   Bi_outbuf.t -> definition -> unit
@@ -1010,6 +1123,46 @@ val entity_of_string :
   string -> entity
   (** Deserialize JSON data of type {!type:entity}. *)
 
+val write_entity_name :
+  Bi_outbuf.t -> entity_name -> unit
+  (** Output a JSON value of type {!type:entity_name}. *)
+
+val string_of_entity_name :
+  ?len:int -> entity_name -> string
+  (** Serialize a value of type {!type:entity_name}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_entity_name :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> entity_name
+  (** Input JSON data of type {!type:entity_name}. *)
+
+val entity_name_of_string :
+  string -> entity_name
+  (** Deserialize JSON data of type {!type:entity_name}. *)
+
+val write_enum_entry_definition :
+  Bi_outbuf.t -> enum_entry_definition -> unit
+  (** Output a JSON value of type {!type:enum_entry_definition}. *)
+
+val string_of_enum_entry_definition :
+  ?len:int -> enum_entry_definition -> string
+  (** Serialize a value of type {!type:enum_entry_definition}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_enum_entry_definition :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> enum_entry_definition
+  (** Input JSON data of type {!type:enum_entry_definition}. *)
+
+val enum_entry_definition_of_string :
+  string -> enum_entry_definition
+  (** Deserialize JSON data of type {!type:enum_entry_definition}. *)
+
 val write_expr :
   Bi_outbuf.t -> expr -> unit
   (** Output a JSON value of type {!type:expr}. *)
@@ -1050,6 +1203,26 @@ val field_of_string :
   string -> field
   (** Deserialize JSON data of type {!type:field}. *)
 
+val write_field_name :
+  Bi_outbuf.t -> field_name -> unit
+  (** Output a JSON value of type {!type:field_name}. *)
+
+val string_of_field_name :
+  ?len:int -> field_name -> string
+  (** Serialize a value of type {!type:field_name}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_field_name :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> field_name
+  (** Input JSON data of type {!type:field_name}. *)
+
+val field_name_of_string :
+  string -> field_name
+  (** Deserialize JSON data of type {!type:field_name}. *)
+
 val write_finally :
   Bi_outbuf.t -> finally -> unit
   (** Output a JSON value of type {!type:finally}. *)
@@ -1069,6 +1242,26 @@ val read_finally :
 val finally_of_string :
   string -> finally
   (** Deserialize JSON data of type {!type:finally}. *)
+
+val write_for_each :
+  Bi_outbuf.t -> for_each -> unit
+  (** Output a JSON value of type {!type:for_each}. *)
+
+val string_of_for_each :
+  ?len:int -> for_each -> string
+  (** Serialize a value of type {!type:for_each}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_for_each :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> for_each
+  (** Input JSON data of type {!type:for_each}. *)
+
+val for_each_of_string :
+  string -> for_each
+  (** Deserialize JSON data of type {!type:for_each}. *)
 
 val write_for_header :
   Bi_outbuf.t -> for_header -> unit
@@ -1090,6 +1283,26 @@ val for_header_of_string :
   string -> for_header
   (** Deserialize JSON data of type {!type:for_header}. *)
 
+val write_for_or_if_comp :
+  Bi_outbuf.t -> for_or_if_comp -> unit
+  (** Output a JSON value of type {!type:for_or_if_comp}. *)
+
+val string_of_for_or_if_comp :
+  ?len:int -> for_or_if_comp -> string
+  (** Serialize a value of type {!type:for_or_if_comp}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_for_or_if_comp :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> for_or_if_comp
+  (** Input JSON data of type {!type:for_or_if_comp}. *)
+
+val for_or_if_comp_of_string :
+  string -> for_or_if_comp
+  (** Deserialize JSON data of type {!type:for_or_if_comp}. *)
+
 val write_for_var_or_expr :
   Bi_outbuf.t -> for_var_or_expr -> unit
   (** Output a JSON value of type {!type:for_var_or_expr}. *)
@@ -1109,6 +1322,26 @@ val read_for_var_or_expr :
 val for_var_or_expr_of_string :
   string -> for_var_or_expr
   (** Deserialize JSON data of type {!type:for_var_or_expr}. *)
+
+val write_function_body :
+  Bi_outbuf.t -> function_body -> unit
+  (** Output a JSON value of type {!type:function_body}. *)
+
+val string_of_function_body :
+  ?len:int -> function_body -> string
+  (** Serialize a value of type {!type:function_body}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_function_body :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> function_body
+  (** Input JSON data of type {!type:function_body}. *)
+
+val function_body_of_string :
+  string -> function_body
+  (** Deserialize JSON data of type {!type:function_body}. *)
 
 val write_function_definition :
   Bi_outbuf.t -> function_definition -> unit
@@ -1250,6 +1483,26 @@ val module_definition_kind_of_string :
   string -> module_definition_kind
   (** Deserialize JSON data of type {!type:module_definition_kind}. *)
 
+val write_multi_for_each :
+  Bi_outbuf.t -> multi_for_each -> unit
+  (** Output a JSON value of type {!type:multi_for_each}. *)
+
+val string_of_multi_for_each :
+  ?len:int -> multi_for_each -> string
+  (** Serialize a value of type {!type:multi_for_each}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_multi_for_each :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> multi_for_each
+  (** Input JSON data of type {!type:multi_for_each}. *)
+
+val multi_for_each_of_string :
+  string -> multi_for_each
+  (** Deserialize JSON data of type {!type:multi_for_each}. *)
+
 val write_name :
   Bi_outbuf.t -> name -> unit
   (** Output a JSON value of type {!type:name}. *)
@@ -1269,46 +1522,6 @@ val read_name :
 val name_of_string :
   string -> name
   (** Deserialize JSON data of type {!type:name}. *)
-
-val write_name_info :
-  Bi_outbuf.t -> name_info -> unit
-  (** Output a JSON value of type {!type:name_info}. *)
-
-val string_of_name_info :
-  ?len:int -> name_info -> string
-  (** Serialize a value of type {!type:name_info}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_name_info :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> name_info
-  (** Input JSON data of type {!type:name_info}. *)
-
-val name_info_of_string :
-  string -> name_info
-  (** Deserialize JSON data of type {!type:name_info}. *)
-
-val write_name_or_dynamic :
-  Bi_outbuf.t -> name_or_dynamic -> unit
-  (** Output a JSON value of type {!type:name_or_dynamic}. *)
-
-val string_of_name_or_dynamic :
-  ?len:int -> name_or_dynamic -> string
-  (** Serialize a value of type {!type:name_or_dynamic}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_name_or_dynamic :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> name_or_dynamic
-  (** Input JSON data of type {!type:name_or_dynamic}. *)
-
-val name_or_dynamic_of_string :
-  string -> name_or_dynamic
-  (** Deserialize JSON data of type {!type:name_or_dynamic}. *)
 
 val write_or_type_element :
   Bi_outbuf.t -> or_type_element -> unit
@@ -1410,6 +1623,26 @@ val pattern_of_string :
   string -> pattern
   (** Deserialize JSON data of type {!type:pattern}. *)
 
+val write_qualified_info :
+  Bi_outbuf.t -> qualified_info -> unit
+  (** Output a JSON value of type {!type:qualified_info}. *)
+
+val string_of_qualified_info :
+  ?len:int -> qualified_info -> string
+  (** Serialize a value of type {!type:qualified_info}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_qualified_info :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> qualified_info
+  (** Input JSON data of type {!type:qualified_info}. *)
+
+val qualified_info_of_string :
+  string -> qualified_info
+  (** Deserialize JSON data of type {!type:qualified_info}. *)
+
 val write_qualifier :
   Bi_outbuf.t -> qualifier -> unit
   (** Output a JSON value of type {!type:qualifier}. *)
@@ -1450,25 +1683,25 @@ val stmt_of_string :
   string -> stmt
   (** Deserialize JSON data of type {!type:stmt}. *)
 
-val write_stmt_kind :
-  Bi_outbuf.t -> stmt_kind -> unit
-  (** Output a JSON value of type {!type:stmt_kind}. *)
+val write_svalue :
+  Bi_outbuf.t -> svalue -> unit
+  (** Output a JSON value of type {!type:svalue}. *)
 
-val string_of_stmt_kind :
-  ?len:int -> stmt_kind -> string
-  (** Serialize a value of type {!type:stmt_kind}
+val string_of_svalue :
+  ?len:int -> svalue -> string
+  (** Serialize a value of type {!type:svalue}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_stmt_kind :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> stmt_kind
-  (** Input JSON data of type {!type:stmt_kind}. *)
+val read_svalue :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> svalue
+  (** Input JSON data of type {!type:svalue}. *)
 
-val stmt_kind_of_string :
-  string -> stmt_kind
-  (** Deserialize JSON data of type {!type:stmt_kind}. *)
+val svalue_of_string :
+  string -> svalue
+  (** Deserialize JSON data of type {!type:svalue}. *)
 
 val write_type_ :
   Bi_outbuf.t -> type_ -> unit
@@ -1590,25 +1823,45 @@ val type_parameter_of_string :
   string -> type_parameter
   (** Deserialize JSON data of type {!type:type_parameter}. *)
 
-val write_type_parameter_constraint :
-  Bi_outbuf.t -> type_parameter_constraint -> unit
-  (** Output a JSON value of type {!type:type_parameter_constraint}. *)
+val write_type_parameter_classic :
+  Bi_outbuf.t -> type_parameter_classic -> unit
+  (** Output a JSON value of type {!type:type_parameter_classic}. *)
 
-val string_of_type_parameter_constraint :
-  ?len:int -> type_parameter_constraint -> string
-  (** Serialize a value of type {!type:type_parameter_constraint}
+val string_of_type_parameter_classic :
+  ?len:int -> type_parameter_classic -> string
+  (** Serialize a value of type {!type:type_parameter_classic}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_type_parameter_constraint :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> type_parameter_constraint
-  (** Input JSON data of type {!type:type_parameter_constraint}. *)
+val read_type_parameter_classic :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> type_parameter_classic
+  (** Input JSON data of type {!type:type_parameter_classic}. *)
 
-val type_parameter_constraint_of_string :
-  string -> type_parameter_constraint
-  (** Deserialize JSON data of type {!type:type_parameter_constraint}. *)
+val type_parameter_classic_of_string :
+  string -> type_parameter_classic
+  (** Deserialize JSON data of type {!type:type_parameter_classic}. *)
+
+val write_type_parameters :
+  Bi_outbuf.t -> type_parameters -> unit
+  (** Output a JSON value of type {!type:type_parameters}. *)
+
+val string_of_type_parameters :
+  ?len:int -> type_parameters -> string
+  (** Serialize a value of type {!type:type_parameters}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_type_parameters :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> type_parameters
+  (** Input JSON data of type {!type:type_parameters}. *)
+
+val type_parameters_of_string :
+  string -> type_parameters
+  (** Deserialize JSON data of type {!type:type_parameters}. *)
 
 val write_variable_definition :
   Bi_outbuf.t -> variable_definition -> unit
