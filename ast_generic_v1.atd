@@ -159,7 +159,7 @@ type expr = [
    * (ab)used also for polymorphic variants where qualifier is QTop with
    * the '`' token.
   *)
-  | Constructor of (name * expr list)
+  | Constructor of (name * expr list bracket)
 
   | N of name
 
@@ -215,6 +215,10 @@ type expr = [
   | Ref   of (tok (* &, address of *) * expr)
   | DeRef of (tok (* '*' in C, '!' or '<-' in OCaml, ^ in Reason *) * expr)
 
+  (* in theory we removed all semgrep-specific constructs but some
+   * languages support ellipsis (e.g., Python) *)
+  | Ellipsis of tok
+
   | ParenExpr of expr bracket
   (* Dual of ExprStmt. OCaml/Ruby/Scala/... have just expressions, 
    * not separate statements *)
@@ -230,7 +234,7 @@ type literal = [
   *)
   | Int of int option wrap_ | Float of float option wrap_
   | Char of string wrap_ | String of string wrap_ 
-  | Regexp of string wrap_
+  | Regexp of (string wrap_ bracket (* // *) * string wrap_ option (* modifiers *))
   | Atom of (tok * string wrap_) (* Ruby *)
   | Unit of tok (* a.k.a Void *) | Null of tok | Undefined of tok (* JS *)
   | Imag of string wrap_ (* Go, Python *) | Ratio of string wrap_ (* Ruby *)
@@ -266,15 +270,6 @@ type field_name = [
    *)
   | FDynamic of expr
 ]
-
-(* It's useful to keep track in the AST of all those special identifiers.
- * They need to be handled in a special way by certain analysis and just
- * using Name for them would be error-prone.
- * Note though that by putting all of them together in a type, we lose
- * typing information, for example Eval takes only one argument and
- * InstanceOf takes a type and an expr. This is a tradeoff to also not
- * polluate too much expr with too many constructs.
-*)
 
 (* EXPERIMENTAL *)
 type special = [
@@ -341,15 +336,10 @@ type operator = [
   | RangeInclusive (* '..=' in Rust *)
   | NotNullPostfix (* ! in Typescript, postfix operator *)
   | Length (* '#' in Lua *)
-  (* See https://en.wikipedia.org/wiki/Elvis_operator.
-   * In PHP we currently generate a Conditional instead of a Binary Elvis.
-   * It looks like the Nullish operator is quite similar to the Elvis
-   * operator, so we may want to merge those operators at some point.
-  *)
   | Elvis (* ?: in Kotlin, can compare possible null value *)
   | Nullish (* ?? in Javascript *)
   | In (* in: checks that value belongs to a collection *) | NotIn (* !in *)
-  | Is (* is: checks value has type *)| NotIs (* !is: *)
+  | Is (* is: checks value has type *) | NotIs (* !is: *)
   (* Shell & and | *)
   | Background 
   | Pipe
@@ -376,12 +366,7 @@ type concat_string_kind = [
   *)
   | FString of string(* Python *)
   (* Javascript uses a special syntax called tagged template literals, e.g.,
-   * foo`template string = ${id}`. We must use a different representation
-   * for foo(`template string = ${id}`) because some semgrep users want
-   * to find one and not the other.
-   * In both case it will be inside Call (Apply (ConcatString  ... but then
-   * the kind will differ.
-   * example: foo`template ${id}`
+   * foo`template string = ${id}`. 
    *)
   | TaggedTemplateLiteral
   ]
@@ -410,7 +395,6 @@ type xml_attribute = [
 type xml_attr_value = expr
 
 type xml_body = [
-  (* semgrep-ext: can contain "..." *)
   | XmlText of string wrap_
   (* this can be None when people abuse {} to put comments in it *)
   | XmlExpr of expr option bracket
@@ -462,7 +446,7 @@ type stmt = [
 
   | Throw of (tok (* 'raise' in OCaml, 'throw' in Java/PHP *) * expr * sc)
   | Try of (tok * stmt * catch list * finally option)
-  | WithUsingResource of (tok (* 'with' in Python, 'using' in C# *) * stmt list (* resource acquisition *) * stmt)
+  | WithUsingResource of (tok (* 'with' in Python, 'using' in C# *) * stmt list  * stmt)
   | Assert of (tok * arguments * sc)
 
   | DefStmt of definition
@@ -473,7 +457,6 @@ type stmt = [
 
 type condition = [
   | Cond of expr
-  (* e.g., CondWithDecl, CondDecl in C++ *)
   | OtherCond of (todo_kind * any list)
 ]
 
@@ -495,7 +478,6 @@ type catch_exn = [
   | CatchPattern of pattern
   (* for Java/C++/PHP/etc. *)
   | CatchParam of parameter_classic
-  (* e.g., CatchEmpty/CatchParams in Solidity *)
   | OtherCatch of (todo_kind * any list)
 ]
 
@@ -623,7 +605,6 @@ type type_argument = [
                     (bool wrap_ (* extends|super, true=super *) * type_) option)
   (* C++/Rust (Rust restrict expr to literals and ConstBlock) *)
   | TAExpr of expr
-  (* e.g., Rust Lifetime 'x, Kotlin use-site variance *)
   | OtherTypeArg of (todo_kind * any list)
 ]
 
@@ -646,17 +627,23 @@ type keyword_attribute = [
   | Public | Private | Protected
   | Abstract | Final
   | Override (* override *)
+  (* for classes (mostly for JVM languages) *)
+  (* Scala 'case class', Java 'record', Kotlin 'data class' *)
+  | RecordClass
+  (* '@interface' in Java, 'annotation class' in Kotlin *)
+  | AnnotationClass
+  | EnumClass
+  (* for Scala and Java *)
+  | SealedClass
   (* for vars (JS) *)
   | Var | Let
   (* for fields (kinda types) *)
   | Mutable | Const (* a.k.a 'readonly' in Typescript *)
   | Optional (* Typescript '?' *) | NotNull (* Typescript '!' *)
   (* for functions *)
-  | Generator (* '*' in JS *) | Async
   | Recursive | MutuallyRecursive
+  | Generator (* '*' in JS *) | Async
   | Inline
-  (* Swift *)
-  | Throws | Rethrows
   (* for methods *)
   | Ctor | Dtor
   | Getter | Setter
@@ -665,6 +652,8 @@ type keyword_attribute = [
   | DefaultImpl (* unstable, RFC 1210 *)
   (* Scala and Swift *)
   | Lazy
+  (* Swift *)
+  | Throws | Rethrows
   | OtherKeyword of string
   ]
 
@@ -690,7 +679,7 @@ type entity_name = [
   | EN of name
   | EDynamic of expr
   | EPattern of pattern
-  (* e.g., AnonBitfield in C++ *)
+
   | OtherEntity of (todo_kind * any list)
 ]
 
@@ -727,10 +716,8 @@ type definition_kind = [
 
 (* template/generics/polymorphic-type *)
 type type_parameter = [
- | TP of type_parameter_classic
-  (* e.g., Lifetime in Rust, complex types in OCaml, HasConstructor in C#,
-   * regular Param in C++/Go, AnonTypeParam/TPRest/TPNested in C++
-   *)
+  | TP of type_parameter_classic
+
   | OtherTypeParam of (todo_kind * any list)
 ]
 
@@ -934,6 +921,7 @@ type module_definition = {
 type module_definition_kind = [
   | ModuleAlias of dotted_ident
   | ModuleStruct of (dotted_ident option * item list)
+
   | OtherModule of (todo_kind * any list)
   ]
 
