@@ -350,7 +350,7 @@ type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   paths: cli_paths;
   time: cli_timing option;
   explanations: matching_explanation list option;
-  max_ocaml_heap_words: int
+  max_ocaml_heap_words: int option
 }
   [@@deriving show]
 
@@ -400,7 +400,7 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   paths: cli_paths;
   time: cli_timing option;
   explanations: matching_explanation list option;
-  max_ocaml_heap_words: int
+  max_ocaml_heap_words: int option
 }
   [@@deriving show]
 
@@ -11624,15 +11624,17 @@ let write_cli_output_extra : _ -> cli_output_extra -> _ = (
       )
         ob x;
     );
-    if !is_first then
-      is_first := false
-    else
-      Bi_outbuf.add_char ob ',';
-    Bi_outbuf.add_string ob "\"max_ocaml_heap_words\":";
-    (
-      Yojson.Safe.write_int
-    )
-      ob x.max_ocaml_heap_words;
+    (match x.max_ocaml_heap_words with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Bi_outbuf.add_char ob ',';
+      Bi_outbuf.add_string ob "\"max_ocaml_heap_words\":";
+      (
+        Yojson.Safe.write_int
+      )
+        ob x;
+    );
     Bi_outbuf.add_char ob '}';
 )
 let string_of_cli_output_extra ?(len = 1024) x =
@@ -11725,13 +11727,15 @@ let read_cli_output_extra = (
               );
             )
           | 3 ->
-            field_max_ocaml_heap_words := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_int
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_max_ocaml_heap_words := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_int
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -11814,13 +11818,15 @@ let read_cli_output_extra = (
                 );
               )
             | 3 ->
-              field_max_ocaml_heap_words := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_int
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_max_ocaml_heap_words := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_int
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -11833,7 +11839,7 @@ let read_cli_output_extra = (
             paths = (match !field_paths with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "paths");
             time = !field_time;
             explanations = !field_explanations;
-            max_ocaml_heap_words = (match !field_max_ocaml_heap_words with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "max_ocaml_heap_words");
+            max_ocaml_heap_words = !field_max_ocaml_heap_words;
           }
          : cli_output_extra)
       )
@@ -13799,15 +13805,17 @@ let write_cli_output : _ -> cli_output -> _ = (
       )
         ob x;
     );
-    if !is_first then
-      is_first := false
-    else
-      Bi_outbuf.add_char ob ',';
-    Bi_outbuf.add_string ob "\"max_ocaml_heap_words\":";
-    (
-      Yojson.Safe.write_int
-    )
-      ob x.max_ocaml_heap_words;
+    (match x.max_ocaml_heap_words with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Bi_outbuf.add_char ob ',';
+      Bi_outbuf.add_string ob "\"max_ocaml_heap_words\":";
+      (
+        Yojson.Safe.write_int
+      )
+        ob x;
+    );
     Bi_outbuf.add_char ob '}';
 )
 let string_of_cli_output ?(len = 1024) x =
@@ -13959,13 +13967,15 @@ let read_cli_output = (
               );
             )
           | 6 ->
-            field_max_ocaml_heap_words := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_int
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_max_ocaml_heap_words := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_int
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -14104,13 +14114,15 @@ let read_cli_output = (
                 );
               )
             | 6 ->
-              field_max_ocaml_heap_words := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_int
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_max_ocaml_heap_words := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_int
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -14126,7 +14138,7 @@ let read_cli_output = (
             paths = (match !field_paths with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "paths");
             time = !field_time;
             explanations = !field_explanations;
-            max_ocaml_heap_words = (match !field_max_ocaml_heap_words with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "max_ocaml_heap_words");
+            max_ocaml_heap_words = !field_max_ocaml_heap_words;
           }
          : cli_output)
       )
