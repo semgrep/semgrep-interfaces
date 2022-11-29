@@ -364,6 +364,8 @@ type special = [
   (* used for unary and binary operations *)
   | Op of operator
   | IncrDecr of (incr_decr * prefix_postfix)
+  (* JS: `require('foo')` *)
+  | Require
   ]
 
 
