@@ -1458,15 +1458,12 @@ let write_special = (
         ) ob x;
         Bi_outbuf.add_char ob ']'
       | `Require -> Bi_outbuf.add_string ob "\"Require\""
-<<<<<<< HEAD
       | `OtherSpecial x ->
         Bi_outbuf.add_string ob "[\"OtherSpecial\",";
         (
           Yojson.Safe.write_string
         ) ob x;
         Bi_outbuf.add_char ob ']'
-=======
->>>>>>> 04a9cb3 (add memory usage)
 )
 let string_of_special ?(len = 1024) x =
   let ob = Bi_outbuf.create len in
@@ -1611,7 +1608,6 @@ let read_special = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Require
-<<<<<<< HEAD
             | "OtherSpecial" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -1621,8 +1617,6 @@ let read_special = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `OtherSpecial x
-=======
->>>>>>> 04a9cb3 (add memory usage)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -5372,11 +5366,7 @@ and string_of__69 ?(len = 1024) x =
   let ob = Bi_outbuf.create len in
   write__69 ob x;
   Bi_outbuf.contents ob
-<<<<<<< HEAD
 and write__70 ob x = (
-=======
-and write__59 ob x = (
->>>>>>> 04a9cb3 (add memory usage)
   Atdgen_runtime.Oj_run.write_list (
     fun ob x ->
       Bi_outbuf.add_char ob '[';
@@ -5388,26 +5378,10 @@ and write__59 ob x = (
       Bi_outbuf.add_char ob ',';
       (let _, x = x in
       (
-<<<<<<< HEAD
         write__69
       ) ob x
       );
       Bi_outbuf.add_char ob ']';
-=======
-        write__58
-      ) ob x
-      );
-      Bi_outbuf.add_char ob ']';
-  )
-) ob x
-and string_of__59 ?(len = 1024) x =
-  let ob = Bi_outbuf.create len in
-  write__59 ob x;
-  Bi_outbuf.contents ob
-and write__6 ob x = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_type_
->>>>>>> 04a9cb3 (add memory usage)
   )
 ) ob x
 and string_of__70 ?(len = 1024) x =
@@ -6164,11 +6138,7 @@ and write_directive = (
             Bi_outbuf.add_char ob ',';
             (let _, _, x = x in
             (
-<<<<<<< HEAD
               write__70
-=======
-              write__59
->>>>>>> 04a9cb3 (add memory usage)
             ) ob x
             );
             Bi_outbuf.add_char ob ']';
@@ -9836,63 +9806,9 @@ and read__4 = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-<<<<<<< HEAD
 and _4_of_string s =
   read__4 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 and read__40 = (
-=======
-and _58_of_string s =
-  read__58 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-and read__59 p lb = (
-  Atdgen_runtime.Oj_run.read_list (
-    fun p lb ->
-      Yojson.Safe.read_space p lb;
-      let std_tuple = Yojson.Safe.start_any_tuple p lb in
-      let len = ref 0 in
-      let end_of_tuple = ref false in
-      (try
-        let x0 =
-          let x =
-            (
-              read_ident
-            ) p lb
-          in
-          incr len;
-          Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          x
-        in
-        let x1 =
-          let x =
-            (
-              read__58
-            ) p lb
-          in
-          incr len;
-          (try
-            Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          with Yojson.End_of_tuple -> end_of_tuple := true);
-          x
-        in
-        if not !end_of_tuple then (
-          try
-            while true do
-              Yojson.Safe.skip_json p lb;
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-            done
-          with Yojson.End_of_tuple -> ()
-        );
-        (x0, x1)
-      with Yojson.End_of_tuple ->
-        Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
-  )
-) p lb
-and _59_of_string s =
-  read__59 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-and read__6 = (
->>>>>>> 04a9cb3 (add memory usage)
   fun p lb ->
     Yojson.Safe.read_space p lb;
     match Yojson.Safe.start_any_variant p lb with
@@ -13599,11 +13515,7 @@ and read_directive = (
                       let x2 =
                         let x =
                           (
-<<<<<<< HEAD
                             read__70
-=======
-                            read__59
->>>>>>> 04a9cb3 (add memory usage)
                           ) p lb
                         in
                         incr len;
@@ -13957,11 +13869,7 @@ and read_directive = (
                       let x2 =
                         let x =
                           (
-<<<<<<< HEAD
                             read__70
-=======
-                            read__59
->>>>>>> 04a9cb3 (add memory usage)
                           ) p lb
                         in
                         incr len;
