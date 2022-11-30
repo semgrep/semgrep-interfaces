@@ -317,7 +317,7 @@ type core_timing
   rules: rule_id list;
   ?rules_parse_time: float option; (* not used in spacegrep *)
 
-  max_ocaml_heap_words : int;
+  max_memory_bytes : int;
 }
 
 (* later: could refactor [target_time] and [rule_times] to be equal
@@ -645,7 +645,7 @@ type cli_timing <ocaml attr="deriving show"> = {
     targets: cli_target_times list;
     total_bytes: int;
 
-    ?max_ocaml_heap_words : int option;
+    ?max_memory_bytes : int option;
   }
 
 (* LATER: should just use rule_id *)

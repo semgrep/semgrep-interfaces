@@ -128,7 +128,7 @@ export type CoreTiming = {
   targets: TargetTime[];
   rules: RuleId[];
   rules_parse_time?: number;
-  max_ocaml_heap_words: Int;
+  max_memory_bytes: Int;
 }
 
 export type TargetTime = {
@@ -293,7 +293,7 @@ export type CliTiming = {
   profiling_times: [string, number][];
   targets: CliTargetTimes[];
   total_bytes: Int;
-  max_ocaml_heap_words?: Int;
+  max_memory_bytes?: Int;
 }
 
 export type RuleIdDict = {
@@ -777,7 +777,7 @@ export function writeCoreTiming(x: CoreTiming, context: any = x): any {
     'targets': _atd_write_required_field('CoreTiming', 'targets', _atd_write_array(writeTargetTime), x.targets, x),
     'rules': _atd_write_required_field('CoreTiming', 'rules', _atd_write_array(writeRuleId), x.rules, x),
     'rules_parse_time': _atd_write_optional_field(_atd_write_float, x.rules_parse_time, x),
-    'max_ocaml_heap_words': _atd_write_required_field('CoreTiming', 'max_ocaml_heap_words', _atd_write_int, x.max_ocaml_heap_words, x),
+    'max_memory_bytes': _atd_write_required_field('CoreTiming', 'max_memory_bytes', _atd_write_int, x.max_memory_bytes, x),
   };
 }
 
@@ -786,7 +786,7 @@ export function readCoreTiming(x: any, context: any = x): CoreTiming {
     targets: _atd_read_required_field('CoreTiming', 'targets', _atd_read_array(readTargetTime), x['targets'], x),
     rules: _atd_read_required_field('CoreTiming', 'rules', _atd_read_array(readRuleId), x['rules'], x),
     rules_parse_time: _atd_read_optional_field(_atd_read_float, x['rules_parse_time'], x),
-    max_ocaml_heap_words: _atd_read_required_field('CoreTiming', 'max_ocaml_heap_words', _atd_read_int, x['max_ocaml_heap_words'], x),
+    max_memory_bytes: _atd_read_required_field('CoreTiming', 'max_memory_bytes', _atd_read_int, x['max_memory_bytes'], x),
   };
 }
 
@@ -1242,7 +1242,7 @@ export function writeCliTiming(x: CliTiming, context: any = x): any {
     'profiling_times': _atd_write_required_field('CliTiming', 'profiling_times', _atd_write_assoc_array_to_object(_atd_write_float), x.profiling_times, x),
     'targets': _atd_write_required_field('CliTiming', 'targets', _atd_write_array(writeCliTargetTimes), x.targets, x),
     'total_bytes': _atd_write_required_field('CliTiming', 'total_bytes', _atd_write_int, x.total_bytes, x),
-    'max_ocaml_heap_words': _atd_write_optional_field(_atd_write_int, x.max_ocaml_heap_words, x),
+    'max_memory_bytes': _atd_write_optional_field(_atd_write_int, x.max_memory_bytes, x),
   };
 }
 
@@ -1253,7 +1253,7 @@ export function readCliTiming(x: any, context: any = x): CliTiming {
     profiling_times: _atd_read_required_field('CliTiming', 'profiling_times', _atd_read_assoc_object_into_array(_atd_read_float), x['profiling_times'], x),
     targets: _atd_read_required_field('CliTiming', 'targets', _atd_read_array(readCliTargetTimes), x['targets'], x),
     total_bytes: _atd_read_required_field('CliTiming', 'total_bytes', _atd_read_int, x['total_bytes'], x),
-    max_ocaml_heap_words: _atd_read_optional_field(_atd_read_int, x['max_ocaml_heap_words'], x),
+    max_memory_bytes: _atd_read_optional_field(_atd_read_int, x['max_memory_bytes'], x),
   };
 }
 

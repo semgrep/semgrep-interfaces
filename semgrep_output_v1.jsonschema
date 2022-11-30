@@ -232,7 +232,7 @@
     },
     "core_timing": {
       "type": "object",
-      "required": [ "targets", "rules", "max_ocaml_heap_words" ],
+      "required": [ "targets", "rules", "max_memory_bytes" ],
       "properties": {
         "targets": {
           "type": "array",
@@ -243,7 +243,7 @@
           "items": { "$ref": "#/definitions/rule_id" }
         },
         "rules_parse_time": { "type": "number" },
-        "max_ocaml_heap_words": { "type": "integer" }
+        "max_memory_bytes": { "type": "integer" }
       }
     },
     "target_time": {
@@ -570,7 +570,7 @@
           "items": { "$ref": "#/definitions/cli_target_times" }
         },
         "total_bytes": { "type": "integer" },
-        "max_ocaml_heap_words": { "type": "integer" }
+        "max_memory_bytes": { "type": "integer" }
       }
     },
     "rule_id_dict": {

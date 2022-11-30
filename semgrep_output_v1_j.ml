@@ -263,7 +263,7 @@ type core_timing = Semgrep_output_v1_t.core_timing = {
   targets: target_time list;
   rules: rule_id list;
   rules_parse_time: float option;
-  max_ocaml_heap_words: int
+  max_memory_bytes: int
 }
   [@@deriving show]
 
@@ -330,7 +330,7 @@ type cli_timing = Semgrep_output_v1_t.cli_timing = {
   profiling_times: (string * float) list;
   targets: cli_target_times list;
   total_bytes: int;
-  max_ocaml_heap_words: int option
+  max_memory_bytes: int option
 }
   [@@deriving show]
 
@@ -8803,11 +8803,11 @@ let write_core_timing : _ -> core_timing -> _ = (
       is_first := false
     else
       Bi_outbuf.add_char ob ',';
-    Bi_outbuf.add_string ob "\"max_ocaml_heap_words\":";
+    Bi_outbuf.add_string ob "\"max_memory_bytes\":";
     (
       Yojson.Safe.write_int
     )
-      ob x.max_ocaml_heap_words;
+      ob x.max_memory_bytes;
     Bi_outbuf.add_char ob '}';
 )
 let string_of_core_timing ?(len = 1024) x =
@@ -8821,7 +8821,7 @@ let read_core_timing = (
     let field_targets = ref (None) in
     let field_rules = ref (None) in
     let field_rules_parse_time = ref (None) in
-    let field_max_ocaml_heap_words = ref (None) in
+    let field_max_memory_bytes = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -8848,20 +8848,26 @@ let read_core_timing = (
                 )
               )
             | 16 -> (
-                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'm' && String.unsafe_get s (pos+15) = 'e' then (
-                  2
-                )
-                else (
-                  -1
-                )
-              )
-            | 20 -> (
-                if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'l' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'p' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'w' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 'r' && String.unsafe_get s (pos+18) = 'd' && String.unsafe_get s (pos+19) = 's' then (
-                  3
-                )
-                else (
-                  -1
-                )
+                match String.unsafe_get s pos with
+                  | 'm' -> (
+                      if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'b' && String.unsafe_get s (pos+12) = 'y' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 's' then (
+                        3
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 'r' -> (
+                      if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'm' && String.unsafe_get s (pos+15) = 'e' then (
+                        2
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
               )
             | _ -> (
                 -1
@@ -8898,7 +8904,7 @@ let read_core_timing = (
               );
             )
           | 3 ->
-            field_max_ocaml_heap_words := (
+            field_max_memory_bytes := (
               Some (
                 (
                   Atdgen_runtime.Oj_run.read_int
@@ -8935,20 +8941,26 @@ let read_core_timing = (
                   )
                 )
               | 16 -> (
-                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'm' && String.unsafe_get s (pos+15) = 'e' then (
-                    2
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 20 -> (
-                  if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'l' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'p' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'w' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 'r' && String.unsafe_get s (pos+18) = 'd' && String.unsafe_get s (pos+19) = 's' then (
-                    3
-                  )
-                  else (
-                    -1
-                  )
+                  match String.unsafe_get s pos with
+                    | 'm' -> (
+                        if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'b' && String.unsafe_get s (pos+12) = 'y' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 's' then (
+                          3
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'r' -> (
+                        if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'm' && String.unsafe_get s (pos+15) = 'e' then (
+                          2
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
                 )
               | _ -> (
                   -1
@@ -8985,7 +8997,7 @@ let read_core_timing = (
                 );
               )
             | 3 ->
-              field_max_ocaml_heap_words := (
+              field_max_memory_bytes := (
                 Some (
                   (
                     Atdgen_runtime.Oj_run.read_int
@@ -9004,7 +9016,7 @@ let read_core_timing = (
             targets = (match !field_targets with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "targets");
             rules = (match !field_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rules");
             rules_parse_time = !field_rules_parse_time;
-            max_ocaml_heap_words = (match !field_max_ocaml_heap_words with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "max_ocaml_heap_words");
+            max_memory_bytes = (match !field_max_memory_bytes with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "max_memory_bytes");
           }
          : core_timing)
       )
@@ -10842,12 +10854,12 @@ let write_cli_timing : _ -> cli_timing -> _ = (
       Yojson.Safe.write_int
     )
       ob x.total_bytes;
-    (match x.max_ocaml_heap_words with None -> () | Some x ->
+    (match x.max_memory_bytes with None -> () | Some x ->
       if !is_first then
         is_first := false
       else
         Bi_outbuf.add_char ob ',';
-      Bi_outbuf.add_string ob "\"max_ocaml_heap_words\":";
+      Bi_outbuf.add_string ob "\"max_memory_bytes\":";
       (
         Yojson.Safe.write_int
       )
@@ -10868,7 +10880,7 @@ let read_cli_timing = (
     let field_profiling_times = ref (None) in
     let field_targets = ref (None) in
     let field_total_bytes = ref (None) in
-    let field_max_ocaml_heap_words = ref (None) in
+    let field_max_memory_bytes = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -10911,20 +10923,26 @@ let read_cli_timing = (
                 )
               )
             | 16 -> (
-                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'm' && String.unsafe_get s (pos+15) = 'e' then (
-                  1
-                )
-                else (
-                  -1
-                )
-              )
-            | 20 -> (
-                if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'l' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'p' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'w' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 'r' && String.unsafe_get s (pos+18) = 'd' && String.unsafe_get s (pos+19) = 's' then (
-                  5
-                )
-                else (
-                  -1
-                )
+                match String.unsafe_get s pos with
+                  | 'm' -> (
+                      if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'b' && String.unsafe_get s (pos+12) = 'y' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 's' then (
+                        5
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 'r' -> (
+                      if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'm' && String.unsafe_get s (pos+15) = 'e' then (
+                        1
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
               )
             | _ -> (
                 -1
@@ -10976,7 +10994,7 @@ let read_cli_timing = (
             );
           | 5 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_max_ocaml_heap_words := (
+              field_max_memory_bytes := (
                 Some (
                   (
                     Atdgen_runtime.Oj_run.read_int
@@ -11030,20 +11048,26 @@ let read_cli_timing = (
                   )
                 )
               | 16 -> (
-                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'm' && String.unsafe_get s (pos+15) = 'e' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 20 -> (
-                  if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'l' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'p' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'w' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 'r' && String.unsafe_get s (pos+18) = 'd' && String.unsafe_get s (pos+19) = 's' then (
-                    5
-                  )
-                  else (
-                    -1
-                  )
+                  match String.unsafe_get s pos with
+                    | 'm' -> (
+                        if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'b' && String.unsafe_get s (pos+12) = 'y' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 's' then (
+                          5
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'r' -> (
+                        if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'm' && String.unsafe_get s (pos+15) = 'e' then (
+                          1
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
                 )
               | _ -> (
                   -1
@@ -11095,7 +11119,7 @@ let read_cli_timing = (
               );
             | 5 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_max_ocaml_heap_words := (
+                field_max_memory_bytes := (
                   Some (
                     (
                       Atdgen_runtime.Oj_run.read_int
@@ -11117,7 +11141,7 @@ let read_cli_timing = (
             profiling_times = (match !field_profiling_times with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "profiling_times");
             targets = (match !field_targets with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "targets");
             total_bytes = (match !field_total_bytes with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "total_bytes");
-            max_ocaml_heap_words = !field_max_ocaml_heap_words;
+            max_memory_bytes = !field_max_memory_bytes;
           }
          : cli_timing)
       )

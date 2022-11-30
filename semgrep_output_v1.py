@@ -2080,7 +2080,7 @@ class CoreTiming:
 
     targets: List[TargetTime]
     rules: List[RuleId]
-    max_ocaml_heap_words: int
+    max_memory_bytes: int
     rules_parse_time: Optional[float] = None
 
     @classmethod
@@ -2089,7 +2089,7 @@ class CoreTiming:
             return cls(
                 targets=_atd_read_list(TargetTime.from_json)(x['targets']) if 'targets' in x else _atd_missing_json_field('CoreTiming', 'targets'),
                 rules=_atd_read_list(RuleId.from_json)(x['rules']) if 'rules' in x else _atd_missing_json_field('CoreTiming', 'rules'),
-                max_ocaml_heap_words=_atd_read_int(x['max_ocaml_heap_words']) if 'max_ocaml_heap_words' in x else _atd_missing_json_field('CoreTiming', 'max_ocaml_heap_words'),
+                max_memory_bytes=_atd_read_int(x['max_memory_bytes']) if 'max_memory_bytes' in x else _atd_missing_json_field('CoreTiming', 'max_memory_bytes'),
                 rules_parse_time=_atd_read_float(x['rules_parse_time']) if 'rules_parse_time' in x else None,
             )
         else:
@@ -2099,7 +2099,7 @@ class CoreTiming:
         res: Dict[str, Any] = {}
         res['targets'] = _atd_write_list((lambda x: x.to_json()))(self.targets)
         res['rules'] = _atd_write_list((lambda x: x.to_json()))(self.rules)
-        res['max_ocaml_heap_words'] = _atd_write_int(self.max_ocaml_heap_words)
+        res['max_memory_bytes'] = _atd_write_int(self.max_memory_bytes)
         if self.rules_parse_time is not None:
             res['rules_parse_time'] = _atd_write_float(self.rules_parse_time)
         return res
@@ -2652,7 +2652,7 @@ class CliTiming:
     profiling_times: Dict[str, float]
     targets: List[CliTargetTimes]
     total_bytes: int
-    max_ocaml_heap_words: Optional[int] = None
+    max_memory_bytes: Optional[int] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliTiming':
@@ -2663,7 +2663,7 @@ class CliTiming:
                 profiling_times=_atd_read_assoc_object_into_dict(_atd_read_float)(x['profiling_times']) if 'profiling_times' in x else _atd_missing_json_field('CliTiming', 'profiling_times'),
                 targets=_atd_read_list(CliTargetTimes.from_json)(x['targets']) if 'targets' in x else _atd_missing_json_field('CliTiming', 'targets'),
                 total_bytes=_atd_read_int(x['total_bytes']) if 'total_bytes' in x else _atd_missing_json_field('CliTiming', 'total_bytes'),
-                max_ocaml_heap_words=_atd_read_int(x['max_ocaml_heap_words']) if 'max_ocaml_heap_words' in x else None,
+                max_memory_bytes=_atd_read_int(x['max_memory_bytes']) if 'max_memory_bytes' in x else None,
             )
         else:
             _atd_bad_json('CliTiming', x)
@@ -2675,8 +2675,8 @@ class CliTiming:
         res['profiling_times'] = _atd_write_assoc_dict_to_object(_atd_write_float)(self.profiling_times)
         res['targets'] = _atd_write_list((lambda x: x.to_json()))(self.targets)
         res['total_bytes'] = _atd_write_int(self.total_bytes)
-        if self.max_ocaml_heap_words is not None:
-            res['max_ocaml_heap_words'] = _atd_write_int(self.max_ocaml_heap_words)
+        if self.max_memory_bytes is not None:
+            res['max_memory_bytes'] = _atd_write_int(self.max_memory_bytes)
         return res
 
     @classmethod

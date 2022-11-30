@@ -263,7 +263,7 @@ type core_timing = Semgrep_output_v1_t.core_timing = {
   targets: target_time list;
   rules: rule_id list;
   rules_parse_time: float option;
-  max_ocaml_heap_words: int
+  max_memory_bytes: int
 }
   [@@deriving show]
 
@@ -330,7 +330,7 @@ type cli_timing = Semgrep_output_v1_t.cli_timing = {
   profiling_times: (string * float) list;
   targets: cli_target_times list;
   total_bytes: int;
-  max_ocaml_heap_words: int option
+  max_memory_bytes: int option
 }
   [@@deriving show]
 
