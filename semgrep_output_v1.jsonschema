@@ -232,7 +232,7 @@
     },
     "core_timing": {
       "type": "object",
-      "required": [ "targets", "rules" ],
+      "required": [ "targets", "rules", "max_memory_bytes" ],
       "properties": {
         "targets": {
           "type": "array",
@@ -242,7 +242,8 @@
           "type": "array",
           "items": { "$ref": "#/definitions/rule_id" }
         },
-        "rules_parse_time": { "type": "number" }
+        "rules_parse_time": { "type": "number" },
+        "max_memory_bytes": { "type": "integer" }
       }
     },
     "target_time": {
@@ -568,7 +569,8 @@
           "type": "array",
           "items": { "$ref": "#/definitions/cli_target_times" }
         },
-        "total_bytes": { "type": "integer" }
+        "total_bytes": { "type": "integer" },
+        "max_memory_bytes": { "type": "integer" }
       }
     },
     "rule_id_dict": {

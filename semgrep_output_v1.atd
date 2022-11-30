@@ -316,6 +316,8 @@ type core_timing
   (* Needs to be separate to include rules read but not run on any target *)
   rules: rule_id list;
   ?rules_parse_time: float option; (* not used in spacegrep *)
+
+  max_memory_bytes : int;
 }
 
 (* later: could refactor [target_time] and [rule_times] to be equal
@@ -642,6 +644,8 @@ type cli_timing <ocaml attr="deriving show"> = {
     profiling_times: (string * float) list <json repr="object"> <python repr="dict">;
     targets: cli_target_times list;
     total_bytes: int;
+
+    ?max_memory_bytes : int option;
   }
 
 (* LATER: should just use rule_id *)
