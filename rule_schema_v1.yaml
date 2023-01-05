@@ -217,9 +217,7 @@ $defs:
             id:
               $ref: "#/$defs/id"
             languages:
-              type: array
-              items:
-                type: string
+              $ref: "#/$defs/languages"
             pattern:
               type: string
             patterns:
@@ -252,11 +250,14 @@ $defs:
     properties:
       metavariable-analysis:
         type: object
+        title: Inspect a metavariable with a given analyzer
         properties:
           analyzer:
             type: string
+            title: Analyzer to use
           metavariable:
             type: string
+            title: Metavariable to analyze
           options:
             type: object
         required:
@@ -271,11 +272,14 @@ $defs:
     properties:
       metavariable-regex:
         type: object
+        title: Search metavariable value with RegEx
         properties:
           metavariable:
             type: string
+            title: Metavariable to search
           regex:
             type: string
+            title: PCRE regular expression
           constant-propagation:
             type: boolean
         required:
@@ -290,9 +294,11 @@ $defs:
     properties:
       metavariable-pattern:
         type: object
+        title: Match metavariable value with a pattern formula
         properties:
           metavariable:
             type: string
+            title: Metavariable to match
           language:
             type: string
           pattern:
@@ -357,11 +363,14 @@ $defs:
     properties:
       metavariable-comparison:
         type: object
+        title: Compare metavariables with other metavariables or literals using constant propogation
         properties:
           metavariable:
             type: string
+            title: Metavariable to compare
           comparison:
             type: string
+            title: Comparison expression
           strip:
             type: boolean
           base:
@@ -473,7 +482,68 @@ $defs:
   id:
     title: Rule ID to attach to findings
     type: string
-type: object
+  # coupling: if you modify this, you first need to modify lang.json in the semgrep-langs repository
+  languages:
+    title: Languages this pattern should run on
+    type: array
+    items:
+      oneOf:
+        - type: string
+        - enum:
+            - apex
+            - bash
+            - sh
+            - c
+            - clojure
+            - cpp
+            - c++
+            - csharp
+            - c#
+            - dart
+            - dockerfile
+            - docker
+            - ex
+            - elixir
+            - generic
+            - go
+            - golang
+            - hack
+            - html
+            - java
+            - js
+            - javascript
+            - json
+            - jsonnet
+            - julia
+            - kt
+            - kotlin
+            - lisp
+            - lua
+            - ocaml
+            - php
+            - python2
+            - python3
+            - py
+            - python
+            - r
+            - regex
+            - none
+            - ruby
+            - rust
+            - scala
+            - scheme
+            - solidity
+            - sol
+            - swift
+            - tf
+            - hcl
+            - terraform
+            - ts
+            - typescript
+            - vue
+            - yaml
+required:
+  - rules
 properties:
   rules:
     type: array
@@ -497,10 +567,7 @@ properties:
             - join
             - extract
         languages:
-          title: Languages this pattern should run on
-          type: array
-          items:
-            type: string
+          $ref: "#/$defs/languages"
         paths:
           title: Path globs this pattern should run on
           type: object
