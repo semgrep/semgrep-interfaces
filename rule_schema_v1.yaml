@@ -482,53 +482,66 @@ $defs:
   id:
     title: Rule ID to attach to findings
     type: string
+  # coupling: if you modify this, you first need to modify lang.json in the semgrep-langs repository
   languages:
     title: Languages this pattern should run on
     type: array
     items:
-      enum:
-        - bash
-        - sh
-        - c
-        - cpp
-        - c++
-        - csharp
-        - c#
-        - dockerfile
-        - docker
-        - generic
-        - go
-        - golang
-        - hack
-        - html
-        - java
-        - js
-        - javascript
-        - json
-        - kt
-        - kotlin
-        - lua
-        - ocaml
-        - php
-        - python2
-        - python3
-        - py
-        - python
-        - r
-        - regex
-        - none
-        - ruby
-        - rust
-        - scala
-        - solidity
-        - sol
-        - tf
-        - hcl
-        - terraform
-        - ts
-        - typescript
-        - vue
-        - yaml
+      oneOf:
+        - type: string
+        - enum:
+            - apex
+            - bash
+            - sh
+            - c
+            - clojure
+            - cpp
+            - c++
+            - csharp
+            - c#
+            - dart
+            - dockerfile
+            - docker
+            - ex
+            - elixir
+            - generic
+            - go
+            - golang
+            - hack
+            - html
+            - java
+            - js
+            - javascript
+            - json
+            - jsonnet
+            - julia
+            - kt
+            - kotlin
+            - lisp
+            - lua
+            - ocaml
+            - php
+            - python2
+            - python3
+            - py
+            - python
+            - r
+            - regex
+            - none
+            - ruby
+            - rust
+            - scala
+            - scheme
+            - solidity
+            - sol
+            - swift
+            - tf
+            - hcl
+            - terraform
+            - ts
+            - typescript
+            - vue
+            - yaml
 required:
   - rules
 properties:
