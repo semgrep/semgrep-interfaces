@@ -6,7 +6,7 @@ $schema: http://json-schema.org/draft-07/schema#
 #!!If you add new syntax to this file, you probably need to add some EXPERIMENTAL
 #  comment before!!
 $defs:
-  general-pattern-content:
+  new-pattern:
     title: "Return finding where code matches against the following pattern"
     oneOf:
     - type: string
@@ -145,11 +145,11 @@ $defs:
         - $ref: "#/$defs/pattern"
         - $ref: "#/$defs/pattern-regex"
         - $ref: "#/$defs/pattern-not-regex"
-        - $ref: "#/$defs/pattern-where-python"
         - $ref: "#/$defs/metavariable-analysis"
         - $ref: "#/$defs/metavariable-regex"
         - $ref: "#/$defs/metavariable-pattern"
         - $ref: "#/$defs/metavariable-comparison"
+        - $ref: "#/$defs/pattern-where-python"
   pattern-either-content:
     type: array
     title: "Return finding where any of the nested conditions are true"
@@ -217,6 +217,7 @@ $defs:
                       - patterns
                   - required:
                       - pattern-either
+  # EXPERIMENTAL
   r2c-internal-project-depends-on-content:
     type: object
     title: "One or more dependencies that the project contains in a lock file"
@@ -259,6 +260,7 @@ $defs:
                 - package
             - required:
                 - version
+  # EXPERIMENTAL
   join-content:
     type: object
     title: "Join one or more rules together based on metavariable contents"
@@ -646,18 +648,10 @@ properties:
           default: search
           enum:
             - search
-<<<<<<< HEAD:rule_schema_v1.yaml
             - taint
             # EXPERIMENTAL
-<<<<<<< HEAD
-=======
->>>>>>> 24a3429 (Adding the EXPERIMENTAL tags to the .atd and jsonschema for 1.0)
-=======
->>>>>>> 189c1df (parent b9e08ffd94e14297da76f1bdaf23ecaea4618c34):rule_schema.yaml
->>>>>>> 1e38d0d (parent b9e08ffd94e14297da76f1bdaf23ecaea4618c34)
             - join
             - extract
-            - taint
         languages:
           $ref: "#/$defs/languages"
         paths:
@@ -729,12 +723,8 @@ properties:
         # EXPERIMENTAL
         r2c-internal-project-depends-on:
           $ref: "#/$defs/r2c-internal-project-depends-on-content"
-<<<<<<< HEAD
-        # EXPERIMENTAL
-=======
         match:
           $ref: "#/$defs/new-pattern"
->>>>>>> 1e38d0d (parent b9e08ffd94e14297da76f1bdaf23ecaea4618c34)
         extract:
           title: Metavariable whose content to use as the extracted result for subsequent rules
           type: string
@@ -869,8 +859,8 @@ properties:
               extract: false
               dest-language: false
               reduce: false
-              join: false
               pattern-sinks: false
               pattern-sources: false
               pattern-propagators: false
               pattern-sanitizers: false
+              join: false
