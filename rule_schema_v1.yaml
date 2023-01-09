@@ -644,6 +644,10 @@ properties:
         dest-language:
           title: Language to process the extracted result of this rule as
           type: string
+        # EXPERIMENTAL
+        json:
+          title: The extracted content is a JSON array
+          type: boolean
         reduce:
           title: Method of intrafile match reduction
           enum:
@@ -700,6 +704,8 @@ properties:
             properties:
               extract: false
               dest-language: false
+              # EXPERIMENTAL
+              json: false
               reduce: false
               pattern: false
               patterns: false
@@ -722,6 +728,8 @@ properties:
             properties:
               extract: false
               dest-language: false
+              # EXPERIMENTAL
+              json: false
               reduce: false
               patterns: false
               pattern: false
@@ -777,6 +785,8 @@ properties:
             properties:
               extract: false
               dest-language: false
+              # EXPERIMENTAL
+              json: false
               reduce: false
               pattern-sinks: false
               pattern-sources: false
