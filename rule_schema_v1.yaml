@@ -762,11 +762,11 @@ properties:
             properties:
               message: false
               severity: false
-              join: false
               pattern-sinks: false
               pattern-sources: false
               pattern-propagators: false
               pattern-sanitizers: false
+              join: false
         - if:
             properties:
               mode:
