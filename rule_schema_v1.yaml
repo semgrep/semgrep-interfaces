@@ -6,6 +6,7 @@ $schema: http://json-schema.org/draft-07/schema#
 #!!If you add new syntax to this file, you probably need to add some EXPERIMENTAL
 #  comment before!!
 $defs:
+  # EXPERIMENTAL
   new-pattern:
     title: "Return finding where code matches against the following pattern"
     oneOf:
@@ -14,8 +15,8 @@ $defs:
       oneOf:
         - required: [ pattern ]
         - required: [ regex ]
-        - required: [ and ]
-        - required: [ or ]
+        - required: [ all ]
+        - required: [ any ]
         - required: [ not ]
         - required: [ inside ]
         - required: [ taint ]
@@ -24,12 +25,12 @@ $defs:
           type: string
         regex:
           type: string
-        and:
+        all:
           type: array
           minItems: 1
           items:
             $ref: "#/$defs/new-pattern"
-        or:
+        any:
           type: array
           minItems: 1
           items:
@@ -99,10 +100,12 @@ $defs:
     oneOf:
     - type: string
     # This is scuffed, but it seems that `allOf` does not short circuit.
-    # This schema can potentially run on things which are not objects (such as lists), and if that happens,
-    # the validator will crash when it checks the keys of the object.
-    # I would normally just use `allOf`, but since it doensn't short circuit, I had to instead make it this
-    # weird `if-then-else` thing to properly skip the keys check on a non-object.
+    # This schema can potentially run on things which are not objects 
+    # (such as lists), and if that happens, the validator will crash when 
+    # it checks the keys of the object.
+    # I would normally just use `allOf`, but since it doensn't short circuit, 
+    # I had to instead make it this weird `if-then-else` thing to properly 
+    # skip the keys check on a non-object.
     - if:
         type: object
       then:
@@ -723,8 +726,10 @@ properties:
         # EXPERIMENTAL
         r2c-internal-project-depends-on:
           $ref: "#/$defs/r2c-internal-project-depends-on-content"
+        # EXPERIMENTAL
         match:
           $ref: "#/$defs/new-pattern"
+        # EXPERIMENTAL
         extract:
           title: Metavariable whose content to use as the extracted result for subsequent rules
           type: string
@@ -808,6 +813,14 @@ properties:
               extract: false
               dest-language: false
               reduce: false
+              patterns: false
+              pattern: false
+              pattern-either: false
+              pattern-regex: false
+              pattern-sinks: false
+              pattern-sources: false
+              pattern-propagators: false
+              pattern-sanitizers: false
               match: false
         - if:
             properties:
