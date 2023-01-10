@@ -6,17 +6,106 @@ $schema: http://json-schema.org/draft-07/schema#
 #!!If you add new syntax to this file, you probably need to add some EXPERIMENTAL
 #  comment before!!
 $defs:
+  # EXPERIMENTAL
+  new-pattern:
+    title: "Return finding where code matches against the following pattern"
+    oneOf:
+    - type: string
+    - type: object
+      oneOf:
+        - required: [ pattern ]
+        - required: [ regex ]
+        - required: [ all ]
+        - required: [ any ]
+        - required: [ not ]
+        - required: [ inside ]
+        - required: [ taint ]
+      properties:
+        pattern:
+          type: string
+        regex:
+          type: string
+        all:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/$defs/new-pattern"
+        any:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/$defs/new-pattern"
+        not:
+          $ref: "#/$defs/new-pattern"
+        inside:
+          $ref: "#/$defs/new-pattern"
+        taint:
+          required:
+            - sources
+            - sinks
+          properties:
+            sources:
+              type: array
+              minItems: 1
+              items:
+                $ref: "#/$defs/new-source-pattern"
+            sinks:
+              type: array
+              minItems: 1
+              items:
+                $ref: "#/$defs/new-sink-pattern"
+            propagators:
+              type: array
+              minItems: 1
+              items:
+                $ref: "#/$defs/new-propagator-pattern"
+            sanitizers:
+              type: array
+              minItems: 1
+              items:
+                $ref: "#/$defs/new-sanitizer-pattern"
+        where:
+          type: array
+          items:
+            oneOf:
+              - required: [ focus ]
+                properties:
+                  focus:
+                    type: string
+              - required: [ comparison ]
+                properties:
+                  comparison:
+                    type: string
+                  base:
+                    title: Integer base to parse metavariable contents as
+                    type: integer
+                  strip:
+                    title: Metavariable names to strip quotes from
+                    type: array
+                    items:
+                      type: string
+              - required: [ metavariable ]
+                $ref: "#/$defs/new-pattern"
+                properties:
+                  metavariable:
+                    type: string
+              - required: [ metavariable, analyzer ]
+                properties:
+                  metavariable:
+                    type: string
+                  analyzer:
+                    type: string
   general-pattern-content:
     title: "Return finding where code matches against the following pattern"
     oneOf:
     - type: string
-    # This is scuffed, but it seems that `allOf` does not short
-    # circuit.  This schema can potentially run on things which are
-    # not objects (such as lists), and if that happens, the validator
-    # will crash when it checks the keys of the object.  I would
-    # normally just use `allOf`, but since it doensn't short circuit,
-    # I had to instead make it this weird `if-then-else` thing to
-    # properly skip the keys check on a non-object.
+    # This is scuffed, but it seems that `allOf` does not short circuit.
+    # This schema can potentially run on things which are not objects 
+    # (such as lists), and if that happens, the validator will crash when 
+    # it checks the keys of the object.
+    # I would normally just use `allOf`, but since it doensn't short circuit, 
+    # I had to instead make it this weird `if-then-else` thing to properly 
+    # skip the keys check on a non-object.
     - if:
         type: object
       then:
@@ -638,6 +727,9 @@ properties:
         r2c-internal-project-depends-on:
           $ref: "#/$defs/r2c-internal-project-depends-on-content"
         # EXPERIMENTAL
+        match:
+          $ref: "#/$defs/new-pattern"
+        # EXPERIMENTAL
         extract:
           title: Metavariable whose content to use as the extracted result for subsequent rules
           type: string
@@ -667,14 +759,11 @@ properties:
               - dest-language
               - extract
             oneOf:
-              - required:
-                  - pattern
-              - required:
-                  - patterns
-              - required:
-                  - pattern-either
-              - required:
-                  - pattern-regex
+              - required: [ match ]
+              - required: [ pattern ]
+              - required: [ patterns ]
+              - required: [ pattern-either ]
+              - required: [ pattern-regex ]
             properties:
               message: false
               severity: false
@@ -701,6 +790,7 @@ properties:
               extract: false
               dest-language: false
               reduce: false
+              match: false
               pattern: false
               patterns: false
               pattern-either: false
@@ -731,6 +821,7 @@ properties:
               pattern-sources: false
               pattern-propagators: false
               pattern-sanitizers: false
+              match: false
         - if:
             properties:
               mode:
@@ -763,6 +854,7 @@ properties:
                     - pattern-regex
             else:
               oneOf:
+                # This is still here for error message purposes. 
                 - required:
                     - pattern
                 - required:
@@ -774,6 +866,8 @@ properties:
                 # EXPERIMENTAL
                 - required:
                     - r2c-internal-project-depends-on
+                - required:
+                    - match
             properties:
               extract: false
               dest-language: false
