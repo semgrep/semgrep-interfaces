@@ -7,6 +7,31 @@ $schema: http://json-schema.org/draft-07/schema#
 #  comment before!!
 $defs:
   # EXPERIMENTAL
+  new-source-pattern:
+    $ref: "#/$defs/new-pattern"
+    properties:
+      requires:
+        type: string
+      label:
+        type: string
+  new-sink-pattern:
+    $ref: "#/$defs/new-pattern"
+    properties:
+      requires:
+        type: string
+  new-sanitizer-pattern:
+    $ref: "#/$defs/new-pattern"
+    properties:
+      not-conflicting:
+        type: string
+  new-propagator-pattern:
+    $ref: "#/$defs/new-pattern"
+    required: [ from, to ]
+    properties:
+      from:
+        type: string
+      to:
+        type: string
   new-pattern:
     title: "Return finding where code matches against the following pattern"
     oneOf:
