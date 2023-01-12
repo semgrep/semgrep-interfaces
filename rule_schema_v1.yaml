@@ -645,9 +645,12 @@ properties:
           title: Language to process the extracted result of this rule as
           type: string
         # EXPERIMENTAL
-        json:
-          title: The extracted content is a JSON array
-          type: boolean
+        transform:
+          title: Method to transform the extracted content
+          enum:
+            - unquote_string
+            - concat_json_string_array
+          default: unquote_string
         reduce:
           title: Method of intrafile match reduction
           enum:
@@ -705,7 +708,7 @@ properties:
               extract: false
               dest-language: false
               # EXPERIMENTAL
-              json: false
+              transform: false
               reduce: false
               pattern: false
               patterns: false
@@ -729,7 +732,7 @@ properties:
               extract: false
               dest-language: false
               # EXPERIMENTAL
-              json: false
+              transform: false
               reduce: false
               patterns: false
               pattern: false
@@ -786,7 +789,7 @@ properties:
               extract: false
               dest-language: false
               # EXPERIMENTAL
-              json: false
+              transform: false
               reduce: false
               pattern-sinks: false
               pattern-sources: false
