@@ -761,6 +761,14 @@ properties:
         dest-language:
           title: Language to process the extracted result of this rule as
           type: string
+        # EXPERIMENTAL
+        transform:
+          title: Method to transform the extracted content
+          enum:
+            - no_transform
+            - unquote_string
+            - concat_json_string_array
+          default: no_transform
         reduce:
           title: Method of intrafile match reduction
           enum:
@@ -814,6 +822,8 @@ properties:
             properties:
               extract: false
               dest-language: false
+              # EXPERIMENTAL
+              transform: false
               reduce: false
               match: false
               pattern: false
@@ -837,6 +847,8 @@ properties:
             properties:
               extract: false
               dest-language: false
+              # EXPERIMENTAL
+              transform: false
               reduce: false
               patterns: false
               pattern: false
@@ -896,6 +908,8 @@ properties:
             properties:
               extract: false
               dest-language: false
+              # EXPERIMENTAL
+              transform: false
               reduce: false
               pattern-sinks: false
               pattern-sources: false
