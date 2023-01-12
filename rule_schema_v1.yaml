@@ -648,9 +648,10 @@ properties:
         transform:
           title: Method to transform the extracted content
           enum:
+            - no_transform
             - unquote_string
             - concat_json_string_array
-          default: unquote_string
+          default: no_transform
         reduce:
           title: Method of intrafile match reduction
           enum:
