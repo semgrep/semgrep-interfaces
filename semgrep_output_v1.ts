@@ -13,9 +13,9 @@ export type RawJson = any
 export type Version = string
 
 export type Position = {
-  line: Int;
-  col: Int;
-  offset: Int;
+  line: number /*int*/;
+  col: number /*int*/;
+  offset: number /*int*/;
 }
 
 export type Location = {
@@ -98,8 +98,8 @@ export type CoreSeverity =
 | { kind: 'Warning' /* JSON: "warning" */ }
 
 export type CoreStats = {
-  okfiles: Int;
-  errorfiles: Int;
+  okfiles: number /*int*/;
+  errorfiles: number /*int*/;
 }
 
 export type SkippedTarget = {
@@ -128,7 +128,7 @@ export type CoreTiming = {
   targets: TargetTime[];
   rules: RuleId[];
   rules_parse_time?: number;
-  max_memory_bytes: Int;
+  max_memory_bytes: number /*int*/;
 }
 
 export type TargetTime = {
@@ -183,7 +183,7 @@ export type CoreMatchResults = {
 }
 
 export type CliError = {
-  code: Int;
+  code: number /*int*/;
   level: string;
   type_: string;
   rule_id?: RuleId;
@@ -208,8 +208,8 @@ export type ErrorSpan = {
 }
 
 export type PositionBis = {
-  line: Int;
-  col: Int;
+  line: number /*int*/;
+  col: number /*int*/;
 }
 
 export type CliMatchCallTrace =
@@ -258,7 +258,7 @@ export type CliMatchExtra = {
 export type FixRegex = {
   regex: string;
   replacement: string;
-  count?: Int;
+  count?: number /*int*/;
 }
 
 export type CliOutput = {
@@ -292,8 +292,8 @@ export type CliTiming = {
   rules_parse_time: number;
   profiling_times: [string, number][];
   targets: CliTargetTimes[];
-  total_bytes: Int;
-  max_memory_bytes?: Int;
+  total_bytes: number /*int*/;
+  max_memory_bytes?: number /*int*/;
 }
 
 export type RuleIdDict = {
@@ -302,7 +302,7 @@ export type RuleIdDict = {
 
 export type CliTargetTimes = {
   path: string;
-  num_bytes: Int;
+  num_bytes: number /*int*/;
   match_times: number[];
   parse_times: number[];
   run_time: number;
@@ -311,7 +311,7 @@ export type CliTargetTimes = {
 export type ScaInfo = {
   reachable: boolean;
   reachability_rule: boolean;
-  sca_finding_schema: Int;
+  sca_finding_schema: number /*int*/;
   dependency_match: DependencyMatch;
 }
 
@@ -347,7 +347,7 @@ export type FoundDependency = {
   allowed_hashes: [string, string[]][];
   resolved_url?: string;
   transitivity: Transitivity;
-  line_number?: Int;
+  line_number?: number /*int*/;
 }
 
 export type ApiScansFindings = {
@@ -362,13 +362,13 @@ export type ApiScansFindings = {
 export type Finding = {
   check_id: RuleId;
   path: string;
-  line: Int;
-  column: Int;
-  end_line: Int;
-  end_column: Int;
+  line: number /*int*/;
+  column: number /*int*/;
+  end_line: number /*int*/;
+  end_column: number /*int*/;
   message: string;
-  severity: Int;
-  index: Int;
+  severity: number /*int*/;
+  index: number /*int*/;
   commit_date: string;
   syntactic_id: string;
   match_based_id?: string;
@@ -380,11 +380,11 @@ export type Finding = {
 }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
-  return ((x: any): any => x)(x, context);
+  return ((x: any, context): any => x)(x, context);
 }
 
 export function readRawJson(x: any, context: any = x): RawJson {
-  return ((x: any): any => x)(x, context);
+  return ((x: any, context): any => x)(x, context);
 }
 
 export function writeVersion(x: Version, context: any = x): any {
@@ -1496,8 +1496,6 @@ export function readFinding(x: any, context: any = x): Finding {
 // Runtime library
 /////////////////////////////////////////////////////////////////////
 
-export type Int = number
-
 export type Option<T> = null | { value: T }
 
 function _atd_missing_json_field(type_name: string, json_field_name: string) {
@@ -1530,7 +1528,7 @@ function _atd_bad_ts(expected_type: string, ts_value: any, context: any) {
                   ` Occurs in '${JSON.stringify(context)}'.`)
 }
 
-function _atd_check_json_tuple(len: Int, x: any, context: any) {
+function _atd_check_json_tuple(len: number /*int*/, x: any, context: any) {
   if (! Array.isArray(x) || x.length !== len)
     _atd_bad_json('tuple of length ' + len, x, context);
 }
@@ -1553,7 +1551,7 @@ function _atd_read_bool(x: any, context: any): boolean {
   }
 }
 
-function _atd_read_int(x: any, context: any): Int {
+function _atd_read_int(x: any, context: any): number /*int*/ {
   if (Number.isInteger(x))
     return x
   else {
@@ -1734,7 +1732,7 @@ function _atd_write_bool(x: any, context: any): boolean {
   }
 }
 
-function _atd_write_int(x: any, context: any): Int {
+function _atd_write_int(x: any, context: any): number /*int*/ {
   if (Number.isInteger(x))
     return x
   else {
@@ -1843,7 +1841,7 @@ function _atd_write_required_field<T>(type_name: string,
 }
 
 function _atd_write_optional_field<T>(write_elt: (x: T, context: any) => any,
-                                      x: T,
+                                      x: T | undefined,
                                       context: any): any {
   if (x === undefined || x === null)
     return x
