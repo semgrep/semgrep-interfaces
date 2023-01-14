@@ -53,7 +53,7 @@ export type CoreMatchIntermediateVar = {
   location: Location;
 }
 
-export type Metavars = [string, MetavarValue][]
+export type Metavars = Map<string, MetavarValue>
 
 export type MetavarValue = {
   start: Position;
@@ -290,7 +290,7 @@ export type CliSkippedTarget = {
 export type CliTiming = {
   rules: RuleIdDict[];
   rules_parse_time: number;
-  profiling_times: [string, number][];
+  profiling_times: Map<string, number>;
   targets: CliTargetTimes[];
   total_bytes: number /*int*/;
   max_memory_bytes?: number /*int*/;
@@ -344,7 +344,7 @@ export type FoundDependency = {
   package_: string;
   version: string;
   ecosystem: Ecosystem;
-  allowed_hashes: [string, string[]][];
+  allowed_hashes: Map<string, string[]>;
   resolved_url?: string;
   transitivity: Transitivity;
   line_number?: number /*int*/;
@@ -520,11 +520,11 @@ export function readCoreMatchIntermediateVar(x: any, context: any = x): CoreMatc
 }
 
 export function writeMetavars(x: Metavars, context: any = x): any {
-  return _atd_write_assoc_array_to_object(writeMetavarValue)(x, context);
+  return _atd_write_assoc_map_to_object(writeMetavarValue)(x, context);
 }
 
 export function readMetavars(x: any, context: any = x): Metavars {
-  return _atd_read_assoc_object_into_array(readMetavarValue)(x, context);
+  return _atd_read_assoc_object_into_map(readMetavarValue)(x, context);
 }
 
 export function writeMetavarValue(x: MetavarValue, context: any = x): any {
@@ -1239,7 +1239,7 @@ export function writeCliTiming(x: CliTiming, context: any = x): any {
   return {
     'rules': _atd_write_required_field('CliTiming', 'rules', _atd_write_array(writeRuleIdDict), x.rules, x),
     'rules_parse_time': _atd_write_required_field('CliTiming', 'rules_parse_time', _atd_write_float, x.rules_parse_time, x),
-    'profiling_times': _atd_write_required_field('CliTiming', 'profiling_times', _atd_write_assoc_array_to_object(_atd_write_float), x.profiling_times, x),
+    'profiling_times': _atd_write_required_field('CliTiming', 'profiling_times', _atd_write_assoc_map_to_object(_atd_write_float), x.profiling_times, x),
     'targets': _atd_write_required_field('CliTiming', 'targets', _atd_write_array(writeCliTargetTimes), x.targets, x),
     'total_bytes': _atd_write_required_field('CliTiming', 'total_bytes', _atd_write_int, x.total_bytes, x),
     'max_memory_bytes': _atd_write_optional_field(_atd_write_int, x.max_memory_bytes, x),
@@ -1250,7 +1250,7 @@ export function readCliTiming(x: any, context: any = x): CliTiming {
   return {
     rules: _atd_read_required_field('CliTiming', 'rules', _atd_read_array(readRuleIdDict), x['rules'], x),
     rules_parse_time: _atd_read_required_field('CliTiming', 'rules_parse_time', _atd_read_float, x['rules_parse_time'], x),
-    profiling_times: _atd_read_required_field('CliTiming', 'profiling_times', _atd_read_assoc_object_into_array(_atd_read_float), x['profiling_times'], x),
+    profiling_times: _atd_read_required_field('CliTiming', 'profiling_times', _atd_read_assoc_object_into_map(_atd_read_float), x['profiling_times'], x),
     targets: _atd_read_required_field('CliTiming', 'targets', _atd_read_array(readCliTargetTimes), x['targets'], x),
     total_bytes: _atd_read_required_field('CliTiming', 'total_bytes', _atd_read_int, x['total_bytes'], x),
     max_memory_bytes: _atd_read_optional_field(_atd_read_int, x['max_memory_bytes'], x),
@@ -1406,7 +1406,7 @@ export function writeFoundDependency(x: FoundDependency, context: any = x): any 
     'package': _atd_write_required_field('FoundDependency', 'package', _atd_write_string, x.package_, x),
     'version': _atd_write_required_field('FoundDependency', 'version', _atd_write_string, x.version, x),
     'ecosystem': _atd_write_required_field('FoundDependency', 'ecosystem', writeEcosystem, x.ecosystem, x),
-    'allowed_hashes': _atd_write_required_field('FoundDependency', 'allowed_hashes', _atd_write_assoc_array_to_object(_atd_write_array(_atd_write_string)), x.allowed_hashes, x),
+    'allowed_hashes': _atd_write_required_field('FoundDependency', 'allowed_hashes', _atd_write_assoc_map_to_object(_atd_write_array(_atd_write_string)), x.allowed_hashes, x),
     'resolved_url': _atd_write_optional_field(_atd_write_string, x.resolved_url, x),
     'transitivity': _atd_write_required_field('FoundDependency', 'transitivity', writeTransitivity, x.transitivity, x),
     'line_number': _atd_write_optional_field(_atd_write_int, x.line_number, x),
@@ -1418,7 +1418,7 @@ export function readFoundDependency(x: any, context: any = x): FoundDependency {
     package_: _atd_read_required_field('FoundDependency', 'package', _atd_read_string, x['package'], x),
     version: _atd_read_required_field('FoundDependency', 'version', _atd_read_string, x['version'], x),
     ecosystem: _atd_read_required_field('FoundDependency', 'ecosystem', readEcosystem, x['ecosystem'], x),
-    allowed_hashes: _atd_read_required_field('FoundDependency', 'allowed_hashes', _atd_read_assoc_object_into_array(_atd_read_array(_atd_read_string)), x['allowed_hashes'], x),
+    allowed_hashes: _atd_read_required_field('FoundDependency', 'allowed_hashes', _atd_read_assoc_object_into_map(_atd_read_array(_atd_read_string)), x['allowed_hashes'], x),
     resolved_url: _atd_read_optional_field(_atd_read_string, x['resolved_url'], x),
     transitivity: _atd_read_required_field('FoundDependency', 'transitivity', readTransitivity, x['transitivity'], x),
     line_number: _atd_read_optional_field(_atd_read_int, x['line_number'], x),
