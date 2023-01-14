@@ -165,8 +165,9 @@ type core_match_intermediate_var
  * does not always generate a metavars
 *)
 type metavars <ocaml attr="deriving show"> = (string * metavar_value) list
-   <json repr="object">
-   <python repr="dict">
+  <json repr="object">
+  <python repr="dict">
+  <ts repr="map">
 
 (* TODO: should just inherit location. Maybe it was optimized to not contain
  * the filename, which might be redundant with the information in core_match,
@@ -641,7 +642,10 @@ type cli_timing <ocaml attr="deriving show"> = {
     rules: rule_id_dict list;
     rules_parse_time: float;
     (* LATER: define a cli_profiling_times with more precise keys *)
-    profiling_times: (string * float) list <json repr="object"> <python repr="dict">;
+    profiling_times: (string * float) list
+      <json repr="object">
+      <python repr="dict">
+      <ts repr="map">;
     targets: cli_target_times list;
     total_bytes: int;
 
@@ -726,7 +730,10 @@ type found_dependency <ocaml attr="deriving show"> = {
   package: string;
   version: string;
   ecosystem: ecosystem;
-  allowed_hashes: (string * string list) list <json repr="object"> <python repr="dict">;
+  allowed_hashes: (string * string list) list
+    <json repr="object">
+    <python repr="dict">
+    <ts repr="map">;
   ?resolved_url: string option;
   transitivity: transitivity;
   ?line_number: int option;
