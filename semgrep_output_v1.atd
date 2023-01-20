@@ -245,6 +245,9 @@ type core_error_kind
   | FatalError (* missing file, OCaml errors, etc. *) <json name="Fatal error">
   | Timeout <json name="Timeout">
   | OutOfMemory <json name="Out of memory">
+  (* pro-engine specific *)
+  | TimeoutDuringPreprocessing <json name="Timeout during preprocessing">
+  | OutOfMemoryDuringPreprocessing <json name="OOM during preprocessing">
   (* since semgrep 0.97 *)
   | PartialParsing of location list (* list of skipped tokens *)
 ] <ocaml repr="classic">
@@ -255,6 +258,9 @@ type core_severity
   <python decorator="dataclass(frozen=True)"> = [
   | Error <json name="error">
   | Warning <json name="warning">
+  (* For the timeout/OOM during preprocessing errors, where it is not
+     an error that crashes the program but should be shown to the user *)
+  | Alert <json name="alert">
 ] <ocaml repr="classic">
 
 
