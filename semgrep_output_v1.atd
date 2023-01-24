@@ -258,9 +258,6 @@ type core_severity
   <python decorator="dataclass(frozen=True)"> = [
   | Error <json name="error">
   | Warning <json name="warning">
-  (* For the timeout/OOM during preprocessing errors, where it is not
-     an error that crashes the program but should be shown to the user *)
-  | Alert <json name="alert">
 ] <ocaml repr="classic">
 
 
