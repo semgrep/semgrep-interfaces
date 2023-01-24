@@ -37,6 +37,7 @@ export type CoreMatchExtra = {
   metavars: Metavars;
   dataflow_trace?: CoreMatchDataflowTrace;
   rendered_fix?: string;
+  is_pro_match: boolean;
 }
 
 export type CoreMatchCallTrace =
@@ -180,7 +181,6 @@ export type CoreMatchResults = {
   explanations?: MatchingExplanation[];
   stats: CoreStats;
   time?: CoreTiming;
-  is_pro_match: boolean;
 }
 
 export type CliError = {
@@ -254,6 +254,7 @@ export type CliMatchExtra = {
   sca_info?: ScaInfo;
   fixed_lines?: string[];
   dataflow_trace?: CliMatchDataflowTrace;
+  is_pro_match: boolean;
 }
 
 export type FixRegex = {
@@ -458,6 +459,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
     'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
     'dataflow_trace': _atd_write_optional_field(writeCoreMatchDataflowTrace, x.dataflow_trace, x),
     'rendered_fix': _atd_write_optional_field(_atd_write_string, x.rendered_fix, x),
+    'is_pro_match': _atd_write_required_field('CoreMatchExtra', 'is_pro_match', _atd_write_bool, x.is_pro_match, x),
   };
 }
 
@@ -467,6 +469,7 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
     dataflow_trace: _atd_read_optional_field(readCoreMatchDataflowTrace, x['dataflow_trace'], x),
     rendered_fix: _atd_read_optional_field(_atd_read_string, x['rendered_fix'], x),
+    is_pro_match: _atd_read_required_field('CoreMatchExtra', 'is_pro_match', _atd_read_bool, x['is_pro_match'], x),
   };
 }
 
@@ -945,7 +948,6 @@ export function writeCoreMatchResults(x: CoreMatchResults, context: any = x): an
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'stats': _atd_write_required_field('CoreMatchResults', 'stats', writeCoreStats, x.stats, x),
     'time': _atd_write_optional_field(writeCoreTiming, x.time, x),
-    'is_pro_match': _atd_write_required_field('CoreMatchResults', 'is_pro_match', _atd_write_bool, x.is_pro_match, x),
   };
 }
 
@@ -958,7 +960,6 @@ export function readCoreMatchResults(x: any, context: any = x): CoreMatchResults
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     stats: _atd_read_required_field('CoreMatchResults', 'stats', readCoreStats, x['stats'], x),
     time: _atd_read_optional_field(readCoreTiming, x['time'], x),
-    is_pro_match: _atd_read_required_field('CoreMatchResults', 'is_pro_match', _atd_read_bool, x['is_pro_match'], x),
   };
 }
 
@@ -1134,6 +1135,7 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
     'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
     'dataflow_trace': _atd_write_optional_field(writeCliMatchDataflowTrace, x.dataflow_trace, x),
+    'is_pro_match': _atd_write_required_field('CliMatchExtra', 'is_pro_match', _atd_write_bool, x.is_pro_match, x),
   };
 }
 
@@ -1151,6 +1153,7 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
     dataflow_trace: _atd_read_optional_field(readCliMatchDataflowTrace, x['dataflow_trace'], x),
+    is_pro_match: _atd_read_required_field('CliMatchExtra', 'is_pro_match', _atd_read_bool, x['is_pro_match'], x),
   };
 }
 

@@ -852,6 +852,7 @@ class CoreMatchExtra:
     """Original type: core_match_extra = { ... }"""
 
     metavars: Metavars
+    is_pro_match: bool
     message: Optional[str] = None
     dataflow_trace: Optional[CoreMatchDataflowTrace] = None
     rendered_fix: Optional[str] = None
@@ -861,6 +862,7 @@ class CoreMatchExtra:
         if isinstance(x, dict):
             return cls(
                 metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else _atd_missing_json_field('CoreMatchExtra', 'metavars'),
+                is_pro_match=_atd_read_bool(x['is_pro_match']) if 'is_pro_match' in x else _atd_missing_json_field('CoreMatchExtra', 'is_pro_match'),
                 message=_atd_read_string(x['message']) if 'message' in x else None,
                 dataflow_trace=CoreMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 rendered_fix=_atd_read_string(x['rendered_fix']) if 'rendered_fix' in x else None,
@@ -871,6 +873,7 @@ class CoreMatchExtra:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['metavars'] = (lambda x: x.to_json())(self.metavars)
+        res['is_pro_match'] = _atd_write_bool(self.is_pro_match)
         if self.message is not None:
             res['message'] = _atd_write_string(self.message)
         if self.dataflow_trace is not None:
@@ -2560,7 +2563,6 @@ class CoreMatchResults:
     matches: List[CoreMatch]
     errors: List[CoreError]
     stats: CoreStats
-    is_pro_match: bool
     skipped_targets: Optional[List[SkippedTarget]] = None
     skipped_rules: Optional[List[SkippedRule]] = None
     explanations: Optional[List[MatchingExplanation]] = None
@@ -2573,7 +2575,6 @@ class CoreMatchResults:
                 matches=_atd_read_list(CoreMatch.from_json)(x['matches']) if 'matches' in x else _atd_missing_json_field('CoreMatchResults', 'matches'),
                 errors=_atd_read_list(CoreError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CoreMatchResults', 'errors'),
                 stats=CoreStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CoreMatchResults', 'stats'),
-                is_pro_match=_atd_read_bool(x['is_pro_match']) if 'is_pro_match' in x else _atd_missing_json_field('CoreMatchResults', 'is_pro_match'),
                 skipped_targets=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
@@ -2587,7 +2588,6 @@ class CoreMatchResults:
         res['matches'] = _atd_write_list((lambda x: x.to_json()))(self.matches)
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['stats'] = (lambda x: x.to_json())(self.stats)
-        res['is_pro_match'] = _atd_write_bool(self.is_pro_match)
         if self.skipped_targets is not None:
             res['skipped'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_targets)
         if self.skipped_rules is not None:
@@ -2802,6 +2802,7 @@ class CliMatchExtra:
     message: str
     metadata: RawJson
     severity: str
+    is_pro_match: bool
     metavars: Optional[Metavars] = None
     fix: Optional[str] = None
     fix_regex: Optional[FixRegex] = None
@@ -2819,6 +2820,7 @@ class CliMatchExtra:
                 message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('CliMatchExtra', 'message'),
                 metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else _atd_missing_json_field('CliMatchExtra', 'metadata'),
                 severity=_atd_read_string(x['severity']) if 'severity' in x else _atd_missing_json_field('CliMatchExtra', 'severity'),
+                is_pro_match=_atd_read_bool(x['is_pro_match']) if 'is_pro_match' in x else _atd_missing_json_field('CliMatchExtra', 'is_pro_match'),
                 metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else None,
                 fix=_atd_read_string(x['fix']) if 'fix' in x else None,
                 fix_regex=FixRegex.from_json(x['fix_regex']) if 'fix_regex' in x else None,
@@ -2837,6 +2839,7 @@ class CliMatchExtra:
         res['message'] = _atd_write_string(self.message)
         res['metadata'] = (lambda x: x.to_json())(self.metadata)
         res['severity'] = _atd_write_string(self.severity)
+        res['is_pro_match'] = _atd_write_bool(self.is_pro_match)
         if self.metavars is not None:
             res['metavars'] = (lambda x: x.to_json())(self.metavars)
         if self.fix is not None:

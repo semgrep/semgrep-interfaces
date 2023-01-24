@@ -86,7 +86,8 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   message: string option;
   metavars: metavars;
   dataflow_trace: core_match_dataflow_trace option;
-  rendered_fix: string option
+  rendered_fix: string option;
+  is_pro_match: bool
 }
   [@@deriving show]
 
@@ -311,8 +312,7 @@ type core_match_results = Semgrep_output_v1_t.core_match_results = {
   skipped_rules: skipped_rule list option;
   explanations: matching_explanation list option;
   stats: core_stats;
-  time: core_timing option;
-  is_pro_match: bool
+  time: core_timing option
 }
   [@@deriving show]
 
@@ -367,7 +367,8 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   is_ignored: bool option;
   sca_info: sca_info option;
   fixed_lines: string list option;
-  dataflow_trace: cli_match_dataflow_trace option
+  dataflow_trace: cli_match_dataflow_trace option;
+  is_pro_match: bool
 }
   [@@deriving show]
 
@@ -2958,6 +2959,15 @@ let write_core_match_extra : _ -> core_match_extra -> _ = (
       )
         ob x;
     );
+    if !is_first then
+      is_first := false
+    else
+      Bi_outbuf.add_char ob ',';
+    Bi_outbuf.add_string ob "\"is_pro_match\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.is_pro_match;
     Bi_outbuf.add_char ob '}';
 )
 let string_of_core_match_extra ?(len = 1024) x =
@@ -2972,6 +2982,7 @@ let read_core_match_extra = (
     let field_metavars = ref (None) in
     let field_dataflow_trace = ref (None) in
     let field_rendered_fix = ref (None) in
+    let field_is_pro_match = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -2998,12 +3009,26 @@ let read_core_match_extra = (
                 )
               )
             | 12 -> (
-                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'f' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'x' then (
-                  3
-                )
-                else (
-                  -1
-                )
+                match String.unsafe_get s pos with
+                  | 'i' -> (
+                      if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'c' && String.unsafe_get s (pos+11) = 'h' then (
+                        4
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 'r' -> (
+                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'f' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'x' then (
+                        3
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
               )
             | 14 -> (
                 if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'e' then (
@@ -3059,6 +3084,14 @@ let read_core_match_extra = (
                 )
               );
             )
+          | 4 ->
+            field_is_pro_match := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              )
+            );
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -3089,12 +3122,26 @@ let read_core_match_extra = (
                   )
                 )
               | 12 -> (
-                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'f' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'x' then (
-                    3
-                  )
-                  else (
-                    -1
-                  )
+                  match String.unsafe_get s pos with
+                    | 'i' -> (
+                        if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'c' && String.unsafe_get s (pos+11) = 'h' then (
+                          4
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'r' -> (
+                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'f' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'x' then (
+                          3
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
                 )
               | 14 -> (
                   if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'e' then (
@@ -3150,6 +3197,14 @@ let read_core_match_extra = (
                   )
                 );
               )
+            | 4 ->
+              field_is_pro_match := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -3163,6 +3218,7 @@ let read_core_match_extra = (
             metavars = (match !field_metavars with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "metavars");
             dataflow_trace = !field_dataflow_trace;
             rendered_fix = !field_rendered_fix;
+            is_pro_match = (match !field_is_pro_match with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "is_pro_match");
           }
          : core_match_extra)
       )
@@ -10115,15 +10171,6 @@ let write_core_match_results : _ -> core_match_results -> _ = (
       )
         ob x;
     );
-    if !is_first then
-      is_first := false
-    else
-      Bi_outbuf.add_char ob ',';
-    Bi_outbuf.add_string ob "\"is_pro_match\":";
-    (
-      Yojson.Safe.write_bool
-    )
-      ob x.is_pro_match;
     Bi_outbuf.add_char ob '}';
 )
 let string_of_core_match_results ?(len = 1024) x =
@@ -10141,7 +10188,6 @@ let read_core_match_results = (
     let field_explanations = ref (None) in
     let field_stats = ref (None) in
     let field_time = ref (None) in
-    let field_is_pro_match = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -10198,26 +10244,12 @@ let read_core_match_results = (
                     )
               )
             | 12 -> (
-                match String.unsafe_get s pos with
-                  | 'e' -> (
-                      if String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
-                        4
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | 'i' -> (
-                      if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'c' && String.unsafe_get s (pos+11) = 'h' then (
-                        7
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | _ -> (
-                      -1
-                    )
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
+                  4
+                )
+                else (
+                  -1
+                )
               )
             | 13 -> (
                 if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
@@ -10299,14 +10331,6 @@ let read_core_match_results = (
                 )
               );
             )
-          | 7 ->
-            field_is_pro_match := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_bool
-                ) p lb
-              )
-            );
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -10367,26 +10391,12 @@ let read_core_match_results = (
                       )
                 )
               | 12 -> (
-                  match String.unsafe_get s pos with
-                    | 'e' -> (
-                        if String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
-                          4
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 'i' -> (
-                        if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'c' && String.unsafe_get s (pos+11) = 'h' then (
-                          7
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
+                    4
+                  )
+                  else (
+                    -1
+                  )
                 )
               | 13 -> (
                   if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
@@ -10468,14 +10478,6 @@ let read_core_match_results = (
                   )
                 );
               )
-            | 7 ->
-              field_is_pro_match := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_bool
-                  ) p lb
-                )
-              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -10492,7 +10494,6 @@ let read_core_match_results = (
             explanations = !field_explanations;
             stats = (match !field_stats with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "stats");
             time = !field_time;
-            is_pro_match = (match !field_is_pro_match with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "is_pro_match");
           }
          : core_match_results)
       )
@@ -12222,6 +12223,15 @@ let write_cli_match_extra : _ -> cli_match_extra -> _ = (
       )
         ob x;
     );
+    if !is_first then
+      is_first := false
+    else
+      Bi_outbuf.add_char ob ',';
+    Bi_outbuf.add_string ob "\"is_pro_match\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.is_pro_match;
     Bi_outbuf.add_char ob '}';
 )
 let string_of_cli_match_extra ?(len = 1024) x =
@@ -12244,6 +12254,7 @@ let read_cli_match_extra = (
     let field_sca_info = ref (None) in
     let field_fixed_lines = ref (None) in
     let field_dataflow_trace = ref (None) in
+    let field_is_pro_match = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -12375,6 +12386,14 @@ let read_cli_match_extra = (
                   -1
                 )
               )
+            | 12 -> (
+                if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'c' && String.unsafe_get s (pos+11) = 'h' then (
+                  12
+                )
+                else (
+                  -1
+                )
+              )
             | 14 -> (
                 if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'e' then (
                   11
@@ -12501,6 +12520,14 @@ let read_cli_match_extra = (
                 )
               );
             )
+          | 12 ->
+            field_is_pro_match := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              )
+            );
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -12636,6 +12663,14 @@ let read_cli_match_extra = (
                     -1
                   )
                 )
+              | 12 -> (
+                  if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'c' && String.unsafe_get s (pos+11) = 'h' then (
+                    12
+                  )
+                  else (
+                    -1
+                  )
+                )
               | 14 -> (
                   if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'e' then (
                     11
@@ -12762,6 +12797,14 @@ let read_cli_match_extra = (
                   )
                 );
               )
+            | 12 ->
+              field_is_pro_match := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -12783,6 +12826,7 @@ let read_cli_match_extra = (
             sca_info = !field_sca_info;
             fixed_lines = !field_fixed_lines;
             dataflow_trace = !field_dataflow_trace;
+            is_pro_match = (match !field_is_pro_match with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "is_pro_match");
           }
          : cli_match_extra)
       )

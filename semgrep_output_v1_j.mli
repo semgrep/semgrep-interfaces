@@ -86,7 +86,8 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   message: string option;
   metavars: metavars;
   dataflow_trace: core_match_dataflow_trace option;
-  rendered_fix: string option
+  rendered_fix: string option;
+  is_pro_match: bool
 }
   [@@deriving show]
 
@@ -311,8 +312,7 @@ type core_match_results = Semgrep_output_v1_t.core_match_results = {
   skipped_rules: skipped_rule list option;
   explanations: matching_explanation list option;
   stats: core_stats;
-  time: core_timing option;
-  is_pro_match: bool
+  time: core_timing option
 }
   [@@deriving show]
 
@@ -367,7 +367,8 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   is_ignored: bool option;
   sca_info: sca_info option;
   fixed_lines: string list option;
-  dataflow_trace: cli_match_dataflow_trace option
+  dataflow_trace: cli_match_dataflow_trace option;
+  is_pro_match: bool
 }
   [@@deriving show]
 

@@ -54,14 +54,15 @@
     },
     "core_match_extra": {
       "type": "object",
-      "required": [ "metavars" ],
+      "required": [ "metavars", "is_pro_match" ],
       "properties": {
         "message": { "type": "string" },
         "metavars": { "$ref": "#/definitions/metavars" },
         "dataflow_trace": {
           "$ref": "#/definitions/core_match_dataflow_trace"
         },
-        "rendered_fix": { "type": "string" }
+        "rendered_fix": { "type": "string" },
+        "is_pro_match": { "type": "boolean" }
       }
     },
     "core_match_call_trace": {
@@ -324,7 +325,7 @@
     },
     "core_match_results": {
       "type": "object",
-      "required": [ "matches", "errors", "stats", "is_pro_match" ],
+      "required": [ "matches", "errors", "stats" ],
       "properties": {
         "matches": {
           "type": "array",
@@ -347,8 +348,7 @@
           "items": { "$ref": "#/definitions/matching_explanation" }
         },
         "stats": { "$ref": "#/definitions/core_stats" },
-        "time": { "$ref": "#/definitions/core_timing" },
-        "is_pro_match": { "type": "boolean" }
+        "time": { "$ref": "#/definitions/core_timing" }
       }
     },
     "cli_error": {
@@ -490,7 +490,8 @@
     "cli_match_extra": {
       "type": "object",
       "required": [
-        "fingerprint", "lines", "message", "metadata", "severity"
+        "fingerprint", "lines", "message", "metadata", "severity",
+        "is_pro_match"
       ],
       "properties": {
         "metavars": { "$ref": "#/definitions/metavars" },
@@ -506,7 +507,8 @@
         "fixed_lines": { "type": "array", "items": { "type": "string" } },
         "dataflow_trace": {
           "$ref": "#/definitions/cli_match_dataflow_trace"
-        }
+        },
+        "is_pro_match": { "type": "boolean" }
       }
     },
     "fix_regex": {
