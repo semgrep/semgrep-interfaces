@@ -180,6 +180,7 @@ export type CoreMatchResults = {
   explanations?: MatchingExplanation[];
   stats: CoreStats;
   time?: CoreTiming;
+  is_pro_match: boolean;
 }
 
 export type CliError = {
@@ -944,6 +945,7 @@ export function writeCoreMatchResults(x: CoreMatchResults, context: any = x): an
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'stats': _atd_write_required_field('CoreMatchResults', 'stats', writeCoreStats, x.stats, x),
     'time': _atd_write_optional_field(writeCoreTiming, x.time, x),
+    'is_pro_match': _atd_write_required_field('CoreMatchResults', 'is_pro_match', _atd_write_bool, x.is_pro_match, x),
   };
 }
 
@@ -956,6 +958,7 @@ export function readCoreMatchResults(x: any, context: any = x): CoreMatchResults
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     stats: _atd_read_required_field('CoreMatchResults', 'stats', readCoreStats, x['stats'], x),
     time: _atd_read_optional_field(readCoreTiming, x['time'], x),
+    is_pro_match: _atd_read_required_field('CoreMatchResults', 'is_pro_match', _atd_read_bool, x['is_pro_match'], x),
   };
 }
 

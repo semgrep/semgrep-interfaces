@@ -311,7 +311,8 @@ type core_match_results = Semgrep_output_v1_t.core_match_results = {
   skipped_rules: skipped_rule list option;
   explanations: matching_explanation list option;
   stats: core_stats;
-  time: core_timing option
+  time: core_timing option;
+  is_pro_match: bool
 }
   [@@deriving show]
 

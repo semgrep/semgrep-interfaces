@@ -324,7 +324,7 @@
     },
     "core_match_results": {
       "type": "object",
-      "required": [ "matches", "errors", "stats" ],
+      "required": [ "matches", "errors", "stats", "is_pro_match" ],
       "properties": {
         "matches": {
           "type": "array",
@@ -347,7 +347,8 @@
           "items": { "$ref": "#/definitions/matching_explanation" }
         },
         "stats": { "$ref": "#/definitions/core_stats" },
-        "time": { "$ref": "#/definitions/core_timing" }
+        "time": { "$ref": "#/definitions/core_timing" },
+        "is_pro_match": { "type": "boolean" }
       }
     },
     "cli_error": {

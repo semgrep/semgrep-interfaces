@@ -2560,6 +2560,7 @@ class CoreMatchResults:
     matches: List[CoreMatch]
     errors: List[CoreError]
     stats: CoreStats
+    is_pro_match: bool
     skipped_targets: Optional[List[SkippedTarget]] = None
     skipped_rules: Optional[List[SkippedRule]] = None
     explanations: Optional[List[MatchingExplanation]] = None
@@ -2572,6 +2573,7 @@ class CoreMatchResults:
                 matches=_atd_read_list(CoreMatch.from_json)(x['matches']) if 'matches' in x else _atd_missing_json_field('CoreMatchResults', 'matches'),
                 errors=_atd_read_list(CoreError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CoreMatchResults', 'errors'),
                 stats=CoreStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CoreMatchResults', 'stats'),
+                is_pro_match=_atd_read_bool(x['is_pro_match']) if 'is_pro_match' in x else _atd_missing_json_field('CoreMatchResults', 'is_pro_match'),
                 skipped_targets=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
@@ -2585,6 +2587,7 @@ class CoreMatchResults:
         res['matches'] = _atd_write_list((lambda x: x.to_json()))(self.matches)
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['stats'] = (lambda x: x.to_json())(self.stats)
+        res['is_pro_match'] = _atd_write_bool(self.is_pro_match)
         if self.skipped_targets is not None:
             res['skipped'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_targets)
         if self.skipped_rules is not None:
