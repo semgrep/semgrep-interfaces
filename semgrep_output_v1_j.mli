@@ -1,6 +1,8 @@
 (* Auto-generated from "semgrep_output_v1.atd" *)
 [@@@ocaml.warning "-27-32-33-35-39"]
 
+type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
+
 type matching_operation = Semgrep_output_v1_t.matching_operation = 
     And
   | Or
@@ -86,7 +88,8 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   message: string option;
   metavars: metavars;
   dataflow_trace: core_match_dataflow_trace option;
-  rendered_fix: string option
+  rendered_fix: string option;
+  engine_kind: engine_kind
 }
   [@@deriving show]
 
@@ -366,7 +369,8 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   is_ignored: bool option;
   sca_info: sca_info option;
   fixed_lines: string list option;
-  dataflow_trace: cli_match_dataflow_trace option
+  dataflow_trace: cli_match_dataflow_trace option;
+  engine_kind: engine_kind
 }
   [@@deriving show]
 
@@ -418,6 +422,26 @@ type api_scans_findings = Semgrep_output_v1_t.api_scans_findings = {
   cai_ids: string list
 }
   [@@deriving show]
+
+val write_engine_kind :
+  Bi_outbuf.t -> engine_kind -> unit
+  (** Output a JSON value of type {!type:engine_kind}. *)
+
+val string_of_engine_kind :
+  ?len:int -> engine_kind -> string
+  (** Serialize a value of type {!type:engine_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_engine_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> engine_kind
+  (** Input JSON data of type {!type:engine_kind}. *)
+
+val engine_kind_of_string :
+  string -> engine_kind
+  (** Deserialize JSON data of type {!type:engine_kind}. *)
 
 val write_matching_operation :
   Bi_outbuf.t -> matching_operation -> unit
