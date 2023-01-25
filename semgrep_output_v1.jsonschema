@@ -175,8 +175,8 @@
         { "const": "Fatal error" },
         { "const": "Timeout" },
         { "const": "Out of memory" },
-        { "const": "Timeout during preprocessing" },
-        { "const": "OOM during preprocessing" },
+        { "const": "Timeout during interfile analysis" },
+        { "const": "OOM during interfile analysis" },
         {
           "type": "array",
           "minItems": 2,
