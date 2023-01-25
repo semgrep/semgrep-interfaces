@@ -2432,6 +2432,40 @@ class OutOfMemory:
 
 
 @dataclass(frozen=True, order=True)
+class TimeoutDuringPreprocessing:
+    """Original type: core_error_kind = [ ... | TimeoutDuringPreprocessing | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'TimeoutDuringPreprocessing'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Timeout during preprocessing'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class OutOfMemoryDuringPreprocessing:
+    """Original type: core_error_kind = [ ... | OutOfMemoryDuringPreprocessing | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'OutOfMemoryDuringPreprocessing'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'OOM during preprocessing'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
 class PartialParsing:
     """Original type: core_error_kind = [ ... | PartialParsing of ... | ... ]"""
 
@@ -2453,7 +2487,7 @@ class PartialParsing:
 class CoreErrorKind:
     """Original type: core_error_kind = [ ... ]"""
 
-    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, PatternParseError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, PartialParsing]
+    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, PatternParseError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringPreprocessing, OutOfMemoryDuringPreprocessing, PartialParsing]
 
     @property
     def kind(self) -> str:
@@ -2487,6 +2521,10 @@ class CoreErrorKind:
                 return cls(Timeout())
             if x == 'Out of memory':
                 return cls(OutOfMemory())
+            if x == 'Timeout during preprocessing':
+                return cls(TimeoutDuringPreprocessing())
+            if x == 'OOM during preprocessing':
+                return cls(OutOfMemoryDuringPreprocessing())
             _atd_bad_json('CoreErrorKind', x)
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]

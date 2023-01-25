@@ -290,6 +290,8 @@ type core_error_kind = Semgrep_output_v1_t.core_error_kind =
   | FatalError
   | Timeout
   | OutOfMemory
+  | TimeoutDuringPreprocessing
+  | OutOfMemoryDuringPreprocessing
   | PartialParsing of location list
 
   [@@deriving show]

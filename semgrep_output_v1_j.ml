@@ -290,6 +290,8 @@ type core_error_kind = Semgrep_output_v1_t.core_error_kind =
   | FatalError
   | Timeout
   | OutOfMemory
+  | TimeoutDuringPreprocessing
+  | OutOfMemoryDuringPreprocessing
   | PartialParsing of location list
 
   [@@deriving show]
@@ -9257,6 +9259,8 @@ let write_core_error_kind : _ -> core_error_kind -> _ = (
       | FatalError -> Bi_outbuf.add_string ob "\"Fatal error\""
       | Timeout -> Bi_outbuf.add_string ob "\"Timeout\""
       | OutOfMemory -> Bi_outbuf.add_string ob "\"Out of memory\""
+      | TimeoutDuringPreprocessing -> Bi_outbuf.add_string ob "\"Timeout during preprocessing\""
+      | OutOfMemoryDuringPreprocessing -> Bi_outbuf.add_string ob "\"OOM during preprocessing\""
       | PartialParsing x ->
         Bi_outbuf.add_string ob "[\"PartialParsing\",";
         (
@@ -9331,6 +9335,14 @@ let read_core_error_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (OutOfMemory : core_error_kind)
+            | "Timeout during preprocessing" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (TimeoutDuringPreprocessing : core_error_kind)
+            | "OOM during preprocessing" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (OutOfMemoryDuringPreprocessing : core_error_kind)
             | "PartialParsing" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -9369,6 +9381,10 @@ let read_core_error_kind = (
               (Timeout : core_error_kind)
             | "Out of memory" ->
               (OutOfMemory : core_error_kind)
+            | "Timeout during preprocessing" ->
+              (TimeoutDuringPreprocessing : core_error_kind)
+            | "OOM during preprocessing" ->
+              (OutOfMemoryDuringPreprocessing : core_error_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

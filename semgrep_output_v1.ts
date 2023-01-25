@@ -17,9 +17,9 @@ export type RawJson = any
 export type Version = string
 
 export type Position = {
-  line: number /*int*/;
-  col: number /*int*/;
-  offset: number /*int*/;
+  line: Int;
+  col: Int;
+  offset: Int;
 }
 
 export type Location = {
@@ -95,6 +95,8 @@ export type CoreErrorKind =
 | { kind: 'FatalError' /* JSON: "Fatal error" */ }
 | { kind: 'Timeout' }
 | { kind: 'OutOfMemory' /* JSON: "Out of memory" */ }
+| { kind: 'TimeoutDuringPreprocessing' /* JSON: "Timeout during preprocessing" */ }
+| { kind: 'OutOfMemoryDuringPreprocessing' /* JSON: "OOM during preprocessing" */ }
 | { kind: 'PartialParsing'; value: Location[] }
 
 export type CoreSeverity =
@@ -102,8 +104,8 @@ export type CoreSeverity =
 | { kind: 'Warning' /* JSON: "warning" */ }
 
 export type CoreStats = {
-  okfiles: number /*int*/;
-  errorfiles: number /*int*/;
+  okfiles: Int;
+  errorfiles: Int;
 }
 
 export type SkippedTarget = {
@@ -132,7 +134,7 @@ export type CoreTiming = {
   targets: TargetTime[];
   rules: RuleId[];
   rules_parse_time?: number;
-  max_memory_bytes: number /*int*/;
+  max_memory_bytes: Int;
 }
 
 export type TargetTime = {
@@ -187,7 +189,7 @@ export type CoreMatchResults = {
 }
 
 export type CliError = {
-  code: number /*int*/;
+  code: Int;
   level: string;
   type_: string;
   rule_id?: RuleId;
@@ -212,8 +214,8 @@ export type ErrorSpan = {
 }
 
 export type PositionBis = {
-  line: number /*int*/;
-  col: number /*int*/;
+  line: Int;
+  col: Int;
 }
 
 export type CliMatchCallTrace =
@@ -262,7 +264,7 @@ export type CliMatchExtra = {
 export type FixRegex = {
   regex: string;
   replacement: string;
-  count?: number /*int*/;
+  count?: Int;
 }
 
 export type CliOutput = {
@@ -296,8 +298,8 @@ export type CliTiming = {
   rules_parse_time: number;
   profiling_times: Map<string, number>;
   targets: CliTargetTimes[];
-  total_bytes: number /*int*/;
-  max_memory_bytes?: number /*int*/;
+  total_bytes: Int;
+  max_memory_bytes?: Int;
 }
 
 export type RuleIdDict = {
@@ -306,7 +308,7 @@ export type RuleIdDict = {
 
 export type CliTargetTimes = {
   path: string;
-  num_bytes: number /*int*/;
+  num_bytes: Int;
   match_times: number[];
   parse_times: number[];
   run_time: number;
@@ -315,7 +317,7 @@ export type CliTargetTimes = {
 export type ScaInfo = {
   reachable: boolean;
   reachability_rule: boolean;
-  sca_finding_schema: number /*int*/;
+  sca_finding_schema: Int;
   dependency_match: DependencyMatch;
 }
 
@@ -351,7 +353,7 @@ export type FoundDependency = {
   allowed_hashes: Map<string, string[]>;
   resolved_url?: string;
   transitivity: Transitivity;
-  line_number?: number /*int*/;
+  line_number?: Int;
 }
 
 export type ApiScansFindings = {
@@ -366,13 +368,13 @@ export type ApiScansFindings = {
 export type Finding = {
   check_id: RuleId;
   path: string;
-  line: number /*int*/;
-  column: number /*int*/;
-  end_line: number /*int*/;
-  end_column: number /*int*/;
+  line: Int;
+  column: Int;
+  end_line: Int;
+  end_column: Int;
   message: string;
-  severity: number /*int*/;
-  index: number /*int*/;
+  severity: Int;
+  index: Int;
   commit_date: string;
   syntactic_id: string;
   match_based_id?: string;
@@ -384,11 +386,11 @@ export type Finding = {
 }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
-  return ((x: any, context): any => x)(x, context);
+  return ((x: any): any => x)(x, context);
 }
 
 export function readRawJson(x: any, context: any = x): RawJson {
-  return ((x: any, context): any => x)(x, context);
+  return ((x: any): any => x)(x, context);
 }
 
 export function writeVersion(x: Version, context: any = x): any {
@@ -615,6 +617,10 @@ export function writeCoreErrorKind(x: CoreErrorKind, context: any = x): any {
       return 'Timeout'
     case 'OutOfMemory':
       return 'Out of memory'
+    case 'TimeoutDuringPreprocessing':
+      return 'Timeout during preprocessing'
+    case 'OutOfMemoryDuringPreprocessing':
+      return 'OOM during preprocessing'
     case 'PartialParsing':
       return ['PartialParsing', _atd_write_array(writeLocation)(x.value, x)]
   }
@@ -647,6 +653,10 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
         return { kind: 'Timeout' }
       case 'Out of memory':
         return { kind: 'OutOfMemory' }
+      case 'Timeout during preprocessing':
+        return { kind: 'TimeoutDuringPreprocessing' }
+      case 'OOM during preprocessing':
+        return { kind: 'OutOfMemoryDuringPreprocessing' }
       default:
         _atd_bad_json('CoreErrorKind', x, context)
         throw new Error('impossible')
@@ -1500,6 +1510,8 @@ export function readFinding(x: any, context: any = x): Finding {
 // Runtime library
 /////////////////////////////////////////////////////////////////////
 
+export type Int = number
+
 export type Option<T> = null | { value: T }
 
 function _atd_missing_json_field(type_name: string, json_field_name: string) {
@@ -1532,7 +1544,7 @@ function _atd_bad_ts(expected_type: string, ts_value: any, context: any) {
                   ` Occurs in '${JSON.stringify(context)}'.`)
 }
 
-function _atd_check_json_tuple(len: number /*int*/, x: any, context: any) {
+function _atd_check_json_tuple(len: Int, x: any, context: any) {
   if (! Array.isArray(x) || x.length !== len)
     _atd_bad_json('tuple of length ' + len, x, context);
 }
@@ -1555,7 +1567,7 @@ function _atd_read_bool(x: any, context: any): boolean {
   }
 }
 
-function _atd_read_int(x: any, context: any): number /*int*/ {
+function _atd_read_int(x: any, context: any): Int {
   if (Number.isInteger(x))
     return x
   else {
@@ -1736,7 +1748,7 @@ function _atd_write_bool(x: any, context: any): boolean {
   }
 }
 
-function _atd_write_int(x: any, context: any): number /*int*/ {
+function _atd_write_int(x: any, context: any): Int {
   if (Number.isInteger(x))
     return x
   else {
@@ -1845,7 +1857,7 @@ function _atd_write_required_field<T>(type_name: string,
 }
 
 function _atd_write_optional_field<T>(write_elt: (x: T, context: any) => any,
-                                      x: T | undefined,
+                                      x: T,
                                       context: any): any {
   if (x === undefined || x === null)
     return x
