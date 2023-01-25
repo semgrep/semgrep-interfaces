@@ -95,8 +95,8 @@ export type CoreErrorKind =
 | { kind: 'FatalError' /* JSON: "Fatal error" */ }
 | { kind: 'Timeout' }
 | { kind: 'OutOfMemory' /* JSON: "Out of memory" */ }
-| { kind: 'TimeoutDuringPreprocessing' /* JSON: "Timeout during preprocessing" */ }
-| { kind: 'OutOfMemoryDuringPreprocessing' /* JSON: "OOM during preprocessing" */ }
+| { kind: 'TimeoutDuringInterfile' /* JSON: "Timeout during interfile analysis" */ }
+| { kind: 'OutOfMemoryDuringInterfile' /* JSON: "OOM during interfile analysis" */ }
 | { kind: 'PartialParsing'; value: Location[] }
 
 export type CoreSeverity =
@@ -617,10 +617,10 @@ export function writeCoreErrorKind(x: CoreErrorKind, context: any = x): any {
       return 'Timeout'
     case 'OutOfMemory':
       return 'Out of memory'
-    case 'TimeoutDuringPreprocessing':
-      return 'Timeout during preprocessing'
-    case 'OutOfMemoryDuringPreprocessing':
-      return 'OOM during preprocessing'
+    case 'TimeoutDuringInterfile':
+      return 'Timeout during interfile analysis'
+    case 'OutOfMemoryDuringInterfile':
+      return 'OOM during interfile analysis'
     case 'PartialParsing':
       return ['PartialParsing', _atd_write_array(writeLocation)(x.value, x)]
   }
@@ -653,10 +653,10 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
         return { kind: 'Timeout' }
       case 'Out of memory':
         return { kind: 'OutOfMemory' }
-      case 'Timeout during preprocessing':
-        return { kind: 'TimeoutDuringPreprocessing' }
-      case 'OOM during preprocessing':
-        return { kind: 'OutOfMemoryDuringPreprocessing' }
+      case 'Timeout during interfile analysis':
+        return { kind: 'TimeoutDuringInterfile' }
+      case 'OOM during interfile analysis':
+        return { kind: 'OutOfMemoryDuringInterfile' }
       default:
         _atd_bad_json('CoreErrorKind', x, context)
         throw new Error('impossible')

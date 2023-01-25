@@ -246,8 +246,8 @@ type core_error_kind
   | Timeout <json name="Timeout">
   | OutOfMemory <json name="Out of memory">
   (* pro-engine specific *)
-  | TimeoutDuringPreprocessing <json name="Timeout during preprocessing">
-  | OutOfMemoryDuringPreprocessing <json name="OOM during preprocessing">
+  | TimeoutDuringInterfile <json name="Timeout during interfile analysis">
+  | OutOfMemoryDuringInterfile <json name="OOM during interfile analysis">
   (* since semgrep 0.97 *)
   | PartialParsing of location list (* list of skipped tokens *)
 ] <ocaml repr="classic">

@@ -2432,34 +2432,34 @@ class OutOfMemory:
 
 
 @dataclass(frozen=True, order=True)
-class TimeoutDuringPreprocessing:
-    """Original type: core_error_kind = [ ... | TimeoutDuringPreprocessing | ... ]"""
+class TimeoutDuringInterfile:
+    """Original type: core_error_kind = [ ... | TimeoutDuringInterfile | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'TimeoutDuringPreprocessing'
+        return 'TimeoutDuringInterfile'
 
     @staticmethod
     def to_json() -> Any:
-        return 'Timeout during preprocessing'
+        return 'Timeout during interfile analysis'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
 @dataclass(frozen=True, order=True)
-class OutOfMemoryDuringPreprocessing:
-    """Original type: core_error_kind = [ ... | OutOfMemoryDuringPreprocessing | ... ]"""
+class OutOfMemoryDuringInterfile:
+    """Original type: core_error_kind = [ ... | OutOfMemoryDuringInterfile | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'OutOfMemoryDuringPreprocessing'
+        return 'OutOfMemoryDuringInterfile'
 
     @staticmethod
     def to_json() -> Any:
-        return 'OOM during preprocessing'
+        return 'OOM during interfile analysis'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -2487,7 +2487,7 @@ class PartialParsing:
 class CoreErrorKind:
     """Original type: core_error_kind = [ ... ]"""
 
-    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, PatternParseError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringPreprocessing, OutOfMemoryDuringPreprocessing, PartialParsing]
+    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, PatternParseError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, PartialParsing]
 
     @property
     def kind(self) -> str:
@@ -2521,10 +2521,10 @@ class CoreErrorKind:
                 return cls(Timeout())
             if x == 'Out of memory':
                 return cls(OutOfMemory())
-            if x == 'Timeout during preprocessing':
-                return cls(TimeoutDuringPreprocessing())
-            if x == 'OOM during preprocessing':
-                return cls(OutOfMemoryDuringPreprocessing())
+            if x == 'Timeout during interfile analysis':
+                return cls(TimeoutDuringInterfile())
+            if x == 'OOM during interfile analysis':
+                return cls(OutOfMemoryDuringInterfile())
             _atd_bad_json('CoreErrorKind', x)
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
