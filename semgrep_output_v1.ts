@@ -26,6 +26,10 @@ export type Location = {
 
 export type RuleId = string
 
+export type EngineKind =
+| { kind: 'OSSMatch' }
+| { kind: 'ProMatch' }
+
 export type CoreMatch = {
   rule_id: RuleId;
   location: Location;
@@ -37,7 +41,7 @@ export type CoreMatchExtra = {
   metavars: Metavars;
   dataflow_trace?: CoreMatchDataflowTrace;
   rendered_fix?: string;
-  is_pro_match: boolean;
+  engine_kind: EngineKind;
 }
 
 export type CoreMatchCallTrace =
@@ -254,7 +258,7 @@ export type CliMatchExtra = {
   sca_info?: ScaInfo;
   fixed_lines?: string[];
   dataflow_trace?: CliMatchDataflowTrace;
-  is_pro_match: boolean;
+  engine_kind: EngineKind;
 }
 
 export type FixRegex = {
@@ -437,6 +441,27 @@ export function readRuleId(x: any, context: any = x): RuleId {
   return _atd_read_string(x, context);
 }
 
+export function writeEngineKind(x: EngineKind, context: any = x): any {
+  switch (x.kind) {
+    case 'OSSMatch':
+      return 'OSSMatch'
+    case 'ProMatch':
+      return 'ProMatch'
+  }
+}
+
+export function readEngineKind(x: any, context: any = x): EngineKind {
+  switch (x) {
+    case 'OSSMatch':
+      return { kind: 'OSSMatch' }
+    case 'ProMatch':
+      return { kind: 'ProMatch' }
+    default:
+      _atd_bad_json('EngineKind', x, context)
+      throw new Error('impossible')
+  }
+}
+
 export function writeCoreMatch(x: CoreMatch, context: any = x): any {
   return {
     'rule_id': _atd_write_required_field('CoreMatch', 'rule_id', writeRuleId, x.rule_id, x),
@@ -459,7 +484,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
     'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
     'dataflow_trace': _atd_write_optional_field(writeCoreMatchDataflowTrace, x.dataflow_trace, x),
     'rendered_fix': _atd_write_optional_field(_atd_write_string, x.rendered_fix, x),
-    'is_pro_match': _atd_write_required_field('CoreMatchExtra', 'is_pro_match', _atd_write_bool, x.is_pro_match, x),
+    'engine_kind': _atd_write_required_field('CoreMatchExtra', 'engine_kind', writeEngineKind, x.engine_kind, x),
   };
 }
 
@@ -469,7 +494,7 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
     dataflow_trace: _atd_read_optional_field(readCoreMatchDataflowTrace, x['dataflow_trace'], x),
     rendered_fix: _atd_read_optional_field(_atd_read_string, x['rendered_fix'], x),
-    is_pro_match: _atd_read_required_field('CoreMatchExtra', 'is_pro_match', _atd_read_bool, x['is_pro_match'], x),
+    engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineKind, x['engine_kind'], x),
   };
 }
 
@@ -1135,7 +1160,7 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
     'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
     'dataflow_trace': _atd_write_optional_field(writeCliMatchDataflowTrace, x.dataflow_trace, x),
-    'is_pro_match': _atd_write_required_field('CliMatchExtra', 'is_pro_match', _atd_write_bool, x.is_pro_match, x),
+    'engine_kind': _atd_write_required_field('CliMatchExtra', 'engine_kind', writeEngineKind, x.engine_kind, x),
   };
 }
 
@@ -1153,7 +1178,7 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
     dataflow_trace: _atd_read_optional_field(readCliMatchDataflowTrace, x['dataflow_trace'], x),
-    is_pro_match: _atd_read_required_field('CliMatchExtra', 'is_pro_match', _atd_read_bool, x['is_pro_match'], x),
+    engine_kind: _atd_read_required_field('CliMatchExtra', 'engine_kind', readEngineKind, x['engine_kind'], x),
   };
 }
 
