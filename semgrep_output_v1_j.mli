@@ -89,7 +89,7 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   metavars: metavars;
   dataflow_trace: core_match_dataflow_trace option;
   rendered_fix: string option;
-  engine_kind: engine_kind
+  engine_kind: engine_kind option
 }
   [@@deriving show]
 
@@ -372,7 +372,7 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   sca_info: sca_info option;
   fixed_lines: string list option;
   dataflow_trace: cli_match_dataflow_trace option;
-  engine_kind: engine_kind
+  engine_kind: engine_kind option
 }
   [@@deriving show]
 

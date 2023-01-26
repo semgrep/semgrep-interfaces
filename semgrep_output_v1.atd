@@ -128,7 +128,7 @@ type core_match_extra
    * finding. *)
   ?rendered_fix: string option;
 
-  engine_kind: engine_kind;
+  ?engine_kind: engine_kind option;
 }
 
 type core_match_call_trace
@@ -600,7 +600,7 @@ type cli_match_extra <ocaml attr="deriving show"> = {
    * later on. *)
   ?dataflow_trace: cli_match_dataflow_trace option;
 
-  engine_kind: engine_kind;
+  ?engine_kind: engine_kind option;
 }
 
 type fix_regex <ocaml attr="deriving show"> = {
