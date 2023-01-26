@@ -43,6 +43,9 @@
       }
     },
     "rule_id": { "type": "string" },
+    "engine_kind": {
+      "oneOf": [ { "const": "OSSMatch" }, { "const": "ProMatch" } ]
+    },
     "core_match": {
       "type": "object",
       "required": [ "rule_id", "location", "extra" ],
@@ -54,14 +57,15 @@
     },
     "core_match_extra": {
       "type": "object",
-      "required": [ "metavars" ],
+      "required": [ "metavars", "engine_kind" ],
       "properties": {
         "message": { "type": "string" },
         "metavars": { "$ref": "#/definitions/metavars" },
         "dataflow_trace": {
           "$ref": "#/definitions/core_match_dataflow_trace"
         },
-        "rendered_fix": { "type": "string" }
+        "rendered_fix": { "type": "string" },
+        "engine_kind": { "$ref": "#/definitions/engine_kind" }
       }
     },
     "core_match_call_trace": {
@@ -491,7 +495,8 @@
     "cli_match_extra": {
       "type": "object",
       "required": [
-        "fingerprint", "lines", "message", "metadata", "severity"
+        "fingerprint", "lines", "message", "metadata", "severity",
+        "engine_kind"
       ],
       "properties": {
         "metavars": { "$ref": "#/definitions/metavars" },
@@ -507,7 +512,8 @@
         "fixed_lines": { "type": "array", "items": { "type": "string" } },
         "dataflow_trace": {
           "$ref": "#/definitions/cli_match_dataflow_trace"
-        }
+        },
+        "engine_kind": { "$ref": "#/definitions/engine_kind" }
       }
     },
     "fix_regex": {

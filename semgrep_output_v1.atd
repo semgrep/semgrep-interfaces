@@ -102,6 +102,13 @@ type rule_id
 (*****************************************************************************)
 (* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
 
+type engine_kind
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = [
+  | OSSMatch
+  | ProMatch
+] 
+
 type core_match
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
@@ -120,6 +127,8 @@ type core_match_extra
    * inserted in place of the text in the matched range in order to fix the
    * finding. *)
   ?rendered_fix: string option;
+
+  engine_kind: engine_kind;
 }
 
 type core_match_call_trace
@@ -590,6 +599,8 @@ type cli_match_extra <ocaml attr="deriving show"> = {
   (* EXPERIMENTAL: For now, present only for taint findings. May be extended to others
    * later on. *)
   ?dataflow_trace: cli_match_dataflow_trace option;
+
+  engine_kind: engine_kind;
 }
 
 type fix_regex <ocaml attr="deriving show"> = {

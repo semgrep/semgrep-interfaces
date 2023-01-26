@@ -238,6 +238,72 @@ def _atd_write_nullable(write_elt: Callable[[Any], Any]) \
 
 
 @dataclass(frozen=True)
+class OSSMatch:
+    """Original type: engine_kind = [ ... | OSSMatch | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'OSSMatch'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'OSSMatch'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ProMatch:
+    """Original type: engine_kind = [ ... | ProMatch | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ProMatch'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'ProMatch'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class EngineKind:
+    """Original type: engine_kind = [ ... ]"""
+
+    value: Union[OSSMatch, ProMatch]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'EngineKind':
+        if isinstance(x, str):
+            if x == 'OSSMatch':
+                return cls(OSSMatch())
+            if x == 'ProMatch':
+                return cls(ProMatch())
+            _atd_bad_json('EngineKind', x)
+        _atd_bad_json('EngineKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'EngineKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class And:
     """Original type: matching_operation = [ ... | And | ... ]"""
 
@@ -852,6 +918,7 @@ class CoreMatchExtra:
     """Original type: core_match_extra = { ... }"""
 
     metavars: Metavars
+    engine_kind: EngineKind
     message: Optional[str] = None
     dataflow_trace: Optional[CoreMatchDataflowTrace] = None
     rendered_fix: Optional[str] = None
@@ -861,6 +928,7 @@ class CoreMatchExtra:
         if isinstance(x, dict):
             return cls(
                 metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else _atd_missing_json_field('CoreMatchExtra', 'metavars'),
+                engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else _atd_missing_json_field('CoreMatchExtra', 'engine_kind'),
                 message=_atd_read_string(x['message']) if 'message' in x else None,
                 dataflow_trace=CoreMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 rendered_fix=_atd_read_string(x['rendered_fix']) if 'rendered_fix' in x else None,
@@ -871,6 +939,7 @@ class CoreMatchExtra:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['metavars'] = (lambda x: x.to_json())(self.metavars)
+        res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
         if self.message is not None:
             res['message'] = _atd_write_string(self.message)
         if self.dataflow_trace is not None:
@@ -2837,6 +2906,7 @@ class CliMatchExtra:
     message: str
     metadata: RawJson
     severity: str
+    engine_kind: EngineKind
     metavars: Optional[Metavars] = None
     fix: Optional[str] = None
     fix_regex: Optional[FixRegex] = None
@@ -2854,6 +2924,7 @@ class CliMatchExtra:
                 message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('CliMatchExtra', 'message'),
                 metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else _atd_missing_json_field('CliMatchExtra', 'metadata'),
                 severity=_atd_read_string(x['severity']) if 'severity' in x else _atd_missing_json_field('CliMatchExtra', 'severity'),
+                engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else _atd_missing_json_field('CliMatchExtra', 'engine_kind'),
                 metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else None,
                 fix=_atd_read_string(x['fix']) if 'fix' in x else None,
                 fix_regex=FixRegex.from_json(x['fix_regex']) if 'fix_regex' in x else None,
@@ -2872,6 +2943,7 @@ class CliMatchExtra:
         res['message'] = _atd_write_string(self.message)
         res['metadata'] = (lambda x: x.to_json())(self.metadata)
         res['severity'] = _atd_write_string(self.severity)
+        res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
         if self.metavars is not None:
             res['metavars'] = (lambda x: x.to_json())(self.metavars)
         if self.fix is not None:
