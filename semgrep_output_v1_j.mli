@@ -89,7 +89,7 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   metavars: metavars;
   dataflow_trace: core_match_dataflow_trace option;
   rendered_fix: string option;
-  engine_kind: engine_kind option
+  engine_kind: engine_kind
 }
   [@@deriving show]
 
@@ -194,6 +194,12 @@ type sca_info = Semgrep_output_v1_t.sca_info = {
   [@@deriving show]
 
 type rule_id_dict = Semgrep_output_v1_t.rule_id_dict = { id: rule_id }
+  [@@deriving show]
+
+type rule = Semgrep_output_v1_t.rule = {
+  rule_id: rule_id;
+  engine_kind: engine_kind
+}
   [@@deriving show]
 
 type raw_json = Yojson.Basic.t [@@deriving show]
@@ -316,7 +322,8 @@ type core_match_results = Semgrep_output_v1_t.core_match_results = {
   skipped_rules: skipped_rule list option;
   explanations: matching_explanation list option;
   stats: core_stats;
-  time: core_timing option
+  time: core_timing option;
+  rules: rule list
 }
   [@@deriving show]
 
@@ -355,7 +362,8 @@ type cli_paths = Semgrep_output_v1_t.cli_paths = {
 type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   paths: cli_paths;
   time: cli_timing option;
-  explanations: matching_explanation list option
+  explanations: matching_explanation list option;
+  rules: rule list option
 }
   [@@deriving show]
 
@@ -405,7 +413,8 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   results: cli_match list;
   paths: cli_paths;
   time: cli_timing option;
-  explanations: matching_explanation list option
+  explanations: matching_explanation list option;
+  rules: rule list option
 }
   [@@deriving show]
 
@@ -1004,6 +1013,26 @@ val read_rule_id_dict :
 val rule_id_dict_of_string :
   string -> rule_id_dict
   (** Deserialize JSON data of type {!type:rule_id_dict}. *)
+
+val write_rule :
+  Bi_outbuf.t -> rule -> unit
+  (** Output a JSON value of type {!type:rule}. *)
+
+val string_of_rule :
+  ?len:int -> rule -> string
+  (** Serialize a value of type {!type:rule}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_rule :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> rule
+  (** Input JSON data of type {!type:rule}. *)
+
+val rule_of_string :
+  string -> rule
+  (** Deserialize JSON data of type {!type:rule}. *)
 
 val write_raw_json :
   Bi_outbuf.t -> raw_json -> unit

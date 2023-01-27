@@ -89,13 +89,20 @@ type location
 }
 
 (*****************************************************************************)
-(* Rule id *)
+(* Rules *)
 (*****************************************************************************)
 
 (* e.g., "javascript.security.do-not-use-eval" *)
 type rule_id
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = string
+
+type rule
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {
+  rule_id: rule_id;
+  engine_kind: engine_kind;
+} 
 
 (*****************************************************************************)
 (* Core Match result *)
@@ -441,6 +448,11 @@ type core_match_results
   stats: core_stats;
   (* LATER: rename timing *)
   ?time: core_timing option;
+
+  (* These rules, classified by engine used, will let us be transparent in the CLI
+     output over what rules were run with what.
+   *)
+  rules: rule list;
 }
 
 (*****************************************************************************)
@@ -632,6 +644,8 @@ type cli_output_extra <ocaml attr="deriving show"> = {
      *)
     (* EXPERIMENTAL: since semgrep 0.109? *)
     ?explanations: matching_explanation list option;
+
+    ?rules: rule list option;
 }
 
 type cli_paths <ocaml attr="deriving show"> = {

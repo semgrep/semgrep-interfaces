@@ -30,6 +30,11 @@ export type Location = {
 
 export type RuleId = string
 
+export type Rule = {
+  rule_id: RuleId;
+  engine_kind: EngineKind;
+}
+
 export type EngineKind =
 | { kind: 'OSSMatch' }
 | { kind: 'ProMatch' }
@@ -191,6 +196,7 @@ export type CoreMatchResults = {
   explanations?: MatchingExplanation[];
   stats: CoreStats;
   time?: CoreTiming;
+  rules: Rule[];
 }
 
 export type CliError = {
@@ -280,12 +286,14 @@ export type CliOutput = {
   paths: CliPaths;
   time?: CliTiming;
   explanations?: MatchingExplanation[];
+  rules?: Rule[];
 }
 
 export type CliOutputExtra = {
   paths: CliPaths;
   time?: CliTiming;
   explanations?: MatchingExplanation[];
+  rules?: Rule[];
 }
 
 export type CliPaths = {
@@ -445,6 +453,20 @@ export function writeRuleId(x: RuleId, context: any = x): any {
 
 export function readRuleId(x: any, context: any = x): RuleId {
   return _atd_read_string(x, context);
+}
+
+export function writeRule(x: Rule, context: any = x): any {
+  return {
+    'rule_id': _atd_write_required_field('Rule', 'rule_id', writeRuleId, x.rule_id, x),
+    'engine_kind': _atd_write_required_field('Rule', 'engine_kind', writeEngineKind, x.engine_kind, x),
+  };
+}
+
+export function readRule(x: any, context: any = x): Rule {
+  return {
+    rule_id: _atd_read_required_field('Rule', 'rule_id', readRuleId, x['rule_id'], x),
+    engine_kind: _atd_read_required_field('Rule', 'engine_kind', readEngineKind, x['engine_kind'], x),
+  };
 }
 
 export function writeEngineKind(x: EngineKind, context: any = x): any {
@@ -987,6 +1009,7 @@ export function writeCoreMatchResults(x: CoreMatchResults, context: any = x): an
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'stats': _atd_write_required_field('CoreMatchResults', 'stats', writeCoreStats, x.stats, x),
     'time': _atd_write_optional_field(writeCoreTiming, x.time, x),
+    'rules': _atd_write_required_field('CoreMatchResults', 'rules', _atd_write_array(writeRule), x.rules, x),
   };
 }
 
@@ -999,6 +1022,7 @@ export function readCoreMatchResults(x: any, context: any = x): CoreMatchResults
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     stats: _atd_read_required_field('CoreMatchResults', 'stats', readCoreStats, x['stats'], x),
     time: _atd_read_optional_field(readCoreTiming, x['time'], x),
+    rules: _atd_read_required_field('CoreMatchResults', 'rules', _atd_read_array(readRule), x['rules'], x),
   };
 }
 
@@ -1220,6 +1244,7 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
     'paths': _atd_write_required_field('CliOutput', 'paths', writeCliPaths, x.paths, x),
     'time': _atd_write_optional_field(writeCliTiming, x.time, x),
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
+    'rules': _atd_write_optional_field(_atd_write_array(writeRule), x.rules, x),
   };
 }
 
@@ -1231,6 +1256,7 @@ export function readCliOutput(x: any, context: any = x): CliOutput {
     paths: _atd_read_required_field('CliOutput', 'paths', readCliPaths, x['paths'], x),
     time: _atd_read_optional_field(readCliTiming, x['time'], x),
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
+    rules: _atd_read_optional_field(_atd_read_array(readRule), x['rules'], x),
   };
 }
 
@@ -1239,6 +1265,7 @@ export function writeCliOutputExtra(x: CliOutputExtra, context: any = x): any {
     'paths': _atd_write_required_field('CliOutputExtra', 'paths', writeCliPaths, x.paths, x),
     'time': _atd_write_optional_field(writeCliTiming, x.time, x),
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
+    'rules': _atd_write_optional_field(_atd_write_array(writeRule), x.rules, x),
   };
 }
 
@@ -1247,6 +1274,7 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
     paths: _atd_read_required_field('CliOutputExtra', 'paths', readCliPaths, x['paths'], x),
     time: _atd_read_optional_field(readCliTiming, x['time'], x),
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
+    rules: _atd_read_optional_field(_atd_read_array(readRule), x['rules'], x),
   };
 }
 

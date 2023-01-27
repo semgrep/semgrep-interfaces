@@ -19,7 +19,8 @@
     "explanations": {
       "type": "array",
       "items": { "$ref": "#/definitions/matching_explanation" }
-    }
+    },
+    "rules": { "type": "array", "items": { "$ref": "#/definitions/rule" } }
   },
   "definitions": {
     "raw_json": {},
@@ -43,6 +44,14 @@
       }
     },
     "rule_id": { "type": "string" },
+    "rule": {
+      "type": "object",
+      "required": [ "rule_id", "engine_kind" ],
+      "properties": {
+        "rule_id": { "$ref": "#/definitions/rule_id" },
+        "engine_kind": { "$ref": "#/definitions/engine_kind" }
+      }
+    },
     "engine_kind": {
       "oneOf": [ { "const": "OSSMatch" }, { "const": "ProMatch" } ]
     },
@@ -57,7 +66,7 @@
     },
     "core_match_extra": {
       "type": "object",
-      "required": [ "metavars" ],
+      "required": [ "metavars", "engine_kind" ],
       "properties": {
         "message": { "type": "string" },
         "metavars": { "$ref": "#/definitions/metavars" },
@@ -330,7 +339,7 @@
     },
     "core_match_results": {
       "type": "object",
-      "required": [ "matches", "errors", "stats" ],
+      "required": [ "matches", "errors", "stats", "rules" ],
       "properties": {
         "matches": {
           "type": "array",
@@ -353,7 +362,11 @@
           "items": { "$ref": "#/definitions/matching_explanation" }
         },
         "stats": { "$ref": "#/definitions/core_stats" },
-        "time": { "$ref": "#/definitions/core_timing" }
+        "time": { "$ref": "#/definitions/core_timing" },
+        "rules": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/rule" }
+        }
       }
     },
     "cli_error": {
@@ -533,6 +546,10 @@
         "explanations": {
           "type": "array",
           "items": { "$ref": "#/definitions/matching_explanation" }
+        },
+        "rules": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/rule" }
         }
       }
     },
