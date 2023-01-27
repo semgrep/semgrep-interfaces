@@ -128,7 +128,7 @@ type core_match_extra
    * finding. *)
   ?rendered_fix: string option;
 
-  ?engine_kind: engine_kind option;
+  engine_kind: engine_kind;
 }
 
 type core_match_call_trace
