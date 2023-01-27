@@ -57,7 +57,7 @@
     },
     "core_match_extra": {
       "type": "object",
-      "required": [ "metavars", "engine_kind" ],
+      "required": [ "metavars" ],
       "properties": {
         "message": { "type": "string" },
         "metavars": { "$ref": "#/definitions/metavars" },
@@ -495,8 +495,7 @@
     "cli_match_extra": {
       "type": "object",
       "required": [
-        "fingerprint", "lines", "message", "metadata", "severity",
-        "engine_kind"
+        "fingerprint", "lines", "message", "metadata", "severity"
       ],
       "properties": {
         "metavars": { "$ref": "#/definitions/metavars" },
