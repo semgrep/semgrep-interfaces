@@ -20,7 +20,8 @@
       "type": "array",
       "items": { "$ref": "#/definitions/matching_explanation" }
     },
-    "rules": { "type": "array", "items": { "$ref": "#/definitions/rule" } }
+    "rules": { "type": "array", "items": { "$ref": "#/definitions/rule" } },
+    "engine_requested": { "$ref": "#/definitions/engine_kind" }
   },
   "definitions": {
     "raw_json": {},
@@ -52,9 +53,7 @@
         "engine_kind": { "$ref": "#/definitions/engine_kind" }
       }
     },
-    "engine_kind": {
-      "oneOf": [ { "const": "OSSMatch" }, { "const": "ProMatch" } ]
-    },
+    "engine_kind": { "oneOf": [ { "const": "OSS" }, { "const": "PRO" } ] },
     "core_match": {
       "type": "object",
       "required": [ "rule_id", "location", "extra" ],
@@ -339,7 +338,9 @@
     },
     "core_match_results": {
       "type": "object",
-      "required": [ "matches", "errors", "stats", "rules" ],
+      "required": [
+        "matches", "errors", "stats", "rules", "engine_requested"
+      ],
       "properties": {
         "matches": {
           "type": "array",
@@ -366,7 +367,8 @@
         "rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/rule" }
-        }
+        },
+        "engine_requested": { "$ref": "#/definitions/engine_kind" }
       }
     },
     "cli_error": {
@@ -550,7 +552,8 @@
         "rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/rule" }
-        }
+        },
+        "engine_requested": { "$ref": "#/definitions/engine_kind" }
       }
     },
     "cli_paths": {

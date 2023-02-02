@@ -238,34 +238,34 @@ def _atd_write_nullable(write_elt: Callable[[Any], Any]) \
 
 
 @dataclass(frozen=True)
-class OSSMatch:
-    """Original type: engine_kind = [ ... | OSSMatch | ... ]"""
+class OSS:
+    """Original type: engine_kind = [ ... | OSS | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'OSSMatch'
+        return 'OSS'
 
     @staticmethod
     def to_json() -> Any:
-        return 'OSSMatch'
+        return 'OSS'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
 @dataclass(frozen=True)
-class ProMatch:
-    """Original type: engine_kind = [ ... | ProMatch | ... ]"""
+class PRO:
+    """Original type: engine_kind = [ ... | PRO | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'ProMatch'
+        return 'PRO'
 
     @staticmethod
     def to_json() -> Any:
-        return 'ProMatch'
+        return 'PRO'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -275,7 +275,7 @@ class ProMatch:
 class EngineKind:
     """Original type: engine_kind = [ ... ]"""
 
-    value: Union[OSSMatch, ProMatch]
+    value: Union[OSS, PRO]
 
     @property
     def kind(self) -> str:
@@ -285,10 +285,10 @@ class EngineKind:
     @classmethod
     def from_json(cls, x: Any) -> 'EngineKind':
         if isinstance(x, str):
-            if x == 'OSSMatch':
-                return cls(OSSMatch())
-            if x == 'ProMatch':
-                return cls(ProMatch())
+            if x == 'OSS':
+                return cls(OSS())
+            if x == 'PRO':
+                return cls(PRO())
             _atd_bad_json('EngineKind', x)
         _atd_bad_json('EngineKind', x)
 
@@ -2699,6 +2699,7 @@ class CoreMatchResults:
     errors: List[CoreError]
     stats: CoreStats
     rules: List[Rule]
+    engine_requested: EngineKind
     skipped_targets: Optional[List[SkippedTarget]] = None
     skipped_rules: Optional[List[SkippedRule]] = None
     explanations: Optional[List[MatchingExplanation]] = None
@@ -2712,6 +2713,7 @@ class CoreMatchResults:
                 errors=_atd_read_list(CoreError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CoreMatchResults', 'errors'),
                 stats=CoreStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CoreMatchResults', 'stats'),
                 rules=_atd_read_list(Rule.from_json)(x['rules']) if 'rules' in x else _atd_missing_json_field('CoreMatchResults', 'rules'),
+                engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else _atd_missing_json_field('CoreMatchResults', 'engine_requested'),
                 skipped_targets=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
@@ -2726,6 +2728,7 @@ class CoreMatchResults:
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['stats'] = (lambda x: x.to_json())(self.stats)
         res['rules'] = _atd_write_list((lambda x: x.to_json()))(self.rules)
+        res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
         if self.skipped_targets is not None:
             res['skipped'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_targets)
         if self.skipped_rules is not None:
@@ -2903,6 +2906,7 @@ class CliOutputExtra:
     time: Optional[CliTiming] = None
     explanations: Optional[List[MatchingExplanation]] = None
     rules: Optional[List[Rule]] = None
+    engine_requested: Optional[EngineKind] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutputExtra':
@@ -2912,6 +2916,7 @@ class CliOutputExtra:
                 time=CliTiming.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 rules=_atd_read_list(Rule.from_json)(x['rules']) if 'rules' in x else None,
+                engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
             )
         else:
             _atd_bad_json('CliOutputExtra', x)
@@ -2925,6 +2930,8 @@ class CliOutputExtra:
             res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
         if self.rules is not None:
             res['rules'] = _atd_write_list((lambda x: x.to_json()))(self.rules)
+        if self.engine_requested is not None:
+            res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
         return res
 
     @classmethod
@@ -3120,6 +3127,7 @@ class CliOutput:
     time: Optional[CliTiming] = None
     explanations: Optional[List[MatchingExplanation]] = None
     rules: Optional[List[Rule]] = None
+    engine_requested: Optional[EngineKind] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutput':
@@ -3132,6 +3140,7 @@ class CliOutput:
                 time=CliTiming.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 rules=_atd_read_list(Rule.from_json)(x['rules']) if 'rules' in x else None,
+                engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
             )
         else:
             _atd_bad_json('CliOutput', x)
@@ -3149,6 +3158,8 @@ class CliOutput:
             res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
         if self.rules is not None:
             res['rules'] = _atd_write_list((lambda x: x.to_json()))(self.rules)
+        if self.engine_requested is not None:
+            res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
         return res
 
     @classmethod

@@ -112,8 +112,8 @@ type rule
 type engine_kind
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = [
-  | OSSMatch
-  | ProMatch
+  | OSS
+  | PRO
 ] 
 
 type core_match
@@ -453,6 +453,8 @@ type core_match_results
      output over what rules were run with what.
    *)
   rules: rule list;
+
+  engine_requested: engine_kind;
 }
 
 (*****************************************************************************)
@@ -646,6 +648,8 @@ type cli_output_extra <ocaml attr="deriving show"> = {
     ?explanations: matching_explanation list option;
 
     ?rules: rule list option;
+
+    ?engine_requested: engine_kind option;
 }
 
 type cli_paths <ocaml attr="deriving show"> = {

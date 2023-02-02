@@ -323,7 +323,8 @@ type core_match_results = Semgrep_output_v1_t.core_match_results = {
   explanations: matching_explanation list option;
   stats: core_stats;
   time: core_timing option;
-  rules: rule list
+  rules: rule list;
+  engine_requested: engine_kind
 }
   [@@deriving show]
 
@@ -363,7 +364,8 @@ type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   paths: cli_paths;
   time: cli_timing option;
   explanations: matching_explanation list option;
-  rules: rule list option
+  rules: rule list option;
+  engine_requested: engine_kind option
 }
   [@@deriving show]
 
@@ -414,7 +416,8 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   paths: cli_paths;
   time: cli_timing option;
   explanations: matching_explanation list option;
-  rules: rule list option
+  rules: rule list option;
+  engine_requested: engine_kind option
 }
   [@@deriving show]
 
