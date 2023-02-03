@@ -6,7 +6,8 @@
 // - 'writeFoo': convert a 'Foo' value into a JSON-compatible value.
 // - 'readFoo': convert a JSON-compatible value into a TypeScript value
 //   of type 'Foo'.
-
+/* tslint:disable */
+/* eslint-disable */
 
 export type RawJson = any
 
