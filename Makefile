@@ -27,6 +27,7 @@ build: $(FILES)
 %_j.ml %_j.mli: %.atd
 	atdgen -j -j-std $<
 
+# need atdts > 2.10.0 (dev version 6a7399a works)
 %.ts: %.atd
 	atdts $<
 
