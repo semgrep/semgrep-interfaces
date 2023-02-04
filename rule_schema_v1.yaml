@@ -822,20 +822,15 @@ properties:
               - languages
               - severity
             if:
-              anyOf:
-                - required:
-                    - pattern-sinks 
-                - required:
-                    - pattern-sources 
+              required:
+                - taint
             then:
-              allOf:
-                - required:
-                    - pattern-sinks
-                - required:
-                    - pattern-sources
+              required:
+                - taint
             else:
               required:
-                - taint 
+                - pattern-sources 
+                - pattern-sinks
             properties:
               extract: false
               dest-language: false
