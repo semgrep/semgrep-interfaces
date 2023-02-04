@@ -829,8 +829,8 @@ properties:
                 - taint
             else:
               required:
-                - pattern-sources 
                 - pattern-sinks
+                - pattern-sources 
             properties:
               extract: false
               dest-language: false
