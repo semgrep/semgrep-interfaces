@@ -821,6 +821,12 @@ properties:
               - message
               - languages
               - severity
+            # This is a JSON Schema-ism to make the error messages report better.
+            # It means "if we satisfy the sub-schema of requiring taint, then require taint.
+            # Otherwise, require pattern-sinks and pattern-sources".
+            # It basically just makes sure that we only report that we expected to see taint if
+            # taint is actually there, so our error messages don't report needing `taint` when
+            # it's actually an old-style syntax rule.
             if:
               required:
                 - taint
