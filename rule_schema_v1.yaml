@@ -32,6 +32,33 @@ $defs:
         type: string
       to:
         type: string
+  new-taint-content:
+    title: "Return finding using taint, given sources and sinks"
+    type: object
+    required:
+      - sources
+      - sinks
+    properties:
+      sources:
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/$defs/new-source-pattern"
+      sinks:
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/$defs/new-sink-pattern"
+      propagators:
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/$defs/new-propagator-pattern"
+      sanitizers:
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/$defs/new-sanitizer-pattern"
   new-pattern:
     title: "Return finding where code matches against the following pattern"
     oneOf:
@@ -64,31 +91,6 @@ $defs:
           $ref: "#/$defs/new-pattern"
         inside:
           $ref: "#/$defs/new-pattern"
-        taint:
-          required:
-            - sources
-            - sinks
-          properties:
-            sources:
-              type: array
-              minItems: 1
-              items:
-                $ref: "#/$defs/new-source-pattern"
-            sinks:
-              type: array
-              minItems: 1
-              items:
-                $ref: "#/$defs/new-sink-pattern"
-            propagators:
-              type: array
-              minItems: 1
-              items:
-                $ref: "#/$defs/new-propagator-pattern"
-            sanitizers:
-              type: array
-              minItems: 1
-              items:
-                $ref: "#/$defs/new-sanitizer-pattern"
         where:
           type: array
           items:
@@ -709,6 +711,8 @@ properties:
         # EXPERIMENTAL
         pattern-propagators:
           $ref: "#/$defs/taint-content"
+        taint:
+          $ref: "#/$defs/new-taint-content"
         # EXPERIMENTAL
         join:
           $ref: "#/$defs/join-content"
@@ -817,8 +821,22 @@ properties:
               - message
               - languages
               - severity
-              - pattern-sinks
-              - pattern-sources
+            # This is a JSON Schema-ism to make the error messages report better.
+            # It means "if we satisfy the sub-schema of requiring taint, then require taint.
+            # Otherwise, require pattern-sinks and pattern-sources".
+            # It basically just makes sure that we only report that we expected to see taint if
+            # taint is actually there, so our error messages don't report needing `taint` when
+            # it's actually an old-style syntax rule.
+            if:
+              required:
+                - taint
+            then:
+              required:
+                - taint
+            else:
+              required:
+                - pattern-sinks
+                - pattern-sources 
             properties:
               extract: false
               dest-language: false
