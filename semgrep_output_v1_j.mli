@@ -196,7 +196,7 @@ type sca_info = Semgrep_output_v1_t.sca_info = {
 type rule_id_dict = Semgrep_output_v1_t.rule_id_dict = { id: rule_id }
   [@@deriving show]
 
-type rule = Semgrep_output_v1_t.rule = {
+type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind = {
   rule_id: rule_id;
   engine_kind: engine_kind
 }
@@ -323,7 +323,7 @@ type core_match_results = Semgrep_output_v1_t.core_match_results = {
   explanations: matching_explanation list option;
   stats: core_stats;
   time: core_timing option;
-  rules: rule list;
+  rules_by_engine: rule_id_and_engine_kind list;
   engine_requested: engine_kind
 }
   [@@deriving show]
@@ -364,7 +364,7 @@ type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   paths: cli_paths;
   time: cli_timing option;
   explanations: matching_explanation list option;
-  rules: rule list option;
+  rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option
 }
   [@@deriving show]
@@ -416,7 +416,7 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   paths: cli_paths;
   time: cli_timing option;
   explanations: matching_explanation list option;
-  rules: rule list option;
+  rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option
 }
   [@@deriving show]
@@ -1017,25 +1017,25 @@ val rule_id_dict_of_string :
   string -> rule_id_dict
   (** Deserialize JSON data of type {!type:rule_id_dict}. *)
 
-val write_rule :
-  Bi_outbuf.t -> rule -> unit
-  (** Output a JSON value of type {!type:rule}. *)
+val write_rule_id_and_engine_kind :
+  Bi_outbuf.t -> rule_id_and_engine_kind -> unit
+  (** Output a JSON value of type {!type:rule_id_and_engine_kind}. *)
 
-val string_of_rule :
-  ?len:int -> rule -> string
-  (** Serialize a value of type {!type:rule}
+val string_of_rule_id_and_engine_kind :
+  ?len:int -> rule_id_and_engine_kind -> string
+  (** Serialize a value of type {!type:rule_id_and_engine_kind}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_rule :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> rule
-  (** Input JSON data of type {!type:rule}. *)
+val read_rule_id_and_engine_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> rule_id_and_engine_kind
+  (** Input JSON data of type {!type:rule_id_and_engine_kind}. *)
 
-val rule_of_string :
-  string -> rule
-  (** Deserialize JSON data of type {!type:rule}. *)
+val rule_id_and_engine_kind_of_string :
+  string -> rule_id_and_engine_kind
+  (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
 
 val write_raw_json :
   Bi_outbuf.t -> raw_json -> unit

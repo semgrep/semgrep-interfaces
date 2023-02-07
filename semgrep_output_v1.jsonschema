@@ -20,7 +20,10 @@
       "type": "array",
       "items": { "$ref": "#/definitions/matching_explanation" }
     },
-    "rules": { "type": "array", "items": { "$ref": "#/definitions/rule" } },
+    "rules_by_engine": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
+    },
     "engine_requested": { "$ref": "#/definitions/engine_kind" }
   },
   "definitions": {
@@ -45,7 +48,7 @@
       }
     },
     "rule_id": { "type": "string" },
-    "rule": {
+    "rule_id_and_engine_kind": {
       "type": "object",
       "required": [ "rule_id", "engine_kind" ],
       "properties": {
@@ -339,7 +342,7 @@
     "core_match_results": {
       "type": "object",
       "required": [
-        "matches", "errors", "stats", "rules", "engine_requested"
+        "matches", "errors", "stats", "rules_by_engine", "engine_requested"
       ],
       "properties": {
         "matches": {
@@ -364,9 +367,9 @@
         },
         "stats": { "$ref": "#/definitions/core_stats" },
         "time": { "$ref": "#/definitions/core_timing" },
-        "rules": {
+        "rules_by_engine": {
           "type": "array",
-          "items": { "$ref": "#/definitions/rule" }
+          "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
         },
         "engine_requested": { "$ref": "#/definitions/engine_kind" }
       }
@@ -549,9 +552,9 @@
           "type": "array",
           "items": { "$ref": "#/definitions/matching_explanation" }
         },
-        "rules": {
+        "rules_by_engine": {
           "type": "array",
-          "items": { "$ref": "#/definitions/rule" }
+          "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
         },
         "engine_requested": { "$ref": "#/definitions/engine_kind" }
       }

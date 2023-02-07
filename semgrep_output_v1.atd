@@ -449,11 +449,12 @@ type core_match_results
   (* LATER: rename timing *)
   ?time: core_timing option;
 
+
+  (* since: 1.10.0 *)
   (* These rules, classified by engine used, will let us be transparent in the CLI
      output over what rules were run with what.
    *)
   rules_by_engine: rule_id_and_engine_kind list;
-
   engine_requested: engine_kind;
 }
 
@@ -647,8 +648,8 @@ type cli_output_extra <ocaml attr="deriving show"> = {
     (* EXPERIMENTAL: since semgrep 0.109? *)
     ?explanations: matching_explanation list option;
 
+    (* since: 1.10.0 *)
     ?rules_by_engine: rule_id_and_engine_kind list option;
-
     ?engine_requested: engine_kind option;
 }
 
