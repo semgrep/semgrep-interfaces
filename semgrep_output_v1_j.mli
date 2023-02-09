@@ -196,10 +196,7 @@ type sca_info = Semgrep_output_v1_t.sca_info = {
 type rule_id_dict = Semgrep_output_v1_t.rule_id_dict = { id: rule_id }
   [@@deriving show]
 
-type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind = {
-  rule_id: rule_id;
-  engine_kind: engine_kind
-}
+type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
   [@@deriving show]
 
 type raw_json = Yojson.Basic.t [@@deriving show]

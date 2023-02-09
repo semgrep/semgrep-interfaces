@@ -1828,26 +1828,16 @@ class RuleIdDict:
 
 @dataclass(frozen=True)
 class RuleIdAndEngineKind:
-    """Original type: rule_id_and_engine_kind = { ... }"""
+    """Original type: rule_id_and_engine_kind"""
 
-    rule_id: RuleId
-    engine_kind: EngineKind
+    value: Tuple[RuleId, EngineKind]
 
     @classmethod
     def from_json(cls, x: Any) -> 'RuleIdAndEngineKind':
-        if isinstance(x, dict):
-            return cls(
-                rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else _atd_missing_json_field('RuleIdAndEngineKind', 'rule_id'),
-                engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else _atd_missing_json_field('RuleIdAndEngineKind', 'engine_kind'),
-            )
-        else:
-            _atd_bad_json('RuleIdAndEngineKind', x)
+        return cls((lambda x: (RuleId.from_json(x[0]), EngineKind.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x))
 
     def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
-        res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
-        return res
+        return (lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)
 
     @classmethod
     def from_json_string(cls, x: str) -> 'RuleIdAndEngineKind':

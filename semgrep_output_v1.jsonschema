@@ -49,12 +49,13 @@
     },
     "rule_id": { "type": "string" },
     "rule_id_and_engine_kind": {
-      "type": "object",
-      "required": [ "rule_id", "engine_kind" ],
-      "properties": {
-        "rule_id": { "$ref": "#/definitions/rule_id" },
-        "engine_kind": { "$ref": "#/definitions/engine_kind" }
-      }
+      "type": "array",
+      "minItems": 2,
+      "items": false,
+      "prefixItems": [
+        { "$ref": "#/definitions/rule_id" },
+        { "$ref": "#/definitions/engine_kind" }
+      ]
     },
     "engine_kind": { "oneOf": [ { "const": "OSS" }, { "const": "PRO" } ] },
     "core_match": {

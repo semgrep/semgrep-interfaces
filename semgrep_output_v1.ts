@@ -26,10 +26,7 @@ export type Location = {
 
 export type RuleId = string
 
-export type RuleIdAndEngineKind = {
-  rule_id: RuleId;
-  engine_kind: EngineKind;
-}
+export type RuleIdAndEngineKind = [RuleId, EngineKind]
 
 export type EngineKind =
 | { kind: 'OSS' }
@@ -455,17 +452,11 @@ export function readRuleId(x: any, context: any = x): RuleId {
 }
 
 export function writeRuleIdAndEngineKind(x: RuleIdAndEngineKind, context: any = x): any {
-  return {
-    'rule_id': _atd_write_required_field('RuleIdAndEngineKind', 'rule_id', writeRuleId, x.rule_id, x),
-    'engine_kind': _atd_write_required_field('RuleIdAndEngineKind', 'engine_kind', writeEngineKind, x.engine_kind, x),
-  };
+  return ((x, context) => [writeRuleId(x[0], x), writeEngineKind(x[1], x)])(x, context);
 }
 
 export function readRuleIdAndEngineKind(x: any, context: any = x): RuleIdAndEngineKind {
-  return {
-    rule_id: _atd_read_required_field('RuleIdAndEngineKind', 'rule_id', readRuleId, x['rule_id'], x),
-    engine_kind: _atd_read_required_field('RuleIdAndEngineKind', 'engine_kind', readEngineKind, x['engine_kind'], x),
-  };
+  return ((x, context): [RuleId, EngineKind] => { _atd_check_json_tuple(2, x, context); return [readRuleId(x[0], x), readEngineKind(x[1], x)] })(x, context);
 }
 
 export function writeEngineKind(x: EngineKind, context: any = x): any {

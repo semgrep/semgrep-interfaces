@@ -89,7 +89,7 @@ type location
 }
 
 (*****************************************************************************)
-(* Rules *)
+(* Rule id *)
 (*****************************************************************************)
 
 (* e.g., "javascript.security.do-not-use-eval" *)
@@ -99,10 +99,7 @@ type rule_id
 
 type rule_id_and_engine_kind
   <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = {
-  rule_id: rule_id;
-  engine_kind: engine_kind;
-} 
+  <python decorator="dataclass(frozen=True)"> = (rule_id * engine_kind) 
 
 (*****************************************************************************)
 (* Core Match result *)
@@ -648,7 +645,7 @@ type cli_output_extra <ocaml attr="deriving show"> = {
     (* EXPERIMENTAL: since semgrep 0.109? *)
     ?explanations: matching_explanation list option;
 
-    (* since: 1.10.0 *)
+    (* EXPERIMENTAL: since: 1.11.0 *)
     ?rules_by_engine: rule_id_and_engine_kind list option;
     ?engine_requested: engine_kind option;
 }
