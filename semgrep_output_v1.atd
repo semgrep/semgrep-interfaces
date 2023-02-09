@@ -97,6 +97,10 @@ type rule_id
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = string
 
+type rule_id_and_engine_kind
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = (rule_id * engine_kind) 
+
 (*****************************************************************************)
 (* Core Match result *)
 (*****************************************************************************)
@@ -105,8 +109,8 @@ type rule_id
 type engine_kind
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = [
-  | OSSMatch
-  | ProMatch
+  | OSS
+  | PRO
 ] 
 
 type core_match
@@ -441,6 +445,14 @@ type core_match_results
   stats: core_stats;
   (* LATER: rename timing *)
   ?time: core_timing option;
+
+
+  (* since: 1.10.0 *)
+  (* These rules, classified by engine used, will let us be transparent in the CLI
+     output over what rules were run with what.
+   *)
+  rules_by_engine: rule_id_and_engine_kind list;
+  engine_requested: engine_kind;
 }
 
 (*****************************************************************************)
@@ -632,6 +644,10 @@ type cli_output_extra <ocaml attr="deriving show"> = {
      *)
     (* EXPERIMENTAL: since semgrep 0.109? *)
     ?explanations: matching_explanation list option;
+
+    (* EXPERIMENTAL: since: 1.11.0 *)
+    ?rules_by_engine: rule_id_and_engine_kind list option;
+    ?engine_requested: engine_kind option;
 }
 
 type cli_paths <ocaml attr="deriving show"> = {

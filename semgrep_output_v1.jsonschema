@@ -19,7 +19,12 @@
     "explanations": {
       "type": "array",
       "items": { "$ref": "#/definitions/matching_explanation" }
-    }
+    },
+    "rules_by_engine": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
+    },
+    "engine_requested": { "$ref": "#/definitions/engine_kind" }
   },
   "definitions": {
     "raw_json": {},
@@ -43,9 +48,16 @@
       }
     },
     "rule_id": { "type": "string" },
-    "engine_kind": {
-      "oneOf": [ { "const": "OSSMatch" }, { "const": "ProMatch" } ]
+    "rule_id_and_engine_kind": {
+      "type": "array",
+      "minItems": 2,
+      "items": false,
+      "prefixItems": [
+        { "$ref": "#/definitions/rule_id" },
+        { "$ref": "#/definitions/engine_kind" }
+      ]
     },
+    "engine_kind": { "oneOf": [ { "const": "OSS" }, { "const": "PRO" } ] },
     "core_match": {
       "type": "object",
       "required": [ "rule_id", "location", "extra" ],
@@ -57,7 +69,7 @@
     },
     "core_match_extra": {
       "type": "object",
-      "required": [ "metavars" ],
+      "required": [ "metavars", "engine_kind" ],
       "properties": {
         "message": { "type": "string" },
         "metavars": { "$ref": "#/definitions/metavars" },
@@ -330,7 +342,9 @@
     },
     "core_match_results": {
       "type": "object",
-      "required": [ "matches", "errors", "stats" ],
+      "required": [
+        "matches", "errors", "stats", "rules_by_engine", "engine_requested"
+      ],
       "properties": {
         "matches": {
           "type": "array",
@@ -353,7 +367,12 @@
           "items": { "$ref": "#/definitions/matching_explanation" }
         },
         "stats": { "$ref": "#/definitions/core_stats" },
-        "time": { "$ref": "#/definitions/core_timing" }
+        "time": { "$ref": "#/definitions/core_timing" },
+        "rules_by_engine": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
+        },
+        "engine_requested": { "$ref": "#/definitions/engine_kind" }
       }
     },
     "cli_error": {
@@ -533,7 +552,12 @@
         "explanations": {
           "type": "array",
           "items": { "$ref": "#/definitions/matching_explanation" }
-        }
+        },
+        "rules_by_engine": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
+        },
+        "engine_requested": { "$ref": "#/definitions/engine_kind" }
       }
     },
     "cli_paths": {
