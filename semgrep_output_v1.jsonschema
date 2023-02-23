@@ -87,8 +87,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "CoreLoc" },
-            { "$ref": "#/definitions/location" }
+            { "const": "CoreLoc" }, { "$ref": "#/definitions/location" }
           ]
         },
         {
@@ -433,8 +432,7 @@
               "minItems": 2,
               "items": false,
               "prefixItems": [
-                { "$ref": "#/definitions/location" },
-                { "type": "string" }
+                { "$ref": "#/definitions/location" }, { "type": "string" }
               ]
             }
           ]
@@ -729,6 +727,8 @@
         "commit_date": { "type": "string" },
         "syntactic_id": { "type": "string" },
         "match_based_id": { "type": "string" },
+        "code_hash": { "type": "string" },
+        "pattern_hash": { "type": "string" },
         "metadata": { "$ref": "#/definitions/raw_json" },
         "is_blocking": { "type": "boolean" },
         "fixed_lines": { "type": "array", "items": { "type": "string" } },

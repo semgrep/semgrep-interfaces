@@ -804,6 +804,8 @@ type finding <ocaml attr="deriving show"> = {
   syntactic_id: string;
   (* since semgrep 0.98 *)
   ?match_based_id: string option;
+  ?code_hash: string option;
+  ?pattern_hash: string option;
   metadata: raw_json;
   is_blocking: bool;
   ?fixed_lines: string list option;
