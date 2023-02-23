@@ -1,4 +1,4 @@
-# This is meant to be installed with 'opam install --deps-only .'
+# This is meant to be installed with 'opam install --deps-only . '
 #
 opam-version: "2.0"
 maintainer: "r2c"
@@ -10,4 +10,5 @@ synopsis: "OCaml development dependencies"
 depends: [
   "atdpy" {>= "2.10.0"}
   "atdts" {>= "2.10.0"}
+  "atdgen" {>= "2.10.0}
 ]
