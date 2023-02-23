@@ -1939,6 +1939,7 @@ class FindingHashes:
     """Original type: finding_hashes = { ... }"""
 
     start_line: str
+    end_line: str
     code: str
     pattern: str
 
@@ -1947,6 +1948,7 @@ class FindingHashes:
         if isinstance(x, dict):
             return cls(
                 start_line=_atd_read_string(x['start_line']) if 'start_line' in x else _atd_missing_json_field('FindingHashes', 'start_line'),
+                end_line=_atd_read_string(x['end_line']) if 'end_line' in x else _atd_missing_json_field('FindingHashes', 'end_line'),
                 code=_atd_read_string(x['code']) if 'code' in x else _atd_missing_json_field('FindingHashes', 'code'),
                 pattern=_atd_read_string(x['pattern']) if 'pattern' in x else _atd_missing_json_field('FindingHashes', 'pattern'),
             )
@@ -1956,6 +1958,7 @@ class FindingHashes:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['start_line'] = _atd_write_string(self.start_line)
+        res['end_line'] = _atd_write_string(self.end_line)
         res['code'] = _atd_write_string(self.code)
         res['pattern'] = _atd_write_string(self.pattern)
         return res

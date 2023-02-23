@@ -709,9 +709,10 @@
     },
     "finding_hashes": {
       "type": "object",
-      "required": [ "start_line", "code", "pattern" ],
+      "required": [ "start_line", "end_line", "code", "pattern" ],
       "properties": {
         "start_line": { "type": "string" },
+        "end_line": { "type": "string" },
         "code": { "type": "string" },
         "pattern": { "type": "string" }
       }

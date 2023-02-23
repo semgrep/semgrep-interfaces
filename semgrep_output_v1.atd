@@ -789,6 +789,7 @@ type api_scans_findings <ocaml attr="deriving show"> = {
 
 type finding_hashes <ocaml attr="deriving show"> = {
   start_line: string;
+  end_line: string;
   code: string;
   pattern: string;
 }

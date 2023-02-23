@@ -216,6 +216,7 @@ type fix_regex = Semgrep_output_v1_t.fix_regex = {
 
 type finding_hashes = Semgrep_output_v1_t.finding_hashes = {
   start_line: string;
+  end_line: string;
   code: string;
   pattern: string
 }
@@ -6589,6 +6590,15 @@ let write_finding_hashes : _ -> finding_hashes -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
+      Buffer.add_string ob "\"end_line\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.end_line;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
       Buffer.add_string ob "\"code\":";
     (
       Yojson.Safe.write_string
@@ -6614,6 +6624,7 @@ let read_finding_hashes = (
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
     let field_start_line = ref (None) in
+    let field_end_line = ref (None) in
     let field_code = ref (None) in
     let field_pattern = ref (None) in
     try
@@ -6627,7 +6638,7 @@ let read_finding_hashes = (
           match len with
             | 4 -> (
                 if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'e' then (
-                  1
+                  2
                 )
                 else (
                   -1
@@ -6635,7 +6646,15 @@ let read_finding_hashes = (
               )
             | 7 -> (
                 if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'n' then (
-                  2
+                  3
+                )
+                else (
+                  -1
+                )
+              )
+            | 8 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'e' then (
+                  1
                 )
                 else (
                   -1
@@ -6666,7 +6685,7 @@ let read_finding_hashes = (
               )
             );
           | 1 ->
-            field_code := (
+            field_end_line := (
               Some (
                 (
                   Atdgen_runtime.Oj_run.read_string
@@ -6674,6 +6693,14 @@ let read_finding_hashes = (
               )
             );
           | 2 ->
+            field_code := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | 3 ->
             field_pattern := (
               Some (
                 (
@@ -6696,7 +6723,7 @@ let read_finding_hashes = (
             match len with
               | 4 -> (
                   if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'e' then (
-                    1
+                    2
                   )
                   else (
                     -1
@@ -6704,7 +6731,15 @@ let read_finding_hashes = (
                 )
               | 7 -> (
                   if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'n' then (
-                    2
+                    3
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 8 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'e' then (
+                    1
                   )
                   else (
                     -1
@@ -6735,7 +6770,7 @@ let read_finding_hashes = (
                 )
               );
             | 1 ->
-              field_code := (
+              field_end_line := (
                 Some (
                   (
                     Atdgen_runtime.Oj_run.read_string
@@ -6743,6 +6778,14 @@ let read_finding_hashes = (
                 )
               );
             | 2 ->
+              field_code := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | 3 ->
               field_pattern := (
                 Some (
                   (
@@ -6760,6 +6803,7 @@ let read_finding_hashes = (
         (
           {
             start_line = (match !field_start_line with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "start_line");
+            end_line = (match !field_end_line with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "end_line");
             code = (match !field_code with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "code");
             pattern = (match !field_pattern with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "pattern");
           }
