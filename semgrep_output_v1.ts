@@ -380,10 +380,10 @@ export type ApiScansFindings = {
 }
 
 export type FindingHashes = {
-  start_line: string;
-  end_line: string;
-  code: string;
-  pattern: string;
+  start_line_hash: string;
+  end_line_hash: string;
+  code_hash: string;
+  pattern_hash: string;
 }
 
 export type Finding = {
@@ -1530,19 +1530,19 @@ export function readApiScansFindings(x: any, context: any = x): ApiScansFindings
 
 export function writeFindingHashes(x: FindingHashes, context: any = x): any {
   return {
-    'start_line': _atd_write_required_field('FindingHashes', 'start_line', _atd_write_string, x.start_line, x),
-    'end_line': _atd_write_required_field('FindingHashes', 'end_line', _atd_write_string, x.end_line, x),
-    'code': _atd_write_required_field('FindingHashes', 'code', _atd_write_string, x.code, x),
-    'pattern': _atd_write_required_field('FindingHashes', 'pattern', _atd_write_string, x.pattern, x),
+    'start_line_hash': _atd_write_required_field('FindingHashes', 'start_line_hash', _atd_write_string, x.start_line_hash, x),
+    'end_line_hash': _atd_write_required_field('FindingHashes', 'end_line_hash', _atd_write_string, x.end_line_hash, x),
+    'code_hash': _atd_write_required_field('FindingHashes', 'code_hash', _atd_write_string, x.code_hash, x),
+    'pattern_hash': _atd_write_required_field('FindingHashes', 'pattern_hash', _atd_write_string, x.pattern_hash, x),
   };
 }
 
 export function readFindingHashes(x: any, context: any = x): FindingHashes {
   return {
-    start_line: _atd_read_required_field('FindingHashes', 'start_line', _atd_read_string, x['start_line'], x),
-    end_line: _atd_read_required_field('FindingHashes', 'end_line', _atd_read_string, x['end_line'], x),
-    code: _atd_read_required_field('FindingHashes', 'code', _atd_read_string, x['code'], x),
-    pattern: _atd_read_required_field('FindingHashes', 'pattern', _atd_read_string, x['pattern'], x),
+    start_line_hash: _atd_read_required_field('FindingHashes', 'start_line_hash', _atd_read_string, x['start_line_hash'], x),
+    end_line_hash: _atd_read_required_field('FindingHashes', 'end_line_hash', _atd_read_string, x['end_line_hash'], x),
+    code_hash: _atd_read_required_field('FindingHashes', 'code_hash', _atd_read_string, x['code_hash'], x),
+    pattern_hash: _atd_read_required_field('FindingHashes', 'pattern_hash', _atd_read_string, x['pattern_hash'], x),
   };
 }
 

@@ -215,10 +215,10 @@ type fix_regex = Semgrep_output_v1_t.fix_regex = {
   [@@deriving show]
 
 type finding_hashes = Semgrep_output_v1_t.finding_hashes = {
-  start_line: string;
-  end_line: string;
-  code: string;
-  pattern: string
+  start_line_hash: string;
+  end_line_hash: string;
+  code_hash: string;
+  pattern_hash: string
 }
   [@@deriving show]
 
@@ -6581,38 +6581,38 @@ let write_finding_hashes : _ -> finding_hashes -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"start_line\":";
+      Buffer.add_string ob "\"start_line_hash\":";
     (
       Yojson.Safe.write_string
     )
-      ob x.start_line;
+      ob x.start_line_hash;
     if !is_first then
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"end_line\":";
+      Buffer.add_string ob "\"end_line_hash\":";
     (
       Yojson.Safe.write_string
     )
-      ob x.end_line;
+      ob x.end_line_hash;
     if !is_first then
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"code\":";
+      Buffer.add_string ob "\"code_hash\":";
     (
       Yojson.Safe.write_string
     )
-      ob x.code;
+      ob x.code_hash;
     if !is_first then
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"pattern\":";
+      Buffer.add_string ob "\"pattern_hash\":";
     (
       Yojson.Safe.write_string
     )
-      ob x.pattern;
+      ob x.pattern_hash;
     Buffer.add_char ob '}';
 )
 let string_of_finding_hashes ?(len = 1024) x =
@@ -6623,10 +6623,10 @@ let read_finding_hashes = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
-    let field_start_line = ref (None) in
-    let field_end_line = ref (None) in
-    let field_code = ref (None) in
-    let field_pattern = ref (None) in
+    let field_start_line_hash = ref (None) in
+    let field_end_line_hash = ref (None) in
+    let field_code_hash = ref (None) in
+    let field_pattern_hash = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -6636,32 +6636,32 @@ let read_finding_hashes = (
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
-            | 4 -> (
-                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'e' then (
+            | 9 -> (
+                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'h' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'h' then (
                   2
                 )
                 else (
                   -1
                 )
               )
-            | 7 -> (
-                if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'n' then (
+            | 12 -> (
+                if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'h' then (
                   3
                 )
                 else (
                   -1
                 )
               )
-            | 8 -> (
-                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'e' then (
+            | 13 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'h' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'h' then (
                   1
                 )
                 else (
                   -1
                 )
               )
-            | 10 -> (
-                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'e' then (
+            | 15 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'h' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 's' && String.unsafe_get s (pos+14) = 'h' then (
                   0
                 )
                 else (
@@ -6677,7 +6677,7 @@ let read_finding_hashes = (
       (
         match i with
           | 0 ->
-            field_start_line := (
+            field_start_line_hash := (
               Some (
                 (
                   Atdgen_runtime.Oj_run.read_string
@@ -6685,7 +6685,7 @@ let read_finding_hashes = (
               )
             );
           | 1 ->
-            field_end_line := (
+            field_end_line_hash := (
               Some (
                 (
                   Atdgen_runtime.Oj_run.read_string
@@ -6693,7 +6693,7 @@ let read_finding_hashes = (
               )
             );
           | 2 ->
-            field_code := (
+            field_code_hash := (
               Some (
                 (
                   Atdgen_runtime.Oj_run.read_string
@@ -6701,7 +6701,7 @@ let read_finding_hashes = (
               )
             );
           | 3 ->
-            field_pattern := (
+            field_pattern_hash := (
               Some (
                 (
                   Atdgen_runtime.Oj_run.read_string
@@ -6721,32 +6721,32 @@ let read_finding_hashes = (
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
-              | 4 -> (
-                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'e' then (
+              | 9 -> (
+                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'h' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'h' then (
                     2
                   )
                   else (
                     -1
                   )
                 )
-              | 7 -> (
-                  if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'n' then (
+              | 12 -> (
+                  if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'h' then (
                     3
                   )
                   else (
                     -1
                   )
                 )
-              | 8 -> (
-                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'e' then (
+              | 13 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'h' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'h' then (
                     1
                   )
                   else (
                     -1
                   )
                 )
-              | 10 -> (
-                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'e' then (
+              | 15 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'h' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 's' && String.unsafe_get s (pos+14) = 'h' then (
                     0
                   )
                   else (
@@ -6762,7 +6762,7 @@ let read_finding_hashes = (
         (
           match i with
             | 0 ->
-              field_start_line := (
+              field_start_line_hash := (
                 Some (
                   (
                     Atdgen_runtime.Oj_run.read_string
@@ -6770,7 +6770,7 @@ let read_finding_hashes = (
                 )
               );
             | 1 ->
-              field_end_line := (
+              field_end_line_hash := (
                 Some (
                   (
                     Atdgen_runtime.Oj_run.read_string
@@ -6778,7 +6778,7 @@ let read_finding_hashes = (
                 )
               );
             | 2 ->
-              field_code := (
+              field_code_hash := (
                 Some (
                   (
                     Atdgen_runtime.Oj_run.read_string
@@ -6786,7 +6786,7 @@ let read_finding_hashes = (
                 )
               );
             | 3 ->
-              field_pattern := (
+              field_pattern_hash := (
                 Some (
                   (
                     Atdgen_runtime.Oj_run.read_string
@@ -6802,10 +6802,10 @@ let read_finding_hashes = (
     with Yojson.End_of_object -> (
         (
           {
-            start_line = (match !field_start_line with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "start_line");
-            end_line = (match !field_end_line with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "end_line");
-            code = (match !field_code with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "code");
-            pattern = (match !field_pattern with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "pattern");
+            start_line_hash = (match !field_start_line_hash with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "start_line_hash");
+            end_line_hash = (match !field_end_line_hash with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "end_line_hash");
+            code_hash = (match !field_code_hash with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "code_hash");
+            pattern_hash = (match !field_pattern_hash with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "pattern_hash");
           }
          : finding_hashes)
       )

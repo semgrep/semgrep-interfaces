@@ -788,10 +788,12 @@ type api_scans_findings <ocaml attr="deriving show"> = {
 }
 
 type finding_hashes <ocaml attr="deriving show"> = {
-  start_line: string;
-  end_line: string;
-  code: string;
-  pattern: string;
+  start_line_hash: string;
+  end_line_hash: string;
+  (* hash of the syntactic_context/code contents from start_line through end_line *)
+  code_hash: string;
+  (* hash of the rule pattern with metavariables substituted in *)
+  pattern_hash: string;
 }
 
 (* TODO: rewrite rule_matches.to_app_finding_format() *)
@@ -811,6 +813,7 @@ type finding <ocaml attr="deriving show"> = {
   syntactic_id: string;
   (* since semgrep 0.98 *)
   ?match_based_id: string option;
+  (* since semgrep 1.14.0 *)
   ?hashes: finding_hashes option;
   metadata: raw_json;
   is_blocking: bool;

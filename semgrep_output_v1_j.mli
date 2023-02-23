@@ -215,10 +215,10 @@ type fix_regex = Semgrep_output_v1_t.fix_regex = {
   [@@deriving show]
 
 type finding_hashes = Semgrep_output_v1_t.finding_hashes = {
-  start_line: string;
-  end_line: string;
-  code: string;
-  pattern: string
+  start_line_hash: string;
+  end_line_hash: string;
+  code_hash: string;
+  pattern_hash: string
 }
   [@@deriving show]
 
