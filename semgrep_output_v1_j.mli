@@ -214,6 +214,13 @@ type fix_regex = Semgrep_output_v1_t.fix_regex = {
 }
   [@@deriving show]
 
+type finding_hashes = Semgrep_output_v1_t.finding_hashes = {
+  start_line: string;
+  code: string;
+  pattern: string
+}
+  [@@deriving show]
+
 type cli_match_dataflow_trace =
   Semgrep_output_v1_t.cli_match_dataflow_trace = {
   taint_source: cli_match_call_trace option;
@@ -235,8 +242,7 @@ type finding = Semgrep_output_v1_t.finding = {
   commit_date: string;
   syntactic_id: string;
   match_based_id: string option;
-  code_hash: string option;
-  pattern_hash: string option;
+  hashes: finding_hashes option;
   metadata: raw_json;
   is_blocking: bool;
   fixed_lines: string list option;
@@ -1095,6 +1101,26 @@ val read_fix_regex :
 val fix_regex_of_string :
   string -> fix_regex
   (** Deserialize JSON data of type {!type:fix_regex}. *)
+
+val write_finding_hashes :
+  Buffer.t -> finding_hashes -> unit
+  (** Output a JSON value of type {!type:finding_hashes}. *)
+
+val string_of_finding_hashes :
+  ?len:int -> finding_hashes -> string
+  (** Serialize a value of type {!type:finding_hashes}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_finding_hashes :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> finding_hashes
+  (** Input JSON data of type {!type:finding_hashes}. *)
+
+val finding_hashes_of_string :
+  string -> finding_hashes
+  (** Deserialize JSON data of type {!type:finding_hashes}. *)
 
 val write_cli_match_dataflow_trace :
   Buffer.t -> cli_match_dataflow_trace -> unit

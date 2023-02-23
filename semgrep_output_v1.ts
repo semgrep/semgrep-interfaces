@@ -379,6 +379,12 @@ export type ApiScansFindings = {
   cai_ids: string[];
 }
 
+export type FindingHashes = {
+  start_line: string;
+  code: string;
+  pattern: string;
+}
+
 export type Finding = {
   check_id: RuleId;
   path: string;
@@ -392,8 +398,7 @@ export type Finding = {
   commit_date: string;
   syntactic_id: string;
   match_based_id?: string;
-  code_hash?: string;
-  pattern_hash?: string;
+  hashes?: FindingHashes;
   metadata: RawJson;
   is_blocking: boolean;
   fixed_lines?: string[];
@@ -1522,6 +1527,22 @@ export function readApiScansFindings(x: any, context: any = x): ApiScansFindings
   };
 }
 
+export function writeFindingHashes(x: FindingHashes, context: any = x): any {
+  return {
+    'start_line': _atd_write_required_field('FindingHashes', 'start_line', _atd_write_string, x.start_line, x),
+    'code': _atd_write_required_field('FindingHashes', 'code', _atd_write_string, x.code, x),
+    'pattern': _atd_write_required_field('FindingHashes', 'pattern', _atd_write_string, x.pattern, x),
+  };
+}
+
+export function readFindingHashes(x: any, context: any = x): FindingHashes {
+  return {
+    start_line: _atd_read_required_field('FindingHashes', 'start_line', _atd_read_string, x['start_line'], x),
+    code: _atd_read_required_field('FindingHashes', 'code', _atd_read_string, x['code'], x),
+    pattern: _atd_read_required_field('FindingHashes', 'pattern', _atd_read_string, x['pattern'], x),
+  };
+}
+
 export function writeFinding(x: Finding, context: any = x): any {
   return {
     'check_id': _atd_write_required_field('Finding', 'check_id', writeRuleId, x.check_id, x),
@@ -1536,8 +1557,7 @@ export function writeFinding(x: Finding, context: any = x): any {
     'commit_date': _atd_write_required_field('Finding', 'commit_date', _atd_write_string, x.commit_date, x),
     'syntactic_id': _atd_write_required_field('Finding', 'syntactic_id', _atd_write_string, x.syntactic_id, x),
     'match_based_id': _atd_write_optional_field(_atd_write_string, x.match_based_id, x),
-    'code_hash': _atd_write_optional_field(_atd_write_string, x.code_hash, x),
-    'pattern_hash': _atd_write_optional_field(_atd_write_string, x.pattern_hash, x),
+    'hashes': _atd_write_optional_field(writeFindingHashes, x.hashes, x),
     'metadata': _atd_write_required_field('Finding', 'metadata', writeRawJson, x.metadata, x),
     'is_blocking': _atd_write_required_field('Finding', 'is_blocking', _atd_write_bool, x.is_blocking, x),
     'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
@@ -1560,8 +1580,7 @@ export function readFinding(x: any, context: any = x): Finding {
     commit_date: _atd_read_required_field('Finding', 'commit_date', _atd_read_string, x['commit_date'], x),
     syntactic_id: _atd_read_required_field('Finding', 'syntactic_id', _atd_read_string, x['syntactic_id'], x),
     match_based_id: _atd_read_optional_field(_atd_read_string, x['match_based_id'], x),
-    code_hash: _atd_read_optional_field(_atd_read_string, x['code_hash'], x),
-    pattern_hash: _atd_read_optional_field(_atd_read_string, x['pattern_hash'], x),
+    hashes: _atd_read_optional_field(readFindingHashes, x['hashes'], x),
     metadata: _atd_read_required_field('Finding', 'metadata', readRawJson, x['metadata'], x),
     is_blocking: _atd_read_required_field('Finding', 'is_blocking', _atd_read_bool, x['is_blocking'], x),
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),

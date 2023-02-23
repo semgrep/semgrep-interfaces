@@ -1934,6 +1934,40 @@ class FixRegex:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class FindingHashes:
+    """Original type: finding_hashes = { ... }"""
+
+    start_line: str
+    code: str
+    pattern: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FindingHashes':
+        if isinstance(x, dict):
+            return cls(
+                start_line=_atd_read_string(x['start_line']) if 'start_line' in x else _atd_missing_json_field('FindingHashes', 'start_line'),
+                code=_atd_read_string(x['code']) if 'code' in x else _atd_missing_json_field('FindingHashes', 'code'),
+                pattern=_atd_read_string(x['pattern']) if 'pattern' in x else _atd_missing_json_field('FindingHashes', 'pattern'),
+            )
+        else:
+            _atd_bad_json('FindingHashes', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['start_line'] = _atd_write_string(self.start_line)
+        res['code'] = _atd_write_string(self.code)
+        res['pattern'] = _atd_write_string(self.pattern)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FindingHashes':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class CliMatchDataflowTrace:
     """Original type: cli_match_dataflow_trace = { ... }"""
@@ -1989,8 +2023,7 @@ class Finding:
     metadata: RawJson
     is_blocking: bool
     match_based_id: Optional[str] = None
-    code_hash: Optional[str] = None
-    pattern_hash: Optional[str] = None
+    hashes: Optional[FindingHashes] = None
     fixed_lines: Optional[List[str]] = None
     sca_info: Optional[ScaInfo] = None
     dataflow_trace: Optional[CliMatchDataflowTrace] = None
@@ -2013,8 +2046,7 @@ class Finding:
                 metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else _atd_missing_json_field('Finding', 'metadata'),
                 is_blocking=_atd_read_bool(x['is_blocking']) if 'is_blocking' in x else _atd_missing_json_field('Finding', 'is_blocking'),
                 match_based_id=_atd_read_string(x['match_based_id']) if 'match_based_id' in x else None,
-                code_hash=_atd_read_string(x['code_hash']) if 'code_hash' in x else None,
-                pattern_hash=_atd_read_string(x['pattern_hash']) if 'pattern_hash' in x else None,
+                hashes=FindingHashes.from_json(x['hashes']) if 'hashes' in x else None,
                 fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
                 sca_info=ScaInfo.from_json(x['sca_info']) if 'sca_info' in x else None,
                 dataflow_trace=CliMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
@@ -2039,10 +2071,8 @@ class Finding:
         res['is_blocking'] = _atd_write_bool(self.is_blocking)
         if self.match_based_id is not None:
             res['match_based_id'] = _atd_write_string(self.match_based_id)
-        if self.code_hash is not None:
-            res['code_hash'] = _atd_write_string(self.code_hash)
-        if self.pattern_hash is not None:
-            res['pattern_hash'] = _atd_write_string(self.pattern_hash)
+        if self.hashes is not None:
+            res['hashes'] = (lambda x: x.to_json())(self.hashes)
         if self.fixed_lines is not None:
             res['fixed_lines'] = _atd_write_list(_atd_write_string)(self.fixed_lines)
         if self.sca_info is not None:

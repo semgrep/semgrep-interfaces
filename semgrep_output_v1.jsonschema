@@ -707,6 +707,15 @@
         "cai_ids": { "type": "array", "items": { "type": "string" } }
       }
     },
+    "finding_hashes": {
+      "type": "object",
+      "required": [ "start_line", "code", "pattern" ],
+      "properties": {
+        "start_line": { "type": "string" },
+        "code": { "type": "string" },
+        "pattern": { "type": "string" }
+      }
+    },
     "finding": {
       "type": "object",
       "required": [
@@ -727,8 +736,7 @@
         "commit_date": { "type": "string" },
         "syntactic_id": { "type": "string" },
         "match_based_id": { "type": "string" },
-        "code_hash": { "type": "string" },
-        "pattern_hash": { "type": "string" },
+        "hashes": { "$ref": "#/definitions/finding_hashes" },
         "metadata": { "$ref": "#/definitions/raw_json" },
         "is_blocking": { "type": "boolean" },
         "fixed_lines": { "type": "array", "items": { "type": "string" } },
