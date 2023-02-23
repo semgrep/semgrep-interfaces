@@ -10,5 +10,5 @@ synopsis: "OCaml development dependencies"
 depends: [
   "atdpy" {>= "2.10.0"}
   "atdts" {>= "2.10.0"}
-  "atdgen" {>= "2.10.0}
+  "atdgen" {>= "2.10.0"}
 ]
