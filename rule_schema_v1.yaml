@@ -783,9 +783,17 @@ properties:
       # that look like regex capture group metavariables being renamed.
       # For instance, this will allow a key that looks like "$1" to be a property,
       # in addition to the properties named above.
-      patternProperties:
-        ^\$([0-9]+)$: 
-          type: string
+      #
+      # We do this "if-then" nonsense again so that the JSON schema error message
+      # doesn't complain about the regex, in particular.
+      if:
+        patternProperties:
+          ^\$([0-9]+)$: 
+            type: string
+      then:
+        patternProperties:
+          ^\$([0-9]+)$: 
+            type: string
       additionalProperties: false
 
       allOf:
