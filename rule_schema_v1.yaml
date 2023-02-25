@@ -514,7 +514,6 @@ $defs:
         type: string
     required:
       - pattern-regex
-    additionalProperties: false
   pattern-not-regex:
     type: object
     properties:
