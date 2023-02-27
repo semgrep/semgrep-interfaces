@@ -190,6 +190,13 @@ $defs:
         - $ref: "#/$defs/pattern-inside"
         - $ref: "#/$defs/pattern"
         - $ref: "#/$defs/pattern-regex"
+  metavars-content:
+    type: array
+    items:
+        type: object
+        patternProperties:
+          ^\$([0-9]+)$:  
+            type: string
   taint-content:
     type: array
     items:
@@ -758,6 +765,9 @@ properties:
         match:
           $ref: "#/$defs/new-pattern"
         # EXPERIMENTAL
+        metavars:
+          $ref: "#/$defs/metavars-content" 
+        # EXPERIMENTAL
         extract:
           title: Metavariable whose content to use as the extracted result for subsequent rules
           type: string
@@ -778,22 +788,6 @@ properties:
             - concat
             - separate
           default: separate
-      # EXPERIMENTAL
-      # We need this here so that at the top-level, we allow additional properties 
-      # that look like regex capture group metavariables being renamed.
-      # For instance, this will allow a key that looks like "$1" to be a property,
-      # in addition to the properties named above.
-      #
-      # We do this "if-then" nonsense again so that the JSON schema error message
-      # doesn't complain about the regex, in particular.
-      if:
-        patternProperties:
-          ^\$([0-9]+)$: 
-            type: string
-      then:
-        patternProperties:
-          ^\$([0-9]+)$: 
-            type: string
       additionalProperties: false
 
       allOf:
