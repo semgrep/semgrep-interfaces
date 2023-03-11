@@ -1,0 +1,12 @@
+#! /usr/bin/env bash
+#
+# Run minimal tests to ensure that the JSON AST of semgrep-core can be read
+# back correctly by a Python program.
+#
+set -eu
+
+for javafile in data/*.java; do
+  echo "### Dump JSON AST, read it from Python program: $javafile"
+  semgrep-core -lang java -generate_ast_json "$javafile"
+  python3 read-ast.py < "$javafile".ast.json
+done
