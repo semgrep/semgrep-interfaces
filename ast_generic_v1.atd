@@ -1,6 +1,6 @@
 (* Yoann Padioleau
  *
- * Copyright (C) 2021, 2022 r2c
+ * Copyright (C) 2021-2023 r2c
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -30,6 +30,13 @@
  * DO NOT MODIFY THIS FILE. The "API" defined here should be stable
  * across multiple versions of Semgrep. If you really want to change
  * things, you'll have to define an AST_generic_v2.atd
+ *
+ * If you do modify this file, please do not use the 'option' type in non-optional
+ * fields. Prefer 'nullable' if possible.
+ * For example '?foo: int option;' is fine, but not 'foo: int option;'
+ * Prefer in that case 'foo: int nullable'.
+ * This is because the 'option' type is not supported by atdpy because there
+ * is no real option type in Python/Mypy.
  *
  * history: process to atd-ify AST_generic.ml:
  *  - add [] around variants
