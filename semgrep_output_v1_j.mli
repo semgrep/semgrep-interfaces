@@ -46,6 +46,8 @@ type core_match_intermediate_var =
 }
   [@@deriving show]
 
+type raw_json = Yojson.Basic.t [@@deriving show]
+
 type rule_id = Semgrep_output_v1_t.rule_id [@@deriving show]
 
 type svalue_value = Semgrep_output_v1_t.svalue_value = {
@@ -89,7 +91,8 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   metavars: metavars;
   dataflow_trace: core_match_dataflow_trace option;
   rendered_fix: string option;
-  engine_kind: engine_kind
+  engine_kind: engine_kind;
+  extra_extra: raw_json option
 }
   [@@deriving show]
 
@@ -198,8 +201,6 @@ type rule_id_dict = Semgrep_output_v1_t.rule_id_dict = { id: rule_id }
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
   [@@deriving show]
-
-type raw_json = Yojson.Basic.t [@@deriving show]
 
 type position_bis = Semgrep_output_v1_t.position_bis = {
   line: int;
@@ -388,7 +389,8 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   sca_info: sca_info option;
   fixed_lines: string list option;
   dataflow_trace: cli_match_dataflow_trace option;
-  engine_kind: engine_kind option
+  engine_kind: engine_kind option;
+  extra_extra: raw_json option
 }
   [@@deriving show]
 
@@ -562,6 +564,26 @@ val read_core_match_intermediate_var :
 val core_match_intermediate_var_of_string :
   string -> core_match_intermediate_var
   (** Deserialize JSON data of type {!type:core_match_intermediate_var}. *)
+
+val write_raw_json :
+  Buffer.t -> raw_json -> unit
+  (** Output a JSON value of type {!type:raw_json}. *)
+
+val string_of_raw_json :
+  ?len:int -> raw_json -> string
+  (** Serialize a value of type {!type:raw_json}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_raw_json :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> raw_json
+  (** Input JSON data of type {!type:raw_json}. *)
+
+val raw_json_of_string :
+  string -> raw_json
+  (** Deserialize JSON data of type {!type:raw_json}. *)
 
 val write_rule_id :
   Buffer.t -> rule_id -> unit
@@ -1042,26 +1064,6 @@ val read_rule_id_and_engine_kind :
 val rule_id_and_engine_kind_of_string :
   string -> rule_id_and_engine_kind
   (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
-
-val write_raw_json :
-  Buffer.t -> raw_json -> unit
-  (** Output a JSON value of type {!type:raw_json}. *)
-
-val string_of_raw_json :
-  ?len:int -> raw_json -> string
-  (** Serialize a value of type {!type:raw_json}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_raw_json :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> raw_json
-  (** Input JSON data of type {!type:raw_json}. *)
-
-val raw_json_of_string :
-  string -> raw_json
-  (** Deserialize JSON data of type {!type:raw_json}. *)
 
 val write_position_bis :
   Buffer.t -> position_bis -> unit

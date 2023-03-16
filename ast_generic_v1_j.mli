@@ -236,7 +236,7 @@ and xml_body = Ast_generic_v1_t.xml_body
 type program = Ast_generic_v1_t.program
 
 val write_class_kind :
-  Bi_outbuf.t -> class_kind -> unit
+  Buffer.t -> class_kind -> unit
   (** Output a JSON value of type {!type:class_kind}. *)
 
 val string_of_class_kind :
@@ -256,7 +256,7 @@ val class_kind_of_string :
   (** Deserialize JSON data of type {!type:class_kind}. *)
 
 val write_concat_string_kind :
-  Bi_outbuf.t -> concat_string_kind -> unit
+  Buffer.t -> concat_string_kind -> unit
   (** Output a JSON value of type {!type:concat_string_kind}. *)
 
 val string_of_concat_string_kind :
@@ -276,7 +276,7 @@ val concat_string_kind_of_string :
   (** Deserialize JSON data of type {!type:concat_string_kind}. *)
 
 val write_const_type :
-  Bi_outbuf.t -> const_type -> unit
+  Buffer.t -> const_type -> unit
   (** Output a JSON value of type {!type:const_type}. *)
 
 val string_of_const_type :
@@ -296,7 +296,7 @@ val const_type_of_string :
   (** Deserialize JSON data of type {!type:const_type}. *)
 
 val write_container_operator :
-  Bi_outbuf.t -> container_operator -> unit
+  Buffer.t -> container_operator -> unit
   (** Output a JSON value of type {!type:container_operator}. *)
 
 val string_of_container_operator :
@@ -316,7 +316,7 @@ val container_operator_of_string :
   (** Deserialize JSON data of type {!type:container_operator}. *)
 
 val write_function_kind :
-  Bi_outbuf.t -> function_kind -> unit
+  Buffer.t -> function_kind -> unit
   (** Output a JSON value of type {!type:function_kind}. *)
 
 val string_of_function_kind :
@@ -336,7 +336,7 @@ val function_kind_of_string :
   (** Deserialize JSON data of type {!type:function_kind}. *)
 
 val write_incr_decr :
-  Bi_outbuf.t -> incr_decr -> unit
+  Buffer.t -> incr_decr -> unit
   (** Output a JSON value of type {!type:incr_decr}. *)
 
 val string_of_incr_decr :
@@ -356,7 +356,7 @@ val incr_decr_of_string :
   (** Deserialize JSON data of type {!type:incr_decr}. *)
 
 val write_keyword_attribute :
-  Bi_outbuf.t -> keyword_attribute -> unit
+  Buffer.t -> keyword_attribute -> unit
   (** Output a JSON value of type {!type:keyword_attribute}. *)
 
 val string_of_keyword_attribute :
@@ -376,7 +376,7 @@ val keyword_attribute_of_string :
   (** Deserialize JSON data of type {!type:keyword_attribute}. *)
 
 val write_operator :
-  Bi_outbuf.t -> operator -> unit
+  Buffer.t -> operator -> unit
   (** Output a JSON value of type {!type:operator}. *)
 
 val string_of_operator :
@@ -396,7 +396,7 @@ val operator_of_string :
   (** Deserialize JSON data of type {!type:operator}. *)
 
 val write_prefix_postfix :
-  Bi_outbuf.t -> prefix_postfix -> unit
+  Buffer.t -> prefix_postfix -> unit
   (** Output a JSON value of type {!type:prefix_postfix}. *)
 
 val string_of_prefix_postfix :
@@ -416,7 +416,7 @@ val prefix_postfix_of_string :
   (** Deserialize JSON data of type {!type:prefix_postfix}. *)
 
 val write_sid :
-  Bi_outbuf.t -> sid -> unit
+  Buffer.t -> sid -> unit
   (** Output a JSON value of type {!type:sid}. *)
 
 val string_of_sid :
@@ -436,7 +436,7 @@ val sid_of_string :
   (** Deserialize JSON data of type {!type:sid}. *)
 
 val write_special :
-  Bi_outbuf.t -> special -> unit
+  Buffer.t -> special -> unit
   (** Output a JSON value of type {!type:special}. *)
 
 val string_of_special :
@@ -456,7 +456,7 @@ val special_of_string :
   (** Deserialize JSON data of type {!type:special}. *)
 
 val write_token_location :
-  Bi_outbuf.t -> token_location -> unit
+  Buffer.t -> token_location -> unit
   (** Output a JSON value of type {!type:token_location}. *)
 
 val string_of_token_location :
@@ -476,7 +476,7 @@ val token_location_of_string :
   (** Deserialize JSON data of type {!type:token_location}. *)
 
 val write_token :
-  Bi_outbuf.t -> token -> unit
+  Buffer.t -> token -> unit
   (** Output a JSON value of type {!type:token}. *)
 
 val string_of_token :
@@ -496,7 +496,7 @@ val token_of_string :
   (** Deserialize JSON data of type {!type:token}. *)
 
 val write_tok :
-  Bi_outbuf.t -> tok -> unit
+  Buffer.t -> tok -> unit
   (** Output a JSON value of type {!type:tok}. *)
 
 val string_of_tok :
@@ -516,12 +516,12 @@ val tok_of_string :
   (** Deserialize JSON data of type {!type:tok}. *)
 
 val write_bracket :
-  (Bi_outbuf.t -> 'a -> unit) ->
-  Bi_outbuf.t -> 'a bracket -> unit
+  (Buffer.t -> 'a -> unit) ->
+  Buffer.t -> 'a bracket -> unit
   (** Output a JSON value of type {!type:bracket}. *)
 
 val string_of_bracket :
-  (Bi_outbuf.t -> 'a -> unit) ->
+  (Buffer.t -> 'a -> unit) ->
   ?len:int -> 'a bracket -> string
   (** Serialize a value of type {!type:bracket}
       into a JSON string.
@@ -540,7 +540,7 @@ val bracket_of_string :
   (** Deserialize JSON data of type {!type:bracket}. *)
 
 val write_sc :
-  Bi_outbuf.t -> sc -> unit
+  Buffer.t -> sc -> unit
   (** Output a JSON value of type {!type:sc}. *)
 
 val string_of_sc :
@@ -560,7 +560,7 @@ val sc_of_string :
   (** Deserialize JSON data of type {!type:sc}. *)
 
 val write_variance :
-  Bi_outbuf.t -> variance -> unit
+  Buffer.t -> variance -> unit
   (** Output a JSON value of type {!type:variance}. *)
 
 val string_of_variance :
@@ -580,12 +580,12 @@ val variance_of_string :
   (** Deserialize JSON data of type {!type:variance}. *)
 
 val write_wrap_ :
-  (Bi_outbuf.t -> 'a -> unit) ->
-  Bi_outbuf.t -> 'a wrap_ -> unit
+  (Buffer.t -> 'a -> unit) ->
+  Buffer.t -> 'a wrap_ -> unit
   (** Output a JSON value of type {!type:wrap_}. *)
 
 val string_of_wrap_ :
-  (Bi_outbuf.t -> 'a -> unit) ->
+  (Buffer.t -> 'a -> unit) ->
   ?len:int -> 'a wrap_ -> string
   (** Serialize a value of type {!type:wrap_}
       into a JSON string.
@@ -604,7 +604,7 @@ val wrap__of_string :
   (** Deserialize JSON data of type {!type:wrap_}. *)
 
 val write_ident :
-  Bi_outbuf.t -> ident -> unit
+  Buffer.t -> ident -> unit
   (** Output a JSON value of type {!type:ident}. *)
 
 val string_of_ident :
@@ -624,7 +624,7 @@ val ident_of_string :
   (** Deserialize JSON data of type {!type:ident}. *)
 
 val write_dotted_ident :
-  Bi_outbuf.t -> dotted_ident -> unit
+  Buffer.t -> dotted_ident -> unit
   (** Output a JSON value of type {!type:dotted_ident}. *)
 
 val string_of_dotted_ident :
@@ -644,7 +644,7 @@ val dotted_ident_of_string :
   (** Deserialize JSON data of type {!type:dotted_ident}. *)
 
 val write_label :
-  Bi_outbuf.t -> label -> unit
+  Buffer.t -> label -> unit
   (** Output a JSON value of type {!type:label}. *)
 
 val string_of_label :
@@ -664,7 +664,7 @@ val label_of_string :
   (** Deserialize JSON data of type {!type:label}. *)
 
 val write_literal :
-  Bi_outbuf.t -> literal -> unit
+  Buffer.t -> literal -> unit
   (** Output a JSON value of type {!type:literal}. *)
 
 val string_of_literal :
@@ -684,7 +684,7 @@ val literal_of_string :
   (** Deserialize JSON data of type {!type:literal}. *)
 
 val write_module_name :
-  Bi_outbuf.t -> module_name -> unit
+  Buffer.t -> module_name -> unit
   (** Output a JSON value of type {!type:module_name}. *)
 
 val string_of_module_name :
@@ -704,7 +704,7 @@ val module_name_of_string :
   (** Deserialize JSON data of type {!type:module_name}. *)
 
 val write_resolved_name_kind :
-  Bi_outbuf.t -> resolved_name_kind -> unit
+  Buffer.t -> resolved_name_kind -> unit
   (** Output a JSON value of type {!type:resolved_name_kind}. *)
 
 val string_of_resolved_name_kind :
@@ -724,7 +724,7 @@ val resolved_name_kind_of_string :
   (** Deserialize JSON data of type {!type:resolved_name_kind}. *)
 
 val write_resolved_name :
-  Bi_outbuf.t -> resolved_name -> unit
+  Buffer.t -> resolved_name -> unit
   (** Output a JSON value of type {!type:resolved_name}. *)
 
 val string_of_resolved_name :
@@ -744,7 +744,7 @@ val resolved_name_of_string :
   (** Deserialize JSON data of type {!type:resolved_name}. *)
 
 val write_todo_kind :
-  Bi_outbuf.t -> todo_kind -> unit
+  Buffer.t -> todo_kind -> unit
   (** Output a JSON value of type {!type:todo_kind}. *)
 
 val string_of_todo_kind :
@@ -764,7 +764,7 @@ val todo_kind_of_string :
   (** Deserialize JSON data of type {!type:todo_kind}. *)
 
 val write_xml_kind :
-  Bi_outbuf.t -> xml_kind -> unit
+  Buffer.t -> xml_kind -> unit
   (** Output a JSON value of type {!type:xml_kind}. *)
 
 val string_of_xml_kind :
@@ -784,7 +784,7 @@ val xml_kind_of_string :
   (** Deserialize JSON data of type {!type:xml_kind}. *)
 
 val write_alias :
-  Bi_outbuf.t -> alias -> unit
+  Buffer.t -> alias -> unit
   (** Output a JSON value of type {!type:alias}. *)
 
 val string_of_alias :
@@ -804,7 +804,7 @@ val alias_of_string :
   (** Deserialize JSON data of type {!type:alias}. *)
 
 val write_any :
-  Bi_outbuf.t -> any -> unit
+  Buffer.t -> any -> unit
   (** Output a JSON value of type {!type:any}. *)
 
 val string_of_any :
@@ -824,7 +824,7 @@ val any_of_string :
   (** Deserialize JSON data of type {!type:any}. *)
 
 val write_argument :
-  Bi_outbuf.t -> argument -> unit
+  Buffer.t -> argument -> unit
   (** Output a JSON value of type {!type:argument}. *)
 
 val string_of_argument :
@@ -844,7 +844,7 @@ val argument_of_string :
   (** Deserialize JSON data of type {!type:argument}. *)
 
 val write_arguments :
-  Bi_outbuf.t -> arguments -> unit
+  Buffer.t -> arguments -> unit
   (** Output a JSON value of type {!type:arguments}. *)
 
 val string_of_arguments :
@@ -864,7 +864,7 @@ val arguments_of_string :
   (** Deserialize JSON data of type {!type:arguments}. *)
 
 val write_attribute :
-  Bi_outbuf.t -> attribute -> unit
+  Buffer.t -> attribute -> unit
   (** Output a JSON value of type {!type:attribute}. *)
 
 val string_of_attribute :
@@ -884,7 +884,7 @@ val attribute_of_string :
   (** Deserialize JSON data of type {!type:attribute}. *)
 
 val write_case :
-  Bi_outbuf.t -> case -> unit
+  Buffer.t -> case -> unit
   (** Output a JSON value of type {!type:case}. *)
 
 val string_of_case :
@@ -904,7 +904,7 @@ val case_of_string :
   (** Deserialize JSON data of type {!type:case}. *)
 
 val write_case_and_body :
-  Bi_outbuf.t -> case_and_body -> unit
+  Buffer.t -> case_and_body -> unit
   (** Output a JSON value of type {!type:case_and_body}. *)
 
 val string_of_case_and_body :
@@ -924,7 +924,7 @@ val case_and_body_of_string :
   (** Deserialize JSON data of type {!type:case_and_body}. *)
 
 val write_catch :
-  Bi_outbuf.t -> catch -> unit
+  Buffer.t -> catch -> unit
   (** Output a JSON value of type {!type:catch}. *)
 
 val string_of_catch :
@@ -944,7 +944,7 @@ val catch_of_string :
   (** Deserialize JSON data of type {!type:catch}. *)
 
 val write_catch_exn :
-  Bi_outbuf.t -> catch_exn -> unit
+  Buffer.t -> catch_exn -> unit
   (** Output a JSON value of type {!type:catch_exn}. *)
 
 val string_of_catch_exn :
@@ -964,7 +964,7 @@ val catch_exn_of_string :
   (** Deserialize JSON data of type {!type:catch_exn}. *)
 
 val write_class_definition :
-  Bi_outbuf.t -> class_definition -> unit
+  Buffer.t -> class_definition -> unit
   (** Output a JSON value of type {!type:class_definition}. *)
 
 val string_of_class_definition :
@@ -984,7 +984,7 @@ val class_definition_of_string :
   (** Deserialize JSON data of type {!type:class_definition}. *)
 
 val write_class_parent :
-  Bi_outbuf.t -> class_parent -> unit
+  Buffer.t -> class_parent -> unit
   (** Output a JSON value of type {!type:class_parent}. *)
 
 val string_of_class_parent :
@@ -1004,7 +1004,7 @@ val class_parent_of_string :
   (** Deserialize JSON data of type {!type:class_parent}. *)
 
 val write_comprehension :
-  Bi_outbuf.t -> comprehension -> unit
+  Buffer.t -> comprehension -> unit
   (** Output a JSON value of type {!type:comprehension}. *)
 
 val string_of_comprehension :
@@ -1024,7 +1024,7 @@ val comprehension_of_string :
   (** Deserialize JSON data of type {!type:comprehension}. *)
 
 val write_condition :
-  Bi_outbuf.t -> condition -> unit
+  Buffer.t -> condition -> unit
   (** Output a JSON value of type {!type:condition}. *)
 
 val string_of_condition :
@@ -1044,7 +1044,7 @@ val condition_of_string :
   (** Deserialize JSON data of type {!type:condition}. *)
 
 val write_definition :
-  Bi_outbuf.t -> definition -> unit
+  Buffer.t -> definition -> unit
   (** Output a JSON value of type {!type:definition}. *)
 
 val string_of_definition :
@@ -1064,7 +1064,7 @@ val definition_of_string :
   (** Deserialize JSON data of type {!type:definition}. *)
 
 val write_definition_kind :
-  Bi_outbuf.t -> definition_kind -> unit
+  Buffer.t -> definition_kind -> unit
   (** Output a JSON value of type {!type:definition_kind}. *)
 
 val string_of_definition_kind :
@@ -1084,7 +1084,7 @@ val definition_kind_of_string :
   (** Deserialize JSON data of type {!type:definition_kind}. *)
 
 val write_directive :
-  Bi_outbuf.t -> directive -> unit
+  Buffer.t -> directive -> unit
   (** Output a JSON value of type {!type:directive}. *)
 
 val string_of_directive :
@@ -1104,7 +1104,7 @@ val directive_of_string :
   (** Deserialize JSON data of type {!type:directive}. *)
 
 val write_entity :
-  Bi_outbuf.t -> entity -> unit
+  Buffer.t -> entity -> unit
   (** Output a JSON value of type {!type:entity}. *)
 
 val string_of_entity :
@@ -1124,7 +1124,7 @@ val entity_of_string :
   (** Deserialize JSON data of type {!type:entity}. *)
 
 val write_entity_name :
-  Bi_outbuf.t -> entity_name -> unit
+  Buffer.t -> entity_name -> unit
   (** Output a JSON value of type {!type:entity_name}. *)
 
 val string_of_entity_name :
@@ -1144,7 +1144,7 @@ val entity_name_of_string :
   (** Deserialize JSON data of type {!type:entity_name}. *)
 
 val write_enum_entry_definition :
-  Bi_outbuf.t -> enum_entry_definition -> unit
+  Buffer.t -> enum_entry_definition -> unit
   (** Output a JSON value of type {!type:enum_entry_definition}. *)
 
 val string_of_enum_entry_definition :
@@ -1164,7 +1164,7 @@ val enum_entry_definition_of_string :
   (** Deserialize JSON data of type {!type:enum_entry_definition}. *)
 
 val write_expr :
-  Bi_outbuf.t -> expr -> unit
+  Buffer.t -> expr -> unit
   (** Output a JSON value of type {!type:expr}. *)
 
 val string_of_expr :
@@ -1184,7 +1184,7 @@ val expr_of_string :
   (** Deserialize JSON data of type {!type:expr}. *)
 
 val write_field :
-  Bi_outbuf.t -> field -> unit
+  Buffer.t -> field -> unit
   (** Output a JSON value of type {!type:field}. *)
 
 val string_of_field :
@@ -1204,7 +1204,7 @@ val field_of_string :
   (** Deserialize JSON data of type {!type:field}. *)
 
 val write_field_name :
-  Bi_outbuf.t -> field_name -> unit
+  Buffer.t -> field_name -> unit
   (** Output a JSON value of type {!type:field_name}. *)
 
 val string_of_field_name :
@@ -1224,7 +1224,7 @@ val field_name_of_string :
   (** Deserialize JSON data of type {!type:field_name}. *)
 
 val write_finally :
-  Bi_outbuf.t -> finally -> unit
+  Buffer.t -> finally -> unit
   (** Output a JSON value of type {!type:finally}. *)
 
 val string_of_finally :
@@ -1244,7 +1244,7 @@ val finally_of_string :
   (** Deserialize JSON data of type {!type:finally}. *)
 
 val write_for_each :
-  Bi_outbuf.t -> for_each -> unit
+  Buffer.t -> for_each -> unit
   (** Output a JSON value of type {!type:for_each}. *)
 
 val string_of_for_each :
@@ -1264,7 +1264,7 @@ val for_each_of_string :
   (** Deserialize JSON data of type {!type:for_each}. *)
 
 val write_for_header :
-  Bi_outbuf.t -> for_header -> unit
+  Buffer.t -> for_header -> unit
   (** Output a JSON value of type {!type:for_header}. *)
 
 val string_of_for_header :
@@ -1284,7 +1284,7 @@ val for_header_of_string :
   (** Deserialize JSON data of type {!type:for_header}. *)
 
 val write_for_or_if_comp :
-  Bi_outbuf.t -> for_or_if_comp -> unit
+  Buffer.t -> for_or_if_comp -> unit
   (** Output a JSON value of type {!type:for_or_if_comp}. *)
 
 val string_of_for_or_if_comp :
@@ -1304,7 +1304,7 @@ val for_or_if_comp_of_string :
   (** Deserialize JSON data of type {!type:for_or_if_comp}. *)
 
 val write_for_var_or_expr :
-  Bi_outbuf.t -> for_var_or_expr -> unit
+  Buffer.t -> for_var_or_expr -> unit
   (** Output a JSON value of type {!type:for_var_or_expr}. *)
 
 val string_of_for_var_or_expr :
@@ -1324,7 +1324,7 @@ val for_var_or_expr_of_string :
   (** Deserialize JSON data of type {!type:for_var_or_expr}. *)
 
 val write_function_body :
-  Bi_outbuf.t -> function_body -> unit
+  Buffer.t -> function_body -> unit
   (** Output a JSON value of type {!type:function_body}. *)
 
 val string_of_function_body :
@@ -1344,7 +1344,7 @@ val function_body_of_string :
   (** Deserialize JSON data of type {!type:function_body}. *)
 
 val write_function_definition :
-  Bi_outbuf.t -> function_definition -> unit
+  Buffer.t -> function_definition -> unit
   (** Output a JSON value of type {!type:function_definition}. *)
 
 val string_of_function_definition :
@@ -1364,7 +1364,7 @@ val function_definition_of_string :
   (** Deserialize JSON data of type {!type:function_definition}. *)
 
 val write_id_info :
-  Bi_outbuf.t -> id_info -> unit
+  Buffer.t -> id_info -> unit
   (** Output a JSON value of type {!type:id_info}. *)
 
 val string_of_id_info :
@@ -1384,7 +1384,7 @@ val id_info_of_string :
   (** Deserialize JSON data of type {!type:id_info}. *)
 
 val write_item :
-  Bi_outbuf.t -> item -> unit
+  Buffer.t -> item -> unit
   (** Output a JSON value of type {!type:item}. *)
 
 val string_of_item :
@@ -1404,7 +1404,7 @@ val item_of_string :
   (** Deserialize JSON data of type {!type:item}. *)
 
 val write_label_ident :
-  Bi_outbuf.t -> label_ident -> unit
+  Buffer.t -> label_ident -> unit
   (** Output a JSON value of type {!type:label_ident}. *)
 
 val string_of_label_ident :
@@ -1424,7 +1424,7 @@ val label_ident_of_string :
   (** Deserialize JSON data of type {!type:label_ident}. *)
 
 val write_macro_definition :
-  Bi_outbuf.t -> macro_definition -> unit
+  Buffer.t -> macro_definition -> unit
   (** Output a JSON value of type {!type:macro_definition}. *)
 
 val string_of_macro_definition :
@@ -1444,7 +1444,7 @@ val macro_definition_of_string :
   (** Deserialize JSON data of type {!type:macro_definition}. *)
 
 val write_module_definition :
-  Bi_outbuf.t -> module_definition -> unit
+  Buffer.t -> module_definition -> unit
   (** Output a JSON value of type {!type:module_definition}. *)
 
 val string_of_module_definition :
@@ -1464,7 +1464,7 @@ val module_definition_of_string :
   (** Deserialize JSON data of type {!type:module_definition}. *)
 
 val write_module_definition_kind :
-  Bi_outbuf.t -> module_definition_kind -> unit
+  Buffer.t -> module_definition_kind -> unit
   (** Output a JSON value of type {!type:module_definition_kind}. *)
 
 val string_of_module_definition_kind :
@@ -1484,7 +1484,7 @@ val module_definition_kind_of_string :
   (** Deserialize JSON data of type {!type:module_definition_kind}. *)
 
 val write_multi_for_each :
-  Bi_outbuf.t -> multi_for_each -> unit
+  Buffer.t -> multi_for_each -> unit
   (** Output a JSON value of type {!type:multi_for_each}. *)
 
 val string_of_multi_for_each :
@@ -1504,7 +1504,7 @@ val multi_for_each_of_string :
   (** Deserialize JSON data of type {!type:multi_for_each}. *)
 
 val write_name :
-  Bi_outbuf.t -> name -> unit
+  Buffer.t -> name -> unit
   (** Output a JSON value of type {!type:name}. *)
 
 val string_of_name :
@@ -1524,7 +1524,7 @@ val name_of_string :
   (** Deserialize JSON data of type {!type:name}. *)
 
 val write_or_type_element :
-  Bi_outbuf.t -> or_type_element -> unit
+  Buffer.t -> or_type_element -> unit
   (** Output a JSON value of type {!type:or_type_element}. *)
 
 val string_of_or_type_element :
@@ -1544,7 +1544,7 @@ val or_type_element_of_string :
   (** Deserialize JSON data of type {!type:or_type_element}. *)
 
 val write_parameter :
-  Bi_outbuf.t -> parameter -> unit
+  Buffer.t -> parameter -> unit
   (** Output a JSON value of type {!type:parameter}. *)
 
 val string_of_parameter :
@@ -1564,7 +1564,7 @@ val parameter_of_string :
   (** Deserialize JSON data of type {!type:parameter}. *)
 
 val write_parameter_classic :
-  Bi_outbuf.t -> parameter_classic -> unit
+  Buffer.t -> parameter_classic -> unit
   (** Output a JSON value of type {!type:parameter_classic}. *)
 
 val string_of_parameter_classic :
@@ -1584,7 +1584,7 @@ val parameter_classic_of_string :
   (** Deserialize JSON data of type {!type:parameter_classic}. *)
 
 val write_parameters :
-  Bi_outbuf.t -> parameters -> unit
+  Buffer.t -> parameters -> unit
   (** Output a JSON value of type {!type:parameters}. *)
 
 val string_of_parameters :
@@ -1604,7 +1604,7 @@ val parameters_of_string :
   (** Deserialize JSON data of type {!type:parameters}. *)
 
 val write_pattern :
-  Bi_outbuf.t -> pattern -> unit
+  Buffer.t -> pattern -> unit
   (** Output a JSON value of type {!type:pattern}. *)
 
 val string_of_pattern :
@@ -1624,7 +1624,7 @@ val pattern_of_string :
   (** Deserialize JSON data of type {!type:pattern}. *)
 
 val write_qualified_info :
-  Bi_outbuf.t -> qualified_info -> unit
+  Buffer.t -> qualified_info -> unit
   (** Output a JSON value of type {!type:qualified_info}. *)
 
 val string_of_qualified_info :
@@ -1644,7 +1644,7 @@ val qualified_info_of_string :
   (** Deserialize JSON data of type {!type:qualified_info}. *)
 
 val write_qualifier :
-  Bi_outbuf.t -> qualifier -> unit
+  Buffer.t -> qualifier -> unit
   (** Output a JSON value of type {!type:qualifier}. *)
 
 val string_of_qualifier :
@@ -1664,7 +1664,7 @@ val qualifier_of_string :
   (** Deserialize JSON data of type {!type:qualifier}. *)
 
 val write_stmt :
-  Bi_outbuf.t -> stmt -> unit
+  Buffer.t -> stmt -> unit
   (** Output a JSON value of type {!type:stmt}. *)
 
 val string_of_stmt :
@@ -1684,7 +1684,7 @@ val stmt_of_string :
   (** Deserialize JSON data of type {!type:stmt}. *)
 
 val write_svalue :
-  Bi_outbuf.t -> svalue -> unit
+  Buffer.t -> svalue -> unit
   (** Output a JSON value of type {!type:svalue}. *)
 
 val string_of_svalue :
@@ -1704,7 +1704,7 @@ val svalue_of_string :
   (** Deserialize JSON data of type {!type:svalue}. *)
 
 val write_type_ :
-  Bi_outbuf.t -> type_ -> unit
+  Buffer.t -> type_ -> unit
   (** Output a JSON value of type {!type:type_}. *)
 
 val string_of_type_ :
@@ -1724,7 +1724,7 @@ val type__of_string :
   (** Deserialize JSON data of type {!type:type_}. *)
 
 val write_type_argument :
-  Bi_outbuf.t -> type_argument -> unit
+  Buffer.t -> type_argument -> unit
   (** Output a JSON value of type {!type:type_argument}. *)
 
 val string_of_type_argument :
@@ -1744,7 +1744,7 @@ val type_argument_of_string :
   (** Deserialize JSON data of type {!type:type_argument}. *)
 
 val write_type_arguments :
-  Bi_outbuf.t -> type_arguments -> unit
+  Buffer.t -> type_arguments -> unit
   (** Output a JSON value of type {!type:type_arguments}. *)
 
 val string_of_type_arguments :
@@ -1764,7 +1764,7 @@ val type_arguments_of_string :
   (** Deserialize JSON data of type {!type:type_arguments}. *)
 
 val write_type_definition :
-  Bi_outbuf.t -> type_definition -> unit
+  Buffer.t -> type_definition -> unit
   (** Output a JSON value of type {!type:type_definition}. *)
 
 val string_of_type_definition :
@@ -1784,7 +1784,7 @@ val type_definition_of_string :
   (** Deserialize JSON data of type {!type:type_definition}. *)
 
 val write_type_definition_kind :
-  Bi_outbuf.t -> type_definition_kind -> unit
+  Buffer.t -> type_definition_kind -> unit
   (** Output a JSON value of type {!type:type_definition_kind}. *)
 
 val string_of_type_definition_kind :
@@ -1804,7 +1804,7 @@ val type_definition_kind_of_string :
   (** Deserialize JSON data of type {!type:type_definition_kind}. *)
 
 val write_type_parameter :
-  Bi_outbuf.t -> type_parameter -> unit
+  Buffer.t -> type_parameter -> unit
   (** Output a JSON value of type {!type:type_parameter}. *)
 
 val string_of_type_parameter :
@@ -1824,7 +1824,7 @@ val type_parameter_of_string :
   (** Deserialize JSON data of type {!type:type_parameter}. *)
 
 val write_type_parameter_classic :
-  Bi_outbuf.t -> type_parameter_classic -> unit
+  Buffer.t -> type_parameter_classic -> unit
   (** Output a JSON value of type {!type:type_parameter_classic}. *)
 
 val string_of_type_parameter_classic :
@@ -1844,7 +1844,7 @@ val type_parameter_classic_of_string :
   (** Deserialize JSON data of type {!type:type_parameter_classic}. *)
 
 val write_type_parameters :
-  Bi_outbuf.t -> type_parameters -> unit
+  Buffer.t -> type_parameters -> unit
   (** Output a JSON value of type {!type:type_parameters}. *)
 
 val string_of_type_parameters :
@@ -1864,7 +1864,7 @@ val type_parameters_of_string :
   (** Deserialize JSON data of type {!type:type_parameters}. *)
 
 val write_variable_definition :
-  Bi_outbuf.t -> variable_definition -> unit
+  Buffer.t -> variable_definition -> unit
   (** Output a JSON value of type {!type:variable_definition}. *)
 
 val string_of_variable_definition :
@@ -1884,7 +1884,7 @@ val variable_definition_of_string :
   (** Deserialize JSON data of type {!type:variable_definition}. *)
 
 val write_xml :
-  Bi_outbuf.t -> xml -> unit
+  Buffer.t -> xml -> unit
   (** Output a JSON value of type {!type:xml}. *)
 
 val string_of_xml :
@@ -1904,7 +1904,7 @@ val xml_of_string :
   (** Deserialize JSON data of type {!type:xml}. *)
 
 val write_xml_attr_value :
-  Bi_outbuf.t -> xml_attr_value -> unit
+  Buffer.t -> xml_attr_value -> unit
   (** Output a JSON value of type {!type:xml_attr_value}. *)
 
 val string_of_xml_attr_value :
@@ -1924,7 +1924,7 @@ val xml_attr_value_of_string :
   (** Deserialize JSON data of type {!type:xml_attr_value}. *)
 
 val write_xml_attribute :
-  Bi_outbuf.t -> xml_attribute -> unit
+  Buffer.t -> xml_attribute -> unit
   (** Output a JSON value of type {!type:xml_attribute}. *)
 
 val string_of_xml_attribute :
@@ -1944,7 +1944,7 @@ val xml_attribute_of_string :
   (** Deserialize JSON data of type {!type:xml_attribute}. *)
 
 val write_xml_body :
-  Bi_outbuf.t -> xml_body -> unit
+  Buffer.t -> xml_body -> unit
   (** Output a JSON value of type {!type:xml_body}. *)
 
 val string_of_xml_body :
@@ -1964,7 +1964,7 @@ val xml_body_of_string :
   (** Deserialize JSON data of type {!type:xml_body}. *)
 
 val write_program :
-  Bi_outbuf.t -> program -> unit
+  Buffer.t -> program -> unit
   (** Output a JSON value of type {!type:program}. *)
 
 val string_of_program :

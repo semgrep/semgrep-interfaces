@@ -131,8 +131,13 @@ type core_match_extra
    * inserted in place of the text in the matched range in order to fix the
    * finding. *)
   ?rendered_fix: string option;
-
   engine_kind: engine_kind;
+
+  (* Escape hatch to pass untyped info from semgrep-core to the semgrep output.
+   * Useful for quick experiments, especially when combined with semgrep
+   * --core-opts flag.
+   *)
+  ?extra_extra: raw_json option;
 }
 
 type core_match_call_trace
@@ -613,6 +618,9 @@ type cli_match_extra <ocaml attr="deriving show"> = {
   ?dataflow_trace: cli_match_dataflow_trace option;
 
   ?engine_kind: engine_kind option;
+
+  (* EXPERIMENTAL: see core_match_extra.extra_extra *)
+  ?extra_extra: raw_json option;
 }
 
 type fix_regex <ocaml attr="deriving show"> = {

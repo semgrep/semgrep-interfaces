@@ -77,7 +77,8 @@
           "$ref": "#/definitions/core_match_dataflow_trace"
         },
         "rendered_fix": { "type": "string" },
-        "engine_kind": { "$ref": "#/definitions/engine_kind" }
+        "engine_kind": { "$ref": "#/definitions/engine_kind" },
+        "extra_extra": { "$ref": "#/definitions/raw_json" }
       }
     },
     "core_match_call_trace": {
@@ -529,7 +530,8 @@
         "dataflow_trace": {
           "$ref": "#/definitions/cli_match_dataflow_trace"
         },
-        "engine_kind": { "$ref": "#/definitions/engine_kind" }
+        "engine_kind": { "$ref": "#/definitions/engine_kind" },
+        "extra_extra": { "$ref": "#/definitions/raw_json" }
       }
     },
     "fix_regex": {
