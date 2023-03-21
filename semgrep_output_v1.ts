@@ -44,6 +44,7 @@ export type CoreMatchExtra = {
   dataflow_trace?: CoreMatchDataflowTrace;
   rendered_fix?: string;
   engine_kind: EngineKind;
+  extra_extra?: RawJson;
 }
 
 export type CoreMatchCallTrace =
@@ -265,6 +266,7 @@ export type CliMatchExtra = {
   fixed_lines?: string[];
   dataflow_trace?: CliMatchDataflowTrace;
   engine_kind?: EngineKind;
+  extra_extra?: RawJson;
 }
 
 export type FixRegex = {
@@ -375,6 +377,13 @@ export type ApiScansFindings = {
   cai_ids: string[];
 }
 
+export type FindingHashes = {
+  start_line_hash: string;
+  end_line_hash: string;
+  code_hash: string;
+  pattern_hash: string;
+}
+
 export type Finding = {
   check_id: RuleId;
   path: string;
@@ -388,6 +397,7 @@ export type Finding = {
   commit_date: string;
   syntactic_id: string;
   match_based_id?: string;
+  hashes?: FindingHashes;
   metadata: RawJson;
   is_blocking: boolean;
   fixed_lines?: string[];
@@ -503,6 +513,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
     'dataflow_trace': _atd_write_optional_field(writeCoreMatchDataflowTrace, x.dataflow_trace, x),
     'rendered_fix': _atd_write_optional_field(_atd_write_string, x.rendered_fix, x),
     'engine_kind': _atd_write_required_field('CoreMatchExtra', 'engine_kind', writeEngineKind, x.engine_kind, x),
+    'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
   };
 }
 
@@ -513,6 +524,7 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     dataflow_trace: _atd_read_optional_field(readCoreMatchDataflowTrace, x['dataflow_trace'], x),
     rendered_fix: _atd_read_optional_field(_atd_read_string, x['rendered_fix'], x),
     engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineKind, x['engine_kind'], x),
+    extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
   };
 }
 
@@ -1191,6 +1203,7 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
     'dataflow_trace': _atd_write_optional_field(writeCliMatchDataflowTrace, x.dataflow_trace, x),
     'engine_kind': _atd_write_optional_field(writeEngineKind, x.engine_kind, x),
+    'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
   };
 }
 
@@ -1209,6 +1222,7 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
     dataflow_trace: _atd_read_optional_field(readCliMatchDataflowTrace, x['dataflow_trace'], x),
     engine_kind: _atd_read_optional_field(readEngineKind, x['engine_kind'], x),
+    extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
   };
 }
 
@@ -1516,6 +1530,24 @@ export function readApiScansFindings(x: any, context: any = x): ApiScansFindings
   };
 }
 
+export function writeFindingHashes(x: FindingHashes, context: any = x): any {
+  return {
+    'start_line_hash': _atd_write_required_field('FindingHashes', 'start_line_hash', _atd_write_string, x.start_line_hash, x),
+    'end_line_hash': _atd_write_required_field('FindingHashes', 'end_line_hash', _atd_write_string, x.end_line_hash, x),
+    'code_hash': _atd_write_required_field('FindingHashes', 'code_hash', _atd_write_string, x.code_hash, x),
+    'pattern_hash': _atd_write_required_field('FindingHashes', 'pattern_hash', _atd_write_string, x.pattern_hash, x),
+  };
+}
+
+export function readFindingHashes(x: any, context: any = x): FindingHashes {
+  return {
+    start_line_hash: _atd_read_required_field('FindingHashes', 'start_line_hash', _atd_read_string, x['start_line_hash'], x),
+    end_line_hash: _atd_read_required_field('FindingHashes', 'end_line_hash', _atd_read_string, x['end_line_hash'], x),
+    code_hash: _atd_read_required_field('FindingHashes', 'code_hash', _atd_read_string, x['code_hash'], x),
+    pattern_hash: _atd_read_required_field('FindingHashes', 'pattern_hash', _atd_read_string, x['pattern_hash'], x),
+  };
+}
+
 export function writeFinding(x: Finding, context: any = x): any {
   return {
     'check_id': _atd_write_required_field('Finding', 'check_id', writeRuleId, x.check_id, x),
@@ -1530,6 +1562,7 @@ export function writeFinding(x: Finding, context: any = x): any {
     'commit_date': _atd_write_required_field('Finding', 'commit_date', _atd_write_string, x.commit_date, x),
     'syntactic_id': _atd_write_required_field('Finding', 'syntactic_id', _atd_write_string, x.syntactic_id, x),
     'match_based_id': _atd_write_optional_field(_atd_write_string, x.match_based_id, x),
+    'hashes': _atd_write_optional_field(writeFindingHashes, x.hashes, x),
     'metadata': _atd_write_required_field('Finding', 'metadata', writeRawJson, x.metadata, x),
     'is_blocking': _atd_write_required_field('Finding', 'is_blocking', _atd_write_bool, x.is_blocking, x),
     'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
@@ -1552,6 +1585,7 @@ export function readFinding(x: any, context: any = x): Finding {
     commit_date: _atd_read_required_field('Finding', 'commit_date', _atd_read_string, x['commit_date'], x),
     syntactic_id: _atd_read_required_field('Finding', 'syntactic_id', _atd_read_string, x['syntactic_id'], x),
     match_based_id: _atd_read_optional_field(_atd_read_string, x['match_based_id'], x),
+    hashes: _atd_read_optional_field(readFindingHashes, x['hashes'], x),
     metadata: _atd_read_required_field('Finding', 'metadata', readRawJson, x['metadata'], x),
     is_blocking: _atd_read_required_field('Finding', 'is_blocking', _atd_read_bool, x['is_blocking'], x),
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),

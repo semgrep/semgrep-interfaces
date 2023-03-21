@@ -691,6 +691,27 @@ class CoreMatchIntermediateVar:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class RawJson:
+    """Original type: raw_json"""
+
+    value: Any
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'RawJson':
+        return cls((lambda x: x)(x))
+
+    def to_json(self) -> Any:
+        return (lambda x: x)(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'RawJson':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class RuleId:
     """Original type: rule_id"""
@@ -922,6 +943,7 @@ class CoreMatchExtra:
     message: Optional[str] = None
     dataflow_trace: Optional[CoreMatchDataflowTrace] = None
     rendered_fix: Optional[str] = None
+    extra_extra: Optional[RawJson] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreMatchExtra':
@@ -932,6 +954,7 @@ class CoreMatchExtra:
                 message=_atd_read_string(x['message']) if 'message' in x else None,
                 dataflow_trace=CoreMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 rendered_fix=_atd_read_string(x['rendered_fix']) if 'rendered_fix' in x else None,
+                extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
             )
         else:
             _atd_bad_json('CoreMatchExtra', x)
@@ -946,6 +969,8 @@ class CoreMatchExtra:
             res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
         if self.rendered_fix is not None:
             res['rendered_fix'] = _atd_write_string(self.rendered_fix)
+        if self.extra_extra is not None:
+            res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
         return res
 
     @classmethod
@@ -1848,27 +1873,6 @@ class RuleIdAndEngineKind:
 
 
 @dataclass
-class RawJson:
-    """Original type: raw_json"""
-
-    value: Any
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'RawJson':
-        return cls((lambda x: x)(x))
-
-    def to_json(self) -> Any:
-        return (lambda x: x)(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'RawJson':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class PositionBis:
     """Original type: position_bis = { ... }"""
 
@@ -1934,6 +1938,43 @@ class FixRegex:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class FindingHashes:
+    """Original type: finding_hashes = { ... }"""
+
+    start_line_hash: str
+    end_line_hash: str
+    code_hash: str
+    pattern_hash: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FindingHashes':
+        if isinstance(x, dict):
+            return cls(
+                start_line_hash=_atd_read_string(x['start_line_hash']) if 'start_line_hash' in x else _atd_missing_json_field('FindingHashes', 'start_line_hash'),
+                end_line_hash=_atd_read_string(x['end_line_hash']) if 'end_line_hash' in x else _atd_missing_json_field('FindingHashes', 'end_line_hash'),
+                code_hash=_atd_read_string(x['code_hash']) if 'code_hash' in x else _atd_missing_json_field('FindingHashes', 'code_hash'),
+                pattern_hash=_atd_read_string(x['pattern_hash']) if 'pattern_hash' in x else _atd_missing_json_field('FindingHashes', 'pattern_hash'),
+            )
+        else:
+            _atd_bad_json('FindingHashes', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['start_line_hash'] = _atd_write_string(self.start_line_hash)
+        res['end_line_hash'] = _atd_write_string(self.end_line_hash)
+        res['code_hash'] = _atd_write_string(self.code_hash)
+        res['pattern_hash'] = _atd_write_string(self.pattern_hash)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FindingHashes':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class CliMatchDataflowTrace:
     """Original type: cli_match_dataflow_trace = { ... }"""
@@ -1989,6 +2030,7 @@ class Finding:
     metadata: RawJson
     is_blocking: bool
     match_based_id: Optional[str] = None
+    hashes: Optional[FindingHashes] = None
     fixed_lines: Optional[List[str]] = None
     sca_info: Optional[ScaInfo] = None
     dataflow_trace: Optional[CliMatchDataflowTrace] = None
@@ -2011,6 +2053,7 @@ class Finding:
                 metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else _atd_missing_json_field('Finding', 'metadata'),
                 is_blocking=_atd_read_bool(x['is_blocking']) if 'is_blocking' in x else _atd_missing_json_field('Finding', 'is_blocking'),
                 match_based_id=_atd_read_string(x['match_based_id']) if 'match_based_id' in x else None,
+                hashes=FindingHashes.from_json(x['hashes']) if 'hashes' in x else None,
                 fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
                 sca_info=ScaInfo.from_json(x['sca_info']) if 'sca_info' in x else None,
                 dataflow_trace=CliMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
@@ -2035,6 +2078,8 @@ class Finding:
         res['is_blocking'] = _atd_write_bool(self.is_blocking)
         if self.match_based_id is not None:
             res['match_based_id'] = _atd_write_string(self.match_based_id)
+        if self.hashes is not None:
+            res['hashes'] = (lambda x: x.to_json())(self.hashes)
         if self.fixed_lines is not None:
             res['fixed_lines'] = _atd_write_list(_atd_write_string)(self.fixed_lines)
         if self.sca_info is not None:
@@ -2949,6 +2994,7 @@ class CliMatchExtra:
     fixed_lines: Optional[List[str]] = None
     dataflow_trace: Optional[CliMatchDataflowTrace] = None
     engine_kind: Optional[EngineKind] = None
+    extra_extra: Optional[RawJson] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliMatchExtra':
@@ -2967,6 +3013,7 @@ class CliMatchExtra:
                 fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
                 dataflow_trace=CliMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else None,
+                extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
             )
         else:
             _atd_bad_json('CliMatchExtra', x)
@@ -2994,6 +3041,8 @@ class CliMatchExtra:
             res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
         if self.engine_kind is not None:
             res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
+        if self.extra_extra is not None:
+            res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
         return res
 
     @classmethod

@@ -1,6 +1,6 @@
 (* Yoann Padioleau
  *
- * Copyright (C) 2021, 2022 r2c
+ * Copyright (C) 2021-2023 r2c
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -30,6 +30,13 @@
  * DO NOT MODIFY THIS FILE. The "API" defined here should be stable
  * across multiple versions of Semgrep. If you really want to change
  * things, you'll have to define an AST_generic_v2.atd
+ *
+ * If you do modify this file, please do not use the 'option' type in non-optional
+ * fields. Prefer 'nullable' if possible.
+ * For example '?foo: int option;' is fine, but not 'foo: int option;'
+ * Prefer in that case 'foo: int nullable'.
+ * This is because the 'option' type is not supported by atdpy because there
+ * is no real option type in Python/Mypy.
  *
  * history: process to atd-ify AST_generic.ml:
  *  - add [] around variants
@@ -115,16 +122,16 @@ type name = [
   ]
 
 type qualified_info = {
-  name_last : (ident * type_arguments option);
-  name_middle : qualifier option;
+  name_last : (ident * type_arguments nullable);
+  ?name_middle : qualifier option;
   (* ::, Ruby, C++, also '`' abuse for PolyVariant in OCaml *)
-  name_top : tok option;
+  ?name_top : tok option;
   name_info : id_info;
 }
 
 type qualifier = [
   (* Java/C++/Rust *)
-  | QDots of (ident * type_arguments option) list
+  | QDots of (ident * type_arguments nullable) list
   (* Ruby/Lua *)
   | QExpr of (expr * tok)
   ]
@@ -135,9 +142,9 @@ type qualifier = [
 
 (* EXPERIMENTAL *)
 type id_info = {
-  id_resolved: resolved_name option; (* variable tagger (naming) *)
-  id_type:     type_         option; (* type checker (typing) *)
-  id_svalue:   svalue    option; (* constant propagation *)
+  ?id_resolved: resolved_name option; (* variable tagger (naming) *)
+  ?id_type:     type_         option; (* type checker (typing) *)
+  ?id_svalue:   svalue    option; (* constant propagation *)
 }
 
 (*****************************************************************************)
@@ -195,8 +202,12 @@ type expr = [
   (* in Js ArrayAccess is also abused to perform DotAccess (..., FDynamic) *)
   | ArrayAccess of (expr * expr bracket)
 
-  | SliceAccess of (expr *
-                   (expr option (* lower *) * expr option (* upper *) * expr option (* step *)) bracket)
+  | SliceAccess of (
+      expr
+    * (expr nullable (* lower *)
+       * expr nullable (* upper *)
+       * expr nullable (* step *)) bracket
+    )
 
   (* very special value *)
   | Lambda of function_definition
@@ -206,7 +217,7 @@ type expr = [
   (* a.k.a ternary expression, or regular if in OCaml *)
   | Conditional of (expr * expr * expr)
 
-  | Yield of (tok * expr option * bool) (* 'from' for Python *)
+  | Yield of (tok * expr nullable * bool) (* 'from' for Python *)
   | Await of (tok * expr)
 
   | Cast of (type_ * expr)
@@ -232,9 +243,10 @@ type literal = [
   (* the numbers are an option because OCaml numbers (e.g., 63bits int)
    * may not be able to represent all numbers.
   *)
-  | Int of int option wrap_ | Float of float option wrap_
-  | Char of string wrap_ | String of string wrap_ 
-  | Regexp of (string wrap_ bracket (* // *) * string wrap_ option (* modifiers *))
+  | Int of int nullable wrap_ | Float of float nullable wrap_
+  | Char of string wrap_ | String of string wrap_
+  | Regexp of (string wrap_ bracket (* // *)
+               * string wrap_ nullable (* modifiers *))
   | Atom of (tok * string wrap_) (* Ruby *)
   | Unit of tok (* a.k.a Void *) | Null of tok | Undefined of tok (* JS *)
   | Imag of string wrap_ (* Go, Python *) | Ratio of string wrap_ (* Ruby *)
@@ -397,7 +409,7 @@ type xml_attr_value = expr
 type xml_body = [
   | XmlText of string wrap_
   (* this can be None when people abuse {} to put comments in it *)
-  | XmlExpr of expr option bracket
+  | XmlExpr of expr nullable bracket
   | XmlXml of xml
   ]
 
@@ -426,27 +438,30 @@ type stmt = [
 
   | Block of stmt list bracket (* can be fake {} in Python where use layout *)
 
-  | If of (tok (* 'if' or 'elif' *) * condition * stmt * stmt option)
-  | While   of (tok * condition * stmt)
+  | If of (tok (* 'if' or 'elif' *) * condition * stmt * stmt nullable)
+  | While of (tok * condition * stmt)
 
-  | Return   of (tok * expr option * sc)
+  | Return of (tok * expr nullable * sc)
 
   | DoWhile of (tok * stmt * expr)
   | For of (tok (* 'for', 'foreach'*) * for_header * stmt)
 
   (* The expr can be None for Go and Ruby. *)
-  | Switch of (tok (* 'switch' or also 'select' in Go *) * condition option *
-              case_and_body list)
+  | Switch of (tok (* 'switch' or also 'select' in Go *)
+               * condition nullable
+               * case_and_body list)
 
   | Continue of (tok * label_ident * sc)
-  | Break    of (tok * label_ident * sc)
+  | Break of (tok * label_ident * sc)
 
   | Label of (label * stmt)
   | Goto of (tok * label)
 
   | Throw of (tok (* 'raise' in OCaml, 'throw' in Java/PHP *) * expr * sc)
-  | Try of (tok * stmt * catch list * finally option)
-  | WithUsingResource of (tok (* 'with' in Python, 'using' in C# *) * stmt list  * stmt)
+  | Try of (tok * stmt * catch list * finally nullable)
+  | WithUsingResource of (tok (* 'with' in Python, 'using' in C# *)
+                          * stmt list
+                          * stmt)
   | Assert of (tok * arguments * sc)
 
   | DefStmt of definition
@@ -494,8 +509,8 @@ type label_ident = [
 
 type for_header = [
   | ForClassic of (for_var_or_expr list (* init *) *
-                  expr option (* cond *) *
-                  expr option) (* next *)
+                  expr nullable (* cond *) *
+                  expr nullable) (* next *)
   | ForEach of for_each
   (* Scala *)
   | MultiForEach of multi_for_each list
@@ -568,7 +583,7 @@ type type_ = [
   | TyFun of (parameter list * type_ (* return type *))
 
   (* a special case of TApply, also a special case of TPointer *)
-  | TyArray of ((* const_expr *) expr option bracket * type_)
+  | TyArray of ((* const_expr *) expr nullable bracket * type_)
   | TyTuple of type_ list bracket
 
   | TyVar of ident (* type variable in polymorphic types (not a typedef) *)
@@ -589,7 +604,8 @@ type type_ = [
    * Most record types are defined via a TypeDef and are then referenced
    * via a TyName. Here we have flexible record types (a.k.a. rows in OCaml).
   *)
-  | TyRecordAnon of (class_kind wrap_ (* 'struct/shape', fake in other *)* field list bracket)
+  | TyRecordAnon of (class_kind wrap_ (* 'struct/shape', fake in other *)
+                     * field list bracket)
 
   (* For languages such as Python which abuse expr to represent types.*)
   | TyExpr of expr
@@ -601,8 +617,10 @@ type type_arguments = type_argument list bracket
 type type_argument = [
   | TA of type_
   (* Java only *)
-  | TAWildcard of (tok (* '?' *) *
-                    (bool wrap_ (* extends|super, true=super *) * type_) option)
+  | TAWildcard of (
+        tok (* '?' *)
+      * (bool wrap_ (* extends|super, true=super *) * type_) nullable
+    )
   (* C++/Rust (Rust restrict expr to literals and ConstBlock) *)
   | TAExpr of expr
   | OtherTypeArg of (todo_kind * any list)
@@ -728,9 +746,9 @@ type type_parameter_classic = {
   (* upper type bounds (must-be-a-subtype-of) *)
   tp_bounds : type_ list;
   (* for Rust/C++. Similar to parameter_classic, but with type here. *)
-  tp_default : type_ option;
+  tp_default : type_ nullable;
   (* declaration-site variance (Kotlin/Hack/Scala) *)
-  tp_variance : variance wrap_ option;
+  tp_variance : variance wrap_ nullable;
 }
 
 (* TODO bracket *)
@@ -751,7 +769,7 @@ type variance = [
 type function_definition = {
   fkind: function_kind wrap_;
   fparams: parameters;
-  frettype: type_ option; (* return type *)
+  frettype: type_ nullable; (* return type *)
   fbody: function_body;
 }
 
@@ -780,9 +798,9 @@ type parameter = [
 
 
 type parameter_classic = {
-  pname:    ident option;
-  ptype:    type_ option;
-  pdefault: expr  option;
+  pname:    ident nullable;
+  ptype:    type_ nullable;
+  pdefault: expr  nullable;
 
   pattrs: attribute list;
 
@@ -809,8 +827,8 @@ type function_body = [
 *)
 
 type variable_definition = {
-  vinit: expr option;
-  vtype: type_ option;
+  ?vinit: expr option;
+  ?vtype: type_ option;
 }
 
 (* ------------------------------------------------------------------------- *)
@@ -847,7 +865,7 @@ type or_type_element = [
   (* OCaml *)
   | OrConstructor of (ident * type_ list)
   (* C *)
-  | OrEnum of (ident * expr option)
+  | OrEnum of (ident * expr nullable)
   (* Java? *)
   | OrUnion of (ident * type_)
 
@@ -898,7 +916,7 @@ type class_kind = [
  * can be defined in the class header via cparams and then this class
  * header can call its parent constructor using those cparams).
  *)
-type class_parent = (type_ * arguments option)
+type class_parent = (type_ * arguments nullable)
 
 (* ------------------------------------------------------------------------- *)
 (* Enum entry  *)
@@ -906,8 +924,8 @@ type class_parent = (type_ * arguments option)
 (* for EnumClass, complex enums-as-classes in Java/Kotlin/Scala? *)
 type enum_entry_definition = {
   (* the enum identifier is in the corresponding entity *)
-  ee_args : arguments option;
-  ee_body : field list bracket option;
+  ee_args : arguments nullable;
+  ee_body : field list bracket nullable;
 }
 
 (* ------------------------------------------------------------------------- *)
@@ -920,7 +938,7 @@ type module_definition = {
 
 type module_definition_kind = [
   | ModuleAlias of dotted_ident
-  | ModuleStruct of (dotted_ident option * item list)
+  | ModuleStruct of (dotted_ident nullable * item list)
 
   | OtherModule of (todo_kind * any list)
   ]
@@ -940,10 +958,13 @@ type macro_definition = {
 (*****************************************************************************)
 
 type directive = [
-  | ImportFrom of (tok (* 'import'/'from' for Python, 'include' for C *) *
-                  module_name * (ident * alias option (* as name alias *)) list)
+  | ImportFrom of (
+        tok (* 'import'/'from' for Python, 'include' for C *)
+      * module_name
+      * (ident * alias nullable (* as name alias *)) list
+    )
 
-  | ImportAs   of (tok * module_name * alias option) (* as name *)
+  | ImportAs   of (tok * module_name * alias nullable) (* as name *)
   | ImportAll  of (tok * module_name * tok) (* '.' in Go, '*' in Java/Python *)
 
   (* packages are different from modules in that multiple files can reuse

@@ -77,7 +77,8 @@
           "$ref": "#/definitions/core_match_dataflow_trace"
         },
         "rendered_fix": { "type": "string" },
-        "engine_kind": { "$ref": "#/definitions/engine_kind" }
+        "engine_kind": { "$ref": "#/definitions/engine_kind" },
+        "extra_extra": { "$ref": "#/definitions/raw_json" }
       }
     },
     "core_match_call_trace": {
@@ -87,8 +88,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "CoreLoc" },
-            { "$ref": "#/definitions/location" }
+            { "const": "CoreLoc" }, { "$ref": "#/definitions/location" }
           ]
         },
         {
@@ -433,8 +433,7 @@
               "minItems": 2,
               "items": false,
               "prefixItems": [
-                { "$ref": "#/definitions/location" },
-                { "type": "string" }
+                { "$ref": "#/definitions/location" }, { "type": "string" }
               ]
             }
           ]
@@ -531,7 +530,8 @@
         "dataflow_trace": {
           "$ref": "#/definitions/cli_match_dataflow_trace"
         },
-        "engine_kind": { "$ref": "#/definitions/engine_kind" }
+        "engine_kind": { "$ref": "#/definitions/engine_kind" },
+        "extra_extra": { "$ref": "#/definitions/raw_json" }
       }
     },
     "fix_regex": {
@@ -709,6 +709,18 @@
         "cai_ids": { "type": "array", "items": { "type": "string" } }
       }
     },
+    "finding_hashes": {
+      "type": "object",
+      "required": [
+        "start_line_hash", "end_line_hash", "code_hash", "pattern_hash"
+      ],
+      "properties": {
+        "start_line_hash": { "type": "string" },
+        "end_line_hash": { "type": "string" },
+        "code_hash": { "type": "string" },
+        "pattern_hash": { "type": "string" }
+      }
+    },
     "finding": {
       "type": "object",
       "required": [
@@ -729,6 +741,7 @@
         "commit_date": { "type": "string" },
         "syntactic_id": { "type": "string" },
         "match_based_id": { "type": "string" },
+        "hashes": { "$ref": "#/definitions/finding_hashes" },
         "metadata": { "$ref": "#/definitions/raw_json" },
         "is_blocking": { "type": "boolean" },
         "fixed_lines": { "type": "array", "items": { "type": "string" } },

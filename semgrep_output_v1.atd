@@ -131,8 +131,13 @@ type core_match_extra
    * inserted in place of the text in the matched range in order to fix the
    * finding. *)
   ?rendered_fix: string option;
-
   engine_kind: engine_kind;
+
+  (* Escape hatch to pass untyped info from semgrep-core to the semgrep output.
+   * Useful for quick experiments, especially when combined with semgrep
+   * --core-opts flag.
+   *)
+  ?extra_extra: raw_json option;
 }
 
 type core_match_call_trace
@@ -613,6 +618,9 @@ type cli_match_extra <ocaml attr="deriving show"> = {
   ?dataflow_trace: cli_match_dataflow_trace option;
 
   ?engine_kind: engine_kind option;
+
+  (* EXPERIMENTAL: see core_match_extra.extra_extra *)
+  ?extra_extra: raw_json option;
 }
 
 type fix_regex <ocaml attr="deriving show"> = {
@@ -787,6 +795,15 @@ type api_scans_findings <ocaml attr="deriving show"> = {
    cai_ids: string list;
 }
 
+type finding_hashes <ocaml attr="deriving show"> = {
+  start_line_hash: string;
+  end_line_hash: string;
+  (* hash of the syntactic_context/code contents from start_line through end_line *)
+  code_hash: string;
+  (* hash of the rule pattern with metavariables substituted in *)
+  pattern_hash: string;
+}
+
 (* TODO: rewrite rule_matches.to_app_finding_format() *)
 type finding <ocaml attr="deriving show"> = {
   check_id: rule_id;
@@ -804,6 +821,8 @@ type finding <ocaml attr="deriving show"> = {
   syntactic_id: string;
   (* since semgrep 0.98 *)
   ?match_based_id: string option;
+  (* since semgrep 1.14.0 *)
+  ?hashes: finding_hashes option;
   metadata: raw_json;
   is_blocking: bool;
   ?fixed_lines: string list option;

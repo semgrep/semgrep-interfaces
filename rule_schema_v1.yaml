@@ -819,9 +819,13 @@ properties:
               pattern-sanitizers: false
               join: false
         - if:
+          # We should only proceed with this old-style taint rule if we do
+          # not see a `taint` top-level key.
+          # Otherwise, it's a new-style taint rule. 
             properties:
               mode:
-                const: taint
+                const: taint 
+              taint: false
             required:
               - mode
           then:
@@ -830,22 +834,33 @@ properties:
               - message
               - languages
               - severity
-            # This is a JSON Schema-ism to make the error messages report better.
-            # It means "if we satisfy the sub-schema of requiring taint, then require taint.
-            # Otherwise, require pattern-sinks and pattern-sources".
-            # It basically just makes sure that we only report that we expected to see taint if
-            # taint is actually there, so our error messages don't report needing `taint` when
-            # it's actually an old-style syntax rule.
-            if:
-              required:
-                - taint
-            then:
-              required:
-                - taint
-            else:
-              required:
-                - pattern-sinks
-                - pattern-sources 
+              - pattern-sinks
+              - pattern-sources 
+            properties:
+              extract: false
+              dest-language: false
+              # EXPERIMENTAL
+              transform: false
+              reduce: false
+              match: false
+              pattern: false
+              patterns: false
+              pattern-either: false
+              pattern-regex: false
+              join: false
+        # EXPERIMENTAL
+        - if:
+            # If it has a top-level taint key, it must be a new-style taint rule.
+            # It's allowed to have `mode: taint`, however.
+            required:
+              - taint 
+          then:
+            required:
+              - id
+              - message
+              - languages
+              - severity
+              - taint
             properties:
               extract: false
               dest-language: false
@@ -890,6 +905,7 @@ properties:
             properties:
               mode:
                 const: search
+              taint: false
           then:
             required:
               - id

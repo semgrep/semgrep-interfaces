@@ -46,6 +46,8 @@ type core_match_intermediate_var =
 }
   [@@deriving show]
 
+type raw_json = Yojson.Basic.t [@@deriving show]
+
 type rule_id = Semgrep_output_v1_t.rule_id [@@deriving show]
 
 type svalue_value = Semgrep_output_v1_t.svalue_value = {
@@ -89,7 +91,8 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   metavars: metavars;
   dataflow_trace: core_match_dataflow_trace option;
   rendered_fix: string option;
-  engine_kind: engine_kind
+  engine_kind: engine_kind;
+  extra_extra: raw_json option
 }
   [@@deriving show]
 
@@ -199,8 +202,6 @@ type rule_id_dict = Semgrep_output_v1_t.rule_id_dict = { id: rule_id }
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
   [@@deriving show]
 
-type raw_json = Yojson.Basic.t [@@deriving show]
-
 type position_bis = Semgrep_output_v1_t.position_bis = {
   line: int;
   col: int
@@ -211,6 +212,14 @@ type fix_regex = Semgrep_output_v1_t.fix_regex = {
   regex: string;
   replacement: string;
   count: int option
+}
+  [@@deriving show]
+
+type finding_hashes = Semgrep_output_v1_t.finding_hashes = {
+  start_line_hash: string;
+  end_line_hash: string;
+  code_hash: string;
+  pattern_hash: string
 }
   [@@deriving show]
 
@@ -235,6 +244,7 @@ type finding = Semgrep_output_v1_t.finding = {
   commit_date: string;
   syntactic_id: string;
   match_based_id: string option;
+  hashes: finding_hashes option;
   metadata: raw_json;
   is_blocking: bool;
   fixed_lines: string list option;
@@ -379,7 +389,8 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   sca_info: sca_info option;
   fixed_lines: string list option;
   dataflow_trace: cli_match_dataflow_trace option;
-  engine_kind: engine_kind option
+  engine_kind: engine_kind option;
+  extra_extra: raw_json option
 }
   [@@deriving show]
 
@@ -435,7 +446,7 @@ type api_scans_findings = Semgrep_output_v1_t.api_scans_findings = {
   [@@deriving show]
 
 val write_engine_kind :
-  Bi_outbuf.t -> engine_kind -> unit
+  Buffer.t -> engine_kind -> unit
   (** Output a JSON value of type {!type:engine_kind}. *)
 
 val string_of_engine_kind :
@@ -455,7 +466,7 @@ val engine_kind_of_string :
   (** Deserialize JSON data of type {!type:engine_kind}. *)
 
 val write_matching_operation :
-  Bi_outbuf.t -> matching_operation -> unit
+  Buffer.t -> matching_operation -> unit
   (** Output a JSON value of type {!type:matching_operation}. *)
 
 val string_of_matching_operation :
@@ -475,7 +486,7 @@ val matching_operation_of_string :
   (** Deserialize JSON data of type {!type:matching_operation}. *)
 
 val write_position :
-  Bi_outbuf.t -> position -> unit
+  Buffer.t -> position -> unit
   (** Output a JSON value of type {!type:position}. *)
 
 val string_of_position :
@@ -495,7 +506,7 @@ val position_of_string :
   (** Deserialize JSON data of type {!type:position}. *)
 
 val write_location :
-  Bi_outbuf.t -> location -> unit
+  Buffer.t -> location -> unit
   (** Output a JSON value of type {!type:location}. *)
 
 val string_of_location :
@@ -515,7 +526,7 @@ val location_of_string :
   (** Deserialize JSON data of type {!type:location}. *)
 
 val write_cli_match_intermediate_var :
-  Bi_outbuf.t -> cli_match_intermediate_var -> unit
+  Buffer.t -> cli_match_intermediate_var -> unit
   (** Output a JSON value of type {!type:cli_match_intermediate_var}. *)
 
 val string_of_cli_match_intermediate_var :
@@ -535,7 +546,7 @@ val cli_match_intermediate_var_of_string :
   (** Deserialize JSON data of type {!type:cli_match_intermediate_var}. *)
 
 val write_core_match_intermediate_var :
-  Bi_outbuf.t -> core_match_intermediate_var -> unit
+  Buffer.t -> core_match_intermediate_var -> unit
   (** Output a JSON value of type {!type:core_match_intermediate_var}. *)
 
 val string_of_core_match_intermediate_var :
@@ -554,8 +565,28 @@ val core_match_intermediate_var_of_string :
   string -> core_match_intermediate_var
   (** Deserialize JSON data of type {!type:core_match_intermediate_var}. *)
 
+val write_raw_json :
+  Buffer.t -> raw_json -> unit
+  (** Output a JSON value of type {!type:raw_json}. *)
+
+val string_of_raw_json :
+  ?len:int -> raw_json -> string
+  (** Serialize a value of type {!type:raw_json}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_raw_json :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> raw_json
+  (** Input JSON data of type {!type:raw_json}. *)
+
+val raw_json_of_string :
+  string -> raw_json
+  (** Deserialize JSON data of type {!type:raw_json}. *)
+
 val write_rule_id :
-  Bi_outbuf.t -> rule_id -> unit
+  Buffer.t -> rule_id -> unit
   (** Output a JSON value of type {!type:rule_id}. *)
 
 val string_of_rule_id :
@@ -575,7 +606,7 @@ val rule_id_of_string :
   (** Deserialize JSON data of type {!type:rule_id}. *)
 
 val write_svalue_value :
-  Bi_outbuf.t -> svalue_value -> unit
+  Buffer.t -> svalue_value -> unit
   (** Output a JSON value of type {!type:svalue_value}. *)
 
 val string_of_svalue_value :
@@ -595,7 +626,7 @@ val svalue_value_of_string :
   (** Deserialize JSON data of type {!type:svalue_value}. *)
 
 val write_metavar_value :
-  Bi_outbuf.t -> metavar_value -> unit
+  Buffer.t -> metavar_value -> unit
   (** Output a JSON value of type {!type:metavar_value}. *)
 
 val string_of_metavar_value :
@@ -615,7 +646,7 @@ val metavar_value_of_string :
   (** Deserialize JSON data of type {!type:metavar_value}. *)
 
 val write_metavars :
-  Bi_outbuf.t -> metavars -> unit
+  Buffer.t -> metavars -> unit
   (** Output a JSON value of type {!type:metavars}. *)
 
 val string_of_metavars :
@@ -635,7 +666,7 @@ val metavars_of_string :
   (** Deserialize JSON data of type {!type:metavars}. *)
 
 val write_core_match_call_trace :
-  Bi_outbuf.t -> core_match_call_trace -> unit
+  Buffer.t -> core_match_call_trace -> unit
   (** Output a JSON value of type {!type:core_match_call_trace}. *)
 
 val string_of_core_match_call_trace :
@@ -655,7 +686,7 @@ val core_match_call_trace_of_string :
   (** Deserialize JSON data of type {!type:core_match_call_trace}. *)
 
 val write_core_match_dataflow_trace :
-  Bi_outbuf.t -> core_match_dataflow_trace -> unit
+  Buffer.t -> core_match_dataflow_trace -> unit
   (** Output a JSON value of type {!type:core_match_dataflow_trace}. *)
 
 val string_of_core_match_dataflow_trace :
@@ -675,7 +706,7 @@ val core_match_dataflow_trace_of_string :
   (** Deserialize JSON data of type {!type:core_match_dataflow_trace}. *)
 
 val write_core_match_extra :
-  Bi_outbuf.t -> core_match_extra -> unit
+  Buffer.t -> core_match_extra -> unit
   (** Output a JSON value of type {!type:core_match_extra}. *)
 
 val string_of_core_match_extra :
@@ -695,7 +726,7 @@ val core_match_extra_of_string :
   (** Deserialize JSON data of type {!type:core_match_extra}. *)
 
 val write_core_match :
-  Bi_outbuf.t -> core_match -> unit
+  Buffer.t -> core_match -> unit
   (** Output a JSON value of type {!type:core_match}. *)
 
 val string_of_core_match :
@@ -715,7 +746,7 @@ val core_match_of_string :
   (** Deserialize JSON data of type {!type:core_match}. *)
 
 val write_matching_explanation :
-  Bi_outbuf.t -> matching_explanation -> unit
+  Buffer.t -> matching_explanation -> unit
   (** Output a JSON value of type {!type:matching_explanation}. *)
 
 val string_of_matching_explanation :
@@ -735,7 +766,7 @@ val matching_explanation_of_string :
   (** Deserialize JSON data of type {!type:matching_explanation}. *)
 
 val write_cli_match_call_trace :
-  Bi_outbuf.t -> cli_match_call_trace -> unit
+  Buffer.t -> cli_match_call_trace -> unit
   (** Output a JSON value of type {!type:cli_match_call_trace}. *)
 
 val string_of_cli_match_call_trace :
@@ -755,7 +786,7 @@ val cli_match_call_trace_of_string :
   (** Deserialize JSON data of type {!type:cli_match_call_trace}. *)
 
 val write_version :
-  Bi_outbuf.t -> version -> unit
+  Buffer.t -> version -> unit
   (** Output a JSON value of type {!type:version}. *)
 
 val string_of_version :
@@ -775,7 +806,7 @@ val version_of_string :
   (** Deserialize JSON data of type {!type:version}. *)
 
 val write_transitivity :
-  Bi_outbuf.t -> transitivity -> unit
+  Buffer.t -> transitivity -> unit
   (** Output a JSON value of type {!type:transitivity}. *)
 
 val string_of_transitivity :
@@ -795,7 +826,7 @@ val transitivity_of_string :
   (** Deserialize JSON data of type {!type:transitivity}. *)
 
 val write_rule_times :
-  Bi_outbuf.t -> rule_times -> unit
+  Buffer.t -> rule_times -> unit
   (** Output a JSON value of type {!type:rule_times}. *)
 
 val string_of_rule_times :
@@ -815,7 +846,7 @@ val rule_times_of_string :
   (** Deserialize JSON data of type {!type:rule_times}. *)
 
 val write_target_time :
-  Bi_outbuf.t -> target_time -> unit
+  Buffer.t -> target_time -> unit
   (** Output a JSON value of type {!type:target_time}. *)
 
 val string_of_target_time :
@@ -835,7 +866,7 @@ val target_time_of_string :
   (** Deserialize JSON data of type {!type:target_time}. *)
 
 val write_skip_reason :
-  Bi_outbuf.t -> skip_reason -> unit
+  Buffer.t -> skip_reason -> unit
   (** Output a JSON value of type {!type:skip_reason}. *)
 
 val string_of_skip_reason :
@@ -855,7 +886,7 @@ val skip_reason_of_string :
   (** Deserialize JSON data of type {!type:skip_reason}. *)
 
 val write_skipped_target :
-  Bi_outbuf.t -> skipped_target -> unit
+  Buffer.t -> skipped_target -> unit
   (** Output a JSON value of type {!type:skipped_target}. *)
 
 val string_of_skipped_target :
@@ -875,7 +906,7 @@ val skipped_target_of_string :
   (** Deserialize JSON data of type {!type:skipped_target}. *)
 
 val write_skipped_rule :
-  Bi_outbuf.t -> skipped_rule -> unit
+  Buffer.t -> skipped_rule -> unit
   (** Output a JSON value of type {!type:skipped_rule}. *)
 
 val string_of_skipped_rule :
@@ -895,7 +926,7 @@ val skipped_rule_of_string :
   (** Deserialize JSON data of type {!type:skipped_rule}. *)
 
 val write_ecosystem :
-  Bi_outbuf.t -> ecosystem -> unit
+  Buffer.t -> ecosystem -> unit
   (** Output a JSON value of type {!type:ecosystem}. *)
 
 val string_of_ecosystem :
@@ -915,7 +946,7 @@ val ecosystem_of_string :
   (** Deserialize JSON data of type {!type:ecosystem}. *)
 
 val write_found_dependency :
-  Bi_outbuf.t -> found_dependency -> unit
+  Buffer.t -> found_dependency -> unit
   (** Output a JSON value of type {!type:found_dependency}. *)
 
 val string_of_found_dependency :
@@ -935,7 +966,7 @@ val found_dependency_of_string :
   (** Deserialize JSON data of type {!type:found_dependency}. *)
 
 val write_dependency_pattern :
-  Bi_outbuf.t -> dependency_pattern -> unit
+  Buffer.t -> dependency_pattern -> unit
   (** Output a JSON value of type {!type:dependency_pattern}. *)
 
 val string_of_dependency_pattern :
@@ -955,7 +986,7 @@ val dependency_pattern_of_string :
   (** Deserialize JSON data of type {!type:dependency_pattern}. *)
 
 val write_dependency_match :
-  Bi_outbuf.t -> dependency_match -> unit
+  Buffer.t -> dependency_match -> unit
   (** Output a JSON value of type {!type:dependency_match}. *)
 
 val string_of_dependency_match :
@@ -975,7 +1006,7 @@ val dependency_match_of_string :
   (** Deserialize JSON data of type {!type:dependency_match}. *)
 
 val write_sca_info :
-  Bi_outbuf.t -> sca_info -> unit
+  Buffer.t -> sca_info -> unit
   (** Output a JSON value of type {!type:sca_info}. *)
 
 val string_of_sca_info :
@@ -995,7 +1026,7 @@ val sca_info_of_string :
   (** Deserialize JSON data of type {!type:sca_info}. *)
 
 val write_rule_id_dict :
-  Bi_outbuf.t -> rule_id_dict -> unit
+  Buffer.t -> rule_id_dict -> unit
   (** Output a JSON value of type {!type:rule_id_dict}. *)
 
 val string_of_rule_id_dict :
@@ -1015,7 +1046,7 @@ val rule_id_dict_of_string :
   (** Deserialize JSON data of type {!type:rule_id_dict}. *)
 
 val write_rule_id_and_engine_kind :
-  Bi_outbuf.t -> rule_id_and_engine_kind -> unit
+  Buffer.t -> rule_id_and_engine_kind -> unit
   (** Output a JSON value of type {!type:rule_id_and_engine_kind}. *)
 
 val string_of_rule_id_and_engine_kind :
@@ -1034,28 +1065,8 @@ val rule_id_and_engine_kind_of_string :
   string -> rule_id_and_engine_kind
   (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
 
-val write_raw_json :
-  Bi_outbuf.t -> raw_json -> unit
-  (** Output a JSON value of type {!type:raw_json}. *)
-
-val string_of_raw_json :
-  ?len:int -> raw_json -> string
-  (** Serialize a value of type {!type:raw_json}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_raw_json :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> raw_json
-  (** Input JSON data of type {!type:raw_json}. *)
-
-val raw_json_of_string :
-  string -> raw_json
-  (** Deserialize JSON data of type {!type:raw_json}. *)
-
 val write_position_bis :
-  Bi_outbuf.t -> position_bis -> unit
+  Buffer.t -> position_bis -> unit
   (** Output a JSON value of type {!type:position_bis}. *)
 
 val string_of_position_bis :
@@ -1075,7 +1086,7 @@ val position_bis_of_string :
   (** Deserialize JSON data of type {!type:position_bis}. *)
 
 val write_fix_regex :
-  Bi_outbuf.t -> fix_regex -> unit
+  Buffer.t -> fix_regex -> unit
   (** Output a JSON value of type {!type:fix_regex}. *)
 
 val string_of_fix_regex :
@@ -1094,8 +1105,28 @@ val fix_regex_of_string :
   string -> fix_regex
   (** Deserialize JSON data of type {!type:fix_regex}. *)
 
+val write_finding_hashes :
+  Buffer.t -> finding_hashes -> unit
+  (** Output a JSON value of type {!type:finding_hashes}. *)
+
+val string_of_finding_hashes :
+  ?len:int -> finding_hashes -> string
+  (** Serialize a value of type {!type:finding_hashes}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_finding_hashes :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> finding_hashes
+  (** Input JSON data of type {!type:finding_hashes}. *)
+
+val finding_hashes_of_string :
+  string -> finding_hashes
+  (** Deserialize JSON data of type {!type:finding_hashes}. *)
+
 val write_cli_match_dataflow_trace :
-  Bi_outbuf.t -> cli_match_dataflow_trace -> unit
+  Buffer.t -> cli_match_dataflow_trace -> unit
   (** Output a JSON value of type {!type:cli_match_dataflow_trace}. *)
 
 val string_of_cli_match_dataflow_trace :
@@ -1115,7 +1146,7 @@ val cli_match_dataflow_trace_of_string :
   (** Deserialize JSON data of type {!type:cli_match_dataflow_trace}. *)
 
 val write_finding :
-  Bi_outbuf.t -> finding -> unit
+  Buffer.t -> finding -> unit
   (** Output a JSON value of type {!type:finding}. *)
 
 val string_of_finding :
@@ -1135,7 +1166,7 @@ val finding_of_string :
   (** Deserialize JSON data of type {!type:finding}. *)
 
 val write_error_span :
-  Bi_outbuf.t -> error_span -> unit
+  Buffer.t -> error_span -> unit
   (** Output a JSON value of type {!type:error_span}. *)
 
 val string_of_error_span :
@@ -1155,7 +1186,7 @@ val error_span_of_string :
   (** Deserialize JSON data of type {!type:error_span}. *)
 
 val write_cve_result :
-  Bi_outbuf.t -> cve_result -> unit
+  Buffer.t -> cve_result -> unit
   (** Output a JSON value of type {!type:cve_result}. *)
 
 val string_of_cve_result :
@@ -1175,7 +1206,7 @@ val cve_result_of_string :
   (** Deserialize JSON data of type {!type:cve_result}. *)
 
 val write_cve_results :
-  Bi_outbuf.t -> cve_results -> unit
+  Buffer.t -> cve_results -> unit
   (** Output a JSON value of type {!type:cve_results}. *)
 
 val string_of_cve_results :
@@ -1195,7 +1226,7 @@ val cve_results_of_string :
   (** Deserialize JSON data of type {!type:cve_results}. *)
 
 val write_core_timing :
-  Bi_outbuf.t -> core_timing -> unit
+  Buffer.t -> core_timing -> unit
   (** Output a JSON value of type {!type:core_timing}. *)
 
 val string_of_core_timing :
@@ -1215,7 +1246,7 @@ val core_timing_of_string :
   (** Deserialize JSON data of type {!type:core_timing}. *)
 
 val write_core_stats :
-  Bi_outbuf.t -> core_stats -> unit
+  Buffer.t -> core_stats -> unit
   (** Output a JSON value of type {!type:core_stats}. *)
 
 val string_of_core_stats :
@@ -1235,7 +1266,7 @@ val core_stats_of_string :
   (** Deserialize JSON data of type {!type:core_stats}. *)
 
 val write_core_severity :
-  Bi_outbuf.t -> core_severity -> unit
+  Buffer.t -> core_severity -> unit
   (** Output a JSON value of type {!type:core_severity}. *)
 
 val string_of_core_severity :
@@ -1255,7 +1286,7 @@ val core_severity_of_string :
   (** Deserialize JSON data of type {!type:core_severity}. *)
 
 val write_core_error_kind :
-  Bi_outbuf.t -> core_error_kind -> unit
+  Buffer.t -> core_error_kind -> unit
   (** Output a JSON value of type {!type:core_error_kind}. *)
 
 val string_of_core_error_kind :
@@ -1275,7 +1306,7 @@ val core_error_kind_of_string :
   (** Deserialize JSON data of type {!type:core_error_kind}. *)
 
 val write_core_error :
-  Bi_outbuf.t -> core_error -> unit
+  Buffer.t -> core_error -> unit
   (** Output a JSON value of type {!type:core_error}. *)
 
 val string_of_core_error :
@@ -1295,7 +1326,7 @@ val core_error_of_string :
   (** Deserialize JSON data of type {!type:core_error}. *)
 
 val write_core_match_results :
-  Bi_outbuf.t -> core_match_results -> unit
+  Buffer.t -> core_match_results -> unit
   (** Output a JSON value of type {!type:core_match_results}. *)
 
 val string_of_core_match_results :
@@ -1315,7 +1346,7 @@ val core_match_results_of_string :
   (** Deserialize JSON data of type {!type:core_match_results}. *)
 
 val write_cli_target_times :
-  Bi_outbuf.t -> cli_target_times -> unit
+  Buffer.t -> cli_target_times -> unit
   (** Output a JSON value of type {!type:cli_target_times}. *)
 
 val string_of_cli_target_times :
@@ -1335,7 +1366,7 @@ val cli_target_times_of_string :
   (** Deserialize JSON data of type {!type:cli_target_times}. *)
 
 val write_cli_timing :
-  Bi_outbuf.t -> cli_timing -> unit
+  Buffer.t -> cli_timing -> unit
   (** Output a JSON value of type {!type:cli_timing}. *)
 
 val string_of_cli_timing :
@@ -1355,7 +1386,7 @@ val cli_timing_of_string :
   (** Deserialize JSON data of type {!type:cli_timing}. *)
 
 val write_cli_skipped_target :
-  Bi_outbuf.t -> cli_skipped_target -> unit
+  Buffer.t -> cli_skipped_target -> unit
   (** Output a JSON value of type {!type:cli_skipped_target}. *)
 
 val string_of_cli_skipped_target :
@@ -1375,7 +1406,7 @@ val cli_skipped_target_of_string :
   (** Deserialize JSON data of type {!type:cli_skipped_target}. *)
 
 val write_cli_paths :
-  Bi_outbuf.t -> cli_paths -> unit
+  Buffer.t -> cli_paths -> unit
   (** Output a JSON value of type {!type:cli_paths}. *)
 
 val string_of_cli_paths :
@@ -1395,7 +1426,7 @@ val cli_paths_of_string :
   (** Deserialize JSON data of type {!type:cli_paths}. *)
 
 val write_cli_output_extra :
-  Bi_outbuf.t -> cli_output_extra -> unit
+  Buffer.t -> cli_output_extra -> unit
   (** Output a JSON value of type {!type:cli_output_extra}. *)
 
 val string_of_cli_output_extra :
@@ -1415,7 +1446,7 @@ val cli_output_extra_of_string :
   (** Deserialize JSON data of type {!type:cli_output_extra}. *)
 
 val write_cli_match_extra :
-  Bi_outbuf.t -> cli_match_extra -> unit
+  Buffer.t -> cli_match_extra -> unit
   (** Output a JSON value of type {!type:cli_match_extra}. *)
 
 val string_of_cli_match_extra :
@@ -1435,7 +1466,7 @@ val cli_match_extra_of_string :
   (** Deserialize JSON data of type {!type:cli_match_extra}. *)
 
 val write_cli_match :
-  Bi_outbuf.t -> cli_match -> unit
+  Buffer.t -> cli_match -> unit
   (** Output a JSON value of type {!type:cli_match}. *)
 
 val string_of_cli_match :
@@ -1455,7 +1486,7 @@ val cli_match_of_string :
   (** Deserialize JSON data of type {!type:cli_match}. *)
 
 val write_cli_error :
-  Bi_outbuf.t -> cli_error -> unit
+  Buffer.t -> cli_error -> unit
   (** Output a JSON value of type {!type:cli_error}. *)
 
 val string_of_cli_error :
@@ -1475,7 +1506,7 @@ val cli_error_of_string :
   (** Deserialize JSON data of type {!type:cli_error}. *)
 
 val write_cli_output :
-  Bi_outbuf.t -> cli_output -> unit
+  Buffer.t -> cli_output -> unit
   (** Output a JSON value of type {!type:cli_output}. *)
 
 val string_of_cli_output :
@@ -1495,7 +1526,7 @@ val cli_output_of_string :
   (** Deserialize JSON data of type {!type:cli_output}. *)
 
 val write_cli_match_taint_source :
-  Bi_outbuf.t -> cli_match_taint_source -> unit
+  Buffer.t -> cli_match_taint_source -> unit
   (** Output a JSON value of type {!type:cli_match_taint_source}. *)
 
 val string_of_cli_match_taint_source :
@@ -1515,7 +1546,7 @@ val cli_match_taint_source_of_string :
   (** Deserialize JSON data of type {!type:cli_match_taint_source}. *)
 
 val write_api_scans_findings :
-  Bi_outbuf.t -> api_scans_findings -> unit
+  Buffer.t -> api_scans_findings -> unit
   (** Output a JSON value of type {!type:api_scans_findings}. *)
 
 val string_of_api_scans_findings :
