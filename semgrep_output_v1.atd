@@ -306,6 +306,17 @@ type skipped_target
 type skip_reason
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = [
+  (* New in osemgrep *)
+  | Gitignore_patterns_match <json name="gitignore_patterns_match">
+  (* Originally returned by the Python CLI *)
+  | Always_skipped <json name="always_skipped">
+  | Semgrepignore_patterns_match <json name="semgrepignore_patterns_match">
+  | Cli_include_flags_do_not_match <json name="cli_include_flags_do_not_match">
+  | Cli_exclude_flags_match <json name="cli_exclude_flags_match">
+  | Exceeded_size_limit <json name="exceeded_size_limit">
+  | Analysis_failed_parser_or_internal_error
+      <json name="analysis_failed_parser_or_internal_error">
+  (* Originally returned by semgrep-core *)
   | Excluded_by_config <json name="excluded_by_config">
   | Wrong_language <json name="wrong_language">
   | Too_big <json name="too_big">
@@ -440,12 +451,12 @@ type core_match_results
   (* errors are guaranteed to be duplicate free; see also Report.ml *)
   errors: core_error list;
 
-  ?skipped_targets <json name="skipped">: skipped_target list option;
+  ~skipped_targets <json name="skipped">: skipped_target list;
   (* sinced semgrep 0.86 *)
-  ?skipped_rules: skipped_rule list option;
+  ~skipped_rules: skipped_rule list;
 
   (* since semgrep 0.109? *)
-  ?explanations: matching_explanation list option;
+  ~explanations: matching_explanation list;
 
   stats: core_stats;
   (* LATER: rename timing *)
@@ -662,14 +673,13 @@ type cli_paths <ocaml attr="deriving show"> = {
     scanned: string list;
     (* LATER: either _comment or skipped:, use a variant *)
     ?_comment: string option;
-    ?skipped: cli_skipped_target list option;
+    ~skipped: cli_skipped_target list;
 }
 
 (* LATER: could merge with skipped_target above *)
 type cli_skipped_target <ocaml attr="deriving show"> = {
     path: string;
-    (* LATER: use a variant, reuse skip_reason above *)
-    reason: string;
+    reason: skip_reason;
 }
 
 (* LATER: could merge with core_timing above
