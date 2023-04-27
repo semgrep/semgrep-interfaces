@@ -17,6 +17,6 @@ fi
 echo "semgrep-core is: $(which semgrep-core)"
 for javafile in data/*.java; do
   echo "### Dump JSON AST, read it from Python program: $javafile"
-  "$SEMGREP_CORE" -lang java -generate_ast_json "$javafile"
+  "$semgrep_core" -lang java -generate_ast_json "$javafile"
   python3 read-ast.py < "$javafile".ast.json
 done
