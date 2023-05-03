@@ -758,6 +758,7 @@ type ecosystem
   | Gomod <json name="gomod">
   | Cargo <json name="cargo">
   | Maven <json name="maven">
+  | Composer <json name="composer">
 ]
 
 type transitivity 
