@@ -15,6 +15,18 @@ FILES= \
   ast_generic_$(VER)_j.ml \
   ast_generic_$(VER)_j.mli \
 
+# Regenerate all files.
+#
+# If someone accidentally touches a generated file, the lazy file regeneration
+# based on timestamps won't happen. This is really only a problem because
+# we keep the generated files, with their timestamp, in git.
+# To avoid such issues, force-build is now the default target.
+#
+.PHONY: force-build
+force-build:
+	$(MAKE) clean
+	$(MAKE) build
+
 .PHONY: build
 build: $(FILES)
 
