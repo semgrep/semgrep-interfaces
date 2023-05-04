@@ -1296,6 +1296,125 @@ class TargetTime:
 
 
 @dataclass(frozen=True)
+class GitignorePatternsMatch:
+    """Original type: skip_reason = [ ... | Gitignore_patterns_match | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'GitignorePatternsMatch'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'gitignore_patterns_match'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class AlwaysSkipped:
+    """Original type: skip_reason = [ ... | Always_skipped | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'AlwaysSkipped'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'always_skipped'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class SemgrepignorePatternsMatch:
+    """Original type: skip_reason = [ ... | Semgrepignore_patterns_match | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SemgrepignorePatternsMatch'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'semgrepignore_patterns_match'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class CliIncludeFlagsDoNotMatch:
+    """Original type: skip_reason = [ ... | Cli_include_flags_do_not_match | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CliIncludeFlagsDoNotMatch'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'cli_include_flags_do_not_match'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class CliExcludeFlagsMatch:
+    """Original type: skip_reason = [ ... | Cli_exclude_flags_match | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CliExcludeFlagsMatch'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'cli_exclude_flags_match'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ExceededSizeLimit:
+    """Original type: skip_reason = [ ... | Exceeded_size_limit | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ExceededSizeLimit'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'exceeded_size_limit'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class AnalysisFailedParserOrInternalError:
+    """Original type: skip_reason = [ ... | Analysis_failed_parser_or_internal_error | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'AnalysisFailedParserOrInternalError'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'analysis_failed_parser_or_internal_error'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class ExcludedByConfig:
     """Original type: skip_reason = [ ... | Excluded_by_config | ... ]"""
 
@@ -1418,7 +1537,7 @@ class TooManyMatches:
 class SkipReason:
     """Original type: skip_reason = [ ... ]"""
 
-    value: Union[ExcludedByConfig, WrongLanguage, TooBig, Minified, Binary, IrrelevantRule, TooManyMatches]
+    value: Union[GitignorePatternsMatch, AlwaysSkipped, SemgrepignorePatternsMatch, CliIncludeFlagsDoNotMatch, CliExcludeFlagsMatch, ExceededSizeLimit, AnalysisFailedParserOrInternalError, ExcludedByConfig, WrongLanguage, TooBig, Minified, Binary, IrrelevantRule, TooManyMatches]
 
     @property
     def kind(self) -> str:
@@ -1428,6 +1547,20 @@ class SkipReason:
     @classmethod
     def from_json(cls, x: Any) -> 'SkipReason':
         if isinstance(x, str):
+            if x == 'gitignore_patterns_match':
+                return cls(GitignorePatternsMatch())
+            if x == 'always_skipped':
+                return cls(AlwaysSkipped())
+            if x == 'semgrepignore_patterns_match':
+                return cls(SemgrepignorePatternsMatch())
+            if x == 'cli_include_flags_do_not_match':
+                return cls(CliIncludeFlagsDoNotMatch())
+            if x == 'cli_exclude_flags_match':
+                return cls(CliExcludeFlagsMatch())
+            if x == 'exceeded_size_limit':
+                return cls(ExceededSizeLimit())
+            if x == 'analysis_failed_parser_or_internal_error':
+                return cls(AnalysisFailedParserOrInternalError())
             if x == 'excluded_by_config':
                 return cls(ExcludedByConfig())
             if x == 'wrong_language':
@@ -2871,14 +3004,14 @@ class CliSkippedTarget:
     """Original type: cli_skipped_target = { ... }"""
 
     path: str
-    reason: str
+    reason: SkipReason
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliSkippedTarget':
         if isinstance(x, dict):
             return cls(
                 path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('CliSkippedTarget', 'path'),
-                reason=_atd_read_string(x['reason']) if 'reason' in x else _atd_missing_json_field('CliSkippedTarget', 'reason'),
+                reason=SkipReason.from_json(x['reason']) if 'reason' in x else _atd_missing_json_field('CliSkippedTarget', 'reason'),
             )
         else:
             _atd_bad_json('CliSkippedTarget', x)
@@ -2886,7 +3019,7 @@ class CliSkippedTarget:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['path'] = _atd_write_string(self.path)
-        res['reason'] = _atd_write_string(self.reason)
+        res['reason'] = (lambda x: x.to_json())(self.reason)
         return res
 
     @classmethod

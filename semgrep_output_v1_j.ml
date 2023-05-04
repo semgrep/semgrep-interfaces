@@ -141,7 +141,10 @@ type target_time = Semgrep_output_v1_t.target_time = {
   [@@deriving show]
 
 type skip_reason = Semgrep_output_v1_t.skip_reason = 
-    Excluded_by_config | Wrong_language | Too_big | Minified | Binary
+    Gitignore_patterns_match | Always_skipped | Semgrepignore_patterns_match
+  | Cli_include_flags_do_not_match | Cli_exclude_flags_match
+  | Exceeded_size_limit | Analysis_failed_parser_or_internal_error
+  | Excluded_by_config | Wrong_language | Too_big | Minified | Binary
   | Irrelevant_rule | Too_many_matches
 
   [@@deriving show]
@@ -356,7 +359,7 @@ type cli_timing = Semgrep_output_v1_t.cli_timing = {
 
 type cli_skipped_target = Semgrep_output_v1_t.cli_skipped_target = {
   path: string;
-  reason: string
+  reason: skip_reason
 }
   [@@deriving show]
 
@@ -4374,6 +4377,13 @@ let target_time_of_string s =
 let write_skip_reason : _ -> skip_reason -> _ = (
   fun ob x ->
     match x with
+      | Gitignore_patterns_match -> Buffer.add_string ob "\"gitignore_patterns_match\""
+      | Always_skipped -> Buffer.add_string ob "\"always_skipped\""
+      | Semgrepignore_patterns_match -> Buffer.add_string ob "\"semgrepignore_patterns_match\""
+      | Cli_include_flags_do_not_match -> Buffer.add_string ob "\"cli_include_flags_do_not_match\""
+      | Cli_exclude_flags_match -> Buffer.add_string ob "\"cli_exclude_flags_match\""
+      | Exceeded_size_limit -> Buffer.add_string ob "\"exceeded_size_limit\""
+      | Analysis_failed_parser_or_internal_error -> Buffer.add_string ob "\"analysis_failed_parser_or_internal_error\""
       | Excluded_by_config -> Buffer.add_string ob "\"excluded_by_config\""
       | Wrong_language -> Buffer.add_string ob "\"wrong_language\""
       | Too_big -> Buffer.add_string ob "\"too_big\""
@@ -4392,6 +4402,34 @@ let read_skip_reason = (
     match Yojson.Safe.start_any_variant p lb with
       | `Edgy_bracket -> (
           match Yojson.Safe.read_ident p lb with
+            | "gitignore_patterns_match" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Gitignore_patterns_match : skip_reason)
+            | "always_skipped" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Always_skipped : skip_reason)
+            | "semgrepignore_patterns_match" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Semgrepignore_patterns_match : skip_reason)
+            | "cli_include_flags_do_not_match" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Cli_include_flags_do_not_match : skip_reason)
+            | "cli_exclude_flags_match" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Cli_exclude_flags_match : skip_reason)
+            | "exceeded_size_limit" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Exceeded_size_limit : skip_reason)
+            | "analysis_failed_parser_or_internal_error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Analysis_failed_parser_or_internal_error : skip_reason)
             | "excluded_by_config" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -4425,6 +4463,20 @@ let read_skip_reason = (
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
+            | "gitignore_patterns_match" ->
+              (Gitignore_patterns_match : skip_reason)
+            | "always_skipped" ->
+              (Always_skipped : skip_reason)
+            | "semgrepignore_patterns_match" ->
+              (Semgrepignore_patterns_match : skip_reason)
+            | "cli_include_flags_do_not_match" ->
+              (Cli_include_flags_do_not_match : skip_reason)
+            | "cli_exclude_flags_match" ->
+              (Cli_exclude_flags_match : skip_reason)
+            | "exceeded_size_limit" ->
+              (Exceeded_size_limit : skip_reason)
+            | "analysis_failed_parser_or_internal_error" ->
+              (Analysis_failed_parser_or_internal_error : skip_reason)
             | "excluded_by_config" ->
               (Excluded_by_config : skip_reason)
             | "wrong_language" ->
@@ -11947,7 +11999,7 @@ let write_cli_skipped_target : _ -> cli_skipped_target -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"reason\":";
     (
-      Yojson.Safe.write_string
+      write_skip_reason
     )
       ob x.reason;
     Buffer.add_char ob '}';
@@ -12007,7 +12059,7 @@ let read_cli_skipped_target = (
             field_reason := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_skip_reason
                 ) p lb
               )
             );
@@ -12060,7 +12112,7 @@ let read_cli_skipped_target = (
               field_reason := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_skip_reason
                   ) p lb
                 )
               );

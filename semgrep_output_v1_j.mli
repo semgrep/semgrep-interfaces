@@ -141,7 +141,10 @@ type target_time = Semgrep_output_v1_t.target_time = {
   [@@deriving show]
 
 type skip_reason = Semgrep_output_v1_t.skip_reason = 
-    Excluded_by_config | Wrong_language | Too_big | Minified | Binary
+    Gitignore_patterns_match | Always_skipped | Semgrepignore_patterns_match
+  | Cli_include_flags_do_not_match | Cli_exclude_flags_match
+  | Exceeded_size_limit | Analysis_failed_parser_or_internal_error
+  | Excluded_by_config | Wrong_language | Too_big | Minified | Binary
   | Irrelevant_rule | Too_many_matches
 
   [@@deriving show]
@@ -356,7 +359,7 @@ type cli_timing = Semgrep_output_v1_t.cli_timing = {
 
 type cli_skipped_target = Semgrep_output_v1_t.cli_skipped_target = {
   path: string;
-  reason: string
+  reason: skip_reason
 }
   [@@deriving show]
 

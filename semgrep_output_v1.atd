@@ -451,12 +451,23 @@ type core_match_results
   (* errors are guaranteed to be duplicate free; see also Report.ml *)
   errors: core_error list;
 
+  (* TODO: [X584759] fields defaulting to the empty list require a fix
+           in atdpy, planned for 2.11.1 *)
+(*
   ~skipped_targets <json name="skipped">: skipped_target list;
   (* sinced semgrep 0.86 *)
   ~skipped_rules: skipped_rule list;
 
   (* since semgrep 0.109? *)
   ~explanations: matching_explanation list;
+*)
+  ?skipped_targets <json name="skipped">: skipped_target list option;
+  (* sinced semgrep 0.86 *)
+  ?skipped_rules: skipped_rule list option;
+
+  (* since semgrep 0.109? *)
+  ?explanations: matching_explanation list option;
+
 
   stats: core_stats;
   (* LATER: rename timing *)
@@ -673,7 +684,10 @@ type cli_paths <ocaml attr="deriving show"> = {
     scanned: string list;
     (* LATER: either _comment or skipped:, use a variant *)
     ?_comment: string option;
+(*  TODO: needs fix in atdpy; see note tagged [X584759]
     ~skipped: cli_skipped_target list;
+*)
+    ?skipped: cli_skipped_target list option;
 }
 
 (* LATER: could merge with skipped_target above *)
