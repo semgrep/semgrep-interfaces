@@ -1,0 +1,138 @@
+(* Semgrep metrics.
+ *
+ * The goal of this module is to specify the schema for the metrics
+ * data sent by the Semgrep CLI to metrics.semgrep.dev.
+ *
+ * translated originally from semgrep/cli/.../metrics.py
+ *
+ * TODO:
+ *  - at some point we should move this file to semgrep-interfaces/
+ *    and use it also server-side.
+*)
+
+<python text="from dataclasses import field">
+
+(*****************************************************************************)
+(* Entry point *)
+(*****************************************************************************)
+
+type payload = {
+    inherit toplevel;
+    environment: environment;
+    performance: performance;
+    extension : extension;
+    errors: errors;
+    value: value;
+    ~parse_rate <python default="field(default_factory=list)">: (string * parse_stat) list <json repr="object">;
+}
+
+(*****************************************************************************)
+(* Toplevel *)
+(*****************************************************************************)
+
+type toplevel = {
+    event_id: uuid;
+    ~anonymous_user_id <python default="''">: string;
+    ~started_at <python default="Datetime('')">: datetime;
+    ~sent_at <python default="Datetime('')">: datetime;
+}
+
+(* TODO: better type *)
+type uuid = string
+
+(* TODO: better type *)
+type datetime = string
+
+(*****************************************************************************)
+(* Environment *)
+(*****************************************************************************)
+
+type environment = {
+    version: string;
+    ~projectHash : sha256hash option;
+    ~configNamesHash <python default="Sha256hash('')">: sha256hash;
+    ~rulesHash <python default="Sha256hash('')">: sha256hash;
+    ~ci : string option;
+    ~isAuthenticated <python default="False">: bool;
+  }
+
+type sha256hash = string
+
+(*****************************************************************************)
+(* Performance *)
+(*****************************************************************************)
+
+type performance = {
+    ~numRules: int option;
+    ~numTargets: int option;
+    ~totalBytesScanned: int option;
+    ~fileStats <python default="field(default_factory=list)">: file_stats list;
+    ~ruleStats <python default="field(default_factory=list)">: rule_stats list;
+    ~profilingTimes <python default="field(default_factory=list)">: (string * float) list <json repr="object">;
+    ~maxMemoryBytes: int option;
+  }
+
+type file_stats = {
+    size: int;
+    numTimesScanned: int;
+    (* LATER: factorize with semgrep_output_v1.atd? *)
+    parseTime: float option;
+    matchTime: float option;
+    runTime: float option;
+  }
+
+type rule_stats = {
+    ruleHash: string;
+    bytesScanned: int;
+    matchTime: float option;
+}
+
+(*****************************************************************************)
+(* Parsing stats *)
+(*****************************************************************************)
+
+type parse_stat = {
+    targets_parsed: int;
+    num_targets: int;
+    bytes_parsed: int;
+    num_bytes: int;
+}
+
+(*****************************************************************************)
+(* Errors *)
+(*****************************************************************************)
+
+type errors = {
+    ~returnCode: int option;
+    ~errors <python default="field(default_factory=list)">: string list;
+}
+
+(*****************************************************************************)
+(* Extension *)
+(*****************************************************************************)
+
+type extension = {
+    ?machineId : string option;
+    ?isNewAppInstall : bool option;
+    ?sessionId : string option;
+    ?version : string option;
+    ?ty : string option;
+}
+
+(*****************************************************************************)
+(* Misc *)
+(*****************************************************************************)
+
+(* TODO? why called value? *)
+
+type value = {
+    inherit value_required;
+    ~numFindings <python default="0">: int;
+    ~numIgnored <python default="0">: int;
+    ~ruleHashesWithFindings <python default="field(default_factory=list)">: (string * int) list <json repr="object">;
+    ~engineRequested <python default="'OSS'">: string;
+  }
+
+type value_required = {
+    features: string list; (* TODO: was a Set in metrics.py *)
+}

@@ -14,6 +14,7 @@ FILES= \
   semgrep_output_$(VER).jsonschema \
   ast_generic_$(VER)_j.ml \
   ast_generic_$(VER)_j.mli \
+  semgrep_metrics.py \
 
 # Regenerate all files.
 #
