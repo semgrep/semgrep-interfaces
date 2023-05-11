@@ -32,9 +32,9 @@ type payload = {
 
 type toplevel = {
     event_id: uuid;
-    ~anonymous_user_id <python default="''">: string;
-    ~started_at <python default="Datetime('')">: datetime;
-    ~sent_at <python default="Datetime('')">: datetime;
+    anonymous_user_id <python default="''">: string;
+    started_at <python default="Datetime('')">: datetime;
+    sent_at <python default="Datetime('')">: datetime;
 }
 
 (* TODO: better type *)
@@ -49,10 +49,10 @@ type datetime = string
 
 type environment = {
     version: string;
-    ~projectHash : sha256hash option;
-    ~configNamesHash <python default="Sha256hash('')">: sha256hash;
-    ~rulesHash <python default="Sha256hash('')">: sha256hash;
-    ~ci : string option;
+    projectHash : sha256hash option;
+    configNamesHash <python default="Sha256hash('')">: sha256hash;
+    ?rulesHash : sha256hash option;
+    ci : string option;
     ~isAuthenticated <python default="False">: bool;
   }
 
@@ -63,13 +63,13 @@ type sha256hash = string
 (*****************************************************************************)
 
 type performance = {
-    ~numRules: int option;
-    ~numTargets: int option;
-    ~totalBytesScanned: int option;
-    ~fileStats <python default="field(default_factory=list)">: file_stats list;
-    ~ruleStats <python default="field(default_factory=list)">: rule_stats list;
-    ~profilingTimes <python default="field(default_factory=list)">: (string * float) list <json repr="object">;
-    ~maxMemoryBytes: int option;
+    ?numRules: int option;
+    ?numTargets: int option;
+    ?totalBytesScanned: int option;
+    ?fileStats : file_stats list option;
+    ?ruleStats : rule_stats list option;
+    ?profilingTimes : (string * float) list <json repr="object"> option;
+    ?maxMemoryBytes: int option;
   }
 
 type file_stats = {
@@ -103,8 +103,8 @@ type parse_stat = {
 (*****************************************************************************)
 
 type errors = {
-    ~returnCode: int option;
-    ~errors <python default="field(default_factory=list)">: string list;
+    ?returnCode: int option;
+    ?errors: string list option;
 }
 
 (*****************************************************************************)
@@ -127,9 +127,9 @@ type extension = {
 
 type value = {
     inherit value_required;
-    ~numFindings <python default="0">: int;
-    ~numIgnored <python default="0">: int;
-    ~ruleHashesWithFindings <python default="field(default_factory=list)">: (string * int) list <json repr="object">;
+    ?numFindings : int option;
+    ?numIgnored : int option;
+    ?ruleHashesWithFindings : (string * int) list <json repr="object"> option;
     ~engineRequested <python default="'OSS'">: string;
   }
 

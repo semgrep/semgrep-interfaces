@@ -273,9 +273,9 @@ class Value:
     """Original type: value = { ... }"""
 
     features: List[str]
-    numFindings: int = 0
-    numIgnored: int = 0
-    ruleHashesWithFindings: List[Tuple[str, int]] = field(default_factory=list)
+    numFindings: Optional[int] = None
+    numIgnored: Optional[int] = None
+    ruleHashesWithFindings: Optional[List[Tuple[str, int]]] = None
     engineRequested: str = 'OSS'
 
     @classmethod
@@ -283,9 +283,9 @@ class Value:
         if isinstance(x, dict):
             return cls(
                 features=_atd_read_list(_atd_read_string)(x['features']) if 'features' in x else _atd_missing_json_field('Value', 'features'),
-                numFindings=_atd_read_int(x['numFindings']) if 'numFindings' in x else 0,
-                numIgnored=_atd_read_int(x['numIgnored']) if 'numIgnored' in x else 0,
-                ruleHashesWithFindings=_atd_read_assoc_object_into_list(_atd_read_int)(x['ruleHashesWithFindings']) if 'ruleHashesWithFindings' in x else field(default_factory=list),
+                numFindings=_atd_read_int(x['numFindings']) if 'numFindings' in x else None,
+                numIgnored=_atd_read_int(x['numIgnored']) if 'numIgnored' in x else None,
+                ruleHashesWithFindings=_atd_read_assoc_object_into_list(_atd_read_int)(x['ruleHashesWithFindings']) if 'ruleHashesWithFindings' in x else None,
                 engineRequested=_atd_read_string(x['engineRequested']) if 'engineRequested' in x else 'OSS',
             )
         else:
@@ -294,9 +294,12 @@ class Value:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['features'] = _atd_write_list(_atd_write_string)(self.features)
-        res['numFindings'] = _atd_write_int(self.numFindings)
-        res['numIgnored'] = _atd_write_int(self.numIgnored)
-        res['ruleHashesWithFindings'] = _atd_write_assoc_list_to_object(_atd_write_int)(self.ruleHashesWithFindings)
+        if self.numFindings is not None:
+            res['numFindings'] = _atd_write_int(self.numFindings)
+        if self.numIgnored is not None:
+            res['numIgnored'] = _atd_write_int(self.numIgnored)
+        if self.ruleHashesWithFindings is not None:
+            res['ruleHashesWithFindings'] = _atd_write_assoc_list_to_object(_atd_write_int)(self.ruleHashesWithFindings)
         res['engineRequested'] = _atd_write_string(self.engineRequested)
         return res
 
@@ -355,18 +358,18 @@ class Toplevel:
     """Original type: toplevel = { ... }"""
 
     event_id: Uuid
-    anonymous_user_id: str = ''
-    started_at: Datetime = Datetime('')
-    sent_at: Datetime = Datetime('')
+    anonymous_user_id: str
+    started_at: Datetime
+    sent_at: Datetime
 
     @classmethod
     def from_json(cls, x: Any) -> 'Toplevel':
         if isinstance(x, dict):
             return cls(
                 event_id=Uuid.from_json(x['event_id']) if 'event_id' in x else _atd_missing_json_field('Toplevel', 'event_id'),
-                anonymous_user_id=_atd_read_string(x['anonymous_user_id']) if 'anonymous_user_id' in x else '',
-                started_at=Datetime.from_json(x['started_at']) if 'started_at' in x else Datetime(''),
-                sent_at=Datetime.from_json(x['sent_at']) if 'sent_at' in x else Datetime(''),
+                anonymous_user_id=_atd_read_string(x['anonymous_user_id']) if 'anonymous_user_id' in x else _atd_missing_json_field('Toplevel', 'anonymous_user_id'),
+                started_at=Datetime.from_json(x['started_at']) if 'started_at' in x else _atd_missing_json_field('Toplevel', 'started_at'),
+                sent_at=Datetime.from_json(x['sent_at']) if 'sent_at' in x else _atd_missing_json_field('Toplevel', 'sent_at'),
             )
         else:
             _atd_bad_json('Toplevel', x)
@@ -489,35 +492,42 @@ class Performance:
     numRules: Optional[int] = None
     numTargets: Optional[int] = None
     totalBytesScanned: Optional[int] = None
-    fileStats: List[FileStats] = field(default_factory=list)
-    ruleStats: List[RuleStats] = field(default_factory=list)
-    profilingTimes: List[Tuple[str, float]] = field(default_factory=list)
+    fileStats: Optional[List[FileStats]] = None
+    ruleStats: Optional[List[RuleStats]] = None
+    profilingTimes: Optional[List[Tuple[str, float]]] = None
     maxMemoryBytes: Optional[int] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Performance':
         if isinstance(x, dict):
             return cls(
-                numRules=_atd_read_nullable(_atd_read_int)(x['numRules']) if 'numRules' in x else None,
-                numTargets=_atd_read_nullable(_atd_read_int)(x['numTargets']) if 'numTargets' in x else None,
-                totalBytesScanned=_atd_read_nullable(_atd_read_int)(x['totalBytesScanned']) if 'totalBytesScanned' in x else None,
-                fileStats=_atd_read_list(FileStats.from_json)(x['fileStats']) if 'fileStats' in x else field(default_factory=list),
-                ruleStats=_atd_read_list(RuleStats.from_json)(x['ruleStats']) if 'ruleStats' in x else field(default_factory=list),
-                profilingTimes=_atd_read_assoc_object_into_list(_atd_read_float)(x['profilingTimes']) if 'profilingTimes' in x else field(default_factory=list),
-                maxMemoryBytes=_atd_read_nullable(_atd_read_int)(x['maxMemoryBytes']) if 'maxMemoryBytes' in x else None,
+                numRules=_atd_read_int(x['numRules']) if 'numRules' in x else None,
+                numTargets=_atd_read_int(x['numTargets']) if 'numTargets' in x else None,
+                totalBytesScanned=_atd_read_int(x['totalBytesScanned']) if 'totalBytesScanned' in x else None,
+                fileStats=_atd_read_list(FileStats.from_json)(x['fileStats']) if 'fileStats' in x else None,
+                ruleStats=_atd_read_list(RuleStats.from_json)(x['ruleStats']) if 'ruleStats' in x else None,
+                profilingTimes=_atd_read_assoc_object_into_list(_atd_read_float)(x['profilingTimes']) if 'profilingTimes' in x else None,
+                maxMemoryBytes=_atd_read_int(x['maxMemoryBytes']) if 'maxMemoryBytes' in x else None,
             )
         else:
             _atd_bad_json('Performance', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['numRules'] = _atd_write_nullable(_atd_write_int)(self.numRules)
-        res['numTargets'] = _atd_write_nullable(_atd_write_int)(self.numTargets)
-        res['totalBytesScanned'] = _atd_write_nullable(_atd_write_int)(self.totalBytesScanned)
-        res['fileStats'] = _atd_write_list((lambda x: x.to_json()))(self.fileStats)
-        res['ruleStats'] = _atd_write_list((lambda x: x.to_json()))(self.ruleStats)
-        res['profilingTimes'] = _atd_write_assoc_list_to_object(_atd_write_float)(self.profilingTimes)
-        res['maxMemoryBytes'] = _atd_write_nullable(_atd_write_int)(self.maxMemoryBytes)
+        if self.numRules is not None:
+            res['numRules'] = _atd_write_int(self.numRules)
+        if self.numTargets is not None:
+            res['numTargets'] = _atd_write_int(self.numTargets)
+        if self.totalBytesScanned is not None:
+            res['totalBytesScanned'] = _atd_write_int(self.totalBytesScanned)
+        if self.fileStats is not None:
+            res['fileStats'] = _atd_write_list((lambda x: x.to_json()))(self.fileStats)
+        if self.ruleStats is not None:
+            res['ruleStats'] = _atd_write_list((lambda x: x.to_json()))(self.ruleStats)
+        if self.profilingTimes is not None:
+            res['profilingTimes'] = _atd_write_assoc_list_to_object(_atd_write_float)(self.profilingTimes)
+        if self.maxMemoryBytes is not None:
+            res['maxMemoryBytes'] = _atd_write_int(self.maxMemoryBytes)
         return res
 
     @classmethod
@@ -615,22 +625,24 @@ class Errors:
     """Original type: errors = { ... }"""
 
     returnCode: Optional[int] = None
-    errors: List[str] = field(default_factory=list)
+    errors: Optional[List[str]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Errors':
         if isinstance(x, dict):
             return cls(
-                returnCode=_atd_read_nullable(_atd_read_int)(x['returnCode']) if 'returnCode' in x else None,
-                errors=_atd_read_list(_atd_read_string)(x['errors']) if 'errors' in x else field(default_factory=list),
+                returnCode=_atd_read_int(x['returnCode']) if 'returnCode' in x else None,
+                errors=_atd_read_list(_atd_read_string)(x['errors']) if 'errors' in x else None,
             )
         else:
             _atd_bad_json('Errors', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['returnCode'] = _atd_write_nullable(_atd_write_int)(self.returnCode)
-        res['errors'] = _atd_write_list(_atd_write_string)(self.errors)
+        if self.returnCode is not None:
+            res['returnCode'] = _atd_write_int(self.returnCode)
+        if self.errors is not None:
+            res['errors'] = _atd_write_list(_atd_write_string)(self.errors)
         return res
 
     @classmethod
@@ -646,10 +658,10 @@ class Environment:
     """Original type: environment = { ... }"""
 
     version: str
-    projectHash: Optional[Sha256hash] = None
-    configNamesHash: Sha256hash = Sha256hash('')
-    rulesHash: Sha256hash = Sha256hash('')
-    ci: Optional[str] = None
+    projectHash: Optional[Sha256hash]
+    configNamesHash: Sha256hash
+    ci: Optional[str]
+    rulesHash: Optional[Sha256hash] = None
     isAuthenticated: bool = False
 
     @classmethod
@@ -657,10 +669,10 @@ class Environment:
         if isinstance(x, dict):
             return cls(
                 version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('Environment', 'version'),
-                projectHash=_atd_read_nullable(Sha256hash.from_json)(x['projectHash']) if 'projectHash' in x else None,
-                configNamesHash=Sha256hash.from_json(x['configNamesHash']) if 'configNamesHash' in x else Sha256hash(''),
-                rulesHash=Sha256hash.from_json(x['rulesHash']) if 'rulesHash' in x else Sha256hash(''),
-                ci=_atd_read_nullable(_atd_read_string)(x['ci']) if 'ci' in x else None,
+                projectHash=_atd_read_nullable(Sha256hash.from_json)(x['projectHash']) if 'projectHash' in x else _atd_missing_json_field('Environment', 'projectHash'),
+                configNamesHash=Sha256hash.from_json(x['configNamesHash']) if 'configNamesHash' in x else _atd_missing_json_field('Environment', 'configNamesHash'),
+                ci=_atd_read_nullable(_atd_read_string)(x['ci']) if 'ci' in x else _atd_missing_json_field('Environment', 'ci'),
+                rulesHash=Sha256hash.from_json(x['rulesHash']) if 'rulesHash' in x else None,
                 isAuthenticated=_atd_read_bool(x['isAuthenticated']) if 'isAuthenticated' in x else False,
             )
         else:
@@ -671,8 +683,9 @@ class Environment:
         res['version'] = _atd_write_string(self.version)
         res['projectHash'] = _atd_write_nullable((lambda x: x.to_json()))(self.projectHash)
         res['configNamesHash'] = (lambda x: x.to_json())(self.configNamesHash)
-        res['rulesHash'] = (lambda x: x.to_json())(self.rulesHash)
         res['ci'] = _atd_write_nullable(_atd_write_string)(self.ci)
+        if self.rulesHash is not None:
+            res['rulesHash'] = (lambda x: x.to_json())(self.rulesHash)
         res['isAuthenticated'] = _atd_write_bool(self.isAuthenticated)
         return res
 
@@ -689,14 +702,14 @@ class Payload:
     """Original type: payload = { ... }"""
 
     event_id: Uuid
+    anonymous_user_id: str
+    started_at: Datetime
+    sent_at: Datetime
     environment: Environment
     performance: Performance
     extension: Extension
     errors: Errors
     value: Value
-    anonymous_user_id: str = ''
-    started_at: Datetime = Datetime('')
-    sent_at: Datetime = Datetime('')
     parse_rate: List[Tuple[str, ParseStat]] = field(default_factory=list)
 
     @classmethod
@@ -704,14 +717,14 @@ class Payload:
         if isinstance(x, dict):
             return cls(
                 event_id=Uuid.from_json(x['event_id']) if 'event_id' in x else _atd_missing_json_field('Payload', 'event_id'),
+                anonymous_user_id=_atd_read_string(x['anonymous_user_id']) if 'anonymous_user_id' in x else _atd_missing_json_field('Payload', 'anonymous_user_id'),
+                started_at=Datetime.from_json(x['started_at']) if 'started_at' in x else _atd_missing_json_field('Payload', 'started_at'),
+                sent_at=Datetime.from_json(x['sent_at']) if 'sent_at' in x else _atd_missing_json_field('Payload', 'sent_at'),
                 environment=Environment.from_json(x['environment']) if 'environment' in x else _atd_missing_json_field('Payload', 'environment'),
                 performance=Performance.from_json(x['performance']) if 'performance' in x else _atd_missing_json_field('Payload', 'performance'),
                 extension=Extension.from_json(x['extension']) if 'extension' in x else _atd_missing_json_field('Payload', 'extension'),
                 errors=Errors.from_json(x['errors']) if 'errors' in x else _atd_missing_json_field('Payload', 'errors'),
                 value=Value.from_json(x['value']) if 'value' in x else _atd_missing_json_field('Payload', 'value'),
-                anonymous_user_id=_atd_read_string(x['anonymous_user_id']) if 'anonymous_user_id' in x else '',
-                started_at=Datetime.from_json(x['started_at']) if 'started_at' in x else Datetime(''),
-                sent_at=Datetime.from_json(x['sent_at']) if 'sent_at' in x else Datetime(''),
                 parse_rate=_atd_read_assoc_object_into_list(ParseStat.from_json)(x['parse_rate']) if 'parse_rate' in x else field(default_factory=list),
             )
         else:
@@ -720,14 +733,14 @@ class Payload:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['event_id'] = (lambda x: x.to_json())(self.event_id)
+        res['anonymous_user_id'] = _atd_write_string(self.anonymous_user_id)
+        res['started_at'] = (lambda x: x.to_json())(self.started_at)
+        res['sent_at'] = (lambda x: x.to_json())(self.sent_at)
         res['environment'] = (lambda x: x.to_json())(self.environment)
         res['performance'] = (lambda x: x.to_json())(self.performance)
         res['extension'] = (lambda x: x.to_json())(self.extension)
         res['errors'] = (lambda x: x.to_json())(self.errors)
         res['value'] = (lambda x: x.to_json())(self.value)
-        res['anonymous_user_id'] = _atd_write_string(self.anonymous_user_id)
-        res['started_at'] = (lambda x: x.to_json())(self.started_at)
-        res['sent_at'] = (lambda x: x.to_json())(self.sent_at)
         res['parse_rate'] = _atd_write_assoc_list_to_object((lambda x: x.to_json()))(self.parse_rate)
         return res
 
