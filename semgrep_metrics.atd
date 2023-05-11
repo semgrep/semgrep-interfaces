@@ -6,8 +6,9 @@
  * translated originally from semgrep/cli/.../metrics.py
  *
  * TODO:
- *  - at some point we should move this file to semgrep-interfaces/
- *    and use it also server-side.
+ * - some optional arguments should be removed when `osemgrep` replace
+ *   `semgrep`. Currently, we tried to fit on tests and don't updated the
+ *   JSON output. We tried to fit on the Python side too.
 *)
 
 <python text="from dataclasses import field">
