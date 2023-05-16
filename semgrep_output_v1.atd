@@ -23,7 +23,7 @@
  *  version upgrade).
  *
  * This file currently contains also the type definitions for semgrep-core's
- * JSON output, meant for the semgrep Python wrapper.
+ * JSON output, meant for the semgrep Python wrapper (a.k.a. pysemgrep).
  * LATER: when ATD gets a module system, we can split this file in
  * different files (e.g., in Output_from_core.atd), but for now it's simpler
  * to have everything in one file.
@@ -79,11 +79,15 @@ type position
   offset: int; (* byte position from the beginning of the file, starts at 0 *)
 }
 
+(* File path.
+ * LATER? could convert directly to Fpath.t for atdgen? *)
+type fpath <ocaml attr="deriving show"> = string
+
 (* a.k.a range *)
 type location
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
-  path: string (* source file *);
+  path: fpath (* source file *);
   start: position;
   end <ocaml name="end_">: position;
 }
@@ -296,7 +300,7 @@ type core_stats
 type skipped_target
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
-  path: string;
+  path: fpath;
   reason: skip_reason;
   details: string;
   ?rule_id: rule_id option;
@@ -358,7 +362,7 @@ type core_timing
 type target_time
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
-  path: string;
+  path: fpath;
   (* parse and match time for each rule on target *)
   rule_times: rule_times list;
   (* run time for all rules on target *)
@@ -451,16 +455,6 @@ type core_match_results
   (* errors are guaranteed to be duplicate free; see also Report.ml *)
   errors: core_error list;
 
-  (* TODO: [X584759] fields defaulting to the empty list require a fix
-           in atdpy, planned for 2.11.1 *)
-(*
-  ~skipped_targets <json name="skipped">: skipped_target list;
-  (* sinced semgrep 0.86 *)
-  ~skipped_rules: skipped_rule list;
-
-  (* since semgrep 0.109? *)
-  ~explanations: matching_explanation list;
-*)
   ?skipped_targets <json name="skipped">: skipped_target list option;
   (* sinced semgrep 0.86 *)
   ?skipped_rules: skipped_rule list option;
@@ -505,6 +499,7 @@ type cli_error<ocaml attr="deriving show"> = {
 
   (* for most parsing errors those are set *)
   ?message: string option; (* contains error location *)
+  (* string?? an fpath? *)
   ?path: string option;
 
   (* for invalid rules, for ErrorWithSpan *)
@@ -518,7 +513,7 @@ type error_span <ocaml attr="deriving show"> = {
     (* for InvalidRuleSchemaError *)
     (* LATER: could inherit location; but file: vs path: *)
     (* TODO: source hash should probably also be mandatory? *)
-    file: string;
+    file: fpath;
     start: position_bis;
     end <ocaml name="end_">: position_bis;
     ?source_hash: string option;
@@ -692,7 +687,7 @@ type cli_paths <ocaml attr="deriving show"> = {
 
 (* LATER: could merge with skipped_target above *)
 type cli_skipped_target <ocaml attr="deriving show"> = {
-    path: string;
+    path: fpath;
     reason: skip_reason;
 }
 
@@ -730,7 +725,7 @@ type cli_profiling_times <ocaml attr="deriving show"> = {
 
 (* similar to the [target_time] and [rule_times] type above *)
 type cli_target_times <ocaml attr="deriving show"> = {
-    path: string;
+    path: fpath;
     num_bytes: int;
     (* each elt in the list refers to a rule in cli_timing.rules *)
     match_times: float list;
@@ -832,7 +827,7 @@ type finding_hashes <ocaml attr="deriving show"> = {
 (* TODO: rewrite rule_matches.to_app_finding_format() *)
 type finding <ocaml attr="deriving show"> = {
   check_id: rule_id;
-  path: string;
+  path: fpath;
   line: int;
   column: int;
   end_line: int;
