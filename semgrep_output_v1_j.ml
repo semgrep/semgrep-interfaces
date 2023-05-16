@@ -3,6 +3,8 @@
 
 type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
+type fpath = Semgrep_output_v1_t.fpath [@@deriving show]
+
 type matching_operation = Semgrep_output_v1_t.matching_operation = 
     And
   | Or
@@ -27,7 +29,7 @@ type position = Semgrep_output_v1_t.position = {
   [@@deriving show]
 
 type location = Semgrep_output_v1_t.location = {
-  path: string;
+  path: fpath;
   start: position;
   end_ (*atd end *): position
 }
@@ -134,7 +136,7 @@ type rule_times = Semgrep_output_v1_t.rule_times = {
   [@@deriving show]
 
 type target_time = Semgrep_output_v1_t.target_time = {
-  path: string;
+  path: fpath;
   rule_times: rule_times list;
   run_time: float
 }
@@ -150,7 +152,7 @@ type skip_reason = Semgrep_output_v1_t.skip_reason =
   [@@deriving show]
 
 type skipped_target = Semgrep_output_v1_t.skipped_target = {
-  path: string;
+  path: fpath;
   reason: skip_reason;
   details: string;
   rule_id: rule_id option
@@ -236,7 +238,7 @@ type cli_match_dataflow_trace =
 
 type finding = Semgrep_output_v1_t.finding = {
   check_id: rule_id;
-  path: string;
+  path: fpath;
   line: int;
   column: int;
   end_line: int;
@@ -257,7 +259,7 @@ type finding = Semgrep_output_v1_t.finding = {
   [@@deriving show]
 
 type error_span = Semgrep_output_v1_t.error_span = {
-  file: string;
+  file: fpath;
   start: position_bis;
   end_ (*atd end *): position_bis;
   source_hash: string option;
@@ -339,7 +341,7 @@ type core_match_results = Semgrep_output_v1_t.core_match_results = {
   [@@deriving show]
 
 type cli_target_times = Semgrep_output_v1_t.cli_target_times = {
-  path: string;
+  path: fpath;
   num_bytes: int;
   match_times: float list;
   parse_times: float list;
@@ -358,7 +360,7 @@ type cli_timing = Semgrep_output_v1_t.cli_timing = {
   [@@deriving show]
 
 type cli_skipped_target = Semgrep_output_v1_t.cli_skipped_target = {
-  path: string;
+  path: fpath;
   reason: skip_reason
 }
   [@@deriving show]
@@ -399,7 +401,7 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
 
 type cli_match = Semgrep_output_v1_t.cli_match = {
   check_id: rule_id;
-  path: string;
+  path: fpath;
   start: position;
   end_ (*atd end *): position;
   extra: cli_match_extra
@@ -549,6 +551,18 @@ let read_engine_kind = (
 )
 let engine_kind_of_string s =
   read_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_fpath = (
+  Yojson.Safe.write_string
+)
+let string_of_fpath ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_fpath ob x;
+  Buffer.contents ob
+let read_fpath = (
+  Atdgen_runtime.Oj_run.read_string
+)
+let fpath_of_string s =
+  read_fpath (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_matching_operation : _ -> matching_operation -> _ = (
   fun ob x ->
     match x with
@@ -964,7 +978,7 @@ let write_location : _ -> location -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"path\":";
     (
-      Yojson.Safe.write_string
+      write_fpath
     )
       ob x.path;
     if !is_first then
@@ -1043,7 +1057,7 @@ let read_location = (
             field_path := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_fpath
                 ) p lb
               )
             );
@@ -1112,7 +1126,7 @@ let read_location = (
               field_path := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_fpath
                   ) p lb
                 )
               );
@@ -4188,7 +4202,7 @@ let write_target_time : _ -> target_time -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"path\":";
     (
-      Yojson.Safe.write_string
+      write_fpath
     )
       ob x.path;
     if !is_first then
@@ -4267,7 +4281,7 @@ let read_target_time = (
             field_path := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_fpath
                 ) p lb
               )
             );
@@ -4336,7 +4350,7 @@ let read_target_time = (
               field_path := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_fpath
                   ) p lb
                 )
               );
@@ -4569,7 +4583,7 @@ let write_skipped_target : _ -> skipped_target -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"path\":";
     (
-      Yojson.Safe.write_string
+      write_fpath
     )
       ob x.path;
     if !is_first then
@@ -4674,7 +4688,7 @@ let read_skipped_target = (
             field_path := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_fpath
                 ) p lb
               )
             );
@@ -4767,7 +4781,7 @@ let read_skipped_target = (
               field_path := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_fpath
                   ) p lb
                 )
               );
@@ -7576,7 +7590,7 @@ let write_finding : _ -> finding -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"path\":";
     (
-      Yojson.Safe.write_string
+      write_fpath
     )
       ob x.path;
     if !is_first then
@@ -7970,7 +7984,7 @@ let read_finding = (
             field_path := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_fpath
                 ) p lb
               )
             );
@@ -8325,7 +8339,7 @@ let read_finding = (
               field_path := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_fpath
                   ) p lb
                 )
               );
@@ -8662,7 +8676,7 @@ let write_error_span : _ -> error_span -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"file\":";
     (
-      Yojson.Safe.write_string
+      write_fpath
     )
       ob x.file;
     if !is_first then
@@ -8878,7 +8892,7 @@ let read_error_span = (
             field_file := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_fpath
                 ) p lb
               )
             );
@@ -9072,7 +9086,7 @@ let read_error_span = (
               field_file := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_fpath
                   ) p lb
                 )
               );
@@ -11308,7 +11322,7 @@ let write_cli_target_times : _ -> cli_target_times -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"path\":";
     (
-      Yojson.Safe.write_string
+      write_fpath
     )
       ob x.path;
     if !is_first then
@@ -11429,7 +11443,7 @@ let read_cli_target_times = (
             field_path := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_fpath
                 ) p lb
               )
             );
@@ -11536,7 +11550,7 @@ let read_cli_target_times = (
               field_path := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_fpath
                   ) p lb
                 )
               );
@@ -11997,7 +12011,7 @@ let write_cli_skipped_target : _ -> cli_skipped_target -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"path\":";
     (
-      Yojson.Safe.write_string
+      write_fpath
     )
       ob x.path;
     if !is_first then
@@ -12058,7 +12072,7 @@ let read_cli_skipped_target = (
             field_path := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_fpath
                 ) p lb
               )
             );
@@ -12111,7 +12125,7 @@ let read_cli_skipped_target = (
               field_path := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_fpath
                   ) p lb
                 )
               );
@@ -13925,7 +13939,7 @@ let write_cli_match : _ -> cli_match -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"path\":";
     (
-      Yojson.Safe.write_string
+      write_fpath
     )
       ob x.path;
     if !is_first then
@@ -14045,7 +14059,7 @@ let read_cli_match = (
             field_path := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_fpath
                 ) p lb
               )
             );
@@ -14152,7 +14166,7 @@ let read_cli_match = (
               field_path := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_fpath
                   ) p lb
                 )
               );

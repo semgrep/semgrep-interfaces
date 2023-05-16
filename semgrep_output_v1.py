@@ -303,6 +303,27 @@ class EngineKind:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class Fpath:
+    """Original type: fpath"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Fpath':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Fpath':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class And:
     """Original type: matching_operation = [ ... | And | ... ]"""
@@ -602,7 +623,7 @@ class Position:
 class Location:
     """Original type: location = { ... }"""
 
-    path: str
+    path: Fpath
     start: Position
     end: Position
 
@@ -610,7 +631,7 @@ class Location:
     def from_json(cls, x: Any) -> 'Location':
         if isinstance(x, dict):
             return cls(
-                path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('Location', 'path'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('Location', 'path'),
                 start=Position.from_json(x['start']) if 'start' in x else _atd_missing_json_field('Location', 'start'),
                 end=Position.from_json(x['end']) if 'end' in x else _atd_missing_json_field('Location', 'end'),
             )
@@ -619,7 +640,7 @@ class Location:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['path'] = _atd_write_string(self.path)
+        res['path'] = (lambda x: x.to_json())(self.path)
         res['start'] = (lambda x: x.to_json())(self.start)
         res['end'] = (lambda x: x.to_json())(self.end)
         return res
@@ -1265,7 +1286,7 @@ class RuleTimes:
 class TargetTime:
     """Original type: target_time = { ... }"""
 
-    path: str
+    path: Fpath
     rule_times: List[RuleTimes]
     run_time: float
 
@@ -1273,7 +1294,7 @@ class TargetTime:
     def from_json(cls, x: Any) -> 'TargetTime':
         if isinstance(x, dict):
             return cls(
-                path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('TargetTime', 'path'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('TargetTime', 'path'),
                 rule_times=_atd_read_list(RuleTimes.from_json)(x['rule_times']) if 'rule_times' in x else _atd_missing_json_field('TargetTime', 'rule_times'),
                 run_time=_atd_read_float(x['run_time']) if 'run_time' in x else _atd_missing_json_field('TargetTime', 'run_time'),
             )
@@ -1282,7 +1303,7 @@ class TargetTime:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['path'] = _atd_write_string(self.path)
+        res['path'] = (lambda x: x.to_json())(self.path)
         res['rule_times'] = _atd_write_list((lambda x: x.to_json()))(self.rule_times)
         res['run_time'] = _atd_write_float(self.run_time)
         return res
@@ -1593,7 +1614,7 @@ class SkipReason:
 class SkippedTarget:
     """Original type: skipped_target = { ... }"""
 
-    path: str
+    path: Fpath
     reason: SkipReason
     details: str
     rule_id: Optional[RuleId] = None
@@ -1602,7 +1623,7 @@ class SkippedTarget:
     def from_json(cls, x: Any) -> 'SkippedTarget':
         if isinstance(x, dict):
             return cls(
-                path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('SkippedTarget', 'path'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('SkippedTarget', 'path'),
                 reason=SkipReason.from_json(x['reason']) if 'reason' in x else _atd_missing_json_field('SkippedTarget', 'reason'),
                 details=_atd_read_string(x['details']) if 'details' in x else _atd_missing_json_field('SkippedTarget', 'details'),
                 rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else None,
@@ -1612,7 +1633,7 @@ class SkippedTarget:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['path'] = _atd_write_string(self.path)
+        res['path'] = (lambda x: x.to_json())(self.path)
         res['reason'] = (lambda x: x.to_json())(self.reason)
         res['details'] = _atd_write_string(self.details)
         if self.rule_id is not None:
@@ -2169,7 +2190,7 @@ class Finding:
     """Original type: finding = { ... }"""
 
     check_id: RuleId
-    path: str
+    path: Fpath
     line: int
     column: int
     end_line: int
@@ -2192,7 +2213,7 @@ class Finding:
         if isinstance(x, dict):
             return cls(
                 check_id=RuleId.from_json(x['check_id']) if 'check_id' in x else _atd_missing_json_field('Finding', 'check_id'),
-                path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('Finding', 'path'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('Finding', 'path'),
                 line=_atd_read_int(x['line']) if 'line' in x else _atd_missing_json_field('Finding', 'line'),
                 column=_atd_read_int(x['column']) if 'column' in x else _atd_missing_json_field('Finding', 'column'),
                 end_line=_atd_read_int(x['end_line']) if 'end_line' in x else _atd_missing_json_field('Finding', 'end_line'),
@@ -2216,7 +2237,7 @@ class Finding:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['check_id'] = (lambda x: x.to_json())(self.check_id)
-        res['path'] = _atd_write_string(self.path)
+        res['path'] = (lambda x: x.to_json())(self.path)
         res['line'] = _atd_write_int(self.line)
         res['column'] = _atd_write_int(self.column)
         res['end_line'] = _atd_write_int(self.end_line)
@@ -2252,7 +2273,7 @@ class Finding:
 class ErrorSpan:
     """Original type: error_span = { ... }"""
 
-    file: str
+    file: Fpath
     start: PositionBis
     end: PositionBis
     source_hash: Optional[str] = None
@@ -2266,7 +2287,7 @@ class ErrorSpan:
     def from_json(cls, x: Any) -> 'ErrorSpan':
         if isinstance(x, dict):
             return cls(
-                file=_atd_read_string(x['file']) if 'file' in x else _atd_missing_json_field('ErrorSpan', 'file'),
+                file=Fpath.from_json(x['file']) if 'file' in x else _atd_missing_json_field('ErrorSpan', 'file'),
                 start=PositionBis.from_json(x['start']) if 'start' in x else _atd_missing_json_field('ErrorSpan', 'start'),
                 end=PositionBis.from_json(x['end']) if 'end' in x else _atd_missing_json_field('ErrorSpan', 'end'),
                 source_hash=_atd_read_string(x['source_hash']) if 'source_hash' in x else None,
@@ -2281,7 +2302,7 @@ class ErrorSpan:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['file'] = _atd_write_string(self.file)
+        res['file'] = (lambda x: x.to_json())(self.file)
         res['start'] = (lambda x: x.to_json())(self.start)
         res['end'] = (lambda x: x.to_json())(self.end)
         if self.source_hash is not None:
@@ -2938,7 +2959,7 @@ class CoreMatchResults:
 class CliTargetTimes:
     """Original type: cli_target_times = { ... }"""
 
-    path: str
+    path: Fpath
     num_bytes: int
     match_times: List[float]
     parse_times: List[float]
@@ -2948,7 +2969,7 @@ class CliTargetTimes:
     def from_json(cls, x: Any) -> 'CliTargetTimes':
         if isinstance(x, dict):
             return cls(
-                path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('CliTargetTimes', 'path'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('CliTargetTimes', 'path'),
                 num_bytes=_atd_read_int(x['num_bytes']) if 'num_bytes' in x else _atd_missing_json_field('CliTargetTimes', 'num_bytes'),
                 match_times=_atd_read_list(_atd_read_float)(x['match_times']) if 'match_times' in x else _atd_missing_json_field('CliTargetTimes', 'match_times'),
                 parse_times=_atd_read_list(_atd_read_float)(x['parse_times']) if 'parse_times' in x else _atd_missing_json_field('CliTargetTimes', 'parse_times'),
@@ -2959,7 +2980,7 @@ class CliTargetTimes:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['path'] = _atd_write_string(self.path)
+        res['path'] = (lambda x: x.to_json())(self.path)
         res['num_bytes'] = _atd_write_int(self.num_bytes)
         res['match_times'] = _atd_write_list(_atd_write_float)(self.match_times)
         res['parse_times'] = _atd_write_list(_atd_write_float)(self.parse_times)
@@ -3022,14 +3043,14 @@ class CliTiming:
 class CliSkippedTarget:
     """Original type: cli_skipped_target = { ... }"""
 
-    path: str
+    path: Fpath
     reason: SkipReason
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliSkippedTarget':
         if isinstance(x, dict):
             return cls(
-                path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('CliSkippedTarget', 'path'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('CliSkippedTarget', 'path'),
                 reason=SkipReason.from_json(x['reason']) if 'reason' in x else _atd_missing_json_field('CliSkippedTarget', 'reason'),
             )
         else:
@@ -3037,7 +3058,7 @@ class CliSkippedTarget:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['path'] = _atd_write_string(self.path)
+        res['path'] = (lambda x: x.to_json())(self.path)
         res['reason'] = (lambda x: x.to_json())(self.reason)
         return res
 
@@ -3210,7 +3231,7 @@ class CliMatch:
     """Original type: cli_match = { ... }"""
 
     check_id: RuleId
-    path: str
+    path: Fpath
     start: Position
     end: Position
     extra: CliMatchExtra
@@ -3220,7 +3241,7 @@ class CliMatch:
         if isinstance(x, dict):
             return cls(
                 check_id=RuleId.from_json(x['check_id']) if 'check_id' in x else _atd_missing_json_field('CliMatch', 'check_id'),
-                path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('CliMatch', 'path'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('CliMatch', 'path'),
                 start=Position.from_json(x['start']) if 'start' in x else _atd_missing_json_field('CliMatch', 'start'),
                 end=Position.from_json(x['end']) if 'end' in x else _atd_missing_json_field('CliMatch', 'end'),
                 extra=CliMatchExtra.from_json(x['extra']) if 'extra' in x else _atd_missing_json_field('CliMatch', 'extra'),
@@ -3231,7 +3252,7 @@ class CliMatch:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['check_id'] = (lambda x: x.to_json())(self.check_id)
-        res['path'] = _atd_write_string(self.path)
+        res['path'] = (lambda x: x.to_json())(self.path)
         res['start'] = (lambda x: x.to_json())(self.start)
         res['end'] = (lambda x: x.to_json())(self.end)
         res['extra'] = (lambda x: x.to_json())(self.extra)
