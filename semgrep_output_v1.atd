@@ -513,6 +513,7 @@ type error_span <ocaml attr="deriving show"> = {
     (* for InvalidRuleSchemaError *)
     (* LATER: could inherit location; but file: vs path: *)
     (* TODO: source hash should probably also be mandatory? *)
+    (* TODO: sometimes set to "<No file>" in rule_lang.py *)
     file: fpath;
     start: position_bis;
     end <ocaml name="end_">: position_bis;
