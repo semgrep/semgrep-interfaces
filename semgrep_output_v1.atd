@@ -80,7 +80,9 @@ type position
 }
 
 (* File path.
- * LATER? could convert directly to Fpath.t for atdgen? *)
+ * TODO: could convert directly to Fpath.t for OCaml
+ * TODO: could convert directly to Path class of pathlib library for Python
+ *)
 type fpath <ocaml attr="deriving show"> = string
 
 (* a.k.a range *)
