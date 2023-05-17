@@ -24,7 +24,7 @@ type payload = {
     extension : extension;
     errors: errors;
     value: value;
-    ~parse_rate <python default="field(default_factory=list)">: (string * parse_stat) list <json repr="object">;
+    ~parse_rate: (string * parse_stat) list <json repr="object">;
 }
 
 (*****************************************************************************)
@@ -77,15 +77,15 @@ type file_stats = {
     size: int;
     numTimesScanned: int;
     (* LATER: factorize with semgrep_output_v1.atd? *)
-    parseTime: float option;
-    matchTime: float option;
-    runTime: float option;
+    ?parseTime: float option;
+    ?matchTime: float option;
+    ?runTime: float option;
   }
 
 type rule_stats = {
     ruleHash: string;
     bytesScanned: int;
-    matchTime: float option;
+    ?matchTime: float option;
 }
 
 (*****************************************************************************)

@@ -9,7 +9,7 @@ methods and functions to convert data from/to JSON.
 
 # Import annotations to allow forward references
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, NoReturn, Optional, Tuple, Union
 
 import json
@@ -137,6 +137,19 @@ def _atd_read_nullable(read_elt: Callable[[Any], Any]) \
     return read_nullable
 
 
+def _atd_read_option(read_elt: Callable[[Any], Any]) \
+        -> Callable[[Optional[Any]], Optional[Any]]:
+    def read_option(x: Any) -> Any:
+        if x == 'None':
+            return None
+        elif isinstance(x, List) and len(x) == 2 and x[0] == 'Some':
+            return read_elt(x[1])
+        else:
+            _atd_bad_json('option', x)
+            raise AssertionError('impossible')  # keep mypy happy
+    return read_option
+
+
 def _atd_write_unit(x: Any) -> None:
     if x is None:
         return x
@@ -232,6 +245,16 @@ def _atd_write_nullable(write_elt: Callable[[Any], Any]) \
     return write_nullable
 
 
+def _atd_write_option(write_elt: Callable[[Any], Any]) \
+        -> Callable[[Optional[Any]], Optional[Any]]:
+    def write_option(x: Any) -> Any:
+        if x is None:
+            return 'None'
+        else:
+            return ['Some', write_elt(x)]
+    return write_option
+
+
 ############################################################################
 # Public classes
 ############################################################################
@@ -276,7 +299,7 @@ class Value:
     numFindings: Optional[int] = None
     numIgnored: Optional[int] = None
     ruleHashesWithFindings: Optional[List[Tuple[str, int]]] = None
-    engineRequested: str = 'OSS'
+    engineRequested: str = field(default_factory=lambda: 'OSS')
 
     @classmethod
     def from_json(cls, x: Any) -> 'Value':
@@ -417,7 +440,7 @@ class RuleStats:
 
     ruleHash: str
     bytesScanned: int
-    matchTime: Optional[float]
+    matchTime: Optional[float] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'RuleStats':
@@ -425,7 +448,7 @@ class RuleStats:
             return cls(
                 ruleHash=_atd_read_string(x['ruleHash']) if 'ruleHash' in x else _atd_missing_json_field('RuleStats', 'ruleHash'),
                 bytesScanned=_atd_read_int(x['bytesScanned']) if 'bytesScanned' in x else _atd_missing_json_field('RuleStats', 'bytesScanned'),
-                matchTime=_atd_read_nullable(_atd_read_float)(x['matchTime']) if 'matchTime' in x else _atd_missing_json_field('RuleStats', 'matchTime'),
+                matchTime=_atd_read_float(x['matchTime']) if 'matchTime' in x else None,
             )
         else:
             _atd_bad_json('RuleStats', x)
@@ -434,7 +457,8 @@ class RuleStats:
         res: Dict[str, Any] = {}
         res['ruleHash'] = _atd_write_string(self.ruleHash)
         res['bytesScanned'] = _atd_write_int(self.bytesScanned)
-        res['matchTime'] = _atd_write_nullable(_atd_write_float)(self.matchTime)
+        if self.matchTime is not None:
+            res['matchTime'] = _atd_write_float(self.matchTime)
         return res
 
     @classmethod
@@ -451,9 +475,9 @@ class FileStats:
 
     size: int
     numTimesScanned: int
-    parseTime: Optional[float]
-    matchTime: Optional[float]
-    runTime: Optional[float]
+    parseTime: Optional[float] = None
+    matchTime: Optional[float] = None
+    runTime: Optional[float] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'FileStats':
@@ -461,9 +485,9 @@ class FileStats:
             return cls(
                 size=_atd_read_int(x['size']) if 'size' in x else _atd_missing_json_field('FileStats', 'size'),
                 numTimesScanned=_atd_read_int(x['numTimesScanned']) if 'numTimesScanned' in x else _atd_missing_json_field('FileStats', 'numTimesScanned'),
-                parseTime=_atd_read_nullable(_atd_read_float)(x['parseTime']) if 'parseTime' in x else _atd_missing_json_field('FileStats', 'parseTime'),
-                matchTime=_atd_read_nullable(_atd_read_float)(x['matchTime']) if 'matchTime' in x else _atd_missing_json_field('FileStats', 'matchTime'),
-                runTime=_atd_read_nullable(_atd_read_float)(x['runTime']) if 'runTime' in x else _atd_missing_json_field('FileStats', 'runTime'),
+                parseTime=_atd_read_float(x['parseTime']) if 'parseTime' in x else None,
+                matchTime=_atd_read_float(x['matchTime']) if 'matchTime' in x else None,
+                runTime=_atd_read_float(x['runTime']) if 'runTime' in x else None,
             )
         else:
             _atd_bad_json('FileStats', x)
@@ -472,9 +496,12 @@ class FileStats:
         res: Dict[str, Any] = {}
         res['size'] = _atd_write_int(self.size)
         res['numTimesScanned'] = _atd_write_int(self.numTimesScanned)
-        res['parseTime'] = _atd_write_nullable(_atd_write_float)(self.parseTime)
-        res['matchTime'] = _atd_write_nullable(_atd_write_float)(self.matchTime)
-        res['runTime'] = _atd_write_nullable(_atd_write_float)(self.runTime)
+        if self.parseTime is not None:
+            res['parseTime'] = _atd_write_float(self.parseTime)
+        if self.matchTime is not None:
+            res['matchTime'] = _atd_write_float(self.matchTime)
+        if self.runTime is not None:
+            res['runTime'] = _atd_write_float(self.runTime)
         return res
 
     @classmethod
@@ -662,16 +689,16 @@ class Environment:
     configNamesHash: Sha256hash
     ci: Optional[str]
     rulesHash: Optional[Sha256hash] = None
-    isAuthenticated: bool = False
+    isAuthenticated: bool = field(default_factory=lambda: False)
 
     @classmethod
     def from_json(cls, x: Any) -> 'Environment':
         if isinstance(x, dict):
             return cls(
                 version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('Environment', 'version'),
-                projectHash=_atd_read_nullable(Sha256hash.from_json)(x['projectHash']) if 'projectHash' in x else _atd_missing_json_field('Environment', 'projectHash'),
+                projectHash=_atd_read_option(Sha256hash.from_json)(x['projectHash']) if 'projectHash' in x else _atd_missing_json_field('Environment', 'projectHash'),
                 configNamesHash=Sha256hash.from_json(x['configNamesHash']) if 'configNamesHash' in x else _atd_missing_json_field('Environment', 'configNamesHash'),
-                ci=_atd_read_nullable(_atd_read_string)(x['ci']) if 'ci' in x else _atd_missing_json_field('Environment', 'ci'),
+                ci=_atd_read_option(_atd_read_string)(x['ci']) if 'ci' in x else _atd_missing_json_field('Environment', 'ci'),
                 rulesHash=Sha256hash.from_json(x['rulesHash']) if 'rulesHash' in x else None,
                 isAuthenticated=_atd_read_bool(x['isAuthenticated']) if 'isAuthenticated' in x else False,
             )
@@ -681,9 +708,9 @@ class Environment:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['version'] = _atd_write_string(self.version)
-        res['projectHash'] = _atd_write_nullable((lambda x: x.to_json()))(self.projectHash)
+        res['projectHash'] = _atd_write_option((lambda x: x.to_json()))(self.projectHash)
         res['configNamesHash'] = (lambda x: x.to_json())(self.configNamesHash)
-        res['ci'] = _atd_write_nullable(_atd_write_string)(self.ci)
+        res['ci'] = _atd_write_option(_atd_write_string)(self.ci)
         if self.rulesHash is not None:
             res['rulesHash'] = (lambda x: x.to_json())(self.rulesHash)
         res['isAuthenticated'] = _atd_write_bool(self.isAuthenticated)
@@ -710,7 +737,7 @@ class Payload:
     extension: Extension
     errors: Errors
     value: Value
-    parse_rate: List[Tuple[str, ParseStat]] = field(default_factory=list)
+    parse_rate: List[Tuple[str, ParseStat]] = field(default_factory=lambda: [])
 
     @classmethod
     def from_json(cls, x: Any) -> 'Payload':
@@ -725,7 +752,7 @@ class Payload:
                 extension=Extension.from_json(x['extension']) if 'extension' in x else _atd_missing_json_field('Payload', 'extension'),
                 errors=Errors.from_json(x['errors']) if 'errors' in x else _atd_missing_json_field('Payload', 'errors'),
                 value=Value.from_json(x['value']) if 'value' in x else _atd_missing_json_field('Payload', 'value'),
-                parse_rate=_atd_read_assoc_object_into_list(ParseStat.from_json)(x['parse_rate']) if 'parse_rate' in x else field(default_factory=list),
+                parse_rate=_atd_read_assoc_object_into_list(ParseStat.from_json)(x['parse_rate']) if 'parse_rate' in x else [],
             )
         else:
             _atd_bad_json('Payload', x)
