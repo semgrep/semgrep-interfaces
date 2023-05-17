@@ -414,7 +414,7 @@ type cli_error = Semgrep_output_v1_t.cli_error = {
   type_: string;
   rule_id: rule_id option;
   message: string option;
-  path: string option;
+  path: fpath option;
   long_msg: string option;
   short_msg: string option;
   spans: error_span list option;
@@ -14214,6 +14214,63 @@ let read_cli_match = (
 )
 let cli_match_of_string s =
   read_cli_match (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__fpath_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_fpath
+  )
+)
+let string_of__fpath_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__fpath_option ob x;
+  Buffer.contents ob
+let read__fpath_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_fpath
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_fpath
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _fpath_option_of_string s =
+  read__fpath_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__error_span_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_error_span
@@ -14347,7 +14404,7 @@ let write_cli_error : _ -> cli_error -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"path\":";
       (
-        Yojson.Safe.write_string
+        write_fpath
       )
         ob x;
     );
@@ -14579,7 +14636,7 @@ let read_cli_error = (
               field_path := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_fpath
                   ) p lb
                 )
               );
@@ -14792,7 +14849,7 @@ let read_cli_error = (
                 field_path := (
                   Some (
                     (
-                      Atdgen_runtime.Oj_run.read_string
+                      read_fpath
                     ) p lb
                   )
                 );

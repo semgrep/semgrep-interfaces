@@ -414,7 +414,7 @@ type cli_error = Semgrep_output_v1_t.cli_error = {
   type_: string;
   rule_id: rule_id option;
   message: string option;
-  path: string option;
+  path: fpath option;
   long_msg: string option;
   short_msg: string option;
   spans: error_span list option;

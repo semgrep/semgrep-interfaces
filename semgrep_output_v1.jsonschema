@@ -392,7 +392,7 @@
         "type": { "type": "string" },
         "rule_id": { "$ref": "#/definitions/rule_id" },
         "message": { "type": "string" },
-        "path": { "type": "string" },
+        "path": { "$ref": "#/definitions/fpath" },
         "long_msg": { "type": "string" },
         "short_msg": { "type": "string" },
         "spans": {

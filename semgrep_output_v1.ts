@@ -209,7 +209,7 @@ export type CliError = {
   type_: string;
   rule_id?: RuleId;
   message?: string;
-  path?: string;
+  path?: Fpath;
   long_msg?: string;
   short_msg?: string;
   spans?: ErrorSpan[];
@@ -1083,7 +1083,7 @@ export function writeCliError(x: CliError, context: any = x): any {
     'type': _atd_write_required_field('CliError', 'type_', _atd_write_string, x.type_, x),
     'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
     'message': _atd_write_optional_field(_atd_write_string, x.message, x),
-    'path': _atd_write_optional_field(_atd_write_string, x.path, x),
+    'path': _atd_write_optional_field(writeFpath, x.path, x),
     'long_msg': _atd_write_optional_field(_atd_write_string, x.long_msg, x),
     'short_msg': _atd_write_optional_field(_atd_write_string, x.short_msg, x),
     'spans': _atd_write_optional_field(_atd_write_array(writeErrorSpan), x.spans, x),
@@ -1098,7 +1098,7 @@ export function readCliError(x: any, context: any = x): CliError {
     type_: _atd_read_required_field('CliError', 'type', _atd_read_string, x['type'], x),
     rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
     message: _atd_read_optional_field(_atd_read_string, x['message'], x),
-    path: _atd_read_optional_field(_atd_read_string, x['path'], x),
+    path: _atd_read_optional_field(readFpath, x['path'], x),
     long_msg: _atd_read_optional_field(_atd_read_string, x['long_msg'], x),
     short_msg: _atd_read_optional_field(_atd_read_string, x['short_msg'], x),
     spans: _atd_read_optional_field(_atd_read_array(readErrorSpan), x['spans'], x),

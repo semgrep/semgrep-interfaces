@@ -501,8 +501,7 @@ type cli_error<ocaml attr="deriving show"> = {
 
   (* for most parsing errors those are set *)
   ?message: string option; (* contains error location *)
-  (* string?? an fpath? *)
-  ?path: string option;
+  ?path: fpath option;
 
   (* for invalid rules, for ErrorWithSpan *)
   ?long_msg: string option;

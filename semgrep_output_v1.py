@@ -3275,7 +3275,7 @@ class CliError:
     type_: str
     rule_id: Optional[RuleId] = None
     message: Optional[str] = None
-    path: Optional[str] = None
+    path: Optional[Fpath] = None
     long_msg: Optional[str] = None
     short_msg: Optional[str] = None
     spans: Optional[List[ErrorSpan]] = None
@@ -3290,7 +3290,7 @@ class CliError:
                 type_=_atd_read_string(x['type']) if 'type' in x else _atd_missing_json_field('CliError', 'type'),
                 rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else None,
                 message=_atd_read_string(x['message']) if 'message' in x else None,
-                path=_atd_read_string(x['path']) if 'path' in x else None,
+                path=Fpath.from_json(x['path']) if 'path' in x else None,
                 long_msg=_atd_read_string(x['long_msg']) if 'long_msg' in x else None,
                 short_msg=_atd_read_string(x['short_msg']) if 'short_msg' in x else None,
                 spans=_atd_read_list(ErrorSpan.from_json)(x['spans']) if 'spans' in x else None,
@@ -3309,7 +3309,7 @@ class CliError:
         if self.message is not None:
             res['message'] = _atd_write_string(self.message)
         if self.path is not None:
-            res['path'] = _atd_write_string(self.path)
+            res['path'] = (lambda x: x.to_json())(self.path)
         if self.long_msg is not None:
             res['long_msg'] = _atd_write_string(self.long_msg)
         if self.short_msg is not None:
