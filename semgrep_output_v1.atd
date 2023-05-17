@@ -687,7 +687,9 @@ type cli_paths <ocaml attr="deriving show"> = {
     ?skipped: cli_skipped_target list option;
 }
 
-(* LATER: could merge with skipped_target above *)
+(* LATER: could merge with skipped_target above.
+ * coupling: with yield_json_objects() in target_manager.py
+ *)
 type cli_skipped_target <ocaml attr="deriving show"> = {
     path: fpath;
     reason: skip_reason;
