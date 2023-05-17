@@ -3,6 +3,8 @@
 
 type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
+type fpath = Semgrep_output_v1_t.fpath [@@deriving show]
+
 type matching_operation = Semgrep_output_v1_t.matching_operation = 
     And
   | Or
@@ -27,7 +29,7 @@ type position = Semgrep_output_v1_t.position = {
   [@@deriving show]
 
 type location = Semgrep_output_v1_t.location = {
-  path: string;
+  path: fpath;
   start: position;
   end_ (*atd end *): position
 }
@@ -134,7 +136,7 @@ type rule_times = Semgrep_output_v1_t.rule_times = {
   [@@deriving show]
 
 type target_time = Semgrep_output_v1_t.target_time = {
-  path: string;
+  path: fpath;
   rule_times: rule_times list;
   run_time: float
 }
@@ -150,7 +152,7 @@ type skip_reason = Semgrep_output_v1_t.skip_reason =
   [@@deriving show]
 
 type skipped_target = Semgrep_output_v1_t.skipped_target = {
-  path: string;
+  path: fpath;
   reason: skip_reason;
   details: string;
   rule_id: rule_id option
@@ -236,7 +238,7 @@ type cli_match_dataflow_trace =
 
 type finding = Semgrep_output_v1_t.finding = {
   check_id: rule_id;
-  path: string;
+  path: fpath;
   line: int;
   column: int;
   end_line: int;
@@ -257,7 +259,7 @@ type finding = Semgrep_output_v1_t.finding = {
   [@@deriving show]
 
 type error_span = Semgrep_output_v1_t.error_span = {
-  file: string;
+  file: fpath;
   start: position_bis;
   end_ (*atd end *): position_bis;
   source_hash: string option;
@@ -339,7 +341,7 @@ type core_match_results = Semgrep_output_v1_t.core_match_results = {
   [@@deriving show]
 
 type cli_target_times = Semgrep_output_v1_t.cli_target_times = {
-  path: string;
+  path: fpath;
   num_bytes: int;
   match_times: float list;
   parse_times: float list;
@@ -358,7 +360,7 @@ type cli_timing = Semgrep_output_v1_t.cli_timing = {
   [@@deriving show]
 
 type cli_skipped_target = Semgrep_output_v1_t.cli_skipped_target = {
-  path: string;
+  path: fpath;
   reason: skip_reason
 }
   [@@deriving show]
@@ -399,7 +401,7 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
 
 type cli_match = Semgrep_output_v1_t.cli_match = {
   check_id: rule_id;
-  path: string;
+  path: fpath;
   start: position;
   end_ (*atd end *): position;
   extra: cli_match_extra
@@ -412,7 +414,7 @@ type cli_error = Semgrep_output_v1_t.cli_error = {
   type_: string;
   rule_id: rule_id option;
   message: string option;
-  path: string option;
+  path: fpath option;
   long_msg: string option;
   short_msg: string option;
   spans: error_span list option;
@@ -467,6 +469,26 @@ val read_engine_kind :
 val engine_kind_of_string :
   string -> engine_kind
   (** Deserialize JSON data of type {!type:engine_kind}. *)
+
+val write_fpath :
+  Buffer.t -> fpath -> unit
+  (** Output a JSON value of type {!type:fpath}. *)
+
+val string_of_fpath :
+  ?len:int -> fpath -> string
+  (** Serialize a value of type {!type:fpath}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_fpath :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> fpath
+  (** Input JSON data of type {!type:fpath}. *)
+
+val fpath_of_string :
+  string -> fpath
+  (** Deserialize JSON data of type {!type:fpath}. *)
 
 val write_matching_operation :
   Buffer.t -> matching_operation -> unit

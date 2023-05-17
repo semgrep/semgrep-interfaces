@@ -38,11 +38,12 @@
         "offset": { "type": "integer" }
       }
     },
+    "fpath": { "type": "string" },
     "location": {
       "type": "object",
       "required": [ "path", "start", "end" ],
       "properties": {
-        "path": { "type": "string" },
+        "path": { "$ref": "#/definitions/fpath" },
         "start": { "$ref": "#/definitions/position" },
         "end": { "$ref": "#/definitions/position" }
       }
@@ -222,7 +223,7 @@
       "type": "object",
       "required": [ "path", "reason", "details" ],
       "properties": {
-        "path": { "type": "string" },
+        "path": { "$ref": "#/definitions/fpath" },
         "reason": { "$ref": "#/definitions/skip_reason" },
         "details": { "type": "string" },
         "rule_id": { "$ref": "#/definitions/rule_id" }
@@ -275,7 +276,7 @@
       "type": "object",
       "required": [ "path", "rule_times", "run_time" ],
       "properties": {
-        "path": { "type": "string" },
+        "path": { "$ref": "#/definitions/fpath" },
         "rule_times": {
           "type": "array",
           "items": { "$ref": "#/definitions/rule_times" }
@@ -391,7 +392,7 @@
         "type": { "type": "string" },
         "rule_id": { "$ref": "#/definitions/rule_id" },
         "message": { "type": "string" },
-        "path": { "type": "string" },
+        "path": { "$ref": "#/definitions/fpath" },
         "long_msg": { "type": "string" },
         "short_msg": { "type": "string" },
         "spans": {
@@ -405,7 +406,7 @@
       "type": "object",
       "required": [ "file", "start", "end" ],
       "properties": {
-        "file": { "type": "string" },
+        "file": { "$ref": "#/definitions/fpath" },
         "start": { "$ref": "#/definitions/position_bis" },
         "end": { "$ref": "#/definitions/position_bis" },
         "source_hash": { "type": "string" },
@@ -511,7 +512,7 @@
       "required": [ "check_id", "path", "start", "end", "extra" ],
       "properties": {
         "check_id": { "$ref": "#/definitions/rule_id" },
-        "path": { "type": "string" },
+        "path": { "$ref": "#/definitions/fpath" },
         "start": { "$ref": "#/definitions/position" },
         "end": { "$ref": "#/definitions/position" },
         "extra": { "$ref": "#/definitions/cli_match_extra" }
@@ -583,7 +584,7 @@
       "type": "object",
       "required": [ "path", "reason" ],
       "properties": {
-        "path": { "type": "string" },
+        "path": { "$ref": "#/definitions/fpath" },
         "reason": { "$ref": "#/definitions/skip_reason" }
       }
     },
@@ -622,7 +623,7 @@
         "path", "num_bytes", "match_times", "parse_times", "run_time"
       ],
       "properties": {
-        "path": { "type": "string" },
+        "path": { "$ref": "#/definitions/fpath" },
         "num_bytes": { "type": "integer" },
         "match_times": { "type": "array", "items": { "type": "number" } },
         "parse_times": { "type": "array", "items": { "type": "number" } },
@@ -738,7 +739,7 @@
       ],
       "properties": {
         "check_id": { "$ref": "#/definitions/rule_id" },
-        "path": { "type": "string" },
+        "path": { "$ref": "#/definitions/fpath" },
         "line": { "type": "integer" },
         "column": { "type": "integer" },
         "end_line": { "type": "integer" },
