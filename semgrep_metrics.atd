@@ -1,0 +1,140 @@
+(* Semgrep metrics.
+ *
+ * The goal of this module is to specify the schema for the metrics
+ * data sent by the Semgrep CLI to metrics.semgrep.dev.
+ *
+ * translated originally from semgrep/cli/.../metrics.py
+ *
+ * TODO:
+ * - some optional arguments should be removed when `osemgrep` replace
+ *   `semgrep`. Currently, we tried to fit on tests and don't updated the
+ *   JSON output. We tried to fit on the Python side too.
+*)
+
+<python text="from dataclasses import field">
+
+(*****************************************************************************)
+(* Entry point *)
+(*****************************************************************************)
+
+type payload = {
+    inherit toplevel;
+    environment: environment;
+    performance: performance;
+    extension : extension;
+    errors: errors;
+    value: value;
+    ~parse_rate: (string * parse_stat) list <json repr="object">;
+}
+
+(*****************************************************************************)
+(* Toplevel *)
+(*****************************************************************************)
+
+type toplevel = {
+    event_id: uuid;
+    anonymous_user_id <python default="''">: string;
+    started_at <python default="Datetime('')">: datetime;
+    sent_at <python default="Datetime('')">: datetime;
+}
+
+(* TODO: better type *)
+type uuid = string
+
+(* TODO: better type *)
+type datetime = string
+
+(*****************************************************************************)
+(* Environment *)
+(*****************************************************************************)
+
+type environment = {
+    version: string;
+    projectHash : sha256hash option;
+    configNamesHash <python default="Sha256hash('')">: sha256hash;
+    ?rulesHash : sha256hash option;
+    ci : string option;
+    ?integrationName : string option;
+    ~isAuthenticated <python default="False">: bool;
+  }
+
+type sha256hash = string
+
+(*****************************************************************************)
+(* Performance *)
+(*****************************************************************************)
+
+type performance = {
+    ?numRules: int option;
+    ?numTargets: int option;
+    ?totalBytesScanned: int option;
+    ?fileStats : file_stats list option;
+    ?ruleStats : rule_stats list option;
+    ?profilingTimes : (string * float) list <json repr="object"> option;
+    maxMemoryBytes: int option;
+  }
+
+type file_stats = {
+    size: int;
+    numTimesScanned: int;
+    (* LATER: factorize with semgrep_output_v1.atd? *)
+    ?parseTime: float option;
+    ?matchTime: float option;
+    ?runTime: float option;
+  }
+
+type rule_stats = {
+    ruleHash: string;
+    bytesScanned: int;
+    ?matchTime: float option;
+}
+
+(*****************************************************************************)
+(* Parsing stats *)
+(*****************************************************************************)
+
+type parse_stat = {
+    targets_parsed: int;
+    num_targets: int;
+    bytes_parsed: int;
+    num_bytes: int;
+}
+
+(*****************************************************************************)
+(* Errors *)
+(*****************************************************************************)
+
+type errors = {
+    ?returnCode: int option;
+    ?errors: string list option;
+}
+
+(*****************************************************************************)
+(* Extension *)
+(*****************************************************************************)
+
+type extension = {
+    ?machineId : string option;
+    ?isNewAppInstall : bool option;
+    ?sessionId : string option;
+    ?version : string option;
+    ?ty : string option;
+}
+
+(*****************************************************************************)
+(* Misc *)
+(*****************************************************************************)
+
+(* TODO? why called value? *)
+
+type value = {
+    inherit value_required;
+    ?numFindings : int option;
+    ?numIgnored : int option;
+    ?ruleHashesWithFindings : (string * int) list <json repr="object"> option;
+    ~engineRequested <python default="'OSS'">: string;
+  }
+
+type value_required = {
+    features: string list; (* TODO: was a Set in metrics.py *)
+}
