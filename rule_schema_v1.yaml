@@ -762,6 +762,14 @@ properties:
         extract:
           title: Metavariable whose content to use as the extracted result for subsequent rules
           type: string
+        rules:
+          title: Rules to include or exclude when running the destination language rules on the extracted file
+          type: object
+          properties:
+             include:
+                $ref: "#/$defs/path-array"
+             exclude: 
+                $ref: "#/$defs/path-array"
         dest-language:
           title: Language to process the extracted result of this rule as
           type: string
