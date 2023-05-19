@@ -54,6 +54,7 @@ type environment = {
     configNamesHash <python default="Sha256hash('')">: sha256hash;
     ?rulesHash : sha256hash option;
     ci : string option;
+    ?integrationName : string option;
     ~isAuthenticated <python default="False">: bool;
   }
 
@@ -70,7 +71,7 @@ type performance = {
     ?fileStats : file_stats list option;
     ?ruleStats : rule_stats list option;
     ?profilingTimes : (string * float) list <json repr="object"> option;
-    ?maxMemoryBytes: int option;
+    maxMemoryBytes: int option;
   }
 
 type file_stats = {
