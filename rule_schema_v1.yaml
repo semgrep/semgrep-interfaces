@@ -598,6 +598,7 @@ $defs:
   id:
     title: Rule ID to attach to findings
     type: string
+    pattern: "^[a-zA-Z0-9._-]*$"
   # coupling: if you modify this, you first need to modify lang.json in the semgrep-langs repository
   languages:
     title: Languages this pattern should run on
