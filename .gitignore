@@ -1,1 +1,6 @@
 /__pycache__/
+
+# OCaml compilation products
+*.cmi
+*.cmo
+Language

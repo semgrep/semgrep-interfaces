@@ -14,7 +14,12 @@ FILES= \
   semgrep_output_$(VER).jsonschema \
   ast_generic_$(VER)_j.ml \
   ast_generic_$(VER)_j.mli \
-  semgrep_metrics.py \
+  Language.ml \
+  Language.mli \
+  lang.json
+
+#TODO: pb with atdpy 2.11.0
+#  semgrep_metrics.py \
 
 # Regenerate all files.
 #
@@ -46,9 +51,15 @@ build: $(FILES)
 semgrep_output_$(VER).jsonschema: semgrep_output_$(VER).atd
 	atdcat -jsonschema cli_output $< > $@
 
+# The call to ocamlc is just to typecheck the generated OCaml files
+Language.ml Language.mli lang.json: generate.py
+	mypy generate
+	./generate
+	ocamlc -o Language Language.mli Language.ml
+
 .PHONY: clean
 clean:
-	rm -f $(FILES)
+	rm -f $(FILES) Language
 
 .PHONY: setup
 setup:
