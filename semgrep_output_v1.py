@@ -9,7 +9,7 @@ methods and functions to convert data from/to JSON.
 
 # Import annotations to allow forward references
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, NoReturn, Optional, Tuple, Union
 
 import json
@@ -137,6 +137,19 @@ def _atd_read_nullable(read_elt: Callable[[Any], Any]) \
     return read_nullable
 
 
+def _atd_read_option(read_elt: Callable[[Any], Any]) \
+        -> Callable[[Optional[Any]], Optional[Any]]:
+    def read_option(x: Any) -> Any:
+        if x == 'None':
+            return None
+        elif isinstance(x, List) and len(x) == 2 and x[0] == 'Some':
+            return read_elt(x[1])
+        else:
+            _atd_bad_json('option', x)
+            raise AssertionError('impossible')  # keep mypy happy
+    return read_option
+
+
 def _atd_write_unit(x: Any) -> None:
     if x is None:
         return x
@@ -230,6 +243,16 @@ def _atd_write_nullable(write_elt: Callable[[Any], Any]) \
         else:
             return write_elt(x)
     return write_nullable
+
+
+def _atd_write_option(write_elt: Callable[[Any], Any]) \
+        -> Callable[[Optional[Any]], Optional[Any]]:
+    def write_option(x: Any) -> Any:
+        if x is None:
+            return 'None'
+        else:
+            return ['Some', write_elt(x)]
+    return write_option
 
 
 ############################################################################
