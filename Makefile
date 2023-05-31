@@ -16,10 +16,8 @@ FILES= \
   ast_generic_$(VER)_j.mli \
   Language.ml \
   Language.mli \
-  lang.json
-
-#TODO: pb with atdpy 2.11.0
-#  semgrep_metrics.py \
+  lang.json \
+  semgrep_metrics.py
 
 # Regenerate all files.
 #
@@ -37,14 +35,19 @@ force-build:
 build: $(FILES)
 
 # need atdpy >= 2.11.0 to support parametrized types
+# need atdpy >= 2.12.0 for semgrep_metric.py
 %.py: %.atd
+	test `atdpy --version` = 2.12.0
 	atdpy $<
 
+# not sure about the minimum version of atdgen. Using safe settings.
 %_j.ml %_j.mli: %.atd
+	test `atdgen -version` = 2.12.0 || test `atdgen -version` = 2.11.0
 	atdgen -j -j-std $<
 
 # need atdts >= 2.11.0
 %.ts: %.atd
+	test `atdts --version` = 2.12.0 || test `atdts --version` = 2.11.0
 	atdts $<
 
 # need atdcat >= 2.6.0
