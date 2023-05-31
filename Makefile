@@ -1,6 +1,9 @@
-# If you want to modify the .atd, you will need to install via OPAM
-# 'atd', 'atdpy', and 'atdts' to regenerate the code. See the setup
-# target below.
+# Run 'make setup' to install the correct versions of the dependencies.
+# Run 'make' to regenerate all files.
+#
+# You must run 'make' after editing an atd file. This will update
+# other files that we keep under version control. Naturally, don't edit
+# generated files by hand.
 
 VER=v1
 
@@ -37,17 +40,13 @@ build: $(FILES)
 # need atdpy >= 2.11.0 to support parametrized types
 # need atdpy >= 2.12.0 for semgrep_metric.py
 %.py: %.atd
-	test `atdpy --version` = 2.12.0
 	atdpy $<
 
-# not sure about the minimum version of atdgen. Using safe settings.
 %_j.ml %_j.mli: %.atd
-	test `atdgen -version` = 2.12.0 || test `atdgen -version` = 2.11.0
 	atdgen -j -j-std $<
 
 # need atdts >= 2.11.0
 %.ts: %.atd
-	test `atdts --version` = 2.12.0 || test `atdts --version` = 2.11.0
 	atdts $<
 
 # need atdcat >= 2.6.0
@@ -64,8 +63,10 @@ Language.ml Language.mli lang.json: generate.py
 clean:
 	rm -f $(FILES) Language
 
+# This takes a while but ensures we use the correct versions of the atd tools.
 .PHONY: setup
 setup:
+	opam update
 	opam install --deps-only .
 
 # The tests require semgrep-core, among other things.

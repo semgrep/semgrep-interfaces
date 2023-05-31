@@ -1,1 +1,2 @@
-- [ ] I ran `make` to update the generated code (TODO: have a CI check)
+- [ ] I ran `make setup && make` to update the generated code after
+  editing a `.atd` file (TODO: have a CI check)
