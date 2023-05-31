@@ -516,32 +516,31 @@ class FileStats:
 class Performance:
     """Original type: performance = { ... }"""
 
-    maxMemoryBytes: Optional[int]
     numRules: Optional[int] = None
     numTargets: Optional[int] = None
     totalBytesScanned: Optional[int] = None
     fileStats: Optional[List[FileStats]] = None
     ruleStats: Optional[List[RuleStats]] = None
     profilingTimes: Optional[List[Tuple[str, float]]] = None
+    maxMemoryBytes: Optional[int] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Performance':
         if isinstance(x, dict):
             return cls(
-                maxMemoryBytes=_atd_read_option(_atd_read_int)(x['maxMemoryBytes']) if 'maxMemoryBytes' in x else _atd_missing_json_field('Performance', 'maxMemoryBytes'),
                 numRules=_atd_read_int(x['numRules']) if 'numRules' in x else None,
                 numTargets=_atd_read_int(x['numTargets']) if 'numTargets' in x else None,
                 totalBytesScanned=_atd_read_int(x['totalBytesScanned']) if 'totalBytesScanned' in x else None,
                 fileStats=_atd_read_list(FileStats.from_json)(x['fileStats']) if 'fileStats' in x else None,
                 ruleStats=_atd_read_list(RuleStats.from_json)(x['ruleStats']) if 'ruleStats' in x else None,
                 profilingTimes=_atd_read_assoc_object_into_list(_atd_read_float)(x['profilingTimes']) if 'profilingTimes' in x else None,
+                maxMemoryBytes=_atd_read_int(x['maxMemoryBytes']) if 'maxMemoryBytes' in x else None,
             )
         else:
             _atd_bad_json('Performance', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['maxMemoryBytes'] = _atd_write_option(_atd_write_int)(self.maxMemoryBytes)
         if self.numRules is not None:
             res['numRules'] = _atd_write_int(self.numRules)
         if self.numTargets is not None:
@@ -554,6 +553,8 @@ class Performance:
             res['ruleStats'] = _atd_write_list((lambda x: x.to_json()))(self.ruleStats)
         if self.profilingTimes is not None:
             res['profilingTimes'] = _atd_write_assoc_list_to_object(_atd_write_float)(self.profilingTimes)
+        if self.maxMemoryBytes is not None:
+            res['maxMemoryBytes'] = _atd_write_int(self.maxMemoryBytes)
         return res
 
     @classmethod
