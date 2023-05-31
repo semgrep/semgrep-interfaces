@@ -229,7 +229,7 @@ LANGUAGES : List[Language] = [
         name="Cairo",
         keys=["cairo"],
         exts=[".cairo"],
-        maturity=Maturity.DEVELOP,
+        maturity=Maturity.ALPHA,
         shebangs=[]
     ),
     Language(
