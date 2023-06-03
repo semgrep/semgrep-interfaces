@@ -107,10 +107,8 @@ $defs:
                     title: Integer base to parse metavariable contents as
                     type: integer
                   strip:
-                    title: Metavariable names to strip quotes from
-                    type: array
-                    items:
-                      type: string
+                    title: Whether to strip quotes from compared metavariables 
+                    type: boolean 
               - required: [ metavariable ]
                 $ref: "#/$defs/new-pattern"
                 properties:
