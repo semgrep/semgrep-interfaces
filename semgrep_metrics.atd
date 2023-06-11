@@ -19,12 +19,12 @@
 
 type payload = {
     inherit toplevel;
-    environment: environment;
-    performance: performance;
-    extension : extension;
-    errors: errors;
-    value: value;
-    ~parse_rate: (string * parse_stat) list <json repr="object">;
+    environment <ocaml mutable>: environment;
+    performance <ocaml mutable>: performance;
+    extension <ocaml mutable>: extension;
+    errors <ocaml mutable>: errors;
+    value <ocaml mutable>: value;
+    ~parse_rate <ocaml mutable>: (string * parse_stat) list <json repr="object">;
 }
 
 (*****************************************************************************)
@@ -32,10 +32,10 @@ type payload = {
 (*****************************************************************************)
 
 type toplevel = {
-    event_id: uuid;
-    anonymous_user_id <python default="''">: string;
-    started_at <python default="Datetime('')">: datetime;
-    sent_at <python default="Datetime('')">: datetime;
+    event_id <ocaml mutable>: uuid;
+    anonymous_user_id <python default="''"> <ocaml mutable>: string;
+    started_at <python default="Datetime('')"> <ocaml mutable>: datetime;
+    sent_at <python default="Datetime('')"> <ocaml mutable>: datetime;
 }
 
 (* TODO: better type *)
@@ -49,13 +49,13 @@ type datetime = string
 (*****************************************************************************)
 
 type environment = {
-    version: string;
-    projectHash : sha256hash option;
-    configNamesHash <python default="Sha256hash('')">: sha256hash;
-    ?rulesHash : sha256hash option;
-    ci : string option;
-    ?integrationName : string option;
-    ~isAuthenticated <python default="False">: bool;
+    version <ocaml mutable>: string;
+    projectHash <ocaml mutable>: sha256hash option;
+    configNamesHash <python default="Sha256hash('')"> <ocaml mutable>: sha256hash;
+    ?rulesHash <ocaml mutable>: sha256hash option;
+    ci <ocaml mutable>: string option;
+    ?integrationName <ocaml mutable>: string option;
+    ~isAuthenticated <python default="False"> <ocaml mutable>: bool;
   }
 
 type sha256hash = string
@@ -65,28 +65,28 @@ type sha256hash = string
 (*****************************************************************************)
 
 type performance = {
-    ?numRules: int option;
-    ?numTargets: int option;
-    ?totalBytesScanned: int option;
-    ?fileStats : file_stats list option;
-    ?ruleStats : rule_stats list option;
-    ?profilingTimes : (string * float) list <json repr="object"> option;
-    maxMemoryBytes: int option;
+    ?numRules <ocaml mutable>: int option;
+    ?numTargets <ocaml mutable>: int option;
+    ?totalBytesScanned <ocaml mutable>: int option;
+    ?fileStats <ocaml mutable>: file_stats list option;
+    ?ruleStats <ocaml mutable>: rule_stats list option;
+    ?profilingTimes <ocaml mutable>: (string * float) list <json repr="object"> option;
+    maxMemoryBytes <ocaml mutable>: int option;
   }
 
 type file_stats = {
-    size: int;
-    numTimesScanned: int;
+    size <ocaml mutable>: int;
+    numTimesScanned <ocaml mutable>: int;
     (* LATER: factorize with semgrep_output_v1.atd? *)
-    ?parseTime: float option;
-    ?matchTime: float option;
-    ?runTime: float option;
+    ?parseTime <ocaml mutable>: float option;
+    ?matchTime <ocaml mutable>: float option;
+    ?runTime <ocaml mutable>: float option;
   }
 
 type rule_stats = {
-    ruleHash: string;
-    bytesScanned: int;
-    ?matchTime: float option;
+    ruleHash <ocaml mutable>: string;
+    bytesScanned <ocaml mutable>: int;
+    ?matchTime <ocaml mutable>: float option;
 }
 
 (*****************************************************************************)
@@ -94,10 +94,10 @@ type rule_stats = {
 (*****************************************************************************)
 
 type parse_stat = {
-    targets_parsed: int;
-    num_targets: int;
-    bytes_parsed: int;
-    num_bytes: int;
+    targets_parsed <ocaml mutable>: int;
+    num_targets <ocaml mutable>: int;
+    bytes_parsed <ocaml mutable>: int;
+    num_bytes <ocaml mutable>: int;
 }
 
 (*****************************************************************************)
@@ -105,8 +105,8 @@ type parse_stat = {
 (*****************************************************************************)
 
 type errors = {
-    ?returnCode: int option;
-    ?errors: string list option;
+    ?returnCode <ocaml mutable>: int option;
+    ?errors <ocaml mutable>: string list option;
 }
 
 (*****************************************************************************)
@@ -114,11 +114,11 @@ type errors = {
 (*****************************************************************************)
 
 type extension = {
-    ?machineId : string option;
-    ?isNewAppInstall : bool option;
-    ?sessionId : string option;
-    ?version : string option;
-    ?ty : string option;
+    ?machineId <ocaml mutable>: string option;
+    ?isNewAppInstall <ocaml mutable>: bool option;
+    ?sessionId <ocaml mutable>: string option;
+    ?version <ocaml mutable>: string option;
+    ?ty <ocaml mutable>: string option;
 }
 
 (*****************************************************************************)
@@ -129,12 +129,12 @@ type extension = {
 
 type value = {
     inherit value_required;
-    ?numFindings : int option;
-    ?numIgnored : int option;
-    ?ruleHashesWithFindings : (string * int) list <json repr="object"> option;
-    ~engineRequested <python default="'OSS'">: string;
+    ?numFindings <ocaml mutable>: int option;
+    ?numIgnored <ocaml mutable>: int option;
+    ?ruleHashesWithFindings <ocaml mutable>: (string * int) list <json repr="object"> option;
+    ~engineRequested <python default="'OSS'"> <ocaml mutable>: string;
   }
 
 type value_required = {
-    features: string list; (* TODO: was a Set in metrics.py *)
+    features <ocaml mutable>: string list; (* TODO: was a Set in metrics.py *)
 }
