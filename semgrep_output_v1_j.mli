@@ -446,7 +446,7 @@ type api_scans_findings = Semgrep_output_v1_t.api_scans_findings = {
   gitlab_token: string option;
   searched_paths: string list;
   rule_ids: string list;
-  cai_ids: string list
+  cai_ids: string list option
 }
   [@@deriving show]
 

@@ -715,7 +715,20 @@
         "gitlab_token": { "type": [ "string", "null" ] },
         "searched_paths": { "type": "array", "items": { "type": "string" } },
         "rule_ids": { "type": "array", "items": { "type": "string" } },
-        "cai_ids": { "type": "array", "items": { "type": "string" } }
+        "cai_ids": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" },
+                { "type": "array", "items": { "type": "string" } }
+              ]
+            },
+            { "const": "None" }
+          ]
+        }
       }
     },
     "finding_hashes": {

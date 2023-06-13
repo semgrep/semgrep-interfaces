@@ -816,7 +816,7 @@ type api_scans_findings <ocaml attr="deriving show"> = {
    searched_paths: string list;
    (* TODO: rule_id list *)
    rule_ids: string list;
-   cai_ids: string list;
+   cai_ids: string list option;
 }
 
 type finding_hashes <ocaml attr="deriving show"> = {
