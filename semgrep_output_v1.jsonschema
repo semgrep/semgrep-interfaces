@@ -703,8 +703,7 @@
     "api_scans_findings": {
       "type": "object",
       "required": [
-        "findings", "token", "gitlab_token", "searched_paths", "rule_ids",
-        "cai_ids"
+        "findings", "token", "gitlab_token", "searched_paths", "rule_ids"
       ],
       "properties": {
         "findings": {
@@ -714,21 +713,7 @@
         "token": { "type": [ "string", "null" ] },
         "gitlab_token": { "type": [ "string", "null" ] },
         "searched_paths": { "type": "array", "items": { "type": "string" } },
-        "rule_ids": { "type": "array", "items": { "type": "string" } },
-        "cai_ids": {
-          "oneOf": [
-            {
-              "type": "array",
-              "minItems": 2,
-              "items": false,
-              "prefixItems": [
-                { "const": "Some" },
-                { "type": "array", "items": { "type": "string" } }
-              ]
-            },
-            { "const": "None" }
-          ]
-        }
+        "rule_ids": { "type": "array", "items": { "type": "string" } }
       }
     },
     "finding_hashes": {
