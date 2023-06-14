@@ -3445,7 +3445,6 @@ class ApiScansFindings:
     gitlab_token: Optional[str]
     searched_paths: List[str]
     rule_ids: List[str]
-    cai_ids: List[str]
 
     @classmethod
     def from_json(cls, x: Any) -> 'ApiScansFindings':
@@ -3456,7 +3455,6 @@ class ApiScansFindings:
                 gitlab_token=_atd_read_nullable(_atd_read_string)(x['gitlab_token']) if 'gitlab_token' in x else _atd_missing_json_field('ApiScansFindings', 'gitlab_token'),
                 searched_paths=_atd_read_list(_atd_read_string)(x['searched_paths']) if 'searched_paths' in x else _atd_missing_json_field('ApiScansFindings', 'searched_paths'),
                 rule_ids=_atd_read_list(_atd_read_string)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('ApiScansFindings', 'rule_ids'),
-                cai_ids=_atd_read_list(_atd_read_string)(x['cai_ids']) if 'cai_ids' in x else _atd_missing_json_field('ApiScansFindings', 'cai_ids'),
             )
         else:
             _atd_bad_json('ApiScansFindings', x)
@@ -3468,7 +3466,6 @@ class ApiScansFindings:
         res['gitlab_token'] = _atd_write_nullable(_atd_write_string)(self.gitlab_token)
         res['searched_paths'] = _atd_write_list(_atd_write_string)(self.searched_paths)
         res['rule_ids'] = _atd_write_list(_atd_write_string)(self.rule_ids)
-        res['cai_ids'] = _atd_write_list(_atd_write_string)(self.cai_ids)
         return res
 
     @classmethod
