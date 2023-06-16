@@ -697,9 +697,9 @@ class Environment:
         if isinstance(x, dict):
             return cls(
                 version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('Environment', 'version'),
-                projectHash=_atd_read_option(Sha256hash.from_json)(x['projectHash']) if 'projectHash' in x else _atd_missing_json_field('Environment', 'projectHash'),
+                projectHash=_atd_read_nullable(Sha256hash.from_json)(x['projectHash']) if 'projectHash' in x else _atd_missing_json_field('Environment', 'projectHash'),
                 configNamesHash=Sha256hash.from_json(x['configNamesHash']) if 'configNamesHash' in x else _atd_missing_json_field('Environment', 'configNamesHash'),
-                ci=_atd_read_option(_atd_read_string)(x['ci']) if 'ci' in x else _atd_missing_json_field('Environment', 'ci'),
+                ci=_atd_read_nullable(_atd_read_string)(x['ci']) if 'ci' in x else _atd_missing_json_field('Environment', 'ci'),
                 rulesHash=Sha256hash.from_json(x['rulesHash']) if 'rulesHash' in x else None,
                 integrationName=_atd_read_string(x['integrationName']) if 'integrationName' in x else None,
                 isAuthenticated=_atd_read_bool(x['isAuthenticated']) if 'isAuthenticated' in x else False,
@@ -710,9 +710,9 @@ class Environment:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['version'] = _atd_write_string(self.version)
-        res['projectHash'] = _atd_write_option((lambda x: x.to_json()))(self.projectHash)
+        res['projectHash'] = _atd_write_nullable((lambda x: x.to_json()))(self.projectHash)
         res['configNamesHash'] = (lambda x: x.to_json())(self.configNamesHash)
-        res['ci'] = _atd_write_option(_atd_write_string)(self.ci)
+        res['ci'] = _atd_write_nullable(_atd_write_string)(self.ci)
         if self.rulesHash is not None:
             res['rulesHash'] = (lambda x: x.to_json())(self.rulesHash)
         if self.integrationName is not None:
