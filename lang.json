@@ -63,7 +63,7 @@
     "keys": [
       "cairo"
     ],
-    "maturity": "develop",
+    "maturity": "alpha",
     "exts": [
       ".cairo"
     ],

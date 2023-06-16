@@ -445,8 +445,7 @@ type api_scans_findings = Semgrep_output_v1_t.api_scans_findings = {
   token: string option;
   gitlab_token: string option;
   searched_paths: string list;
-  rule_ids: string list;
-  cai_ids: string list
+  rule_ids: string list
 }
   [@@deriving show]
 
@@ -564,7 +563,7 @@ let read_fpath = (
 let fpath_of_string s =
   read_fpath (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_matching_operation : _ -> matching_operation -> _ = (
-  fun ob x ->
+  fun ob (x : matching_operation) ->
     match x with
       | And -> Buffer.add_string ob "\"And\""
       | Or -> Buffer.add_string ob "\"Or\""
@@ -2140,7 +2139,7 @@ let read_metavars = (
 let metavars_of_string s =
   read_metavars (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let rec write_cli_match_call_trace : _ -> cli_match_call_trace -> _ = (
-  fun ob x ->
+  fun ob (x : cli_match_call_trace) ->
     match x with
       | CliLoc x ->
         Buffer.add_string ob "[\"CliLoc\",";
@@ -2535,7 +2534,7 @@ let rec read_cli_match_call_trace = (
 and cli_match_call_trace_of_string s =
   read_cli_match_call_trace (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let rec write_core_match_call_trace : _ -> core_match_call_trace -> _ = (
-  fun ob x ->
+  fun ob (x : core_match_call_trace) ->
     match x with
       | CoreLoc x ->
         Buffer.add_string ob "[\"CoreLoc\",";
@@ -4389,7 +4388,7 @@ let read_target_time = (
 let target_time_of_string s =
   read_target_time (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_skip_reason : _ -> skip_reason -> _ = (
-  fun ob x ->
+  fun ob (x : skip_reason) ->
     match x with
       | Gitignore_patterns_match -> Buffer.add_string ob "\"gitignore_patterns_match\""
       | Always_skipped -> Buffer.add_string ob "\"always_skipped\""
@@ -9914,7 +9913,7 @@ let read_core_stats = (
 let core_stats_of_string s =
   read_core_stats (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_severity : _ -> core_severity -> _ = (
-  fun ob x ->
+  fun ob (x : core_severity) ->
     match x with
       | Error -> Buffer.add_string ob "\"error\""
       | Warning -> Buffer.add_string ob "\"warning\""
@@ -9974,7 +9973,7 @@ let read__location_list = (
 let _location_list_of_string s =
   read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_error_kind : _ -> core_error_kind -> _ = (
-  fun ob x ->
+  fun ob (x : core_error_kind) ->
     match x with
       | LexicalError -> Buffer.add_string ob "\"Lexical error\""
       | ParseError -> Buffer.add_string ob "\"Syntax error\""
@@ -15698,15 +15697,6 @@ let write_api_scans_findings : _ -> api_scans_findings -> _ = (
       write__string_list
     )
       ob x.rule_ids;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"cai_ids\":";
-    (
-      write__string_list
-    )
-      ob x.cai_ids;
     Buffer.add_char ob '}';
 )
 let string_of_api_scans_findings ?(len = 1024) x =
@@ -15722,7 +15712,6 @@ let read_api_scans_findings = (
     let field_gitlab_token = ref (None) in
     let field_searched_paths = ref (None) in
     let field_rule_ids = ref (None) in
-    let field_cai_ids = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -15735,14 +15724,6 @@ let read_api_scans_findings = (
             | 5 -> (
                 if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'k' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' then (
                   1
-                )
-                else (
-                  -1
-                )
-              )
-            | 7 -> (
-                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 's' then (
-                  5
                 )
                 else (
                   -1
@@ -15834,14 +15815,6 @@ let read_api_scans_findings = (
                 ) p lb
               )
             );
-          | 5 ->
-            field_cai_ids := (
-              Some (
-                (
-                  read__string_list
-                ) p lb
-              )
-            );
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -15858,14 +15831,6 @@ let read_api_scans_findings = (
               | 5 -> (
                   if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'k' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' then (
                     1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 7 -> (
-                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 's' then (
-                    5
                   )
                   else (
                     -1
@@ -15957,14 +15922,6 @@ let read_api_scans_findings = (
                   ) p lb
                 )
               );
-            | 5 ->
-              field_cai_ids := (
-                Some (
-                  (
-                    read__string_list
-                  ) p lb
-                )
-              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -15979,7 +15936,6 @@ let read_api_scans_findings = (
             gitlab_token = (match !field_gitlab_token with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "gitlab_token");
             searched_paths = (match !field_searched_paths with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "searched_paths");
             rule_ids = (match !field_rule_ids with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rule_ids");
-            cai_ids = (match !field_cai_ids with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "cai_ids");
           }
          : api_scans_findings)
       )

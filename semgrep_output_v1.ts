@@ -388,7 +388,6 @@ export type ApiScansFindings = {
   gitlab_token: (string | null);
   searched_paths: string[];
   rule_ids: string[];
-  cai_ids: string[];
 }
 
 export type FindingHashes = {
@@ -1569,7 +1568,6 @@ export function writeApiScansFindings(x: ApiScansFindings, context: any = x): an
     'gitlab_token': _atd_write_required_field('ApiScansFindings', 'gitlab_token', _atd_write_nullable(_atd_write_string), x.gitlab_token, x),
     'searched_paths': _atd_write_required_field('ApiScansFindings', 'searched_paths', _atd_write_array(_atd_write_string), x.searched_paths, x),
     'rule_ids': _atd_write_required_field('ApiScansFindings', 'rule_ids', _atd_write_array(_atd_write_string), x.rule_ids, x),
-    'cai_ids': _atd_write_required_field('ApiScansFindings', 'cai_ids', _atd_write_array(_atd_write_string), x.cai_ids, x),
   };
 }
 
@@ -1580,7 +1578,6 @@ export function readApiScansFindings(x: any, context: any = x): ApiScansFindings
     gitlab_token: _atd_read_required_field('ApiScansFindings', 'gitlab_token', _atd_read_nullable(_atd_read_string), x['gitlab_token'], x),
     searched_paths: _atd_read_required_field('ApiScansFindings', 'searched_paths', _atd_read_array(_atd_read_string), x['searched_paths'], x),
     rule_ids: _atd_read_required_field('ApiScansFindings', 'rule_ids', _atd_read_array(_atd_read_string), x['rule_ids'], x),
-    cai_ids: _atd_read_required_field('ApiScansFindings', 'cai_ids', _atd_read_array(_atd_read_string), x['cai_ids'], x),
   };
 }
 

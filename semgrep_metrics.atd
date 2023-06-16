@@ -71,7 +71,7 @@ type performance = {
     ?fileStats <ocaml mutable>: file_stats list option;
     ?ruleStats <ocaml mutable>: rule_stats list option;
     ?profilingTimes <ocaml mutable>: (string * float) list <json repr="object"> option;
-    maxMemoryBytes <ocaml mutable>: int option;
+    ?maxMemoryBytes <ocaml mutable>: int option;
   }
 
 type file_stats = {
