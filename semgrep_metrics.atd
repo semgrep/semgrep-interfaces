@@ -50,10 +50,10 @@ type datetime = string
 
 type environment = {
     version <ocaml mutable>: string;
-    projectHash <ocaml mutable>: sha256hash option;
+    projectHash <ocaml mutable>: sha256hash nullable;
     configNamesHash <python default="Sha256hash('')"> <ocaml mutable>: sha256hash;
     ?rulesHash <ocaml mutable>: sha256hash option;
-    ci <ocaml mutable>: string option;
+    ci <ocaml mutable>: string nullable;
     ?integrationName <ocaml mutable>: string option;
     ~isAuthenticated <python default="False"> <ocaml mutable>: bool;
   }

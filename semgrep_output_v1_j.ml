@@ -563,7 +563,7 @@ let read_fpath = (
 let fpath_of_string s =
   read_fpath (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_matching_operation : _ -> matching_operation -> _ = (
-  fun ob (x : matching_operation) ->
+  fun ob x ->
     match x with
       | And -> Buffer.add_string ob "\"And\""
       | Or -> Buffer.add_string ob "\"Or\""
@@ -2139,7 +2139,7 @@ let read_metavars = (
 let metavars_of_string s =
   read_metavars (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let rec write_cli_match_call_trace : _ -> cli_match_call_trace -> _ = (
-  fun ob (x : cli_match_call_trace) ->
+  fun ob x ->
     match x with
       | CliLoc x ->
         Buffer.add_string ob "[\"CliLoc\",";
@@ -2534,7 +2534,7 @@ let rec read_cli_match_call_trace = (
 and cli_match_call_trace_of_string s =
   read_cli_match_call_trace (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let rec write_core_match_call_trace : _ -> core_match_call_trace -> _ = (
-  fun ob (x : core_match_call_trace) ->
+  fun ob x ->
     match x with
       | CoreLoc x ->
         Buffer.add_string ob "[\"CoreLoc\",";
@@ -4388,7 +4388,7 @@ let read_target_time = (
 let target_time_of_string s =
   read_target_time (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_skip_reason : _ -> skip_reason -> _ = (
-  fun ob (x : skip_reason) ->
+  fun ob x ->
     match x with
       | Gitignore_patterns_match -> Buffer.add_string ob "\"gitignore_patterns_match\""
       | Always_skipped -> Buffer.add_string ob "\"always_skipped\""
@@ -9913,7 +9913,7 @@ let read_core_stats = (
 let core_stats_of_string s =
   read_core_stats (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_severity : _ -> core_severity -> _ = (
-  fun ob (x : core_severity) ->
+  fun ob x ->
     match x with
       | Error -> Buffer.add_string ob "\"error\""
       | Warning -> Buffer.add_string ob "\"warning\""
@@ -9973,7 +9973,7 @@ let read__location_list = (
 let _location_list_of_string s =
   read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_error_kind : _ -> core_error_kind -> _ = (
-  fun ob (x : core_error_kind) ->
+  fun ob x ->
     match x with
       | LexicalError -> Buffer.add_string ob "\"Lexical error\""
       | ParseError -> Buffer.add_string ob "\"Syntax error\""
