@@ -98,7 +98,11 @@ $defs:
               - required: [ focus ]
                 properties:
                   focus:
-                    type: string
+                    oneOf:
+                      - type: string
+                      - type: array
+                        items:
+                          type: string
               - required: [ comparison ]
                 properties:
                   comparison:
