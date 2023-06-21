@@ -418,7 +418,7 @@ not ambiguous is welcome here.
     ),
     Language(
         comment="",
-        id_="proto",
+        id_="protobuf",
         name="Protocol Buffers",
         keys=["proto", "protobuf", "proto3"],
         exts=[".proto"],

@@ -25,7 +25,7 @@ type t =
 | Lua
 | Ocaml
 | Php
-| Proto
+| Protobuf
 | Python2
 | Python3
 | Python
@@ -379,8 +379,8 @@ let list = [
   tags = [];
 };
 {
-  id = Proto;
-  id_string = "proto";
+  id = Protobuf;
+  id_string = "protobuf";
   name = "Protocol Buffers";
   keys = [{|proto|}; {|protobuf|}; {|proto3|}];
   exts = [{|.proto|}];

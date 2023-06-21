@@ -443,7 +443,7 @@
     "tags": []
   },
   {
-    "id": "proto",
+    "id": "protobuf",
     "name": "Protocol Buffers",
     "keys": [
       "proto",
