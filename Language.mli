@@ -25,6 +25,7 @@ type t =
 | Lua
 | Ocaml
 | Php
+| Proto
 | Python2
 | Python3
 | Python
