@@ -25,6 +25,7 @@ type t =
 | Lua
 | Ocaml
 | Php
+| Protobuf
 | Python2
 | Python3
 | Python
@@ -375,6 +376,19 @@ let list = [
   excluded_exts = [];
   reverse_exts = None;
   shebangs = [{|php|}];
+  tags = [];
+};
+{
+  id = Protobuf;
+  id_string = "protobuf";
+  name = "Protocol Buffers";
+  keys = [{|proto|}; {|protobuf|}; {|proto3|}];
+  exts = [{|.proto|}];
+  maturity = Develop;
+  example_ext = None;
+  excluded_exts = [];
+  reverse_exts = None;
+  shebangs = [];
   tags = [];
 };
 {

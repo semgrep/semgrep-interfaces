@@ -443,6 +443,25 @@
     "tags": []
   },
   {
+    "id": "protobuf",
+    "name": "Protocol Buffers",
+    "keys": [
+      "proto",
+      "protobuf",
+      "proto3"
+    ],
+    "maturity": "develop",
+    "exts": [
+      ".proto"
+    ],
+    "example_ext": null,
+    "excluded_exts": [],
+    "reverse_exts": null,
+    "shebangs": [],
+    "is_target_language": true,
+    "tags": []
+  },
+  {
     "id": "python2",
     "name": "Python 2",
     "keys": [

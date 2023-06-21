@@ -9,8 +9,8 @@
 ###########################################################################
 # Design notes:
 #
-# Initially, I wanted to use ATD because it defines a type (better than
-# the readme). I tried that 6 months ago or so but didn't continue the
+# Initially, Martin wanted to use ATD because it defines a type (better than
+# the readme). He tried that 6 months ago or so but didn't continue the
 # effort because of the complexity.
 #
 # We need the following:
@@ -415,6 +415,14 @@ not ambiguous is welcome here.
         exts=[".php", ".tpl"],
         maturity=Maturity.GA,
         shebangs=["php"]
+    ),
+    Language(
+        comment="",
+        id_="protobuf",
+        name="Protocol Buffers",
+        keys=["proto", "protobuf", "proto3"],
+        exts=[".proto"],
+        maturity=Maturity.DEVELOP,
     ),
     Language(
         comment="",
