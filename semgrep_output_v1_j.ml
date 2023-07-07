@@ -442,9 +442,10 @@ type cli_match_taint_source = Semgrep_output_v1_t.cli_match_taint_source = {
 
 type api_scans_findings = Semgrep_output_v1_t.api_scans_findings = {
   findings: finding list;
+  ignores: finding list;
   token: string option;
-  gitlab_token: string option;
   searched_paths: string list;
+  renamed_paths: string list;
   rule_ids: string list
 }
   [@@deriving show]
@@ -15665,6 +15666,15 @@ let write_api_scans_findings : _ -> api_scans_findings -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
+      Buffer.add_string ob "\"ignores\":";
+    (
+      write__finding_list
+    )
+      ob x.ignores;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
       Buffer.add_string ob "\"token\":";
     (
       write__string_nullable
@@ -15674,20 +15684,20 @@ let write_api_scans_findings : _ -> api_scans_findings -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"gitlab_token\":";
-    (
-      write__string_nullable
-    )
-      ob x.gitlab_token;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
       Buffer.add_string ob "\"searched_paths\":";
     (
       write__string_list
     )
       ob x.searched_paths;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"renamed_paths\":";
+    (
+      write__string_list
+    )
+      ob x.renamed_paths;
     if !is_first then
       is_first := false
     else
@@ -15708,9 +15718,10 @@ let read_api_scans_findings = (
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
     let field_findings = ref (None) in
+    let field_ignores = ref (None) in
     let field_token = ref (None) in
-    let field_gitlab_token = ref (None) in
     let field_searched_paths = ref (None) in
+    let field_renamed_paths = ref (None) in
     let field_rule_ids = ref (None) in
     try
       Yojson.Safe.read_space p lb;
@@ -15723,6 +15734,14 @@ let read_api_scans_findings = (
           match len with
             | 5 -> (
                 if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'k' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' then (
+                  2
+                )
+                else (
+                  -1
+                )
+              )
+            | 7 -> (
+                if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'g' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 's' then (
                   1
                 )
                 else (
@@ -15741,7 +15760,7 @@ let read_api_scans_findings = (
                     )
                   | 'r' -> (
                       if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = 's' then (
-                        4
+                        5
                       )
                       else (
                         -1
@@ -15751,9 +15770,9 @@ let read_api_scans_findings = (
                       -1
                     )
               )
-            | 12 -> (
-                if String.unsafe_get s pos = 'g' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'b' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'k' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 'n' then (
-                  2
+            | 13 -> (
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'h' && String.unsafe_get s (pos+12) = 's' then (
+                  4
                 )
                 else (
                   -1
@@ -15784,15 +15803,15 @@ let read_api_scans_findings = (
               )
             );
           | 1 ->
-            field_token := (
+            field_ignores := (
               Some (
                 (
-                  read__string_nullable
+                  read__finding_list
                 ) p lb
               )
             );
           | 2 ->
-            field_gitlab_token := (
+            field_token := (
               Some (
                 (
                   read__string_nullable
@@ -15808,6 +15827,14 @@ let read_api_scans_findings = (
               )
             );
           | 4 ->
+            field_renamed_paths := (
+              Some (
+                (
+                  read__string_list
+                ) p lb
+              )
+            );
+          | 5 ->
             field_rule_ids := (
               Some (
                 (
@@ -15830,6 +15857,14 @@ let read_api_scans_findings = (
             match len with
               | 5 -> (
                   if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'k' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' then (
+                    2
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 7 -> (
+                  if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'g' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 's' then (
                     1
                   )
                   else (
@@ -15848,7 +15883,7 @@ let read_api_scans_findings = (
                       )
                     | 'r' -> (
                         if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = 's' then (
-                          4
+                          5
                         )
                         else (
                           -1
@@ -15858,9 +15893,9 @@ let read_api_scans_findings = (
                         -1
                       )
                 )
-              | 12 -> (
-                  if String.unsafe_get s pos = 'g' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'b' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'k' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 'n' then (
-                    2
+              | 13 -> (
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'h' && String.unsafe_get s (pos+12) = 's' then (
+                    4
                   )
                   else (
                     -1
@@ -15891,15 +15926,15 @@ let read_api_scans_findings = (
                 )
               );
             | 1 ->
-              field_token := (
+              field_ignores := (
                 Some (
                   (
-                    read__string_nullable
+                    read__finding_list
                   ) p lb
                 )
               );
             | 2 ->
-              field_gitlab_token := (
+              field_token := (
                 Some (
                   (
                     read__string_nullable
@@ -15915,6 +15950,14 @@ let read_api_scans_findings = (
                 )
               );
             | 4 ->
+              field_renamed_paths := (
+                Some (
+                  (
+                    read__string_list
+                  ) p lb
+                )
+              );
+            | 5 ->
               field_rule_ids := (
                 Some (
                   (
@@ -15932,9 +15975,10 @@ let read_api_scans_findings = (
         (
           {
             findings = (match !field_findings with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "findings");
+            ignores = (match !field_ignores with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "ignores");
             token = (match !field_token with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "token");
-            gitlab_token = (match !field_gitlab_token with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "gitlab_token");
             searched_paths = (match !field_searched_paths with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "searched_paths");
+            renamed_paths = (match !field_renamed_paths with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "renamed_paths");
             rule_ids = (match !field_rule_ids with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rule_ids");
           }
          : api_scans_findings)

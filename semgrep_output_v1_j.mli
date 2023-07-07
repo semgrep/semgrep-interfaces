@@ -442,9 +442,10 @@ type cli_match_taint_source = Semgrep_output_v1_t.cli_match_taint_source = {
 
 type api_scans_findings = Semgrep_output_v1_t.api_scans_findings = {
   findings: finding list;
+  ignores: finding list;
   token: string option;
-  gitlab_token: string option;
   searched_paths: string list;
+  renamed_paths: string list;
   rule_ids: string list
 }
   [@@deriving show]
