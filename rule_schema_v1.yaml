@@ -180,6 +180,7 @@ $defs:
         - $ref: "#/$defs/metavariable-analysis"
         - $ref: "#/$defs/metavariable-regex"
         - $ref: "#/$defs/metavariable-pattern"
+        - $ref: "#/$defs/metavariable-type"
         - $ref: "#/$defs/metavariable-comparison"
         - $ref: "#/$defs/pattern-where-python"
   pattern-either-content:
@@ -475,6 +476,27 @@ $defs:
         additionalProperties: false
     required:
       - metavariable-pattern
+    additionalProperties: false
+  metavariable-type:
+    type: object
+    properties:
+      metavariable-type:
+        type: object
+        title: Match metavariable value with its type
+        properties:
+          metavariable:
+            type: string
+            title: Metavariable to match
+          type:
+            title: Type expression
+            type: string
+          language:
+            type: string
+        required:
+          - type
+        additionalProperties: false
+    required:
+      - metavariable-type
     additionalProperties: false
   metavariable-comparison:
     type: object
