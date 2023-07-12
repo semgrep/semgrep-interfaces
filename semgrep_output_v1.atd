@@ -827,7 +827,6 @@ type finding_hashes <ocaml attr="deriving show"> = {
   pattern_hash: string;
 }
 
-
 (* TODO: rewrite rule_matches.to_app_finding_format() *)
 type finding <ocaml attr="deriving show"> = {
   check_id: rule_id;
