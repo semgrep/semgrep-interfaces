@@ -105,7 +105,7 @@ type rule_id
 
 type rule_id_and_engine_kind
   <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = (rule_id * engine_kind) 
+  <python decorator="dataclass(frozen=True)"> = (rule_id * engine_kind)
 
 (*****************************************************************************)
 (* Core Match result *)
@@ -117,7 +117,7 @@ type engine_kind
   <python decorator="dataclass(frozen=True)"> = [
   | OSS
   | PRO
-] 
+]
 
 type core_match
   <ocaml attr="deriving show">
@@ -150,7 +150,7 @@ type core_match_call_trace
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True, order=True)"> = [
   | CoreLoc of location
-  | CoreCall of (location * core_match_intermediate_var list * core_match_call_trace) 
+  | CoreCall of (location * core_match_intermediate_var list * core_match_call_trace)
 ] <ocaml repr="classic">
 
 (* Provides information about dataflow that leads to a finding. For now, just
@@ -547,7 +547,7 @@ type cli_match_call_trace
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True, order=True)"> = [
   | CliLoc of (location * string)
-  | CliCall of ((location * string) * cli_match_intermediate_var list * cli_match_call_trace) 
+  | CliCall of ((location * string) * cli_match_intermediate_var list * cli_match_call_trace)
 ] <ocaml repr="classic">
 
 (* from rule_lang.py in the Span class
@@ -762,7 +762,7 @@ type dependency_match <ocaml attr="deriving show"> = {
   lockfile: string;
 }
 
-type ecosystem 
+type ecosystem
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = [
   | Npm <json name="npm">
@@ -774,7 +774,7 @@ type ecosystem
   | Composer <json name="composer">
 ]
 
-type transitivity 
+type transitivity
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = [
     | Direct <json name="direct">
@@ -827,6 +827,7 @@ type finding_hashes <ocaml attr="deriving show"> = {
   pattern_hash: string;
 }
 
+
 (* TODO: rewrite rule_matches.to_app_finding_format() *)
 type finding <ocaml attr="deriving show"> = {
   check_id: rule_id;
@@ -836,8 +837,7 @@ type finding <ocaml attr="deriving show"> = {
   end_line: int;
   end_column: int;
   message: string;
-  (* TODO: use variant *)
-  severity: int;
+  severity: abstract; (* int|string until minimum version exceeds 1.32.0, then string *)
   (* ?? *)
   index: int;
   commit_date: string;

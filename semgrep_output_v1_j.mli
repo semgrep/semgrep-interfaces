@@ -244,7 +244,7 @@ type finding = Semgrep_output_v1_t.finding = {
   end_line: int;
   end_column: int;
   message: string;
-  severity: int;
+  severity: Yojson.Safe.t;
   index: int;
   commit_date: string;
   syntactic_id: string;

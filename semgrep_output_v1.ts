@@ -405,7 +405,7 @@ export type Finding = {
   end_line: number /*int*/;
   end_column: number /*int*/;
   message: string;
-  severity: number /*int*/;
+  severity: any;
   index: number /*int*/;
   commit_date: string;
   syntactic_id: string;
@@ -1608,7 +1608,7 @@ export function writeFinding(x: Finding, context: any = x): any {
     'end_line': _atd_write_required_field('Finding', 'end_line', _atd_write_int, x.end_line, x),
     'end_column': _atd_write_required_field('Finding', 'end_column', _atd_write_int, x.end_column, x),
     'message': _atd_write_required_field('Finding', 'message', _atd_write_string, x.message, x),
-    'severity': _atd_write_required_field('Finding', 'severity', _atd_write_int, x.severity, x),
+    'severity': _atd_write_required_field('Finding', 'severity', ((x: any, context): any => x), x.severity, x),
     'index': _atd_write_required_field('Finding', 'index', _atd_write_int, x.index, x),
     'commit_date': _atd_write_required_field('Finding', 'commit_date', _atd_write_string, x.commit_date, x),
     'syntactic_id': _atd_write_required_field('Finding', 'syntactic_id', _atd_write_string, x.syntactic_id, x),
@@ -1631,7 +1631,7 @@ export function readFinding(x: any, context: any = x): Finding {
     end_line: _atd_read_required_field('Finding', 'end_line', _atd_read_int, x['end_line'], x),
     end_column: _atd_read_required_field('Finding', 'end_column', _atd_read_int, x['end_column'], x),
     message: _atd_read_required_field('Finding', 'message', _atd_read_string, x['message'], x),
-    severity: _atd_read_required_field('Finding', 'severity', _atd_read_int, x['severity'], x),
+    severity: _atd_read_required_field('Finding', 'severity', ((x: any, context): any => x), x['severity'], x),
     index: _atd_read_required_field('Finding', 'index', _atd_read_int, x['index'], x),
     commit_date: _atd_read_required_field('Finding', 'commit_date', _atd_read_string, x['commit_date'], x),
     syntactic_id: _atd_read_required_field('Finding', 'syntactic_id', _atd_read_string, x['syntactic_id'], x),
