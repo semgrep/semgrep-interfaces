@@ -482,7 +482,7 @@ $defs:
     properties:
       metavariable-type:
         type: object
-        title: Match metavariable value with its type
+        title: Filter for metavariables with a certain type
         properties:
           metavariable:
             type: string
