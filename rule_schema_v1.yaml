@@ -118,6 +118,12 @@ $defs:
                 properties:
                   metavariable:
                     type: string
+              - required: [ metavariable, type ]
+                properties:
+                  metavariable:
+                    type: string
+                  type:
+                    type: string
               - required: [ metavariable, analyzer ]
                 properties:
                   metavariable:
