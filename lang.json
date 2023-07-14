@@ -272,8 +272,10 @@
     ],
     "maturity": "ga",
     "exts": [
+      ".cjs",
       ".js",
-      ".jsx"
+      ".jsx",
+      ".mjs"
     ],
     "example_ext": ".jsx",
     "excluded_exts": [
