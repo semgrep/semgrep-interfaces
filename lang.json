@@ -48,8 +48,7 @@
     ],
     "maturity": "alpha",
     "exts": [
-      ".c",
-      ".h"
+      ".c"
     ],
     "example_ext": null,
     "excluded_exts": [],
@@ -105,8 +104,7 @@
     "maturity": "alpha",
     "exts": [
       ".cc",
-      ".cpp",
-      ".h"
+      ".cpp"
     ],
     "example_ext": ".cpp",
     "excluded_exts": [],
@@ -441,6 +439,23 @@
     "shebangs": [
       "php"
     ],
+    "is_target_language": true,
+    "tags": []
+  },
+  {
+    "id": "promql",
+    "name": "Prometheus Query Language",
+    "keys": [
+      "promql"
+    ],
+    "maturity": "develop",
+    "exts": [
+      ".promql"
+    ],
+    "example_ext": null,
+    "excluded_exts": [],
+    "reverse_exts": null,
+    "shebangs": [],
     "is_target_language": true,
     "tags": []
   },

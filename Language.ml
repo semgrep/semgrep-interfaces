@@ -25,6 +25,7 @@ type t =
 | Lua
 | Ocaml
 | Php
+| Promql
 | Protobuf
 | Python2
 | Python3
@@ -376,6 +377,19 @@ let list = [
   excluded_exts = [];
   reverse_exts = None;
   shebangs = [{|php|}];
+  tags = [];
+};
+{
+  id = Promql;
+  id_string = "promql";
+  name = "Prometheus Query Language";
+  keys = [{|promql|}];
+  exts = [{|.promql|}];
+  maturity = Develop;
+  example_ext = None;
+  excluded_exts = [];
+  reverse_exts = None;
+  shebangs = [];
   tags = [];
 };
 {

@@ -418,6 +418,14 @@ not ambiguous is welcome here.
     ),
     Language(
         comment="",
+        id_="promql",
+        name="Prometheus Query Language",
+        keys=["promql"],
+        exts=[".promql"],
+        maturity=Maturity.DEVELOP,
+    ),
+    Language(
+        comment="",
         id_="protobuf",
         name="Protocol Buffers",
         keys=["proto", "protobuf", "proto3"],
