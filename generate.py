@@ -219,7 +219,7 @@ LANGUAGES : List[Language] = [
         id_="c",
         name="C",
         keys=["c"],
-        exts=[".c"],
+        exts=[".c", ".h"],
         maturity=Maturity.ALPHA,
         shebangs=[]
     ),
@@ -246,7 +246,7 @@ LANGUAGES : List[Language] = [
         id_="cpp",
         name="C++",
         keys=["cpp", "c++"],
-        exts=[".cc", ".cpp"],
+        exts=[".cc", ".cpp", ".h"],
         example_ext=".cpp",
         maturity=Maturity.ALPHA,
         shebangs=[]
@@ -415,6 +415,14 @@ not ambiguous is welcome here.
         exts=[".php", ".tpl"],
         maturity=Maturity.GA,
         shebangs=["php"]
+    ),
+    Language(
+        comment="",
+        id_="promql",
+        name="Prometheus Query Language",
+        keys=["promql"],
+        exts=[".promql"],
+        maturity=Maturity.DEVELOP,
     ),
     Language(
         comment="",

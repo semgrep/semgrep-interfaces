@@ -445,6 +445,23 @@
     "tags": []
   },
   {
+    "id": "promql",
+    "name": "Prometheus Query Language",
+    "keys": [
+      "promql"
+    ],
+    "maturity": "develop",
+    "exts": [
+      ".promql"
+    ],
+    "example_ext": null,
+    "excluded_exts": [],
+    "reverse_exts": null,
+    "shebangs": [],
+    "is_target_language": true,
+    "tags": []
+  },
+  {
     "id": "protobuf",
     "name": "Protocol Buffers",
     "keys": [
