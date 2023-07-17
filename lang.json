@@ -48,7 +48,8 @@
     ],
     "maturity": "alpha",
     "exts": [
-      ".c"
+      ".c",
+      ".h"
     ],
     "example_ext": null,
     "excluded_exts": [],
@@ -104,7 +105,8 @@
     "maturity": "alpha",
     "exts": [
       ".cc",
-      ".cpp"
+      ".cpp",
+      ".h"
     ],
     "example_ext": ".cpp",
     "excluded_exts": [],
