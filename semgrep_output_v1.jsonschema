@@ -748,7 +748,7 @@
         "end_line": { "type": "integer" },
         "end_column": { "type": "integer" },
         "message": { "type": "string" },
-        "severity": { "type": "integer" },
+        "severity": {},
         "index": { "type": "integer" },
         "commit_date": { "type": "string" },
         "syntactic_id": { "type": "string" },

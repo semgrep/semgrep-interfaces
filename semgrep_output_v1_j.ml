@@ -244,7 +244,7 @@ type finding = Semgrep_output_v1_t.finding = {
   end_line: int;
   end_column: int;
   message: string;
-  severity: int;
+  severity: Yojson.Safe.t;
   index: int;
   commit_date: string;
   syntactic_id: string;
@@ -564,7 +564,7 @@ let read_fpath = (
 let fpath_of_string s =
   read_fpath (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_matching_operation : _ -> matching_operation -> _ = (
-  fun ob x ->
+  fun ob (x : matching_operation) ->
     match x with
       | And -> Buffer.add_string ob "\"And\""
       | Or -> Buffer.add_string ob "\"Or\""
@@ -2140,7 +2140,7 @@ let read_metavars = (
 let metavars_of_string s =
   read_metavars (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let rec write_cli_match_call_trace : _ -> cli_match_call_trace -> _ = (
-  fun ob x ->
+  fun ob (x : cli_match_call_trace) ->
     match x with
       | CliLoc x ->
         Buffer.add_string ob "[\"CliLoc\",";
@@ -2535,7 +2535,7 @@ let rec read_cli_match_call_trace = (
 and cli_match_call_trace_of_string s =
   read_cli_match_call_trace (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let rec write_core_match_call_trace : _ -> core_match_call_trace -> _ = (
-  fun ob x ->
+  fun ob (x : core_match_call_trace) ->
     match x with
       | CoreLoc x ->
         Buffer.add_string ob "[\"CoreLoc\",";
@@ -4389,7 +4389,7 @@ let read_target_time = (
 let target_time_of_string s =
   read_target_time (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_skip_reason : _ -> skip_reason -> _ = (
-  fun ob x ->
+  fun ob (x : skip_reason) ->
     match x with
       | Gitignore_patterns_match -> Buffer.add_string ob "\"gitignore_patterns_match\""
       | Always_skipped -> Buffer.add_string ob "\"always_skipped\""
@@ -7644,7 +7644,7 @@ let write_finding : _ -> finding -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"severity\":";
     (
-      Yojson.Safe.write_int
+      Yojson.Safe.write_json
     )
       ob x.severity;
     if !is_first then
@@ -8032,7 +8032,7 @@ let read_finding = (
             field_severity := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_int
+                  Atdgen_runtime.Oj_run.read_json
                 ) p lb
               )
             );
@@ -8387,7 +8387,7 @@ let read_finding = (
               field_severity := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_int
+                    Atdgen_runtime.Oj_run.read_json
                   ) p lb
                 )
               );
@@ -9914,7 +9914,7 @@ let read_core_stats = (
 let core_stats_of_string s =
   read_core_stats (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_severity : _ -> core_severity -> _ = (
-  fun ob x ->
+  fun ob (x : core_severity) ->
     match x with
       | Error -> Buffer.add_string ob "\"error\""
       | Warning -> Buffer.add_string ob "\"warning\""
@@ -9974,7 +9974,7 @@ let read__location_list = (
 let _location_list_of_string s =
   read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_error_kind : _ -> core_error_kind -> _ = (
-  fun ob x ->
+  fun ob (x : core_error_kind) ->
     match x with
       | LexicalError -> Buffer.add_string ob "\"Lexical error\""
       | ParseError -> Buffer.add_string ob "\"Syntax error\""

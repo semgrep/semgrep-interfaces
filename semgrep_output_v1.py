@@ -2219,7 +2219,7 @@ class Finding:
     end_line: int
     end_column: int
     message: str
-    severity: int
+    severity: Any
     index: int
     commit_date: str
     syntactic_id: str
@@ -2242,7 +2242,7 @@ class Finding:
                 end_line=_atd_read_int(x['end_line']) if 'end_line' in x else _atd_missing_json_field('Finding', 'end_line'),
                 end_column=_atd_read_int(x['end_column']) if 'end_column' in x else _atd_missing_json_field('Finding', 'end_column'),
                 message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('Finding', 'message'),
-                severity=_atd_read_int(x['severity']) if 'severity' in x else _atd_missing_json_field('Finding', 'severity'),
+                severity=(lambda x: x)(x['severity']) if 'severity' in x else _atd_missing_json_field('Finding', 'severity'),
                 index=_atd_read_int(x['index']) if 'index' in x else _atd_missing_json_field('Finding', 'index'),
                 commit_date=_atd_read_string(x['commit_date']) if 'commit_date' in x else _atd_missing_json_field('Finding', 'commit_date'),
                 syntactic_id=_atd_read_string(x['syntactic_id']) if 'syntactic_id' in x else _atd_missing_json_field('Finding', 'syntactic_id'),
@@ -2266,7 +2266,7 @@ class Finding:
         res['end_line'] = _atd_write_int(self.end_line)
         res['end_column'] = _atd_write_int(self.end_column)
         res['message'] = _atd_write_string(self.message)
-        res['severity'] = _atd_write_int(self.severity)
+        res['severity'] = (lambda x: x)(self.severity)
         res['index'] = _atd_write_int(self.index)
         res['commit_date'] = _atd_write_string(self.commit_date)
         res['syntactic_id'] = _atd_write_string(self.syntactic_id)
