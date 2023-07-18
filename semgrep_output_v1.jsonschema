@@ -703,16 +703,21 @@
     "api_scans_findings": {
       "type": "object",
       "required": [
-        "findings", "token", "gitlab_token", "searched_paths", "rule_ids"
+        "findings", "ignores", "token", "searched_paths", "renamed_paths",
+        "rule_ids"
       ],
       "properties": {
         "findings": {
           "type": "array",
           "items": { "$ref": "#/definitions/finding" }
         },
+        "ignores": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/finding" }
+        },
         "token": { "type": [ "string", "null" ] },
-        "gitlab_token": { "type": [ "string", "null" ] },
         "searched_paths": { "type": "array", "items": { "type": "string" } },
+        "renamed_paths": { "type": "array", "items": { "type": "string" } },
         "rule_ids": { "type": "array", "items": { "type": "string" } }
       }
     },

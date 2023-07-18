@@ -3441,9 +3441,10 @@ class ApiScansFindings:
     """Original type: api_scans_findings = { ... }"""
 
     findings: List[Finding]
+    ignores: List[Finding]
     token: Optional[str]
-    gitlab_token: Optional[str]
     searched_paths: List[str]
+    renamed_paths: List[str]
     rule_ids: List[str]
 
     @classmethod
@@ -3451,9 +3452,10 @@ class ApiScansFindings:
         if isinstance(x, dict):
             return cls(
                 findings=_atd_read_list(Finding.from_json)(x['findings']) if 'findings' in x else _atd_missing_json_field('ApiScansFindings', 'findings'),
+                ignores=_atd_read_list(Finding.from_json)(x['ignores']) if 'ignores' in x else _atd_missing_json_field('ApiScansFindings', 'ignores'),
                 token=_atd_read_nullable(_atd_read_string)(x['token']) if 'token' in x else _atd_missing_json_field('ApiScansFindings', 'token'),
-                gitlab_token=_atd_read_nullable(_atd_read_string)(x['gitlab_token']) if 'gitlab_token' in x else _atd_missing_json_field('ApiScansFindings', 'gitlab_token'),
                 searched_paths=_atd_read_list(_atd_read_string)(x['searched_paths']) if 'searched_paths' in x else _atd_missing_json_field('ApiScansFindings', 'searched_paths'),
+                renamed_paths=_atd_read_list(_atd_read_string)(x['renamed_paths']) if 'renamed_paths' in x else _atd_missing_json_field('ApiScansFindings', 'renamed_paths'),
                 rule_ids=_atd_read_list(_atd_read_string)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('ApiScansFindings', 'rule_ids'),
             )
         else:
@@ -3462,9 +3464,10 @@ class ApiScansFindings:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['findings'] = _atd_write_list((lambda x: x.to_json()))(self.findings)
+        res['ignores'] = _atd_write_list((lambda x: x.to_json()))(self.ignores)
         res['token'] = _atd_write_nullable(_atd_write_string)(self.token)
-        res['gitlab_token'] = _atd_write_nullable(_atd_write_string)(self.gitlab_token)
         res['searched_paths'] = _atd_write_list(_atd_write_string)(self.searched_paths)
+        res['renamed_paths'] = _atd_write_list(_atd_write_string)(self.renamed_paths)
         res['rule_ids'] = _atd_write_list(_atd_write_string)(self.rule_ids)
         return res
 

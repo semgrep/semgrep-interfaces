@@ -811,12 +811,14 @@ type found_dependency <ocaml attr="deriving show"> = {
 type api_scans_findings <ocaml attr="deriving show"> = {
   (* TODO: ?version: version option; *)
    findings: finding list;
+   ignores: finding list;   
    token: string nullable;
-   gitlab_token: string nullable;
    searched_paths: string list;
-   (* TODO: rule_id list *)
+   renamed_paths: string list;
    rule_ids: string list;
 }
+
+
 
 type finding_hashes <ocaml attr="deriving show"> = {
   start_line_hash: string;
