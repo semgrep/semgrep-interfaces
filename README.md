@@ -12,5 +12,5 @@ You may need to install opam and mypy as pre-requisites for contributing to this
 To update an interface:
 1. Run `make setup`
 2. Run `eval $(opam env)`
-3. Make changes to the appropriate .atd file or edit `generate`
+3. Make changes to the appropriate .atd file or edit `generate.py`
 4. Run `make`. This will propagate that change to the respective .py, .ts, .ml, etc.
