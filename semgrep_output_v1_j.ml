@@ -440,7 +440,7 @@ type cli_match_taint_source = Semgrep_output_v1_t.cli_match_taint_source = {
 }
   [@@deriving show]
 
-type api_scans_findings = Semgrep_output_v1_t.api_scans_findings = {
+type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   findings: finding list;
   ignores: finding list;
   token: string option;
@@ -564,7 +564,7 @@ let read_fpath = (
 let fpath_of_string s =
   read_fpath (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_matching_operation : _ -> matching_operation -> _ = (
-  fun ob (x : matching_operation) ->
+  fun ob x ->
     match x with
       | And -> Buffer.add_string ob "\"And\""
       | Or -> Buffer.add_string ob "\"Or\""
@@ -2140,7 +2140,7 @@ let read_metavars = (
 let metavars_of_string s =
   read_metavars (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let rec write_cli_match_call_trace : _ -> cli_match_call_trace -> _ = (
-  fun ob (x : cli_match_call_trace) ->
+  fun ob x ->
     match x with
       | CliLoc x ->
         Buffer.add_string ob "[\"CliLoc\",";
@@ -2535,7 +2535,7 @@ let rec read_cli_match_call_trace = (
 and cli_match_call_trace_of_string s =
   read_cli_match_call_trace (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let rec write_core_match_call_trace : _ -> core_match_call_trace -> _ = (
-  fun ob (x : core_match_call_trace) ->
+  fun ob x ->
     match x with
       | CoreLoc x ->
         Buffer.add_string ob "[\"CoreLoc\",";
@@ -4389,7 +4389,7 @@ let read_target_time = (
 let target_time_of_string s =
   read_target_time (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_skip_reason : _ -> skip_reason -> _ = (
-  fun ob (x : skip_reason) ->
+  fun ob x ->
     match x with
       | Gitignore_patterns_match -> Buffer.add_string ob "\"gitignore_patterns_match\""
       | Always_skipped -> Buffer.add_string ob "\"always_skipped\""
@@ -9914,7 +9914,7 @@ let read_core_stats = (
 let core_stats_of_string s =
   read_core_stats (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_severity : _ -> core_severity -> _ = (
-  fun ob (x : core_severity) ->
+  fun ob x ->
     match x with
       | Error -> Buffer.add_string ob "\"error\""
       | Warning -> Buffer.add_string ob "\"warning\""
@@ -9974,7 +9974,7 @@ let read__location_list = (
 let _location_list_of_string s =
   read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_error_kind : _ -> core_error_kind -> _ = (
-  fun ob (x : core_error_kind) ->
+  fun ob x ->
     match x with
       | LexicalError -> Buffer.add_string ob "\"Lexical error\""
       | ParseError -> Buffer.add_string ob "\"Syntax error\""
@@ -15649,8 +15649,8 @@ let read__finding_list = (
 )
 let _finding_list_of_string s =
   read__finding_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_api_scans_findings : _ -> api_scans_findings -> _ = (
-  fun ob (x : api_scans_findings) ->
+let write_ci_scan_results : _ -> ci_scan_results -> _ = (
+  fun ob (x : ci_scan_results) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
     if !is_first then
@@ -15709,11 +15709,11 @@ let write_api_scans_findings : _ -> api_scans_findings -> _ = (
       ob x.rule_ids;
     Buffer.add_char ob '}';
 )
-let string_of_api_scans_findings ?(len = 1024) x =
+let string_of_ci_scan_results ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_api_scans_findings ob x;
+  write_ci_scan_results ob x;
   Buffer.contents ob
-let read_api_scans_findings = (
+let read_ci_scan_results = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
@@ -15981,8 +15981,8 @@ let read_api_scans_findings = (
             renamed_paths = (match !field_renamed_paths with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "renamed_paths");
             rule_ids = (match !field_rule_ids with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rule_ids");
           }
-         : api_scans_findings)
+         : ci_scan_results)
       )
 )
-let api_scans_findings_of_string s =
-  read_api_scans_findings (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let ci_scan_results_of_string s =
+  read_ci_scan_results (Yojson.Safe.init_lexer ()) (Lexing.from_string s)

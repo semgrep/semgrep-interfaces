@@ -808,7 +808,7 @@ type found_dependency <ocaml attr="deriving show"> = {
  * there is also api_scans_meta, api_scans_ignores, and api_scans_complete
  * EXPERIMENTAL
 *)
-type api_scans_findings <ocaml attr="deriving show"> = {
+type ci_scan_results <ocaml attr="deriving show"> = {
   (* TODO: ?version: version option; *)
    findings: finding list;
    ignores: finding list;   

@@ -3437,8 +3437,8 @@ class CliMatchTaintSource:
 
 
 @dataclass
-class ApiScansFindings:
-    """Original type: api_scans_findings = { ... }"""
+class CiScanResults:
+    """Original type: ci_scan_results = { ... }"""
 
     findings: List[Finding]
     ignores: List[Finding]
@@ -3448,18 +3448,18 @@ class ApiScansFindings:
     rule_ids: List[str]
 
     @classmethod
-    def from_json(cls, x: Any) -> 'ApiScansFindings':
+    def from_json(cls, x: Any) -> 'CiScanResults':
         if isinstance(x, dict):
             return cls(
-                findings=_atd_read_list(Finding.from_json)(x['findings']) if 'findings' in x else _atd_missing_json_field('ApiScansFindings', 'findings'),
-                ignores=_atd_read_list(Finding.from_json)(x['ignores']) if 'ignores' in x else _atd_missing_json_field('ApiScansFindings', 'ignores'),
-                token=_atd_read_nullable(_atd_read_string)(x['token']) if 'token' in x else _atd_missing_json_field('ApiScansFindings', 'token'),
-                searched_paths=_atd_read_list(_atd_read_string)(x['searched_paths']) if 'searched_paths' in x else _atd_missing_json_field('ApiScansFindings', 'searched_paths'),
-                renamed_paths=_atd_read_list(_atd_read_string)(x['renamed_paths']) if 'renamed_paths' in x else _atd_missing_json_field('ApiScansFindings', 'renamed_paths'),
-                rule_ids=_atd_read_list(_atd_read_string)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('ApiScansFindings', 'rule_ids'),
+                findings=_atd_read_list(Finding.from_json)(x['findings']) if 'findings' in x else _atd_missing_json_field('CiScanResults', 'findings'),
+                ignores=_atd_read_list(Finding.from_json)(x['ignores']) if 'ignores' in x else _atd_missing_json_field('CiScanResults', 'ignores'),
+                token=_atd_read_nullable(_atd_read_string)(x['token']) if 'token' in x else _atd_missing_json_field('CiScanResults', 'token'),
+                searched_paths=_atd_read_list(_atd_read_string)(x['searched_paths']) if 'searched_paths' in x else _atd_missing_json_field('CiScanResults', 'searched_paths'),
+                renamed_paths=_atd_read_list(_atd_read_string)(x['renamed_paths']) if 'renamed_paths' in x else _atd_missing_json_field('CiScanResults', 'renamed_paths'),
+                rule_ids=_atd_read_list(_atd_read_string)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('CiScanResults', 'rule_ids'),
             )
         else:
-            _atd_bad_json('ApiScansFindings', x)
+            _atd_bad_json('CiScanResults', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
@@ -3472,7 +3472,7 @@ class ApiScansFindings:
         return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'ApiScansFindings':
+    def from_json_string(cls, x: str) -> 'CiScanResults':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
