@@ -382,7 +382,7 @@ export type FoundDependency = {
   line_number?: number /*int*/;
 }
 
-export type ApiScansFindings = {
+export type CiScanResults = {
   findings: Finding[];
   ignores: Finding[];
   token: (string | null);
@@ -1562,25 +1562,25 @@ export function readFoundDependency(x: any, context: any = x): FoundDependency {
   };
 }
 
-export function writeApiScansFindings(x: ApiScansFindings, context: any = x): any {
+export function writeCiScanResults(x: CiScanResults, context: any = x): any {
   return {
-    'findings': _atd_write_required_field('ApiScansFindings', 'findings', _atd_write_array(writeFinding), x.findings, x),
-    'ignores': _atd_write_required_field('ApiScansFindings', 'ignores', _atd_write_array(writeFinding), x.ignores, x),
-    'token': _atd_write_required_field('ApiScansFindings', 'token', _atd_write_nullable(_atd_write_string), x.token, x),
-    'searched_paths': _atd_write_required_field('ApiScansFindings', 'searched_paths', _atd_write_array(_atd_write_string), x.searched_paths, x),
-    'renamed_paths': _atd_write_required_field('ApiScansFindings', 'renamed_paths', _atd_write_array(_atd_write_string), x.renamed_paths, x),
-    'rule_ids': _atd_write_required_field('ApiScansFindings', 'rule_ids', _atd_write_array(_atd_write_string), x.rule_ids, x),
+    'findings': _atd_write_required_field('CiScanResults', 'findings', _atd_write_array(writeFinding), x.findings, x),
+    'ignores': _atd_write_required_field('CiScanResults', 'ignores', _atd_write_array(writeFinding), x.ignores, x),
+    'token': _atd_write_required_field('CiScanResults', 'token', _atd_write_nullable(_atd_write_string), x.token, x),
+    'searched_paths': _atd_write_required_field('CiScanResults', 'searched_paths', _atd_write_array(_atd_write_string), x.searched_paths, x),
+    'renamed_paths': _atd_write_required_field('CiScanResults', 'renamed_paths', _atd_write_array(_atd_write_string), x.renamed_paths, x),
+    'rule_ids': _atd_write_required_field('CiScanResults', 'rule_ids', _atd_write_array(_atd_write_string), x.rule_ids, x),
   };
 }
 
-export function readApiScansFindings(x: any, context: any = x): ApiScansFindings {
+export function readCiScanResults(x: any, context: any = x): CiScanResults {
   return {
-    findings: _atd_read_required_field('ApiScansFindings', 'findings', _atd_read_array(readFinding), x['findings'], x),
-    ignores: _atd_read_required_field('ApiScansFindings', 'ignores', _atd_read_array(readFinding), x['ignores'], x),
-    token: _atd_read_required_field('ApiScansFindings', 'token', _atd_read_nullable(_atd_read_string), x['token'], x),
-    searched_paths: _atd_read_required_field('ApiScansFindings', 'searched_paths', _atd_read_array(_atd_read_string), x['searched_paths'], x),
-    renamed_paths: _atd_read_required_field('ApiScansFindings', 'renamed_paths', _atd_read_array(_atd_read_string), x['renamed_paths'], x),
-    rule_ids: _atd_read_required_field('ApiScansFindings', 'rule_ids', _atd_read_array(_atd_read_string), x['rule_ids'], x),
+    findings: _atd_read_required_field('CiScanResults', 'findings', _atd_read_array(readFinding), x['findings'], x),
+    ignores: _atd_read_required_field('CiScanResults', 'ignores', _atd_read_array(readFinding), x['ignores'], x),
+    token: _atd_read_required_field('CiScanResults', 'token', _atd_read_nullable(_atd_read_string), x['token'], x),
+    searched_paths: _atd_read_required_field('CiScanResults', 'searched_paths', _atd_read_array(_atd_read_string), x['searched_paths'], x),
+    renamed_paths: _atd_read_required_field('CiScanResults', 'renamed_paths', _atd_read_array(_atd_read_string), x['renamed_paths'], x),
+    rule_ids: _atd_read_required_field('CiScanResults', 'rule_ids', _atd_read_array(_atd_read_string), x['rule_ids'], x),
   };
 }
 

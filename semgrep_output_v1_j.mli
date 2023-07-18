@@ -440,7 +440,7 @@ type cli_match_taint_source = Semgrep_output_v1_t.cli_match_taint_source = {
 }
   [@@deriving show]
 
-type api_scans_findings = Semgrep_output_v1_t.api_scans_findings = {
+type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   findings: finding list;
   ignores: finding list;
   token: string option;
@@ -1570,23 +1570,23 @@ val cli_match_taint_source_of_string :
   string -> cli_match_taint_source
   (** Deserialize JSON data of type {!type:cli_match_taint_source}. *)
 
-val write_api_scans_findings :
-  Buffer.t -> api_scans_findings -> unit
-  (** Output a JSON value of type {!type:api_scans_findings}. *)
+val write_ci_scan_results :
+  Buffer.t -> ci_scan_results -> unit
+  (** Output a JSON value of type {!type:ci_scan_results}. *)
 
-val string_of_api_scans_findings :
-  ?len:int -> api_scans_findings -> string
-  (** Serialize a value of type {!type:api_scans_findings}
+val string_of_ci_scan_results :
+  ?len:int -> ci_scan_results -> string
+  (** Serialize a value of type {!type:ci_scan_results}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_api_scans_findings :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> api_scans_findings
-  (** Input JSON data of type {!type:api_scans_findings}. *)
+val read_ci_scan_results :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_scan_results
+  (** Input JSON data of type {!type:ci_scan_results}. *)
 
-val api_scans_findings_of_string :
-  string -> api_scans_findings
-  (** Deserialize JSON data of type {!type:api_scans_findings}. *)
+val ci_scan_results_of_string :
+  string -> ci_scan_results
+  (** Deserialize JSON data of type {!type:ci_scan_results}. *)
 

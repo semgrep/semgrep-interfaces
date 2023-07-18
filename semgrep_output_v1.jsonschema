@@ -700,7 +700,7 @@
         "line_number": { "type": "integer" }
       }
     },
-    "api_scans_findings": {
+    "ci_scan_results": {
       "type": "object",
       "required": [
         "findings", "ignores", "token", "searched_paths", "renamed_paths",
