@@ -335,7 +335,7 @@ not ambiguous is welcome here.
         id_="js",
         name="JavaScript",
         keys=["js", "javascript"],
-        exts=[".js", ".jsx"],
+        exts=[".cjs", ".js", ".jsx", ".mjs"],
         excluded_exts=[".min.js"],
         example_ext=".jsx",
         maturity=Maturity.GA,
