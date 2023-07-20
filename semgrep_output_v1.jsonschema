@@ -727,8 +727,7 @@
         "path": { "type": "string" },
         "parser": { "$ref": "#/definitions/sca_parser_name" },
         "reason": { "type": "string" },
-        "line": { "type": "integer" },
-        "col": { "type": "integer" },
+        "position": { "$ref": "#/definitions/position" },
         "text": { "type": "string" }
       }
     },
@@ -800,7 +799,7 @@
         "items": { "$ref": "#/definitions/found_dependency" }
       }
     },
-    "ci_scan_complete": {
+    "ci_scan_complete_response": {
       "type": "object",
       "required": [ "exit_code", "stats" ],
       "properties": {

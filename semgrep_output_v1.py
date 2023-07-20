@@ -2726,8 +2726,7 @@ class DependencyParserError:
     path: str
     parser: ScaParserName
     reason: str
-    line: Optional[int] = None
-    col: Optional[int] = None
+    position: Optional[Position] = None
     text: Optional[str] = None
 
     @classmethod
@@ -2737,8 +2736,7 @@ class DependencyParserError:
                 path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('DependencyParserError', 'path'),
                 parser=ScaParserName.from_json(x['parser']) if 'parser' in x else _atd_missing_json_field('DependencyParserError', 'parser'),
                 reason=_atd_read_string(x['reason']) if 'reason' in x else _atd_missing_json_field('DependencyParserError', 'reason'),
-                line=_atd_read_int(x['line']) if 'line' in x else None,
-                col=_atd_read_int(x['col']) if 'col' in x else None,
+                position=Position.from_json(x['position']) if 'position' in x else None,
                 text=_atd_read_string(x['text']) if 'text' in x else None,
             )
         else:
@@ -2749,10 +2747,8 @@ class DependencyParserError:
         res['path'] = _atd_write_string(self.path)
         res['parser'] = (lambda x: x.to_json())(self.parser)
         res['reason'] = _atd_write_string(self.reason)
-        if self.line is not None:
-            res['line'] = _atd_write_int(self.line)
-        if self.col is not None:
-            res['col'] = _atd_write_int(self.col)
+        if self.position is not None:
+            res['position'] = (lambda x: x.to_json())(self.position)
         if self.text is not None:
             res['text'] = _atd_write_string(self.text)
         return res
@@ -3963,8 +3959,8 @@ class CiScanCompleteStats:
 
 
 @dataclass
-class CiScanComplete:
-    """Original type: ci_scan_complete = { ... }"""
+class CiScanCompleteResponse:
+    """Original type: ci_scan_complete_response = { ... }"""
 
     exit_code: int
     stats: CiScanCompleteStats
@@ -3973,17 +3969,17 @@ class CiScanComplete:
     task_id: Optional[str] = None
 
     @classmethod
-    def from_json(cls, x: Any) -> 'CiScanComplete':
+    def from_json(cls, x: Any) -> 'CiScanCompleteResponse':
         if isinstance(x, dict):
             return cls(
-                exit_code=_atd_read_int(x['exit_code']) if 'exit_code' in x else _atd_missing_json_field('CiScanComplete', 'exit_code'),
-                stats=CiScanCompleteStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CiScanComplete', 'stats'),
+                exit_code=_atd_read_int(x['exit_code']) if 'exit_code' in x else _atd_missing_json_field('CiScanCompleteResponse', 'exit_code'),
+                stats=CiScanCompleteStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CiScanCompleteResponse', 'stats'),
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
                 dependency_parser_errors=_atd_read_list(DependencyParserError.from_json)(x['dependency_parser_errors']) if 'dependency_parser_errors' in x else None,
                 task_id=_atd_read_string(x['task_id']) if 'task_id' in x else None,
             )
         else:
-            _atd_bad_json('CiScanComplete', x)
+            _atd_bad_json('CiScanCompleteResponse', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
@@ -3998,7 +3994,7 @@ class CiScanComplete:
         return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'CiScanComplete':
+    def from_json_string(cls, x: str) -> 'CiScanCompleteResponse':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

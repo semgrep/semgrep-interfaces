@@ -404,8 +404,7 @@ export type DependencyParserError = {
   path: string;
   parser: ScaParserName;
   reason: string;
-  line?: number /*int*/;
-  col?: number /*int*/;
+  position?: Position;
   text?: string;
 }
 
@@ -437,7 +436,7 @@ export type CiScanCompleteStats = {
 
 export type CiScanDependencies = Map<string, FoundDependency[]>
 
-export type CiScanComplete = {
+export type CiScanCompleteResponse = {
   exit_code: number /*int*/;
   stats: CiScanCompleteStats;
   dependencies?: CiScanDependencies;
@@ -1698,8 +1697,7 @@ export function writeDependencyParserError(x: DependencyParserError, context: an
     'path': _atd_write_required_field('DependencyParserError', 'path', _atd_write_string, x.path, x),
     'parser': _atd_write_required_field('DependencyParserError', 'parser', writeScaParserName, x.parser, x),
     'reason': _atd_write_required_field('DependencyParserError', 'reason', _atd_write_string, x.reason, x),
-    'line': _atd_write_optional_field(_atd_write_int, x.line, x),
-    'col': _atd_write_optional_field(_atd_write_int, x.col, x),
+    'position': _atd_write_optional_field(writePosition, x.position, x),
     'text': _atd_write_optional_field(_atd_write_string, x.text, x),
   };
 }
@@ -1709,8 +1707,7 @@ export function readDependencyParserError(x: any, context: any = x): DependencyP
     path: _atd_read_required_field('DependencyParserError', 'path', _atd_read_string, x['path'], x),
     parser: _atd_read_required_field('DependencyParserError', 'parser', readScaParserName, x['parser'], x),
     reason: _atd_read_required_field('DependencyParserError', 'reason', _atd_read_string, x['reason'], x),
-    line: _atd_read_optional_field(_atd_read_int, x['line'], x),
-    col: _atd_read_optional_field(_atd_read_int, x['col'], x),
+    position: _atd_read_optional_field(readPosition, x['position'], x),
     text: _atd_read_optional_field(_atd_read_string, x['text'], x),
   };
 }
@@ -1787,20 +1784,20 @@ export function readCiScanDependencies(x: any, context: any = x): CiScanDependen
   return _atd_read_assoc_object_into_map(_atd_read_array(readFoundDependency))(x, context);
 }
 
-export function writeCiScanComplete(x: CiScanComplete, context: any = x): any {
+export function writeCiScanCompleteResponse(x: CiScanCompleteResponse, context: any = x): any {
   return {
-    'exit_code': _atd_write_required_field('CiScanComplete', 'exit_code', _atd_write_int, x.exit_code, x),
-    'stats': _atd_write_required_field('CiScanComplete', 'stats', writeCiScanCompleteStats, x.stats, x),
+    'exit_code': _atd_write_required_field('CiScanCompleteResponse', 'exit_code', _atd_write_int, x.exit_code, x),
+    'stats': _atd_write_required_field('CiScanCompleteResponse', 'stats', writeCiScanCompleteStats, x.stats, x),
     'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
     'dependency_parser_errors': _atd_write_optional_field(_atd_write_array(writeDependencyParserError), x.dependency_parser_errors, x),
     'task_id': _atd_write_optional_field(_atd_write_string, x.task_id, x),
   };
 }
 
-export function readCiScanComplete(x: any, context: any = x): CiScanComplete {
+export function readCiScanCompleteResponse(x: any, context: any = x): CiScanCompleteResponse {
   return {
-    exit_code: _atd_read_required_field('CiScanComplete', 'exit_code', _atd_read_int, x['exit_code'], x),
-    stats: _atd_read_required_field('CiScanComplete', 'stats', readCiScanCompleteStats, x['stats'], x),
+    exit_code: _atd_read_required_field('CiScanCompleteResponse', 'exit_code', _atd_read_int, x['exit_code'], x),
+    stats: _atd_read_required_field('CiScanCompleteResponse', 'stats', readCiScanCompleteStats, x['stats'], x),
     dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
     dependency_parser_errors: _atd_read_optional_field(_atd_read_array(readDependencyParserError), x['dependency_parser_errors'], x),
     task_id: _atd_read_optional_field(_atd_read_string, x['task_id'], x),

@@ -285,8 +285,7 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
   path: string;
   parser: sca_parser_name;
   reason: string;
-  line: int option;
-  col: int option;
+  position: position option;
   text: string option
 }
 
@@ -483,7 +482,8 @@ type ci_scan_complete_stats = Semgrep_output_v1_t.ci_scan_complete_stats = {
 }
   [@@deriving show]
 
-type ci_scan_complete = Semgrep_output_v1_t.ci_scan_complete = {
+type ci_scan_complete_response =
+  Semgrep_output_v1_t.ci_scan_complete_response = {
   exit_code: int;
   stats: ci_scan_complete_stats;
   dependencies: ci_scan_dependencies option;
@@ -9644,25 +9644,14 @@ let write_dependency_parser_error : _ -> dependency_parser_error -> _ = (
       Yojson.Safe.write_string
     )
       ob x.reason;
-    (match x.line with None -> () | Some x ->
+    (match x.position with None -> () | Some x ->
       if !is_first then
         is_first := false
       else
         Buffer.add_char ob ',';
-        Buffer.add_string ob "\"line\":";
+        Buffer.add_string ob "\"position\":";
       (
-        Yojson.Safe.write_int
-      )
-        ob x;
-    );
-    (match x.col with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"col\":";
-      (
-        Yojson.Safe.write_int
+        write_position
       )
         ob x;
     );
@@ -9690,8 +9679,7 @@ let read_dependency_parser_error = (
     let field_path = ref (None) in
     let field_parser = ref (None) in
     let field_reason = ref (None) in
-    let field_line = ref (None) in
-    let field_col = ref (None) in
+    let field_position = ref (None) in
     let field_text = ref (None) in
     try
       Yojson.Safe.read_space p lb;
@@ -9702,24 +9690,8 @@ let read_dependency_parser_error = (
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
-            | 3 -> (
-                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'l' then (
-                  4
-                )
-                else (
-                  -1
-                )
-              )
             | 4 -> (
                 match String.unsafe_get s pos with
-                  | 'l' -> (
-                      if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'e' then (
-                        3
-                      )
-                      else (
-                        -1
-                      )
-                    )
                   | 'p' -> (
                       if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
                         0
@@ -9730,7 +9702,7 @@ let read_dependency_parser_error = (
                     )
                   | 't' -> (
                       if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = 't' then (
-                        5
+                        4
                       )
                       else (
                         -1
@@ -9761,6 +9733,14 @@ let read_dependency_parser_error = (
                   | _ -> (
                       -1
                     )
+              )
+            | 8 -> (
+                if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'n' then (
+                  3
+                )
+                else (
+                  -1
+                )
               )
             | _ -> (
                 -1
@@ -9796,25 +9776,15 @@ let read_dependency_parser_error = (
             );
           | 3 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_line := (
+              field_position := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_int
+                    read_position
                   ) p lb
                 )
               );
             )
           | 4 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_col := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_int
-                  ) p lb
-                )
-              );
-            )
-          | 5 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_text := (
                 Some (
@@ -9837,24 +9807,8 @@ let read_dependency_parser_error = (
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
-              | 3 -> (
-                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'l' then (
-                    4
-                  )
-                  else (
-                    -1
-                  )
-                )
               | 4 -> (
                   match String.unsafe_get s pos with
-                    | 'l' -> (
-                        if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'e' then (
-                          3
-                        )
-                        else (
-                          -1
-                        )
-                      )
                     | 'p' -> (
                         if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
                           0
@@ -9865,7 +9819,7 @@ let read_dependency_parser_error = (
                       )
                     | 't' -> (
                         if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = 't' then (
-                          5
+                          4
                         )
                         else (
                           -1
@@ -9896,6 +9850,14 @@ let read_dependency_parser_error = (
                     | _ -> (
                         -1
                       )
+                )
+              | 8 -> (
+                  if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'n' then (
+                    3
+                  )
+                  else (
+                    -1
+                  )
                 )
               | _ -> (
                   -1
@@ -9931,25 +9893,15 @@ let read_dependency_parser_error = (
               );
             | 3 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_line := (
+                field_position := (
                   Some (
                     (
-                      Atdgen_runtime.Oj_run.read_int
+                      read_position
                     ) p lb
                   )
                 );
               )
             | 4 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_col := (
-                  Some (
-                    (
-                      Atdgen_runtime.Oj_run.read_int
-                    ) p lb
-                  )
-                );
-              )
-            | 5 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_text := (
                   Some (
@@ -9971,8 +9923,7 @@ let read_dependency_parser_error = (
             path = (match !field_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "path");
             parser = (match !field_parser with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "parser");
             reason = (match !field_reason with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "reason");
-            line = !field_line;
-            col = !field_col;
+            position = !field_position;
             text = !field_text;
           }
          : dependency_parser_error)
@@ -17392,8 +17343,8 @@ let read__ci_scan_dependencies_option = (
 )
 let _ci_scan_dependencies_option_of_string s =
   read__ci_scan_dependencies_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_ci_scan_complete : _ -> ci_scan_complete -> _ = (
-  fun ob (x : ci_scan_complete) ->
+let write_ci_scan_complete_response : _ -> ci_scan_complete_response -> _ = (
+  fun ob (x : ci_scan_complete_response) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
     if !is_first then
@@ -17449,11 +17400,11 @@ let write_ci_scan_complete : _ -> ci_scan_complete -> _ = (
     );
     Buffer.add_char ob '}';
 )
-let string_of_ci_scan_complete ?(len = 1024) x =
+let string_of_ci_scan_complete_response ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_ci_scan_complete ob x;
+  write_ci_scan_complete_response ob x;
   Buffer.contents ob
-let read_ci_scan_complete = (
+let read_ci_scan_complete_response = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
@@ -17687,8 +17638,8 @@ let read_ci_scan_complete = (
             dependency_parser_errors = !field_dependency_parser_errors;
             task_id = !field_task_id;
           }
-         : ci_scan_complete)
+         : ci_scan_complete_response)
       )
 )
-let ci_scan_complete_of_string s =
-  read_ci_scan_complete (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let ci_scan_complete_response_of_string s =
+  read_ci_scan_complete_response (Yojson.Safe.init_lexer ()) (Lexing.from_string s)

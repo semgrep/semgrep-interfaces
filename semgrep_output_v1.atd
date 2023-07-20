@@ -828,8 +828,7 @@ type dependency_parser_error = {
   path: string;
   parser: sca_parser_name;
   reason: string;
-  ?line: int option; 
-  ?col: int option; 
+  ?position: position option;
   ?text: string option;
 }
 
@@ -886,7 +885,7 @@ type ci_scan_dependencies <ocaml attr="deriving show"> =  (string * found_depend
     <python repr="dict">
     <ts repr="map">
 
-type ci_scan_complete <ocaml attr="deriving show"> = {
+type ci_scan_complete_response <ocaml attr="deriving show"> = {
   exit_code: int;
   stats: ci_scan_complete_stats;
   ?dependencies: ci_scan_dependencies option;
