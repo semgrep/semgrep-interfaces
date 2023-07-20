@@ -327,11 +327,15 @@ export type CliTiming = {
   max_memory_bytes?: number /*int*/;
 }
 
+export type Contributor = {
+  commit_author_name: string;
+  commit_author_email: string;
+}
+
 export type Contribution = {
   commit_hash: string;
   commit_timestamp: string;
-  commit_author_name: string;
-  commit_author_email: string;
+  contributor: Contributor;
 }
 
 export type Contributions = {
@@ -1402,12 +1406,25 @@ export function readCliTiming(x: any, context: any = x): CliTiming {
   };
 }
 
+export function writeContributor(x: Contributor, context: any = x): any {
+  return {
+    'commit_author_name': _atd_write_required_field('Contributor', 'commit_author_name', _atd_write_string, x.commit_author_name, x),
+    'commit_author_email': _atd_write_required_field('Contributor', 'commit_author_email', _atd_write_string, x.commit_author_email, x),
+  };
+}
+
+export function readContributor(x: any, context: any = x): Contributor {
+  return {
+    commit_author_name: _atd_read_required_field('Contributor', 'commit_author_name', _atd_read_string, x['commit_author_name'], x),
+    commit_author_email: _atd_read_required_field('Contributor', 'commit_author_email', _atd_read_string, x['commit_author_email'], x),
+  };
+}
+
 export function writeContribution(x: Contribution, context: any = x): any {
   return {
     'commit_hash': _atd_write_required_field('Contribution', 'commit_hash', _atd_write_string, x.commit_hash, x),
     'commit_timestamp': _atd_write_required_field('Contribution', 'commit_timestamp', _atd_write_string, x.commit_timestamp, x),
-    'commit_author_name': _atd_write_required_field('Contribution', 'commit_author_name', _atd_write_string, x.commit_author_name, x),
-    'commit_author_email': _atd_write_required_field('Contribution', 'commit_author_email', _atd_write_string, x.commit_author_email, x),
+    'contributor': _atd_write_required_field('Contribution', 'contributor', writeContributor, x.contributor, x),
   };
 }
 
@@ -1415,8 +1432,7 @@ export function readContribution(x: any, context: any = x): Contribution {
   return {
     commit_hash: _atd_read_required_field('Contribution', 'commit_hash', _atd_read_string, x['commit_hash'], x),
     commit_timestamp: _atd_read_required_field('Contribution', 'commit_timestamp', _atd_read_string, x['commit_timestamp'], x),
-    commit_author_name: _atd_read_required_field('Contribution', 'commit_author_name', _atd_read_string, x['commit_author_name'], x),
-    commit_author_email: _atd_read_required_field('Contribution', 'commit_author_email', _atd_read_string, x['commit_author_email'], x),
+    contributor: _atd_read_required_field('Contribution', 'contributor', readContributor, x['contributor'], x),
   };
 }
 

@@ -612,17 +612,21 @@
         "max_memory_bytes": { "type": "integer" }
       }
     },
+    "contributor": {
+      "type": "object",
+      "required": [ "commit_author_name", "commit_author_email" ],
+      "properties": {
+        "commit_author_name": { "type": "string" },
+        "commit_author_email": { "type": "string" }
+      }
+    },
     "contribution": {
       "type": "object",
-      "required": [
-        "commit_hash", "commit_timestamp", "commit_author_name",
-        "commit_author_email"
-      ],
+      "required": [ "commit_hash", "commit_timestamp", "contributor" ],
       "properties": {
         "commit_hash": { "type": "string" },
         "commit_timestamp": { "type": "string" },
-        "commit_author_name": { "type": "string" },
-        "commit_author_email": { "type": "string" }
+        "contributor": { "$ref": "#/definitions/contributor" }
       }
     },
     "contributions": {

@@ -340,11 +340,16 @@ type core_match_results = Semgrep_output_v1_t.core_match_results = {
 }
   [@@deriving show]
 
+type contributor = Semgrep_output_v1_t.contributor = {
+  commit_author_name: string;
+  commit_author_email: string
+}
+  [@@deriving show]
+
 type contribution = Semgrep_output_v1_t.contribution = {
   commit_hash: string;
   commit_timestamp: string;
-  commit_author_name: string;
-  commit_author_email: string
+  contributor: contributor
 }
   [@@deriving show]
 
@@ -1383,6 +1388,26 @@ val read_core_match_results :
 val core_match_results_of_string :
   string -> core_match_results
   (** Deserialize JSON data of type {!type:core_match_results}. *)
+
+val write_contributor :
+  Buffer.t -> contributor -> unit
+  (** Output a JSON value of type {!type:contributor}. *)
+
+val string_of_contributor :
+  ?len:int -> contributor -> string
+  (** Serialize a value of type {!type:contributor}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_contributor :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> contributor
+  (** Input JSON data of type {!type:contributor}. *)
+
+val contributor_of_string :
+  string -> contributor
+  (** Deserialize JSON data of type {!type:contributor}. *)
 
 val write_contribution :
   Buffer.t -> contribution -> unit

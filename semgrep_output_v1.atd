@@ -712,11 +712,18 @@ type cli_timing <ocaml attr="deriving show"> = {
     ?max_memory_bytes : int option;
   }
 
+(* 
+ * https://semgrep.dev/docs/usage-limits
+ *)
+type contributor <ocaml attr="deriving show"> = {
+    commit_author_name: string;
+    commit_author_email: string;
+}
+
 type contribution <ocaml attr="deriving show"> = {
     commit_hash: string;
     commit_timestamp: string;
-    commit_author_name: string;
-    commit_author_email: string;
+    contributor: contributor;
 }
 
 type contributions <ocaml attr="deriving show"> = {
@@ -826,6 +833,7 @@ type ci_scan_results <ocaml attr="deriving show"> = {
    searched_paths: string list;
    renamed_paths: string list;
    rule_ids: string list;
+   (* since semgrep 1.34.0 *)
    ?contributions: contributions option;
 }
 

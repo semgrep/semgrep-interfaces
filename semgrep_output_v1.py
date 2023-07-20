@@ -2979,13 +2979,43 @@ class CoreMatchResults:
 
 
 @dataclass
+class Contributor:
+    """Original type: contributor = { ... }"""
+
+    commit_author_name: str
+    commit_author_email: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Contributor':
+        if isinstance(x, dict):
+            return cls(
+                commit_author_name=_atd_read_string(x['commit_author_name']) if 'commit_author_name' in x else _atd_missing_json_field('Contributor', 'commit_author_name'),
+                commit_author_email=_atd_read_string(x['commit_author_email']) if 'commit_author_email' in x else _atd_missing_json_field('Contributor', 'commit_author_email'),
+            )
+        else:
+            _atd_bad_json('Contributor', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['commit_author_name'] = _atd_write_string(self.commit_author_name)
+        res['commit_author_email'] = _atd_write_string(self.commit_author_email)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Contributor':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Contribution:
     """Original type: contribution = { ... }"""
 
     commit_hash: str
     commit_timestamp: str
-    commit_author_name: str
-    commit_author_email: str
+    contributor: Contributor
 
     @classmethod
     def from_json(cls, x: Any) -> 'Contribution':
@@ -2993,8 +3023,7 @@ class Contribution:
             return cls(
                 commit_hash=_atd_read_string(x['commit_hash']) if 'commit_hash' in x else _atd_missing_json_field('Contribution', 'commit_hash'),
                 commit_timestamp=_atd_read_string(x['commit_timestamp']) if 'commit_timestamp' in x else _atd_missing_json_field('Contribution', 'commit_timestamp'),
-                commit_author_name=_atd_read_string(x['commit_author_name']) if 'commit_author_name' in x else _atd_missing_json_field('Contribution', 'commit_author_name'),
-                commit_author_email=_atd_read_string(x['commit_author_email']) if 'commit_author_email' in x else _atd_missing_json_field('Contribution', 'commit_author_email'),
+                contributor=Contributor.from_json(x['contributor']) if 'contributor' in x else _atd_missing_json_field('Contribution', 'contributor'),
             )
         else:
             _atd_bad_json('Contribution', x)
@@ -3003,8 +3032,7 @@ class Contribution:
         res: Dict[str, Any] = {}
         res['commit_hash'] = _atd_write_string(self.commit_hash)
         res['commit_timestamp'] = _atd_write_string(self.commit_timestamp)
-        res['commit_author_name'] = _atd_write_string(self.commit_author_name)
-        res['commit_author_email'] = _atd_write_string(self.commit_author_email)
+        res['contributor'] = (lambda x: x.to_json())(self.contributor)
         return res
 
     @classmethod
