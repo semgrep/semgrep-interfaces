@@ -166,6 +166,8 @@ type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
 }
   [@@deriving show]
 
+type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
+
 type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show]
 
 type found_dependency = Semgrep_output_v1_t.found_dependency = {
@@ -210,6 +212,14 @@ type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
 type position_bis = Semgrep_output_v1_t.position_bis = {
   line: int;
   col: int
+}
+  [@@deriving show]
+
+type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
+  targets_parsed: int;
+  num_targets: int;
+  bytes_parsed: int;
+  num_bytes: int
 }
   [@@deriving show]
 
@@ -270,6 +280,15 @@ type error_span = Semgrep_output_v1_t.error_span = {
   context_end: position_bis option option
 }
   [@@deriving show]
+
+type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
+  path: string;
+  parser: sca_parser_name;
+  reason: string;
+  line: int option;
+  col: int option;
+  text: string option
+}
 
 type cve_result = Semgrep_output_v1_t.cve_result = {
   url: string;
@@ -447,6 +466,29 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   searched_paths: string list;
   renamed_paths: string list;
   rule_ids: string list
+}
+  [@@deriving show]
+
+type ci_scan_dependencies = Semgrep_output_v1_t.ci_scan_dependencies
+  [@@deriving show]
+
+type ci_scan_complete_stats = Semgrep_output_v1_t.ci_scan_complete_stats = {
+  findings: int;
+  errors: cli_error list;
+  total_time: float;
+  unsupported_exts: (string * int) list;
+  lockfile_scan_info: (string * int) list;
+  parse_rate: (string * parsing_stats) list;
+  engine_requested: string option
+}
+  [@@deriving show]
+
+type ci_scan_complete = Semgrep_output_v1_t.ci_scan_complete = {
+  exit_code: int;
+  stats: ci_scan_complete_stats;
+  dependencies: ci_scan_dependencies option;
+  dependency_parser_errors: dependency_parser_error list option;
+  task_id: string option
 }
   [@@deriving show]
 
@@ -950,6 +992,26 @@ val skipped_rule_of_string :
   string -> skipped_rule
   (** Deserialize JSON data of type {!type:skipped_rule}. *)
 
+val write_sca_parser_name :
+  Buffer.t -> sca_parser_name -> unit
+  (** Output a JSON value of type {!type:sca_parser_name}. *)
+
+val string_of_sca_parser_name :
+  ?len:int -> sca_parser_name -> string
+  (** Serialize a value of type {!type:sca_parser_name}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_parser_name :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_parser_name
+  (** Input JSON data of type {!type:sca_parser_name}. *)
+
+val sca_parser_name_of_string :
+  string -> sca_parser_name
+  (** Deserialize JSON data of type {!type:sca_parser_name}. *)
+
 val write_ecosystem :
   Buffer.t -> ecosystem -> unit
   (** Output a JSON value of type {!type:ecosystem}. *)
@@ -1110,6 +1172,26 @@ val position_bis_of_string :
   string -> position_bis
   (** Deserialize JSON data of type {!type:position_bis}. *)
 
+val write_parsing_stats :
+  Buffer.t -> parsing_stats -> unit
+  (** Output a JSON value of type {!type:parsing_stats}. *)
+
+val string_of_parsing_stats :
+  ?len:int -> parsing_stats -> string
+  (** Serialize a value of type {!type:parsing_stats}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_parsing_stats :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> parsing_stats
+  (** Input JSON data of type {!type:parsing_stats}. *)
+
+val parsing_stats_of_string :
+  string -> parsing_stats
+  (** Deserialize JSON data of type {!type:parsing_stats}. *)
+
 val write_fix_regex :
   Buffer.t -> fix_regex -> unit
   (** Output a JSON value of type {!type:fix_regex}. *)
@@ -1209,6 +1291,26 @@ val read_error_span :
 val error_span_of_string :
   string -> error_span
   (** Deserialize JSON data of type {!type:error_span}. *)
+
+val write_dependency_parser_error :
+  Buffer.t -> dependency_parser_error -> unit
+  (** Output a JSON value of type {!type:dependency_parser_error}. *)
+
+val string_of_dependency_parser_error :
+  ?len:int -> dependency_parser_error -> string
+  (** Serialize a value of type {!type:dependency_parser_error}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_dependency_parser_error :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_parser_error
+  (** Input JSON data of type {!type:dependency_parser_error}. *)
+
+val dependency_parser_error_of_string :
+  string -> dependency_parser_error
+  (** Deserialize JSON data of type {!type:dependency_parser_error}. *)
 
 val write_cve_result :
   Buffer.t -> cve_result -> unit
@@ -1589,4 +1691,64 @@ val read_ci_scan_results :
 val ci_scan_results_of_string :
   string -> ci_scan_results
   (** Deserialize JSON data of type {!type:ci_scan_results}. *)
+
+val write_ci_scan_dependencies :
+  Buffer.t -> ci_scan_dependencies -> unit
+  (** Output a JSON value of type {!type:ci_scan_dependencies}. *)
+
+val string_of_ci_scan_dependencies :
+  ?len:int -> ci_scan_dependencies -> string
+  (** Serialize a value of type {!type:ci_scan_dependencies}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_ci_scan_dependencies :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_scan_dependencies
+  (** Input JSON data of type {!type:ci_scan_dependencies}. *)
+
+val ci_scan_dependencies_of_string :
+  string -> ci_scan_dependencies
+  (** Deserialize JSON data of type {!type:ci_scan_dependencies}. *)
+
+val write_ci_scan_complete_stats :
+  Buffer.t -> ci_scan_complete_stats -> unit
+  (** Output a JSON value of type {!type:ci_scan_complete_stats}. *)
+
+val string_of_ci_scan_complete_stats :
+  ?len:int -> ci_scan_complete_stats -> string
+  (** Serialize a value of type {!type:ci_scan_complete_stats}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_ci_scan_complete_stats :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_scan_complete_stats
+  (** Input JSON data of type {!type:ci_scan_complete_stats}. *)
+
+val ci_scan_complete_stats_of_string :
+  string -> ci_scan_complete_stats
+  (** Deserialize JSON data of type {!type:ci_scan_complete_stats}. *)
+
+val write_ci_scan_complete :
+  Buffer.t -> ci_scan_complete -> unit
+  (** Output a JSON value of type {!type:ci_scan_complete}. *)
+
+val string_of_ci_scan_complete :
+  ?len:int -> ci_scan_complete -> string
+  (** Serialize a value of type {!type:ci_scan_complete}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_ci_scan_complete :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_scan_complete
+  (** Input JSON data of type {!type:ci_scan_complete}. *)
+
+val ci_scan_complete_of_string :
+  string -> ci_scan_complete
+  (** Deserialize JSON data of type {!type:ci_scan_complete}. *)
 

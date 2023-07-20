@@ -801,6 +801,39 @@ type found_dependency <ocaml attr="deriving show"> = {
   ?line_number: int option;
 }
 
+
+
+type sca_parser_name = [
+  | Gemfile_lock <json name="gemfile_lock">
+  | Go_mod <json name="go_mod">
+  | Go_sum <json name="go_sum">
+  | Gradle_lockfile <json name="gradle_lockfile">
+  | Gradle_build <json name="gradle_build">
+  | Jsondoc <json name="jsondoc">
+  | Pipfile <json name="pipfile">
+  | Pnpm_lock <json name="pnpm_lock">
+  | Poetry_lock <json name="poetry_lock">
+  | Pyproject_toml <json name="pyproject_toml">
+  | Requirements <json name="requirements">
+  | Yarn_1 <json name="yarn_1">
+  | Yarn_2 <json name="yarn_2">
+  | Pomtree <json name="pomtree">
+  | Cargo_parser <json name="cargo">
+  | Composer_lock <json name="composer_lock">
+]
+
+
+
+type dependency_parser_error = {
+  path: string;
+  parser: sca_parser_name;
+  reason: string;
+  ?line: int option; 
+  ?col: int option; 
+  ?text: string option;
+}
+
+
 (*****************************************************************************)
 (* Semgrep CLI findings output for the App *)
 (*****************************************************************************)
@@ -808,6 +841,7 @@ type found_dependency <ocaml attr="deriving show"> = {
  * there is also api_scans_meta, api_scans_ignores, and api_scans_complete
  * EXPERIMENTAL
 *)
+
 type ci_scan_results <ocaml attr="deriving show"> = {
   (* TODO: ?version: version option; *)
    findings: finding list;
@@ -818,6 +852,47 @@ type ci_scan_results <ocaml attr="deriving show"> = {
    rule_ids: string list;
 }
 
+
+
+type parsing_stats <ocaml attr="deriving show"> = {
+  targets_parsed: int;
+  num_targets: int;
+  bytes_parsed: int;
+  num_bytes: int;
+}
+
+type ci_scan_complete_stats <ocaml attr="deriving show"> = {
+  findings: int;
+  errors: cli_error list;
+  total_time: float;
+  unsupported_exts: (string * int) list
+    <json repr="object">
+    <python repr="dict">
+    <ts repr="map">;
+  lockfile_scan_info: (string * int) list
+    <json repr="object">
+    <python repr="dict">
+    <ts repr="map">;
+  parse_rate: (string * parsing_stats) list
+    <json repr="object">
+    <python repr="dict">
+    <ts repr="map">;
+  (* This is EngineType from python, which is different from engine_kind used in this file *)
+  ?engine_requested: string option;
+}
+
+type ci_scan_dependencies <ocaml attr="deriving show"> =  (string * found_dependency list) list
+    <json repr="object">
+    <python repr="dict">
+    <ts repr="map">
+
+type ci_scan_complete <ocaml attr="deriving show"> = {
+  exit_code: int;
+  stats: ci_scan_complete_stats;
+  ?dependencies: ci_scan_dependencies option;
+  ?dependency_parser_errors: dependency_parser_error list option;
+  ?task_id: string option;
+}
 
 
 type finding_hashes <ocaml attr="deriving show"> = {

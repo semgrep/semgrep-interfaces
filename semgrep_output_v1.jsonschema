@@ -700,6 +700,38 @@
         "line_number": { "type": "integer" }
       }
     },
+    "sca_parser_name": {
+      "oneOf": [
+        { "const": "gemfile_lock" },
+        { "const": "go_mod" },
+        { "const": "go_sum" },
+        { "const": "gradle_lockfile" },
+        { "const": "gradle_build" },
+        { "const": "jsondoc" },
+        { "const": "pipfile" },
+        { "const": "pnpm_lock" },
+        { "const": "poetry_lock" },
+        { "const": "pyproject_toml" },
+        { "const": "requirements" },
+        { "const": "yarn_1" },
+        { "const": "yarn_2" },
+        { "const": "pomtree" },
+        { "const": "cargo" },
+        { "const": "composer_lock" }
+      ]
+    },
+    "dependency_parser_error": {
+      "type": "object",
+      "required": [ "path", "parser", "reason" ],
+      "properties": {
+        "path": { "type": "string" },
+        "parser": { "$ref": "#/definitions/sca_parser_name" },
+        "reason": { "type": "string" },
+        "line": { "type": "integer" },
+        "col": { "type": "integer" },
+        "text": { "type": "string" }
+      }
+    },
     "ci_scan_results": {
       "type": "object",
       "required": [
@@ -719,6 +751,67 @@
         "searched_paths": { "type": "array", "items": { "type": "string" } },
         "renamed_paths": { "type": "array", "items": { "type": "string" } },
         "rule_ids": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "parsing_stats": {
+      "type": "object",
+      "required": [
+        "targets_parsed", "num_targets", "bytes_parsed", "num_bytes"
+      ],
+      "properties": {
+        "targets_parsed": { "type": "integer" },
+        "num_targets": { "type": "integer" },
+        "bytes_parsed": { "type": "integer" },
+        "num_bytes": { "type": "integer" }
+      }
+    },
+    "ci_scan_complete_stats": {
+      "type": "object",
+      "required": [
+        "findings", "errors", "total_time", "unsupported_exts",
+        "lockfile_scan_info", "parse_rate"
+      ],
+      "properties": {
+        "findings": { "type": "integer" },
+        "errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/cli_error" }
+        },
+        "total_time": { "type": "number" },
+        "unsupported_exts": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        },
+        "lockfile_scan_info": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        },
+        "parse_rate": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/parsing_stats" }
+        },
+        "engine_requested": { "type": "string" }
+      }
+    },
+    "ci_scan_dependencies": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "$ref": "#/definitions/found_dependency" }
+      }
+    },
+    "ci_scan_complete": {
+      "type": "object",
+      "required": [ "exit_code", "stats" ],
+      "properties": {
+        "exit_code": { "type": "integer" },
+        "stats": { "$ref": "#/definitions/ci_scan_complete_stats" },
+        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" },
+        "dependency_parser_errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/dependency_parser_error" }
+        },
+        "task_id": { "type": "string" }
       }
     },
     "finding_hashes": {
