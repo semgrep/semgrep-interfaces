@@ -464,7 +464,6 @@ type core_match_results
   (* since semgrep 0.109? *)
   ?explanations: matching_explanation list option;
 
-
   stats: core_stats;
   (* LATER: rename timing *)
   ?time: core_timing option;
@@ -713,6 +712,24 @@ type cli_timing <ocaml attr="deriving show"> = {
     ?max_memory_bytes : int option;
   }
 
+(* 
+ * https://semgrep.dev/docs/usage-limits
+ *)
+type contributor <ocaml attr="deriving show"> = {
+    commit_author_name: string;
+    commit_author_email: string;
+}
+
+type contribution <ocaml attr="deriving show"> = {
+    commit_hash: string;
+    commit_timestamp: string;
+    contributor: contributor;
+}
+
+type contributions <ocaml attr="deriving show"> = {
+    contributions: contribution list;
+}
+
 (* LATER: should just use rule_id *)
 type rule_id_dict <ocaml attr="deriving show"> = {
   id: rule_id;
@@ -816,6 +833,8 @@ type ci_scan_results <ocaml attr="deriving show"> = {
    searched_paths: string list;
    renamed_paths: string list;
    rule_ids: string list;
+   (* since semgrep 1.34.0 *)
+   ?contributions: contributions option;
 }
 
 

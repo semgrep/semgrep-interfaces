@@ -327,6 +327,21 @@ export type CliTiming = {
   max_memory_bytes?: number /*int*/;
 }
 
+export type Contributor = {
+  commit_author_name: string;
+  commit_author_email: string;
+}
+
+export type Contribution = {
+  commit_hash: string;
+  commit_timestamp: string;
+  contributor: Contributor;
+}
+
+export type Contributions = {
+  contributions: Contribution[];
+}
+
 export type RuleIdDict = {
   id: RuleId;
 }
@@ -389,6 +404,7 @@ export type CiScanResults = {
   searched_paths: string[];
   renamed_paths: string[];
   rule_ids: string[];
+  contributions?: Contributions;
 }
 
 export type FindingHashes = {
@@ -1390,6 +1406,48 @@ export function readCliTiming(x: any, context: any = x): CliTiming {
   };
 }
 
+export function writeContributor(x: Contributor, context: any = x): any {
+  return {
+    'commit_author_name': _atd_write_required_field('Contributor', 'commit_author_name', _atd_write_string, x.commit_author_name, x),
+    'commit_author_email': _atd_write_required_field('Contributor', 'commit_author_email', _atd_write_string, x.commit_author_email, x),
+  };
+}
+
+export function readContributor(x: any, context: any = x): Contributor {
+  return {
+    commit_author_name: _atd_read_required_field('Contributor', 'commit_author_name', _atd_read_string, x['commit_author_name'], x),
+    commit_author_email: _atd_read_required_field('Contributor', 'commit_author_email', _atd_read_string, x['commit_author_email'], x),
+  };
+}
+
+export function writeContribution(x: Contribution, context: any = x): any {
+  return {
+    'commit_hash': _atd_write_required_field('Contribution', 'commit_hash', _atd_write_string, x.commit_hash, x),
+    'commit_timestamp': _atd_write_required_field('Contribution', 'commit_timestamp', _atd_write_string, x.commit_timestamp, x),
+    'contributor': _atd_write_required_field('Contribution', 'contributor', writeContributor, x.contributor, x),
+  };
+}
+
+export function readContribution(x: any, context: any = x): Contribution {
+  return {
+    commit_hash: _atd_read_required_field('Contribution', 'commit_hash', _atd_read_string, x['commit_hash'], x),
+    commit_timestamp: _atd_read_required_field('Contribution', 'commit_timestamp', _atd_read_string, x['commit_timestamp'], x),
+    contributor: _atd_read_required_field('Contribution', 'contributor', readContributor, x['contributor'], x),
+  };
+}
+
+export function writeContributions(x: Contributions, context: any = x): any {
+  return {
+    'contributions': _atd_write_required_field('Contributions', 'contributions', _atd_write_array(writeContribution), x.contributions, x),
+  };
+}
+
+export function readContributions(x: any, context: any = x): Contributions {
+  return {
+    contributions: _atd_read_required_field('Contributions', 'contributions', _atd_read_array(readContribution), x['contributions'], x),
+  };
+}
+
 export function writeRuleIdDict(x: RuleIdDict, context: any = x): any {
   return {
     'id': _atd_write_required_field('RuleIdDict', 'id', writeRuleId, x.id, x),
@@ -1570,6 +1628,7 @@ export function writeCiScanResults(x: CiScanResults, context: any = x): any {
     'searched_paths': _atd_write_required_field('CiScanResults', 'searched_paths', _atd_write_array(_atd_write_string), x.searched_paths, x),
     'renamed_paths': _atd_write_required_field('CiScanResults', 'renamed_paths', _atd_write_array(_atd_write_string), x.renamed_paths, x),
     'rule_ids': _atd_write_required_field('CiScanResults', 'rule_ids', _atd_write_array(_atd_write_string), x.rule_ids, x),
+    'contributions': _atd_write_optional_field(writeContributions, x.contributions, x),
   };
 }
 
@@ -1581,6 +1640,7 @@ export function readCiScanResults(x: any, context: any = x): CiScanResults {
     searched_paths: _atd_read_required_field('CiScanResults', 'searched_paths', _atd_read_array(_atd_read_string), x['searched_paths'], x),
     renamed_paths: _atd_read_required_field('CiScanResults', 'renamed_paths', _atd_read_array(_atd_read_string), x['renamed_paths'], x),
     rule_ids: _atd_read_required_field('CiScanResults', 'rule_ids', _atd_read_array(_atd_read_string), x['rule_ids'], x),
+    contributions: _atd_read_optional_field(readContributions, x['contributions'], x),
   };
 }
 
