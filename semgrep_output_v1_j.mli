@@ -340,6 +340,19 @@ type core_match_results = Semgrep_output_v1_t.core_match_results = {
 }
   [@@deriving show]
 
+type contribution = Semgrep_output_v1_t.contribution = {
+  commit_hash: string;
+  commit_timestamp: string;
+  commit_author_name: string;
+  commit_author_email: string
+}
+  [@@deriving show]
+
+type contributions = Semgrep_output_v1_t.contributions = {
+  contributions: contribution list
+}
+  [@@deriving show]
+
 type cli_target_times = Semgrep_output_v1_t.cli_target_times = {
   path: fpath;
   num_bytes: int;
@@ -446,7 +459,8 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   token: string option;
   searched_paths: string list;
   renamed_paths: string list;
-  rule_ids: string list
+  rule_ids: string list;
+  contributions: contributions option
 }
   [@@deriving show]
 
@@ -1369,6 +1383,46 @@ val read_core_match_results :
 val core_match_results_of_string :
   string -> core_match_results
   (** Deserialize JSON data of type {!type:core_match_results}. *)
+
+val write_contribution :
+  Buffer.t -> contribution -> unit
+  (** Output a JSON value of type {!type:contribution}. *)
+
+val string_of_contribution :
+  ?len:int -> contribution -> string
+  (** Serialize a value of type {!type:contribution}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_contribution :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> contribution
+  (** Input JSON data of type {!type:contribution}. *)
+
+val contribution_of_string :
+  string -> contribution
+  (** Deserialize JSON data of type {!type:contribution}. *)
+
+val write_contributions :
+  Buffer.t -> contributions -> unit
+  (** Output a JSON value of type {!type:contributions}. *)
+
+val string_of_contributions :
+  ?len:int -> contributions -> string
+  (** Serialize a value of type {!type:contributions}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_contributions :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> contributions
+  (** Input JSON data of type {!type:contributions}. *)
+
+val contributions_of_string :
+  string -> contributions
+  (** Deserialize JSON data of type {!type:contributions}. *)
 
 val write_cli_target_times :
   Buffer.t -> cli_target_times -> unit

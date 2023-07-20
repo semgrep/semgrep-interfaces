@@ -612,6 +612,29 @@
         "max_memory_bytes": { "type": "integer" }
       }
     },
+    "contribution": {
+      "type": "object",
+      "required": [
+        "commit_hash", "commit_timestamp", "commit_author_name",
+        "commit_author_email"
+      ],
+      "properties": {
+        "commit_hash": { "type": "string" },
+        "commit_timestamp": { "type": "string" },
+        "commit_author_name": { "type": "string" },
+        "commit_author_email": { "type": "string" }
+      }
+    },
+    "contributions": {
+      "type": "object",
+      "required": [ "contributions" ],
+      "properties": {
+        "contributions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/contribution" }
+        }
+      }
+    },
     "rule_id_dict": {
       "type": "object",
       "required": [ "id" ],
@@ -718,7 +741,8 @@
         "token": { "type": [ "string", "null" ] },
         "searched_paths": { "type": "array", "items": { "type": "string" } },
         "renamed_paths": { "type": "array", "items": { "type": "string" } },
-        "rule_ids": { "type": "array", "items": { "type": "string" } }
+        "rule_ids": { "type": "array", "items": { "type": "string" } },
+        "contributions": { "$ref": "#/definitions/contributions" }
       }
     },
     "finding_hashes": {

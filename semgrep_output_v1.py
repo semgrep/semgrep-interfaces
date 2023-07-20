@@ -2979,6 +2979,71 @@ class CoreMatchResults:
 
 
 @dataclass
+class Contribution:
+    """Original type: contribution = { ... }"""
+
+    commit_hash: str
+    commit_timestamp: str
+    commit_author_name: str
+    commit_author_email: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Contribution':
+        if isinstance(x, dict):
+            return cls(
+                commit_hash=_atd_read_string(x['commit_hash']) if 'commit_hash' in x else _atd_missing_json_field('Contribution', 'commit_hash'),
+                commit_timestamp=_atd_read_string(x['commit_timestamp']) if 'commit_timestamp' in x else _atd_missing_json_field('Contribution', 'commit_timestamp'),
+                commit_author_name=_atd_read_string(x['commit_author_name']) if 'commit_author_name' in x else _atd_missing_json_field('Contribution', 'commit_author_name'),
+                commit_author_email=_atd_read_string(x['commit_author_email']) if 'commit_author_email' in x else _atd_missing_json_field('Contribution', 'commit_author_email'),
+            )
+        else:
+            _atd_bad_json('Contribution', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['commit_hash'] = _atd_write_string(self.commit_hash)
+        res['commit_timestamp'] = _atd_write_string(self.commit_timestamp)
+        res['commit_author_name'] = _atd_write_string(self.commit_author_name)
+        res['commit_author_email'] = _atd_write_string(self.commit_author_email)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Contribution':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Contributions:
+    """Original type: contributions = { ... }"""
+
+    contributions: List[Contribution]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Contributions':
+        if isinstance(x, dict):
+            return cls(
+                contributions=_atd_read_list(Contribution.from_json)(x['contributions']) if 'contributions' in x else _atd_missing_json_field('Contributions', 'contributions'),
+            )
+        else:
+            _atd_bad_json('Contributions', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['contributions'] = _atd_write_list((lambda x: x.to_json()))(self.contributions)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Contributions':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class CliTargetTimes:
     """Original type: cli_target_times = { ... }"""
 
@@ -3446,6 +3511,7 @@ class CiScanResults:
     searched_paths: List[str]
     renamed_paths: List[str]
     rule_ids: List[str]
+    contributions: Optional[Contributions] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanResults':
@@ -3457,6 +3523,7 @@ class CiScanResults:
                 searched_paths=_atd_read_list(_atd_read_string)(x['searched_paths']) if 'searched_paths' in x else _atd_missing_json_field('CiScanResults', 'searched_paths'),
                 renamed_paths=_atd_read_list(_atd_read_string)(x['renamed_paths']) if 'renamed_paths' in x else _atd_missing_json_field('CiScanResults', 'renamed_paths'),
                 rule_ids=_atd_read_list(_atd_read_string)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('CiScanResults', 'rule_ids'),
+                contributions=Contributions.from_json(x['contributions']) if 'contributions' in x else None,
             )
         else:
             _atd_bad_json('CiScanResults', x)
@@ -3469,6 +3536,8 @@ class CiScanResults:
         res['searched_paths'] = _atd_write_list(_atd_write_string)(self.searched_paths)
         res['renamed_paths'] = _atd_write_list(_atd_write_string)(self.renamed_paths)
         res['rule_ids'] = _atd_write_list(_atd_write_string)(self.rule_ids)
+        if self.contributions is not None:
+            res['contributions'] = (lambda x: x.to_json())(self.contributions)
         return res
 
     @classmethod
