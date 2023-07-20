@@ -166,7 +166,7 @@ type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
 }
   [@@deriving show]
 
-type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
+type sca_parser_name = Semgrep_output_v1_t.sca_parser_name [@@deriving show]
 
 type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show]
 
@@ -288,6 +288,7 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
   position: position option;
   text: string option
 }
+  [@@deriving show]
 
 type cve_result = Semgrep_output_v1_t.cve_result = {
   url: string;
