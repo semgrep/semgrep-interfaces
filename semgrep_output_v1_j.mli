@@ -353,10 +353,7 @@ type contribution = Semgrep_output_v1_t.contribution = {
 }
   [@@deriving show]
 
-type contributions = Semgrep_output_v1_t.contributions = {
-  contributions: contribution list
-}
-  [@@deriving show]
+type contributions = Semgrep_output_v1_t.contributions [@@deriving show]
 
 type cli_target_times = Semgrep_output_v1_t.cli_target_times = {
   path: fpath;

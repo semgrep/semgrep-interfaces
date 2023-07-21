@@ -353,10 +353,7 @@ type contribution = Semgrep_output_v1_t.contribution = {
 }
   [@@deriving show]
 
-type contributions = Semgrep_output_v1_t.contributions = {
-  contributions: contribution list
-}
-  [@@deriving show]
+type contributions = Semgrep_output_v1_t.contributions [@@deriving show]
 
 type cli_target_times = Semgrep_output_v1_t.cli_target_times = {
   path: fpath;
@@ -11702,101 +11699,15 @@ let read__contribution_list = (
 )
 let _contribution_list_of_string s =
   read__contribution_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_contributions : _ -> contributions -> _ = (
-  fun ob (x : contributions) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"contributions\":";
-    (
-      write__contribution_list
-    )
-      ob x.contributions;
-    Buffer.add_char ob '}';
+let write_contributions = (
+  write__contribution_list
 )
 let string_of_contributions ?(len = 1024) x =
   let ob = Buffer.create len in
   write_contributions ob x;
   Buffer.contents ob
 let read_contributions = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_contributions = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          if len = 13 && String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 's' then (
-            0
-          )
-          else (
-            -1
-          )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_contributions := (
-              Some (
-                (
-                  read__contribution_list
-                ) p lb
-              )
-            );
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            if len = 13 && String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 's' then (
-              0
-            )
-            else (
-              -1
-            )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_contributions := (
-                Some (
-                  (
-                    read__contribution_list
-                  ) p lb
-                )
-              );
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            contributions = (match !field_contributions with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "contributions");
-          }
-         : contributions)
-      )
+  read__contribution_list
 )
 let contributions_of_string s =
   read_contributions (Yojson.Safe.init_lexer ()) (Lexing.from_string s)

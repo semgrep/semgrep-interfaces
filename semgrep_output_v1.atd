@@ -726,9 +726,8 @@ type contribution <ocaml attr="deriving show"> = {
     contributor: contributor;
 }
 
-type contributions <ocaml attr="deriving show"> = {
-    contributions: contribution list;
-}
+type contributions
+  <ocaml attr="deriving show"> = contribution list
 
 (* LATER: should just use rule_id *)
 type rule_id_dict <ocaml attr="deriving show"> = {
