@@ -630,14 +630,8 @@
       }
     },
     "contributions": {
-      "type": "object",
-      "required": [ "contributions" ],
-      "properties": {
-        "contributions": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/contribution" }
-        }
-      }
+      "type": "array",
+      "items": { "$ref": "#/definitions/contribution" }
     },
     "rule_id_dict": {
       "type": "object",

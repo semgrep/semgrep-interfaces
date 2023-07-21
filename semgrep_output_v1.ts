@@ -338,9 +338,7 @@ export type Contribution = {
   contributor: Contributor;
 }
 
-export type Contributions = {
-  contributions: Contribution[];
-}
+export type Contributions = Contribution[]
 
 export type RuleIdDict = {
   id: RuleId;
@@ -1437,15 +1435,11 @@ export function readContribution(x: any, context: any = x): Contribution {
 }
 
 export function writeContributions(x: Contributions, context: any = x): any {
-  return {
-    'contributions': _atd_write_required_field('Contributions', 'contributions', _atd_write_array(writeContribution), x.contributions, x),
-  };
+  return _atd_write_array(writeContribution)(x, context);
 }
 
 export function readContributions(x: any, context: any = x): Contributions {
-  return {
-    contributions: _atd_read_required_field('Contributions', 'contributions', _atd_read_array(readContribution), x['contributions'], x),
-  };
+  return _atd_read_array(readContribution)(x, context);
 }
 
 export function writeRuleIdDict(x: RuleIdDict, context: any = x): any {

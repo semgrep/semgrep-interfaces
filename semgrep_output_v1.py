@@ -3045,23 +3045,16 @@ class Contribution:
 
 @dataclass
 class Contributions:
-    """Original type: contributions = { ... }"""
+    """Original type: contributions"""
 
-    contributions: List[Contribution]
+    value: List[Contribution]
 
     @classmethod
     def from_json(cls, x: Any) -> 'Contributions':
-        if isinstance(x, dict):
-            return cls(
-                contributions=_atd_read_list(Contribution.from_json)(x['contributions']) if 'contributions' in x else _atd_missing_json_field('Contributions', 'contributions'),
-            )
-        else:
-            _atd_bad_json('Contributions', x)
+        return cls(_atd_read_list(Contribution.from_json)(x))
 
     def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['contributions'] = _atd_write_list((lambda x: x.to_json()))(self.contributions)
-        return res
+        return _atd_write_list((lambda x: x.to_json()))(self.value)
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Contributions':
