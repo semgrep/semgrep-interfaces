@@ -452,7 +452,7 @@
     "keys": [
       "promql"
     ],
-    "maturity": "develop",
+    "maturity": "alpha",
     "exts": [
       ".promql"
     ],

@@ -422,7 +422,7 @@ not ambiguous is welcome here.
         name="Prometheus Query Language",
         keys=["promql"],
         exts=[".promql"],
-        maturity=Maturity.DEVELOP,
+        maturity=Maturity.ALPHA,
     ),
     Language(
         comment="",
