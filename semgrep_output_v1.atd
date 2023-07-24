@@ -804,6 +804,11 @@ type dependency_pattern <ocaml attr="deriving show"> = {
   semver_range: string;
 }
 
+type child <ocaml attr="deriving show"> = {
+  package: string;
+  version: string;
+}
+
 type found_dependency <ocaml attr="deriving show"> = {
   package: string;
   version: string;
@@ -815,6 +820,7 @@ type found_dependency <ocaml attr="deriving show"> = {
   ?resolved_url: string option;
   transitivity: transitivity;
   ?line_number: int option;
+  ?children: child list option;
 }
 
 (*****************************************************************************)

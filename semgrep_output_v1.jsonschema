@@ -700,6 +700,14 @@
         "semver_range": { "type": "string" }
       }
     },
+    "child": {
+      "type": "object",
+      "required": [ "package", "version" ],
+      "properties": {
+        "package": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
     "found_dependency": {
       "type": "object",
       "required": [
@@ -718,7 +726,11 @@
         },
         "resolved_url": { "type": "string" },
         "transitivity": { "$ref": "#/definitions/transitivity" },
-        "line_number": { "type": "integer" }
+        "line_number": { "type": "integer" },
+        "children": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/child" }
+        }
       }
     },
     "ci_scan_results": {
