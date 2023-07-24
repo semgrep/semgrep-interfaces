@@ -722,14 +722,14 @@
     },
     "dependency_parser_error": {
       "type": "object",
-      "required": [ "path", "parser", "reason", "line", "col", "text" ],
+      "required": [ "path", "parser", "reason" ],
       "properties": {
         "path": { "type": "string" },
         "parser": { "$ref": "#/definitions/sca_parser_name" },
         "reason": { "type": "string" },
-        "line": { "type": [ "integer", "null" ] },
-        "col": { "type": [ "integer", "null" ] },
-        "text": { "type": [ "string", "null" ] }
+        "line": { "type": "integer" },
+        "col": { "type": "integer" },
+        "text": { "type": "string" }
       }
     },
     "ci_scan_results": {

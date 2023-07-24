@@ -2726,9 +2726,9 @@ class DependencyParserError:
     path: str
     parser: ScaParserName
     reason: str
-    line: Optional[int]
-    col: Optional[int]
-    text: Optional[str]
+    line: Optional[int] = None
+    col: Optional[int] = None
+    text: Optional[str] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'DependencyParserError':
@@ -2737,9 +2737,9 @@ class DependencyParserError:
                 path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('DependencyParserError', 'path'),
                 parser=ScaParserName.from_json(x['parser']) if 'parser' in x else _atd_missing_json_field('DependencyParserError', 'parser'),
                 reason=_atd_read_string(x['reason']) if 'reason' in x else _atd_missing_json_field('DependencyParserError', 'reason'),
-                line=_atd_read_nullable(_atd_read_int)(x['line']) if 'line' in x else _atd_missing_json_field('DependencyParserError', 'line'),
-                col=_atd_read_nullable(_atd_read_int)(x['col']) if 'col' in x else _atd_missing_json_field('DependencyParserError', 'col'),
-                text=_atd_read_nullable(_atd_read_string)(x['text']) if 'text' in x else _atd_missing_json_field('DependencyParserError', 'text'),
+                line=_atd_read_int(x['line']) if 'line' in x else None,
+                col=_atd_read_int(x['col']) if 'col' in x else None,
+                text=_atd_read_string(x['text']) if 'text' in x else None,
             )
         else:
             _atd_bad_json('DependencyParserError', x)
@@ -2749,9 +2749,12 @@ class DependencyParserError:
         res['path'] = _atd_write_string(self.path)
         res['parser'] = (lambda x: x.to_json())(self.parser)
         res['reason'] = _atd_write_string(self.reason)
-        res['line'] = _atd_write_nullable(_atd_write_int)(self.line)
-        res['col'] = _atd_write_nullable(_atd_write_int)(self.col)
-        res['text'] = _atd_write_nullable(_atd_write_string)(self.text)
+        if self.line is not None:
+            res['line'] = _atd_write_int(self.line)
+        if self.col is not None:
+            res['col'] = _atd_write_int(self.col)
+        if self.text is not None:
+            res['text'] = _atd_write_string(self.text)
         return res
 
     @classmethod

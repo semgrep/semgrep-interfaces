@@ -404,9 +404,9 @@ export type DependencyParserError = {
   path: string;
   parser: ScaParserName;
   reason: string;
-  line: (number /*int*/ | null);
-  col: (number /*int*/ | null);
-  text: (string | null);
+  line?: number /*int*/;
+  col?: number /*int*/;
+  text?: string;
 }
 
 export type CiScanResults = {
@@ -1698,9 +1698,9 @@ export function writeDependencyParserError(x: DependencyParserError, context: an
     'path': _atd_write_required_field('DependencyParserError', 'path', _atd_write_string, x.path, x),
     'parser': _atd_write_required_field('DependencyParserError', 'parser', writeScaParserName, x.parser, x),
     'reason': _atd_write_required_field('DependencyParserError', 'reason', _atd_write_string, x.reason, x),
-    'line': _atd_write_required_field('DependencyParserError', 'line', _atd_write_nullable(_atd_write_int), x.line, x),
-    'col': _atd_write_required_field('DependencyParserError', 'col', _atd_write_nullable(_atd_write_int), x.col, x),
-    'text': _atd_write_required_field('DependencyParserError', 'text', _atd_write_nullable(_atd_write_string), x.text, x),
+    'line': _atd_write_optional_field(_atd_write_int, x.line, x),
+    'col': _atd_write_optional_field(_atd_write_int, x.col, x),
+    'text': _atd_write_optional_field(_atd_write_string, x.text, x),
   };
 }
 
@@ -1709,9 +1709,9 @@ export function readDependencyParserError(x: any, context: any = x): DependencyP
     path: _atd_read_required_field('DependencyParserError', 'path', _atd_read_string, x['path'], x),
     parser: _atd_read_required_field('DependencyParserError', 'parser', readScaParserName, x['parser'], x),
     reason: _atd_read_required_field('DependencyParserError', 'reason', _atd_read_string, x['reason'], x),
-    line: _atd_read_required_field('DependencyParserError', 'line', _atd_read_nullable(_atd_read_int), x['line'], x),
-    col: _atd_read_required_field('DependencyParserError', 'col', _atd_read_nullable(_atd_read_int), x['col'], x),
-    text: _atd_read_required_field('DependencyParserError', 'text', _atd_read_nullable(_atd_read_string), x['text'], x),
+    line: _atd_read_optional_field(_atd_read_int, x['line'], x),
+    col: _atd_read_optional_field(_atd_read_int, x['col'], x),
+    text: _atd_read_optional_field(_atd_read_string, x['text'], x),
   };
 }
 

@@ -9615,44 +9615,6 @@ let read_error_span = (
 )
 let error_span_of_string s =
   read_error_span (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__string_nullable = (
-  Atdgen_runtime.Oj_run.write_nullable (
-    Yojson.Safe.write_string
-  )
-)
-let string_of__string_nullable ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__string_nullable ob x;
-  Buffer.contents ob
-let read__string_nullable = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    (if Yojson.Safe.read_null_if_possible p lb then None
-    else Some ((
-      Atdgen_runtime.Oj_run.read_string
-    ) p lb) : _ option)
-)
-let _string_nullable_of_string s =
-  read__string_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__int_nullable = (
-  Atdgen_runtime.Oj_run.write_nullable (
-    Yojson.Safe.write_int
-  )
-)
-let string_of__int_nullable ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__int_nullable ob x;
-  Buffer.contents ob
-let read__int_nullable = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    (if Yojson.Safe.read_null_if_possible p lb then None
-    else Some ((
-      Atdgen_runtime.Oj_run.read_int
-    ) p lb) : _ option)
-)
-let _int_nullable_of_string s =
-  read__int_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_dependency_parser_error : _ -> dependency_parser_error -> _ = (
   fun ob (x : dependency_parser_error) ->
     Buffer.add_char ob '{';
@@ -9684,33 +9646,39 @@ let write_dependency_parser_error : _ -> dependency_parser_error -> _ = (
       Yojson.Safe.write_string
     )
       ob x.reason;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"line\":";
-    (
-      write__int_nullable
-    )
-      ob x.line;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"col\":";
-    (
-      write__int_nullable
-    )
-      ob x.col;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"text\":";
-    (
-      write__string_nullable
-    )
-      ob x.text;
+    (match x.line with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"line\":";
+      (
+        Yojson.Safe.write_int
+      )
+        ob x;
+    );
+    (match x.col with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"col\":";
+      (
+        Yojson.Safe.write_int
+      )
+        ob x;
+    );
+    (match x.text with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"text\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_dependency_parser_error ?(len = 1024) x =
@@ -9829,29 +9797,35 @@ let read_dependency_parser_error = (
               )
             );
           | 3 ->
-            field_line := (
-              Some (
-                (
-                  read__int_nullable
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_line := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_int
+                  ) p lb
+                )
+              );
+            )
           | 4 ->
-            field_col := (
-              Some (
-                (
-                  read__int_nullable
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_col := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_int
+                  ) p lb
+                )
+              );
+            )
           | 5 ->
-            field_text := (
-              Some (
-                (
-                  read__string_nullable
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_text := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -9958,29 +9932,35 @@ let read_dependency_parser_error = (
                 )
               );
             | 3 ->
-              field_line := (
-                Some (
-                  (
-                    read__int_nullable
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_line := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_int
+                    ) p lb
+                  )
+                );
+              )
             | 4 ->
-              field_col := (
-                Some (
-                  (
-                    read__int_nullable
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_col := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_int
+                    ) p lb
+                  )
+                );
+              )
             | 5 ->
-              field_text := (
-                Some (
-                  (
-                    read__string_nullable
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_text := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -9993,9 +9973,9 @@ let read_dependency_parser_error = (
             path = (match !field_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "path");
             parser = (match !field_parser with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "parser");
             reason = (match !field_reason with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "reason");
-            line = (match !field_line with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "line");
-            col = (match !field_col with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "col");
-            text = (match !field_text with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "text");
+            line = !field_line;
+            col = !field_col;
+            text = !field_text;
           }
          : dependency_parser_error)
       )
@@ -16426,6 +16406,25 @@ let read_cli_match_taint_source = (
 )
 let cli_match_taint_source_of_string s =
   read_cli_match_taint_source (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__string_nullable = (
+  Atdgen_runtime.Oj_run.write_nullable (
+    Yojson.Safe.write_string
+  )
+)
+let string_of__string_nullable ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__string_nullable ob x;
+  Buffer.contents ob
+let read__string_nullable = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    (if Yojson.Safe.read_null_if_possible p lb then None
+    else Some ((
+      Atdgen_runtime.Oj_run.read_string
+    ) p lb) : _ option)
+)
+let _string_nullable_of_string s =
+  read__string_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__finding_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_finding

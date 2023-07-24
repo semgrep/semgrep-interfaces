@@ -829,9 +829,9 @@ type dependency_parser_error <ocaml attr="deriving show"> = {
   parser: sca_parser_name;
   reason: string;
   (* Not using `position` because this type must be backwards compatible with the python class it is replacing *)
-  line: int nullable;
-  col: int nullable;
-  text: string nullable;
+  ?line: int option;
+  ?col: int option;
+  ?text: string option;
 }
 
 
