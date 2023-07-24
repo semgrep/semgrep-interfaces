@@ -168,7 +168,10 @@ type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
 
 type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show]
 
-type child = Semgrep_output_v1_t.child = { package: string; version: string }
+type dependency_child = Semgrep_output_v1_t.dependency_child = {
+  package: string;
+  version: string
+}
   [@@deriving show]
 
 type found_dependency = Semgrep_output_v1_t.found_dependency = {
@@ -179,7 +182,7 @@ type found_dependency = Semgrep_output_v1_t.found_dependency = {
   resolved_url: string option;
   transitivity: transitivity;
   line_number: int option;
-  children: child list option
+  children: dependency_child list option
 }
   [@@deriving show]
 
@@ -5137,8 +5140,8 @@ let read_ecosystem = (
 )
 let ecosystem_of_string s =
   read_ecosystem (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_child : _ -> child -> _ = (
-  fun ob (x : child) ->
+let write_dependency_child : _ -> dependency_child -> _ = (
+  fun ob (x : dependency_child) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
     if !is_first then
@@ -5161,11 +5164,11 @@ let write_child : _ -> child -> _ = (
       ob x.version;
     Buffer.add_char ob '}';
 )
-let string_of_child ?(len = 1024) x =
+let string_of_dependency_child ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_child ob x;
+  write_dependency_child ob x;
   Buffer.contents ob
-let read_child = (
+let read_dependency_child = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
@@ -5295,11 +5298,11 @@ let read_child = (
             package = (match !field_package with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "package");
             version = (match !field_version with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "version");
           }
-         : child)
+         : dependency_child)
       )
 )
-let child_of_string s =
-  read_child (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let dependency_child_of_string s =
+  read_dependency_child (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__string_list = (
   Atdgen_runtime.Oj_run.write_list (
     Yojson.Safe.write_string
@@ -5393,32 +5396,32 @@ let read__int_option = (
 )
 let _int_option_of_string s =
   read__int_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__child_list = (
+let write__dependency_child_list = (
   Atdgen_runtime.Oj_run.write_list (
-    write_child
+    write_dependency_child
   )
 )
-let string_of__child_list ?(len = 1024) x =
+let string_of__dependency_child_list ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__child_list ob x;
+  write__dependency_child_list ob x;
   Buffer.contents ob
-let read__child_list = (
+let read__dependency_child_list = (
   Atdgen_runtime.Oj_run.read_list (
-    read_child
+    read_dependency_child
   )
 )
-let _child_list_of_string s =
-  read__child_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__child_list_option = (
+let _dependency_child_list_of_string s =
+  read__dependency_child_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__dependency_child_list_option = (
   Atdgen_runtime.Oj_run.write_std_option (
-    write__child_list
+    write__dependency_child_list
   )
 )
-let string_of__child_list_option ?(len = 1024) x =
+let string_of__dependency_child_list_option ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__child_list_option ob x;
+  write__dependency_child_list_option ob x;
   Buffer.contents ob
-let read__child_list_option = (
+let read__dependency_child_list_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     match Yojson.Safe.start_any_variant p lb with
@@ -5431,7 +5434,7 @@ let read__child_list_option = (
             | "Some" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read__child_list
+                  read__dependency_child_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -5454,7 +5457,7 @@ let read__child_list_option = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read__child_list
+                  read__dependency_child_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -5464,8 +5467,8 @@ let read__child_list_option = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-let _child_list_option_of_string s =
-  read__child_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _dependency_child_list_option_of_string s =
+  read__dependency_child_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_found_dependency : _ -> found_dependency -> _ = (
   fun ob (x : found_dependency) ->
     Buffer.add_char ob '{';
@@ -5544,7 +5547,7 @@ let write_found_dependency : _ -> found_dependency -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"children\":";
       (
-        write__child_list
+        write__dependency_child_list
       )
         ob x;
     );
@@ -5724,7 +5727,7 @@ let read_found_dependency = (
               field_children := (
                 Some (
                   (
-                    read__child_list
+                    read__dependency_child_list
                   ) p lb
                 )
               );
@@ -5891,7 +5894,7 @@ let read_found_dependency = (
                 field_children := (
                   Some (
                     (
-                      read__child_list
+                      read__dependency_child_list
                     ) p lb
                   )
                 );

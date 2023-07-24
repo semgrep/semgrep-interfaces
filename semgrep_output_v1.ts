@@ -385,7 +385,7 @@ export type DependencyPattern = {
   semver_range: string;
 }
 
-export type Child = {
+export type DependencyChild = {
   package_: string;
   version: string;
 }
@@ -398,7 +398,7 @@ export type FoundDependency = {
   resolved_url?: string;
   transitivity: Transitivity;
   line_number?: number /*int*/;
-  children?: Child[];
+  children?: DependencyChild[];
 }
 
 export type CiScanResults = {
@@ -1596,17 +1596,17 @@ export function readDependencyPattern(x: any, context: any = x): DependencyPatte
   };
 }
 
-export function writeChild(x: Child, context: any = x): any {
+export function writeDependencyChild(x: DependencyChild, context: any = x): any {
   return {
-    'package': _atd_write_required_field('Child', 'package', _atd_write_string, x.package_, x),
-    'version': _atd_write_required_field('Child', 'version', _atd_write_string, x.version, x),
+    'package': _atd_write_required_field('DependencyChild', 'package', _atd_write_string, x.package_, x),
+    'version': _atd_write_required_field('DependencyChild', 'version', _atd_write_string, x.version, x),
   };
 }
 
-export function readChild(x: any, context: any = x): Child {
+export function readDependencyChild(x: any, context: any = x): DependencyChild {
   return {
-    package_: _atd_read_required_field('Child', 'package', _atd_read_string, x['package'], x),
-    version: _atd_read_required_field('Child', 'version', _atd_read_string, x['version'], x),
+    package_: _atd_read_required_field('DependencyChild', 'package', _atd_read_string, x['package'], x),
+    version: _atd_read_required_field('DependencyChild', 'version', _atd_read_string, x['version'], x),
   };
 }
 
@@ -1619,7 +1619,7 @@ export function writeFoundDependency(x: FoundDependency, context: any = x): any 
     'resolved_url': _atd_write_optional_field(_atd_write_string, x.resolved_url, x),
     'transitivity': _atd_write_required_field('FoundDependency', 'transitivity', writeTransitivity, x.transitivity, x),
     'line_number': _atd_write_optional_field(_atd_write_int, x.line_number, x),
-    'children': _atd_write_optional_field(_atd_write_array(writeChild), x.children, x),
+    'children': _atd_write_optional_field(_atd_write_array(writeDependencyChild), x.children, x),
   };
 }
 
@@ -1632,7 +1632,7 @@ export function readFoundDependency(x: any, context: any = x): FoundDependency {
     resolved_url: _atd_read_optional_field(_atd_read_string, x['resolved_url'], x),
     transitivity: _atd_read_required_field('FoundDependency', 'transitivity', readTransitivity, x['transitivity'], x),
     line_number: _atd_read_optional_field(_atd_read_int, x['line_number'], x),
-    children: _atd_read_optional_field(_atd_read_array(readChild), x['children'], x),
+    children: _atd_read_optional_field(_atd_read_array(readDependencyChild), x['children'], x),
   };
 }
 

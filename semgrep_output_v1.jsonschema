@@ -700,7 +700,7 @@
         "semver_range": { "type": "string" }
       }
     },
-    "child": {
+    "dependency_child": {
       "type": "object",
       "required": [ "package", "version" ],
       "properties": {
@@ -729,7 +729,7 @@
         "line_number": { "type": "integer" },
         "children": {
           "type": "array",
-          "items": { "$ref": "#/definitions/child" }
+          "items": { "$ref": "#/definitions/dependency_child" }
         }
       }
     },

@@ -1867,21 +1867,21 @@ class Ecosystem:
 
 
 @dataclass
-class Child:
-    """Original type: child = { ... }"""
+class DependencyChild:
+    """Original type: dependency_child = { ... }"""
 
     package: str
     version: str
 
     @classmethod
-    def from_json(cls, x: Any) -> 'Child':
+    def from_json(cls, x: Any) -> 'DependencyChild':
         if isinstance(x, dict):
             return cls(
-                package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('Child', 'package'),
-                version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('Child', 'version'),
+                package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('DependencyChild', 'package'),
+                version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('DependencyChild', 'version'),
             )
         else:
-            _atd_bad_json('Child', x)
+            _atd_bad_json('DependencyChild', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
@@ -1890,7 +1890,7 @@ class Child:
         return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'Child':
+    def from_json_string(cls, x: str) -> 'DependencyChild':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1908,7 +1908,7 @@ class FoundDependency:
     transitivity: Transitivity
     resolved_url: Optional[str] = None
     line_number: Optional[int] = None
-    children: Optional[List[Child]] = None
+    children: Optional[List[DependencyChild]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'FoundDependency':
@@ -1921,7 +1921,7 @@ class FoundDependency:
                 transitivity=Transitivity.from_json(x['transitivity']) if 'transitivity' in x else _atd_missing_json_field('FoundDependency', 'transitivity'),
                 resolved_url=_atd_read_string(x['resolved_url']) if 'resolved_url' in x else None,
                 line_number=_atd_read_int(x['line_number']) if 'line_number' in x else None,
-                children=_atd_read_list(Child.from_json)(x['children']) if 'children' in x else None,
+                children=_atd_read_list(DependencyChild.from_json)(x['children']) if 'children' in x else None,
             )
         else:
             _atd_bad_json('FoundDependency', x)
