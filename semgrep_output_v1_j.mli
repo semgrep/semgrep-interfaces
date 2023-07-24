@@ -285,7 +285,8 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
   path: string;
   parser: sca_parser_name;
   reason: string;
-  position: position option;
+  line: int option;
+  col: int option;
   text: string option
 }
   [@@deriving show]

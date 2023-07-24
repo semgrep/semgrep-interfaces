@@ -802,7 +802,7 @@ type found_dependency <ocaml attr="deriving show"> = {
 }
 
 
-
+(* json names are to maintain backwards compatibility with the python enum it is replacing *)
 type sca_parser_name <ocaml attr="deriving show"> = [
   | Gemfile_lock <json name="gemfile_lock">
   | Go_mod <json name="go_mod">
@@ -828,8 +828,10 @@ type dependency_parser_error <ocaml attr="deriving show"> = {
   path: string;
   parser: sca_parser_name;
   reason: string;
-  ?position: position option;
-  ?text: string option;
+  (* Not using `position` because this type must be backwards compatible with the python class it is replacing *)
+  line: int nullable;
+  col: int nullable;
+  text: string nullable;
 }
 
 
