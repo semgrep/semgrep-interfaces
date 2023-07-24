@@ -7,6 +7,26 @@ $schema: http://json-schema.org/draft-07/schema#
 #  comment before!!
 $defs:
   # EXPERIMENTAL
+  postprocessor-patterns-content:
+    type: array
+    minItems: 1
+    items:
+      ref: "#/$defs/general-pattern-content"
+  # EXPERIMENTAL
+  request-content:
+    properties:
+      url:
+        type: string
+      method:
+        type: string
+      headers:
+        type: object
+  # EXPERIMENTAL
+  response-content:
+    properties:
+      return_code:
+        type: string
+  # EXPERIMENTAL
   new-source-pattern:
     $ref: "#/$defs/new-pattern"
     properties:
@@ -713,6 +733,8 @@ properties:
             # EXPERIMENTAL
             - join
             - extract
+            # EXPERIMENTAL
+            - semgrep_internal_postprocessor
         languages:
           $ref: "#/$defs/languages"
         paths:
@@ -745,6 +767,12 @@ properties:
         taint:
           $ref: "#/$defs/new-taint-content"
         # EXPERIMENTAL
+        postprocessor-patterns:
+          $ref: "#/$defs/postprocessor-patterns-content"
+        request:
+          $ref: "#/$defs/request-content"
+        response:
+          $ref: "#/$defs/response-content"
         join:
           $ref: "#/$defs/join-content"
         fix:
@@ -989,3 +1017,32 @@ properties:
               pattern-propagators: false
               pattern-sanitizers: false
               join: false
+        - if:
+            properties:
+              mode:
+                const: semgrep_internal_postprocessor
+            required:
+              - mode
+          then:
+            required:
+              - id
+              - message
+              - severity
+              - postprocessor-patterns
+              - request
+              - response
+            properties:
+              extract: false
+              dest-language: false
+              # EXPERIMENTAL
+              transform: false
+              reduce: false
+              patterns: false
+              pattern: false
+              pattern-either: false
+              pattern-regex: false
+              pattern-sinks: false
+              pattern-sources: false
+              pattern-propagators: false
+              pattern-sanitizers: false
+              match: false
