@@ -482,6 +482,9 @@ type cli_match_taint_source = Semgrep_output_v1_t.cli_match_taint_source = {
 }
   [@@deriving show]
 
+type ci_scan_dependencies = Semgrep_output_v1_t.ci_scan_dependencies
+  [@@deriving show]
+
 type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   findings: finding list;
   ignores: finding list;
@@ -489,11 +492,9 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   searched_paths: string list;
   renamed_paths: string list;
   rule_ids: string list;
-  contributions: contributions option
+  contributions: contributions option;
+  dependencies: ci_scan_dependencies option
 }
-  [@@deriving show]
-
-type ci_scan_dependencies = Semgrep_output_v1_t.ci_scan_dependencies
   [@@deriving show]
 
 type ci_scan_complete_stats = Semgrep_output_v1_t.ci_scan_complete_stats = {
@@ -1777,26 +1778,6 @@ val cli_match_taint_source_of_string :
   string -> cli_match_taint_source
   (** Deserialize JSON data of type {!type:cli_match_taint_source}. *)
 
-val write_ci_scan_results :
-  Buffer.t -> ci_scan_results -> unit
-  (** Output a JSON value of type {!type:ci_scan_results}. *)
-
-val string_of_ci_scan_results :
-  ?len:int -> ci_scan_results -> string
-  (** Serialize a value of type {!type:ci_scan_results}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_ci_scan_results :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_scan_results
-  (** Input JSON data of type {!type:ci_scan_results}. *)
-
-val ci_scan_results_of_string :
-  string -> ci_scan_results
-  (** Deserialize JSON data of type {!type:ci_scan_results}. *)
-
 val write_ci_scan_dependencies :
   Buffer.t -> ci_scan_dependencies -> unit
   (** Output a JSON value of type {!type:ci_scan_dependencies}. *)
@@ -1816,6 +1797,26 @@ val read_ci_scan_dependencies :
 val ci_scan_dependencies_of_string :
   string -> ci_scan_dependencies
   (** Deserialize JSON data of type {!type:ci_scan_dependencies}. *)
+
+val write_ci_scan_results :
+  Buffer.t -> ci_scan_results -> unit
+  (** Output a JSON value of type {!type:ci_scan_results}. *)
+
+val string_of_ci_scan_results :
+  ?len:int -> ci_scan_results -> string
+  (** Serialize a value of type {!type:ci_scan_results}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_ci_scan_results :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_scan_results
+  (** Input JSON data of type {!type:ci_scan_results}. *)
+
+val ci_scan_results_of_string :
+  string -> ci_scan_results
+  (** Deserialize JSON data of type {!type:ci_scan_results}. *)
 
 val write_ci_scan_complete_stats :
   Buffer.t -> ci_scan_complete_stats -> unit
