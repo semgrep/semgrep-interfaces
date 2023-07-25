@@ -401,6 +401,33 @@ export type FoundDependency = {
   children?: DependencyChild[];
 }
 
+export type ScaParserName =
+| { kind: 'Gemfile_lock' /* JSON: "gemfile_lock" */ }
+| { kind: 'Go_mod' /* JSON: "go_mod" */ }
+| { kind: 'Go_sum' /* JSON: "go_sum" */ }
+| { kind: 'Gradle_lockfile' /* JSON: "gradle_lockfile" */ }
+| { kind: 'Gradle_build' /* JSON: "gradle_build" */ }
+| { kind: 'Jsondoc' /* JSON: "jsondoc" */ }
+| { kind: 'Pipfile' /* JSON: "pipfile" */ }
+| { kind: 'Pnpm_lock' /* JSON: "pnpm_lock" */ }
+| { kind: 'Poetry_lock' /* JSON: "poetry_lock" */ }
+| { kind: 'Pyproject_toml' /* JSON: "pyproject_toml" */ }
+| { kind: 'Requirements' /* JSON: "requirements" */ }
+| { kind: 'Yarn_1' /* JSON: "yarn_1" */ }
+| { kind: 'Yarn_2' /* JSON: "yarn_2" */ }
+| { kind: 'Pomtree' /* JSON: "pomtree" */ }
+| { kind: 'Cargo_parser' /* JSON: "cargo" */ }
+| { kind: 'Composer_lock' /* JSON: "composer_lock" */ }
+
+export type DependencyParserError = {
+  path: string;
+  parser: ScaParserName;
+  reason: string;
+  line?: number /*int*/;
+  col?: number /*int*/;
+  text?: string;
+}
+
 export type CiScanResults = {
   findings: Finding[];
   ignores: Finding[];
@@ -409,6 +436,33 @@ export type CiScanResults = {
   renamed_paths: string[];
   rule_ids: string[];
   contributions?: Contributions;
+}
+
+export type ParsingStats = {
+  targets_parsed: number /*int*/;
+  num_targets: number /*int*/;
+  bytes_parsed: number /*int*/;
+  num_bytes: number /*int*/;
+}
+
+export type CiScanCompleteStats = {
+  findings: number /*int*/;
+  errors: CliError[];
+  total_time: number;
+  unsupported_exts: Map<string, number /*int*/>;
+  lockfile_scan_info: Map<string, number /*int*/>;
+  parse_rate: Map<string, ParsingStats>;
+  engine_requested?: string;
+}
+
+export type CiScanDependencies = Map<string, FoundDependency[]>
+
+export type CiScanCompleteResponse = {
+  exit_code: number /*int*/;
+  stats: CiScanCompleteStats;
+  dependencies?: CiScanDependencies;
+  dependency_parser_errors?: DependencyParserError[];
+  task_id?: string;
 }
 
 export type FindingHashes = {
@@ -1636,6 +1690,105 @@ export function readFoundDependency(x: any, context: any = x): FoundDependency {
   };
 }
 
+export function writeScaParserName(x: ScaParserName, context: any = x): any {
+  switch (x.kind) {
+    case 'Gemfile_lock':
+      return 'gemfile_lock'
+    case 'Go_mod':
+      return 'go_mod'
+    case 'Go_sum':
+      return 'go_sum'
+    case 'Gradle_lockfile':
+      return 'gradle_lockfile'
+    case 'Gradle_build':
+      return 'gradle_build'
+    case 'Jsondoc':
+      return 'jsondoc'
+    case 'Pipfile':
+      return 'pipfile'
+    case 'Pnpm_lock':
+      return 'pnpm_lock'
+    case 'Poetry_lock':
+      return 'poetry_lock'
+    case 'Pyproject_toml':
+      return 'pyproject_toml'
+    case 'Requirements':
+      return 'requirements'
+    case 'Yarn_1':
+      return 'yarn_1'
+    case 'Yarn_2':
+      return 'yarn_2'
+    case 'Pomtree':
+      return 'pomtree'
+    case 'Cargo_parser':
+      return 'cargo'
+    case 'Composer_lock':
+      return 'composer_lock'
+  }
+}
+
+export function readScaParserName(x: any, context: any = x): ScaParserName {
+  switch (x) {
+    case 'gemfile_lock':
+      return { kind: 'Gemfile_lock' }
+    case 'go_mod':
+      return { kind: 'Go_mod' }
+    case 'go_sum':
+      return { kind: 'Go_sum' }
+    case 'gradle_lockfile':
+      return { kind: 'Gradle_lockfile' }
+    case 'gradle_build':
+      return { kind: 'Gradle_build' }
+    case 'jsondoc':
+      return { kind: 'Jsondoc' }
+    case 'pipfile':
+      return { kind: 'Pipfile' }
+    case 'pnpm_lock':
+      return { kind: 'Pnpm_lock' }
+    case 'poetry_lock':
+      return { kind: 'Poetry_lock' }
+    case 'pyproject_toml':
+      return { kind: 'Pyproject_toml' }
+    case 'requirements':
+      return { kind: 'Requirements' }
+    case 'yarn_1':
+      return { kind: 'Yarn_1' }
+    case 'yarn_2':
+      return { kind: 'Yarn_2' }
+    case 'pomtree':
+      return { kind: 'Pomtree' }
+    case 'cargo':
+      return { kind: 'Cargo_parser' }
+    case 'composer_lock':
+      return { kind: 'Composer_lock' }
+    default:
+      _atd_bad_json('ScaParserName', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeDependencyParserError(x: DependencyParserError, context: any = x): any {
+  return {
+    'path': _atd_write_required_field('DependencyParserError', 'path', _atd_write_string, x.path, x),
+    'parser': _atd_write_required_field('DependencyParserError', 'parser', writeScaParserName, x.parser, x),
+    'reason': _atd_write_required_field('DependencyParserError', 'reason', _atd_write_string, x.reason, x),
+    'line': _atd_write_optional_field(_atd_write_int, x.line, x),
+    'col': _atd_write_optional_field(_atd_write_int, x.col, x),
+    'text': _atd_write_optional_field(_atd_write_string, x.text, x),
+  };
+}
+
+export function readDependencyParserError(x: any, context: any = x): DependencyParserError {
+  return {
+    path: _atd_read_required_field('DependencyParserError', 'path', _atd_read_string, x['path'], x),
+    parser: _atd_read_required_field('DependencyParserError', 'parser', readScaParserName, x['parser'], x),
+    reason: _atd_read_required_field('DependencyParserError', 'reason', _atd_read_string, x['reason'], x),
+    line: _atd_read_optional_field(_atd_read_int, x['line'], x),
+    col: _atd_read_optional_field(_atd_read_int, x['col'], x),
+    text: _atd_read_optional_field(_atd_read_string, x['text'], x),
+  };
+}
+
 export function writeCiScanResults(x: CiScanResults, context: any = x): any {
   return {
     'findings': _atd_write_required_field('CiScanResults', 'findings', _atd_write_array(writeFinding), x.findings, x),
@@ -1657,6 +1810,76 @@ export function readCiScanResults(x: any, context: any = x): CiScanResults {
     renamed_paths: _atd_read_required_field('CiScanResults', 'renamed_paths', _atd_read_array(_atd_read_string), x['renamed_paths'], x),
     rule_ids: _atd_read_required_field('CiScanResults', 'rule_ids', _atd_read_array(_atd_read_string), x['rule_ids'], x),
     contributions: _atd_read_optional_field(readContributions, x['contributions'], x),
+  };
+}
+
+export function writeParsingStats(x: ParsingStats, context: any = x): any {
+  return {
+    'targets_parsed': _atd_write_required_field('ParsingStats', 'targets_parsed', _atd_write_int, x.targets_parsed, x),
+    'num_targets': _atd_write_required_field('ParsingStats', 'num_targets', _atd_write_int, x.num_targets, x),
+    'bytes_parsed': _atd_write_required_field('ParsingStats', 'bytes_parsed', _atd_write_int, x.bytes_parsed, x),
+    'num_bytes': _atd_write_required_field('ParsingStats', 'num_bytes', _atd_write_int, x.num_bytes, x),
+  };
+}
+
+export function readParsingStats(x: any, context: any = x): ParsingStats {
+  return {
+    targets_parsed: _atd_read_required_field('ParsingStats', 'targets_parsed', _atd_read_int, x['targets_parsed'], x),
+    num_targets: _atd_read_required_field('ParsingStats', 'num_targets', _atd_read_int, x['num_targets'], x),
+    bytes_parsed: _atd_read_required_field('ParsingStats', 'bytes_parsed', _atd_read_int, x['bytes_parsed'], x),
+    num_bytes: _atd_read_required_field('ParsingStats', 'num_bytes', _atd_read_int, x['num_bytes'], x),
+  };
+}
+
+export function writeCiScanCompleteStats(x: CiScanCompleteStats, context: any = x): any {
+  return {
+    'findings': _atd_write_required_field('CiScanCompleteStats', 'findings', _atd_write_int, x.findings, x),
+    'errors': _atd_write_required_field('CiScanCompleteStats', 'errors', _atd_write_array(writeCliError), x.errors, x),
+    'total_time': _atd_write_required_field('CiScanCompleteStats', 'total_time', _atd_write_float, x.total_time, x),
+    'unsupported_exts': _atd_write_required_field('CiScanCompleteStats', 'unsupported_exts', _atd_write_assoc_map_to_object(_atd_write_int), x.unsupported_exts, x),
+    'lockfile_scan_info': _atd_write_required_field('CiScanCompleteStats', 'lockfile_scan_info', _atd_write_assoc_map_to_object(_atd_write_int), x.lockfile_scan_info, x),
+    'parse_rate': _atd_write_required_field('CiScanCompleteStats', 'parse_rate', _atd_write_assoc_map_to_object(writeParsingStats), x.parse_rate, x),
+    'engine_requested': _atd_write_optional_field(_atd_write_string, x.engine_requested, x),
+  };
+}
+
+export function readCiScanCompleteStats(x: any, context: any = x): CiScanCompleteStats {
+  return {
+    findings: _atd_read_required_field('CiScanCompleteStats', 'findings', _atd_read_int, x['findings'], x),
+    errors: _atd_read_required_field('CiScanCompleteStats', 'errors', _atd_read_array(readCliError), x['errors'], x),
+    total_time: _atd_read_required_field('CiScanCompleteStats', 'total_time', _atd_read_float, x['total_time'], x),
+    unsupported_exts: _atd_read_required_field('CiScanCompleteStats', 'unsupported_exts', _atd_read_assoc_object_into_map(_atd_read_int), x['unsupported_exts'], x),
+    lockfile_scan_info: _atd_read_required_field('CiScanCompleteStats', 'lockfile_scan_info', _atd_read_assoc_object_into_map(_atd_read_int), x['lockfile_scan_info'], x),
+    parse_rate: _atd_read_required_field('CiScanCompleteStats', 'parse_rate', _atd_read_assoc_object_into_map(readParsingStats), x['parse_rate'], x),
+    engine_requested: _atd_read_optional_field(_atd_read_string, x['engine_requested'], x),
+  };
+}
+
+export function writeCiScanDependencies(x: CiScanDependencies, context: any = x): any {
+  return _atd_write_assoc_map_to_object(_atd_write_array(writeFoundDependency))(x, context);
+}
+
+export function readCiScanDependencies(x: any, context: any = x): CiScanDependencies {
+  return _atd_read_assoc_object_into_map(_atd_read_array(readFoundDependency))(x, context);
+}
+
+export function writeCiScanCompleteResponse(x: CiScanCompleteResponse, context: any = x): any {
+  return {
+    'exit_code': _atd_write_required_field('CiScanCompleteResponse', 'exit_code', _atd_write_int, x.exit_code, x),
+    'stats': _atd_write_required_field('CiScanCompleteResponse', 'stats', writeCiScanCompleteStats, x.stats, x),
+    'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
+    'dependency_parser_errors': _atd_write_optional_field(_atd_write_array(writeDependencyParserError), x.dependency_parser_errors, x),
+    'task_id': _atd_write_optional_field(_atd_write_string, x.task_id, x),
+  };
+}
+
+export function readCiScanCompleteResponse(x: any, context: any = x): CiScanCompleteResponse {
+  return {
+    exit_code: _atd_read_required_field('CiScanCompleteResponse', 'exit_code', _atd_read_int, x['exit_code'], x),
+    stats: _atd_read_required_field('CiScanCompleteResponse', 'stats', readCiScanCompleteStats, x['stats'], x),
+    dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
+    dependency_parser_errors: _atd_read_optional_field(_atd_read_array(readDependencyParserError), x['dependency_parser_errors'], x),
+    task_id: _atd_read_optional_field(_atd_read_string, x['task_id'], x),
   };
 }
 
