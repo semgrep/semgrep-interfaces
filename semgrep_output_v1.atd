@@ -843,6 +843,7 @@ type dependency_parser_error <ocaml attr="deriving show"> = {
  * EXPERIMENTAL
 *)
 
+(* Sent by the CLI to /findings_and_ignores aka /results *)
 type ci_scan_results <ocaml attr="deriving show"> = {
   (* TODO: ?version: version option; *)
    findings: finding list;
@@ -887,6 +888,7 @@ type ci_scan_dependencies <ocaml attr="deriving show"> =  (string * found_depend
     <python repr="dict">
     <ts repr="map">
 
+(* Seny by the CLI to /complete *)
 type ci_scan_complete_response <ocaml attr="deriving show"> = {
   exit_code: int;
   stats: ci_scan_complete_stats;
