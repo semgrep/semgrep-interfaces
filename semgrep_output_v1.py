@@ -1867,6 +1867,37 @@ class Ecosystem:
 
 
 @dataclass
+class DependencyChild:
+    """Original type: dependency_child = { ... }"""
+
+    package: str
+    version: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencyChild':
+        if isinstance(x, dict):
+            return cls(
+                package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('DependencyChild', 'package'),
+                version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('DependencyChild', 'version'),
+            )
+        else:
+            _atd_bad_json('DependencyChild', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['package'] = _atd_write_string(self.package)
+        res['version'] = _atd_write_string(self.version)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencyChild':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class FoundDependency:
     """Original type: found_dependency = { ... }"""
 
@@ -1877,6 +1908,7 @@ class FoundDependency:
     transitivity: Transitivity
     resolved_url: Optional[str] = None
     line_number: Optional[int] = None
+    children: Optional[List[DependencyChild]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'FoundDependency':
@@ -1889,6 +1921,7 @@ class FoundDependency:
                 transitivity=Transitivity.from_json(x['transitivity']) if 'transitivity' in x else _atd_missing_json_field('FoundDependency', 'transitivity'),
                 resolved_url=_atd_read_string(x['resolved_url']) if 'resolved_url' in x else None,
                 line_number=_atd_read_int(x['line_number']) if 'line_number' in x else None,
+                children=_atd_read_list(DependencyChild.from_json)(x['children']) if 'children' in x else None,
             )
         else:
             _atd_bad_json('FoundDependency', x)
@@ -1904,6 +1937,8 @@ class FoundDependency:
             res['resolved_url'] = _atd_write_string(self.resolved_url)
         if self.line_number is not None:
             res['line_number'] = _atd_write_int(self.line_number)
+        if self.children is not None:
+            res['children'] = _atd_write_list((lambda x: x.to_json()))(self.children)
         return res
 
     @classmethod

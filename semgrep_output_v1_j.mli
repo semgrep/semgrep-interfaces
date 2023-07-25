@@ -168,6 +168,12 @@ type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
 
 type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show]
 
+type dependency_child = Semgrep_output_v1_t.dependency_child = {
+  package: string;
+  version: string
+}
+  [@@deriving show]
+
 type found_dependency = Semgrep_output_v1_t.found_dependency = {
   package: string;
   version: string;
@@ -175,7 +181,8 @@ type found_dependency = Semgrep_output_v1_t.found_dependency = {
   allowed_hashes: (string * string list) list;
   resolved_url: string option;
   transitivity: transitivity;
-  line_number: int option
+  line_number: int option;
+  children: dependency_child list option
 }
   [@@deriving show]
 
@@ -985,6 +992,26 @@ val read_ecosystem :
 val ecosystem_of_string :
   string -> ecosystem
   (** Deserialize JSON data of type {!type:ecosystem}. *)
+
+val write_dependency_child :
+  Buffer.t -> dependency_child -> unit
+  (** Output a JSON value of type {!type:dependency_child}. *)
+
+val string_of_dependency_child :
+  ?len:int -> dependency_child -> string
+  (** Serialize a value of type {!type:dependency_child}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_dependency_child :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_child
+  (** Input JSON data of type {!type:dependency_child}. *)
+
+val dependency_child_of_string :
+  string -> dependency_child
+  (** Deserialize JSON data of type {!type:dependency_child}. *)
 
 val write_found_dependency :
   Buffer.t -> found_dependency -> unit
