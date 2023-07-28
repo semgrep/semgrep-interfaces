@@ -957,6 +957,7 @@ properties:
               patterns: false
               pattern: false
               pattern-either: false
+              pattern-regex: false
               pattern-sinks: false
               pattern-sources: false
               pattern-propagators: false
