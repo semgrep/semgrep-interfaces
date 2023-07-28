@@ -21,10 +21,14 @@ $defs:
         type: string
       headers:
         type: object
+      body:
+        type: string
   # EXPERIMENTAL
   response-content:
     properties:
       return_code:
+        type: string
+      pattern-regex:
         type: string
   # EXPERIMENTAL
   new-source-pattern:
@@ -953,7 +957,6 @@ properties:
               patterns: false
               pattern: false
               pattern-either: false
-              pattern-regex: false
               pattern-sinks: false
               pattern-sources: false
               pattern-propagators: false
