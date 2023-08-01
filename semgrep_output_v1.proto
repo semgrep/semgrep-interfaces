@@ -296,7 +296,7 @@ message FoundDependency {
   string package = 337745074;
   string version = 508888787;
   google.protobuf.Any ecosystem = 7072103;
-  map<string, None> allowed_hashes = 24443075;
+  map<string, google.protobuf.Any> allowed_hashes = 24443075;
   string resolved_url = 359565789;
   google.protobuf.Any transitivity = 299525532;
   int64 line_number = 82464417;
@@ -342,7 +342,7 @@ message CiScanCompleteStats {
 message CiScanCompleteResponse {
   int64 exit_code = 288120243;
   CiScanCompleteStats stats = 109757599;
-  map<string, None> dependencies = 469817480;
+  map<string, google.protobuf.Any> dependencies = 469817480;
   repeated DependencyParserError dependency_parser_errors = 379401816;
   string task_id = 42538944;
 }

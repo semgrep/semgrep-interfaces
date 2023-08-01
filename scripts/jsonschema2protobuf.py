@@ -121,7 +121,7 @@ class Visitor:
                     return Field(name, f"map<string, {pascal_case(ap_name)}>")
                 else:
                     return Field(
-                        name, f"map<string, {JSON_SCHEMA_TO_MESSAGE_TYPE.get(ap_type)}>"
+                        name, f"map<string, {JSON_SCHEMA_TO_MESSAGE_TYPE.get(ap_type, 'google.protobuf.Any')}>"
                     )
             return Field(name, pascal_case(resolved_name))
         elif resolved_type is None:
