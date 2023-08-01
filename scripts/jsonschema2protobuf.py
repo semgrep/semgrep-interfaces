@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+#
+# Chris Dolan (chris@semgrep.com)
+# Copyright (C) Semgrep 2022
+#
+# This script translates from jsonschema to protobuf v3 definitions.
+# Stable field numbers are calculated using Java's String.hashCode() algorithm
+#
+# Note: This is not a rigorous 1:1 mapping from jsonschema to protobuf; there
+# are likely bugs and/or untranslatable structures.
+#
 
 import os
 import hashlib
