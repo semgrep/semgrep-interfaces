@@ -15,7 +15,7 @@ FILES= \
   semgrep_output_$(VER).py \
   semgrep_output_$(VER).ts \
   semgrep_output_$(VER).jsonschema \
-  semgrep_output_$(VER).proto \
+  protos/semgrep_output_$(VER).proto \
   ast_generic_$(VER)_j.ml \
   ast_generic_$(VER)_j.mli \
   Language.ml \
@@ -58,7 +58,7 @@ build: $(FILES)
 semgrep_output_$(VER).jsonschema: semgrep_output_$(VER).atd
 	atdcat -jsonschema cli_output $< > $@
 
-semgrep_output_$(VER).proto: semgrep_output_$(VER).jsonschema
+protos/semgrep_output_$(VER).proto: semgrep_output_$(VER).jsonschema
 	scripts/jsonschema2protobuf.py $< semgrep_output_$(VER) semgrep_output.$(VER) > $@
 
 # The call to ocamlc is just to typecheck the generated OCaml files

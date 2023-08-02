@@ -4,7 +4,7 @@ package semgrep_studio_v1;
 
 option go_package = "semgrep_studio.v1";
 
-import "semgrep_output_v1.proto";
+import "protos/semgrep_output_v1.proto";
 
 enum RuleFormat {
   YAML = 0;
