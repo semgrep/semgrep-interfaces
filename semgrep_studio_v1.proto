@@ -5,7 +5,7 @@ package semgrep_studio_v1;
 import "semgrep_output_v1.proto";
 
 message ScanRequest {
-    string pattern = 1;
+    string rule = 1;
     repeated string repository_names = 2;
 }
 
