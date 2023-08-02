@@ -59,7 +59,7 @@ semgrep_output_$(VER).jsonschema: semgrep_output_$(VER).atd
 	atdcat -jsonschema cli_output $< > $@
 
 semgrep_output_$(VER).proto: semgrep_output_$(VER).jsonschema
-	scripts/jsonschema2protobuf.py $< semgrep_output_$(VER) > $@
+	scripts/jsonschema2protobuf.py $< semgrep_output_$(VER) semgrep_output.$(VER) > $@
 
 # The call to ocamlc is just to typecheck the generated OCaml files
 Language.ml Language.mli lang.json: generate.py

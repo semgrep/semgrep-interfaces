@@ -172,7 +172,7 @@ class Visitor:
         )
 
 
-def convert(contents, prefix=None, package=None):
+def convert(contents, prefix=None, package=None, go_package=None):
     lines = []
 
     if prefix:
@@ -183,6 +183,9 @@ def convert(contents, prefix=None, package=None):
 
     if package:
         lines.append(f"package {package};\n")
+
+    if go_package:
+        lines.append(f'option go_package = "{go_package}";\n')
 
     json_contents = json.loads(contents)
     definitions = json_contents.get("definitions", {})
@@ -205,6 +208,8 @@ def main():
     filename = sys.argv[1]
     package = sys.argv[2]
 
+    go_package = sys.argv[3] if len(sys.argv) > 3 else None
+
     logging.basicConfig(
         level=logging.DEBUG if os.environ.get("JS2P_DEBUG") else logging.INFO
     )
@@ -217,7 +222,7 @@ def main():
 // Source file sha256 digest: {hashlib.sha256(contents.encode('utf-8')).hexdigest()}
 """
 
-    print(convert(contents, prefix=prefix, package=package))
+    print(convert(contents, prefix=prefix, package=package, go_package=go_package))
 
 
 if __name__ == "__main__":
