@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package semgrep_studio_v1;
+
+import "semgrep_output_v1.proto";
+
+message ScanRequest {
+    string pattern = 1;
+    repeated string repository_names = 2;
+}
+
+message ScanResult {
+    string repository_name = 1;
+    semgrep_output_v1.CliMatch cli_match = 2;
+}
+
+service ScanService {
+    rpc Scan(ScanRequest) returns (stream ScanResult) {};
+}
