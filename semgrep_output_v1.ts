@@ -373,6 +373,7 @@ export type Ecosystem =
 | { kind: 'Cargo' /* JSON: "cargo" */ }
 | { kind: 'Maven' /* JSON: "maven" */ }
 | { kind: 'Composer' /* JSON: "composer" */ }
+| { kind: 'Nuget' /* JSON: "nuget" */ }
 
 export type Transitivity =
 | { kind: 'Direct' /* JSON: "direct" */ }
@@ -1584,6 +1585,8 @@ export function writeEcosystem(x: Ecosystem, context: any = x): any {
       return 'maven'
     case 'Composer':
       return 'composer'
+    case 'Nuget':
+      return 'nuget'
   }
 }
 
@@ -1603,6 +1606,8 @@ export function readEcosystem(x: any, context: any = x): Ecosystem {
       return { kind: 'Maven' }
     case 'composer':
       return { kind: 'Composer' }
+    case 'nuget':
+      return { kind: 'Nuget' }
     default:
       _atd_bad_json('Ecosystem', x, context)
       throw new Error('impossible')
