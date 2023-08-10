@@ -2157,10 +2157,27 @@ class Composer:
 
 
 @dataclass(frozen=True)
+class Nuget:
+    """Original type: ecosystem = [ ... | Nuget | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Nuget'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'nuget'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class Ecosystem:
     """Original type: ecosystem = [ ... ]"""
 
-    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer]
+    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget]
 
     @property
     def kind(self) -> str:
@@ -2184,6 +2201,8 @@ class Ecosystem:
                 return cls(Maven())
             if x == 'composer':
                 return cls(Composer())
+            if x == 'nuget':
+                return cls(Nuget())
             _atd_bad_json('Ecosystem', x)
         _atd_bad_json('Ecosystem', x)
 
