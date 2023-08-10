@@ -956,4 +956,5 @@ type finding <ocaml attr="deriving show"> = {
   ?fixed_lines: string list option;
   ?sca_info: sca_info option;
   ?dataflow_trace: cli_match_dataflow_trace option;
+  ?product: string option;
 }

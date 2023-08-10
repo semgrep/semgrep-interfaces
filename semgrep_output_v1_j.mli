@@ -271,7 +271,8 @@ type finding = Semgrep_output_v1_t.finding = {
   is_blocking: bool;
   fixed_lines: string list option;
   sca_info: sca_info option;
-  dataflow_trace: cli_match_dataflow_trace option
+  dataflow_trace: cli_match_dataflow_trace option;
+  product: string option
 }
   [@@deriving show]
 
