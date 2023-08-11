@@ -888,8 +888,7 @@
         "sca_info": { "$ref": "#/definitions/sca_info" },
         "dataflow_trace": {
           "$ref": "#/definitions/cli_match_dataflow_trace"
-        },
-        "product": { "type": "string" }
+        }
       }
     }
   }
