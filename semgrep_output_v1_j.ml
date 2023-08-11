@@ -271,8 +271,7 @@ type finding = Semgrep_output_v1_t.finding = {
   is_blocking: bool;
   fixed_lines: string list option;
   sca_info: sca_info option;
-  dataflow_trace: cli_match_dataflow_trace option;
-  product: string option
+  dataflow_trace: cli_match_dataflow_trace option
 }
   [@@deriving show]
 
@@ -8488,17 +8487,6 @@ let write_finding : _ -> finding -> _ = (
       )
         ob x;
     );
-    (match x.product with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"product\":";
-      (
-        Yojson.Safe.write_string
-      )
-        ob x;
-    );
     Buffer.add_char ob '}';
 )
 let string_of_finding ?(len = 1024) x =
@@ -8527,7 +8515,6 @@ let read_finding = (
     let field_fixed_lines = ref (None) in
     let field_sca_info = ref (None) in
     let field_dataflow_trace = ref (None) in
-    let field_product = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -8590,26 +8577,12 @@ let read_finding = (
                     )
               )
             | 7 -> (
-                match String.unsafe_get s pos with
-                  | 'm' -> (
-                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
-                        6
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | 'p' -> (
-                      if String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 't' then (
-                        18
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | _ -> (
-                      -1
-                    )
+                if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
+                  6
+                )
+                else (
+                  -1
+                )
               )
             | 8 -> (
                 match String.unsafe_get s pos with
@@ -8893,16 +8866,6 @@ let read_finding = (
                 )
               );
             )
-          | 18 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_product := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -8969,26 +8932,12 @@ let read_finding = (
                       )
                 )
               | 7 -> (
-                  match String.unsafe_get s pos with
-                    | 'm' -> (
-                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
-                          6
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 'p' -> (
-                        if String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 't' then (
-                          18
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
+                  if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
+                    6
+                  )
+                  else (
+                    -1
+                  )
                 )
               | 8 -> (
                   match String.unsafe_get s pos with
@@ -9272,16 +9221,6 @@ let read_finding = (
                   )
                 );
               )
-            | 18 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_product := (
-                  Some (
-                    (
-                      Atdgen_runtime.Oj_run.read_string
-                    ) p lb
-                  )
-                );
-              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -9309,7 +9248,6 @@ let read_finding = (
             fixed_lines = !field_fixed_lines;
             sca_info = !field_sca_info;
             dataflow_trace = !field_dataflow_trace;
-            product = !field_product;
           }
          : finding)
       )
