@@ -5258,6 +5258,7 @@ let write_ecosystem = (
       | `Cargo -> Buffer.add_string ob "\"cargo\""
       | `Maven -> Buffer.add_string ob "\"maven\""
       | `Composer -> Buffer.add_string ob "\"composer\""
+      | `Nuget -> Buffer.add_string ob "\"nuget\""
 )
 let string_of_ecosystem ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -5297,6 +5298,10 @@ let read_ecosystem = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Composer
+            | "nuget" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Nuget
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -5316,6 +5321,8 @@ let read_ecosystem = (
               `Maven
             | "composer" ->
               `Composer
+            | "nuget" ->
+              `Nuget
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

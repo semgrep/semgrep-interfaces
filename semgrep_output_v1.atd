@@ -788,6 +788,7 @@ type ecosystem
   | Cargo <json name="cargo">
   | Maven <json name="maven">
   | Composer <json name="composer">
+  | Nuget <json name="nuget">
 ]
 
 type transitivity

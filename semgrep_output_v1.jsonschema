@@ -681,7 +681,8 @@
         { "const": "gomod" },
         { "const": "cargo" },
         { "const": "maven" },
-        { "const": "composer" }
+        { "const": "composer" },
+        { "const": "nuget" }
       ]
     },
     "transitivity": {
