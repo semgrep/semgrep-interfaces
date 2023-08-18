@@ -785,7 +785,8 @@
         "searched_paths": { "type": "array", "items": { "type": "string" } },
         "renamed_paths": { "type": "array", "items": { "type": "string" } },
         "rule_ids": { "type": "array", "items": { "type": "string" } },
-        "contributions": { "$ref": "#/definitions/contributions" }
+        "contributions": { "$ref": "#/definitions/contributions" },
+        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" }
       }
     },
     "parsing_stats": {

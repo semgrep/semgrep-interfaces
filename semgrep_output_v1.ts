@@ -437,6 +437,7 @@ export type CiScanResults = {
   renamed_paths: string[];
   rule_ids: string[];
   contributions?: Contributions;
+  dependencies?: CiScanDependencies;
 }
 
 export type ParsingStats = {
@@ -1803,6 +1804,7 @@ export function writeCiScanResults(x: CiScanResults, context: any = x): any {
     'renamed_paths': _atd_write_required_field('CiScanResults', 'renamed_paths', _atd_write_array(_atd_write_string), x.renamed_paths, x),
     'rule_ids': _atd_write_required_field('CiScanResults', 'rule_ids', _atd_write_array(_atd_write_string), x.rule_ids, x),
     'contributions': _atd_write_optional_field(writeContributions, x.contributions, x),
+    'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
   };
 }
 
@@ -1815,6 +1817,7 @@ export function readCiScanResults(x: any, context: any = x): CiScanResults {
     renamed_paths: _atd_read_required_field('CiScanResults', 'renamed_paths', _atd_read_array(_atd_read_string), x['renamed_paths'], x),
     rule_ids: _atd_read_required_field('CiScanResults', 'rule_ids', _atd_read_array(_atd_read_string), x['rule_ids'], x),
     contributions: _atd_read_optional_field(readContributions, x['contributions'], x),
+    dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
   };
 }
 
