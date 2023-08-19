@@ -457,6 +457,10 @@ type core_match_results
   (* errors are guaranteed to be duplicate free; see also Report.ml *)
   errors: core_error list;
 
+  (* This is separate from skipped_rules because it's more convenient this
+     way. *)
+  ~incompatible_rules: incompatible_rule list;
+
   ?skipped_targets <json name="skipped">: skipped_target list option;
   (* sinced semgrep 0.86 *)
   ?skipped_rules: skipped_rule list option;
@@ -482,7 +486,7 @@ type core_match_results
 (*****************************************************************************)
 
 (* TODO: try to make it as close as possible to 'core_error' above *)
-type cli_error<ocaml attr="deriving show"> = {
+type cli_error <ocaml attr="deriving show"> = {
   (* exit code? *)
   code: int;
   (* TODO: use a variant (Warning | Error | ...) *)
@@ -657,7 +661,25 @@ type cli_output <ocaml attr="deriving show"> = {
 
     errors: cli_error list;
     results: cli_match list;
+
+    (* List of rules that had to be ignored because of Semgrep version
+       constraints. These are normally not fatal and it's easier
+       to have them here than mixed with other errors in the 'errors' field. *)
+    ~incompatible_rules: incompatible_rule list;
+
     inherit cli_output_extra;
+}
+
+type incompatible_rule
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {
+  rule_id: rule_id;
+  (* Version of Semgrep being used (MAJOR.MINOR.PATCH format) *)
+  this_version: string;
+  (* Minimum and/or maximum Semgrep version requested by the rule.
+     At least one of these fields must be present. *)
+  ?min_version: string option;
+  ?max_version: string option;
 }
 
 type cli_output_extra <ocaml attr="deriving show"> = {

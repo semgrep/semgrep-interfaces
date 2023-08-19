@@ -723,6 +723,12 @@ properties:
       properties:
         id:
           $ref: "#/$defs/id"
+        min-version:
+          title: Earliest Semgrep version supporting this rule
+          type: string
+        max-version:
+          title: Last Semgrep version supporting this rule
+          type: string
         version:
           title: Version of rule
           type: string
