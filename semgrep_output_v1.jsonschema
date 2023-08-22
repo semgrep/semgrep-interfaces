@@ -59,6 +59,14 @@
       ]
     },
     "engine_kind": { "oneOf": [ { "const": "OSS" }, { "const": "PRO" } ] },
+    "validation_state": {
+      "oneOf": [
+        { "const": "CONFIRMED_VALID" },
+        { "const": "CONFIRMED_INVALID" },
+        { "const": "VALIDATION_ERROR" },
+        { "const": "NO_VALIDATOR" }
+      ]
+    },
     "core_match": {
       "type": "object",
       "required": [ "rule_id", "location", "extra" ],
@@ -79,6 +87,7 @@
         },
         "rendered_fix": { "type": "string" },
         "engine_kind": { "$ref": "#/definitions/engine_kind" },
+        "validation_state": { "$ref": "#/definitions/validation_state" },
         "extra_extra": { "$ref": "#/definitions/raw_json" }
       }
     },

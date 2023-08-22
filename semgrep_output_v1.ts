@@ -38,6 +38,12 @@ export type EngineKind =
 | { kind: 'OSS' }
 | { kind: 'PRO' }
 
+export type ValidationState =
+| { kind: 'CONFIRMED_VALID' }
+| { kind: 'CONFIRMED_INVALID' }
+| { kind: 'VALIDATION_ERROR' }
+| { kind: 'NO_VALIDATOR' }
+
 export type CoreMatch = {
   rule_id: RuleId;
   location: Location;
@@ -50,6 +56,7 @@ export type CoreMatchExtra = {
   dataflow_trace?: CoreMatchDataflowTrace;
   rendered_fix?: string;
   engine_kind: EngineKind;
+  validation_state?: ValidationState;
   extra_extra?: RawJson;
 }
 
@@ -586,6 +593,35 @@ export function readEngineKind(x: any, context: any = x): EngineKind {
   }
 }
 
+export function writeValidationState(x: ValidationState, context: any = x): any {
+  switch (x.kind) {
+    case 'CONFIRMED_VALID':
+      return 'CONFIRMED_VALID'
+    case 'CONFIRMED_INVALID':
+      return 'CONFIRMED_INVALID'
+    case 'VALIDATION_ERROR':
+      return 'VALIDATION_ERROR'
+    case 'NO_VALIDATOR':
+      return 'NO_VALIDATOR'
+  }
+}
+
+export function readValidationState(x: any, context: any = x): ValidationState {
+  switch (x) {
+    case 'CONFIRMED_VALID':
+      return { kind: 'CONFIRMED_VALID' }
+    case 'CONFIRMED_INVALID':
+      return { kind: 'CONFIRMED_INVALID' }
+    case 'VALIDATION_ERROR':
+      return { kind: 'VALIDATION_ERROR' }
+    case 'NO_VALIDATOR':
+      return { kind: 'NO_VALIDATOR' }
+    default:
+      _atd_bad_json('ValidationState', x, context)
+      throw new Error('impossible')
+  }
+}
+
 export function writeCoreMatch(x: CoreMatch, context: any = x): any {
   return {
     'rule_id': _atd_write_required_field('CoreMatch', 'rule_id', writeRuleId, x.rule_id, x),
@@ -609,6 +645,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
     'dataflow_trace': _atd_write_optional_field(writeCoreMatchDataflowTrace, x.dataflow_trace, x),
     'rendered_fix': _atd_write_optional_field(_atd_write_string, x.rendered_fix, x),
     'engine_kind': _atd_write_required_field('CoreMatchExtra', 'engine_kind', writeEngineKind, x.engine_kind, x),
+    'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
   };
 }
@@ -620,6 +657,7 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     dataflow_trace: _atd_read_optional_field(readCoreMatchDataflowTrace, x['dataflow_trace'], x),
     rendered_fix: _atd_read_optional_field(_atd_read_string, x['rendered_fix'], x),
     engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineKind, x['engine_kind'], x),
+    validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
   };
 }

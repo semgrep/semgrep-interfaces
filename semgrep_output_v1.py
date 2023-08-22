@@ -872,6 +872,110 @@ class Metavars:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class CONFIRMEDVALID:
+    """Original type: validation_state = [ ... | CONFIRMED_VALID | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CONFIRMEDVALID'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'CONFIRMED_VALID'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class CONFIRMEDINVALID:
+    """Original type: validation_state = [ ... | CONFIRMED_INVALID | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CONFIRMEDINVALID'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'CONFIRMED_INVALID'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class VALIDATIONERROR:
+    """Original type: validation_state = [ ... | VALIDATION_ERROR | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'VALIDATIONERROR'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'VALIDATION_ERROR'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class NOVALIDATOR:
+    """Original type: validation_state = [ ... | NO_VALIDATOR | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'NOVALIDATOR'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'NO_VALIDATOR'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ValidationState:
+    """Original type: validation_state = [ ... ]"""
+
+    value: Union[CONFIRMEDVALID, CONFIRMEDINVALID, VALIDATIONERROR, NOVALIDATOR]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ValidationState':
+        if isinstance(x, str):
+            if x == 'CONFIRMED_VALID':
+                return cls(CONFIRMEDVALID())
+            if x == 'CONFIRMED_INVALID':
+                return cls(CONFIRMEDINVALID())
+            if x == 'VALIDATION_ERROR':
+                return cls(VALIDATIONERROR())
+            if x == 'NO_VALIDATOR':
+                return cls(NOVALIDATOR())
+            _atd_bad_json('ValidationState', x)
+        _atd_bad_json('ValidationState', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ValidationState':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True, order=True)
 class CoreLoc:
     """Original type: core_match_call_trace = [ ... | CoreLoc of ... | ... ]"""
@@ -987,6 +1091,7 @@ class CoreMatchExtra:
     message: Optional[str] = None
     dataflow_trace: Optional[CoreMatchDataflowTrace] = None
     rendered_fix: Optional[str] = None
+    validation_state: Optional[ValidationState] = None
     extra_extra: Optional[RawJson] = None
 
     @classmethod
@@ -998,6 +1103,7 @@ class CoreMatchExtra:
                 message=_atd_read_string(x['message']) if 'message' in x else None,
                 dataflow_trace=CoreMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 rendered_fix=_atd_read_string(x['rendered_fix']) if 'rendered_fix' in x else None,
+                validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
                 extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
             )
         else:
@@ -1013,6 +1119,8 @@ class CoreMatchExtra:
             res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
         if self.rendered_fix is not None:
             res['rendered_fix'] = _atd_write_string(self.rendered_fix)
+        if self.validation_state is not None:
+            res['validation_state'] = (lambda x: x.to_json())(self.validation_state)
         if self.extra_extra is not None:
             res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
         return res

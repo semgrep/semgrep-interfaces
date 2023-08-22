@@ -119,6 +119,15 @@ type engine_kind
   | PRO
 ]
 
+type validation_state
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = [
+  | CONFIRMED_VALID
+  | CONFIRMED_INVALID
+  | VALIDATION_ERROR
+  | NO_VALIDATOR
+] 
+
 type core_match
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
@@ -138,7 +147,8 @@ type core_match_extra
    * finding. *)
   ?rendered_fix: string option;
   engine_kind: engine_kind;
-
+  (* Note, None should be equivalent to NO_VALIDATOR *)
+  ?validation_state : validation_state option;
   (* Escape hatch to pass untyped info from semgrep-core to the semgrep output.
    * Useful for quick experiments, especially when combined with semgrep
    * --core-opts flag.
