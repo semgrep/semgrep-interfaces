@@ -216,17 +216,19 @@ type rule_id_dict = Semgrep_output_v1_t.rule_id_dict = { id: rule_id }
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
   [@@deriving show]
 
-type position_bis = Semgrep_output_v1_t.position_bis = {
-  line: int;
-  col: int
-}
-  [@@deriving show]
-
 type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
   targets_parsed: int;
   num_targets: int;
   bytes_parsed: int;
   num_bytes: int
+}
+  [@@deriving show]
+
+type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
+  rule_id: string;
+  this_version: string;
+  min_version: string option;
+  max_version: string option
 }
   [@@deriving show]
 
@@ -277,14 +279,14 @@ type finding = Semgrep_output_v1_t.finding = {
 
 type error_span = Semgrep_output_v1_t.error_span = {
   file: fpath;
-  start: position_bis;
-  end_ (*atd end *): position_bis;
+  start: position;
+  end_ (*atd end *): position;
   source_hash: string option;
-  config_start: position_bis option option;
-  config_end: position_bis option option;
+  config_start: position option option;
+  config_end: position option option;
   config_path: string list option option;
-  context_start: position_bis option option;
-  context_end: position_bis option option
+  context_start: position option option;
+  context_end: position option option
 }
   [@@deriving show]
 
@@ -341,6 +343,7 @@ type core_error_kind = Semgrep_output_v1_t.core_error_kind =
   | TimeoutDuringInterfile
   | OutOfMemoryDuringInterfile
   | PartialParsing of location list
+  | IncompatibleRule of incompatible_rule
 
   [@@deriving show]
 
@@ -1197,26 +1200,6 @@ val rule_id_and_engine_kind_of_string :
   string -> rule_id_and_engine_kind
   (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
 
-val write_position_bis :
-  Buffer.t -> position_bis -> unit
-  (** Output a JSON value of type {!type:position_bis}. *)
-
-val string_of_position_bis :
-  ?len:int -> position_bis -> string
-  (** Serialize a value of type {!type:position_bis}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_position_bis :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> position_bis
-  (** Input JSON data of type {!type:position_bis}. *)
-
-val position_bis_of_string :
-  string -> position_bis
-  (** Deserialize JSON data of type {!type:position_bis}. *)
-
 val write_parsing_stats :
   Buffer.t -> parsing_stats -> unit
   (** Output a JSON value of type {!type:parsing_stats}. *)
@@ -1236,6 +1219,26 @@ val read_parsing_stats :
 val parsing_stats_of_string :
   string -> parsing_stats
   (** Deserialize JSON data of type {!type:parsing_stats}. *)
+
+val write_incompatible_rule :
+  Buffer.t -> incompatible_rule -> unit
+  (** Output a JSON value of type {!type:incompatible_rule}. *)
+
+val string_of_incompatible_rule :
+  ?len:int -> incompatible_rule -> string
+  (** Serialize a value of type {!type:incompatible_rule}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_incompatible_rule :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> incompatible_rule
+  (** Input JSON data of type {!type:incompatible_rule}. *)
+
+val incompatible_rule_of_string :
+  string -> incompatible_rule
+  (** Deserialize JSON data of type {!type:incompatible_rule}. *)
 
 val write_fix_regex :
   Buffer.t -> fix_regex -> unit

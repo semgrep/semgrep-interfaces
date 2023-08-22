@@ -108,6 +108,14 @@ export type CoreErrorKind =
 | { kind: 'TimeoutDuringInterfile' /* JSON: "Timeout during interfile analysis" */ }
 | { kind: 'OutOfMemoryDuringInterfile' /* JSON: "OOM during interfile analysis" */ }
 | { kind: 'PartialParsing'; value: Location[] }
+| { kind: 'IncompatibleRule'; value: IncompatibleRule }
+
+export type IncompatibleRule = {
+  rule_id: string;
+  this_version: string;
+  min_version?: string;
+  max_version?: string;
+}
 
 export type CoreSeverity =
 | { kind: 'Error' /* JSON: "error" */ }
@@ -222,19 +230,14 @@ export type CliError = {
 
 export type ErrorSpan = {
   file: Fpath;
-  start: PositionBis;
-  end: PositionBis;
+  start: Position;
+  end: Position;
   source_hash?: string;
-  config_start?: (PositionBis | null);
-  config_end?: (PositionBis | null);
+  config_start?: (Position | null);
+  config_end?: (Position | null);
   config_path?: (string[] | null);
-  context_start?: (PositionBis | null);
-  context_end?: (PositionBis | null);
-}
-
-export type PositionBis = {
-  line: number /*int*/;
-  col: number /*int*/;
+  context_start?: (Position | null);
+  context_end?: (Position | null);
 }
 
 export type CliMatchCallTrace =
@@ -514,7 +517,7 @@ export function writePosition(x: Position, context: any = x): any {
   return {
     'line': _atd_write_required_field('Position', 'line', _atd_write_int, x.line, x),
     'col': _atd_write_required_field('Position', 'col', _atd_write_int, x.col, x),
-    'offset': _atd_write_required_field('Position', 'offset', _atd_write_int, x.offset, x),
+    'offset': _atd_write_field_with_default(_atd_write_int, 0, x.offset, x),
   };
 }
 
@@ -522,7 +525,7 @@ export function readPosition(x: any, context: any = x): Position {
   return {
     line: _atd_read_required_field('Position', 'line', _atd_read_int, x['line'], x),
     col: _atd_read_required_field('Position', 'col', _atd_read_int, x['col'], x),
-    offset: _atd_read_required_field('Position', 'offset', _atd_read_int, x['offset'], x),
+    offset: _atd_read_field_with_default(_atd_read_int, 0, x['offset'], x),
   };
 }
 
@@ -773,6 +776,8 @@ export function writeCoreErrorKind(x: CoreErrorKind, context: any = x): any {
       return 'OOM during interfile analysis'
     case 'PartialParsing':
       return ['PartialParsing', _atd_write_array(writeLocation)(x.value, x)]
+    case 'IncompatibleRule':
+      return ['IncompatibleRule', writeIncompatibleRule(x.value, x)]
   }
 }
 
@@ -819,11 +824,31 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
         return { kind: 'PatternParseError', value: _atd_read_array(_atd_read_string)(x[1], x) }
       case 'PartialParsing':
         return { kind: 'PartialParsing', value: _atd_read_array(readLocation)(x[1], x) }
+      case 'IncompatibleRule':
+        return { kind: 'IncompatibleRule', value: readIncompatibleRule(x[1], x) }
       default:
         _atd_bad_json('CoreErrorKind', x, context)
         throw new Error('impossible')
     }
   }
+}
+
+export function writeIncompatibleRule(x: IncompatibleRule, context: any = x): any {
+  return {
+    'rule_id': _atd_write_required_field('IncompatibleRule', 'rule_id', _atd_write_string, x.rule_id, x),
+    'this_version': _atd_write_required_field('IncompatibleRule', 'this_version', _atd_write_string, x.this_version, x),
+    'min_version': _atd_write_optional_field(_atd_write_string, x.min_version, x),
+    'max_version': _atd_write_optional_field(_atd_write_string, x.max_version, x),
+  };
+}
+
+export function readIncompatibleRule(x: any, context: any = x): IncompatibleRule {
+  return {
+    rule_id: _atd_read_required_field('IncompatibleRule', 'rule_id', _atd_read_string, x['rule_id'], x),
+    this_version: _atd_read_required_field('IncompatibleRule', 'this_version', _atd_read_string, x['this_version'], x),
+    min_version: _atd_read_optional_field(_atd_read_string, x['min_version'], x),
+    max_version: _atd_read_optional_field(_atd_read_string, x['max_version'], x),
+  };
 }
 
 export function writeCoreSeverity(x: CoreSeverity, context: any = x): any {
@@ -1188,42 +1213,28 @@ export function readCliError(x: any, context: any = x): CliError {
 export function writeErrorSpan(x: ErrorSpan, context: any = x): any {
   return {
     'file': _atd_write_required_field('ErrorSpan', 'file', writeFpath, x.file, x),
-    'start': _atd_write_required_field('ErrorSpan', 'start', writePositionBis, x.start, x),
-    'end': _atd_write_required_field('ErrorSpan', 'end', writePositionBis, x.end, x),
+    'start': _atd_write_required_field('ErrorSpan', 'start', writePosition, x.start, x),
+    'end': _atd_write_required_field('ErrorSpan', 'end', writePosition, x.end, x),
     'source_hash': _atd_write_optional_field(_atd_write_string, x.source_hash, x),
-    'config_start': _atd_write_optional_field(_atd_write_nullable(writePositionBis), x.config_start, x),
-    'config_end': _atd_write_optional_field(_atd_write_nullable(writePositionBis), x.config_end, x),
+    'config_start': _atd_write_optional_field(_atd_write_nullable(writePosition), x.config_start, x),
+    'config_end': _atd_write_optional_field(_atd_write_nullable(writePosition), x.config_end, x),
     'config_path': _atd_write_optional_field(_atd_write_nullable(_atd_write_array(_atd_write_string)), x.config_path, x),
-    'context_start': _atd_write_optional_field(_atd_write_nullable(writePositionBis), x.context_start, x),
-    'context_end': _atd_write_optional_field(_atd_write_nullable(writePositionBis), x.context_end, x),
+    'context_start': _atd_write_optional_field(_atd_write_nullable(writePosition), x.context_start, x),
+    'context_end': _atd_write_optional_field(_atd_write_nullable(writePosition), x.context_end, x),
   };
 }
 
 export function readErrorSpan(x: any, context: any = x): ErrorSpan {
   return {
     file: _atd_read_required_field('ErrorSpan', 'file', readFpath, x['file'], x),
-    start: _atd_read_required_field('ErrorSpan', 'start', readPositionBis, x['start'], x),
-    end: _atd_read_required_field('ErrorSpan', 'end', readPositionBis, x['end'], x),
+    start: _atd_read_required_field('ErrorSpan', 'start', readPosition, x['start'], x),
+    end: _atd_read_required_field('ErrorSpan', 'end', readPosition, x['end'], x),
     source_hash: _atd_read_optional_field(_atd_read_string, x['source_hash'], x),
-    config_start: _atd_read_optional_field(_atd_read_nullable(readPositionBis), x['config_start'], x),
-    config_end: _atd_read_optional_field(_atd_read_nullable(readPositionBis), x['config_end'], x),
+    config_start: _atd_read_optional_field(_atd_read_nullable(readPosition), x['config_start'], x),
+    config_end: _atd_read_optional_field(_atd_read_nullable(readPosition), x['config_end'], x),
     config_path: _atd_read_optional_field(_atd_read_nullable(_atd_read_array(_atd_read_string)), x['config_path'], x),
-    context_start: _atd_read_optional_field(_atd_read_nullable(readPositionBis), x['context_start'], x),
-    context_end: _atd_read_optional_field(_atd_read_nullable(readPositionBis), x['context_end'], x),
-  };
-}
-
-export function writePositionBis(x: PositionBis, context: any = x): any {
-  return {
-    'line': _atd_write_required_field('PositionBis', 'line', _atd_write_int, x.line, x),
-    'col': _atd_write_required_field('PositionBis', 'col', _atd_write_int, x.col, x),
-  };
-}
-
-export function readPositionBis(x: any, context: any = x): PositionBis {
-  return {
-    line: _atd_read_required_field('PositionBis', 'line', _atd_read_int, x['line'], x),
-    col: _atd_read_required_field('PositionBis', 'col', _atd_read_int, x['col'], x),
+    context_start: _atd_read_optional_field(_atd_read_nullable(readPosition), x['context_start'], x),
+    context_end: _atd_read_optional_field(_atd_read_nullable(readPosition), x['context_end'], x),
   };
 }
 

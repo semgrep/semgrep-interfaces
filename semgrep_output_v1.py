@@ -614,7 +614,7 @@ class Position:
 
     line: int
     col: int
-    offset: int
+    offset: int = field(default_factory=lambda: 0)
 
     @classmethod
     def from_json(cls, x: Any) -> 'Position':
@@ -622,7 +622,7 @@ class Position:
             return cls(
                 line=_atd_read_int(x['line']) if 'line' in x else _atd_missing_json_field('Position', 'line'),
                 col=_atd_read_int(x['col']) if 'col' in x else _atd_missing_json_field('Position', 'col'),
-                offset=_atd_read_int(x['offset']) if 'offset' in x else _atd_missing_json_field('Position', 'offset'),
+                offset=_atd_read_int(x['offset']) if 'offset' in x else 0,
             )
         else:
             _atd_bad_json('Position', x)
@@ -2455,37 +2455,6 @@ class RuleIdAndEngineKind:
 
 
 @dataclass
-class PositionBis:
-    """Original type: position_bis = { ... }"""
-
-    line: int
-    col: int
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'PositionBis':
-        if isinstance(x, dict):
-            return cls(
-                line=_atd_read_int(x['line']) if 'line' in x else _atd_missing_json_field('PositionBis', 'line'),
-                col=_atd_read_int(x['col']) if 'col' in x else _atd_missing_json_field('PositionBis', 'col'),
-            )
-        else:
-            _atd_bad_json('PositionBis', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['line'] = _atd_write_int(self.line)
-        res['col'] = _atd_write_int(self.col)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'PositionBis':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class ParsingStats:
     """Original type: parsing_stats = { ... }"""
 
@@ -2516,6 +2485,45 @@ class ParsingStats:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ParsingStats':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class IncompatibleRule:
+    """Original type: incompatible_rule = { ... }"""
+
+    rule_id: str
+    this_version: str
+    min_version: Optional[str] = None
+    max_version: Optional[str] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'IncompatibleRule':
+        if isinstance(x, dict):
+            return cls(
+                rule_id=_atd_read_string(x['rule_id']) if 'rule_id' in x else _atd_missing_json_field('IncompatibleRule', 'rule_id'),
+                this_version=_atd_read_string(x['this_version']) if 'this_version' in x else _atd_missing_json_field('IncompatibleRule', 'this_version'),
+                min_version=_atd_read_string(x['min_version']) if 'min_version' in x else None,
+                max_version=_atd_read_string(x['max_version']) if 'max_version' in x else None,
+            )
+        else:
+            _atd_bad_json('IncompatibleRule', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['rule_id'] = _atd_write_string(self.rule_id)
+        res['this_version'] = _atd_write_string(self.this_version)
+        if self.min_version is not None:
+            res['min_version'] = _atd_write_string(self.min_version)
+        if self.max_version is not None:
+            res['max_version'] = _atd_write_string(self.max_version)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'IncompatibleRule':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -2720,28 +2728,28 @@ class ErrorSpan:
     """Original type: error_span = { ... }"""
 
     file: Fpath
-    start: PositionBis
-    end: PositionBis
+    start: Position
+    end: Position
     source_hash: Optional[str] = None
-    config_start: Optional[Optional[PositionBis]] = None
-    config_end: Optional[Optional[PositionBis]] = None
+    config_start: Optional[Optional[Position]] = None
+    config_end: Optional[Optional[Position]] = None
     config_path: Optional[Optional[List[str]]] = None
-    context_start: Optional[Optional[PositionBis]] = None
-    context_end: Optional[Optional[PositionBis]] = None
+    context_start: Optional[Optional[Position]] = None
+    context_end: Optional[Optional[Position]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ErrorSpan':
         if isinstance(x, dict):
             return cls(
                 file=Fpath.from_json(x['file']) if 'file' in x else _atd_missing_json_field('ErrorSpan', 'file'),
-                start=PositionBis.from_json(x['start']) if 'start' in x else _atd_missing_json_field('ErrorSpan', 'start'),
-                end=PositionBis.from_json(x['end']) if 'end' in x else _atd_missing_json_field('ErrorSpan', 'end'),
+                start=Position.from_json(x['start']) if 'start' in x else _atd_missing_json_field('ErrorSpan', 'start'),
+                end=Position.from_json(x['end']) if 'end' in x else _atd_missing_json_field('ErrorSpan', 'end'),
                 source_hash=_atd_read_string(x['source_hash']) if 'source_hash' in x else None,
-                config_start=_atd_read_nullable(PositionBis.from_json)(x['config_start']) if 'config_start' in x else None,
-                config_end=_atd_read_nullable(PositionBis.from_json)(x['config_end']) if 'config_end' in x else None,
+                config_start=_atd_read_nullable(Position.from_json)(x['config_start']) if 'config_start' in x else None,
+                config_end=_atd_read_nullable(Position.from_json)(x['config_end']) if 'config_end' in x else None,
                 config_path=_atd_read_nullable(_atd_read_list(_atd_read_string))(x['config_path']) if 'config_path' in x else None,
-                context_start=_atd_read_nullable(PositionBis.from_json)(x['context_start']) if 'context_start' in x else None,
-                context_end=_atd_read_nullable(PositionBis.from_json)(x['context_end']) if 'context_end' in x else None,
+                context_start=_atd_read_nullable(Position.from_json)(x['context_start']) if 'context_start' in x else None,
+                context_end=_atd_read_nullable(Position.from_json)(x['context_end']) if 'context_end' in x else None,
             )
         else:
             _atd_bad_json('ErrorSpan', x)
@@ -3284,10 +3292,28 @@ class PartialParsing:
 
 
 @dataclass(frozen=True, order=True)
+class IncompatibleRule_:
+    """Original type: core_error_kind = [ ... | IncompatibleRule of ... | ... ]"""
+
+    value: IncompatibleRule
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'IncompatibleRule_'
+
+    def to_json(self) -> Any:
+        return ['IncompatibleRule', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
 class CoreErrorKind:
     """Original type: core_error_kind = [ ... ]"""
 
-    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, PatternParseError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, PartialParsing]
+    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, PatternParseError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, PartialParsing, IncompatibleRule_]
 
     @property
     def kind(self) -> str:
@@ -3332,6 +3358,8 @@ class CoreErrorKind:
                 return cls(PatternParseError(_atd_read_list(_atd_read_string)(x[1])))
             if cons == 'PartialParsing':
                 return cls(PartialParsing(_atd_read_list(Location.from_json)(x[1])))
+            if cons == 'IncompatibleRule':
+                return cls(IncompatibleRule_(IncompatibleRule.from_json(x[1])))
             _atd_bad_json('CoreErrorKind', x)
         _atd_bad_json('CoreErrorKind', x)
 

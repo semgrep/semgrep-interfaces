@@ -31,7 +31,7 @@
     "version": { "type": "string" },
     "position": {
       "type": "object",
-      "required": [ "line", "col", "offset" ],
+      "required": [ "line", "col" ],
       "properties": {
         "line": { "type": "integer" },
         "col": { "type": "integer" },
@@ -205,8 +205,27 @@
               "items": { "$ref": "#/definitions/location" }
             }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "IncompatibleRule" },
+            { "$ref": "#/definitions/incompatible_rule" }
+          ]
         }
       ]
+    },
+    "incompatible_rule": {
+      "type": "object",
+      "required": [ "rule_id", "this_version" ],
+      "properties": {
+        "rule_id": { "type": "string" },
+        "this_version": { "type": "string" },
+        "min_version": { "type": "string" },
+        "max_version": { "type": "string" }
+      }
     },
     "core_severity": {
       "oneOf": [ { "const": "error" }, { "const": "warning" } ]
@@ -407,25 +426,17 @@
       "required": [ "file", "start", "end" ],
       "properties": {
         "file": { "$ref": "#/definitions/fpath" },
-        "start": { "$ref": "#/definitions/position_bis" },
-        "end": { "$ref": "#/definitions/position_bis" },
+        "start": { "$ref": "#/definitions/position" },
+        "end": { "$ref": "#/definitions/position" },
         "source_hash": { "type": "string" },
-        "config_start": { "$ref": "#/definitions/position_bis" },
-        "config_end": { "$ref": "#/definitions/position_bis" },
+        "config_start": { "$ref": "#/definitions/position" },
+        "config_end": { "$ref": "#/definitions/position" },
         "config_path": {
           "type": [ "array", "null" ],
           "items": { "type": "string" }
         },
-        "context_start": { "$ref": "#/definitions/position_bis" },
-        "context_end": { "$ref": "#/definitions/position_bis" }
-      }
-    },
-    "position_bis": {
-      "type": "object",
-      "required": [ "line", "col" ],
-      "properties": {
-        "line": { "type": "integer" },
-        "col": { "type": "integer" }
+        "context_start": { "$ref": "#/definitions/position" },
+        "context_end": { "$ref": "#/definitions/position" }
       }
     },
     "cli_match_call_trace": {
