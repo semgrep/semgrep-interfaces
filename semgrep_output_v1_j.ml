@@ -361,7 +361,7 @@ type core_match_results = Semgrep_output_v1_t.core_match_results = {
   matches: core_match list;
   errors: core_error list;
   skipped_targets: skipped_target list option;
-  skipped_rules: skipped_rule list option;
+  skipped_rules: skipped_rule list;
   explanations: matching_explanation list option;
   stats: core_stats;
   time: core_timing option;
@@ -422,7 +422,8 @@ type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   time: cli_timing option;
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list option;
-  engine_requested: engine_kind option
+  engine_requested: engine_kind option;
+  skipped_rules: skipped_rule list
 }
   [@@deriving show]
 
@@ -475,7 +476,8 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   time: cli_timing option;
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list option;
-  engine_requested: engine_kind option
+  engine_requested: engine_kind option;
+  skipped_rules: skipped_rule list
 }
   [@@deriving show]
 
@@ -11861,63 +11863,6 @@ let read__skipped_rule_list = (
 )
 let _skipped_rule_list_of_string s =
   read__skipped_rule_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__skipped_rule_list_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write__skipped_rule_list
-  )
-)
-let string_of__skipped_rule_list_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__skipped_rule_list_option ob x;
-  Buffer.contents ob
-let read__skipped_rule_list_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__skipped_rule_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__skipped_rule_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _skipped_rule_list_option_of_string s =
-  read__skipped_rule_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__matching_explanation_list_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     write__matching_explanation_list
@@ -12097,17 +12042,15 @@ let write_core_match_results : _ -> core_match_results -> _ = (
       )
         ob x;
     );
-    (match x.skipped_rules with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"skipped_rules\":";
-      (
-        write__skipped_rule_list
-      )
-        ob x;
-    );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"skipped_rules\":";
+    (
+      write__skipped_rule_list
+    )
+      ob x.skipped_rules;
     (match x.explanations with None -> () | Some x ->
       if !is_first then
         is_first := false
@@ -12298,15 +12241,13 @@ let read_core_match_results = (
               );
             )
           | 3 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_skipped_rules := (
-                Some (
-                  (
-                    read__skipped_rule_list
-                  ) p lb
-                )
-              );
-            )
+            field_skipped_rules := (
+              Some (
+                (
+                  read__skipped_rule_list
+                ) p lb
+              )
+            );
           | 4 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_explanations := (
@@ -12477,15 +12418,13 @@ let read_core_match_results = (
                 );
               )
             | 3 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_skipped_rules := (
-                  Some (
-                    (
-                      read__skipped_rule_list
-                    ) p lb
-                  )
-                );
-              )
+              field_skipped_rules := (
+                Some (
+                  (
+                    read__skipped_rule_list
+                  ) p lb
+                )
+              );
             | 4 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_explanations := (
@@ -12542,7 +12481,7 @@ let read_core_match_results = (
             matches = (match !field_matches with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "matches");
             errors = (match !field_errors with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "errors");
             skipped_targets = !field_skipped_targets;
-            skipped_rules = !field_skipped_rules;
+            skipped_rules = (match !field_skipped_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "skipped_rules");
             explanations = !field_explanations;
             stats = (match !field_stats with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "stats");
             time = !field_time;
@@ -14342,6 +14281,15 @@ let write_cli_output_extra : _ -> cli_output_extra -> _ = (
       )
         ob x;
     );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"skipped_rules\":";
+    (
+      write__skipped_rule_list
+    )
+      ob x.skipped_rules;
     Buffer.add_char ob '}';
 )
 let string_of_cli_output_extra ?(len = 1024) x =
@@ -14357,6 +14305,7 @@ let read_cli_output_extra = (
     let field_explanations = ref (None) in
     let field_rules_by_engine = ref (None) in
     let field_engine_requested = ref (None) in
+    let field_skipped_rules = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -14385,6 +14334,14 @@ let read_cli_output_extra = (
             | 12 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
                   2
+                )
+                else (
+                  -1
+                )
+              )
+            | 13 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
+                  5
                 )
                 else (
                   -1
@@ -14462,6 +14419,14 @@ let read_cli_output_extra = (
                 )
               );
             )
+          | 5 ->
+            field_skipped_rules := (
+              Some (
+                (
+                  read__skipped_rule_list
+                ) p lb
+              )
+            );
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -14494,6 +14459,14 @@ let read_cli_output_extra = (
               | 12 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
                     2
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 13 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
+                    5
                   )
                   else (
                     -1
@@ -14571,6 +14544,14 @@ let read_cli_output_extra = (
                   )
                 );
               )
+            | 5 ->
+              field_skipped_rules := (
+                Some (
+                  (
+                    read__skipped_rule_list
+                  ) p lb
+                )
+              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -14585,6 +14566,7 @@ let read_cli_output_extra = (
             explanations = !field_explanations;
             rules_by_engine = !field_rules_by_engine;
             engine_requested = !field_engine_requested;
+            skipped_rules = (match !field_skipped_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "skipped_rules");
           }
          : cli_output_extra)
       )
@@ -16751,6 +16733,15 @@ let write_cli_output : _ -> cli_output -> _ = (
       )
         ob x;
     );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"skipped_rules\":";
+    (
+      write__skipped_rule_list
+    )
+      ob x.skipped_rules;
     Buffer.add_char ob '}';
 )
 let string_of_cli_output ?(len = 1024) x =
@@ -16769,6 +16760,7 @@ let read_cli_output = (
     let field_explanations = ref (None) in
     let field_rules_by_engine = ref (None) in
     let field_engine_requested = ref (None) in
+    let field_skipped_rules = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -16827,6 +16819,14 @@ let read_cli_output = (
             | 12 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
                   5
+                )
+                else (
+                  -1
+                )
+              )
+            | 13 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
+                  8
                 )
                 else (
                   -1
@@ -16930,6 +16930,14 @@ let read_cli_output = (
                 )
               );
             )
+          | 8 ->
+            field_skipped_rules := (
+              Some (
+                (
+                  read__skipped_rule_list
+                ) p lb
+              )
+            );
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -16992,6 +17000,14 @@ let read_cli_output = (
               | 12 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
                     5
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 13 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
+                    8
                   )
                   else (
                     -1
@@ -17095,6 +17111,14 @@ let read_cli_output = (
                   )
                 );
               )
+            | 8 ->
+              field_skipped_rules := (
+                Some (
+                  (
+                    read__skipped_rule_list
+                  ) p lb
+                )
+              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -17112,6 +17136,7 @@ let read_cli_output = (
             explanations = !field_explanations;
             rules_by_engine = !field_rules_by_engine;
             engine_requested = !field_engine_requested;
+            skipped_rules = (match !field_skipped_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "skipped_rules");
           }
          : cli_output)
       )

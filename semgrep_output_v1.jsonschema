@@ -3,7 +3,7 @@
   "title": "cli_output",
   "description": "Translated by atdcat from 'semgrep_output_v1.atd'.",
   "type": "object",
-  "required": [ "errors", "results", "paths" ],
+  "required": [ "errors", "results", "paths", "skipped_rules" ],
   "properties": {
     "version": { "$ref": "#/definitions/version" },
     "errors": {
@@ -24,7 +24,11 @@
       "type": "array",
       "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
     },
-    "engine_requested": { "$ref": "#/definitions/engine_kind" }
+    "engine_requested": { "$ref": "#/definitions/engine_kind" },
+    "skipped_rules": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/skipped_rule" }
+    }
   },
   "definitions": {
     "raw_json": {},
@@ -370,7 +374,8 @@
     "core_match_results": {
       "type": "object",
       "required": [
-        "matches", "errors", "stats", "rules_by_engine", "engine_requested"
+        "matches", "errors", "skipped_rules", "stats", "rules_by_engine",
+        "engine_requested"
       ],
       "properties": {
         "matches": {
@@ -564,7 +569,7 @@
     },
     "cli_output_extra": {
       "type": "object",
-      "required": [ "paths" ],
+      "required": [ "paths", "skipped_rules" ],
       "properties": {
         "paths": { "$ref": "#/definitions/cli_paths" },
         "time": { "$ref": "#/definitions/cli_timing" },
@@ -576,7 +581,11 @@
           "type": "array",
           "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
         },
-        "engine_requested": { "$ref": "#/definitions/engine_kind" }
+        "engine_requested": { "$ref": "#/definitions/engine_kind" },
+        "skipped_rules": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/skipped_rule" }
+        }
       }
     },
     "cli_paths": {

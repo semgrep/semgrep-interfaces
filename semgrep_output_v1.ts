@@ -207,7 +207,7 @@ export type CoreMatchResults = {
   matches: CoreMatch[];
   errors: CoreError[];
   skipped_targets?: SkippedTarget[];
-  skipped_rules?: SkippedRule[];
+  skipped_rules: SkippedRule[];
   explanations?: MatchingExplanation[];
   stats: CoreStats;
   time?: CoreTiming;
@@ -300,6 +300,7 @@ export type CliOutput = {
   explanations?: MatchingExplanation[];
   rules_by_engine?: RuleIdAndEngineKind[];
   engine_requested?: EngineKind;
+  skipped_rules: SkippedRule[];
 }
 
 export type CliOutputExtra = {
@@ -308,6 +309,7 @@ export type CliOutputExtra = {
   explanations?: MatchingExplanation[];
   rules_by_engine?: RuleIdAndEngineKind[];
   engine_requested?: EngineKind;
+  skipped_rules: SkippedRule[];
 }
 
 export type CliPaths = {
@@ -1157,7 +1159,7 @@ export function writeCoreMatchResults(x: CoreMatchResults, context: any = x): an
     'matches': _atd_write_required_field('CoreMatchResults', 'matches', _atd_write_array(writeCoreMatch), x.matches, x),
     'errors': _atd_write_required_field('CoreMatchResults', 'errors', _atd_write_array(writeCoreError), x.errors, x),
     'skipped': _atd_write_optional_field(_atd_write_array(writeSkippedTarget), x.skipped_targets, x),
-    'skipped_rules': _atd_write_optional_field(_atd_write_array(writeSkippedRule), x.skipped_rules, x),
+    'skipped_rules': _atd_write_required_field('CoreMatchResults', 'skipped_rules', _atd_write_array(writeSkippedRule), x.skipped_rules, x),
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'stats': _atd_write_required_field('CoreMatchResults', 'stats', writeCoreStats, x.stats, x),
     'time': _atd_write_optional_field(writeCoreTiming, x.time, x),
@@ -1171,7 +1173,7 @@ export function readCoreMatchResults(x: any, context: any = x): CoreMatchResults
     matches: _atd_read_required_field('CoreMatchResults', 'matches', _atd_read_array(readCoreMatch), x['matches'], x),
     errors: _atd_read_required_field('CoreMatchResults', 'errors', _atd_read_array(readCoreError), x['errors'], x),
     skipped_targets: _atd_read_optional_field(_atd_read_array(readSkippedTarget), x['skipped'], x),
-    skipped_rules: _atd_read_optional_field(_atd_read_array(readSkippedRule), x['skipped_rules'], x),
+    skipped_rules: _atd_read_required_field('CoreMatchResults', 'skipped_rules', _atd_read_array(readSkippedRule), x['skipped_rules'], x),
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     stats: _atd_read_required_field('CoreMatchResults', 'stats', readCoreStats, x['stats'], x),
     time: _atd_read_optional_field(readCoreTiming, x['time'], x),
@@ -1388,6 +1390,7 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
+    'skipped_rules': _atd_write_required_field('CliOutput', 'skipped_rules', _atd_write_array(writeSkippedRule), x.skipped_rules, x),
   };
 }
 
@@ -1401,6 +1404,7 @@ export function readCliOutput(x: any, context: any = x): CliOutput {
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
+    skipped_rules: _atd_read_required_field('CliOutput', 'skipped_rules', _atd_read_array(readSkippedRule), x['skipped_rules'], x),
   };
 }
 
@@ -1411,6 +1415,7 @@ export function writeCliOutputExtra(x: CliOutputExtra, context: any = x): any {
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
+    'skipped_rules': _atd_write_required_field('CliOutputExtra', 'skipped_rules', _atd_write_array(writeSkippedRule), x.skipped_rules, x),
   };
 }
 
@@ -1421,6 +1426,7 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
+    skipped_rules: _atd_read_required_field('CliOutputExtra', 'skipped_rules', _atd_read_array(readSkippedRule), x['skipped_rules'], x),
   };
 }
 

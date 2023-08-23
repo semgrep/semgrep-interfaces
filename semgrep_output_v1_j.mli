@@ -361,7 +361,7 @@ type core_match_results = Semgrep_output_v1_t.core_match_results = {
   matches: core_match list;
   errors: core_error list;
   skipped_targets: skipped_target list option;
-  skipped_rules: skipped_rule list option;
+  skipped_rules: skipped_rule list;
   explanations: matching_explanation list option;
   stats: core_stats;
   time: core_timing option;
@@ -422,7 +422,8 @@ type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   time: cli_timing option;
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list option;
-  engine_requested: engine_kind option
+  engine_requested: engine_kind option;
+  skipped_rules: skipped_rule list
 }
   [@@deriving show]
 
@@ -475,7 +476,8 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   time: cli_timing option;
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list option;
-  engine_requested: engine_kind option
+  engine_requested: engine_kind option;
+  skipped_rules: skipped_rule list
 }
   [@@deriving show]
 

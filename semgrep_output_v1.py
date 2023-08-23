@@ -3425,11 +3425,11 @@ class CoreMatchResults:
 
     matches: List[CoreMatch]
     errors: List[CoreError]
+    skipped_rules: List[SkippedRule]
     stats: CoreStats
     rules_by_engine: List[RuleIdAndEngineKind]
     engine_requested: EngineKind
     skipped_targets: Optional[List[SkippedTarget]] = None
-    skipped_rules: Optional[List[SkippedRule]] = None
     explanations: Optional[List[MatchingExplanation]] = None
     time: Optional[CoreTiming] = None
 
@@ -3439,11 +3439,11 @@ class CoreMatchResults:
             return cls(
                 matches=_atd_read_list(CoreMatch.from_json)(x['matches']) if 'matches' in x else _atd_missing_json_field('CoreMatchResults', 'matches'),
                 errors=_atd_read_list(CoreError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CoreMatchResults', 'errors'),
+                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else _atd_missing_json_field('CoreMatchResults', 'skipped_rules'),
                 stats=CoreStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CoreMatchResults', 'stats'),
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else _atd_missing_json_field('CoreMatchResults', 'rules_by_engine'),
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else _atd_missing_json_field('CoreMatchResults', 'engine_requested'),
                 skipped_targets=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
-                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 time=CoreTiming.from_json(x['time']) if 'time' in x else None,
             )
@@ -3454,13 +3454,12 @@ class CoreMatchResults:
         res: Dict[str, Any] = {}
         res['matches'] = _atd_write_list((lambda x: x.to_json()))(self.matches)
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
+        res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         res['stats'] = (lambda x: x.to_json())(self.stats)
         res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
         res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
         if self.skipped_targets is not None:
             res['skipped'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_targets)
-        if self.skipped_rules is not None:
-            res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         if self.explanations is not None:
             res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
         if self.time is not None:
@@ -3717,6 +3716,7 @@ class CliOutputExtra:
     """Original type: cli_output_extra = { ... }"""
 
     paths: CliPaths
+    skipped_rules: List[SkippedRule]
     time: Optional[CliTiming] = None
     explanations: Optional[List[MatchingExplanation]] = None
     rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
@@ -3727,6 +3727,7 @@ class CliOutputExtra:
         if isinstance(x, dict):
             return cls(
                 paths=CliPaths.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutputExtra', 'paths'),
+                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else _atd_missing_json_field('CliOutputExtra', 'skipped_rules'),
                 time=CliTiming.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
@@ -3738,6 +3739,7 @@ class CliOutputExtra:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['paths'] = (lambda x: x.to_json())(self.paths)
+        res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         if self.time is not None:
             res['time'] = (lambda x: x.to_json())(self.time)
         if self.explanations is not None:
@@ -3941,6 +3943,7 @@ class CliOutput:
     errors: List[CliError]
     results: List[CliMatch]
     paths: CliPaths
+    skipped_rules: List[SkippedRule]
     version: Optional[Version] = None
     time: Optional[CliTiming] = None
     explanations: Optional[List[MatchingExplanation]] = None
@@ -3954,6 +3957,7 @@ class CliOutput:
                 errors=_atd_read_list(CliError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CliOutput', 'errors'),
                 results=_atd_read_list(CliMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CliOutput', 'results'),
                 paths=CliPaths.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutput', 'paths'),
+                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else _atd_missing_json_field('CliOutput', 'skipped_rules'),
                 version=Version.from_json(x['version']) if 'version' in x else None,
                 time=CliTiming.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
@@ -3968,6 +3972,7 @@ class CliOutput:
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['results'] = _atd_write_list((lambda x: x.to_json()))(self.results)
         res['paths'] = (lambda x: x.to_json())(self.paths)
+        res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         if self.version is not None:
             res['version'] = (lambda x: x.to_json())(self.version)
         if self.time is not None:
