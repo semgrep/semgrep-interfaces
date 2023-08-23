@@ -148,7 +148,8 @@ type core_match_extra
   ?rendered_fix: string option;
   engine_kind: engine_kind;
   (* If present indicates the status of postprocessor validation. This field
-   * not being present should be equivalent to NO_VALIDATOR. *)
+   * not being present should be equivalent to NO_VALIDATOR.
+   * Added in semgrep 1.37.0 *)
   ?validation_state : validation_state option;
   (* Escape hatch to pass untyped info from semgrep-core to the semgrep output.
    * Useful for quick experiments, especially when combined with semgrep
@@ -649,7 +650,8 @@ type cli_match_extra <ocaml attr="deriving show"> = {
   ?engine_kind: engine_kind option;
 
   (* If present indicates the status of postprocessor validation. This field
-   * not being present should be equivalent to NO_VALIDATOR. *)
+   * not being present should be equivalent to NO_VALIDATOR.
+   * Added in semgrep 1.37.0 *)
   ?validation_state: validation_state option;
 
   (* EXPERIMENTAL: see core_match_extra.extra_extra *)
