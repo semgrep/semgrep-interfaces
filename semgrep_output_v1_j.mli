@@ -69,6 +69,9 @@ type metavar_value = Semgrep_output_v1_t.metavar_value = {
 
 type metavars = Semgrep_output_v1_t.metavars [@@deriving show]
 
+type validation_state = Semgrep_output_v1_t.validation_state
+  [@@deriving show]
+
 type core_match_call_trace = Semgrep_output_v1_t.core_match_call_trace = 
     CoreLoc of location
   | CoreCall
@@ -94,6 +97,7 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   dataflow_trace: core_match_dataflow_trace option;
   rendered_fix: string option;
   engine_kind: engine_kind;
+  validation_state: validation_state option;
   extra_extra: raw_json option
 }
   [@@deriving show]
@@ -437,6 +441,7 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   fixed_lines: string list option;
   dataflow_trace: cli_match_dataflow_trace option;
   engine_kind: engine_kind option;
+  validation_state: validation_state option;
   extra_extra: raw_json option
 }
   [@@deriving show]
@@ -757,6 +762,26 @@ val read_metavars :
 val metavars_of_string :
   string -> metavars
   (** Deserialize JSON data of type {!type:metavars}. *)
+
+val write_validation_state :
+  Buffer.t -> validation_state -> unit
+  (** Output a JSON value of type {!type:validation_state}. *)
+
+val string_of_validation_state :
+  ?len:int -> validation_state -> string
+  (** Serialize a value of type {!type:validation_state}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_validation_state :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> validation_state
+  (** Input JSON data of type {!type:validation_state}. *)
+
+val validation_state_of_string :
+  string -> validation_state
+  (** Deserialize JSON data of type {!type:validation_state}. *)
 
 val write_core_match_call_trace :
   Buffer.t -> core_match_call_trace -> unit
