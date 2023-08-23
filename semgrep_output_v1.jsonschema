@@ -548,6 +548,7 @@
           "$ref": "#/definitions/cli_match_dataflow_trace"
         },
         "engine_kind": { "$ref": "#/definitions/engine_kind" },
+        "validation_state": { "$ref": "#/definitions/validation_state" },
         "extra_extra": { "$ref": "#/definitions/raw_json" }
       }
     },

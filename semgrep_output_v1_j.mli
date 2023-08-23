@@ -441,6 +441,7 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   fixed_lines: string list option;
   dataflow_trace: cli_match_dataflow_trace option;
   engine_kind: engine_kind option;
+  validation_state: validation_state option;
   extra_extra: raw_json option
 }
   [@@deriving show]

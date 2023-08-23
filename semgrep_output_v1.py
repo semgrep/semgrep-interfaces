@@ -3834,6 +3834,7 @@ class CliMatchExtra:
     fixed_lines: Optional[List[str]] = None
     dataflow_trace: Optional[CliMatchDataflowTrace] = None
     engine_kind: Optional[EngineKind] = None
+    validation_state: Optional[ValidationState] = None
     extra_extra: Optional[RawJson] = None
 
     @classmethod
@@ -3853,6 +3854,7 @@ class CliMatchExtra:
                 fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
                 dataflow_trace=CliMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else None,
+                validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
                 extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
             )
         else:
@@ -3881,6 +3883,8 @@ class CliMatchExtra:
             res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
         if self.engine_kind is not None:
             res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
+        if self.validation_state is not None:
+            res['validation_state'] = (lambda x: x.to_json())(self.validation_state)
         if self.extra_extra is not None:
             res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
         return res

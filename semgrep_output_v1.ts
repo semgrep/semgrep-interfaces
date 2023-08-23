@@ -286,6 +286,7 @@ export type CliMatchExtra = {
   fixed_lines?: string[];
   dataflow_trace?: CliMatchDataflowTrace;
   engine_kind?: EngineKind;
+  validation_state?: ValidationState;
   extra_extra?: RawJson;
 }
 
@@ -1365,6 +1366,7 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
     'dataflow_trace': _atd_write_optional_field(writeCliMatchDataflowTrace, x.dataflow_trace, x),
     'engine_kind': _atd_write_optional_field(writeEngineKind, x.engine_kind, x),
+    'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
   };
 }
@@ -1384,6 +1386,7 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
     dataflow_trace: _atd_read_optional_field(readCliMatchDataflowTrace, x['dataflow_trace'], x),
     engine_kind: _atd_read_optional_field(readEngineKind, x['engine_kind'], x),
+    validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
   };
 }
