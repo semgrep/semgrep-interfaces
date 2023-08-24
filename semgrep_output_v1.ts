@@ -519,7 +519,7 @@ export function writePosition(x: Position, context: any = x): any {
   return {
     'line': _atd_write_required_field('Position', 'line', _atd_write_int, x.line, x),
     'col': _atd_write_required_field('Position', 'col', _atd_write_int, x.col, x),
-    'offset': _atd_write_field_with_default(_atd_write_int, 0, x.offset, x),
+    'offset': _atd_write_required_field('Position', 'offset', _atd_write_int, x.offset, x),
   };
 }
 
@@ -527,7 +527,7 @@ export function readPosition(x: any, context: any = x): Position {
   return {
     line: _atd_read_required_field('Position', 'line', _atd_read_int, x['line'], x),
     col: _atd_read_required_field('Position', 'col', _atd_read_int, x['col'], x),
-    offset: _atd_read_field_with_default(_atd_read_int, 0, x['offset'], x),
+    offset: _atd_read_required_field('Position', 'offset', _atd_read_int, x['offset'], x),
   };
 }
 

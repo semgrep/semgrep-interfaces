@@ -81,13 +81,9 @@ type position
 
   (* Byte position from the beginning of the file, starts at 0.
 
-     It's set to default to 0 because the field was missing in the old
-     interface (type 'position_bis' that only had 'line' and 'col' fields.
-     The OCaml code (semgrep-core, osemgrep) will set this field correctly.
-
-     It's not clear whether the Python code sets it.
+     OCaml code sets it correctly. Python code sets it to a dummy value (-1).
   *)
-  ~offset: int;
+  offset: int;
 }
 
 (* File path.

@@ -35,7 +35,7 @@
     "version": { "type": "string" },
     "position": {
       "type": "object",
-      "required": [ "line", "col" ],
+      "required": [ "line", "col", "offset" ],
       "properties": {
         "line": { "type": "integer" },
         "col": { "type": "integer" },

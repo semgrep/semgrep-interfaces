@@ -809,17 +809,15 @@ let write_position : _ -> position -> _ = (
       Yojson.Safe.write_int
     )
       ob x.col;
-    if x.offset <> 0 then (
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"offset\":";
-      (
-        Yojson.Safe.write_int
-      )
-        ob x.offset;
-    );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"offset\":";
+    (
+      Yojson.Safe.write_int
+    )
+      ob x.offset;
     Buffer.add_char ob '}';
 )
 let string_of_position ?(len = 1024) x =
@@ -832,7 +830,7 @@ let read_position = (
     Yojson.Safe.read_lcurl p lb;
     let field_line = ref (None) in
     let field_col = ref (None) in
-    let field_offset = ref (0) in
+    let field_offset = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -891,13 +889,13 @@ let read_position = (
               )
             );
           | 2 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_offset := (
+            field_offset := (
+              Some (
                 (
                   Atdgen_runtime.Oj_run.read_int
                 ) p lb
-              );
-            )
+              )
+            );
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -960,13 +958,13 @@ let read_position = (
                 )
               );
             | 2 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_offset := (
+              field_offset := (
+                Some (
                   (
                     Atdgen_runtime.Oj_run.read_int
                   ) p lb
-                );
-              )
+                )
+              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -978,7 +976,7 @@ let read_position = (
           {
             line = (match !field_line with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "line");
             col = (match !field_col with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "col");
-            offset = !field_offset;
+            offset = (match !field_offset with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "offset");
           }
          : position)
       )
