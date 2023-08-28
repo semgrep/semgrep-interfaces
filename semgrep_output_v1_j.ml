@@ -328,6 +328,17 @@ type core_stats = Semgrep_output_v1_t.core_stats = {
 type core_severity = Semgrep_output_v1_t.core_severity =  Error | Warning 
   [@@deriving show]
 
+type core_output_extra = Semgrep_output_v1_t.core_output_extra = {
+  skipped_targets: skipped_target list option;
+  skipped_rules: skipped_rule list option;
+  explanations: matching_explanation list option;
+  stats: core_stats;
+  time: core_timing option;
+  rules_by_engine: rule_id_and_engine_kind list;
+  engine_requested: engine_kind
+}
+  [@@deriving show]
+
 type core_error_kind = Semgrep_output_v1_t.core_error_kind = 
     LexicalError
   | ParseError
@@ -358,9 +369,9 @@ type core_error = Semgrep_output_v1_t.core_error = {
 }
   [@@deriving show]
 
-type core_match_results = Semgrep_output_v1_t.core_match_results = {
-  matches: core_match list;
+type core_output = Semgrep_output_v1_t.core_output = {
   errors: core_error list;
+  results: core_match list;
   skipped_targets: skipped_target list option;
   skipped_rules: skipped_rule list option;
   explanations: matching_explanation list option;
@@ -11234,6 +11245,674 @@ let read_core_severity = (
 )
 let core_severity_of_string s =
   read_core_severity (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__skipped_target_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_skipped_target
+  )
+)
+let string_of__skipped_target_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__skipped_target_list ob x;
+  Buffer.contents ob
+let read__skipped_target_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_skipped_target
+  )
+)
+let _skipped_target_list_of_string s =
+  read__skipped_target_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__skipped_target_list_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write__skipped_target_list
+  )
+)
+let string_of__skipped_target_list_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__skipped_target_list_option ob x;
+  Buffer.contents ob
+let read__skipped_target_list_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__skipped_target_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__skipped_target_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _skipped_target_list_option_of_string s =
+  read__skipped_target_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__skipped_rule_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_skipped_rule
+  )
+)
+let string_of__skipped_rule_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__skipped_rule_list ob x;
+  Buffer.contents ob
+let read__skipped_rule_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_skipped_rule
+  )
+)
+let _skipped_rule_list_of_string s =
+  read__skipped_rule_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__skipped_rule_list_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write__skipped_rule_list
+  )
+)
+let string_of__skipped_rule_list_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__skipped_rule_list_option ob x;
+  Buffer.contents ob
+let read__skipped_rule_list_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__skipped_rule_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__skipped_rule_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _skipped_rule_list_option_of_string s =
+  read__skipped_rule_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__matching_explanation_list_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write__matching_explanation_list
+  )
+)
+let string_of__matching_explanation_list_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__matching_explanation_list_option ob x;
+  Buffer.contents ob
+let read__matching_explanation_list_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__matching_explanation_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__matching_explanation_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _matching_explanation_list_option_of_string s =
+  read__matching_explanation_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__list_a3e89bb = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_rule_id_and_engine_kind
+  )
+)
+let string_of__list_a3e89bb ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__list_a3e89bb ob x;
+  Buffer.contents ob
+let read__list_a3e89bb = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_rule_id_and_engine_kind
+  )
+)
+let _list_a3e89bb_of_string s =
+  read__list_a3e89bb (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__core_timing_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_core_timing
+  )
+)
+let string_of__core_timing_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__core_timing_option ob x;
+  Buffer.contents ob
+let read__core_timing_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_core_timing
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_core_timing
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _core_timing_option_of_string s =
+  read__core_timing_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_core_output_extra : _ -> core_output_extra -> _ = (
+  fun ob (x : core_output_extra) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    (match x.skipped_targets with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"skipped\":";
+      (
+        write__skipped_target_list
+      )
+        ob x;
+    );
+    (match x.skipped_rules with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"skipped_rules\":";
+      (
+        write__skipped_rule_list
+      )
+        ob x;
+    );
+    (match x.explanations with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"explanations\":";
+      (
+        write__matching_explanation_list
+      )
+        ob x;
+    );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"stats\":";
+    (
+      write_core_stats
+    )
+      ob x.stats;
+    (match x.time with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"time\":";
+      (
+        write_core_timing
+      )
+        ob x;
+    );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"rules_by_engine\":";
+    (
+      write__list_a3e89bb
+    )
+      ob x.rules_by_engine;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"engine_requested\":";
+    (
+      write_engine_kind
+    )
+      ob x.engine_requested;
+    Buffer.add_char ob '}';
+)
+let string_of_core_output_extra ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_core_output_extra ob x;
+  Buffer.contents ob
+let read_core_output_extra = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_skipped_targets = ref (None) in
+    let field_skipped_rules = ref (None) in
+    let field_explanations = ref (None) in
+    let field_stats = ref (None) in
+    let field_time = ref (None) in
+    let field_rules_by_engine = ref (None) in
+    let field_engine_requested = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 4 -> (
+                if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'e' then (
+                  4
+                )
+                else (
+                  -1
+                )
+              )
+            | 5 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 's' then (
+                  3
+                )
+                else (
+                  -1
+                )
+              )
+            | 7 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
+                  0
+                )
+                else (
+                  -1
+                )
+              )
+            | 12 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
+                  2
+                )
+                else (
+                  -1
+                )
+              )
+            | 13 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | 15 -> (
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'y' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'g' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 'e' then (
+                  5
+                )
+                else (
+                  -1
+                )
+              )
+            | 16 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
+                  6
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_skipped_targets := (
+                Some (
+                  (
+                    read__skipped_target_list
+                  ) p lb
+                )
+              );
+            )
+          | 1 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_skipped_rules := (
+                Some (
+                  (
+                    read__skipped_rule_list
+                  ) p lb
+                )
+              );
+            )
+          | 2 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_explanations := (
+                Some (
+                  (
+                    read__matching_explanation_list
+                  ) p lb
+                )
+              );
+            )
+          | 3 ->
+            field_stats := (
+              Some (
+                (
+                  read_core_stats
+                ) p lb
+              )
+            );
+          | 4 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_time := (
+                Some (
+                  (
+                    read_core_timing
+                  ) p lb
+                )
+              );
+            )
+          | 5 ->
+            field_rules_by_engine := (
+              Some (
+                (
+                  read__list_a3e89bb
+                ) p lb
+              )
+            );
+          | 6 ->
+            field_engine_requested := (
+              Some (
+                (
+                  read_engine_kind
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 4 -> (
+                  if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'e' then (
+                    4
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 5 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 's' then (
+                    3
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 7 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 12 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
+                    2
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 13 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 15 -> (
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'y' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'g' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 'e' then (
+                    5
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 16 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
+                    6
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_skipped_targets := (
+                  Some (
+                    (
+                      read__skipped_target_list
+                    ) p lb
+                  )
+                );
+              )
+            | 1 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_skipped_rules := (
+                  Some (
+                    (
+                      read__skipped_rule_list
+                    ) p lb
+                  )
+                );
+              )
+            | 2 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_explanations := (
+                  Some (
+                    (
+                      read__matching_explanation_list
+                    ) p lb
+                  )
+                );
+              )
+            | 3 ->
+              field_stats := (
+                Some (
+                  (
+                    read_core_stats
+                  ) p lb
+                )
+              );
+            | 4 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_time := (
+                  Some (
+                    (
+                      read_core_timing
+                    ) p lb
+                  )
+                );
+              )
+            | 5 ->
+              field_rules_by_engine := (
+                Some (
+                  (
+                    read__list_a3e89bb
+                  ) p lb
+                )
+              );
+            | 6 ->
+              field_engine_requested := (
+                Some (
+                  (
+                    read_engine_kind
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            skipped_targets = !field_skipped_targets;
+            skipped_rules = !field_skipped_rules;
+            explanations = !field_explanations;
+            stats = (match !field_stats with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "stats");
+            time = !field_time;
+            rules_by_engine = (match !field_rules_by_engine with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rules_by_engine");
+            engine_requested = (match !field_engine_requested with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "engine_requested");
+          }
+         : core_output_extra)
+      )
+)
+let core_output_extra_of_string s =
+  read_core_output_extra (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__location_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_location
@@ -11791,282 +12470,6 @@ let read_core_error = (
 )
 let core_error_of_string s =
   read_core_error (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__skipped_target_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_skipped_target
-  )
-)
-let string_of__skipped_target_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__skipped_target_list ob x;
-  Buffer.contents ob
-let read__skipped_target_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_skipped_target
-  )
-)
-let _skipped_target_list_of_string s =
-  read__skipped_target_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__skipped_target_list_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write__skipped_target_list
-  )
-)
-let string_of__skipped_target_list_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__skipped_target_list_option ob x;
-  Buffer.contents ob
-let read__skipped_target_list_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__skipped_target_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__skipped_target_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _skipped_target_list_option_of_string s =
-  read__skipped_target_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__skipped_rule_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_skipped_rule
-  )
-)
-let string_of__skipped_rule_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__skipped_rule_list ob x;
-  Buffer.contents ob
-let read__skipped_rule_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_skipped_rule
-  )
-)
-let _skipped_rule_list_of_string s =
-  read__skipped_rule_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__skipped_rule_list_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write__skipped_rule_list
-  )
-)
-let string_of__skipped_rule_list_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__skipped_rule_list_option ob x;
-  Buffer.contents ob
-let read__skipped_rule_list_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__skipped_rule_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__skipped_rule_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _skipped_rule_list_option_of_string s =
-  read__skipped_rule_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__matching_explanation_list_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write__matching_explanation_list
-  )
-)
-let string_of__matching_explanation_list_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__matching_explanation_list_option ob x;
-  Buffer.contents ob
-let read__matching_explanation_list_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__matching_explanation_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__matching_explanation_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _matching_explanation_list_option_of_string s =
-  read__matching_explanation_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__list_a3e89bb = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_rule_id_and_engine_kind
-  )
-)
-let string_of__list_a3e89bb ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__list_a3e89bb ob x;
-  Buffer.contents ob
-let read__list_a3e89bb = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_rule_id_and_engine_kind
-  )
-)
-let _list_a3e89bb_of_string s =
-  read__list_a3e89bb (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__core_timing_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_core_timing
-  )
-)
-let string_of__core_timing_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__core_timing_option ob x;
-  Buffer.contents ob
-let read__core_timing_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_core_timing
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_core_timing
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _core_timing_option_of_string s =
-  read__core_timing_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__core_error_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_core_error
@@ -12083,19 +12486,10 @@ let read__core_error_list = (
 )
 let _core_error_list_of_string s =
   read__core_error_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_core_match_results : _ -> core_match_results -> _ = (
-  fun ob (x : core_match_results) ->
+let write_core_output : _ -> core_output -> _ = (
+  fun ob (x : core_output) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"matches\":";
-    (
-      write__core_match_list
-    )
-      ob x.matches;
     if !is_first then
       is_first := false
     else
@@ -12105,6 +12499,15 @@ let write_core_match_results : _ -> core_match_results -> _ = (
       write__core_error_list
     )
       ob x.errors;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"results\":";
+    (
+      write__core_match_list
+    )
+      ob x.results;
     (match x.skipped_targets with None -> () | Some x ->
       if !is_first then
         is_first := false
@@ -12178,16 +12581,16 @@ let write_core_match_results : _ -> core_match_results -> _ = (
       ob x.engine_requested;
     Buffer.add_char ob '}';
 )
-let string_of_core_match_results ?(len = 1024) x =
+let string_of_core_output ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_core_match_results ob x;
+  write_core_output ob x;
   Buffer.contents ob
-let read_core_match_results = (
+let read_core_output = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
-    let field_matches = ref (None) in
     let field_errors = ref (None) in
+    let field_results = ref (None) in
     let field_skipped_targets = ref (None) in
     let field_skipped_rules = ref (None) in
     let field_explanations = ref (None) in
@@ -12222,7 +12625,7 @@ let read_core_match_results = (
               )
             | 6 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 's' then (
-                  1
+                  0
                 )
                 else (
                   -1
@@ -12230,9 +12633,9 @@ let read_core_match_results = (
               )
             | 7 -> (
                 match String.unsafe_get s pos with
-                  | 'm' -> (
-                      if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'h' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 's' then (
-                        0
+                  | 'r' -> (
+                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = 's' then (
+                        1
                       )
                       else (
                         -1
@@ -12291,18 +12694,18 @@ let read_core_match_results = (
       (
         match i with
           | 0 ->
-            field_matches := (
-              Some (
-                (
-                  read__core_match_list
-                ) p lb
-              )
-            );
-          | 1 ->
             field_errors := (
               Some (
                 (
                   read__core_error_list
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_results := (
+              Some (
+                (
+                  read__core_match_list
                 ) p lb
               )
             );
@@ -12401,7 +12804,7 @@ let read_core_match_results = (
                 )
               | 6 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 's' then (
-                    1
+                    0
                   )
                   else (
                     -1
@@ -12409,9 +12812,9 @@ let read_core_match_results = (
                 )
               | 7 -> (
                   match String.unsafe_get s pos with
-                    | 'm' -> (
-                        if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'h' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 's' then (
-                          0
+                    | 'r' -> (
+                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = 's' then (
+                          1
                         )
                         else (
                           -1
@@ -12470,18 +12873,18 @@ let read_core_match_results = (
         (
           match i with
             | 0 ->
-              field_matches := (
-                Some (
-                  (
-                    read__core_match_list
-                  ) p lb
-                )
-              );
-            | 1 ->
               field_errors := (
                 Some (
                   (
                     read__core_error_list
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_results := (
+                Some (
+                  (
+                    read__core_match_list
                   ) p lb
                 )
               );
@@ -12558,8 +12961,8 @@ let read_core_match_results = (
     with Yojson.End_of_object -> (
         (
           {
-            matches = (match !field_matches with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "matches");
             errors = (match !field_errors with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "errors");
+            results = (match !field_results with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "results");
             skipped_targets = !field_skipped_targets;
             skipped_rules = !field_skipped_rules;
             explanations = !field_explanations;
@@ -12568,11 +12971,11 @@ let read_core_match_results = (
             rules_by_engine = (match !field_rules_by_engine with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rules_by_engine");
             engine_requested = (match !field_engine_requested with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "engine_requested");
           }
-         : core_match_results)
+         : core_output)
       )
 )
-let core_match_results_of_string s =
-  read_core_match_results (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let core_output_of_string s =
+  read_core_output (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_contributor : _ -> contributor -> _ = (
   fun ob (x : contributor) ->
     Buffer.add_char ob '{';

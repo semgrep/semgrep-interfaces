@@ -441,13 +441,18 @@ type rule_id_and_engine_kind
 (* Semgrep-core final output  *)
 (*****************************************************************************)
 (* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
-type core_match_results
+type core_output
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
-  matches: core_match list;
   (* errors are guaranteed to be duplicate free; see also Report.ml *)
   errors: core_error list;
+  results: core_match list;
+  inherit core_output_extra;
+}
 
+type core_output_extra
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {  
   ?skipped_targets <json name="skipped">: skipped_target list option;
   (* sinced semgrep 0.86 *)
   ?skipped_rules: skipped_rule list option;

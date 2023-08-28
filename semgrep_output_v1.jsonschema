@@ -336,20 +336,45 @@
         { "$ref": "#/definitions/engine_kind" }
       ]
     },
-    "core_match_results": {
+    "core_output": {
       "type": "object",
       "required": [
-        "matches", "errors", "stats", "rules_by_engine", "engine_requested"
+        "errors", "results", "stats", "rules_by_engine", "engine_requested"
       ],
       "properties": {
-        "matches": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/core_match" }
-        },
         "errors": {
           "type": "array",
           "items": { "$ref": "#/definitions/core_error" }
         },
+        "results": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/core_match" }
+        },
+        "skipped": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/skipped_target" }
+        },
+        "skipped_rules": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/skipped_rule" }
+        },
+        "explanations": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/matching_explanation" }
+        },
+        "stats": { "$ref": "#/definitions/core_stats" },
+        "time": { "$ref": "#/definitions/core_timing" },
+        "rules_by_engine": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
+        },
+        "engine_requested": { "$ref": "#/definitions/engine_kind" }
+      }
+    },
+    "core_output_extra": {
+      "type": "object",
+      "required": [ "stats", "rules_by_engine", "engine_requested" ],
+      "properties": {
         "skipped": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_target" }

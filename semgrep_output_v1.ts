@@ -188,9 +188,19 @@ export type EngineKind =
 
 export type RuleIdAndEngineKind = [RuleId, EngineKind]
 
-export type CoreMatchResults = {
-  matches: CoreMatch[];
+export type CoreOutput = {
   errors: CoreError[];
+  results: CoreMatch[];
+  skipped_targets?: SkippedTarget[];
+  skipped_rules?: SkippedRule[];
+  explanations?: MatchingExplanation[];
+  stats: CoreStats;
+  time?: CoreTiming;
+  rules_by_engine: RuleIdAndEngineKind[];
+  engine_requested: EngineKind;
+}
+
+export type CoreOutputExtra = {
   skipped_targets?: SkippedTarget[];
   skipped_rules?: SkippedRule[];
   explanations?: MatchingExplanation[];
@@ -1114,31 +1124,55 @@ export function readRuleIdAndEngineKind(x: any, context: any = x): RuleIdAndEngi
   return ((x, context): [RuleId, EngineKind] => { _atd_check_json_tuple(2, x, context); return [readRuleId(x[0], x), readEngineKind(x[1], x)] })(x, context);
 }
 
-export function writeCoreMatchResults(x: CoreMatchResults, context: any = x): any {
+export function writeCoreOutput(x: CoreOutput, context: any = x): any {
   return {
-    'matches': _atd_write_required_field('CoreMatchResults', 'matches', _atd_write_array(writeCoreMatch), x.matches, x),
-    'errors': _atd_write_required_field('CoreMatchResults', 'errors', _atd_write_array(writeCoreError), x.errors, x),
+    'errors': _atd_write_required_field('CoreOutput', 'errors', _atd_write_array(writeCoreError), x.errors, x),
+    'results': _atd_write_required_field('CoreOutput', 'results', _atd_write_array(writeCoreMatch), x.results, x),
     'skipped': _atd_write_optional_field(_atd_write_array(writeSkippedTarget), x.skipped_targets, x),
     'skipped_rules': _atd_write_optional_field(_atd_write_array(writeSkippedRule), x.skipped_rules, x),
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
-    'stats': _atd_write_required_field('CoreMatchResults', 'stats', writeCoreStats, x.stats, x),
+    'stats': _atd_write_required_field('CoreOutput', 'stats', writeCoreStats, x.stats, x),
     'time': _atd_write_optional_field(writeCoreTiming, x.time, x),
-    'rules_by_engine': _atd_write_required_field('CoreMatchResults', 'rules_by_engine', _atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
-    'engine_requested': _atd_write_required_field('CoreMatchResults', 'engine_requested', writeEngineKind, x.engine_requested, x),
+    'rules_by_engine': _atd_write_required_field('CoreOutput', 'rules_by_engine', _atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
+    'engine_requested': _atd_write_required_field('CoreOutput', 'engine_requested', writeEngineKind, x.engine_requested, x),
   };
 }
 
-export function readCoreMatchResults(x: any, context: any = x): CoreMatchResults {
+export function readCoreOutput(x: any, context: any = x): CoreOutput {
   return {
-    matches: _atd_read_required_field('CoreMatchResults', 'matches', _atd_read_array(readCoreMatch), x['matches'], x),
-    errors: _atd_read_required_field('CoreMatchResults', 'errors', _atd_read_array(readCoreError), x['errors'], x),
+    errors: _atd_read_required_field('CoreOutput', 'errors', _atd_read_array(readCoreError), x['errors'], x),
+    results: _atd_read_required_field('CoreOutput', 'results', _atd_read_array(readCoreMatch), x['results'], x),
     skipped_targets: _atd_read_optional_field(_atd_read_array(readSkippedTarget), x['skipped'], x),
     skipped_rules: _atd_read_optional_field(_atd_read_array(readSkippedRule), x['skipped_rules'], x),
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
-    stats: _atd_read_required_field('CoreMatchResults', 'stats', readCoreStats, x['stats'], x),
+    stats: _atd_read_required_field('CoreOutput', 'stats', readCoreStats, x['stats'], x),
     time: _atd_read_optional_field(readCoreTiming, x['time'], x),
-    rules_by_engine: _atd_read_required_field('CoreMatchResults', 'rules_by_engine', _atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
-    engine_requested: _atd_read_required_field('CoreMatchResults', 'engine_requested', readEngineKind, x['engine_requested'], x),
+    rules_by_engine: _atd_read_required_field('CoreOutput', 'rules_by_engine', _atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
+    engine_requested: _atd_read_required_field('CoreOutput', 'engine_requested', readEngineKind, x['engine_requested'], x),
+  };
+}
+
+export function writeCoreOutputExtra(x: CoreOutputExtra, context: any = x): any {
+  return {
+    'skipped': _atd_write_optional_field(_atd_write_array(writeSkippedTarget), x.skipped_targets, x),
+    'skipped_rules': _atd_write_optional_field(_atd_write_array(writeSkippedRule), x.skipped_rules, x),
+    'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
+    'stats': _atd_write_required_field('CoreOutputExtra', 'stats', writeCoreStats, x.stats, x),
+    'time': _atd_write_optional_field(writeCoreTiming, x.time, x),
+    'rules_by_engine': _atd_write_required_field('CoreOutputExtra', 'rules_by_engine', _atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
+    'engine_requested': _atd_write_required_field('CoreOutputExtra', 'engine_requested', writeEngineKind, x.engine_requested, x),
+  };
+}
+
+export function readCoreOutputExtra(x: any, context: any = x): CoreOutputExtra {
+  return {
+    skipped_targets: _atd_read_optional_field(_atd_read_array(readSkippedTarget), x['skipped'], x),
+    skipped_rules: _atd_read_optional_field(_atd_read_array(readSkippedRule), x['skipped_rules'], x),
+    explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
+    stats: _atd_read_required_field('CoreOutputExtra', 'stats', readCoreStats, x['stats'], x),
+    time: _atd_read_optional_field(readCoreTiming, x['time'], x),
+    rules_by_engine: _atd_read_required_field('CoreOutputExtra', 'rules_by_engine', _atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
+    engine_requested: _atd_read_required_field('CoreOutputExtra', 'engine_requested', readEngineKind, x['engine_requested'], x),
   };
 }
 
