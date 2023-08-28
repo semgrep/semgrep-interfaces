@@ -247,55 +247,6 @@ type core_stats
 }
 
 (*****************************************************************************)
-(* Skipping information *)
-(*****************************************************************************)
-
-(* If the 'rule_id' field is missing, the target is assumed to have
- *  been skipped for all the rules.
- *)
-type skipped_target
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = {
-  path: fpath;
-  reason: skip_reason;
-  details: string;
-  ?rule_id: rule_id option;
-}
-
-(* A reason for skipping a target file or a pair (target, rule). *)
-type skip_reason
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = [
-  (* New in osemgrep *)
-  | Gitignore_patterns_match <json name="gitignore_patterns_match">
-  (* Originally returned by the Python CLI *)
-  | Always_skipped <json name="always_skipped">
-  | Semgrepignore_patterns_match <json name="semgrepignore_patterns_match">
-  | Cli_include_flags_do_not_match <json name="cli_include_flags_do_not_match">
-  | Cli_exclude_flags_match <json name="cli_exclude_flags_match">
-  | Exceeded_size_limit <json name="exceeded_size_limit">
-  | Analysis_failed_parser_or_internal_error
-      <json name="analysis_failed_parser_or_internal_error">
-  (* Originally returned by semgrep-core *)
-  | Excluded_by_config <json name="excluded_by_config">
-  | Wrong_language <json name="wrong_language">
-  | Too_big <json name="too_big">
-  | Minified <json name="minified">
-  | Binary <json name="binary">
-  | Irrelevant_rule <json name="irrelevant_rule">
-  | Too_many_matches <json name="too_many_matches">
-] <ocaml repr="classic">
-
-type skipped_rule
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = {
-  rule_id: rule_id;
-  details: string;
-  (* position of the error in the rule file *)
-  position: position;
-}
-
-(*****************************************************************************)
 (* Core Profiling information *)
 (*****************************************************************************)
 (* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
@@ -420,6 +371,55 @@ type matching_operation
   | EllipsisAndStmts
   | ClassHeaderAndElems
 ] <ocaml repr="classic">
+
+(*****************************************************************************)
+(* Skipping information *)
+(*****************************************************************************)
+
+(* If the 'rule_id' field is missing, the target is assumed to have
+ *  been skipped for all the rules.
+ *)
+type skipped_target
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {
+  path: fpath;
+  reason: skip_reason;
+  details: string;
+  ?rule_id: rule_id option;
+}
+
+(* A reason for skipping a target file or a pair (target, rule). *)
+type skip_reason
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = [
+  (* New in osemgrep *)
+  | Gitignore_patterns_match <json name="gitignore_patterns_match">
+  (* Originally returned by the Python CLI *)
+  | Always_skipped <json name="always_skipped">
+  | Semgrepignore_patterns_match <json name="semgrepignore_patterns_match">
+  | Cli_include_flags_do_not_match <json name="cli_include_flags_do_not_match">
+  | Cli_exclude_flags_match <json name="cli_exclude_flags_match">
+  | Exceeded_size_limit <json name="exceeded_size_limit">
+  | Analysis_failed_parser_or_internal_error
+      <json name="analysis_failed_parser_or_internal_error">
+  (* Originally returned by semgrep-core *)
+  | Excluded_by_config <json name="excluded_by_config">
+  | Wrong_language <json name="wrong_language">
+  | Too_big <json name="too_big">
+  | Minified <json name="minified">
+  | Binary <json name="binary">
+  | Irrelevant_rule <json name="irrelevant_rule">
+  | Too_many_matches <json name="too_many_matches">
+] <ocaml repr="classic">
+
+type skipped_rule
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {
+  rule_id: rule_id;
+  details: string;
+  (* position of the error in the rule file *)
+  position: position;
+}
 
 (*****************************************************************************)
 (* Engine kind  *)
@@ -719,23 +719,6 @@ type cli_timing <ocaml attr="deriving show"> = {
     ?max_memory_bytes : int option;
   }
 
-(* 
- * https://semgrep.dev/docs/usage-limits
- *)
-type contributor <ocaml attr="deriving show"> = {
-    commit_author_name: string;
-    commit_author_email: string;
-}
-
-type contribution <ocaml attr="deriving show"> = {
-    commit_hash: string;
-    commit_timestamp: string;
-    contributor: contributor;
-}
-
-type contributions
-  <ocaml attr="deriving show"> = contribution list
-
 (* LATER: should just use rule_id *)
 type rule_id_dict <ocaml attr="deriving show"> = {
   id: rule_id;
@@ -853,6 +836,28 @@ type dependency_parser_error <ocaml attr="deriving show"> = {
   ?col: int option;
   ?text: string option;
 }
+
+(*****************************************************************************)
+(* Contributors (App) *)
+(*****************************************************************************)
+
+(* 
+ * https://semgrep.dev/docs/usage-limits
+ *)
+type contributor <ocaml attr="deriving show"> = {
+    commit_author_name: string;
+    commit_author_email: string;
+}
+
+type contribution <ocaml attr="deriving show"> = {
+    commit_hash: string;
+    commit_timestamp: string;
+    contributor: contributor;
+}
+
+type contributions
+  <ocaml attr="deriving show"> = contribution list
+
 
 (*****************************************************************************)
 (* Semgrep CLI findings output for the App *)

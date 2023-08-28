@@ -99,35 +99,6 @@ export type CoreStats = {
   errorfiles: number /*int*/;
 }
 
-export type SkippedTarget = {
-  path: Fpath;
-  reason: SkipReason;
-  details: string;
-  rule_id?: RuleId;
-}
-
-export type SkipReason =
-| { kind: 'Gitignore_patterns_match' /* JSON: "gitignore_patterns_match" */ }
-| { kind: 'Always_skipped' /* JSON: "always_skipped" */ }
-| { kind: 'Semgrepignore_patterns_match' /* JSON: "semgrepignore_patterns_match" */ }
-| { kind: 'Cli_include_flags_do_not_match' /* JSON: "cli_include_flags_do_not_match" */ }
-| { kind: 'Cli_exclude_flags_match' /* JSON: "cli_exclude_flags_match" */ }
-| { kind: 'Exceeded_size_limit' /* JSON: "exceeded_size_limit" */ }
-| { kind: 'Analysis_failed_parser_or_internal_error' /* JSON: "analysis_failed_parser_or_internal_error" */ }
-| { kind: 'Excluded_by_config' /* JSON: "excluded_by_config" */ }
-| { kind: 'Wrong_language' /* JSON: "wrong_language" */ }
-| { kind: 'Too_big' /* JSON: "too_big" */ }
-| { kind: 'Minified' /* JSON: "minified" */ }
-| { kind: 'Binary' /* JSON: "binary" */ }
-| { kind: 'Irrelevant_rule' /* JSON: "irrelevant_rule" */ }
-| { kind: 'Too_many_matches' /* JSON: "too_many_matches" */ }
-
-export type SkippedRule = {
-  rule_id: RuleId;
-  details: string;
-  position: Position;
-}
-
 export type CoreTiming = {
   targets: TargetTime[];
   rules: RuleId[];
@@ -181,6 +152,35 @@ export type MatchingOperation =
 | { kind: 'TaintSanitizer' }
 | { kind: 'EllipsisAndStmts' }
 | { kind: 'ClassHeaderAndElems' }
+
+export type SkippedTarget = {
+  path: Fpath;
+  reason: SkipReason;
+  details: string;
+  rule_id?: RuleId;
+}
+
+export type SkipReason =
+| { kind: 'Gitignore_patterns_match' /* JSON: "gitignore_patterns_match" */ }
+| { kind: 'Always_skipped' /* JSON: "always_skipped" */ }
+| { kind: 'Semgrepignore_patterns_match' /* JSON: "semgrepignore_patterns_match" */ }
+| { kind: 'Cli_include_flags_do_not_match' /* JSON: "cli_include_flags_do_not_match" */ }
+| { kind: 'Cli_exclude_flags_match' /* JSON: "cli_exclude_flags_match" */ }
+| { kind: 'Exceeded_size_limit' /* JSON: "exceeded_size_limit" */ }
+| { kind: 'Analysis_failed_parser_or_internal_error' /* JSON: "analysis_failed_parser_or_internal_error" */ }
+| { kind: 'Excluded_by_config' /* JSON: "excluded_by_config" */ }
+| { kind: 'Wrong_language' /* JSON: "wrong_language" */ }
+| { kind: 'Too_big' /* JSON: "too_big" */ }
+| { kind: 'Minified' /* JSON: "minified" */ }
+| { kind: 'Binary' /* JSON: "binary" */ }
+| { kind: 'Irrelevant_rule' /* JSON: "irrelevant_rule" */ }
+| { kind: 'Too_many_matches' /* JSON: "too_many_matches" */ }
+
+export type SkippedRule = {
+  rule_id: RuleId;
+  details: string;
+  position: Position;
+}
 
 export type EngineKind =
 | { kind: 'OSS' }
@@ -327,19 +327,6 @@ export type CliTiming = {
   max_memory_bytes?: number /*int*/;
 }
 
-export type Contributor = {
-  commit_author_name: string;
-  commit_author_email: string;
-}
-
-export type Contribution = {
-  commit_hash: string;
-  commit_timestamp: string;
-  contributor: Contributor;
-}
-
-export type Contributions = Contribution[]
-
 export type RuleIdDict = {
   id: RuleId;
 }
@@ -428,6 +415,19 @@ export type DependencyParserError = {
   col?: number /*int*/;
   text?: string;
 }
+
+export type Contributor = {
+  commit_author_name: string;
+  commit_author_email: string;
+}
+
+export type Contribution = {
+  commit_hash: string;
+  commit_timestamp: string;
+  contributor: Contributor;
+}
+
+export type Contributions = Contribution[]
 
 export type CiScanResults = {
   findings: Finding[];
@@ -793,109 +793,6 @@ export function readCoreStats(x: any, context: any = x): CoreStats {
   };
 }
 
-export function writeSkippedTarget(x: SkippedTarget, context: any = x): any {
-  return {
-    'path': _atd_write_required_field('SkippedTarget', 'path', writeFpath, x.path, x),
-    'reason': _atd_write_required_field('SkippedTarget', 'reason', writeSkipReason, x.reason, x),
-    'details': _atd_write_required_field('SkippedTarget', 'details', _atd_write_string, x.details, x),
-    'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
-  };
-}
-
-export function readSkippedTarget(x: any, context: any = x): SkippedTarget {
-  return {
-    path: _atd_read_required_field('SkippedTarget', 'path', readFpath, x['path'], x),
-    reason: _atd_read_required_field('SkippedTarget', 'reason', readSkipReason, x['reason'], x),
-    details: _atd_read_required_field('SkippedTarget', 'details', _atd_read_string, x['details'], x),
-    rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
-  };
-}
-
-export function writeSkipReason(x: SkipReason, context: any = x): any {
-  switch (x.kind) {
-    case 'Gitignore_patterns_match':
-      return 'gitignore_patterns_match'
-    case 'Always_skipped':
-      return 'always_skipped'
-    case 'Semgrepignore_patterns_match':
-      return 'semgrepignore_patterns_match'
-    case 'Cli_include_flags_do_not_match':
-      return 'cli_include_flags_do_not_match'
-    case 'Cli_exclude_flags_match':
-      return 'cli_exclude_flags_match'
-    case 'Exceeded_size_limit':
-      return 'exceeded_size_limit'
-    case 'Analysis_failed_parser_or_internal_error':
-      return 'analysis_failed_parser_or_internal_error'
-    case 'Excluded_by_config':
-      return 'excluded_by_config'
-    case 'Wrong_language':
-      return 'wrong_language'
-    case 'Too_big':
-      return 'too_big'
-    case 'Minified':
-      return 'minified'
-    case 'Binary':
-      return 'binary'
-    case 'Irrelevant_rule':
-      return 'irrelevant_rule'
-    case 'Too_many_matches':
-      return 'too_many_matches'
-  }
-}
-
-export function readSkipReason(x: any, context: any = x): SkipReason {
-  switch (x) {
-    case 'gitignore_patterns_match':
-      return { kind: 'Gitignore_patterns_match' }
-    case 'always_skipped':
-      return { kind: 'Always_skipped' }
-    case 'semgrepignore_patterns_match':
-      return { kind: 'Semgrepignore_patterns_match' }
-    case 'cli_include_flags_do_not_match':
-      return { kind: 'Cli_include_flags_do_not_match' }
-    case 'cli_exclude_flags_match':
-      return { kind: 'Cli_exclude_flags_match' }
-    case 'exceeded_size_limit':
-      return { kind: 'Exceeded_size_limit' }
-    case 'analysis_failed_parser_or_internal_error':
-      return { kind: 'Analysis_failed_parser_or_internal_error' }
-    case 'excluded_by_config':
-      return { kind: 'Excluded_by_config' }
-    case 'wrong_language':
-      return { kind: 'Wrong_language' }
-    case 'too_big':
-      return { kind: 'Too_big' }
-    case 'minified':
-      return { kind: 'Minified' }
-    case 'binary':
-      return { kind: 'Binary' }
-    case 'irrelevant_rule':
-      return { kind: 'Irrelevant_rule' }
-    case 'too_many_matches':
-      return { kind: 'Too_many_matches' }
-    default:
-      _atd_bad_json('SkipReason', x, context)
-      throw new Error('impossible')
-  }
-}
-
-export function writeSkippedRule(x: SkippedRule, context: any = x): any {
-  return {
-    'rule_id': _atd_write_required_field('SkippedRule', 'rule_id', writeRuleId, x.rule_id, x),
-    'details': _atd_write_required_field('SkippedRule', 'details', _atd_write_string, x.details, x),
-    'position': _atd_write_required_field('SkippedRule', 'position', writePosition, x.position, x),
-  };
-}
-
-export function readSkippedRule(x: any, context: any = x): SkippedRule {
-  return {
-    rule_id: _atd_read_required_field('SkippedRule', 'rule_id', readRuleId, x['rule_id'], x),
-    details: _atd_read_required_field('SkippedRule', 'details', _atd_read_string, x['details'], x),
-    position: _atd_read_required_field('SkippedRule', 'position', readPosition, x['position'], x),
-  };
-}
-
 export function writeCoreTiming(x: CoreTiming, context: any = x): any {
   return {
     'targets': _atd_write_required_field('CoreTiming', 'targets', _atd_write_array(writeTargetTime), x.targets, x),
@@ -1083,6 +980,109 @@ export function readMatchingOperation(x: any, context: any = x): MatchingOperati
         throw new Error('impossible')
     }
   }
+}
+
+export function writeSkippedTarget(x: SkippedTarget, context: any = x): any {
+  return {
+    'path': _atd_write_required_field('SkippedTarget', 'path', writeFpath, x.path, x),
+    'reason': _atd_write_required_field('SkippedTarget', 'reason', writeSkipReason, x.reason, x),
+    'details': _atd_write_required_field('SkippedTarget', 'details', _atd_write_string, x.details, x),
+    'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
+  };
+}
+
+export function readSkippedTarget(x: any, context: any = x): SkippedTarget {
+  return {
+    path: _atd_read_required_field('SkippedTarget', 'path', readFpath, x['path'], x),
+    reason: _atd_read_required_field('SkippedTarget', 'reason', readSkipReason, x['reason'], x),
+    details: _atd_read_required_field('SkippedTarget', 'details', _atd_read_string, x['details'], x),
+    rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
+  };
+}
+
+export function writeSkipReason(x: SkipReason, context: any = x): any {
+  switch (x.kind) {
+    case 'Gitignore_patterns_match':
+      return 'gitignore_patterns_match'
+    case 'Always_skipped':
+      return 'always_skipped'
+    case 'Semgrepignore_patterns_match':
+      return 'semgrepignore_patterns_match'
+    case 'Cli_include_flags_do_not_match':
+      return 'cli_include_flags_do_not_match'
+    case 'Cli_exclude_flags_match':
+      return 'cli_exclude_flags_match'
+    case 'Exceeded_size_limit':
+      return 'exceeded_size_limit'
+    case 'Analysis_failed_parser_or_internal_error':
+      return 'analysis_failed_parser_or_internal_error'
+    case 'Excluded_by_config':
+      return 'excluded_by_config'
+    case 'Wrong_language':
+      return 'wrong_language'
+    case 'Too_big':
+      return 'too_big'
+    case 'Minified':
+      return 'minified'
+    case 'Binary':
+      return 'binary'
+    case 'Irrelevant_rule':
+      return 'irrelevant_rule'
+    case 'Too_many_matches':
+      return 'too_many_matches'
+  }
+}
+
+export function readSkipReason(x: any, context: any = x): SkipReason {
+  switch (x) {
+    case 'gitignore_patterns_match':
+      return { kind: 'Gitignore_patterns_match' }
+    case 'always_skipped':
+      return { kind: 'Always_skipped' }
+    case 'semgrepignore_patterns_match':
+      return { kind: 'Semgrepignore_patterns_match' }
+    case 'cli_include_flags_do_not_match':
+      return { kind: 'Cli_include_flags_do_not_match' }
+    case 'cli_exclude_flags_match':
+      return { kind: 'Cli_exclude_flags_match' }
+    case 'exceeded_size_limit':
+      return { kind: 'Exceeded_size_limit' }
+    case 'analysis_failed_parser_or_internal_error':
+      return { kind: 'Analysis_failed_parser_or_internal_error' }
+    case 'excluded_by_config':
+      return { kind: 'Excluded_by_config' }
+    case 'wrong_language':
+      return { kind: 'Wrong_language' }
+    case 'too_big':
+      return { kind: 'Too_big' }
+    case 'minified':
+      return { kind: 'Minified' }
+    case 'binary':
+      return { kind: 'Binary' }
+    case 'irrelevant_rule':
+      return { kind: 'Irrelevant_rule' }
+    case 'too_many_matches':
+      return { kind: 'Too_many_matches' }
+    default:
+      _atd_bad_json('SkipReason', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeSkippedRule(x: SkippedRule, context: any = x): any {
+  return {
+    'rule_id': _atd_write_required_field('SkippedRule', 'rule_id', writeRuleId, x.rule_id, x),
+    'details': _atd_write_required_field('SkippedRule', 'details', _atd_write_string, x.details, x),
+    'position': _atd_write_required_field('SkippedRule', 'position', writePosition, x.position, x),
+  };
+}
+
+export function readSkippedRule(x: any, context: any = x): SkippedRule {
+  return {
+    rule_id: _atd_read_required_field('SkippedRule', 'rule_id', readRuleId, x['rule_id'], x),
+    details: _atd_read_required_field('SkippedRule', 'details', _atd_read_string, x['details'], x),
+    position: _atd_read_required_field('SkippedRule', 'position', readPosition, x['position'], x),
+  };
 }
 
 export function writeEngineKind(x: EngineKind, context: any = x): any {
@@ -1483,44 +1483,6 @@ export function readCliTiming(x: any, context: any = x): CliTiming {
   };
 }
 
-export function writeContributor(x: Contributor, context: any = x): any {
-  return {
-    'commit_author_name': _atd_write_required_field('Contributor', 'commit_author_name', _atd_write_string, x.commit_author_name, x),
-    'commit_author_email': _atd_write_required_field('Contributor', 'commit_author_email', _atd_write_string, x.commit_author_email, x),
-  };
-}
-
-export function readContributor(x: any, context: any = x): Contributor {
-  return {
-    commit_author_name: _atd_read_required_field('Contributor', 'commit_author_name', _atd_read_string, x['commit_author_name'], x),
-    commit_author_email: _atd_read_required_field('Contributor', 'commit_author_email', _atd_read_string, x['commit_author_email'], x),
-  };
-}
-
-export function writeContribution(x: Contribution, context: any = x): any {
-  return {
-    'commit_hash': _atd_write_required_field('Contribution', 'commit_hash', _atd_write_string, x.commit_hash, x),
-    'commit_timestamp': _atd_write_required_field('Contribution', 'commit_timestamp', _atd_write_string, x.commit_timestamp, x),
-    'contributor': _atd_write_required_field('Contribution', 'contributor', writeContributor, x.contributor, x),
-  };
-}
-
-export function readContribution(x: any, context: any = x): Contribution {
-  return {
-    commit_hash: _atd_read_required_field('Contribution', 'commit_hash', _atd_read_string, x['commit_hash'], x),
-    commit_timestamp: _atd_read_required_field('Contribution', 'commit_timestamp', _atd_read_string, x['commit_timestamp'], x),
-    contributor: _atd_read_required_field('Contribution', 'contributor', readContributor, x['contributor'], x),
-  };
-}
-
-export function writeContributions(x: Contributions, context: any = x): any {
-  return _atd_write_array(writeContribution)(x, context);
-}
-
-export function readContributions(x: any, context: any = x): Contributions {
-  return _atd_read_array(readContribution)(x, context);
-}
-
 export function writeRuleIdDict(x: RuleIdDict, context: any = x): any {
   return {
     'id': _atd_write_required_field('RuleIdDict', 'id', writeRuleId, x.id, x),
@@ -1810,6 +1772,44 @@ export function readDependencyParserError(x: any, context: any = x): DependencyP
     col: _atd_read_optional_field(_atd_read_int, x['col'], x),
     text: _atd_read_optional_field(_atd_read_string, x['text'], x),
   };
+}
+
+export function writeContributor(x: Contributor, context: any = x): any {
+  return {
+    'commit_author_name': _atd_write_required_field('Contributor', 'commit_author_name', _atd_write_string, x.commit_author_name, x),
+    'commit_author_email': _atd_write_required_field('Contributor', 'commit_author_email', _atd_write_string, x.commit_author_email, x),
+  };
+}
+
+export function readContributor(x: any, context: any = x): Contributor {
+  return {
+    commit_author_name: _atd_read_required_field('Contributor', 'commit_author_name', _atd_read_string, x['commit_author_name'], x),
+    commit_author_email: _atd_read_required_field('Contributor', 'commit_author_email', _atd_read_string, x['commit_author_email'], x),
+  };
+}
+
+export function writeContribution(x: Contribution, context: any = x): any {
+  return {
+    'commit_hash': _atd_write_required_field('Contribution', 'commit_hash', _atd_write_string, x.commit_hash, x),
+    'commit_timestamp': _atd_write_required_field('Contribution', 'commit_timestamp', _atd_write_string, x.commit_timestamp, x),
+    'contributor': _atd_write_required_field('Contribution', 'contributor', writeContributor, x.contributor, x),
+  };
+}
+
+export function readContribution(x: any, context: any = x): Contribution {
+  return {
+    commit_hash: _atd_read_required_field('Contribution', 'commit_hash', _atd_read_string, x['commit_hash'], x),
+    commit_timestamp: _atd_read_required_field('Contribution', 'commit_timestamp', _atd_read_string, x['commit_timestamp'], x),
+    contributor: _atd_read_required_field('Contribution', 'contributor', readContributor, x['contributor'], x),
+  };
+}
+
+export function writeContributions(x: Contributions, context: any = x): any {
+  return _atd_write_array(writeContribution)(x, context);
+}
+
+export function readContributions(x: any, context: any = x): Contributions {
+  return _atd_read_array(readContribution)(x, context);
 }
 
 export function writeCiScanResults(x: CiScanResults, context: any = x): any {

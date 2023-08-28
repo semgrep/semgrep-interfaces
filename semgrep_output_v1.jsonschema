@@ -158,43 +158,6 @@
         "errorfiles": { "type": "integer" }
       }
     },
-    "skipped_target": {
-      "type": "object",
-      "required": [ "path", "reason", "details" ],
-      "properties": {
-        "path": { "$ref": "#/definitions/fpath" },
-        "reason": { "$ref": "#/definitions/skip_reason" },
-        "details": { "type": "string" },
-        "rule_id": { "$ref": "#/definitions/rule_id" }
-      }
-    },
-    "skip_reason": {
-      "oneOf": [
-        { "const": "gitignore_patterns_match" },
-        { "const": "always_skipped" },
-        { "const": "semgrepignore_patterns_match" },
-        { "const": "cli_include_flags_do_not_match" },
-        { "const": "cli_exclude_flags_match" },
-        { "const": "exceeded_size_limit" },
-        { "const": "analysis_failed_parser_or_internal_error" },
-        { "const": "excluded_by_config" },
-        { "const": "wrong_language" },
-        { "const": "too_big" },
-        { "const": "minified" },
-        { "const": "binary" },
-        { "const": "irrelevant_rule" },
-        { "const": "too_many_matches" }
-      ]
-    },
-    "skipped_rule": {
-      "type": "object",
-      "required": [ "rule_id", "details", "position" ],
-      "properties": {
-        "rule_id": { "$ref": "#/definitions/rule_id" },
-        "details": { "type": "string" },
-        "position": { "$ref": "#/definitions/position" }
-      }
-    },
     "core_timing": {
       "type": "object",
       "required": [ "targets", "rules", "max_memory_bytes" ],
@@ -325,6 +288,43 @@
         { "const": "EllipsisAndStmts" },
         { "const": "ClassHeaderAndElems" }
       ]
+    },
+    "skipped_target": {
+      "type": "object",
+      "required": [ "path", "reason", "details" ],
+      "properties": {
+        "path": { "$ref": "#/definitions/fpath" },
+        "reason": { "$ref": "#/definitions/skip_reason" },
+        "details": { "type": "string" },
+        "rule_id": { "$ref": "#/definitions/rule_id" }
+      }
+    },
+    "skip_reason": {
+      "oneOf": [
+        { "const": "gitignore_patterns_match" },
+        { "const": "always_skipped" },
+        { "const": "semgrepignore_patterns_match" },
+        { "const": "cli_include_flags_do_not_match" },
+        { "const": "cli_exclude_flags_match" },
+        { "const": "exceeded_size_limit" },
+        { "const": "analysis_failed_parser_or_internal_error" },
+        { "const": "excluded_by_config" },
+        { "const": "wrong_language" },
+        { "const": "too_big" },
+        { "const": "minified" },
+        { "const": "binary" },
+        { "const": "irrelevant_rule" },
+        { "const": "too_many_matches" }
+      ]
+    },
+    "skipped_rule": {
+      "type": "object",
+      "required": [ "rule_id", "details", "position" ],
+      "properties": {
+        "rule_id": { "$ref": "#/definitions/rule_id" },
+        "details": { "type": "string" },
+        "position": { "$ref": "#/definitions/position" }
+      }
     },
     "engine_kind": { "oneOf": [ { "const": "OSS" }, { "const": "PRO" } ] },
     "rule_id_and_engine_kind": {
@@ -609,27 +609,6 @@
         "max_memory_bytes": { "type": "integer" }
       }
     },
-    "contributor": {
-      "type": "object",
-      "required": [ "commit_author_name", "commit_author_email" ],
-      "properties": {
-        "commit_author_name": { "type": "string" },
-        "commit_author_email": { "type": "string" }
-      }
-    },
-    "contribution": {
-      "type": "object",
-      "required": [ "commit_hash", "commit_timestamp", "contributor" ],
-      "properties": {
-        "commit_hash": { "type": "string" },
-        "commit_timestamp": { "type": "string" },
-        "contributor": { "$ref": "#/definitions/contributor" }
-      }
-    },
-    "contributions": {
-      "type": "array",
-      "items": { "$ref": "#/definitions/contribution" }
-    },
     "rule_id_dict": {
       "type": "object",
       "required": [ "id" ],
@@ -762,6 +741,27 @@
         "col": { "type": "integer" },
         "text": { "type": "string" }
       }
+    },
+    "contributor": {
+      "type": "object",
+      "required": [ "commit_author_name", "commit_author_email" ],
+      "properties": {
+        "commit_author_name": { "type": "string" },
+        "commit_author_email": { "type": "string" }
+      }
+    },
+    "contribution": {
+      "type": "object",
+      "required": [ "commit_hash", "commit_timestamp", "contributor" ],
+      "properties": {
+        "commit_hash": { "type": "string" },
+        "commit_timestamp": { "type": "string" },
+        "contributor": { "$ref": "#/definitions/contributor" }
+      }
+    },
+    "contributions": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/contribution" }
     },
     "ci_scan_results": {
       "type": "object",
