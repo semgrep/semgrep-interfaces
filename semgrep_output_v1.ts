@@ -32,18 +32,6 @@ export type Location = {
 
 export type RuleId = string
 
-export type RuleIdAndEngineKind = [RuleId, EngineKind]
-
-export type EngineKind =
-| { kind: 'OSS' }
-| { kind: 'PRO' }
-
-export type ValidationState =
-| { kind: 'CONFIRMED_VALID' }
-| { kind: 'CONFIRMED_INVALID' }
-| { kind: 'VALIDATION_ERROR' }
-| { kind: 'NO_VALIDATOR' }
-
 export type CoreMatch = {
   rule_id: RuleId;
   location: Location;
@@ -58,20 +46,6 @@ export type CoreMatchExtra = {
   engine_kind: EngineKind;
   validation_state?: ValidationState;
   extra_extra?: RawJson;
-}
-
-export type CoreMatchCallTrace =
-| { kind: 'CoreLoc'; value: Location }
-| { kind: 'CoreCall'; value: [Location, CoreMatchIntermediateVar[], CoreMatchCallTrace] }
-
-export type CoreMatchDataflowTrace = {
-  taint_source?: CoreMatchCallTrace;
-  intermediate_vars?: CoreMatchIntermediateVar[];
-  taint_sink?: CoreMatchCallTrace;
-}
-
-export type CoreMatchIntermediateVar = {
-  location: Location;
 }
 
 export type Metavars = Map<string, MetavarValue>
@@ -173,6 +147,20 @@ export type RuleTimes = {
   match_time: number;
 }
 
+export type CoreMatchCallTrace =
+| { kind: 'CoreLoc'; value: Location }
+| { kind: 'CoreCall'; value: [Location, CoreMatchIntermediateVar[], CoreMatchCallTrace] }
+
+export type CoreMatchDataflowTrace = {
+  taint_source?: CoreMatchCallTrace;
+  intermediate_vars?: CoreMatchIntermediateVar[];
+  taint_sink?: CoreMatchCallTrace;
+}
+
+export type CoreMatchIntermediateVar = {
+  location: Location;
+}
+
 export type MatchingExplanation = {
   op: MatchingOperation;
   children: MatchingExplanation[];
@@ -194,13 +182,11 @@ export type MatchingOperation =
 | { kind: 'EllipsisAndStmts' }
 | { kind: 'ClassHeaderAndElems' }
 
-export type CveResult = {
-  url: string;
-  filename: string;
-  funcnames: string[];
-}
+export type EngineKind =
+| { kind: 'OSS' }
+| { kind: 'PRO' }
 
-export type CveResults = CveResult[]
+export type RuleIdAndEngineKind = [RuleId, EngineKind]
 
 export type CoreMatchResults = {
   matches: CoreMatch[];
@@ -295,6 +281,12 @@ export type FixRegex = {
   replacement: string;
   count?: number /*int*/;
 }
+
+export type ValidationState =
+| { kind: 'CONFIRMED_VALID' }
+| { kind: 'CONFIRMED_INVALID' }
+| { kind: 'VALIDATION_ERROR' }
+| { kind: 'NO_VALIDATOR' }
 
 export type CliOutput = {
   version?: Version;
@@ -503,6 +495,14 @@ export type Finding = {
   dataflow_trace?: CliMatchDataflowTrace;
 }
 
+export type CveResult = {
+  url: string;
+  filename: string;
+  funcnames: string[];
+}
+
+export type CveResults = CveResult[]
+
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
 }
@@ -567,64 +567,6 @@ export function readRuleId(x: any, context: any = x): RuleId {
   return _atd_read_string(x, context);
 }
 
-export function writeRuleIdAndEngineKind(x: RuleIdAndEngineKind, context: any = x): any {
-  return ((x, context) => [writeRuleId(x[0], x), writeEngineKind(x[1], x)])(x, context);
-}
-
-export function readRuleIdAndEngineKind(x: any, context: any = x): RuleIdAndEngineKind {
-  return ((x, context): [RuleId, EngineKind] => { _atd_check_json_tuple(2, x, context); return [readRuleId(x[0], x), readEngineKind(x[1], x)] })(x, context);
-}
-
-export function writeEngineKind(x: EngineKind, context: any = x): any {
-  switch (x.kind) {
-    case 'OSS':
-      return 'OSS'
-    case 'PRO':
-      return 'PRO'
-  }
-}
-
-export function readEngineKind(x: any, context: any = x): EngineKind {
-  switch (x) {
-    case 'OSS':
-      return { kind: 'OSS' }
-    case 'PRO':
-      return { kind: 'PRO' }
-    default:
-      _atd_bad_json('EngineKind', x, context)
-      throw new Error('impossible')
-  }
-}
-
-export function writeValidationState(x: ValidationState, context: any = x): any {
-  switch (x.kind) {
-    case 'CONFIRMED_VALID':
-      return 'CONFIRMED_VALID'
-    case 'CONFIRMED_INVALID':
-      return 'CONFIRMED_INVALID'
-    case 'VALIDATION_ERROR':
-      return 'VALIDATION_ERROR'
-    case 'NO_VALIDATOR':
-      return 'NO_VALIDATOR'
-  }
-}
-
-export function readValidationState(x: any, context: any = x): ValidationState {
-  switch (x) {
-    case 'CONFIRMED_VALID':
-      return { kind: 'CONFIRMED_VALID' }
-    case 'CONFIRMED_INVALID':
-      return { kind: 'CONFIRMED_INVALID' }
-    case 'VALIDATION_ERROR':
-      return { kind: 'VALIDATION_ERROR' }
-    case 'NO_VALIDATOR':
-      return { kind: 'NO_VALIDATOR' }
-    default:
-      _atd_bad_json('ValidationState', x, context)
-      throw new Error('impossible')
-  }
-}
-
 export function writeCoreMatch(x: CoreMatch, context: any = x): any {
   return {
     'rule_id': _atd_write_required_field('CoreMatch', 'rule_id', writeRuleId, x.rule_id, x),
@@ -662,56 +604,6 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineKind, x['engine_kind'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
-  };
-}
-
-export function writeCoreMatchCallTrace(x: CoreMatchCallTrace, context: any = x): any {
-  switch (x.kind) {
-    case 'CoreLoc':
-      return ['CoreLoc', writeLocation(x.value, x)]
-    case 'CoreCall':
-      return ['CoreCall', ((x, context) => [writeLocation(x[0], x), _atd_write_array(writeCoreMatchIntermediateVar)(x[1], x), writeCoreMatchCallTrace(x[2], x)])(x.value, x)]
-  }
-}
-
-export function readCoreMatchCallTrace(x: any, context: any = x): CoreMatchCallTrace {
-  _atd_check_json_tuple(2, x, context)
-  switch (x[0]) {
-    case 'CoreLoc':
-      return { kind: 'CoreLoc', value: readLocation(x[1], x) }
-    case 'CoreCall':
-      return { kind: 'CoreCall', value: ((x, context): [Location, CoreMatchIntermediateVar[], CoreMatchCallTrace] => { _atd_check_json_tuple(3, x, context); return [readLocation(x[0], x), _atd_read_array(readCoreMatchIntermediateVar)(x[1], x), readCoreMatchCallTrace(x[2], x)] })(x[1], x) }
-    default:
-      _atd_bad_json('CoreMatchCallTrace', x, context)
-      throw new Error('impossible')
-  }
-}
-
-export function writeCoreMatchDataflowTrace(x: CoreMatchDataflowTrace, context: any = x): any {
-  return {
-    'taint_source': _atd_write_optional_field(writeCoreMatchCallTrace, x.taint_source, x),
-    'intermediate_vars': _atd_write_optional_field(_atd_write_array(writeCoreMatchIntermediateVar), x.intermediate_vars, x),
-    'taint_sink': _atd_write_optional_field(writeCoreMatchCallTrace, x.taint_sink, x),
-  };
-}
-
-export function readCoreMatchDataflowTrace(x: any, context: any = x): CoreMatchDataflowTrace {
-  return {
-    taint_source: _atd_read_optional_field(readCoreMatchCallTrace, x['taint_source'], x),
-    intermediate_vars: _atd_read_optional_field(_atd_read_array(readCoreMatchIntermediateVar), x['intermediate_vars'], x),
-    taint_sink: _atd_read_optional_field(readCoreMatchCallTrace, x['taint_sink'], x),
-  };
-}
-
-export function writeCoreMatchIntermediateVar(x: CoreMatchIntermediateVar, context: any = x): any {
-  return {
-    'location': _atd_write_required_field('CoreMatchIntermediateVar', 'location', writeLocation, x.location, x),
-  };
-}
-
-export function readCoreMatchIntermediateVar(x: any, context: any = x): CoreMatchIntermediateVar {
-  return {
-    location: _atd_read_required_field('CoreMatchIntermediateVar', 'location', readLocation, x['location'], x),
   };
 }
 
@@ -1054,6 +946,56 @@ export function readRuleTimes(x: any, context: any = x): RuleTimes {
   };
 }
 
+export function writeCoreMatchCallTrace(x: CoreMatchCallTrace, context: any = x): any {
+  switch (x.kind) {
+    case 'CoreLoc':
+      return ['CoreLoc', writeLocation(x.value, x)]
+    case 'CoreCall':
+      return ['CoreCall', ((x, context) => [writeLocation(x[0], x), _atd_write_array(writeCoreMatchIntermediateVar)(x[1], x), writeCoreMatchCallTrace(x[2], x)])(x.value, x)]
+  }
+}
+
+export function readCoreMatchCallTrace(x: any, context: any = x): CoreMatchCallTrace {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'CoreLoc':
+      return { kind: 'CoreLoc', value: readLocation(x[1], x) }
+    case 'CoreCall':
+      return { kind: 'CoreCall', value: ((x, context): [Location, CoreMatchIntermediateVar[], CoreMatchCallTrace] => { _atd_check_json_tuple(3, x, context); return [readLocation(x[0], x), _atd_read_array(readCoreMatchIntermediateVar)(x[1], x), readCoreMatchCallTrace(x[2], x)] })(x[1], x) }
+    default:
+      _atd_bad_json('CoreMatchCallTrace', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeCoreMatchDataflowTrace(x: CoreMatchDataflowTrace, context: any = x): any {
+  return {
+    'taint_source': _atd_write_optional_field(writeCoreMatchCallTrace, x.taint_source, x),
+    'intermediate_vars': _atd_write_optional_field(_atd_write_array(writeCoreMatchIntermediateVar), x.intermediate_vars, x),
+    'taint_sink': _atd_write_optional_field(writeCoreMatchCallTrace, x.taint_sink, x),
+  };
+}
+
+export function readCoreMatchDataflowTrace(x: any, context: any = x): CoreMatchDataflowTrace {
+  return {
+    taint_source: _atd_read_optional_field(readCoreMatchCallTrace, x['taint_source'], x),
+    intermediate_vars: _atd_read_optional_field(_atd_read_array(readCoreMatchIntermediateVar), x['intermediate_vars'], x),
+    taint_sink: _atd_read_optional_field(readCoreMatchCallTrace, x['taint_sink'], x),
+  };
+}
+
+export function writeCoreMatchIntermediateVar(x: CoreMatchIntermediateVar, context: any = x): any {
+  return {
+    'location': _atd_write_required_field('CoreMatchIntermediateVar', 'location', writeLocation, x.location, x),
+  };
+}
+
+export function readCoreMatchIntermediateVar(x: any, context: any = x): CoreMatchIntermediateVar {
+  return {
+    location: _atd_read_required_field('CoreMatchIntermediateVar', 'location', readLocation, x['location'], x),
+  };
+}
+
 export function writeMatchingExplanation(x: MatchingExplanation, context: any = x): any {
   return {
     'op': _atd_write_required_field('MatchingExplanation', 'op', writeMatchingOperation, x.op, x),
@@ -1143,28 +1085,33 @@ export function readMatchingOperation(x: any, context: any = x): MatchingOperati
   }
 }
 
-export function writeCveResult(x: CveResult, context: any = x): any {
-  return {
-    'url': _atd_write_required_field('CveResult', 'url', _atd_write_string, x.url, x),
-    'filename': _atd_write_required_field('CveResult', 'filename', _atd_write_string, x.filename, x),
-    'funcnames': _atd_write_required_field('CveResult', 'funcnames', _atd_write_array(_atd_write_string), x.funcnames, x),
-  };
+export function writeEngineKind(x: EngineKind, context: any = x): any {
+  switch (x.kind) {
+    case 'OSS':
+      return 'OSS'
+    case 'PRO':
+      return 'PRO'
+  }
 }
 
-export function readCveResult(x: any, context: any = x): CveResult {
-  return {
-    url: _atd_read_required_field('CveResult', 'url', _atd_read_string, x['url'], x),
-    filename: _atd_read_required_field('CveResult', 'filename', _atd_read_string, x['filename'], x),
-    funcnames: _atd_read_required_field('CveResult', 'funcnames', _atd_read_array(_atd_read_string), x['funcnames'], x),
-  };
+export function readEngineKind(x: any, context: any = x): EngineKind {
+  switch (x) {
+    case 'OSS':
+      return { kind: 'OSS' }
+    case 'PRO':
+      return { kind: 'PRO' }
+    default:
+      _atd_bad_json('EngineKind', x, context)
+      throw new Error('impossible')
+  }
 }
 
-export function writeCveResults(x: CveResults, context: any = x): any {
-  return _atd_write_array(writeCveResult)(x, context);
+export function writeRuleIdAndEngineKind(x: RuleIdAndEngineKind, context: any = x): any {
+  return ((x, context) => [writeRuleId(x[0], x), writeEngineKind(x[1], x)])(x, context);
 }
 
-export function readCveResults(x: any, context: any = x): CveResults {
-  return _atd_read_array(readCveResult)(x, context);
+export function readRuleIdAndEngineKind(x: any, context: any = x): RuleIdAndEngineKind {
+  return ((x, context): [RuleId, EngineKind] => { _atd_check_json_tuple(2, x, context); return [readRuleId(x[0], x), readEngineKind(x[1], x)] })(x, context);
 }
 
 export function writeCoreMatchResults(x: CoreMatchResults, context: any = x): any {
@@ -1407,6 +1354,35 @@ export function readFixRegex(x: any, context: any = x): FixRegex {
     replacement: _atd_read_required_field('FixRegex', 'replacement', _atd_read_string, x['replacement'], x),
     count: _atd_read_optional_field(_atd_read_int, x['count'], x),
   };
+}
+
+export function writeValidationState(x: ValidationState, context: any = x): any {
+  switch (x.kind) {
+    case 'CONFIRMED_VALID':
+      return 'CONFIRMED_VALID'
+    case 'CONFIRMED_INVALID':
+      return 'CONFIRMED_INVALID'
+    case 'VALIDATION_ERROR':
+      return 'VALIDATION_ERROR'
+    case 'NO_VALIDATOR':
+      return 'NO_VALIDATOR'
+  }
+}
+
+export function readValidationState(x: any, context: any = x): ValidationState {
+  switch (x) {
+    case 'CONFIRMED_VALID':
+      return { kind: 'CONFIRMED_VALID' }
+    case 'CONFIRMED_INVALID':
+      return { kind: 'CONFIRMED_INVALID' }
+    case 'VALIDATION_ERROR':
+      return { kind: 'VALIDATION_ERROR' }
+    case 'NO_VALIDATOR':
+      return { kind: 'NO_VALIDATOR' }
+    default:
+      _atd_bad_json('ValidationState', x, context)
+      throw new Error('impossible')
+  }
 }
 
 export function writeCliOutput(x: CliOutput, context: any = x): any {
@@ -1994,6 +1970,30 @@ export function readFinding(x: any, context: any = x): Finding {
     sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
     dataflow_trace: _atd_read_optional_field(readCliMatchDataflowTrace, x['dataflow_trace'], x),
   };
+}
+
+export function writeCveResult(x: CveResult, context: any = x): any {
+  return {
+    'url': _atd_write_required_field('CveResult', 'url', _atd_write_string, x.url, x),
+    'filename': _atd_write_required_field('CveResult', 'filename', _atd_write_string, x.filename, x),
+    'funcnames': _atd_write_required_field('CveResult', 'funcnames', _atd_write_array(_atd_write_string), x.funcnames, x),
+  };
+}
+
+export function readCveResult(x: any, context: any = x): CveResult {
+  return {
+    url: _atd_read_required_field('CveResult', 'url', _atd_read_string, x['url'], x),
+    filename: _atd_read_required_field('CveResult', 'filename', _atd_read_string, x['filename'], x),
+    funcnames: _atd_read_required_field('CveResult', 'funcnames', _atd_read_array(_atd_read_string), x['funcnames'], x),
+  };
+}
+
+export function writeCveResults(x: CveResults, context: any = x): any {
+  return _atd_write_array(writeCveResult)(x, context);
+}
+
+export function readCveResults(x: any, context: any = x): CveResults {
+  return _atd_read_array(readCveResult)(x, context);
 }
 
 
