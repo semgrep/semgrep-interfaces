@@ -332,6 +332,17 @@ type core_severity = Semgrep_output_v1_t.core_severity =
 
   [@@deriving show]
 
+type core_output_extra = Semgrep_output_v1_t.core_output_extra = {
+  skipped_targets: skipped_target list option;
+  skipped_rules: skipped_rule list;
+  explanations: matching_explanation list option;
+  stats: core_stats;
+  time: core_timing option;
+  rules_by_engine: rule_id_and_engine_kind list;
+  engine_requested: engine_kind
+}
+  [@@deriving show]
+
 type core_error_kind = Semgrep_output_v1_t.core_error_kind = 
     LexicalError
   | ParseError
@@ -363,9 +374,9 @@ type core_error = Semgrep_output_v1_t.core_error = {
 }
   [@@deriving show]
 
-type core_match_results = Semgrep_output_v1_t.core_match_results = {
-  matches: core_match list;
+type core_output = Semgrep_output_v1_t.core_output = {
   errors: core_error list;
+  results: core_match list;
   skipped_targets: skipped_target list option;
   skipped_rules: skipped_rule list;
   explanations: matching_explanation list option;
@@ -1490,6 +1501,26 @@ val core_severity_of_string :
   string -> core_severity
   (** Deserialize JSON data of type {!type:core_severity}. *)
 
+val write_core_output_extra :
+  Buffer.t -> core_output_extra -> unit
+  (** Output a JSON value of type {!type:core_output_extra}. *)
+
+val string_of_core_output_extra :
+  ?len:int -> core_output_extra -> string
+  (** Serialize a value of type {!type:core_output_extra}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_core_output_extra :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_output_extra
+  (** Input JSON data of type {!type:core_output_extra}. *)
+
+val core_output_extra_of_string :
+  string -> core_output_extra
+  (** Deserialize JSON data of type {!type:core_output_extra}. *)
+
 val write_core_error_kind :
   Buffer.t -> core_error_kind -> unit
   (** Output a JSON value of type {!type:core_error_kind}. *)
@@ -1530,25 +1561,25 @@ val core_error_of_string :
   string -> core_error
   (** Deserialize JSON data of type {!type:core_error}. *)
 
-val write_core_match_results :
-  Buffer.t -> core_match_results -> unit
-  (** Output a JSON value of type {!type:core_match_results}. *)
+val write_core_output :
+  Buffer.t -> core_output -> unit
+  (** Output a JSON value of type {!type:core_output}. *)
 
-val string_of_core_match_results :
-  ?len:int -> core_match_results -> string
-  (** Serialize a value of type {!type:core_match_results}
+val string_of_core_output :
+  ?len:int -> core_output -> string
+  (** Serialize a value of type {!type:core_output}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_core_match_results :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_match_results
-  (** Input JSON data of type {!type:core_match_results}. *)
+val read_core_output :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_output
+  (** Input JSON data of type {!type:core_output}. *)
 
-val core_match_results_of_string :
-  string -> core_match_results
-  (** Deserialize JSON data of type {!type:core_match_results}. *)
+val core_output_of_string :
+  string -> core_output
+  (** Deserialize JSON data of type {!type:core_output}. *)
 
 val write_contributor :
   Buffer.t -> contributor -> unit

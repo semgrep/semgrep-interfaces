@@ -53,24 +53,6 @@
       }
     },
     "rule_id": { "type": "string" },
-    "rule_id_and_engine_kind": {
-      "type": "array",
-      "minItems": 2,
-      "items": false,
-      "prefixItems": [
-        { "$ref": "#/definitions/rule_id" },
-        { "$ref": "#/definitions/engine_kind" }
-      ]
-    },
-    "engine_kind": { "oneOf": [ { "const": "OSS" }, { "const": "PRO" } ] },
-    "validation_state": {
-      "oneOf": [
-        { "const": "CONFIRMED_VALID" },
-        { "const": "CONFIRMED_INVALID" },
-        { "const": "VALIDATION_ERROR" },
-        { "const": "NO_VALIDATOR" }
-      ]
-    },
     "core_match": {
       "type": "object",
       "required": [ "rule_id", "location", "extra" ],
@@ -94,58 +76,6 @@
         "validation_state": { "$ref": "#/definitions/validation_state" },
         "extra_extra": { "$ref": "#/definitions/raw_json" }
       }
-    },
-    "core_match_call_trace": {
-      "oneOf": [
-        {
-          "type": "array",
-          "minItems": 2,
-          "items": false,
-          "prefixItems": [
-            { "const": "CoreLoc" }, { "$ref": "#/definitions/location" }
-          ]
-        },
-        {
-          "type": "array",
-          "minItems": 2,
-          "items": false,
-          "prefixItems": [
-            { "const": "CoreCall" },
-            {
-              "type": "array",
-              "minItems": 3,
-              "items": false,
-              "prefixItems": [
-                { "$ref": "#/definitions/location" },
-                {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/core_match_intermediate_var"
-                  }
-                },
-                { "$ref": "#/definitions/core_match_call_trace" }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    "core_match_dataflow_trace": {
-      "type": "object",
-      "required": [],
-      "properties": {
-        "taint_source": { "$ref": "#/definitions/core_match_call_trace" },
-        "intermediate_vars": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/core_match_intermediate_var" }
-        },
-        "taint_sink": { "$ref": "#/definitions/core_match_call_trace" }
-      }
-    },
-    "core_match_intermediate_var": {
-      "type": "object",
-      "required": [ "location" ],
-      "properties": { "location": { "$ref": "#/definitions/location" } }
     },
     "metavars": {
       "type": "object",
@@ -253,43 +183,6 @@
         "errorfiles": { "type": "integer" }
       }
     },
-    "skipped_target": {
-      "type": "object",
-      "required": [ "path", "reason", "details" ],
-      "properties": {
-        "path": { "$ref": "#/definitions/fpath" },
-        "reason": { "$ref": "#/definitions/skip_reason" },
-        "details": { "type": "string" },
-        "rule_id": { "$ref": "#/definitions/rule_id" }
-      }
-    },
-    "skip_reason": {
-      "oneOf": [
-        { "const": "gitignore_patterns_match" },
-        { "const": "always_skipped" },
-        { "const": "semgrepignore_patterns_match" },
-        { "const": "cli_include_flags_do_not_match" },
-        { "const": "cli_exclude_flags_match" },
-        { "const": "exceeded_size_limit" },
-        { "const": "analysis_failed_parser_or_internal_error" },
-        { "const": "excluded_by_config" },
-        { "const": "wrong_language" },
-        { "const": "too_big" },
-        { "const": "minified" },
-        { "const": "binary" },
-        { "const": "irrelevant_rule" },
-        { "const": "too_many_matches" }
-      ]
-    },
-    "skipped_rule": {
-      "type": "object",
-      "required": [ "rule_id", "details", "position" ],
-      "properties": {
-        "rule_id": { "$ref": "#/definitions/rule_id" },
-        "details": { "type": "string" },
-        "position": { "$ref": "#/definitions/position" }
-      }
-    },
     "core_timing": {
       "type": "object",
       "required": [ "targets", "rules", "max_memory_bytes" ],
@@ -326,6 +219,58 @@
         "parse_time": { "type": "number" },
         "match_time": { "type": "number" }
       }
+    },
+    "core_match_call_trace": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CoreLoc" }, { "$ref": "#/definitions/location" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CoreCall" },
+            {
+              "type": "array",
+              "minItems": 3,
+              "items": false,
+              "prefixItems": [
+                { "$ref": "#/definitions/location" },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/core_match_intermediate_var"
+                  }
+                },
+                { "$ref": "#/definitions/core_match_call_trace" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "core_match_dataflow_trace": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "taint_source": { "$ref": "#/definitions/core_match_call_trace" },
+        "intermediate_vars": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/core_match_intermediate_var" }
+        },
+        "taint_sink": { "$ref": "#/definitions/core_match_call_trace" }
+      }
+    },
+    "core_match_intermediate_var": {
+      "type": "object",
+      "required": [ "location" ],
+      "properties": { "location": { "$ref": "#/definitions/location" } }
     },
     "matching_explanation": {
       "type": "object",
@@ -369,34 +314,95 @@
         { "const": "ClassHeaderAndElems" }
       ]
     },
-    "cve_result": {
+    "skipped_target": {
       "type": "object",
-      "required": [ "url", "filename", "funcnames" ],
+      "required": [ "path", "reason", "details" ],
       "properties": {
-        "url": { "type": "string" },
-        "filename": { "type": "string" },
-        "funcnames": { "type": "array", "items": { "type": "string" } }
+        "path": { "$ref": "#/definitions/fpath" },
+        "reason": { "$ref": "#/definitions/skip_reason" },
+        "details": { "type": "string" },
+        "rule_id": { "$ref": "#/definitions/rule_id" }
       }
     },
-    "cve_results": {
-      "type": "array",
-      "items": { "$ref": "#/definitions/cve_result" }
+    "skip_reason": {
+      "oneOf": [
+        { "const": "gitignore_patterns_match" },
+        { "const": "always_skipped" },
+        { "const": "semgrepignore_patterns_match" },
+        { "const": "cli_include_flags_do_not_match" },
+        { "const": "cli_exclude_flags_match" },
+        { "const": "exceeded_size_limit" },
+        { "const": "analysis_failed_parser_or_internal_error" },
+        { "const": "excluded_by_config" },
+        { "const": "wrong_language" },
+        { "const": "too_big" },
+        { "const": "minified" },
+        { "const": "binary" },
+        { "const": "irrelevant_rule" },
+        { "const": "too_many_matches" }
+      ]
     },
-    "core_match_results": {
+    "skipped_rule": {
+      "type": "object",
+      "required": [ "rule_id", "details", "position" ],
+      "properties": {
+        "rule_id": { "$ref": "#/definitions/rule_id" },
+        "details": { "type": "string" },
+        "position": { "$ref": "#/definitions/position" }
+      }
+    },
+    "engine_kind": { "oneOf": [ { "const": "OSS" }, { "const": "PRO" } ] },
+    "rule_id_and_engine_kind": {
+      "type": "array",
+      "minItems": 2,
+      "items": false,
+      "prefixItems": [
+        { "$ref": "#/definitions/rule_id" },
+        { "$ref": "#/definitions/engine_kind" }
+      ]
+    },
+    "core_output": {
       "type": "object",
       "required": [
-        "matches", "errors", "skipped_rules", "stats", "rules_by_engine",
+        "errors", "results", "skipped_rules", "stats", "rules_by_engine",
         "engine_requested"
       ],
       "properties": {
-        "matches": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/core_match" }
-        },
         "errors": {
           "type": "array",
           "items": { "$ref": "#/definitions/core_error" }
         },
+        "results": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/core_match" }
+        },
+        "skipped": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/skipped_target" }
+        },
+        "skipped_rules": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/skipped_rule" }
+        },
+        "explanations": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/matching_explanation" }
+        },
+        "stats": { "$ref": "#/definitions/core_stats" },
+        "time": { "$ref": "#/definitions/core_timing" },
+        "rules_by_engine": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
+        },
+        "engine_requested": { "$ref": "#/definitions/engine_kind" }
+      }
+    },
+    "core_output_extra": {
+      "type": "object",
+      "required": [
+        "skipped_rules", "stats", "rules_by_engine", "engine_requested"
+      ],
+      "properties": {
         "skipped": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_target" }
@@ -579,6 +585,14 @@
         "count": { "type": "integer" }
       }
     },
+    "validation_state": {
+      "oneOf": [
+        { "const": "CONFIRMED_VALID" },
+        { "const": "CONFIRMED_INVALID" },
+        { "const": "VALIDATION_ERROR" },
+        { "const": "NO_VALIDATOR" }
+      ]
+    },
     "cli_output_extra": {
       "type": "object",
       "required": [ "paths", "skipped_rules" ],
@@ -643,27 +657,6 @@
         "total_bytes": { "type": "integer" },
         "max_memory_bytes": { "type": "integer" }
       }
-    },
-    "contributor": {
-      "type": "object",
-      "required": [ "commit_author_name", "commit_author_email" ],
-      "properties": {
-        "commit_author_name": { "type": "string" },
-        "commit_author_email": { "type": "string" }
-      }
-    },
-    "contribution": {
-      "type": "object",
-      "required": [ "commit_hash", "commit_timestamp", "contributor" ],
-      "properties": {
-        "commit_hash": { "type": "string" },
-        "commit_timestamp": { "type": "string" },
-        "contributor": { "$ref": "#/definitions/contributor" }
-      }
-    },
-    "contributions": {
-      "type": "array",
-      "items": { "$ref": "#/definitions/contribution" }
     },
     "rule_id_dict": {
       "type": "object",
@@ -798,6 +791,27 @@
         "text": { "type": "string" }
       }
     },
+    "contributor": {
+      "type": "object",
+      "required": [ "commit_author_name", "commit_author_email" ],
+      "properties": {
+        "commit_author_name": { "type": "string" },
+        "commit_author_email": { "type": "string" }
+      }
+    },
+    "contribution": {
+      "type": "object",
+      "required": [ "commit_hash", "commit_timestamp", "contributor" ],
+      "properties": {
+        "commit_hash": { "type": "string" },
+        "commit_timestamp": { "type": "string" },
+        "contributor": { "$ref": "#/definitions/contributor" }
+      }
+    },
+    "contributions": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/contribution" }
+    },
     "ci_scan_results": {
       "type": "object",
       "required": [
@@ -923,6 +937,19 @@
           "$ref": "#/definitions/cli_match_dataflow_trace"
         }
       }
+    },
+    "cve_result": {
+      "type": "object",
+      "required": [ "url", "filename", "funcnames" ],
+      "properties": {
+        "url": { "type": "string" },
+        "filename": { "type": "string" },
+        "funcnames": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "cve_results": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/cve_result" }
     }
   }
 }

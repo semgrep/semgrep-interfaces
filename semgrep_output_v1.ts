@@ -32,18 +32,6 @@ export type Location = {
 
 export type RuleId = string
 
-export type RuleIdAndEngineKind = [RuleId, EngineKind]
-
-export type EngineKind =
-| { kind: 'OSS' }
-| { kind: 'PRO' }
-
-export type ValidationState =
-| { kind: 'CONFIRMED_VALID' }
-| { kind: 'CONFIRMED_INVALID' }
-| { kind: 'VALIDATION_ERROR' }
-| { kind: 'NO_VALIDATOR' }
-
 export type CoreMatch = {
   rule_id: RuleId;
   location: Location;
@@ -58,20 +46,6 @@ export type CoreMatchExtra = {
   engine_kind: EngineKind;
   validation_state?: ValidationState;
   extra_extra?: RawJson;
-}
-
-export type CoreMatchCallTrace =
-| { kind: 'CoreLoc'; value: Location }
-| { kind: 'CoreCall'; value: [Location, CoreMatchIntermediateVar[], CoreMatchCallTrace] }
-
-export type CoreMatchDataflowTrace = {
-  taint_source?: CoreMatchCallTrace;
-  intermediate_vars?: CoreMatchIntermediateVar[];
-  taint_sink?: CoreMatchCallTrace;
-}
-
-export type CoreMatchIntermediateVar = {
-  location: Location;
 }
 
 export type Metavars = Map<string, MetavarValue>
@@ -134,6 +108,60 @@ export type CoreStats = {
   errorfiles: number /*int*/;
 }
 
+export type CoreTiming = {
+  targets: TargetTime[];
+  rules: RuleId[];
+  rules_parse_time?: number;
+  max_memory_bytes: number /*int*/;
+}
+
+export type TargetTime = {
+  path: Fpath;
+  rule_times: RuleTimes[];
+  run_time: number;
+}
+
+export type RuleTimes = {
+  rule_id: RuleId;
+  parse_time: number;
+  match_time: number;
+}
+
+export type CoreMatchCallTrace =
+| { kind: 'CoreLoc'; value: Location }
+| { kind: 'CoreCall'; value: [Location, CoreMatchIntermediateVar[], CoreMatchCallTrace] }
+
+export type CoreMatchDataflowTrace = {
+  taint_source?: CoreMatchCallTrace;
+  intermediate_vars?: CoreMatchIntermediateVar[];
+  taint_sink?: CoreMatchCallTrace;
+}
+
+export type CoreMatchIntermediateVar = {
+  location: Location;
+}
+
+export type MatchingExplanation = {
+  op: MatchingOperation;
+  children: MatchingExplanation[];
+  matches: CoreMatch[];
+  loc: Location;
+}
+
+export type MatchingOperation =
+| { kind: 'And' }
+| { kind: 'Or' }
+| { kind: 'Inside' }
+| { kind: 'XPat'; value: string }
+| { kind: 'Negation' }
+| { kind: 'Filter'; value: string }
+| { kind: 'Taint' }
+| { kind: 'TaintSource' }
+| { kind: 'TaintSink' }
+| { kind: 'TaintSanitizer' }
+| { kind: 'EllipsisAndStmts' }
+| { kind: 'ClassHeaderAndElems' }
+
 export type SkippedTarget = {
   path: Fpath;
   reason: SkipReason;
@@ -163,57 +191,25 @@ export type SkippedRule = {
   position: Position;
 }
 
-export type CoreTiming = {
-  targets: TargetTime[];
-  rules: RuleId[];
-  rules_parse_time?: number;
-  max_memory_bytes: number /*int*/;
-}
+export type EngineKind =
+| { kind: 'OSS' }
+| { kind: 'PRO' }
 
-export type TargetTime = {
-  path: Fpath;
-  rule_times: RuleTimes[];
-  run_time: number;
-}
+export type RuleIdAndEngineKind = [RuleId, EngineKind]
 
-export type RuleTimes = {
-  rule_id: RuleId;
-  parse_time: number;
-  match_time: number;
-}
-
-export type MatchingExplanation = {
-  op: MatchingOperation;
-  children: MatchingExplanation[];
-  matches: CoreMatch[];
-  loc: Location;
-}
-
-export type MatchingOperation =
-| { kind: 'And' }
-| { kind: 'Or' }
-| { kind: 'Inside' }
-| { kind: 'XPat'; value: string }
-| { kind: 'Negation' }
-| { kind: 'Filter'; value: string }
-| { kind: 'Taint' }
-| { kind: 'TaintSource' }
-| { kind: 'TaintSink' }
-| { kind: 'TaintSanitizer' }
-| { kind: 'EllipsisAndStmts' }
-| { kind: 'ClassHeaderAndElems' }
-
-export type CveResult = {
-  url: string;
-  filename: string;
-  funcnames: string[];
-}
-
-export type CveResults = CveResult[]
-
-export type CoreMatchResults = {
-  matches: CoreMatch[];
+export type CoreOutput = {
   errors: CoreError[];
+  results: CoreMatch[];
+  skipped_targets?: SkippedTarget[];
+  skipped_rules: SkippedRule[];
+  explanations?: MatchingExplanation[];
+  stats: CoreStats;
+  time?: CoreTiming;
+  rules_by_engine: RuleIdAndEngineKind[];
+  engine_requested: EngineKind;
+}
+
+export type CoreOutputExtra = {
   skipped_targets?: SkippedTarget[];
   skipped_rules: SkippedRule[];
   explanations?: MatchingExplanation[];
@@ -300,6 +296,12 @@ export type FixRegex = {
   count?: number /*int*/;
 }
 
+export type ValidationState =
+| { kind: 'CONFIRMED_VALID' }
+| { kind: 'CONFIRMED_INVALID' }
+| { kind: 'VALIDATION_ERROR' }
+| { kind: 'NO_VALIDATOR' }
+
 export type CliOutput = {
   version?: Version;
   errors: CliError[];
@@ -340,19 +342,6 @@ export type CliTiming = {
   total_bytes: number /*int*/;
   max_memory_bytes?: number /*int*/;
 }
-
-export type Contributor = {
-  commit_author_name: string;
-  commit_author_email: string;
-}
-
-export type Contribution = {
-  commit_hash: string;
-  commit_timestamp: string;
-  contributor: Contributor;
-}
-
-export type Contributions = Contribution[]
 
 export type RuleIdDict = {
   id: RuleId;
@@ -443,6 +432,19 @@ export type DependencyParserError = {
   text?: string;
 }
 
+export type Contributor = {
+  commit_author_name: string;
+  commit_author_email: string;
+}
+
+export type Contribution = {
+  commit_hash: string;
+  commit_timestamp: string;
+  contributor: Contributor;
+}
+
+export type Contributions = Contribution[]
+
 export type CiScanResults = {
   findings: Finding[];
   ignores: Finding[];
@@ -509,6 +511,14 @@ export type Finding = {
   dataflow_trace?: CliMatchDataflowTrace;
 }
 
+export type CveResult = {
+  url: string;
+  filename: string;
+  funcnames: string[];
+}
+
+export type CveResults = CveResult[]
+
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
 }
@@ -573,64 +583,6 @@ export function readRuleId(x: any, context: any = x): RuleId {
   return _atd_read_string(x, context);
 }
 
-export function writeRuleIdAndEngineKind(x: RuleIdAndEngineKind, context: any = x): any {
-  return ((x, context) => [writeRuleId(x[0], x), writeEngineKind(x[1], x)])(x, context);
-}
-
-export function readRuleIdAndEngineKind(x: any, context: any = x): RuleIdAndEngineKind {
-  return ((x, context): [RuleId, EngineKind] => { _atd_check_json_tuple(2, x, context); return [readRuleId(x[0], x), readEngineKind(x[1], x)] })(x, context);
-}
-
-export function writeEngineKind(x: EngineKind, context: any = x): any {
-  switch (x.kind) {
-    case 'OSS':
-      return 'OSS'
-    case 'PRO':
-      return 'PRO'
-  }
-}
-
-export function readEngineKind(x: any, context: any = x): EngineKind {
-  switch (x) {
-    case 'OSS':
-      return { kind: 'OSS' }
-    case 'PRO':
-      return { kind: 'PRO' }
-    default:
-      _atd_bad_json('EngineKind', x, context)
-      throw new Error('impossible')
-  }
-}
-
-export function writeValidationState(x: ValidationState, context: any = x): any {
-  switch (x.kind) {
-    case 'CONFIRMED_VALID':
-      return 'CONFIRMED_VALID'
-    case 'CONFIRMED_INVALID':
-      return 'CONFIRMED_INVALID'
-    case 'VALIDATION_ERROR':
-      return 'VALIDATION_ERROR'
-    case 'NO_VALIDATOR':
-      return 'NO_VALIDATOR'
-  }
-}
-
-export function readValidationState(x: any, context: any = x): ValidationState {
-  switch (x) {
-    case 'CONFIRMED_VALID':
-      return { kind: 'CONFIRMED_VALID' }
-    case 'CONFIRMED_INVALID':
-      return { kind: 'CONFIRMED_INVALID' }
-    case 'VALIDATION_ERROR':
-      return { kind: 'VALIDATION_ERROR' }
-    case 'NO_VALIDATOR':
-      return { kind: 'NO_VALIDATOR' }
-    default:
-      _atd_bad_json('ValidationState', x, context)
-      throw new Error('impossible')
-  }
-}
-
 export function writeCoreMatch(x: CoreMatch, context: any = x): any {
   return {
     'rule_id': _atd_write_required_field('CoreMatch', 'rule_id', writeRuleId, x.rule_id, x),
@@ -668,56 +620,6 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineKind, x['engine_kind'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
-  };
-}
-
-export function writeCoreMatchCallTrace(x: CoreMatchCallTrace, context: any = x): any {
-  switch (x.kind) {
-    case 'CoreLoc':
-      return ['CoreLoc', writeLocation(x.value, x)]
-    case 'CoreCall':
-      return ['CoreCall', ((x, context) => [writeLocation(x[0], x), _atd_write_array(writeCoreMatchIntermediateVar)(x[1], x), writeCoreMatchCallTrace(x[2], x)])(x.value, x)]
-  }
-}
-
-export function readCoreMatchCallTrace(x: any, context: any = x): CoreMatchCallTrace {
-  _atd_check_json_tuple(2, x, context)
-  switch (x[0]) {
-    case 'CoreLoc':
-      return { kind: 'CoreLoc', value: readLocation(x[1], x) }
-    case 'CoreCall':
-      return { kind: 'CoreCall', value: ((x, context): [Location, CoreMatchIntermediateVar[], CoreMatchCallTrace] => { _atd_check_json_tuple(3, x, context); return [readLocation(x[0], x), _atd_read_array(readCoreMatchIntermediateVar)(x[1], x), readCoreMatchCallTrace(x[2], x)] })(x[1], x) }
-    default:
-      _atd_bad_json('CoreMatchCallTrace', x, context)
-      throw new Error('impossible')
-  }
-}
-
-export function writeCoreMatchDataflowTrace(x: CoreMatchDataflowTrace, context: any = x): any {
-  return {
-    'taint_source': _atd_write_optional_field(writeCoreMatchCallTrace, x.taint_source, x),
-    'intermediate_vars': _atd_write_optional_field(_atd_write_array(writeCoreMatchIntermediateVar), x.intermediate_vars, x),
-    'taint_sink': _atd_write_optional_field(writeCoreMatchCallTrace, x.taint_sink, x),
-  };
-}
-
-export function readCoreMatchDataflowTrace(x: any, context: any = x): CoreMatchDataflowTrace {
-  return {
-    taint_source: _atd_read_optional_field(readCoreMatchCallTrace, x['taint_source'], x),
-    intermediate_vars: _atd_read_optional_field(_atd_read_array(readCoreMatchIntermediateVar), x['intermediate_vars'], x),
-    taint_sink: _atd_read_optional_field(readCoreMatchCallTrace, x['taint_sink'], x),
-  };
-}
-
-export function writeCoreMatchIntermediateVar(x: CoreMatchIntermediateVar, context: any = x): any {
-  return {
-    'location': _atd_write_required_field('CoreMatchIntermediateVar', 'location', writeLocation, x.location, x),
-  };
-}
-
-export function readCoreMatchIntermediateVar(x: any, context: any = x): CoreMatchIntermediateVar {
-  return {
-    location: _atd_read_required_field('CoreMatchIntermediateVar', 'location', readLocation, x['location'], x),
   };
 }
 
@@ -933,6 +835,195 @@ export function readCoreStats(x: any, context: any = x): CoreStats {
   };
 }
 
+export function writeCoreTiming(x: CoreTiming, context: any = x): any {
+  return {
+    'targets': _atd_write_required_field('CoreTiming', 'targets', _atd_write_array(writeTargetTime), x.targets, x),
+    'rules': _atd_write_required_field('CoreTiming', 'rules', _atd_write_array(writeRuleId), x.rules, x),
+    'rules_parse_time': _atd_write_optional_field(_atd_write_float, x.rules_parse_time, x),
+    'max_memory_bytes': _atd_write_required_field('CoreTiming', 'max_memory_bytes', _atd_write_int, x.max_memory_bytes, x),
+  };
+}
+
+export function readCoreTiming(x: any, context: any = x): CoreTiming {
+  return {
+    targets: _atd_read_required_field('CoreTiming', 'targets', _atd_read_array(readTargetTime), x['targets'], x),
+    rules: _atd_read_required_field('CoreTiming', 'rules', _atd_read_array(readRuleId), x['rules'], x),
+    rules_parse_time: _atd_read_optional_field(_atd_read_float, x['rules_parse_time'], x),
+    max_memory_bytes: _atd_read_required_field('CoreTiming', 'max_memory_bytes', _atd_read_int, x['max_memory_bytes'], x),
+  };
+}
+
+export function writeTargetTime(x: TargetTime, context: any = x): any {
+  return {
+    'path': _atd_write_required_field('TargetTime', 'path', writeFpath, x.path, x),
+    'rule_times': _atd_write_required_field('TargetTime', 'rule_times', _atd_write_array(writeRuleTimes), x.rule_times, x),
+    'run_time': _atd_write_required_field('TargetTime', 'run_time', _atd_write_float, x.run_time, x),
+  };
+}
+
+export function readTargetTime(x: any, context: any = x): TargetTime {
+  return {
+    path: _atd_read_required_field('TargetTime', 'path', readFpath, x['path'], x),
+    rule_times: _atd_read_required_field('TargetTime', 'rule_times', _atd_read_array(readRuleTimes), x['rule_times'], x),
+    run_time: _atd_read_required_field('TargetTime', 'run_time', _atd_read_float, x['run_time'], x),
+  };
+}
+
+export function writeRuleTimes(x: RuleTimes, context: any = x): any {
+  return {
+    'rule_id': _atd_write_required_field('RuleTimes', 'rule_id', writeRuleId, x.rule_id, x),
+    'parse_time': _atd_write_required_field('RuleTimes', 'parse_time', _atd_write_float, x.parse_time, x),
+    'match_time': _atd_write_required_field('RuleTimes', 'match_time', _atd_write_float, x.match_time, x),
+  };
+}
+
+export function readRuleTimes(x: any, context: any = x): RuleTimes {
+  return {
+    rule_id: _atd_read_required_field('RuleTimes', 'rule_id', readRuleId, x['rule_id'], x),
+    parse_time: _atd_read_required_field('RuleTimes', 'parse_time', _atd_read_float, x['parse_time'], x),
+    match_time: _atd_read_required_field('RuleTimes', 'match_time', _atd_read_float, x['match_time'], x),
+  };
+}
+
+export function writeCoreMatchCallTrace(x: CoreMatchCallTrace, context: any = x): any {
+  switch (x.kind) {
+    case 'CoreLoc':
+      return ['CoreLoc', writeLocation(x.value, x)]
+    case 'CoreCall':
+      return ['CoreCall', ((x, context) => [writeLocation(x[0], x), _atd_write_array(writeCoreMatchIntermediateVar)(x[1], x), writeCoreMatchCallTrace(x[2], x)])(x.value, x)]
+  }
+}
+
+export function readCoreMatchCallTrace(x: any, context: any = x): CoreMatchCallTrace {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'CoreLoc':
+      return { kind: 'CoreLoc', value: readLocation(x[1], x) }
+    case 'CoreCall':
+      return { kind: 'CoreCall', value: ((x, context): [Location, CoreMatchIntermediateVar[], CoreMatchCallTrace] => { _atd_check_json_tuple(3, x, context); return [readLocation(x[0], x), _atd_read_array(readCoreMatchIntermediateVar)(x[1], x), readCoreMatchCallTrace(x[2], x)] })(x[1], x) }
+    default:
+      _atd_bad_json('CoreMatchCallTrace', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeCoreMatchDataflowTrace(x: CoreMatchDataflowTrace, context: any = x): any {
+  return {
+    'taint_source': _atd_write_optional_field(writeCoreMatchCallTrace, x.taint_source, x),
+    'intermediate_vars': _atd_write_optional_field(_atd_write_array(writeCoreMatchIntermediateVar), x.intermediate_vars, x),
+    'taint_sink': _atd_write_optional_field(writeCoreMatchCallTrace, x.taint_sink, x),
+  };
+}
+
+export function readCoreMatchDataflowTrace(x: any, context: any = x): CoreMatchDataflowTrace {
+  return {
+    taint_source: _atd_read_optional_field(readCoreMatchCallTrace, x['taint_source'], x),
+    intermediate_vars: _atd_read_optional_field(_atd_read_array(readCoreMatchIntermediateVar), x['intermediate_vars'], x),
+    taint_sink: _atd_read_optional_field(readCoreMatchCallTrace, x['taint_sink'], x),
+  };
+}
+
+export function writeCoreMatchIntermediateVar(x: CoreMatchIntermediateVar, context: any = x): any {
+  return {
+    'location': _atd_write_required_field('CoreMatchIntermediateVar', 'location', writeLocation, x.location, x),
+  };
+}
+
+export function readCoreMatchIntermediateVar(x: any, context: any = x): CoreMatchIntermediateVar {
+  return {
+    location: _atd_read_required_field('CoreMatchIntermediateVar', 'location', readLocation, x['location'], x),
+  };
+}
+
+export function writeMatchingExplanation(x: MatchingExplanation, context: any = x): any {
+  return {
+    'op': _atd_write_required_field('MatchingExplanation', 'op', writeMatchingOperation, x.op, x),
+    'children': _atd_write_required_field('MatchingExplanation', 'children', _atd_write_array(writeMatchingExplanation), x.children, x),
+    'matches': _atd_write_required_field('MatchingExplanation', 'matches', _atd_write_array(writeCoreMatch), x.matches, x),
+    'loc': _atd_write_required_field('MatchingExplanation', 'loc', writeLocation, x.loc, x),
+  };
+}
+
+export function readMatchingExplanation(x: any, context: any = x): MatchingExplanation {
+  return {
+    op: _atd_read_required_field('MatchingExplanation', 'op', readMatchingOperation, x['op'], x),
+    children: _atd_read_required_field('MatchingExplanation', 'children', _atd_read_array(readMatchingExplanation), x['children'], x),
+    matches: _atd_read_required_field('MatchingExplanation', 'matches', _atd_read_array(readCoreMatch), x['matches'], x),
+    loc: _atd_read_required_field('MatchingExplanation', 'loc', readLocation, x['loc'], x),
+  };
+}
+
+export function writeMatchingOperation(x: MatchingOperation, context: any = x): any {
+  switch (x.kind) {
+    case 'And':
+      return 'And'
+    case 'Or':
+      return 'Or'
+    case 'Inside':
+      return 'Inside'
+    case 'XPat':
+      return ['XPat', _atd_write_string(x.value, x)]
+    case 'Negation':
+      return 'Negation'
+    case 'Filter':
+      return ['Filter', _atd_write_string(x.value, x)]
+    case 'Taint':
+      return 'Taint'
+    case 'TaintSource':
+      return 'TaintSource'
+    case 'TaintSink':
+      return 'TaintSink'
+    case 'TaintSanitizer':
+      return 'TaintSanitizer'
+    case 'EllipsisAndStmts':
+      return 'EllipsisAndStmts'
+    case 'ClassHeaderAndElems':
+      return 'ClassHeaderAndElems'
+  }
+}
+
+export function readMatchingOperation(x: any, context: any = x): MatchingOperation {
+  if (typeof x === 'string') {
+    switch (x) {
+      case 'And':
+        return { kind: 'And' }
+      case 'Or':
+        return { kind: 'Or' }
+      case 'Inside':
+        return { kind: 'Inside' }
+      case 'Negation':
+        return { kind: 'Negation' }
+      case 'Taint':
+        return { kind: 'Taint' }
+      case 'TaintSource':
+        return { kind: 'TaintSource' }
+      case 'TaintSink':
+        return { kind: 'TaintSink' }
+      case 'TaintSanitizer':
+        return { kind: 'TaintSanitizer' }
+      case 'EllipsisAndStmts':
+        return { kind: 'EllipsisAndStmts' }
+      case 'ClassHeaderAndElems':
+        return { kind: 'ClassHeaderAndElems' }
+      default:
+        _atd_bad_json('MatchingOperation', x, context)
+        throw new Error('impossible')
+    }
+  }
+  else {
+    _atd_check_json_tuple(2, x, context)
+    switch (x[0]) {
+      case 'XPat':
+        return { kind: 'XPat', value: _atd_read_string(x[1], x) }
+      case 'Filter':
+        return { kind: 'Filter', value: _atd_read_string(x[1], x) }
+      default:
+        _atd_bad_json('MatchingOperation', x, context)
+        throw new Error('impossible')
+    }
+  }
+}
+
 export function writeSkippedTarget(x: SkippedTarget, context: any = x): any {
   return {
     'path': _atd_write_required_field('SkippedTarget', 'path', writeFpath, x.path, x),
@@ -1036,194 +1127,84 @@ export function readSkippedRule(x: any, context: any = x): SkippedRule {
   };
 }
 
-export function writeCoreTiming(x: CoreTiming, context: any = x): any {
-  return {
-    'targets': _atd_write_required_field('CoreTiming', 'targets', _atd_write_array(writeTargetTime), x.targets, x),
-    'rules': _atd_write_required_field('CoreTiming', 'rules', _atd_write_array(writeRuleId), x.rules, x),
-    'rules_parse_time': _atd_write_optional_field(_atd_write_float, x.rules_parse_time, x),
-    'max_memory_bytes': _atd_write_required_field('CoreTiming', 'max_memory_bytes', _atd_write_int, x.max_memory_bytes, x),
-  };
-}
-
-export function readCoreTiming(x: any, context: any = x): CoreTiming {
-  return {
-    targets: _atd_read_required_field('CoreTiming', 'targets', _atd_read_array(readTargetTime), x['targets'], x),
-    rules: _atd_read_required_field('CoreTiming', 'rules', _atd_read_array(readRuleId), x['rules'], x),
-    rules_parse_time: _atd_read_optional_field(_atd_read_float, x['rules_parse_time'], x),
-    max_memory_bytes: _atd_read_required_field('CoreTiming', 'max_memory_bytes', _atd_read_int, x['max_memory_bytes'], x),
-  };
-}
-
-export function writeTargetTime(x: TargetTime, context: any = x): any {
-  return {
-    'path': _atd_write_required_field('TargetTime', 'path', writeFpath, x.path, x),
-    'rule_times': _atd_write_required_field('TargetTime', 'rule_times', _atd_write_array(writeRuleTimes), x.rule_times, x),
-    'run_time': _atd_write_required_field('TargetTime', 'run_time', _atd_write_float, x.run_time, x),
-  };
-}
-
-export function readTargetTime(x: any, context: any = x): TargetTime {
-  return {
-    path: _atd_read_required_field('TargetTime', 'path', readFpath, x['path'], x),
-    rule_times: _atd_read_required_field('TargetTime', 'rule_times', _atd_read_array(readRuleTimes), x['rule_times'], x),
-    run_time: _atd_read_required_field('TargetTime', 'run_time', _atd_read_float, x['run_time'], x),
-  };
-}
-
-export function writeRuleTimes(x: RuleTimes, context: any = x): any {
-  return {
-    'rule_id': _atd_write_required_field('RuleTimes', 'rule_id', writeRuleId, x.rule_id, x),
-    'parse_time': _atd_write_required_field('RuleTimes', 'parse_time', _atd_write_float, x.parse_time, x),
-    'match_time': _atd_write_required_field('RuleTimes', 'match_time', _atd_write_float, x.match_time, x),
-  };
-}
-
-export function readRuleTimes(x: any, context: any = x): RuleTimes {
-  return {
-    rule_id: _atd_read_required_field('RuleTimes', 'rule_id', readRuleId, x['rule_id'], x),
-    parse_time: _atd_read_required_field('RuleTimes', 'parse_time', _atd_read_float, x['parse_time'], x),
-    match_time: _atd_read_required_field('RuleTimes', 'match_time', _atd_read_float, x['match_time'], x),
-  };
-}
-
-export function writeMatchingExplanation(x: MatchingExplanation, context: any = x): any {
-  return {
-    'op': _atd_write_required_field('MatchingExplanation', 'op', writeMatchingOperation, x.op, x),
-    'children': _atd_write_required_field('MatchingExplanation', 'children', _atd_write_array(writeMatchingExplanation), x.children, x),
-    'matches': _atd_write_required_field('MatchingExplanation', 'matches', _atd_write_array(writeCoreMatch), x.matches, x),
-    'loc': _atd_write_required_field('MatchingExplanation', 'loc', writeLocation, x.loc, x),
-  };
-}
-
-export function readMatchingExplanation(x: any, context: any = x): MatchingExplanation {
-  return {
-    op: _atd_read_required_field('MatchingExplanation', 'op', readMatchingOperation, x['op'], x),
-    children: _atd_read_required_field('MatchingExplanation', 'children', _atd_read_array(readMatchingExplanation), x['children'], x),
-    matches: _atd_read_required_field('MatchingExplanation', 'matches', _atd_read_array(readCoreMatch), x['matches'], x),
-    loc: _atd_read_required_field('MatchingExplanation', 'loc', readLocation, x['loc'], x),
-  };
-}
-
-export function writeMatchingOperation(x: MatchingOperation, context: any = x): any {
+export function writeEngineKind(x: EngineKind, context: any = x): any {
   switch (x.kind) {
-    case 'And':
-      return 'And'
-    case 'Or':
-      return 'Or'
-    case 'Inside':
-      return 'Inside'
-    case 'XPat':
-      return ['XPat', _atd_write_string(x.value, x)]
-    case 'Negation':
-      return 'Negation'
-    case 'Filter':
-      return ['Filter', _atd_write_string(x.value, x)]
-    case 'Taint':
-      return 'Taint'
-    case 'TaintSource':
-      return 'TaintSource'
-    case 'TaintSink':
-      return 'TaintSink'
-    case 'TaintSanitizer':
-      return 'TaintSanitizer'
-    case 'EllipsisAndStmts':
-      return 'EllipsisAndStmts'
-    case 'ClassHeaderAndElems':
-      return 'ClassHeaderAndElems'
+    case 'OSS':
+      return 'OSS'
+    case 'PRO':
+      return 'PRO'
   }
 }
 
-export function readMatchingOperation(x: any, context: any = x): MatchingOperation {
-  if (typeof x === 'string') {
-    switch (x) {
-      case 'And':
-        return { kind: 'And' }
-      case 'Or':
-        return { kind: 'Or' }
-      case 'Inside':
-        return { kind: 'Inside' }
-      case 'Negation':
-        return { kind: 'Negation' }
-      case 'Taint':
-        return { kind: 'Taint' }
-      case 'TaintSource':
-        return { kind: 'TaintSource' }
-      case 'TaintSink':
-        return { kind: 'TaintSink' }
-      case 'TaintSanitizer':
-        return { kind: 'TaintSanitizer' }
-      case 'EllipsisAndStmts':
-        return { kind: 'EllipsisAndStmts' }
-      case 'ClassHeaderAndElems':
-        return { kind: 'ClassHeaderAndElems' }
-      default:
-        _atd_bad_json('MatchingOperation', x, context)
-        throw new Error('impossible')
-    }
-  }
-  else {
-    _atd_check_json_tuple(2, x, context)
-    switch (x[0]) {
-      case 'XPat':
-        return { kind: 'XPat', value: _atd_read_string(x[1], x) }
-      case 'Filter':
-        return { kind: 'Filter', value: _atd_read_string(x[1], x) }
-      default:
-        _atd_bad_json('MatchingOperation', x, context)
-        throw new Error('impossible')
-    }
+export function readEngineKind(x: any, context: any = x): EngineKind {
+  switch (x) {
+    case 'OSS':
+      return { kind: 'OSS' }
+    case 'PRO':
+      return { kind: 'PRO' }
+    default:
+      _atd_bad_json('EngineKind', x, context)
+      throw new Error('impossible')
   }
 }
 
-export function writeCveResult(x: CveResult, context: any = x): any {
+export function writeRuleIdAndEngineKind(x: RuleIdAndEngineKind, context: any = x): any {
+  return ((x, context) => [writeRuleId(x[0], x), writeEngineKind(x[1], x)])(x, context);
+}
+
+export function readRuleIdAndEngineKind(x: any, context: any = x): RuleIdAndEngineKind {
+  return ((x, context): [RuleId, EngineKind] => { _atd_check_json_tuple(2, x, context); return [readRuleId(x[0], x), readEngineKind(x[1], x)] })(x, context);
+}
+
+export function writeCoreOutput(x: CoreOutput, context: any = x): any {
   return {
-    'url': _atd_write_required_field('CveResult', 'url', _atd_write_string, x.url, x),
-    'filename': _atd_write_required_field('CveResult', 'filename', _atd_write_string, x.filename, x),
-    'funcnames': _atd_write_required_field('CveResult', 'funcnames', _atd_write_array(_atd_write_string), x.funcnames, x),
-  };
-}
-
-export function readCveResult(x: any, context: any = x): CveResult {
-  return {
-    url: _atd_read_required_field('CveResult', 'url', _atd_read_string, x['url'], x),
-    filename: _atd_read_required_field('CveResult', 'filename', _atd_read_string, x['filename'], x),
-    funcnames: _atd_read_required_field('CveResult', 'funcnames', _atd_read_array(_atd_read_string), x['funcnames'], x),
-  };
-}
-
-export function writeCveResults(x: CveResults, context: any = x): any {
-  return _atd_write_array(writeCveResult)(x, context);
-}
-
-export function readCveResults(x: any, context: any = x): CveResults {
-  return _atd_read_array(readCveResult)(x, context);
-}
-
-export function writeCoreMatchResults(x: CoreMatchResults, context: any = x): any {
-  return {
-    'matches': _atd_write_required_field('CoreMatchResults', 'matches', _atd_write_array(writeCoreMatch), x.matches, x),
-    'errors': _atd_write_required_field('CoreMatchResults', 'errors', _atd_write_array(writeCoreError), x.errors, x),
+    'errors': _atd_write_required_field('CoreOutput', 'errors', _atd_write_array(writeCoreError), x.errors, x),
+    'results': _atd_write_required_field('CoreOutput', 'results', _atd_write_array(writeCoreMatch), x.results, x),
     'skipped': _atd_write_optional_field(_atd_write_array(writeSkippedTarget), x.skipped_targets, x),
-    'skipped_rules': _atd_write_required_field('CoreMatchResults', 'skipped_rules', _atd_write_array(writeSkippedRule), x.skipped_rules, x),
+    'skipped_rules': _atd_write_required_field('CoreOutput', 'skipped_rules', _atd_write_array(writeSkippedRule), x.skipped_rules, x),
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
-    'stats': _atd_write_required_field('CoreMatchResults', 'stats', writeCoreStats, x.stats, x),
+    'stats': _atd_write_required_field('CoreOutput', 'stats', writeCoreStats, x.stats, x),
     'time': _atd_write_optional_field(writeCoreTiming, x.time, x),
-    'rules_by_engine': _atd_write_required_field('CoreMatchResults', 'rules_by_engine', _atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
-    'engine_requested': _atd_write_required_field('CoreMatchResults', 'engine_requested', writeEngineKind, x.engine_requested, x),
+    'rules_by_engine': _atd_write_required_field('CoreOutput', 'rules_by_engine', _atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
+    'engine_requested': _atd_write_required_field('CoreOutput', 'engine_requested', writeEngineKind, x.engine_requested, x),
   };
 }
 
-export function readCoreMatchResults(x: any, context: any = x): CoreMatchResults {
+export function readCoreOutput(x: any, context: any = x): CoreOutput {
   return {
-    matches: _atd_read_required_field('CoreMatchResults', 'matches', _atd_read_array(readCoreMatch), x['matches'], x),
-    errors: _atd_read_required_field('CoreMatchResults', 'errors', _atd_read_array(readCoreError), x['errors'], x),
+    errors: _atd_read_required_field('CoreOutput', 'errors', _atd_read_array(readCoreError), x['errors'], x),
+    results: _atd_read_required_field('CoreOutput', 'results', _atd_read_array(readCoreMatch), x['results'], x),
     skipped_targets: _atd_read_optional_field(_atd_read_array(readSkippedTarget), x['skipped'], x),
-    skipped_rules: _atd_read_required_field('CoreMatchResults', 'skipped_rules', _atd_read_array(readSkippedRule), x['skipped_rules'], x),
+    skipped_rules: _atd_read_required_field('CoreOutput', 'skipped_rules', _atd_read_array(readSkippedRule), x['skipped_rules'], x),
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
-    stats: _atd_read_required_field('CoreMatchResults', 'stats', readCoreStats, x['stats'], x),
+    stats: _atd_read_required_field('CoreOutput', 'stats', readCoreStats, x['stats'], x),
     time: _atd_read_optional_field(readCoreTiming, x['time'], x),
-    rules_by_engine: _atd_read_required_field('CoreMatchResults', 'rules_by_engine', _atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
-    engine_requested: _atd_read_required_field('CoreMatchResults', 'engine_requested', readEngineKind, x['engine_requested'], x),
+    rules_by_engine: _atd_read_required_field('CoreOutput', 'rules_by_engine', _atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
+    engine_requested: _atd_read_required_field('CoreOutput', 'engine_requested', readEngineKind, x['engine_requested'], x),
+  };
+}
+
+export function writeCoreOutputExtra(x: CoreOutputExtra, context: any = x): any {
+  return {
+    'skipped': _atd_write_optional_field(_atd_write_array(writeSkippedTarget), x.skipped_targets, x),
+    'skipped_rules': _atd_write_required_field('CoreOutputExtra', 'skipped_rules', _atd_write_array(writeSkippedRule), x.skipped_rules, x),
+    'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
+    'stats': _atd_write_required_field('CoreOutputExtra', 'stats', writeCoreStats, x.stats, x),
+    'time': _atd_write_optional_field(writeCoreTiming, x.time, x),
+    'rules_by_engine': _atd_write_required_field('CoreOutputExtra', 'rules_by_engine', _atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
+    'engine_requested': _atd_write_required_field('CoreOutputExtra', 'engine_requested', writeEngineKind, x.engine_requested, x),
+  };
+}
+
+export function readCoreOutputExtra(x: any, context: any = x): CoreOutputExtra {
+  return {
+    skipped_targets: _atd_read_optional_field(_atd_read_array(readSkippedTarget), x['skipped'], x),
+    skipped_rules: _atd_read_required_field('CoreOutputExtra', 'skipped_rules', _atd_read_array(readSkippedRule), x['skipped_rules'], x),
+    explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
+    stats: _atd_read_required_field('CoreOutputExtra', 'stats', readCoreStats, x['stats'], x),
+    time: _atd_read_optional_field(readCoreTiming, x['time'], x),
+    rules_by_engine: _atd_read_required_field('CoreOutputExtra', 'rules_by_engine', _atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
+    engine_requested: _atd_read_required_field('CoreOutputExtra', 'engine_requested', readEngineKind, x['engine_requested'], x),
   };
 }
 
@@ -1427,6 +1408,35 @@ export function readFixRegex(x: any, context: any = x): FixRegex {
   };
 }
 
+export function writeValidationState(x: ValidationState, context: any = x): any {
+  switch (x.kind) {
+    case 'CONFIRMED_VALID':
+      return 'CONFIRMED_VALID'
+    case 'CONFIRMED_INVALID':
+      return 'CONFIRMED_INVALID'
+    case 'VALIDATION_ERROR':
+      return 'VALIDATION_ERROR'
+    case 'NO_VALIDATOR':
+      return 'NO_VALIDATOR'
+  }
+}
+
+export function readValidationState(x: any, context: any = x): ValidationState {
+  switch (x) {
+    case 'CONFIRMED_VALID':
+      return { kind: 'CONFIRMED_VALID' }
+    case 'CONFIRMED_INVALID':
+      return { kind: 'CONFIRMED_INVALID' }
+    case 'VALIDATION_ERROR':
+      return { kind: 'VALIDATION_ERROR' }
+    case 'NO_VALIDATOR':
+      return { kind: 'NO_VALIDATOR' }
+    default:
+      _atd_bad_json('ValidationState', x, context)
+      throw new Error('impossible')
+  }
+}
+
 export function writeCliOutput(x: CliOutput, context: any = x): any {
   return {
     'version': _atd_write_optional_field(writeVersion, x.version, x),
@@ -1527,44 +1537,6 @@ export function readCliTiming(x: any, context: any = x): CliTiming {
     total_bytes: _atd_read_required_field('CliTiming', 'total_bytes', _atd_read_int, x['total_bytes'], x),
     max_memory_bytes: _atd_read_optional_field(_atd_read_int, x['max_memory_bytes'], x),
   };
-}
-
-export function writeContributor(x: Contributor, context: any = x): any {
-  return {
-    'commit_author_name': _atd_write_required_field('Contributor', 'commit_author_name', _atd_write_string, x.commit_author_name, x),
-    'commit_author_email': _atd_write_required_field('Contributor', 'commit_author_email', _atd_write_string, x.commit_author_email, x),
-  };
-}
-
-export function readContributor(x: any, context: any = x): Contributor {
-  return {
-    commit_author_name: _atd_read_required_field('Contributor', 'commit_author_name', _atd_read_string, x['commit_author_name'], x),
-    commit_author_email: _atd_read_required_field('Contributor', 'commit_author_email', _atd_read_string, x['commit_author_email'], x),
-  };
-}
-
-export function writeContribution(x: Contribution, context: any = x): any {
-  return {
-    'commit_hash': _atd_write_required_field('Contribution', 'commit_hash', _atd_write_string, x.commit_hash, x),
-    'commit_timestamp': _atd_write_required_field('Contribution', 'commit_timestamp', _atd_write_string, x.commit_timestamp, x),
-    'contributor': _atd_write_required_field('Contribution', 'contributor', writeContributor, x.contributor, x),
-  };
-}
-
-export function readContribution(x: any, context: any = x): Contribution {
-  return {
-    commit_hash: _atd_read_required_field('Contribution', 'commit_hash', _atd_read_string, x['commit_hash'], x),
-    commit_timestamp: _atd_read_required_field('Contribution', 'commit_timestamp', _atd_read_string, x['commit_timestamp'], x),
-    contributor: _atd_read_required_field('Contribution', 'contributor', readContributor, x['contributor'], x),
-  };
-}
-
-export function writeContributions(x: Contributions, context: any = x): any {
-  return _atd_write_array(writeContribution)(x, context);
-}
-
-export function readContributions(x: any, context: any = x): Contributions {
-  return _atd_read_array(readContribution)(x, context);
 }
 
 export function writeRuleIdDict(x: RuleIdDict, context: any = x): any {
@@ -1858,6 +1830,44 @@ export function readDependencyParserError(x: any, context: any = x): DependencyP
   };
 }
 
+export function writeContributor(x: Contributor, context: any = x): any {
+  return {
+    'commit_author_name': _atd_write_required_field('Contributor', 'commit_author_name', _atd_write_string, x.commit_author_name, x),
+    'commit_author_email': _atd_write_required_field('Contributor', 'commit_author_email', _atd_write_string, x.commit_author_email, x),
+  };
+}
+
+export function readContributor(x: any, context: any = x): Contributor {
+  return {
+    commit_author_name: _atd_read_required_field('Contributor', 'commit_author_name', _atd_read_string, x['commit_author_name'], x),
+    commit_author_email: _atd_read_required_field('Contributor', 'commit_author_email', _atd_read_string, x['commit_author_email'], x),
+  };
+}
+
+export function writeContribution(x: Contribution, context: any = x): any {
+  return {
+    'commit_hash': _atd_write_required_field('Contribution', 'commit_hash', _atd_write_string, x.commit_hash, x),
+    'commit_timestamp': _atd_write_required_field('Contribution', 'commit_timestamp', _atd_write_string, x.commit_timestamp, x),
+    'contributor': _atd_write_required_field('Contribution', 'contributor', writeContributor, x.contributor, x),
+  };
+}
+
+export function readContribution(x: any, context: any = x): Contribution {
+  return {
+    commit_hash: _atd_read_required_field('Contribution', 'commit_hash', _atd_read_string, x['commit_hash'], x),
+    commit_timestamp: _atd_read_required_field('Contribution', 'commit_timestamp', _atd_read_string, x['commit_timestamp'], x),
+    contributor: _atd_read_required_field('Contribution', 'contributor', readContributor, x['contributor'], x),
+  };
+}
+
+export function writeContributions(x: Contributions, context: any = x): any {
+  return _atd_write_array(writeContribution)(x, context);
+}
+
+export function readContributions(x: any, context: any = x): Contributions {
+  return _atd_read_array(readContribution)(x, context);
+}
+
 export function writeCiScanResults(x: CiScanResults, context: any = x): any {
   return {
     'findings': _atd_write_required_field('CiScanResults', 'findings', _atd_write_array(writeFinding), x.findings, x),
@@ -2016,6 +2026,30 @@ export function readFinding(x: any, context: any = x): Finding {
     sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
     dataflow_trace: _atd_read_optional_field(readCliMatchDataflowTrace, x['dataflow_trace'], x),
   };
+}
+
+export function writeCveResult(x: CveResult, context: any = x): any {
+  return {
+    'url': _atd_write_required_field('CveResult', 'url', _atd_write_string, x.url, x),
+    'filename': _atd_write_required_field('CveResult', 'filename', _atd_write_string, x.filename, x),
+    'funcnames': _atd_write_required_field('CveResult', 'funcnames', _atd_write_array(_atd_write_string), x.funcnames, x),
+  };
+}
+
+export function readCveResult(x: any, context: any = x): CveResult {
+  return {
+    url: _atd_read_required_field('CveResult', 'url', _atd_read_string, x['url'], x),
+    filename: _atd_read_required_field('CveResult', 'filename', _atd_read_string, x['filename'], x),
+    funcnames: _atd_read_required_field('CveResult', 'funcnames', _atd_read_array(_atd_read_string), x['funcnames'], x),
+  };
+}
+
+export function writeCveResults(x: CveResults, context: any = x): any {
+  return _atd_write_array(writeCveResult)(x, context);
+}
+
+export function readCveResults(x: any, context: any = x): CveResults {
+  return _atd_read_array(readCveResult)(x, context);
 }
 
 

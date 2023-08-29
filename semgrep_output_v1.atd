@@ -12,38 +12,33 @@
  * This file has the _v1 suffix to explicitely represent the
  * version of this JSON format. If you need to extend this file, please
  * be careful because you may break consumers of this format (e.g., the
- * Semgrep playground or Semgrep App backend or external users of this JSON). See
- * https://atd.readthedocs.io/en/latest/atdgen-tutorial.html?highlight=json#smooth-protocol-upgrades
+ * Semgrep playground or Semgrep App backend or external users of this JSON).
+ * See https://atd.readthedocs.io/en/latest/atdgen-tutorial.html?highlight=json#smooth-protocol-upgrades
  * for more information on how to smoothly extend the types in this file.
  *
- * The versioning of this file should match the versioning of Semgrep.
- * Any backward incompatible changes should require to upgrade the major version
- * of Semgrep as this JSON output is part of the "API" of Semgrep
+ * Any backward incompatible changes should require to upgrade the major
+ * version of Semgrep as this JSON output is part of the "API" of Semgrep
  * (any incompatible changes to the rule format should also require a major
- *  version upgrade).
+ *  version upgrade). Hopefully, we will always be backward compatible.
  *
  * This file currently contains also the type definitions for semgrep-core's
  * JSON output, meant for the semgrep Python wrapper (a.k.a. pysemgrep).
- * LATER: when ATD gets a module system, we can split this file in
- * different files (e.g., in Output_from_core.atd), but for now it's simpler
- * to have everything in one file.
- * LATER: when osemgrep is done, we probably can even remove those intermediate
- * types.
  *
- * This file is translated into OCaml modules by atdgen:
- *  - Xxx_t: type definitions
- *  - Xxx_j: json serialization of those types
- *  Look for the corresponding Xxx_t.mli, Xxx_j.mli, etc.
- *  under dune's _build folder (where Xxx is Output_from_core).
- *
+ * This file is translated into OCaml modules by atdgen.
+ * Look for the corresponding Semgrep_output_v1_t.mli and other related files
+ * under dune's _build folder.
  * This file is also translated in Python modules by atdpy,
  * in jsonschema/openapi spec by atdcat, and in Typescript modules by
  * atdts.
  *
  * history:
  *  - the types in this file were originally inferred from JSON_report.ml for
- *    use by spacegrep when it was separate from semgrep-core. It's now also used
- *    in JSON_report.ml
+ *    use by spacegrep when it was separate from semgrep-core. It's now also
+ *    useds in JSON_report.ml
+ *  - it was extended to not only support semgrep-core JSON output but also
+ *    (py)semgrep CLI output!
+ *  - it was then simplified with the osemgrep migration effort by
+ *    removing gradually the semgrep-core JSON output.
  *
  * There are other important form of outputs which are not specified here:
  *  - the schema for the generic AST dump is in AST_generic_v1.atd
@@ -110,30 +105,10 @@ type rule_id
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = string
 
-type rule_id_and_engine_kind
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = (rule_id * engine_kind)
-
 (*****************************************************************************)
 (* Core Match result *)
 (*****************************************************************************)
 (* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
-
-type engine_kind
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = [
-  | OSS
-  | PRO
-]
-
-type validation_state
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = [
-  | CONFIRMED_VALID
-  | CONFIRMED_INVALID
-  | VALIDATION_ERROR
-  | NO_VALIDATOR
-] 
 
 type core_match
   <ocaml attr="deriving show">
@@ -163,39 +138,6 @@ type core_match_extra
    * --core-opts flag.
    *)
   ?extra_extra: raw_json option;
-}
-
-type core_match_call_trace
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True, order=True)"> = [
-  | CoreLoc of location
-  | CoreCall of (location * core_match_intermediate_var list * core_match_call_trace)
-] <ocaml repr="classic">
-
-(* Provides information about dataflow that leads to a finding. For now, just
- * provides taint traces (i.e. information about the taint source and how the
- * source reaches the sink). In the future, we may want to include more dataflow
- * information. For example, we may want to explain how constant propagation
- * leads to a finding. *)
-type core_match_dataflow_trace
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = {
-  ?taint_source: core_match_call_trace option;
-  (* Intermediate variables which are involved in the dataflow. For taint, this
-   * explains how the taint flows from the source to the sink. *)
-  ?intermediate_vars: core_match_intermediate_var list option;
-  (* For now, omitting the taint sink, since it's redundant data except for
-   * certain cases that only appear with DeepSemgrep. We can add it in later
-   * without breaking consumers. *)
-  ?taint_sink: core_match_call_trace option;
-}
-
-type core_match_intermediate_var
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = {
-  location: location;
-  (* Making this its own type rather than inlining `location` because Iago has
-   * plans to extend this with more information *)
 }
 
 (*****************************************************************************)
@@ -328,55 +270,6 @@ type core_stats
 }
 
 (*****************************************************************************)
-(* Skipping information *)
-(*****************************************************************************)
-
-(* If the 'rule_id' field is missing, the target is assumed to have
- *  been skipped for all the rules.
- *)
-type skipped_target
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = {
-  path: fpath;
-  reason: skip_reason;
-  details: string;
-  ?rule_id: rule_id option;
-}
-
-(* A reason for skipping a target file or a pair (target, rule). *)
-type skip_reason
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = [
-  (* New in osemgrep *)
-  | Gitignore_patterns_match <json name="gitignore_patterns_match">
-  (* Originally returned by the Python CLI *)
-  | Always_skipped <json name="always_skipped">
-  | Semgrepignore_patterns_match <json name="semgrepignore_patterns_match">
-  | Cli_include_flags_do_not_match <json name="cli_include_flags_do_not_match">
-  | Cli_exclude_flags_match <json name="cli_exclude_flags_match">
-  | Exceeded_size_limit <json name="exceeded_size_limit">
-  | Analysis_failed_parser_or_internal_error
-      <json name="analysis_failed_parser_or_internal_error">
-  (* Originally returned by semgrep-core *)
-  | Excluded_by_config <json name="excluded_by_config">
-  | Wrong_language <json name="wrong_language">
-  | Too_big <json name="too_big">
-  | Minified <json name="minified">
-  | Binary <json name="binary">
-  | Irrelevant_rule <json name="irrelevant_rule">
-  | Too_many_matches <json name="too_many_matches">
-] <ocaml repr="classic">
-
-type skipped_rule
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = {
-  rule_id: rule_id;
-  details: string;
-  (* position of the error in the rule file *)
-  position: position;
-}
-
-(*****************************************************************************)
 (* Core Profiling information *)
 (*****************************************************************************)
 (* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
@@ -412,6 +305,43 @@ type rule_times
   rule_id: rule_id;
   parse_time: float;
   match_time: float;
+}
+
+(*****************************************************************************)
+(* Core call trace *)
+(*****************************************************************************)
+
+type core_match_call_trace
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True, order=True)"> = [
+  | CoreLoc of location
+  | CoreCall of (location * core_match_intermediate_var list * core_match_call_trace)
+] <ocaml repr="classic">
+
+(* Provides information about dataflow that leads to a finding. For now, just
+ * provides taint traces (i.e. information about the taint source and how the
+ * source reaches the sink). In the future, we may want to include more dataflow
+ * information. For example, we may want to explain how constant propagation
+ * leads to a finding. *)
+type core_match_dataflow_trace
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {
+  ?taint_source: core_match_call_trace option;
+  (* Intermediate variables which are involved in the dataflow. For taint, this
+   * explains how the taint flows from the source to the sink. *)
+  ?intermediate_vars: core_match_intermediate_var list option;
+  (* For now, omitting the taint sink, since it's redundant data except for
+   * certain cases that only appear with DeepSemgrep. We can add it in later
+   * without breaking consumers. *)
+  ?taint_sink: core_match_call_trace option;
+}
+
+type core_match_intermediate_var
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {
+  location: location;
+  (* Making this its own type rather than inlining `location` because Iago has
+   * plans to extend this with more information *)
 }
 
 (*****************************************************************************)
@@ -466,32 +396,86 @@ type matching_operation
 ] <ocaml repr="classic">
 
 (*****************************************************************************)
-(* Synthesizing from diffs (see locate_patched_functions in Synthesizing.mli) *)
+(* Skipping information *)
 (*****************************************************************************)
-(* EXPERIMENTAL *)
-type cve_result
+
+(* If the 'rule_id' field is missing, the target is assumed to have
+ *  been skipped for all the rules.
+ *)
+type skipped_target
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
-   url: string;
-   filename: string;
-   funcnames: string list
+  path: fpath;
+  reason: skip_reason;
+  details: string;
+  ?rule_id: rule_id option;
 }
 
-type cve_results
+(* A reason for skipping a target file or a pair (target, rule). *)
+type skip_reason
   <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = cve_result list
+  <python decorator="dataclass(frozen=True)"> = [
+  (* New in osemgrep *)
+  | Gitignore_patterns_match <json name="gitignore_patterns_match">
+  (* Originally returned by the Python CLI *)
+  | Always_skipped <json name="always_skipped">
+  | Semgrepignore_patterns_match <json name="semgrepignore_patterns_match">
+  | Cli_include_flags_do_not_match <json name="cli_include_flags_do_not_match">
+  | Cli_exclude_flags_match <json name="cli_exclude_flags_match">
+  | Exceeded_size_limit <json name="exceeded_size_limit">
+  | Analysis_failed_parser_or_internal_error
+      <json name="analysis_failed_parser_or_internal_error">
+  (* Originally returned by semgrep-core *)
+  | Excluded_by_config <json name="excluded_by_config">
+  | Wrong_language <json name="wrong_language">
+  | Too_big <json name="too_big">
+  | Minified <json name="minified">
+  | Binary <json name="binary">
+  | Irrelevant_rule <json name="irrelevant_rule">
+  | Too_many_matches <json name="too_many_matches">
+] <ocaml repr="classic">
 
+type skipped_rule
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {
+  rule_id: rule_id;
+  details: string;
+  (* position of the error in the rule file *)
+  position: position;
+}
+
+(*****************************************************************************)
+(* Engine kind  *)
+(*****************************************************************************)
+
+type engine_kind
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = [
+  | OSS
+  | PRO
+]
+
+type rule_id_and_engine_kind
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = (rule_id * engine_kind)
+
+                     
 (*****************************************************************************)
 (* Semgrep-core final output  *)
 (*****************************************************************************)
 (* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
-type core_match_results
+type core_output
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
-  matches: core_match list;
   (* errors are guaranteed to be duplicate free; see also Report.ml *)
   errors: core_error list;
+  results: core_match list;
+  inherit core_output_extra;
+}
 
+type core_output_extra
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {  
   ?skipped_targets <json name="skipped">: skipped_target list option;
   (* sinced semgrep 0.86 *)
   skipped_rules: skipped_rule list;
@@ -569,6 +553,10 @@ type error_span <ocaml attr="deriving show"> = {
     ?context_start: position nullable option;
     ?context_end: position nullable option;
   }
+
+(*****************************************************************************)
+(* CLI call trace *)
+(*****************************************************************************)
 
 type cli_match_call_trace
   <ocaml attr="deriving show">
@@ -680,6 +668,15 @@ type fix_regex <ocaml attr="deriving show"> = {
   ?count: int option;
 }
 
+type validation_state
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = [
+  | CONFIRMED_VALID
+  | CONFIRMED_INVALID
+  | VALIDATION_ERROR
+  | NO_VALIDATOR
+] 
+
 (*****************************************************************************)
 (* Semgrep CLI final output *)
 (*****************************************************************************)
@@ -697,8 +694,6 @@ type cli_output <ocaml attr="deriving show"> = {
 type cli_output_extra <ocaml attr="deriving show"> = {
     paths: cli_paths;
     ?time: cli_timing option;
-    (* seems unused, not in any results.json *)
-    (* ?stats: cli_stats option; *)
     (* used only in TEXT format:
        ?color_output, per_finding_max_lines_limit, per_line_max_chars_limit
      *)
@@ -749,23 +744,6 @@ type cli_timing <ocaml attr="deriving show"> = {
     ?max_memory_bytes : int option;
   }
 
-(*
- * https://semgrep.dev/docs/usage-limits
- *)
-type contributor <ocaml attr="deriving show"> = {
-    commit_author_name: string;
-    commit_author_email: string;
-}
-
-type contribution <ocaml attr="deriving show"> = {
-    commit_hash: string;
-    commit_timestamp: string;
-    contributor: contributor;
-}
-
-type contributions
-  <ocaml attr="deriving show"> = contribution list
-
 (* LATER: should just use rule_id *)
 type rule_id_dict <ocaml attr="deriving show"> = {
   id: rule_id;
@@ -790,16 +768,8 @@ type cli_target_times <ocaml attr="deriving show"> = {
     run_time: float;
 }
 
-(* TODO: the stats: field seems unused (could not find it in any e2e/.../results.json) *)
-(*
-type cli_stats <ocaml attr="deriving show"> = {
-    (* (targets:, loc:, profiler:) *)
-      xxx: int;
-}
-*)
-
 (*****************************************************************************)
-(* Supply Chain Info *)
+(* Semgrep Supply Chain (SSC, a.k.a., Software Composition Analysis (SCA)) *)
 (*****************************************************************************)
 (* EXPERIMENTAL *)
 type sca_info <ocaml attr="deriving show"> = {
@@ -862,7 +832,6 @@ type found_dependency <ocaml attr="deriving show"> = {
   ?children: dependency_child list option;
 }
 
-
 (* json names are to maintain backwards compatibility with the python enum it is replacing *)
 type sca_parser_name <ocaml attr="deriving show"> = [
   | Gemfile_lock <json name="gemfile_lock">
@@ -883,8 +852,6 @@ type sca_parser_name <ocaml attr="deriving show"> = [
   | Composer_lock <json name="composer_lock">
 ]
 
-
-
 type dependency_parser_error <ocaml attr="deriving show"> = {
   path: string;
   parser: sca_parser_name;
@@ -894,6 +861,27 @@ type dependency_parser_error <ocaml attr="deriving show"> = {
   ?col: int option;
   ?text: string option;
 }
+
+(*****************************************************************************)
+(* Contributors (App) *)
+(*****************************************************************************)
+
+(* 
+ * https://semgrep.dev/docs/usage-limits
+ *)
+type contributor <ocaml attr="deriving show"> = {
+    commit_author_name: string;
+    commit_author_email: string;
+}
+
+type contribution <ocaml attr="deriving show"> = {
+    commit_hash: string;
+    commit_timestamp: string;
+    contributor: contributor;
+}
+
+type contributions
+  <ocaml attr="deriving show"> = contribution list
 
 
 (*****************************************************************************)
@@ -919,8 +907,6 @@ type ci_scan_results <ocaml attr="deriving show"> = {
    (* this data was originally sent to /complete, but we want to start sending it /results *)
    ?dependencies: ci_scan_dependencies option;
 }
-
-
 
 type parsing_stats <ocaml attr="deriving show"> = {
   targets_parsed: int;
@@ -963,7 +949,6 @@ type ci_scan_complete_response <ocaml attr="deriving show"> = {
   ?task_id: string option;
 }
 
-
 type finding_hashes <ocaml attr="deriving show"> = {
   start_line_hash: string;
   end_line_hash: string;
@@ -997,3 +982,20 @@ type finding <ocaml attr="deriving show"> = {
   ?sca_info: sca_info option;
   ?dataflow_trace: cli_match_dataflow_trace option;
 }
+
+(*****************************************************************************)
+(* Misc *) 
+(*****************************************************************************)
+(* EXPERIMENTAL *)
+(*Synthesizing from diffs (see Synthesizing.mli) *)
+type cve_result
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {
+   url: string;
+   filename: string;
+   funcnames: string list
+}
+
+type cve_results
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = cve_result list
