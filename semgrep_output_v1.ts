@@ -127,6 +127,7 @@ export type IncompatibleRule = {
 export type CoreSeverity =
 | { kind: 'Error' /* JSON: "error" */ }
 | { kind: 'Warning' /* JSON: "warning" */ }
+| { kind: 'Info' /* JSON: "info" */ }
 
 export type CoreStats = {
   okfiles: number /*int*/;
@@ -899,6 +900,8 @@ export function writeCoreSeverity(x: CoreSeverity, context: any = x): any {
       return 'error'
     case 'Warning':
       return 'warning'
+    case 'Info':
+      return 'info'
   }
 }
 
@@ -908,6 +911,8 @@ export function readCoreSeverity(x: any, context: any = x): CoreSeverity {
       return { kind: 'Error' }
     case 'warning':
       return { kind: 'Warning' }
+    case 'info':
+      return { kind: 'Info' }
     default:
       _atd_bad_json('CoreSeverity', x, context)
       throw new Error('impossible')

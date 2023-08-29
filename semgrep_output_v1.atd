@@ -306,11 +306,17 @@ type incompatible_rule
   ?max_version: string option;
 }
 
+(*
+   error = something wrong that must be fixed
+   warning = something wrong that should be fixed
+   info = some special condition worth knowing about
+*)
 type core_severity
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = [
   | Error <json name="error">
   | Warning <json name="warning">
+  | Info <json name="info">
 ] <ocaml repr="classic">
 
 

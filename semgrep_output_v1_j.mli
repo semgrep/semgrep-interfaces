@@ -327,7 +327,9 @@ type core_stats = Semgrep_output_v1_t.core_stats = {
 }
   [@@deriving show]
 
-type core_severity = Semgrep_output_v1_t.core_severity =  Error | Warning 
+type core_severity = Semgrep_output_v1_t.core_severity = 
+    Error | Warning | Info
+
   [@@deriving show]
 
 type core_error_kind = Semgrep_output_v1_t.core_error_kind = 

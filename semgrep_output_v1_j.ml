@@ -327,7 +327,9 @@ type core_stats = Semgrep_output_v1_t.core_stats = {
 }
   [@@deriving show]
 
-type core_severity = Semgrep_output_v1_t.core_severity =  Error | Warning 
+type core_severity = Semgrep_output_v1_t.core_severity = 
+    Error | Warning | Info
+
   [@@deriving show]
 
 type core_error_kind = Semgrep_output_v1_t.core_error_kind = 
@@ -11320,6 +11322,7 @@ let write_core_severity : _ -> core_severity -> _ = (
     match x with
       | Error -> Buffer.add_string ob "\"error\""
       | Warning -> Buffer.add_string ob "\"warning\""
+      | Info -> Buffer.add_string ob "\"info\""
 )
 let string_of_core_severity ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -11339,6 +11342,10 @@ let read_core_severity = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (Warning : core_severity)
+            | "info" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Info : core_severity)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -11348,6 +11355,8 @@ let read_core_severity = (
               (Error : core_severity)
             | "warning" ->
               (Warning : core_severity)
+            | "info" ->
+              (Info : core_severity)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

@@ -241,7 +241,9 @@
       }
     },
     "core_severity": {
-      "oneOf": [ { "const": "error" }, { "const": "warning" } ]
+      "oneOf": [
+        { "const": "error" }, { "const": "warning" }, { "const": "info" }
+      ]
     },
     "core_stats": {
       "type": "object",

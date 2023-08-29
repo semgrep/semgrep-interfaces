@@ -3094,10 +3094,27 @@ class Warning:
 
 
 @dataclass(frozen=True)
+class Info:
+    """Original type: core_severity = [ ... | Info | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Info'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'info'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class CoreSeverity:
     """Original type: core_severity = [ ... ]"""
 
-    value: Union[Error, Warning]
+    value: Union[Error, Warning, Info]
 
     @property
     def kind(self) -> str:
@@ -3111,6 +3128,8 @@ class CoreSeverity:
                 return cls(Error())
             if x == 'warning':
                 return cls(Warning())
+            if x == 'info':
+                return cls(Info())
             _atd_bad_json('CoreSeverity', x)
         _atd_bad_json('CoreSeverity', x)
 
