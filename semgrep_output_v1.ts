@@ -93,9 +93,9 @@ export type CoreErrorKind =
 
 export type IncompatibleRule = {
   rule_id: RuleId;
-  this_version: string;
-  min_version?: string;
-  max_version?: string;
+  this_version: Version;
+  min_version?: Version;
+  max_version?: Version;
 }
 
 export type CoreSeverity =
@@ -391,12 +391,12 @@ export type DependencyPattern = {
 
 export type DependencyChild = {
   package_: string;
-  version: string;
+  version: Version;
 }
 
 export type FoundDependency = {
   package_: string;
-  version: string;
+  version: Version;
   ecosystem: Ecosystem;
   allowed_hashes: Map<string, string[]>;
   resolved_url?: string;
@@ -781,18 +781,18 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
 export function writeIncompatibleRule(x: IncompatibleRule, context: any = x): any {
   return {
     'rule_id': _atd_write_required_field('IncompatibleRule', 'rule_id', writeRuleId, x.rule_id, x),
-    'this_version': _atd_write_required_field('IncompatibleRule', 'this_version', _atd_write_string, x.this_version, x),
-    'min_version': _atd_write_optional_field(_atd_write_string, x.min_version, x),
-    'max_version': _atd_write_optional_field(_atd_write_string, x.max_version, x),
+    'this_version': _atd_write_required_field('IncompatibleRule', 'this_version', writeVersion, x.this_version, x),
+    'min_version': _atd_write_optional_field(writeVersion, x.min_version, x),
+    'max_version': _atd_write_optional_field(writeVersion, x.max_version, x),
   };
 }
 
 export function readIncompatibleRule(x: any, context: any = x): IncompatibleRule {
   return {
     rule_id: _atd_read_required_field('IncompatibleRule', 'rule_id', readRuleId, x['rule_id'], x),
-    this_version: _atd_read_required_field('IncompatibleRule', 'this_version', _atd_read_string, x['this_version'], x),
-    min_version: _atd_read_optional_field(_atd_read_string, x['min_version'], x),
-    max_version: _atd_read_optional_field(_atd_read_string, x['max_version'], x),
+    this_version: _atd_read_required_field('IncompatibleRule', 'this_version', readVersion, x['this_version'], x),
+    min_version: _atd_read_optional_field(readVersion, x['min_version'], x),
+    max_version: _atd_read_optional_field(readVersion, x['max_version'], x),
   };
 }
 
@@ -1694,21 +1694,21 @@ export function readDependencyPattern(x: any, context: any = x): DependencyPatte
 export function writeDependencyChild(x: DependencyChild, context: any = x): any {
   return {
     'package': _atd_write_required_field('DependencyChild', 'package', _atd_write_string, x.package_, x),
-    'version': _atd_write_required_field('DependencyChild', 'version', _atd_write_string, x.version, x),
+    'version': _atd_write_required_field('DependencyChild', 'version', writeVersion, x.version, x),
   };
 }
 
 export function readDependencyChild(x: any, context: any = x): DependencyChild {
   return {
     package_: _atd_read_required_field('DependencyChild', 'package', _atd_read_string, x['package'], x),
-    version: _atd_read_required_field('DependencyChild', 'version', _atd_read_string, x['version'], x),
+    version: _atd_read_required_field('DependencyChild', 'version', readVersion, x['version'], x),
   };
 }
 
 export function writeFoundDependency(x: FoundDependency, context: any = x): any {
   return {
     'package': _atd_write_required_field('FoundDependency', 'package', _atd_write_string, x.package_, x),
-    'version': _atd_write_required_field('FoundDependency', 'version', _atd_write_string, x.version, x),
+    'version': _atd_write_required_field('FoundDependency', 'version', writeVersion, x.version, x),
     'ecosystem': _atd_write_required_field('FoundDependency', 'ecosystem', writeEcosystem, x.ecosystem, x),
     'allowed_hashes': _atd_write_required_field('FoundDependency', 'allowed_hashes', _atd_write_assoc_map_to_object(_atd_write_array(_atd_write_string)), x.allowed_hashes, x),
     'resolved_url': _atd_write_optional_field(_atd_write_string, x.resolved_url, x),
@@ -1721,7 +1721,7 @@ export function writeFoundDependency(x: FoundDependency, context: any = x): any 
 export function readFoundDependency(x: any, context: any = x): FoundDependency {
   return {
     package_: _atd_read_required_field('FoundDependency', 'package', _atd_read_string, x['package'], x),
-    version: _atd_read_required_field('FoundDependency', 'version', _atd_read_string, x['version'], x),
+    version: _atd_read_required_field('FoundDependency', 'version', readVersion, x['version'], x),
     ecosystem: _atd_read_required_field('FoundDependency', 'ecosystem', readEcosystem, x['ecosystem'], x),
     allowed_hashes: _atd_read_required_field('FoundDependency', 'allowed_hashes', _atd_read_assoc_object_into_map(_atd_read_array(_atd_read_string)), x['allowed_hashes'], x),
     resolved_url: _atd_read_optional_field(_atd_read_string, x['resolved_url'], x),

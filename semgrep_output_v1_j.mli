@@ -176,13 +176,13 @@ type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show]
 
 type dependency_child = Semgrep_output_v1_t.dependency_child = {
   package: string;
-  version: string
+  version: version
 }
   [@@deriving show]
 
 type found_dependency = Semgrep_output_v1_t.found_dependency = {
   package: string;
-  version: string;
+  version: version;
   ecosystem: ecosystem;
   allowed_hashes: (string * string list) list;
   resolved_url: string option;
@@ -230,9 +230,9 @@ type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
 
 type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
   rule_id: rule_id;
-  this_version: string;
-  min_version: string option;
-  max_version: string option
+  this_version: version;
+  min_version: version option;
+  max_version: version option
 }
   [@@deriving show]
 

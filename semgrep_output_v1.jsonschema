@@ -165,9 +165,9 @@
       "required": [ "rule_id", "this_version" ],
       "properties": {
         "rule_id": { "$ref": "#/definitions/rule_id" },
-        "this_version": { "type": "string" },
-        "min_version": { "type": "string" },
-        "max_version": { "type": "string" }
+        "this_version": { "$ref": "#/definitions/version" },
+        "min_version": { "$ref": "#/definitions/version" },
+        "max_version": { "$ref": "#/definitions/version" }
       }
     },
     "core_severity": {
@@ -731,7 +731,7 @@
       "required": [ "package", "version" ],
       "properties": {
         "package": { "type": "string" },
-        "version": { "type": "string" }
+        "version": { "$ref": "#/definitions/version" }
       }
     },
     "found_dependency": {
@@ -741,7 +741,7 @@
       ],
       "properties": {
         "package": { "type": "string" },
-        "version": { "type": "string" },
+        "version": { "$ref": "#/definitions/version" },
         "ecosystem": { "$ref": "#/definitions/ecosystem" },
         "allowed_hashes": {
           "type": "object",

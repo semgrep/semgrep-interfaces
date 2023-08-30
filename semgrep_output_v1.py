@@ -2330,14 +2330,14 @@ class DependencyChild:
     """Original type: dependency_child = { ... }"""
 
     package: str
-    version: str
+    version: Version
 
     @classmethod
     def from_json(cls, x: Any) -> 'DependencyChild':
         if isinstance(x, dict):
             return cls(
                 package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('DependencyChild', 'package'),
-                version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('DependencyChild', 'version'),
+                version=Version.from_json(x['version']) if 'version' in x else _atd_missing_json_field('DependencyChild', 'version'),
             )
         else:
             _atd_bad_json('DependencyChild', x)
@@ -2345,7 +2345,7 @@ class DependencyChild:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['package'] = _atd_write_string(self.package)
-        res['version'] = _atd_write_string(self.version)
+        res['version'] = (lambda x: x.to_json())(self.version)
         return res
 
     @classmethod
@@ -2361,7 +2361,7 @@ class FoundDependency:
     """Original type: found_dependency = { ... }"""
 
     package: str
-    version: str
+    version: Version
     ecosystem: Ecosystem
     allowed_hashes: Dict[str, List[str]]
     transitivity: Transitivity
@@ -2374,7 +2374,7 @@ class FoundDependency:
         if isinstance(x, dict):
             return cls(
                 package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('FoundDependency', 'package'),
-                version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('FoundDependency', 'version'),
+                version=Version.from_json(x['version']) if 'version' in x else _atd_missing_json_field('FoundDependency', 'version'),
                 ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('FoundDependency', 'ecosystem'),
                 allowed_hashes=_atd_read_assoc_object_into_dict(_atd_read_list(_atd_read_string))(x['allowed_hashes']) if 'allowed_hashes' in x else _atd_missing_json_field('FoundDependency', 'allowed_hashes'),
                 transitivity=Transitivity.from_json(x['transitivity']) if 'transitivity' in x else _atd_missing_json_field('FoundDependency', 'transitivity'),
@@ -2388,7 +2388,7 @@ class FoundDependency:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['package'] = _atd_write_string(self.package)
-        res['version'] = _atd_write_string(self.version)
+        res['version'] = (lambda x: x.to_json())(self.version)
         res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
         res['allowed_hashes'] = _atd_write_assoc_dict_to_object(_atd_write_list(_atd_write_string))(self.allowed_hashes)
         res['transitivity'] = (lambda x: x.to_json())(self.transitivity)
@@ -2604,18 +2604,18 @@ class IncompatibleRule:
     """Original type: incompatible_rule = { ... }"""
 
     rule_id: RuleId
-    this_version: str
-    min_version: Optional[str] = None
-    max_version: Optional[str] = None
+    this_version: Version
+    min_version: Optional[Version] = None
+    max_version: Optional[Version] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'IncompatibleRule':
         if isinstance(x, dict):
             return cls(
                 rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else _atd_missing_json_field('IncompatibleRule', 'rule_id'),
-                this_version=_atd_read_string(x['this_version']) if 'this_version' in x else _atd_missing_json_field('IncompatibleRule', 'this_version'),
-                min_version=_atd_read_string(x['min_version']) if 'min_version' in x else None,
-                max_version=_atd_read_string(x['max_version']) if 'max_version' in x else None,
+                this_version=Version.from_json(x['this_version']) if 'this_version' in x else _atd_missing_json_field('IncompatibleRule', 'this_version'),
+                min_version=Version.from_json(x['min_version']) if 'min_version' in x else None,
+                max_version=Version.from_json(x['max_version']) if 'max_version' in x else None,
             )
         else:
             _atd_bad_json('IncompatibleRule', x)
@@ -2623,11 +2623,11 @@ class IncompatibleRule:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
-        res['this_version'] = _atd_write_string(self.this_version)
+        res['this_version'] = (lambda x: x.to_json())(self.this_version)
         if self.min_version is not None:
-            res['min_version'] = _atd_write_string(self.min_version)
+            res['min_version'] = (lambda x: x.to_json())(self.min_version)
         if self.max_version is not None:
-            res['max_version'] = _atd_write_string(self.max_version)
+            res['max_version'] = (lambda x: x.to_json())(self.max_version)
         return res
 
     @classmethod

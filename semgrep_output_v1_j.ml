@@ -176,13 +176,13 @@ type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show]
 
 type dependency_child = Semgrep_output_v1_t.dependency_child = {
   package: string;
-  version: string
+  version: version
 }
   [@@deriving show]
 
 type found_dependency = Semgrep_output_v1_t.found_dependency = {
   package: string;
-  version: string;
+  version: version;
   ecosystem: ecosystem;
   allowed_hashes: (string * string list) list;
   resolved_url: string option;
@@ -230,9 +230,9 @@ type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
 
 type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
   rule_id: rule_id;
-  this_version: string;
-  min_version: string option;
-  max_version: string option
+  this_version: version;
+  min_version: version option;
+  max_version: version option
 }
   [@@deriving show]
 
@@ -5540,7 +5540,7 @@ let write_dependency_child : _ -> dependency_child -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"version\":";
     (
-      Yojson.Safe.write_string
+      write_version
     )
       ob x.version;
     Buffer.add_char ob '}';
@@ -5605,7 +5605,7 @@ let read_dependency_child = (
             field_version := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_version
                 ) p lb
               )
             );
@@ -5663,7 +5663,7 @@ let read_dependency_child = (
               field_version := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_version
                   ) p lb
                 )
               );
@@ -5869,7 +5869,7 @@ let write_found_dependency : _ -> found_dependency -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"version\":";
     (
-      Yojson.Safe.write_string
+      write_version
     )
       ob x.version;
     if !is_first then
@@ -6055,7 +6055,7 @@ let read_found_dependency = (
             field_version := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_version
                 ) p lb
               )
             );
@@ -6222,7 +6222,7 @@ let read_found_dependency = (
               field_version := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_version
                   ) p lb
                 )
               );
@@ -7337,6 +7337,63 @@ let read_parsing_stats = (
 )
 let parsing_stats_of_string s =
   read_parsing_stats (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__version_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_version
+  )
+)
+let string_of__version_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__version_option ob x;
+  Buffer.contents ob
+let read__version_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_version
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_version
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _version_option_of_string s =
+  read__version_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_incompatible_rule : _ -> incompatible_rule -> _ = (
   fun ob (x : incompatible_rule) ->
     Buffer.add_char ob '{';
@@ -7356,7 +7413,7 @@ let write_incompatible_rule : _ -> incompatible_rule -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"this_version\":";
     (
-      Yojson.Safe.write_string
+      write_version
     )
       ob x.this_version;
     (match x.min_version with None -> () | Some x ->
@@ -7366,7 +7423,7 @@ let write_incompatible_rule : _ -> incompatible_rule -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"min_version\":";
       (
-        Yojson.Safe.write_string
+        write_version
       )
         ob x;
     );
@@ -7377,7 +7434,7 @@ let write_incompatible_rule : _ -> incompatible_rule -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"max_version\":";
       (
-        Yojson.Safe.write_string
+        write_version
       )
         ob x;
     );
@@ -7467,7 +7524,7 @@ let read_incompatible_rule = (
             field_this_version := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_version
                 ) p lb
               )
             );
@@ -7476,7 +7533,7 @@ let read_incompatible_rule = (
               field_min_version := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_version
                   ) p lb
                 )
               );
@@ -7486,7 +7543,7 @@ let read_incompatible_rule = (
               field_max_version := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_version
                   ) p lb
                 )
               );
@@ -7567,7 +7624,7 @@ let read_incompatible_rule = (
               field_this_version := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_version
                   ) p lb
                 )
               );
@@ -7576,7 +7633,7 @@ let read_incompatible_rule = (
                 field_min_version := (
                   Some (
                     (
-                      Atdgen_runtime.Oj_run.read_string
+                      read_version
                     ) p lb
                   )
                 );
@@ -7586,7 +7643,7 @@ let read_incompatible_rule = (
                 field_max_version := (
                   Some (
                     (
-                      Atdgen_runtime.Oj_run.read_string
+                      read_version
                     ) p lb
                   )
                 );
@@ -17181,63 +17238,6 @@ let read_cli_error = (
 )
 let cli_error_of_string s =
   read_cli_error (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__version_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_version
-  )
-)
-let string_of__version_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__version_option ob x;
-  Buffer.contents ob
-let read__version_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_version
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_version
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _version_option_of_string s =
-  read__version_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__cli_match_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_cli_match

@@ -243,9 +243,9 @@ type incompatible_rule
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
   rule_id: rule_id;
-  this_version: string;
-  ?min_version: string option;
-  ?max_version: string option;
+  this_version: version;
+  ?min_version: version option;
+  ?max_version: version option;
 }
 
 (*
@@ -814,12 +814,12 @@ type dependency_pattern <ocaml attr="deriving show"> = {
 
 type dependency_child <ocaml attr="deriving show"> = {
   package: string;
-  version: string;
+  version: version;
 }
 
 type found_dependency <ocaml attr="deriving show"> = {
   package: string;
-  version: string;
+  version: version;
   ecosystem: ecosystem;
   allowed_hashes: (string * string list) list
     <json repr="object">
