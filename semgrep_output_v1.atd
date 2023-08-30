@@ -242,7 +242,7 @@ type core_error_kind
 type incompatible_rule
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
-  rule_id: string;
+  rule_id: rule_id;
   this_version: string;
   ?min_version: string option;
   ?max_version: string option;
@@ -900,7 +900,7 @@ type ci_scan_results <ocaml attr="deriving show"> = {
    token: string nullable;
    searched_paths: string list;
    renamed_paths: string list;
-   rule_ids: string list;
+   rule_ids: rule_id list;
    (* since semgrep 1.34.0 *)
    ?contributions: contributions option;
    (* since semgrep 1.38.0 *)

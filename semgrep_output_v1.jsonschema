@@ -164,7 +164,7 @@
       "type": "object",
       "required": [ "rule_id", "this_version" ],
       "properties": {
-        "rule_id": { "type": "string" },
+        "rule_id": { "$ref": "#/definitions/rule_id" },
         "this_version": { "type": "string" },
         "min_version": { "type": "string" },
         "max_version": { "type": "string" }
@@ -830,7 +830,10 @@
         "token": { "type": [ "string", "null" ] },
         "searched_paths": { "type": "array", "items": { "type": "string" } },
         "renamed_paths": { "type": "array", "items": { "type": "string" } },
-        "rule_ids": { "type": "array", "items": { "type": "string" } },
+        "rule_ids": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/rule_id" }
+        },
         "contributions": { "$ref": "#/definitions/contributions" },
         "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" }
       }

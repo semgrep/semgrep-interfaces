@@ -2603,7 +2603,7 @@ class ParsingStats:
 class IncompatibleRule:
     """Original type: incompatible_rule = { ... }"""
 
-    rule_id: str
+    rule_id: RuleId
     this_version: str
     min_version: Optional[str] = None
     max_version: Optional[str] = None
@@ -2612,7 +2612,7 @@ class IncompatibleRule:
     def from_json(cls, x: Any) -> 'IncompatibleRule':
         if isinstance(x, dict):
             return cls(
-                rule_id=_atd_read_string(x['rule_id']) if 'rule_id' in x else _atd_missing_json_field('IncompatibleRule', 'rule_id'),
+                rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else _atd_missing_json_field('IncompatibleRule', 'rule_id'),
                 this_version=_atd_read_string(x['this_version']) if 'this_version' in x else _atd_missing_json_field('IncompatibleRule', 'this_version'),
                 min_version=_atd_read_string(x['min_version']) if 'min_version' in x else None,
                 max_version=_atd_read_string(x['max_version']) if 'max_version' in x else None,
@@ -2622,7 +2622,7 @@ class IncompatibleRule:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['rule_id'] = _atd_write_string(self.rule_id)
+        res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
         res['this_version'] = _atd_write_string(self.this_version)
         if self.min_version is not None:
             res['min_version'] = _atd_write_string(self.min_version)
@@ -4234,7 +4234,7 @@ class CiScanResults:
     token: Optional[str]
     searched_paths: List[str]
     renamed_paths: List[str]
-    rule_ids: List[str]
+    rule_ids: List[RuleId]
     contributions: Optional[Contributions] = None
     dependencies: Optional[CiScanDependencies] = None
 
@@ -4247,7 +4247,7 @@ class CiScanResults:
                 token=_atd_read_nullable(_atd_read_string)(x['token']) if 'token' in x else _atd_missing_json_field('CiScanResults', 'token'),
                 searched_paths=_atd_read_list(_atd_read_string)(x['searched_paths']) if 'searched_paths' in x else _atd_missing_json_field('CiScanResults', 'searched_paths'),
                 renamed_paths=_atd_read_list(_atd_read_string)(x['renamed_paths']) if 'renamed_paths' in x else _atd_missing_json_field('CiScanResults', 'renamed_paths'),
-                rule_ids=_atd_read_list(_atd_read_string)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('CiScanResults', 'rule_ids'),
+                rule_ids=_atd_read_list(RuleId.from_json)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('CiScanResults', 'rule_ids'),
                 contributions=Contributions.from_json(x['contributions']) if 'contributions' in x else None,
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
             )
@@ -4261,7 +4261,7 @@ class CiScanResults:
         res['token'] = _atd_write_nullable(_atd_write_string)(self.token)
         res['searched_paths'] = _atd_write_list(_atd_write_string)(self.searched_paths)
         res['renamed_paths'] = _atd_write_list(_atd_write_string)(self.renamed_paths)
-        res['rule_ids'] = _atd_write_list(_atd_write_string)(self.rule_ids)
+        res['rule_ids'] = _atd_write_list((lambda x: x.to_json()))(self.rule_ids)
         if self.contributions is not None:
             res['contributions'] = (lambda x: x.to_json())(self.contributions)
         if self.dependencies is not None:

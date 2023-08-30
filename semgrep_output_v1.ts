@@ -92,7 +92,7 @@ export type CoreErrorKind =
 | { kind: 'IncompatibleRule'; value: IncompatibleRule }
 
 export type IncompatibleRule = {
-  rule_id: string;
+  rule_id: RuleId;
   this_version: string;
   min_version?: string;
   max_version?: string;
@@ -451,7 +451,7 @@ export type CiScanResults = {
   token: (string | null);
   searched_paths: string[];
   renamed_paths: string[];
-  rule_ids: string[];
+  rule_ids: RuleId[];
   contributions?: Contributions;
   dependencies?: CiScanDependencies;
 }
@@ -780,7 +780,7 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
 
 export function writeIncompatibleRule(x: IncompatibleRule, context: any = x): any {
   return {
-    'rule_id': _atd_write_required_field('IncompatibleRule', 'rule_id', _atd_write_string, x.rule_id, x),
+    'rule_id': _atd_write_required_field('IncompatibleRule', 'rule_id', writeRuleId, x.rule_id, x),
     'this_version': _atd_write_required_field('IncompatibleRule', 'this_version', _atd_write_string, x.this_version, x),
     'min_version': _atd_write_optional_field(_atd_write_string, x.min_version, x),
     'max_version': _atd_write_optional_field(_atd_write_string, x.max_version, x),
@@ -789,7 +789,7 @@ export function writeIncompatibleRule(x: IncompatibleRule, context: any = x): an
 
 export function readIncompatibleRule(x: any, context: any = x): IncompatibleRule {
   return {
-    rule_id: _atd_read_required_field('IncompatibleRule', 'rule_id', _atd_read_string, x['rule_id'], x),
+    rule_id: _atd_read_required_field('IncompatibleRule', 'rule_id', readRuleId, x['rule_id'], x),
     this_version: _atd_read_required_field('IncompatibleRule', 'this_version', _atd_read_string, x['this_version'], x),
     min_version: _atd_read_optional_field(_atd_read_string, x['min_version'], x),
     max_version: _atd_read_optional_field(_atd_read_string, x['max_version'], x),
@@ -1875,7 +1875,7 @@ export function writeCiScanResults(x: CiScanResults, context: any = x): any {
     'token': _atd_write_required_field('CiScanResults', 'token', _atd_write_nullable(_atd_write_string), x.token, x),
     'searched_paths': _atd_write_required_field('CiScanResults', 'searched_paths', _atd_write_array(_atd_write_string), x.searched_paths, x),
     'renamed_paths': _atd_write_required_field('CiScanResults', 'renamed_paths', _atd_write_array(_atd_write_string), x.renamed_paths, x),
-    'rule_ids': _atd_write_required_field('CiScanResults', 'rule_ids', _atd_write_array(_atd_write_string), x.rule_ids, x),
+    'rule_ids': _atd_write_required_field('CiScanResults', 'rule_ids', _atd_write_array(writeRuleId), x.rule_ids, x),
     'contributions': _atd_write_optional_field(writeContributions, x.contributions, x),
     'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
   };
@@ -1888,7 +1888,7 @@ export function readCiScanResults(x: any, context: any = x): CiScanResults {
     token: _atd_read_required_field('CiScanResults', 'token', _atd_read_nullable(_atd_read_string), x['token'], x),
     searched_paths: _atd_read_required_field('CiScanResults', 'searched_paths', _atd_read_array(_atd_read_string), x['searched_paths'], x),
     renamed_paths: _atd_read_required_field('CiScanResults', 'renamed_paths', _atd_read_array(_atd_read_string), x['renamed_paths'], x),
-    rule_ids: _atd_read_required_field('CiScanResults', 'rule_ids', _atd_read_array(_atd_read_string), x['rule_ids'], x),
+    rule_ids: _atd_read_required_field('CiScanResults', 'rule_ids', _atd_read_array(readRuleId), x['rule_ids'], x),
     contributions: _atd_read_optional_field(readContributions, x['contributions'], x),
     dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
   };

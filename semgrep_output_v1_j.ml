@@ -229,7 +229,7 @@ type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
   [@@deriving show]
 
 type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
-  rule_id: string;
+  rule_id: rule_id;
   this_version: string;
   min_version: string option;
   max_version: string option
@@ -514,7 +514,7 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   token: string option;
   searched_paths: string list;
   renamed_paths: string list;
-  rule_ids: string list;
+  rule_ids: rule_id list;
   contributions: contributions option;
   dependencies: ci_scan_dependencies option
 }
@@ -7347,7 +7347,7 @@ let write_incompatible_rule : _ -> incompatible_rule -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"rule_id\":";
     (
-      Yojson.Safe.write_string
+      write_rule_id
     )
       ob x.rule_id;
     if !is_first then
@@ -7459,7 +7459,7 @@ let read_incompatible_rule = (
             field_rule_id := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_rule_id
                 ) p lb
               )
             );
@@ -7559,7 +7559,7 @@ let read_incompatible_rule = (
               field_rule_id := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_rule_id
                   ) p lb
                 )
               );
@@ -18171,7 +18171,7 @@ let write_ci_scan_results : _ -> ci_scan_results -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"rule_ids\":";
     (
-      write__string_list
+      write__rule_id_list
     )
       ob x.rule_ids;
     (match x.contributions with None -> () | Some x ->
@@ -18351,7 +18351,7 @@ let read_ci_scan_results = (
             field_rule_ids := (
               Some (
                 (
-                  read__string_list
+                  read__rule_id_list
                 ) p lb
               )
             );
@@ -18516,7 +18516,7 @@ let read_ci_scan_results = (
               field_rule_ids := (
                 Some (
                   (
-                    read__string_list
+                    read__rule_id_list
                   ) p lb
                 )
               );

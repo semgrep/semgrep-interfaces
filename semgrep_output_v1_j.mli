@@ -229,7 +229,7 @@ type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
   [@@deriving show]
 
 type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
-  rule_id: string;
+  rule_id: rule_id;
   this_version: string;
   min_version: string option;
   max_version: string option
@@ -514,7 +514,7 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   token: string option;
   searched_paths: string list;
   renamed_paths: string list;
-  rule_ids: string list;
+  rule_ids: rule_id list;
   contributions: contributions option;
   dependencies: ci_scan_dependencies option
 }
