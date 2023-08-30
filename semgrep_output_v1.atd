@@ -903,7 +903,7 @@ type ci_scan_results <ocaml attr="deriving show"> = {
    rule_ids: string list;
    (* since semgrep 1.34.0 *)
    ?contributions: contributions option;
-   (* since semgrep 1.37.0 *)
+   (* since semgrep 1.38.0 *)
    (* this data was originally sent to /complete, but we want to start sending it /results *)
    ?dependencies: ci_scan_dependencies option;
 }
