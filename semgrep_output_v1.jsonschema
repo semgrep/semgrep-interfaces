@@ -830,10 +830,7 @@
         "token": { "type": [ "string", "null" ] },
         "searched_paths": { "type": "array", "items": { "type": "string" } },
         "renamed_paths": { "type": "array", "items": { "type": "string" } },
-        "rule_ids": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/rule_id" }
-        },
+        "rule_ids": { "type": "array", "items": { "type": "string" } },
         "contributions": { "$ref": "#/definitions/contributions" },
         "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" }
       }

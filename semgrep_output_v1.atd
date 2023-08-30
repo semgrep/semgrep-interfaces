@@ -900,7 +900,7 @@ type ci_scan_results <ocaml attr="deriving show"> = {
    token: string nullable;
    searched_paths: string list;
    renamed_paths: string list;
-   rule_ids: rule_id list;
+   rule_ids: string list;
    (* since semgrep 1.34.0 *)
    ?contributions: contributions option;
    (* since semgrep 1.38.0 *)

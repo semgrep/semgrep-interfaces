@@ -514,7 +514,7 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   token: string option;
   searched_paths: string list;
   renamed_paths: string list;
-  rule_ids: rule_id list;
+  rule_ids: string list;
   contributions: contributions option;
   dependencies: ci_scan_dependencies option
 }
@@ -18171,7 +18171,7 @@ let write_ci_scan_results : _ -> ci_scan_results -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"rule_ids\":";
     (
-      write__rule_id_list
+      write__string_list
     )
       ob x.rule_ids;
     (match x.contributions with None -> () | Some x ->
@@ -18351,7 +18351,7 @@ let read_ci_scan_results = (
             field_rule_ids := (
               Some (
                 (
-                  read__rule_id_list
+                  read__string_list
                 ) p lb
               )
             );
@@ -18516,7 +18516,7 @@ let read_ci_scan_results = (
               field_rule_ids := (
                 Some (
                   (
-                    read__rule_id_list
+                    read__string_list
                   ) p lb
                 )
               );
