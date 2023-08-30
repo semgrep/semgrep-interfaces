@@ -814,12 +814,12 @@ type dependency_pattern <ocaml attr="deriving show"> = {
 
 type dependency_child <ocaml attr="deriving show"> = {
   package: string;
-  version: version;
+  version: string;
 }
 
 type found_dependency <ocaml attr="deriving show"> = {
   package: string;
-  version: version;
+  version: string;
   ecosystem: ecosystem;
   allowed_hashes: (string * string list) list
     <json repr="object">

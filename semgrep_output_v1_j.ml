@@ -176,13 +176,13 @@ type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show]
 
 type dependency_child = Semgrep_output_v1_t.dependency_child = {
   package: string;
-  version: version
+  version: string
 }
   [@@deriving show]
 
 type found_dependency = Semgrep_output_v1_t.found_dependency = {
   package: string;
-  version: version;
+  version: string;
   ecosystem: ecosystem;
   allowed_hashes: (string * string list) list;
   resolved_url: string option;
@@ -5540,7 +5540,7 @@ let write_dependency_child : _ -> dependency_child -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"version\":";
     (
-      write_version
+      Yojson.Safe.write_string
     )
       ob x.version;
     Buffer.add_char ob '}';
@@ -5605,7 +5605,7 @@ let read_dependency_child = (
             field_version := (
               Some (
                 (
-                  read_version
+                  Atdgen_runtime.Oj_run.read_string
                 ) p lb
               )
             );
@@ -5663,7 +5663,7 @@ let read_dependency_child = (
               field_version := (
                 Some (
                   (
-                    read_version
+                    Atdgen_runtime.Oj_run.read_string
                   ) p lb
                 )
               );
@@ -5869,7 +5869,7 @@ let write_found_dependency : _ -> found_dependency -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"version\":";
     (
-      write_version
+      Yojson.Safe.write_string
     )
       ob x.version;
     if !is_first then
@@ -6055,7 +6055,7 @@ let read_found_dependency = (
             field_version := (
               Some (
                 (
-                  read_version
+                  Atdgen_runtime.Oj_run.read_string
                 ) p lb
               )
             );
@@ -6222,7 +6222,7 @@ let read_found_dependency = (
               field_version := (
                 Some (
                   (
-                    read_version
+                    Atdgen_runtime.Oj_run.read_string
                   ) p lb
                 )
               );

@@ -176,13 +176,13 @@ type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show]
 
 type dependency_child = Semgrep_output_v1_t.dependency_child = {
   package: string;
-  version: version
+  version: string
 }
   [@@deriving show]
 
 type found_dependency = Semgrep_output_v1_t.found_dependency = {
   package: string;
-  version: version;
+  version: string;
   ecosystem: ecosystem;
   allowed_hashes: (string * string list) list;
   resolved_url: string option;

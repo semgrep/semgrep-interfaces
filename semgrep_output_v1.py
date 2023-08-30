@@ -2330,14 +2330,14 @@ class DependencyChild:
     """Original type: dependency_child = { ... }"""
 
     package: str
-    version: Version
+    version: str
 
     @classmethod
     def from_json(cls, x: Any) -> 'DependencyChild':
         if isinstance(x, dict):
             return cls(
                 package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('DependencyChild', 'package'),
-                version=Version.from_json(x['version']) if 'version' in x else _atd_missing_json_field('DependencyChild', 'version'),
+                version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('DependencyChild', 'version'),
             )
         else:
             _atd_bad_json('DependencyChild', x)
@@ -2345,7 +2345,7 @@ class DependencyChild:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['package'] = _atd_write_string(self.package)
-        res['version'] = (lambda x: x.to_json())(self.version)
+        res['version'] = _atd_write_string(self.version)
         return res
 
     @classmethod
@@ -2361,7 +2361,7 @@ class FoundDependency:
     """Original type: found_dependency = { ... }"""
 
     package: str
-    version: Version
+    version: str
     ecosystem: Ecosystem
     allowed_hashes: Dict[str, List[str]]
     transitivity: Transitivity
@@ -2374,7 +2374,7 @@ class FoundDependency:
         if isinstance(x, dict):
             return cls(
                 package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('FoundDependency', 'package'),
-                version=Version.from_json(x['version']) if 'version' in x else _atd_missing_json_field('FoundDependency', 'version'),
+                version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('FoundDependency', 'version'),
                 ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('FoundDependency', 'ecosystem'),
                 allowed_hashes=_atd_read_assoc_object_into_dict(_atd_read_list(_atd_read_string))(x['allowed_hashes']) if 'allowed_hashes' in x else _atd_missing_json_field('FoundDependency', 'allowed_hashes'),
                 transitivity=Transitivity.from_json(x['transitivity']) if 'transitivity' in x else _atd_missing_json_field('FoundDependency', 'transitivity'),
@@ -2388,7 +2388,7 @@ class FoundDependency:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['package'] = _atd_write_string(self.package)
-        res['version'] = (lambda x: x.to_json())(self.version)
+        res['version'] = _atd_write_string(self.version)
         res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
         res['allowed_hashes'] = _atd_write_assoc_dict_to_object(_atd_write_list(_atd_write_string))(self.allowed_hashes)
         res['transitivity'] = (lambda x: x.to_json())(self.transitivity)

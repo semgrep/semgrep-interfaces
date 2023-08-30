@@ -731,7 +731,7 @@
       "required": [ "package", "version" ],
       "properties": {
         "package": { "type": "string" },
-        "version": { "$ref": "#/definitions/version" }
+        "version": { "type": "string" }
       }
     },
     "found_dependency": {
@@ -741,7 +741,7 @@
       ],
       "properties": {
         "package": { "type": "string" },
-        "version": { "$ref": "#/definitions/version" },
+        "version": { "type": "string" },
         "ecosystem": { "$ref": "#/definitions/ecosystem" },
         "allowed_hashes": {
           "type": "object",
