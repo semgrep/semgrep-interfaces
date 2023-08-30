@@ -89,10 +89,19 @@ export type CoreErrorKind =
 | { kind: 'TimeoutDuringInterfile' /* JSON: "Timeout during interfile analysis" */ }
 | { kind: 'OutOfMemoryDuringInterfile' /* JSON: "OOM during interfile analysis" */ }
 | { kind: 'PartialParsing'; value: Location[] }
+| { kind: 'IncompatibleRule'; value: IncompatibleRule }
+
+export type IncompatibleRule = {
+  rule_id: RuleId;
+  this_version: Version;
+  min_version?: Version;
+  max_version?: Version;
+}
 
 export type CoreSeverity =
 | { kind: 'Error' /* JSON: "error" */ }
 | { kind: 'Warning' /* JSON: "warning" */ }
+| { kind: 'Info' /* JSON: "info" */ }
 
 export type CoreStats = {
   okfiles: number /*int*/;
@@ -192,7 +201,7 @@ export type CoreOutput = {
   errors: CoreError[];
   results: CoreMatch[];
   skipped_targets?: SkippedTarget[];
-  skipped_rules?: SkippedRule[];
+  skipped_rules: SkippedRule[];
   explanations?: MatchingExplanation[];
   stats: CoreStats;
   time?: CoreTiming;
@@ -202,7 +211,7 @@ export type CoreOutput = {
 
 export type CoreOutputExtra = {
   skipped_targets?: SkippedTarget[];
-  skipped_rules?: SkippedRule[];
+  skipped_rules: SkippedRule[];
   explanations?: MatchingExplanation[];
   stats: CoreStats;
   time?: CoreTiming;
@@ -225,19 +234,14 @@ export type CliError = {
 
 export type ErrorSpan = {
   file: Fpath;
-  start: PositionBis;
-  end: PositionBis;
+  start: Position;
+  end: Position;
   source_hash?: string;
-  config_start?: (PositionBis | null);
-  config_end?: (PositionBis | null);
+  config_start?: (Position | null);
+  config_end?: (Position | null);
   config_path?: (string[] | null);
-  context_start?: (PositionBis | null);
-  context_end?: (PositionBis | null);
-}
-
-export type PositionBis = {
-  line: number /*int*/;
-  col: number /*int*/;
+  context_start?: (Position | null);
+  context_end?: (Position | null);
 }
 
 export type CliMatchCallTrace =
@@ -307,6 +311,7 @@ export type CliOutput = {
   explanations?: MatchingExplanation[];
   rules_by_engine?: RuleIdAndEngineKind[];
   engine_requested?: EngineKind;
+  skipped_rules: SkippedRule[];
 }
 
 export type CliOutputExtra = {
@@ -315,6 +320,7 @@ export type CliOutputExtra = {
   explanations?: MatchingExplanation[];
   rules_by_engine?: RuleIdAndEngineKind[];
   engine_requested?: EngineKind;
+  skipped_rules: SkippedRule[];
 }
 
 export type CliPaths = {
@@ -715,6 +721,8 @@ export function writeCoreErrorKind(x: CoreErrorKind, context: any = x): any {
       return 'OOM during interfile analysis'
     case 'PartialParsing':
       return ['PartialParsing', _atd_write_array(writeLocation)(x.value, x)]
+    case 'IncompatibleRule':
+      return ['IncompatibleRule', writeIncompatibleRule(x.value, x)]
   }
 }
 
@@ -761,11 +769,31 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
         return { kind: 'PatternParseError', value: _atd_read_array(_atd_read_string)(x[1], x) }
       case 'PartialParsing':
         return { kind: 'PartialParsing', value: _atd_read_array(readLocation)(x[1], x) }
+      case 'IncompatibleRule':
+        return { kind: 'IncompatibleRule', value: readIncompatibleRule(x[1], x) }
       default:
         _atd_bad_json('CoreErrorKind', x, context)
         throw new Error('impossible')
     }
   }
+}
+
+export function writeIncompatibleRule(x: IncompatibleRule, context: any = x): any {
+  return {
+    'rule_id': _atd_write_required_field('IncompatibleRule', 'rule_id', writeRuleId, x.rule_id, x),
+    'this_version': _atd_write_required_field('IncompatibleRule', 'this_version', writeVersion, x.this_version, x),
+    'min_version': _atd_write_optional_field(writeVersion, x.min_version, x),
+    'max_version': _atd_write_optional_field(writeVersion, x.max_version, x),
+  };
+}
+
+export function readIncompatibleRule(x: any, context: any = x): IncompatibleRule {
+  return {
+    rule_id: _atd_read_required_field('IncompatibleRule', 'rule_id', readRuleId, x['rule_id'], x),
+    this_version: _atd_read_required_field('IncompatibleRule', 'this_version', readVersion, x['this_version'], x),
+    min_version: _atd_read_optional_field(readVersion, x['min_version'], x),
+    max_version: _atd_read_optional_field(readVersion, x['max_version'], x),
+  };
 }
 
 export function writeCoreSeverity(x: CoreSeverity, context: any = x): any {
@@ -774,6 +802,8 @@ export function writeCoreSeverity(x: CoreSeverity, context: any = x): any {
       return 'error'
     case 'Warning':
       return 'warning'
+    case 'Info':
+      return 'info'
   }
 }
 
@@ -783,6 +813,8 @@ export function readCoreSeverity(x: any, context: any = x): CoreSeverity {
       return { kind: 'Error' }
     case 'warning':
       return { kind: 'Warning' }
+    case 'info':
+      return { kind: 'Info' }
     default:
       _atd_bad_json('CoreSeverity', x, context)
       throw new Error('impossible')
@@ -1129,7 +1161,7 @@ export function writeCoreOutput(x: CoreOutput, context: any = x): any {
     'errors': _atd_write_required_field('CoreOutput', 'errors', _atd_write_array(writeCoreError), x.errors, x),
     'results': _atd_write_required_field('CoreOutput', 'results', _atd_write_array(writeCoreMatch), x.results, x),
     'skipped': _atd_write_optional_field(_atd_write_array(writeSkippedTarget), x.skipped_targets, x),
-    'skipped_rules': _atd_write_optional_field(_atd_write_array(writeSkippedRule), x.skipped_rules, x),
+    'skipped_rules': _atd_write_required_field('CoreOutput', 'skipped_rules', _atd_write_array(writeSkippedRule), x.skipped_rules, x),
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'stats': _atd_write_required_field('CoreOutput', 'stats', writeCoreStats, x.stats, x),
     'time': _atd_write_optional_field(writeCoreTiming, x.time, x),
@@ -1143,7 +1175,7 @@ export function readCoreOutput(x: any, context: any = x): CoreOutput {
     errors: _atd_read_required_field('CoreOutput', 'errors', _atd_read_array(readCoreError), x['errors'], x),
     results: _atd_read_required_field('CoreOutput', 'results', _atd_read_array(readCoreMatch), x['results'], x),
     skipped_targets: _atd_read_optional_field(_atd_read_array(readSkippedTarget), x['skipped'], x),
-    skipped_rules: _atd_read_optional_field(_atd_read_array(readSkippedRule), x['skipped_rules'], x),
+    skipped_rules: _atd_read_required_field('CoreOutput', 'skipped_rules', _atd_read_array(readSkippedRule), x['skipped_rules'], x),
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     stats: _atd_read_required_field('CoreOutput', 'stats', readCoreStats, x['stats'], x),
     time: _atd_read_optional_field(readCoreTiming, x['time'], x),
@@ -1155,7 +1187,7 @@ export function readCoreOutput(x: any, context: any = x): CoreOutput {
 export function writeCoreOutputExtra(x: CoreOutputExtra, context: any = x): any {
   return {
     'skipped': _atd_write_optional_field(_atd_write_array(writeSkippedTarget), x.skipped_targets, x),
-    'skipped_rules': _atd_write_optional_field(_atd_write_array(writeSkippedRule), x.skipped_rules, x),
+    'skipped_rules': _atd_write_required_field('CoreOutputExtra', 'skipped_rules', _atd_write_array(writeSkippedRule), x.skipped_rules, x),
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'stats': _atd_write_required_field('CoreOutputExtra', 'stats', writeCoreStats, x.stats, x),
     'time': _atd_write_optional_field(writeCoreTiming, x.time, x),
@@ -1167,7 +1199,7 @@ export function writeCoreOutputExtra(x: CoreOutputExtra, context: any = x): any 
 export function readCoreOutputExtra(x: any, context: any = x): CoreOutputExtra {
   return {
     skipped_targets: _atd_read_optional_field(_atd_read_array(readSkippedTarget), x['skipped'], x),
-    skipped_rules: _atd_read_optional_field(_atd_read_array(readSkippedRule), x['skipped_rules'], x),
+    skipped_rules: _atd_read_required_field('CoreOutputExtra', 'skipped_rules', _atd_read_array(readSkippedRule), x['skipped_rules'], x),
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     stats: _atd_read_required_field('CoreOutputExtra', 'stats', readCoreStats, x['stats'], x),
     time: _atd_read_optional_field(readCoreTiming, x['time'], x),
@@ -1209,42 +1241,28 @@ export function readCliError(x: any, context: any = x): CliError {
 export function writeErrorSpan(x: ErrorSpan, context: any = x): any {
   return {
     'file': _atd_write_required_field('ErrorSpan', 'file', writeFpath, x.file, x),
-    'start': _atd_write_required_field('ErrorSpan', 'start', writePositionBis, x.start, x),
-    'end': _atd_write_required_field('ErrorSpan', 'end', writePositionBis, x.end, x),
+    'start': _atd_write_required_field('ErrorSpan', 'start', writePosition, x.start, x),
+    'end': _atd_write_required_field('ErrorSpan', 'end', writePosition, x.end, x),
     'source_hash': _atd_write_optional_field(_atd_write_string, x.source_hash, x),
-    'config_start': _atd_write_optional_field(_atd_write_nullable(writePositionBis), x.config_start, x),
-    'config_end': _atd_write_optional_field(_atd_write_nullable(writePositionBis), x.config_end, x),
+    'config_start': _atd_write_optional_field(_atd_write_nullable(writePosition), x.config_start, x),
+    'config_end': _atd_write_optional_field(_atd_write_nullable(writePosition), x.config_end, x),
     'config_path': _atd_write_optional_field(_atd_write_nullable(_atd_write_array(_atd_write_string)), x.config_path, x),
-    'context_start': _atd_write_optional_field(_atd_write_nullable(writePositionBis), x.context_start, x),
-    'context_end': _atd_write_optional_field(_atd_write_nullable(writePositionBis), x.context_end, x),
+    'context_start': _atd_write_optional_field(_atd_write_nullable(writePosition), x.context_start, x),
+    'context_end': _atd_write_optional_field(_atd_write_nullable(writePosition), x.context_end, x),
   };
 }
 
 export function readErrorSpan(x: any, context: any = x): ErrorSpan {
   return {
     file: _atd_read_required_field('ErrorSpan', 'file', readFpath, x['file'], x),
-    start: _atd_read_required_field('ErrorSpan', 'start', readPositionBis, x['start'], x),
-    end: _atd_read_required_field('ErrorSpan', 'end', readPositionBis, x['end'], x),
+    start: _atd_read_required_field('ErrorSpan', 'start', readPosition, x['start'], x),
+    end: _atd_read_required_field('ErrorSpan', 'end', readPosition, x['end'], x),
     source_hash: _atd_read_optional_field(_atd_read_string, x['source_hash'], x),
-    config_start: _atd_read_optional_field(_atd_read_nullable(readPositionBis), x['config_start'], x),
-    config_end: _atd_read_optional_field(_atd_read_nullable(readPositionBis), x['config_end'], x),
+    config_start: _atd_read_optional_field(_atd_read_nullable(readPosition), x['config_start'], x),
+    config_end: _atd_read_optional_field(_atd_read_nullable(readPosition), x['config_end'], x),
     config_path: _atd_read_optional_field(_atd_read_nullable(_atd_read_array(_atd_read_string)), x['config_path'], x),
-    context_start: _atd_read_optional_field(_atd_read_nullable(readPositionBis), x['context_start'], x),
-    context_end: _atd_read_optional_field(_atd_read_nullable(readPositionBis), x['context_end'], x),
-  };
-}
-
-export function writePositionBis(x: PositionBis, context: any = x): any {
-  return {
-    'line': _atd_write_required_field('PositionBis', 'line', _atd_write_int, x.line, x),
-    'col': _atd_write_required_field('PositionBis', 'col', _atd_write_int, x.col, x),
-  };
-}
-
-export function readPositionBis(x: any, context: any = x): PositionBis {
-  return {
-    line: _atd_read_required_field('PositionBis', 'line', _atd_read_int, x['line'], x),
-    col: _atd_read_required_field('PositionBis', 'col', _atd_read_int, x['col'], x),
+    context_start: _atd_read_optional_field(_atd_read_nullable(readPosition), x['context_start'], x),
+    context_end: _atd_read_optional_field(_atd_read_nullable(readPosition), x['context_end'], x),
   };
 }
 
@@ -1429,6 +1447,7 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
+    'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
   };
 }
 
@@ -1442,6 +1461,7 @@ export function readCliOutput(x: any, context: any = x): CliOutput {
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
+    skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
   };
 }
 
@@ -1452,6 +1472,7 @@ export function writeCliOutputExtra(x: CliOutputExtra, context: any = x): any {
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
+    'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
   };
 }
 
@@ -1462,6 +1483,7 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
+    skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
   };
 }
 

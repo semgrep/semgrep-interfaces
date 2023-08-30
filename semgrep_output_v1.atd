@@ -64,14 +64,21 @@ type version <ocaml attr="deriving show"> = string (* e.g., "1.1.0" *)
 (*****************************************************************************)
 (* Location *)
 (*****************************************************************************)
-(* note that there is no filename here like in 'location' below *)
+(* Note that there is no filename here like in 'location' below.
+
+   Upgrade note: "position_bis" was merged with "position".
+*)
 type position
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True, order=True)"> = {
   line: int; (* starts from 1 *)
   col: int; (* starts from 1 *)
-  (* TODO: seems optional in some CLI output, merge with position_bis *)
-  offset: int; (* byte position from the beginning of the file, starts at 0 *)
+
+  (* Byte position from the beginning of the file, starts at 0.
+
+     OCaml code sets it correctly. Python code sets it to a dummy value (-1).
+  *)
+  offset: int;
 }
 
 (* File path.
@@ -228,14 +235,30 @@ type core_error_kind
   | OutOfMemoryDuringInterfile <json name="OOM during interfile analysis">
   (* since semgrep 0.97 *)
   | PartialParsing of location list (* list of skipped tokens *)
+  (* since semgrep 1.37.0 *)
+  | IncompatibleRule of incompatible_rule
 ] <ocaml repr="classic">
 
+type incompatible_rule
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {
+  rule_id: rule_id;
+  this_version: version;
+  ?min_version: version option;
+  ?max_version: version option;
+}
 
+(*
+   error = something wrong that must be fixed
+   warning = something wrong that should be fixed
+   info = some special condition worth knowing about
+*)
 type core_severity
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = [
   | Error <json name="error">
   | Warning <json name="warning">
+  | Info <json name="info">
 ] <ocaml repr="classic">
 
 
@@ -455,7 +478,7 @@ type core_output_extra
   <python decorator="dataclass(frozen=True)"> = {  
   ?skipped_targets <json name="skipped">: skipped_target list option;
   (* sinced semgrep 0.86 *)
-  ?skipped_rules: skipped_rule list option;
+  skipped_rules: skipped_rule list;
 
   (* since semgrep 0.109? *)
   ?explanations: matching_explanation list option;
@@ -478,7 +501,7 @@ type core_output_extra
 (*****************************************************************************)
 
 (* TODO: try to make it as close as possible to 'core_error' above *)
-type cli_error<ocaml attr="deriving show"> = {
+type cli_error <ocaml attr="deriving show"> = {
   (* exit code? *)
   code: int;
   (* TODO: use a variant (Warning | Error | ...) *)
@@ -511,31 +534,24 @@ type error_span <ocaml attr="deriving show"> = {
     (* TODO: source hash should probably also be mandatory? *)
     (* TODO: sometimes set to "<No file>" in rule_lang.py *)
     file: fpath;
-    start: position_bis;
-    end <ocaml name="end_">: position_bis;
+    start: position;
+    end <ocaml name="end_">: position;
     ?source_hash: string option;
 
     (*  The path to the pattern in the yaml rule
      *  and an adjusted start/end within just the pattern
      *  Used to report playground parse errors in the simple editor
+     *  TODO: add an example because our source code doesn't make much sense.
      *
      *  TODO: remove this or add back simple editor error highlighting
      *)
-    ?config_start: position_bis nullable option;
-    ?config_end: position_bis nullable option;
+    ?config_start: position nullable option;
+    ?config_end: position nullable option;
     ?config_path: string list nullable option;
 
     (* LATER: what is this for? *)
-    ?context_start: position_bis nullable option;
-    ?context_end: position_bis nullable option;
-  }
-
-(* LATER: merge with position, no offset: here, make it an option in position?
- * TODO: get rid of rule_lang.Position
-*)
-type position_bis <ocaml attr="deriving show"> = {
-  line: int; (* starts from 1 *)
-  col: int; (* starts from 1 *)
+    ?context_start: position nullable option;
+    ?context_end: position nullable option;
   }
 
 (*****************************************************************************)
@@ -671,6 +687,7 @@ type cli_output <ocaml attr="deriving show"> = {
 
     errors: cli_error list;
     results: cli_match list;
+
     inherit cli_output_extra;
 }
 
@@ -686,6 +703,9 @@ type cli_output_extra <ocaml attr="deriving show"> = {
     (* EXPERIMENTAL: since: 1.11.0 *)
     ?rules_by_engine: rule_id_and_engine_kind list option;
     ?engine_requested: engine_kind option;
+
+    (* EXPERIMENTAL: since: 1.37.0 *)
+    ~skipped_rules: skipped_rule list;
 }
 
 type cli_paths <ocaml attr="deriving show"> = {
@@ -876,14 +896,14 @@ type contributions
 type ci_scan_results <ocaml attr="deriving show"> = {
   (* TODO: ?version: version option; *)
    findings: finding list;
-   ignores: finding list;   
+   ignores: finding list;
    token: string nullable;
    searched_paths: string list;
    renamed_paths: string list;
    rule_ids: string list;
    (* since semgrep 1.34.0 *)
    ?contributions: contributions option;
-   (* since semgrep 1.37.0 *)
+   (* since semgrep 1.38.0 *)
    (* this data was originally sent to /complete, but we want to start sending it /results *)
    ?dependencies: ci_scan_dependencies option;
 }

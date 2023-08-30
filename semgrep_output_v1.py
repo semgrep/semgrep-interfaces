@@ -2563,37 +2563,6 @@ class RuleIdAndEngineKind:
 
 
 @dataclass
-class PositionBis:
-    """Original type: position_bis = { ... }"""
-
-    line: int
-    col: int
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'PositionBis':
-        if isinstance(x, dict):
-            return cls(
-                line=_atd_read_int(x['line']) if 'line' in x else _atd_missing_json_field('PositionBis', 'line'),
-                col=_atd_read_int(x['col']) if 'col' in x else _atd_missing_json_field('PositionBis', 'col'),
-            )
-        else:
-            _atd_bad_json('PositionBis', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['line'] = _atd_write_int(self.line)
-        res['col'] = _atd_write_int(self.col)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'PositionBis':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class ParsingStats:
     """Original type: parsing_stats = { ... }"""
 
@@ -2624,6 +2593,45 @@ class ParsingStats:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ParsingStats':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class IncompatibleRule:
+    """Original type: incompatible_rule = { ... }"""
+
+    rule_id: RuleId
+    this_version: Version
+    min_version: Optional[Version] = None
+    max_version: Optional[Version] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'IncompatibleRule':
+        if isinstance(x, dict):
+            return cls(
+                rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else _atd_missing_json_field('IncompatibleRule', 'rule_id'),
+                this_version=Version.from_json(x['this_version']) if 'this_version' in x else _atd_missing_json_field('IncompatibleRule', 'this_version'),
+                min_version=Version.from_json(x['min_version']) if 'min_version' in x else None,
+                max_version=Version.from_json(x['max_version']) if 'max_version' in x else None,
+            )
+        else:
+            _atd_bad_json('IncompatibleRule', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
+        res['this_version'] = (lambda x: x.to_json())(self.this_version)
+        if self.min_version is not None:
+            res['min_version'] = (lambda x: x.to_json())(self.min_version)
+        if self.max_version is not None:
+            res['max_version'] = (lambda x: x.to_json())(self.max_version)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'IncompatibleRule':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -2828,28 +2836,28 @@ class ErrorSpan:
     """Original type: error_span = { ... }"""
 
     file: Fpath
-    start: PositionBis
-    end: PositionBis
+    start: Position
+    end: Position
     source_hash: Optional[str] = None
-    config_start: Optional[Optional[PositionBis]] = None
-    config_end: Optional[Optional[PositionBis]] = None
+    config_start: Optional[Optional[Position]] = None
+    config_end: Optional[Optional[Position]] = None
     config_path: Optional[Optional[List[str]]] = None
-    context_start: Optional[Optional[PositionBis]] = None
-    context_end: Optional[Optional[PositionBis]] = None
+    context_start: Optional[Optional[Position]] = None
+    context_end: Optional[Optional[Position]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ErrorSpan':
         if isinstance(x, dict):
             return cls(
                 file=Fpath.from_json(x['file']) if 'file' in x else _atd_missing_json_field('ErrorSpan', 'file'),
-                start=PositionBis.from_json(x['start']) if 'start' in x else _atd_missing_json_field('ErrorSpan', 'start'),
-                end=PositionBis.from_json(x['end']) if 'end' in x else _atd_missing_json_field('ErrorSpan', 'end'),
+                start=Position.from_json(x['start']) if 'start' in x else _atd_missing_json_field('ErrorSpan', 'start'),
+                end=Position.from_json(x['end']) if 'end' in x else _atd_missing_json_field('ErrorSpan', 'end'),
                 source_hash=_atd_read_string(x['source_hash']) if 'source_hash' in x else None,
-                config_start=_atd_read_nullable(PositionBis.from_json)(x['config_start']) if 'config_start' in x else None,
-                config_end=_atd_read_nullable(PositionBis.from_json)(x['config_end']) if 'config_end' in x else None,
+                config_start=_atd_read_nullable(Position.from_json)(x['config_start']) if 'config_start' in x else None,
+                config_end=_atd_read_nullable(Position.from_json)(x['config_end']) if 'config_end' in x else None,
                 config_path=_atd_read_nullable(_atd_read_list(_atd_read_string))(x['config_path']) if 'config_path' in x else None,
-                context_start=_atd_read_nullable(PositionBis.from_json)(x['context_start']) if 'context_start' in x else None,
-                context_end=_atd_read_nullable(PositionBis.from_json)(x['context_end']) if 'context_end' in x else None,
+                context_start=_atd_read_nullable(Position.from_json)(x['context_start']) if 'context_start' in x else None,
+                context_end=_atd_read_nullable(Position.from_json)(x['context_end']) if 'context_end' in x else None,
             )
         else:
             _atd_bad_json('ErrorSpan', x)
@@ -3086,10 +3094,27 @@ class Warning:
 
 
 @dataclass(frozen=True)
+class Info:
+    """Original type: core_severity = [ ... | Info | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Info'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'info'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class CoreSeverity:
     """Original type: core_severity = [ ... ]"""
 
-    value: Union[Error, Warning]
+    value: Union[Error, Warning, Info]
 
     @property
     def kind(self) -> str:
@@ -3103,6 +3128,8 @@ class CoreSeverity:
                 return cls(Error())
             if x == 'warning':
                 return cls(Warning())
+            if x == 'info':
+                return cls(Info())
             _atd_bad_json('CoreSeverity', x)
         _atd_bad_json('CoreSeverity', x)
 
@@ -3121,11 +3148,11 @@ class CoreSeverity:
 class CoreOutputExtra:
     """Original type: core_output_extra = { ... }"""
 
+    skipped_rules: List[SkippedRule]
     stats: CoreStats
     rules_by_engine: List[RuleIdAndEngineKind]
     engine_requested: EngineKind
     skipped_targets: Optional[List[SkippedTarget]] = None
-    skipped_rules: Optional[List[SkippedRule]] = None
     explanations: Optional[List[MatchingExplanation]] = None
     time: Optional[CoreTiming] = None
 
@@ -3133,11 +3160,11 @@ class CoreOutputExtra:
     def from_json(cls, x: Any) -> 'CoreOutputExtra':
         if isinstance(x, dict):
             return cls(
+                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else _atd_missing_json_field('CoreOutputExtra', 'skipped_rules'),
                 stats=CoreStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CoreOutputExtra', 'stats'),
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else _atd_missing_json_field('CoreOutputExtra', 'rules_by_engine'),
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else _atd_missing_json_field('CoreOutputExtra', 'engine_requested'),
                 skipped_targets=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
-                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 time=CoreTiming.from_json(x['time']) if 'time' in x else None,
             )
@@ -3146,13 +3173,12 @@ class CoreOutputExtra:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
+        res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         res['stats'] = (lambda x: x.to_json())(self.stats)
         res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
         res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
         if self.skipped_targets is not None:
             res['skipped'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_targets)
-        if self.skipped_rules is not None:
-            res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         if self.explanations is not None:
             res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
         if self.time is not None:
@@ -3442,10 +3468,28 @@ class PartialParsing:
 
 
 @dataclass(frozen=True, order=True)
+class IncompatibleRule_:
+    """Original type: core_error_kind = [ ... | IncompatibleRule of ... | ... ]"""
+
+    value: IncompatibleRule
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'IncompatibleRule_'
+
+    def to_json(self) -> Any:
+        return ['IncompatibleRule', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
 class CoreErrorKind:
     """Original type: core_error_kind = [ ... ]"""
 
-    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, PatternParseError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, PartialParsing]
+    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, PatternParseError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, PartialParsing, IncompatibleRule_]
 
     @property
     def kind(self) -> str:
@@ -3490,6 +3534,8 @@ class CoreErrorKind:
                 return cls(PatternParseError(_atd_read_list(_atd_read_string)(x[1])))
             if cons == 'PartialParsing':
                 return cls(PartialParsing(_atd_read_list(Location.from_json)(x[1])))
+            if cons == 'IncompatibleRule':
+                return cls(IncompatibleRule_(IncompatibleRule.from_json(x[1])))
             _atd_bad_json('CoreErrorKind', x)
         _atd_bad_json('CoreErrorKind', x)
 
@@ -3555,11 +3601,11 @@ class CoreOutput:
 
     errors: List[CoreError]
     results: List[CoreMatch]
+    skipped_rules: List[SkippedRule]
     stats: CoreStats
     rules_by_engine: List[RuleIdAndEngineKind]
     engine_requested: EngineKind
     skipped_targets: Optional[List[SkippedTarget]] = None
-    skipped_rules: Optional[List[SkippedRule]] = None
     explanations: Optional[List[MatchingExplanation]] = None
     time: Optional[CoreTiming] = None
 
@@ -3569,11 +3615,11 @@ class CoreOutput:
             return cls(
                 errors=_atd_read_list(CoreError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CoreOutput', 'errors'),
                 results=_atd_read_list(CoreMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CoreOutput', 'results'),
+                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else _atd_missing_json_field('CoreOutput', 'skipped_rules'),
                 stats=CoreStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CoreOutput', 'stats'),
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else _atd_missing_json_field('CoreOutput', 'rules_by_engine'),
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else _atd_missing_json_field('CoreOutput', 'engine_requested'),
                 skipped_targets=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
-                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 time=CoreTiming.from_json(x['time']) if 'time' in x else None,
             )
@@ -3584,13 +3630,12 @@ class CoreOutput:
         res: Dict[str, Any] = {}
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['results'] = _atd_write_list((lambda x: x.to_json()))(self.results)
+        res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         res['stats'] = (lambda x: x.to_json())(self.stats)
         res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
         res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
         if self.skipped_targets is not None:
             res['skipped'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_targets)
-        if self.skipped_rules is not None:
-            res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         if self.explanations is not None:
             res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
         if self.time is not None:
@@ -3851,6 +3896,7 @@ class CliOutputExtra:
     explanations: Optional[List[MatchingExplanation]] = None
     rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
     engine_requested: Optional[EngineKind] = None
+    skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutputExtra':
@@ -3861,6 +3907,7 @@ class CliOutputExtra:
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
+                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
             )
         else:
             _atd_bad_json('CliOutputExtra', x)
@@ -3876,6 +3923,7 @@ class CliOutputExtra:
             res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
         if self.engine_requested is not None:
             res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
+        res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         return res
 
     @classmethod
@@ -4080,6 +4128,7 @@ class CliOutput:
     explanations: Optional[List[MatchingExplanation]] = None
     rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
     engine_requested: Optional[EngineKind] = None
+    skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutput':
@@ -4093,6 +4142,7 @@ class CliOutput:
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
+                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
             )
         else:
             _atd_bad_json('CliOutput', x)
@@ -4112,6 +4162,7 @@ class CliOutput:
             res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
         if self.engine_requested is not None:
             res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
+        res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         return res
 
     @classmethod

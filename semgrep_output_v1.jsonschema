@@ -24,7 +24,11 @@
       "type": "array",
       "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
     },
-    "engine_requested": { "$ref": "#/definitions/engine_kind" }
+    "engine_requested": { "$ref": "#/definitions/engine_kind" },
+    "skipped_rules": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/skipped_rule" }
+    }
   },
   "definitions": {
     "raw_json": {},
@@ -144,11 +148,32 @@
               "items": { "$ref": "#/definitions/location" }
             }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "IncompatibleRule" },
+            { "$ref": "#/definitions/incompatible_rule" }
+          ]
         }
       ]
     },
+    "incompatible_rule": {
+      "type": "object",
+      "required": [ "rule_id", "this_version" ],
+      "properties": {
+        "rule_id": { "$ref": "#/definitions/rule_id" },
+        "this_version": { "$ref": "#/definitions/version" },
+        "min_version": { "$ref": "#/definitions/version" },
+        "max_version": { "$ref": "#/definitions/version" }
+      }
+    },
     "core_severity": {
-      "oneOf": [ { "const": "error" }, { "const": "warning" } ]
+      "oneOf": [
+        { "const": "error" }, { "const": "warning" }, { "const": "info" }
+      ]
     },
     "core_stats": {
       "type": "object",
@@ -339,7 +364,8 @@
     "core_output": {
       "type": "object",
       "required": [
-        "errors", "results", "stats", "rules_by_engine", "engine_requested"
+        "errors", "results", "skipped_rules", "stats", "rules_by_engine",
+        "engine_requested"
       ],
       "properties": {
         "errors": {
@@ -373,7 +399,9 @@
     },
     "core_output_extra": {
       "type": "object",
-      "required": [ "stats", "rules_by_engine", "engine_requested" ],
+      "required": [
+        "skipped_rules", "stats", "rules_by_engine", "engine_requested"
+      ],
       "properties": {
         "skipped": {
           "type": "array",
@@ -420,25 +448,17 @@
       "required": [ "file", "start", "end" ],
       "properties": {
         "file": { "$ref": "#/definitions/fpath" },
-        "start": { "$ref": "#/definitions/position_bis" },
-        "end": { "$ref": "#/definitions/position_bis" },
+        "start": { "$ref": "#/definitions/position" },
+        "end": { "$ref": "#/definitions/position" },
         "source_hash": { "type": "string" },
-        "config_start": { "$ref": "#/definitions/position_bis" },
-        "config_end": { "$ref": "#/definitions/position_bis" },
+        "config_start": { "$ref": "#/definitions/position" },
+        "config_end": { "$ref": "#/definitions/position" },
         "config_path": {
           "type": [ "array", "null" ],
           "items": { "type": "string" }
         },
-        "context_start": { "$ref": "#/definitions/position_bis" },
-        "context_end": { "$ref": "#/definitions/position_bis" }
-      }
-    },
-    "position_bis": {
-      "type": "object",
-      "required": [ "line", "col" ],
-      "properties": {
-        "line": { "type": "integer" },
-        "col": { "type": "integer" }
+        "context_start": { "$ref": "#/definitions/position" },
+        "context_end": { "$ref": "#/definitions/position" }
       }
     },
     "cli_match_call_trace": {
@@ -587,7 +607,11 @@
           "type": "array",
           "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
         },
-        "engine_requested": { "$ref": "#/definitions/engine_kind" }
+        "engine_requested": { "$ref": "#/definitions/engine_kind" },
+        "skipped_rules": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/skipped_rule" }
+        }
       }
     },
     "cli_paths": {
