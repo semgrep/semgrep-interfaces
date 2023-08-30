@@ -43,8 +43,12 @@ build: $(FILES)
 %.py: %.atd
 	atdpy $<
 
+# -j-defaults is for producing '"field" = []' instead of omitting the field
+# if it's defined as '~field: item list'.
+# This allows us to produce the same JSON output with pysemgrep and osemgrep
+# since atdpy keeps it simple and will always output '"field" = []'.
 %_j.ml %_j.mli: %.atd
-	atdgen -j -j-std $<
+	atdgen -j -j-std -j-defaults $<
 
 # need atdts >= 2.11.0
 %.ts: %.atd

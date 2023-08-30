@@ -14936,7 +14936,7 @@ let read_cli_output_extra = (
     let field_explanations = ref (None) in
     let field_rules_by_engine = ref (None) in
     let field_engine_requested = ref (None) in
-    let field_skipped_rules = ref (None) in
+    let field_skipped_rules = ref ([]) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -15051,13 +15051,13 @@ let read_cli_output_extra = (
               );
             )
           | 5 ->
-            field_skipped_rules := (
-              Some (
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_skipped_rules := (
                 (
                   read__skipped_rule_list
                 ) p lb
-              )
-            );
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -15176,13 +15176,13 @@ let read_cli_output_extra = (
                 );
               )
             | 5 ->
-              field_skipped_rules := (
-                Some (
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_skipped_rules := (
                   (
                     read__skipped_rule_list
                   ) p lb
-                )
-              );
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -15197,7 +15197,7 @@ let read_cli_output_extra = (
             explanations = !field_explanations;
             rules_by_engine = !field_rules_by_engine;
             engine_requested = !field_engine_requested;
-            skipped_rules = (match !field_skipped_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "skipped_rules");
+            skipped_rules = !field_skipped_rules;
           }
          : cli_output_extra)
       )
@@ -17383,7 +17383,7 @@ let read_cli_output = (
     let field_explanations = ref (None) in
     let field_rules_by_engine = ref (None) in
     let field_engine_requested = ref (None) in
-    let field_skipped_rules = ref (None) in
+    let field_skipped_rules = ref ([]) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -17554,13 +17554,13 @@ let read_cli_output = (
               );
             )
           | 8 ->
-            field_skipped_rules := (
-              Some (
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_skipped_rules := (
                 (
                   read__skipped_rule_list
                 ) p lb
-              )
-            );
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -17735,13 +17735,13 @@ let read_cli_output = (
                 );
               )
             | 8 ->
-              field_skipped_rules := (
-                Some (
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_skipped_rules := (
                   (
                     read__skipped_rule_list
                   ) p lb
-                )
-              );
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -17759,7 +17759,7 @@ let read_cli_output = (
             explanations = !field_explanations;
             rules_by_engine = !field_rules_by_engine;
             engine_requested = !field_engine_requested;
-            skipped_rules = (match !field_skipped_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "skipped_rules");
+            skipped_rules = !field_skipped_rules;
           }
          : cli_output)
       )

@@ -705,7 +705,7 @@ type cli_output_extra <ocaml attr="deriving show"> = {
     ?engine_requested: engine_kind option;
 
     (* EXPERIMENTAL: since: 1.37.0 *)
-    skipped_rules: skipped_rule list;
+    ~skipped_rules: skipped_rule list;
 }
 
 type cli_paths <ocaml attr="deriving show"> = {

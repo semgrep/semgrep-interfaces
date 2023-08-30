@@ -1447,7 +1447,7 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
-    'skipped_rules': _atd_write_required_field('CliOutput', 'skipped_rules', _atd_write_array(writeSkippedRule), x.skipped_rules, x),
+    'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
   };
 }
 
@@ -1461,7 +1461,7 @@ export function readCliOutput(x: any, context: any = x): CliOutput {
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
-    skipped_rules: _atd_read_required_field('CliOutput', 'skipped_rules', _atd_read_array(readSkippedRule), x['skipped_rules'], x),
+    skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
   };
 }
 
@@ -1472,7 +1472,7 @@ export function writeCliOutputExtra(x: CliOutputExtra, context: any = x): any {
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
-    'skipped_rules': _atd_write_required_field('CliOutputExtra', 'skipped_rules', _atd_write_array(writeSkippedRule), x.skipped_rules, x),
+    'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
   };
 }
 
@@ -1483,7 +1483,7 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
-    skipped_rules: _atd_read_required_field('CliOutputExtra', 'skipped_rules', _atd_read_array(readSkippedRule), x['skipped_rules'], x),
+    skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
   };
 }
 
