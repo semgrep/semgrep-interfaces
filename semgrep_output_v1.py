@@ -707,34 +707,6 @@ class CliMatchIntermediateVar:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
-class CoreMatchIntermediateVar:
-    """Original type: core_match_intermediate_var = { ... }"""
-
-    location: Location
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CoreMatchIntermediateVar':
-        if isinstance(x, dict):
-            return cls(
-                location=Location.from_json(x['location']) if 'location' in x else _atd_missing_json_field('CoreMatchIntermediateVar', 'location'),
-            )
-        else:
-            _atd_bad_json('CoreMatchIntermediateVar', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['location'] = (lambda x: x.to_json())(self.location)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CoreMatchIntermediateVar':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass
 class RawJson:
     """Original type: raw_json"""
@@ -977,46 +949,46 @@ class ValidationState:
 
 
 @dataclass(frozen=True, order=True)
-class CoreLoc:
-    """Original type: core_match_call_trace = [ ... | CoreLoc of ... | ... ]"""
+class CliLoc:
+    """Original type: cli_match_call_trace = [ ... | CliLoc of ... | ... ]"""
 
-    value: Location
+    value: Tuple[Location, str]
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'CoreLoc'
+        return 'CliLoc'
 
     def to_json(self) -> Any:
-        return ['CoreLoc', (lambda x: x.to_json())(self.value)]
+        return ['CliLoc', (lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_string(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
 @dataclass(frozen=True, order=True)
-class CoreCall:
-    """Original type: core_match_call_trace = [ ... | CoreCall of ... | ... ]"""
+class CliCall:
+    """Original type: cli_match_call_trace = [ ... | CliCall of ... | ... ]"""
 
-    value: Tuple[Location, List[CoreMatchIntermediateVar], CoreMatchCallTrace]
+    value: Tuple[Tuple[Location, str], List[CliMatchIntermediateVar], CliMatchCallTrace]
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'CoreCall'
+        return 'CliCall'
 
     def to_json(self) -> Any:
-        return ['CoreCall', (lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1]), (lambda x: x.to_json())(x[2])] if isinstance(x, tuple) and len(x) == 3 else _atd_bad_python('tuple of length 3', x))(self.value)]
+        return ['CliCall', (lambda x: [(lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_string(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1]), (lambda x: x.to_json())(x[2])] if isinstance(x, tuple) and len(x) == 3 else _atd_bad_python('tuple of length 3', x))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
 @dataclass(frozen=True, order=True)
-class CoreMatchCallTrace:
-    """Original type: core_match_call_trace = [ ... ]"""
+class CliMatchCallTrace:
+    """Original type: cli_match_call_trace = [ ... ]"""
 
-    value: Union[CoreLoc, CoreCall]
+    value: Union[CliLoc, CliCall]
 
     @property
     def kind(self) -> str:
@@ -1024,21 +996,21 @@ class CoreMatchCallTrace:
         return self.value.kind
 
     @classmethod
-    def from_json(cls, x: Any) -> 'CoreMatchCallTrace':
+    def from_json(cls, x: Any) -> 'CliMatchCallTrace':
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
-            if cons == 'CoreLoc':
-                return cls(CoreLoc(Location.from_json(x[1])))
-            if cons == 'CoreCall':
-                return cls(CoreCall((lambda x: (Location.from_json(x[0]), _atd_read_list(CoreMatchIntermediateVar.from_json)(x[1]), CoreMatchCallTrace.from_json(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
-            _atd_bad_json('CoreMatchCallTrace', x)
-        _atd_bad_json('CoreMatchCallTrace', x)
+            if cons == 'CliLoc':
+                return cls(CliLoc((lambda x: (Location.from_json(x[0]), _atd_read_string(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+            if cons == 'CliCall':
+                return cls(CliCall((lambda x: ((lambda x: (Location.from_json(x[0]), _atd_read_string(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[0]), _atd_read_list(CliMatchIntermediateVar.from_json)(x[1]), CliMatchCallTrace.from_json(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
+            _atd_bad_json('CliMatchCallTrace', x)
+        _atd_bad_json('CliMatchCallTrace', x)
 
     def to_json(self) -> Any:
         return self.value.to_json()
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'CoreMatchCallTrace':
+    def from_json_string(cls, x: str) -> 'CliMatchCallTrace':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1046,23 +1018,23 @@ class CoreMatchCallTrace:
 
 
 @dataclass(frozen=True)
-class CoreMatchDataflowTrace:
-    """Original type: core_match_dataflow_trace = { ... }"""
+class CliMatchDataflowTrace:
+    """Original type: cli_match_dataflow_trace = { ... }"""
 
-    taint_source: Optional[CoreMatchCallTrace] = None
-    intermediate_vars: Optional[List[CoreMatchIntermediateVar]] = None
-    taint_sink: Optional[CoreMatchCallTrace] = None
+    taint_source: Optional[CliMatchCallTrace] = None
+    intermediate_vars: Optional[List[CliMatchIntermediateVar]] = None
+    taint_sink: Optional[CliMatchCallTrace] = None
 
     @classmethod
-    def from_json(cls, x: Any) -> 'CoreMatchDataflowTrace':
+    def from_json(cls, x: Any) -> 'CliMatchDataflowTrace':
         if isinstance(x, dict):
             return cls(
-                taint_source=CoreMatchCallTrace.from_json(x['taint_source']) if 'taint_source' in x else None,
-                intermediate_vars=_atd_read_list(CoreMatchIntermediateVar.from_json)(x['intermediate_vars']) if 'intermediate_vars' in x else None,
-                taint_sink=CoreMatchCallTrace.from_json(x['taint_sink']) if 'taint_sink' in x else None,
+                taint_source=CliMatchCallTrace.from_json(x['taint_source']) if 'taint_source' in x else None,
+                intermediate_vars=_atd_read_list(CliMatchIntermediateVar.from_json)(x['intermediate_vars']) if 'intermediate_vars' in x else None,
+                taint_sink=CliMatchCallTrace.from_json(x['taint_sink']) if 'taint_sink' in x else None,
             )
         else:
-            _atd_bad_json('CoreMatchDataflowTrace', x)
+            _atd_bad_json('CliMatchDataflowTrace', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
@@ -1075,7 +1047,7 @@ class CoreMatchDataflowTrace:
         return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'CoreMatchDataflowTrace':
+    def from_json_string(cls, x: str) -> 'CliMatchDataflowTrace':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1089,7 +1061,7 @@ class CoreMatchExtra:
     metavars: Metavars
     engine_kind: EngineKind
     message: Optional[str] = None
-    dataflow_trace: Optional[CoreMatchDataflowTrace] = None
+    dataflow_trace: Optional[CliMatchDataflowTrace] = None
     rendered_fix: Optional[str] = None
     validation_state: Optional[ValidationState] = None
     extra_extra: Optional[RawJson] = None
@@ -1101,7 +1073,7 @@ class CoreMatchExtra:
                 metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else _atd_missing_json_field('CoreMatchExtra', 'metavars'),
                 engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else _atd_missing_json_field('CoreMatchExtra', 'engine_kind'),
                 message=_atd_read_string(x['message']) if 'message' in x else None,
-                dataflow_trace=CoreMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
+                dataflow_trace=CliMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 rendered_fix=_atd_read_string(x['rendered_fix']) if 'rendered_fix' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
                 extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
@@ -1198,75 +1170,6 @@ class MatchingExplanation:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'MatchingExplanation':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class CliLoc:
-    """Original type: cli_match_call_trace = [ ... | CliLoc of ... | ... ]"""
-
-    value: Tuple[Location, str]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'CliLoc'
-
-    def to_json(self) -> Any:
-        return ['CliLoc', (lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_string(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class CliCall:
-    """Original type: cli_match_call_trace = [ ... | CliCall of ... | ... ]"""
-
-    value: Tuple[Tuple[Location, str], List[CliMatchIntermediateVar], CliMatchCallTrace]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'CliCall'
-
-    def to_json(self) -> Any:
-        return ['CliCall', (lambda x: [(lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_string(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1]), (lambda x: x.to_json())(x[2])] if isinstance(x, tuple) and len(x) == 3 else _atd_bad_python('tuple of length 3', x))(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class CliMatchCallTrace:
-    """Original type: cli_match_call_trace = [ ... ]"""
-
-    value: Union[CliLoc, CliCall]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CliMatchCallTrace':
-        if isinstance(x, List) and len(x) == 2:
-            cons = x[0]
-            if cons == 'CliLoc':
-                return cls(CliLoc((lambda x: (Location.from_json(x[0]), _atd_read_string(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
-            if cons == 'CliCall':
-                return cls(CliCall((lambda x: ((lambda x: (Location.from_json(x[0]), _atd_read_string(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[0]), _atd_read_list(CliMatchIntermediateVar.from_json)(x[1]), CliMatchCallTrace.from_json(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
-            _atd_bad_json('CliMatchCallTrace', x)
-        _atd_bad_json('CliMatchCallTrace', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CliMatchCallTrace':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -2710,43 +2613,6 @@ class FindingHashes:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
-class CliMatchDataflowTrace:
-    """Original type: cli_match_dataflow_trace = { ... }"""
-
-    taint_source: Optional[CliMatchCallTrace] = None
-    intermediate_vars: Optional[List[CliMatchIntermediateVar]] = None
-    taint_sink: Optional[CliMatchCallTrace] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CliMatchDataflowTrace':
-        if isinstance(x, dict):
-            return cls(
-                taint_source=CliMatchCallTrace.from_json(x['taint_source']) if 'taint_source' in x else None,
-                intermediate_vars=_atd_read_list(CliMatchIntermediateVar.from_json)(x['intermediate_vars']) if 'intermediate_vars' in x else None,
-                taint_sink=CliMatchCallTrace.from_json(x['taint_sink']) if 'taint_sink' in x else None,
-            )
-        else:
-            _atd_bad_json('CliMatchDataflowTrace', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        if self.taint_source is not None:
-            res['taint_source'] = (lambda x: x.to_json())(self.taint_source)
-        if self.intermediate_vars is not None:
-            res['intermediate_vars'] = _atd_write_list((lambda x: x.to_json()))(self.intermediate_vars)
-        if self.taint_sink is not None:
-            res['taint_sink'] = (lambda x: x.to_json())(self.taint_sink)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CliMatchDataflowTrace':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass
 class Finding:
     """Original type: finding = { ... }"""
@@ -4167,37 +4033,6 @@ class CliOutput:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'CliOutput':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class CliMatchTaintSource:
-    """Original type: cli_match_taint_source = { ... }"""
-
-    location: Location
-    content: str
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CliMatchTaintSource':
-        if isinstance(x, dict):
-            return cls(
-                location=Location.from_json(x['location']) if 'location' in x else _atd_missing_json_field('CliMatchTaintSource', 'location'),
-                content=_atd_read_string(x['content']) if 'content' in x else _atd_missing_json_field('CliMatchTaintSource', 'content'),
-            )
-        else:
-            _atd_bad_json('CliMatchTaintSource', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['location'] = (lambda x: x.to_json())(self.location)
-        res['content'] = _atd_write_string(self.content)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CliMatchTaintSource':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

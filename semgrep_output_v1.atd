@@ -110,6 +110,7 @@ type rule_id
 (*****************************************************************************)
 (* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
 
+(* TODO: try to make it as close as possible to 'cli_match' below *)
 type core_match
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
@@ -118,12 +119,13 @@ type core_match
   extra: core_match_extra;
 }
 
+(* TODO: try to make it as close as possible to 'cli_match_extra' below *)
 type core_match_extra
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
   ?message: string option; (* rule.message (?) *)
   metavars: metavars;
-  ?dataflow_trace: core_match_dataflow_trace option;
+  ?dataflow_trace: cli_match_dataflow_trace option;
   (* If present, semgrep-core was able to compute a string that should be
    * inserted in place of the text in the matched range in order to fix the
    * finding. *)
@@ -187,6 +189,10 @@ type svalue_value
 (* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
 
 (* See Semgrep_error_code.ml *)
+(* TODO: try to make it as close as possible to 'cli_error' above, possibly
+ * extending cli_error with more fields (but those fields must be optional
+ * to remain backward compatible
+ *)
 type core_error
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
@@ -308,43 +314,6 @@ type rule_times
 }
 
 (*****************************************************************************)
-(* Core call trace *)
-(*****************************************************************************)
-
-type core_match_call_trace
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True, order=True)"> = [
-  | CoreLoc of location
-  | CoreCall of (location * core_match_intermediate_var list * core_match_call_trace)
-] <ocaml repr="classic">
-
-(* Provides information about dataflow that leads to a finding. For now, just
- * provides taint traces (i.e. information about the taint source and how the
- * source reaches the sink). In the future, we may want to include more dataflow
- * information. For example, we may want to explain how constant propagation
- * leads to a finding. *)
-type core_match_dataflow_trace
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = {
-  ?taint_source: core_match_call_trace option;
-  (* Intermediate variables which are involved in the dataflow. For taint, this
-   * explains how the taint flows from the source to the sink. *)
-  ?intermediate_vars: core_match_intermediate_var list option;
-  (* For now, omitting the taint sink, since it's redundant data except for
-   * certain cases that only appear with DeepSemgrep. We can add it in later
-   * without breaking consumers. *)
-  ?taint_sink: core_match_call_trace option;
-}
-
-type core_match_intermediate_var
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = {
-  location: location;
-  (* Making this its own type rather than inlining `location` because Iago has
-   * plans to extend this with more information *)
-}
-
-(*****************************************************************************)
 (* Matching explanations *)
 (*****************************************************************************)
 (* coupling: semgrep-core/src/core/Matching_explanation.ml
@@ -394,6 +363,48 @@ type matching_operation
   | EllipsisAndStmts
   | ClassHeaderAndElems
 ] <ocaml repr="classic">
+
+(*****************************************************************************)
+(* Match dataflow trace *)
+(*****************************************************************************)
+
+(* EXPERIMENTAL *)
+type cli_match_dataflow_trace
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {
+  ?taint_source: cli_match_call_trace option;
+  (* Intermediate variables which are involved in the dataflow. For taint, this
+   * explains how the taint flows from the source to the sink. *)
+  ?intermediate_vars: cli_match_intermediate_var list option;
+  (* For now, omitting the taint sink, since it's redundant data except for
+   * certain cases that only appear with DeepSemgrep. We can add it in later
+   * without breaking consumers. *)
+  ?taint_sink: cli_match_call_trace option;
+}
+
+(* the string attached to the location is the actual text from the file
+ * TODO: define a location_with_content type that can be reused.
+ *)
+type cli_match_call_trace
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True, order=True)"> = [
+  | CliLoc of (location * string)
+  | CliCall of ((location * string) * cli_match_intermediate_var list * cli_match_call_trace)
+] <ocaml repr="classic">
+
+
+(* EXPERIMENTAL *)
+type cli_match_intermediate_var
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {
+  location: location;
+  (* Unlike abstract_content, this is the actual text read from the
+   * corresponding source file *)
+  content: string;
+  (* This type happens to be mostly the same as a location for now, but
+   * it's split out because Iago has plans to extend this with more information
+   * *)
+}
 
 (*****************************************************************************)
 (* Skipping information *)
@@ -480,7 +491,11 @@ type core_output_extra
   (* sinced semgrep 0.86 *)
   skipped_rules: skipped_rule list;
 
-  (* since semgrep 0.109? *)
+  (* since semgrep 0.109. Note that as opposed to the dataflow trace,
+   * the explanations are not embedded inside a core_match
+   * because we give also explanations when things are
+   * not matching.
+   *)
   ?explanations: matching_explanation list option;
 
   stats: core_stats;
@@ -497,10 +512,9 @@ type core_output_extra
 }
 
 (*****************************************************************************)
-(* CLI Errors (called SemgrepError in error.py) *)
+(* Errors (called SemgrepError in error.py) *)
 (*****************************************************************************)
 
-(* TODO: try to make it as close as possible to 'core_error' above *)
 type cli_error <ocaml attr="deriving show"> = {
   (* exit code? *)
   code: int;
@@ -555,70 +569,15 @@ type error_span <ocaml attr="deriving show"> = {
   }
 
 (*****************************************************************************)
-(* CLI call trace *)
-(*****************************************************************************)
-
-type cli_match_call_trace
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True, order=True)"> = [
-  | CliLoc of (location * string)
-  | CliCall of ((location * string) * cli_match_intermediate_var list * cli_match_call_trace)
-] <ocaml repr="classic">
-
-(* from rule_lang.py in the Span class
- * "The path to the pattern in the yaml rule
- *  and an adjusted start/end within just the pattern
- *  Used to report playground parse errors in the simpler editor"
- *)
-(* EXPERIMENTAL *)
-type cli_match_dataflow_trace
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = {
-  ?taint_source: cli_match_call_trace option;
-  (* Intermediate variables which are involved in the dataflow. For taint, this
-   * explains how the taint flows from the source to the sink. *)
-  ?intermediate_vars: cli_match_intermediate_var list option;
-  (* For now, omitting the taint sink, since it's redundant data except for
-   * certain cases that only appear with DeepSemgrep. We can add it in later
-   * without breaking consumers. *)
-  ?taint_sink: cli_match_call_trace option;
-}
-
-(* EXPERIMENTAL *)
-type cli_match_taint_source
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = {
-  location: location;
-  (* Unlike abstract_content, this is the actual text read from the
-   * corresponding source file *)
-  content: string;
-}
-
-(* EXPERIMENTAL *)
-type cli_match_intermediate_var
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = {
-  location: location;
-  (* Unlike abstract_content, this is the actual text read from the
-   * corresponding source file *)
-  content: string;
-  (* This type happens to be the same as cli_match_taint_source for now, but
-   * it's split out because Iago has plans to extend this with more information
-   * *)
-}
-
-(*****************************************************************************)
 (* Match result *)
 (*****************************************************************************)
 
-(* TODO: try to make it as close as possible to 'core_match' above *)
 type cli_match <ocaml attr="deriving show"> = {
   check_id: rule_id;
   inherit location;
   extra: cli_match_extra;
 }
 
-(* TODO: try to make it as close as possible to 'core_match_extra' above *)
 type cli_match_extra <ocaml attr="deriving show"> = {
   (* TODO: inherit match_extra; but need ?metavars because of dependency_aware code *)
   ?metavars: metavars option;
@@ -678,7 +637,7 @@ type validation_state
 ] 
 
 (*****************************************************************************)
-(* Semgrep CLI final output *)
+(* Semgrep scan final output *)
 (*****************************************************************************)
 
 type cli_output <ocaml attr="deriving show"> = {
@@ -885,7 +844,7 @@ type contributions
 
 
 (*****************************************************************************)
-(* Semgrep CLI findings output for the App *)
+(* Semgrep ci findings for the App *)
 (*****************************************************************************)
 (* TODO: see semgrep/app/scans.py
  * there is also api_scans_meta, api_scans_ignores, and api_scans_complete

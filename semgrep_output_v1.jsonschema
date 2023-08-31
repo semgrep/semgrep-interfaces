@@ -69,7 +69,7 @@
         "message": { "type": "string" },
         "metavars": { "$ref": "#/definitions/metavars" },
         "dataflow_trace": {
-          "$ref": "#/definitions/core_match_dataflow_trace"
+          "$ref": "#/definitions/cli_match_dataflow_trace"
         },
         "rendered_fix": { "type": "string" },
         "engine_kind": { "$ref": "#/definitions/engine_kind" },
@@ -220,58 +220,6 @@
         "match_time": { "type": "number" }
       }
     },
-    "core_match_call_trace": {
-      "oneOf": [
-        {
-          "type": "array",
-          "minItems": 2,
-          "items": false,
-          "prefixItems": [
-            { "const": "CoreLoc" }, { "$ref": "#/definitions/location" }
-          ]
-        },
-        {
-          "type": "array",
-          "minItems": 2,
-          "items": false,
-          "prefixItems": [
-            { "const": "CoreCall" },
-            {
-              "type": "array",
-              "minItems": 3,
-              "items": false,
-              "prefixItems": [
-                { "$ref": "#/definitions/location" },
-                {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/core_match_intermediate_var"
-                  }
-                },
-                { "$ref": "#/definitions/core_match_call_trace" }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    "core_match_dataflow_trace": {
-      "type": "object",
-      "required": [],
-      "properties": {
-        "taint_source": { "$ref": "#/definitions/core_match_call_trace" },
-        "intermediate_vars": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/core_match_intermediate_var" }
-        },
-        "taint_sink": { "$ref": "#/definitions/core_match_call_trace" }
-      }
-    },
-    "core_match_intermediate_var": {
-      "type": "object",
-      "required": [ "location" ],
-      "properties": { "location": { "$ref": "#/definitions/location" } }
-    },
     "matching_explanation": {
       "type": "object",
       "required": [ "op", "children", "matches", "loc" ],
@@ -313,6 +261,77 @@
         { "const": "EllipsisAndStmts" },
         { "const": "ClassHeaderAndElems" }
       ]
+    },
+    "cli_match_dataflow_trace": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "taint_source": { "$ref": "#/definitions/cli_match_call_trace" },
+        "intermediate_vars": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/cli_match_intermediate_var" }
+        },
+        "taint_sink": { "$ref": "#/definitions/cli_match_call_trace" }
+      }
+    },
+    "cli_match_call_trace": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CliLoc" },
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "$ref": "#/definitions/location" }, { "type": "string" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CliCall" },
+            {
+              "type": "array",
+              "minItems": 3,
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": false,
+                  "prefixItems": [
+                    { "$ref": "#/definitions/location" },
+                    { "type": "string" }
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/cli_match_intermediate_var"
+                  }
+                },
+                { "$ref": "#/definitions/cli_match_call_trace" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "cli_match_intermediate_var": {
+      "type": "object",
+      "required": [ "location", "content" ],
+      "properties": {
+        "location": { "$ref": "#/definitions/location" },
+        "content": { "type": "string" }
+      }
     },
     "skipped_target": {
       "type": "object",
@@ -459,85 +478,6 @@
         },
         "context_start": { "$ref": "#/definitions/position" },
         "context_end": { "$ref": "#/definitions/position" }
-      }
-    },
-    "cli_match_call_trace": {
-      "oneOf": [
-        {
-          "type": "array",
-          "minItems": 2,
-          "items": false,
-          "prefixItems": [
-            { "const": "CliLoc" },
-            {
-              "type": "array",
-              "minItems": 2,
-              "items": false,
-              "prefixItems": [
-                { "$ref": "#/definitions/location" }, { "type": "string" }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "array",
-          "minItems": 2,
-          "items": false,
-          "prefixItems": [
-            { "const": "CliCall" },
-            {
-              "type": "array",
-              "minItems": 3,
-              "items": false,
-              "prefixItems": [
-                {
-                  "type": "array",
-                  "minItems": 2,
-                  "items": false,
-                  "prefixItems": [
-                    { "$ref": "#/definitions/location" },
-                    { "type": "string" }
-                  ]
-                },
-                {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/cli_match_intermediate_var"
-                  }
-                },
-                { "$ref": "#/definitions/cli_match_call_trace" }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    "cli_match_dataflow_trace": {
-      "type": "object",
-      "required": [],
-      "properties": {
-        "taint_source": { "$ref": "#/definitions/cli_match_call_trace" },
-        "intermediate_vars": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/cli_match_intermediate_var" }
-        },
-        "taint_sink": { "$ref": "#/definitions/cli_match_call_trace" }
-      }
-    },
-    "cli_match_taint_source": {
-      "type": "object",
-      "required": [ "location", "content" ],
-      "properties": {
-        "location": { "$ref": "#/definitions/location" },
-        "content": { "type": "string" }
-      }
-    },
-    "cli_match_intermediate_var": {
-      "type": "object",
-      "required": [ "location", "content" ],
-      "properties": {
-        "location": { "$ref": "#/definitions/location" },
-        "content": { "type": "string" }
       }
     },
     "cli_match": {
