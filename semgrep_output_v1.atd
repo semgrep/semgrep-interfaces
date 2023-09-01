@@ -110,12 +110,12 @@ type rule_id
 (*****************************************************************************)
 (* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
 
-(* TODO: try to make it as close as possible to 'cli_match' below *)
+(* TODO: now only core_match_extra differ, otherwise it's just like cli_match *)
 type core_match
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
-  rule_id: rule_id;
-  location: location;
+  check_id: rule_id;
+  inherit location;
   extra: core_match_extra;
 }
 

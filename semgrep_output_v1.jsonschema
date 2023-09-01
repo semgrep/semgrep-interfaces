@@ -55,10 +55,12 @@
     "rule_id": { "type": "string" },
     "core_match": {
       "type": "object",
-      "required": [ "rule_id", "location", "extra" ],
+      "required": [ "check_id", "path", "start", "end", "extra" ],
       "properties": {
-        "rule_id": { "$ref": "#/definitions/rule_id" },
-        "location": { "$ref": "#/definitions/location" },
+        "check_id": { "$ref": "#/definitions/rule_id" },
+        "path": { "$ref": "#/definitions/fpath" },
+        "start": { "$ref": "#/definitions/position" },
+        "end": { "$ref": "#/definitions/position" },
         "extra": { "$ref": "#/definitions/core_match_extra" }
       }
     },

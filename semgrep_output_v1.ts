@@ -33,8 +33,10 @@ export type Location = {
 export type RuleId = string
 
 export type CoreMatch = {
-  rule_id: RuleId;
-  location: Location;
+  check_id: RuleId;
+  path: Fpath;
+  start: Position;
+  end: Position;
   extra: CoreMatchExtra;
 }
 
@@ -566,16 +568,20 @@ export function readRuleId(x: any, context: any = x): RuleId {
 
 export function writeCoreMatch(x: CoreMatch, context: any = x): any {
   return {
-    'rule_id': _atd_write_required_field('CoreMatch', 'rule_id', writeRuleId, x.rule_id, x),
-    'location': _atd_write_required_field('CoreMatch', 'location', writeLocation, x.location, x),
+    'check_id': _atd_write_required_field('CoreMatch', 'check_id', writeRuleId, x.check_id, x),
+    'path': _atd_write_required_field('CoreMatch', 'path', writeFpath, x.path, x),
+    'start': _atd_write_required_field('CoreMatch', 'start', writePosition, x.start, x),
+    'end': _atd_write_required_field('CoreMatch', 'end', writePosition, x.end, x),
     'extra': _atd_write_required_field('CoreMatch', 'extra', writeCoreMatchExtra, x.extra, x),
   };
 }
 
 export function readCoreMatch(x: any, context: any = x): CoreMatch {
   return {
-    rule_id: _atd_read_required_field('CoreMatch', 'rule_id', readRuleId, x['rule_id'], x),
-    location: _atd_read_required_field('CoreMatch', 'location', readLocation, x['location'], x),
+    check_id: _atd_read_required_field('CoreMatch', 'check_id', readRuleId, x['check_id'], x),
+    path: _atd_read_required_field('CoreMatch', 'path', readFpath, x['path'], x),
+    start: _atd_read_required_field('CoreMatch', 'start', readPosition, x['start'], x),
+    end: _atd_read_required_field('CoreMatch', 'end', readPosition, x['end'], x),
     extra: _atd_read_required_field('CoreMatch', 'extra', readCoreMatchExtra, x['extra'], x),
   };
 }

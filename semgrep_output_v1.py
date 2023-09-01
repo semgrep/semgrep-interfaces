@@ -1109,16 +1109,20 @@ class CoreMatchExtra:
 class CoreMatch:
     """Original type: core_match = { ... }"""
 
-    rule_id: RuleId
-    location: Location
+    check_id: RuleId
+    path: Fpath
+    start: Position
+    end: Position
     extra: CoreMatchExtra
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreMatch':
         if isinstance(x, dict):
             return cls(
-                rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else _atd_missing_json_field('CoreMatch', 'rule_id'),
-                location=Location.from_json(x['location']) if 'location' in x else _atd_missing_json_field('CoreMatch', 'location'),
+                check_id=RuleId.from_json(x['check_id']) if 'check_id' in x else _atd_missing_json_field('CoreMatch', 'check_id'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('CoreMatch', 'path'),
+                start=Position.from_json(x['start']) if 'start' in x else _atd_missing_json_field('CoreMatch', 'start'),
+                end=Position.from_json(x['end']) if 'end' in x else _atd_missing_json_field('CoreMatch', 'end'),
                 extra=CoreMatchExtra.from_json(x['extra']) if 'extra' in x else _atd_missing_json_field('CoreMatch', 'extra'),
             )
         else:
@@ -1126,8 +1130,10 @@ class CoreMatch:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
-        res['location'] = (lambda x: x.to_json())(self.location)
+        res['check_id'] = (lambda x: x.to_json())(self.check_id)
+        res['path'] = (lambda x: x.to_json())(self.path)
+        res['start'] = (lambda x: x.to_json())(self.start)
+        res['end'] = (lambda x: x.to_json())(self.end)
         res['extra'] = (lambda x: x.to_json())(self.extra)
         return res
 
