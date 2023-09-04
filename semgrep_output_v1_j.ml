@@ -97,8 +97,10 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   [@@deriving show]
 
 type core_match = Semgrep_output_v1_t.core_match = {
-  rule_id: rule_id;
-  location: location;
+  check_id: rule_id;
+  path: fpath;
+  start: position;
+  end_ (*atd end *): position;
   extra: core_match_extra
 }
   [@@deriving show]
@@ -3351,20 +3353,38 @@ let write_core_match : _ -> core_match -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"rule_id\":";
+      Buffer.add_string ob "\"check_id\":";
     (
       write_rule_id
     )
-      ob x.rule_id;
+      ob x.check_id;
     if !is_first then
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"location\":";
+      Buffer.add_string ob "\"path\":";
     (
-      write_location
+      write_fpath
     )
-      ob x.location;
+      ob x.path;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"start\":";
+    (
+      write_position
+    )
+      ob x.start;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"end\":";
+    (
+      write_position
+    )
+      ob x.end_;
     if !is_first then
       is_first := false
     else
@@ -3384,8 +3404,10 @@ let read_core_match = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
-    let field_rule_id = ref (None) in
-    let field_location = ref (None) in
+    let field_check_id = ref (None) in
+    let field_path = ref (None) in
+    let field_start = ref (None) in
+    let field_end_ = ref (None) in
     let field_extra = ref (None) in
     try
       Yojson.Safe.read_space p lb;
@@ -3396,25 +3418,47 @@ let read_core_match = (
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
-            | 5 -> (
-                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' then (
-                  2
+            | 3 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'd' then (
+                  3
                 )
                 else (
                   -1
                 )
               )
-            | 7 -> (
-                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
-                  0
+            | 4 -> (
+                if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
+                  1
                 )
                 else (
                   -1
                 )
+              )
+            | 5 -> (
+                match String.unsafe_get s pos with
+                  | 'e' -> (
+                      if String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' then (
+                        4
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 's' -> (
+                      if String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' then (
+                        2
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
               )
             | 8 -> (
-                if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'n' then (
-                  1
+                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'k' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'd' then (
+                  0
                 )
                 else (
                   -1
@@ -3429,7 +3473,7 @@ let read_core_match = (
       (
         match i with
           | 0 ->
-            field_rule_id := (
+            field_check_id := (
               Some (
                 (
                   read_rule_id
@@ -3437,14 +3481,30 @@ let read_core_match = (
               )
             );
           | 1 ->
-            field_location := (
+            field_path := (
               Some (
                 (
-                  read_location
+                  read_fpath
                 ) p lb
               )
             );
           | 2 ->
+            field_start := (
+              Some (
+                (
+                  read_position
+                ) p lb
+              )
+            );
+          | 3 ->
+            field_end_ := (
+              Some (
+                (
+                  read_position
+                ) p lb
+              )
+            );
+          | 4 ->
             field_extra := (
               Some (
                 (
@@ -3465,25 +3525,47 @@ let read_core_match = (
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
-              | 5 -> (
-                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' then (
-                    2
+              | 3 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'd' then (
+                    3
                   )
                   else (
                     -1
                   )
                 )
-              | 7 -> (
-                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
-                    0
+              | 4 -> (
+                  if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
+                    1
                   )
                   else (
                     -1
                   )
+                )
+              | 5 -> (
+                  match String.unsafe_get s pos with
+                    | 'e' -> (
+                        if String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' then (
+                          4
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 's' -> (
+                        if String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' then (
+                          2
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
                 )
               | 8 -> (
-                  if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'n' then (
-                    1
+                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'k' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'd' then (
+                    0
                   )
                   else (
                     -1
@@ -3498,7 +3580,7 @@ let read_core_match = (
         (
           match i with
             | 0 ->
-              field_rule_id := (
+              field_check_id := (
                 Some (
                   (
                     read_rule_id
@@ -3506,14 +3588,30 @@ let read_core_match = (
                 )
               );
             | 1 ->
-              field_location := (
+              field_path := (
                 Some (
                   (
-                    read_location
+                    read_fpath
                   ) p lb
                 )
               );
             | 2 ->
+              field_start := (
+                Some (
+                  (
+                    read_position
+                  ) p lb
+                )
+              );
+            | 3 ->
+              field_end_ := (
+                Some (
+                  (
+                    read_position
+                  ) p lb
+                )
+              );
+            | 4 ->
               field_extra := (
                 Some (
                   (
@@ -3530,8 +3628,10 @@ let read_core_match = (
     with Yojson.End_of_object -> (
         (
           {
-            rule_id = (match !field_rule_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rule_id");
-            location = (match !field_location with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "location");
+            check_id = (match !field_check_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "check_id");
+            path = (match !field_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "path");
+            start = (match !field_start with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "start");
+            end_ = (match !field_end_ with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "end_");
             extra = (match !field_extra with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "extra");
           }
          : core_match)

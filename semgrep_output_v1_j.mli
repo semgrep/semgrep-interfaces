@@ -97,8 +97,10 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   [@@deriving show]
 
 type core_match = Semgrep_output_v1_t.core_match = {
-  rule_id: rule_id;
-  location: location;
+  check_id: rule_id;
+  path: fpath;
+  start: position;
+  end_ (*atd end *): position;
   extra: core_match_extra
 }
   [@@deriving show]
