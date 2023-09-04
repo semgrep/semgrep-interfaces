@@ -79,6 +79,59 @@
         "extra_extra": { "$ref": "#/definitions/raw_json" }
       }
     },
+    "cli_match": {
+      "type": "object",
+      "required": [ "check_id", "path", "start", "end", "extra" ],
+      "properties": {
+        "check_id": { "$ref": "#/definitions/rule_id" },
+        "path": { "$ref": "#/definitions/fpath" },
+        "start": { "$ref": "#/definitions/position" },
+        "end": { "$ref": "#/definitions/position" },
+        "extra": { "$ref": "#/definitions/cli_match_extra" }
+      }
+    },
+    "cli_match_extra": {
+      "type": "object",
+      "required": [
+        "fingerprint", "lines", "message", "metadata", "severity"
+      ],
+      "properties": {
+        "metavars": { "$ref": "#/definitions/metavars" },
+        "fingerprint": { "type": "string" },
+        "lines": { "type": "string" },
+        "message": { "type": "string" },
+        "metadata": { "$ref": "#/definitions/raw_json" },
+        "severity": { "type": "string" },
+        "fix": { "type": "string" },
+        "fix_regex": { "$ref": "#/definitions/fix_regex" },
+        "is_ignored": { "type": "boolean" },
+        "sca_info": { "$ref": "#/definitions/sca_info" },
+        "fixed_lines": { "type": "array", "items": { "type": "string" } },
+        "dataflow_trace": {
+          "$ref": "#/definitions/cli_match_dataflow_trace"
+        },
+        "engine_kind": { "$ref": "#/definitions/engine_kind" },
+        "validation_state": { "$ref": "#/definitions/validation_state" },
+        "extra_extra": { "$ref": "#/definitions/raw_json" }
+      }
+    },
+    "fix_regex": {
+      "type": "object",
+      "required": [ "regex", "replacement" ],
+      "properties": {
+        "regex": { "type": "string" },
+        "replacement": { "type": "string" },
+        "count": { "type": "integer" }
+      }
+    },
+    "validation_state": {
+      "oneOf": [
+        { "const": "CONFIRMED_VALID" },
+        { "const": "CONFIRMED_INVALID" },
+        { "const": "VALIDATION_ERROR" },
+        { "const": "NO_VALIDATOR" }
+      ]
+    },
     "metavars": {
       "type": "object",
       "additionalProperties": { "$ref": "#/definitions/metavar_value" }
@@ -100,6 +153,77 @@
         "svalue_start": { "$ref": "#/definitions/position" },
         "svalue_end": { "$ref": "#/definitions/position" },
         "svalue_abstract_content": { "type": "string" }
+      }
+    },
+    "cli_match_dataflow_trace": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "taint_source": { "$ref": "#/definitions/cli_match_call_trace" },
+        "intermediate_vars": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/cli_match_intermediate_var" }
+        },
+        "taint_sink": { "$ref": "#/definitions/cli_match_call_trace" }
+      }
+    },
+    "cli_match_call_trace": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CliLoc" },
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "$ref": "#/definitions/location" }, { "type": "string" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CliCall" },
+            {
+              "type": "array",
+              "minItems": 3,
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": false,
+                  "prefixItems": [
+                    { "$ref": "#/definitions/location" },
+                    { "type": "string" }
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/cli_match_intermediate_var"
+                  }
+                },
+                { "$ref": "#/definitions/cli_match_call_trace" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "cli_match_intermediate_var": {
+      "type": "object",
+      "required": [ "location", "content" ],
+      "properties": {
+        "location": { "$ref": "#/definitions/location" },
+        "content": { "type": "string" }
       }
     },
     "core_error": {
@@ -177,12 +301,106 @@
         { "const": "error" }, { "const": "warning" }, { "const": "info" }
       ]
     },
+    "cli_error": {
+      "type": "object",
+      "required": [ "code", "level", "type" ],
+      "properties": {
+        "code": { "type": "integer" },
+        "level": { "type": "string" },
+        "type": { "type": "string" },
+        "rule_id": { "$ref": "#/definitions/rule_id" },
+        "message": { "type": "string" },
+        "path": { "$ref": "#/definitions/fpath" },
+        "long_msg": { "type": "string" },
+        "short_msg": { "type": "string" },
+        "spans": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/error_span" }
+        },
+        "help": { "type": "string" }
+      }
+    },
+    "error_span": {
+      "type": "object",
+      "required": [ "file", "start", "end" ],
+      "properties": {
+        "file": { "$ref": "#/definitions/fpath" },
+        "start": { "$ref": "#/definitions/position" },
+        "end": { "$ref": "#/definitions/position" },
+        "source_hash": { "type": "string" },
+        "config_start": { "$ref": "#/definitions/position" },
+        "config_end": { "$ref": "#/definitions/position" },
+        "config_path": {
+          "type": [ "array", "null" ],
+          "items": { "type": "string" }
+        },
+        "context_start": { "$ref": "#/definitions/position" },
+        "context_end": { "$ref": "#/definitions/position" }
+      }
+    },
+    "skip_reason": {
+      "oneOf": [
+        { "const": "gitignore_patterns_match" },
+        { "const": "always_skipped" },
+        { "const": "semgrepignore_patterns_match" },
+        { "const": "cli_include_flags_do_not_match" },
+        { "const": "cli_exclude_flags_match" },
+        { "const": "exceeded_size_limit" },
+        { "const": "analysis_failed_parser_or_internal_error" },
+        { "const": "excluded_by_config" },
+        { "const": "wrong_language" },
+        { "const": "too_big" },
+        { "const": "minified" },
+        { "const": "binary" },
+        { "const": "irrelevant_rule" },
+        { "const": "too_many_matches" }
+      ]
+    },
+    "skipped_rule": {
+      "type": "object",
+      "required": [ "rule_id", "details", "position" ],
+      "properties": {
+        "rule_id": { "$ref": "#/definitions/rule_id" },
+        "details": { "type": "string" },
+        "position": { "$ref": "#/definitions/position" }
+      }
+    },
+    "skipped_target": {
+      "type": "object",
+      "required": [ "path", "reason", "details" ],
+      "properties": {
+        "path": { "$ref": "#/definitions/fpath" },
+        "reason": { "$ref": "#/definitions/skip_reason" },
+        "details": { "type": "string" },
+        "rule_id": { "$ref": "#/definitions/rule_id" }
+      }
+    },
+    "cli_skipped_target": {
+      "type": "object",
+      "required": [ "path", "reason" ],
+      "properties": {
+        "path": { "$ref": "#/definitions/fpath" },
+        "reason": { "$ref": "#/definitions/skip_reason" }
+      }
+    },
     "core_stats": {
       "type": "object",
       "required": [ "okfiles", "errorfiles" ],
       "properties": {
         "okfiles": { "type": "integer" },
         "errorfiles": { "type": "integer" }
+      }
+    },
+    "cli_paths": {
+      "type": "object",
+      "required": [ "scanned" ],
+      "properties": {
+        "scanned": { "type": "array", "items": { "type": "string" } },
+        "_comment": { "type": "string" },
+        "skipped": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/cli_skipped_target" }
+        }
       }
     },
     "core_timing": {
@@ -220,6 +438,48 @@
         "rule_id": { "$ref": "#/definitions/rule_id" },
         "parse_time": { "type": "number" },
         "match_time": { "type": "number" }
+      }
+    },
+    "cli_timing": {
+      "type": "object",
+      "required": [
+        "rules", "rules_parse_time", "profiling_times", "targets",
+        "total_bytes"
+      ],
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/rule_id_dict" }
+        },
+        "rules_parse_time": { "type": "number" },
+        "profiling_times": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        },
+        "targets": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/cli_target_times" }
+        },
+        "total_bytes": { "type": "integer" },
+        "max_memory_bytes": { "type": "integer" }
+      }
+    },
+    "rule_id_dict": {
+      "type": "object",
+      "required": [ "id" ],
+      "properties": { "id": { "$ref": "#/definitions/rule_id" } }
+    },
+    "cli_target_times": {
+      "type": "object",
+      "required": [
+        "path", "num_bytes", "match_times", "parse_times", "run_time"
+      ],
+      "properties": {
+        "path": { "$ref": "#/definitions/fpath" },
+        "num_bytes": { "type": "integer" },
+        "match_times": { "type": "array", "items": { "type": "number" } },
+        "parse_times": { "type": "array", "items": { "type": "number" } },
+        "run_time": { "type": "number" }
       }
     },
     "matching_explanation": {
@@ -263,114 +523,6 @@
         { "const": "EllipsisAndStmts" },
         { "const": "ClassHeaderAndElems" }
       ]
-    },
-    "cli_match_dataflow_trace": {
-      "type": "object",
-      "required": [],
-      "properties": {
-        "taint_source": { "$ref": "#/definitions/cli_match_call_trace" },
-        "intermediate_vars": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/cli_match_intermediate_var" }
-        },
-        "taint_sink": { "$ref": "#/definitions/cli_match_call_trace" }
-      }
-    },
-    "cli_match_call_trace": {
-      "oneOf": [
-        {
-          "type": "array",
-          "minItems": 2,
-          "items": false,
-          "prefixItems": [
-            { "const": "CliLoc" },
-            {
-              "type": "array",
-              "minItems": 2,
-              "items": false,
-              "prefixItems": [
-                { "$ref": "#/definitions/location" }, { "type": "string" }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "array",
-          "minItems": 2,
-          "items": false,
-          "prefixItems": [
-            { "const": "CliCall" },
-            {
-              "type": "array",
-              "minItems": 3,
-              "items": false,
-              "prefixItems": [
-                {
-                  "type": "array",
-                  "minItems": 2,
-                  "items": false,
-                  "prefixItems": [
-                    { "$ref": "#/definitions/location" },
-                    { "type": "string" }
-                  ]
-                },
-                {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/cli_match_intermediate_var"
-                  }
-                },
-                { "$ref": "#/definitions/cli_match_call_trace" }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    "cli_match_intermediate_var": {
-      "type": "object",
-      "required": [ "location", "content" ],
-      "properties": {
-        "location": { "$ref": "#/definitions/location" },
-        "content": { "type": "string" }
-      }
-    },
-    "skipped_target": {
-      "type": "object",
-      "required": [ "path", "reason", "details" ],
-      "properties": {
-        "path": { "$ref": "#/definitions/fpath" },
-        "reason": { "$ref": "#/definitions/skip_reason" },
-        "details": { "type": "string" },
-        "rule_id": { "$ref": "#/definitions/rule_id" }
-      }
-    },
-    "skip_reason": {
-      "oneOf": [
-        { "const": "gitignore_patterns_match" },
-        { "const": "always_skipped" },
-        { "const": "semgrepignore_patterns_match" },
-        { "const": "cli_include_flags_do_not_match" },
-        { "const": "cli_exclude_flags_match" },
-        { "const": "exceeded_size_limit" },
-        { "const": "analysis_failed_parser_or_internal_error" },
-        { "const": "excluded_by_config" },
-        { "const": "wrong_language" },
-        { "const": "too_big" },
-        { "const": "minified" },
-        { "const": "binary" },
-        { "const": "irrelevant_rule" },
-        { "const": "too_many_matches" }
-      ]
-    },
-    "skipped_rule": {
-      "type": "object",
-      "required": [ "rule_id", "details", "position" ],
-      "properties": {
-        "rule_id": { "$ref": "#/definitions/rule_id" },
-        "details": { "type": "string" },
-        "position": { "$ref": "#/definitions/position" }
-      }
     },
     "engine_kind": { "oneOf": [ { "const": "OSS" }, { "const": "PRO" } ] },
     "rule_id_and_engine_kind": {
@@ -445,96 +597,6 @@
         "engine_requested": { "$ref": "#/definitions/engine_kind" }
       }
     },
-    "cli_error": {
-      "type": "object",
-      "required": [ "code", "level", "type" ],
-      "properties": {
-        "code": { "type": "integer" },
-        "level": { "type": "string" },
-        "type": { "type": "string" },
-        "rule_id": { "$ref": "#/definitions/rule_id" },
-        "message": { "type": "string" },
-        "path": { "$ref": "#/definitions/fpath" },
-        "long_msg": { "type": "string" },
-        "short_msg": { "type": "string" },
-        "spans": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/error_span" }
-        },
-        "help": { "type": "string" }
-      }
-    },
-    "error_span": {
-      "type": "object",
-      "required": [ "file", "start", "end" ],
-      "properties": {
-        "file": { "$ref": "#/definitions/fpath" },
-        "start": { "$ref": "#/definitions/position" },
-        "end": { "$ref": "#/definitions/position" },
-        "source_hash": { "type": "string" },
-        "config_start": { "$ref": "#/definitions/position" },
-        "config_end": { "$ref": "#/definitions/position" },
-        "config_path": {
-          "type": [ "array", "null" ],
-          "items": { "type": "string" }
-        },
-        "context_start": { "$ref": "#/definitions/position" },
-        "context_end": { "$ref": "#/definitions/position" }
-      }
-    },
-    "cli_match": {
-      "type": "object",
-      "required": [ "check_id", "path", "start", "end", "extra" ],
-      "properties": {
-        "check_id": { "$ref": "#/definitions/rule_id" },
-        "path": { "$ref": "#/definitions/fpath" },
-        "start": { "$ref": "#/definitions/position" },
-        "end": { "$ref": "#/definitions/position" },
-        "extra": { "$ref": "#/definitions/cli_match_extra" }
-      }
-    },
-    "cli_match_extra": {
-      "type": "object",
-      "required": [
-        "fingerprint", "lines", "message", "metadata", "severity"
-      ],
-      "properties": {
-        "metavars": { "$ref": "#/definitions/metavars" },
-        "fingerprint": { "type": "string" },
-        "lines": { "type": "string" },
-        "message": { "type": "string" },
-        "metadata": { "$ref": "#/definitions/raw_json" },
-        "severity": { "type": "string" },
-        "fix": { "type": "string" },
-        "fix_regex": { "$ref": "#/definitions/fix_regex" },
-        "is_ignored": { "type": "boolean" },
-        "sca_info": { "$ref": "#/definitions/sca_info" },
-        "fixed_lines": { "type": "array", "items": { "type": "string" } },
-        "dataflow_trace": {
-          "$ref": "#/definitions/cli_match_dataflow_trace"
-        },
-        "engine_kind": { "$ref": "#/definitions/engine_kind" },
-        "validation_state": { "$ref": "#/definitions/validation_state" },
-        "extra_extra": { "$ref": "#/definitions/raw_json" }
-      }
-    },
-    "fix_regex": {
-      "type": "object",
-      "required": [ "regex", "replacement" ],
-      "properties": {
-        "regex": { "type": "string" },
-        "replacement": { "type": "string" },
-        "count": { "type": "integer" }
-      }
-    },
-    "validation_state": {
-      "oneOf": [
-        { "const": "CONFIRMED_VALID" },
-        { "const": "CONFIRMED_INVALID" },
-        { "const": "VALIDATION_ERROR" },
-        { "const": "NO_VALIDATOR" }
-      ]
-    },
     "cli_output_extra": {
       "type": "object",
       "required": [ "paths" ],
@@ -554,68 +616,6 @@
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
         }
-      }
-    },
-    "cli_paths": {
-      "type": "object",
-      "required": [ "scanned" ],
-      "properties": {
-        "scanned": { "type": "array", "items": { "type": "string" } },
-        "_comment": { "type": "string" },
-        "skipped": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/cli_skipped_target" }
-        }
-      }
-    },
-    "cli_skipped_target": {
-      "type": "object",
-      "required": [ "path", "reason" ],
-      "properties": {
-        "path": { "$ref": "#/definitions/fpath" },
-        "reason": { "$ref": "#/definitions/skip_reason" }
-      }
-    },
-    "cli_timing": {
-      "type": "object",
-      "required": [
-        "rules", "rules_parse_time", "profiling_times", "targets",
-        "total_bytes"
-      ],
-      "properties": {
-        "rules": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/rule_id_dict" }
-        },
-        "rules_parse_time": { "type": "number" },
-        "profiling_times": {
-          "type": "object",
-          "additionalProperties": { "type": "number" }
-        },
-        "targets": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/cli_target_times" }
-        },
-        "total_bytes": { "type": "integer" },
-        "max_memory_bytes": { "type": "integer" }
-      }
-    },
-    "rule_id_dict": {
-      "type": "object",
-      "required": [ "id" ],
-      "properties": { "id": { "$ref": "#/definitions/rule_id" } }
-    },
-    "cli_target_times": {
-      "type": "object",
-      "required": [
-        "path", "num_bytes", "match_times", "parse_times", "run_time"
-      ],
-      "properties": {
-        "path": { "$ref": "#/definitions/fpath" },
-        "num_bytes": { "type": "integer" },
-        "match_times": { "type": "array", "items": { "type": "number" } },
-        "parse_times": { "type": "array", "items": { "type": "number" } },
-        "run_time": { "type": "number" }
       }
     },
     "sca_info": {

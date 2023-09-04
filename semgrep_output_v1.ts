@@ -50,6 +50,44 @@ export type CoreMatchExtra = {
   extra_extra?: RawJson;
 }
 
+export type CliMatch = {
+  check_id: RuleId;
+  path: Fpath;
+  start: Position;
+  end: Position;
+  extra: CliMatchExtra;
+}
+
+export type CliMatchExtra = {
+  metavars?: Metavars;
+  fingerprint: string;
+  lines: string;
+  message: string;
+  metadata: RawJson;
+  severity: string;
+  fix?: string;
+  fix_regex?: FixRegex;
+  is_ignored?: boolean;
+  sca_info?: ScaInfo;
+  fixed_lines?: string[];
+  dataflow_trace?: CliMatchDataflowTrace;
+  engine_kind?: EngineKind;
+  validation_state?: ValidationState;
+  extra_extra?: RawJson;
+}
+
+export type FixRegex = {
+  regex: string;
+  replacement: string;
+  count?: number /*int*/;
+}
+
+export type ValidationState =
+| { kind: 'CONFIRMED_VALID' }
+| { kind: 'CONFIRMED_INVALID' }
+| { kind: 'VALIDATION_ERROR' }
+| { kind: 'NO_VALIDATOR' }
+
 export type Metavars = Map<string, MetavarValue>
 
 export type MetavarValue = {
@@ -63,6 +101,21 @@ export type SvalueValue = {
   svalue_start?: Position;
   svalue_end?: Position;
   svalue_abstract_content: string;
+}
+
+export type CliMatchDataflowTrace = {
+  taint_source?: CliMatchCallTrace;
+  intermediate_vars?: CliMatchIntermediateVar[];
+  taint_sink?: CliMatchCallTrace;
+}
+
+export type CliMatchCallTrace =
+| { kind: 'CliLoc'; value: [Location, string] }
+| { kind: 'CliCall'; value: [[Location, string], CliMatchIntermediateVar[], CliMatchCallTrace] }
+
+export type CliMatchIntermediateVar = {
+  location: Location;
+  content: string;
 }
 
 export type CoreError = {
@@ -105,71 +158,29 @@ export type CoreSeverity =
 | { kind: 'Warning' /* JSON: "warning" */ }
 | { kind: 'Info' /* JSON: "info" */ }
 
-export type CoreStats = {
-  okfiles: number /*int*/;
-  errorfiles: number /*int*/;
-}
-
-export type CoreTiming = {
-  targets: TargetTime[];
-  rules: RuleId[];
-  rules_parse_time?: number;
-  max_memory_bytes: number /*int*/;
-}
-
-export type TargetTime = {
-  path: Fpath;
-  rule_times: RuleTimes[];
-  run_time: number;
-}
-
-export type RuleTimes = {
-  rule_id: RuleId;
-  parse_time: number;
-  match_time: number;
-}
-
-export type MatchingExplanation = {
-  op: MatchingOperation;
-  children: MatchingExplanation[];
-  matches: CoreMatch[];
-  loc: Location;
-}
-
-export type MatchingOperation =
-| { kind: 'And' }
-| { kind: 'Or' }
-| { kind: 'Inside' }
-| { kind: 'XPat'; value: string }
-| { kind: 'Negation' }
-| { kind: 'Filter'; value: string }
-| { kind: 'Taint' }
-| { kind: 'TaintSource' }
-| { kind: 'TaintSink' }
-| { kind: 'TaintSanitizer' }
-| { kind: 'EllipsisAndStmts' }
-| { kind: 'ClassHeaderAndElems' }
-
-export type CliMatchDataflowTrace = {
-  taint_source?: CliMatchCallTrace;
-  intermediate_vars?: CliMatchIntermediateVar[];
-  taint_sink?: CliMatchCallTrace;
-}
-
-export type CliMatchCallTrace =
-| { kind: 'CliLoc'; value: [Location, string] }
-| { kind: 'CliCall'; value: [[Location, string], CliMatchIntermediateVar[], CliMatchCallTrace] }
-
-export type CliMatchIntermediateVar = {
-  location: Location;
-  content: string;
-}
-
-export type SkippedTarget = {
-  path: Fpath;
-  reason: SkipReason;
-  details: string;
+export type CliError = {
+  code: number /*int*/;
+  level: string;
+  type_: string;
   rule_id?: RuleId;
+  message?: string;
+  path?: Fpath;
+  long_msg?: string;
+  short_msg?: string;
+  spans?: ErrorSpan[];
+  help?: string;
+}
+
+export type ErrorSpan = {
+  file: Fpath;
+  start: Position;
+  end: Position;
+  source_hash?: string;
+  config_start?: (Position | null);
+  config_end?: (Position | null);
+  config_path?: (string[] | null);
+  context_start?: (Position | null);
+  context_end?: (Position | null);
 }
 
 export type SkipReason =
@@ -193,6 +204,90 @@ export type SkippedRule = {
   details: string;
   position: Position;
 }
+
+export type SkippedTarget = {
+  path: Fpath;
+  reason: SkipReason;
+  details: string;
+  rule_id?: RuleId;
+}
+
+export type CliSkippedTarget = {
+  path: Fpath;
+  reason: SkipReason;
+}
+
+export type CoreStats = {
+  okfiles: number /*int*/;
+  errorfiles: number /*int*/;
+}
+
+export type CliPaths = {
+  scanned: string[];
+  _comment?: string;
+  skipped?: CliSkippedTarget[];
+}
+
+export type CoreTiming = {
+  targets: TargetTime[];
+  rules: RuleId[];
+  rules_parse_time?: number;
+  max_memory_bytes: number /*int*/;
+}
+
+export type TargetTime = {
+  path: Fpath;
+  rule_times: RuleTimes[];
+  run_time: number;
+}
+
+export type RuleTimes = {
+  rule_id: RuleId;
+  parse_time: number;
+  match_time: number;
+}
+
+export type CliTiming = {
+  rules: RuleIdDict[];
+  rules_parse_time: number;
+  profiling_times: Map<string, number>;
+  targets: CliTargetTimes[];
+  total_bytes: number /*int*/;
+  max_memory_bytes?: number /*int*/;
+}
+
+export type RuleIdDict = {
+  id: RuleId;
+}
+
+export type CliTargetTimes = {
+  path: Fpath;
+  num_bytes: number /*int*/;
+  match_times: number[];
+  parse_times: number[];
+  run_time: number;
+}
+
+export type MatchingExplanation = {
+  op: MatchingOperation;
+  children: MatchingExplanation[];
+  matches: CoreMatch[];
+  loc: Location;
+}
+
+export type MatchingOperation =
+| { kind: 'And' }
+| { kind: 'Or' }
+| { kind: 'Inside' }
+| { kind: 'XPat'; value: string }
+| { kind: 'Negation' }
+| { kind: 'Filter'; value: string }
+| { kind: 'Taint' }
+| { kind: 'TaintSource' }
+| { kind: 'TaintSink' }
+| { kind: 'TaintSanitizer' }
+| { kind: 'EllipsisAndStmts' }
+| { kind: 'ClassHeaderAndElems' }
 
 export type EngineKind =
 | { kind: 'OSS' }
@@ -222,69 +317,6 @@ export type CoreOutputExtra = {
   engine_requested: EngineKind;
 }
 
-export type CliError = {
-  code: number /*int*/;
-  level: string;
-  type_: string;
-  rule_id?: RuleId;
-  message?: string;
-  path?: Fpath;
-  long_msg?: string;
-  short_msg?: string;
-  spans?: ErrorSpan[];
-  help?: string;
-}
-
-export type ErrorSpan = {
-  file: Fpath;
-  start: Position;
-  end: Position;
-  source_hash?: string;
-  config_start?: (Position | null);
-  config_end?: (Position | null);
-  config_path?: (string[] | null);
-  context_start?: (Position | null);
-  context_end?: (Position | null);
-}
-
-export type CliMatch = {
-  check_id: RuleId;
-  path: Fpath;
-  start: Position;
-  end: Position;
-  extra: CliMatchExtra;
-}
-
-export type CliMatchExtra = {
-  metavars?: Metavars;
-  fingerprint: string;
-  lines: string;
-  message: string;
-  metadata: RawJson;
-  severity: string;
-  fix?: string;
-  fix_regex?: FixRegex;
-  is_ignored?: boolean;
-  sca_info?: ScaInfo;
-  fixed_lines?: string[];
-  dataflow_trace?: CliMatchDataflowTrace;
-  engine_kind?: EngineKind;
-  validation_state?: ValidationState;
-  extra_extra?: RawJson;
-}
-
-export type FixRegex = {
-  regex: string;
-  replacement: string;
-  count?: number /*int*/;
-}
-
-export type ValidationState =
-| { kind: 'CONFIRMED_VALID' }
-| { kind: 'CONFIRMED_INVALID' }
-| { kind: 'VALIDATION_ERROR' }
-| { kind: 'NO_VALIDATOR' }
-
 export type CliOutput = {
   version?: Version;
   errors: CliError[];
@@ -304,38 +336,6 @@ export type CliOutputExtra = {
   rules_by_engine?: RuleIdAndEngineKind[];
   engine_requested?: EngineKind;
   skipped_rules: SkippedRule[];
-}
-
-export type CliPaths = {
-  scanned: string[];
-  _comment?: string;
-  skipped?: CliSkippedTarget[];
-}
-
-export type CliSkippedTarget = {
-  path: Fpath;
-  reason: SkipReason;
-}
-
-export type CliTiming = {
-  rules: RuleIdDict[];
-  rules_parse_time: number;
-  profiling_times: Map<string, number>;
-  targets: CliTargetTimes[];
-  total_bytes: number /*int*/;
-  max_memory_bytes?: number /*int*/;
-}
-
-export type RuleIdDict = {
-  id: RuleId;
-}
-
-export type CliTargetTimes = {
-  path: Fpath;
-  num_bytes: number /*int*/;
-  match_times: number[];
-  parse_times: number[];
-  run_time: number;
 }
 
 export type ScaInfo = {
@@ -610,6 +610,111 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
   };
 }
 
+export function writeCliMatch(x: CliMatch, context: any = x): any {
+  return {
+    'check_id': _atd_write_required_field('CliMatch', 'check_id', writeRuleId, x.check_id, x),
+    'path': _atd_write_required_field('CliMatch', 'path', writeFpath, x.path, x),
+    'start': _atd_write_required_field('CliMatch', 'start', writePosition, x.start, x),
+    'end': _atd_write_required_field('CliMatch', 'end', writePosition, x.end, x),
+    'extra': _atd_write_required_field('CliMatch', 'extra', writeCliMatchExtra, x.extra, x),
+  };
+}
+
+export function readCliMatch(x: any, context: any = x): CliMatch {
+  return {
+    check_id: _atd_read_required_field('CliMatch', 'check_id', readRuleId, x['check_id'], x),
+    path: _atd_read_required_field('CliMatch', 'path', readFpath, x['path'], x),
+    start: _atd_read_required_field('CliMatch', 'start', readPosition, x['start'], x),
+    end: _atd_read_required_field('CliMatch', 'end', readPosition, x['end'], x),
+    extra: _atd_read_required_field('CliMatch', 'extra', readCliMatchExtra, x['extra'], x),
+  };
+}
+
+export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
+  return {
+    'metavars': _atd_write_optional_field(writeMetavars, x.metavars, x),
+    'fingerprint': _atd_write_required_field('CliMatchExtra', 'fingerprint', _atd_write_string, x.fingerprint, x),
+    'lines': _atd_write_required_field('CliMatchExtra', 'lines', _atd_write_string, x.lines, x),
+    'message': _atd_write_required_field('CliMatchExtra', 'message', _atd_write_string, x.message, x),
+    'metadata': _atd_write_required_field('CliMatchExtra', 'metadata', writeRawJson, x.metadata, x),
+    'severity': _atd_write_required_field('CliMatchExtra', 'severity', _atd_write_string, x.severity, x),
+    'fix': _atd_write_optional_field(_atd_write_string, x.fix, x),
+    'fix_regex': _atd_write_optional_field(writeFixRegex, x.fix_regex, x),
+    'is_ignored': _atd_write_optional_field(_atd_write_bool, x.is_ignored, x),
+    'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
+    'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
+    'dataflow_trace': _atd_write_optional_field(writeCliMatchDataflowTrace, x.dataflow_trace, x),
+    'engine_kind': _atd_write_optional_field(writeEngineKind, x.engine_kind, x),
+    'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
+    'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
+  };
+}
+
+export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
+  return {
+    metavars: _atd_read_optional_field(readMetavars, x['metavars'], x),
+    fingerprint: _atd_read_required_field('CliMatchExtra', 'fingerprint', _atd_read_string, x['fingerprint'], x),
+    lines: _atd_read_required_field('CliMatchExtra', 'lines', _atd_read_string, x['lines'], x),
+    message: _atd_read_required_field('CliMatchExtra', 'message', _atd_read_string, x['message'], x),
+    metadata: _atd_read_required_field('CliMatchExtra', 'metadata', readRawJson, x['metadata'], x),
+    severity: _atd_read_required_field('CliMatchExtra', 'severity', _atd_read_string, x['severity'], x),
+    fix: _atd_read_optional_field(_atd_read_string, x['fix'], x),
+    fix_regex: _atd_read_optional_field(readFixRegex, x['fix_regex'], x),
+    is_ignored: _atd_read_optional_field(_atd_read_bool, x['is_ignored'], x),
+    sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
+    fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
+    dataflow_trace: _atd_read_optional_field(readCliMatchDataflowTrace, x['dataflow_trace'], x),
+    engine_kind: _atd_read_optional_field(readEngineKind, x['engine_kind'], x),
+    validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
+    extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
+  };
+}
+
+export function writeFixRegex(x: FixRegex, context: any = x): any {
+  return {
+    'regex': _atd_write_required_field('FixRegex', 'regex', _atd_write_string, x.regex, x),
+    'replacement': _atd_write_required_field('FixRegex', 'replacement', _atd_write_string, x.replacement, x),
+    'count': _atd_write_optional_field(_atd_write_int, x.count, x),
+  };
+}
+
+export function readFixRegex(x: any, context: any = x): FixRegex {
+  return {
+    regex: _atd_read_required_field('FixRegex', 'regex', _atd_read_string, x['regex'], x),
+    replacement: _atd_read_required_field('FixRegex', 'replacement', _atd_read_string, x['replacement'], x),
+    count: _atd_read_optional_field(_atd_read_int, x['count'], x),
+  };
+}
+
+export function writeValidationState(x: ValidationState, context: any = x): any {
+  switch (x.kind) {
+    case 'CONFIRMED_VALID':
+      return 'CONFIRMED_VALID'
+    case 'CONFIRMED_INVALID':
+      return 'CONFIRMED_INVALID'
+    case 'VALIDATION_ERROR':
+      return 'VALIDATION_ERROR'
+    case 'NO_VALIDATOR':
+      return 'NO_VALIDATOR'
+  }
+}
+
+export function readValidationState(x: any, context: any = x): ValidationState {
+  switch (x) {
+    case 'CONFIRMED_VALID':
+      return { kind: 'CONFIRMED_VALID' }
+    case 'CONFIRMED_INVALID':
+      return { kind: 'CONFIRMED_INVALID' }
+    case 'VALIDATION_ERROR':
+      return { kind: 'VALIDATION_ERROR' }
+    case 'NO_VALIDATOR':
+      return { kind: 'NO_VALIDATOR' }
+    default:
+      _atd_bad_json('ValidationState', x, context)
+      throw new Error('impossible')
+  }
+}
+
 export function writeMetavars(x: Metavars, context: any = x): any {
   return _atd_write_assoc_map_to_object(writeMetavarValue)(x, context);
 }
@@ -649,6 +754,58 @@ export function readSvalueValue(x: any, context: any = x): SvalueValue {
     svalue_start: _atd_read_optional_field(readPosition, x['svalue_start'], x),
     svalue_end: _atd_read_optional_field(readPosition, x['svalue_end'], x),
     svalue_abstract_content: _atd_read_required_field('SvalueValue', 'svalue_abstract_content', _atd_read_string, x['svalue_abstract_content'], x),
+  };
+}
+
+export function writeCliMatchDataflowTrace(x: CliMatchDataflowTrace, context: any = x): any {
+  return {
+    'taint_source': _atd_write_optional_field(writeCliMatchCallTrace, x.taint_source, x),
+    'intermediate_vars': _atd_write_optional_field(_atd_write_array(writeCliMatchIntermediateVar), x.intermediate_vars, x),
+    'taint_sink': _atd_write_optional_field(writeCliMatchCallTrace, x.taint_sink, x),
+  };
+}
+
+export function readCliMatchDataflowTrace(x: any, context: any = x): CliMatchDataflowTrace {
+  return {
+    taint_source: _atd_read_optional_field(readCliMatchCallTrace, x['taint_source'], x),
+    intermediate_vars: _atd_read_optional_field(_atd_read_array(readCliMatchIntermediateVar), x['intermediate_vars'], x),
+    taint_sink: _atd_read_optional_field(readCliMatchCallTrace, x['taint_sink'], x),
+  };
+}
+
+export function writeCliMatchCallTrace(x: CliMatchCallTrace, context: any = x): any {
+  switch (x.kind) {
+    case 'CliLoc':
+      return ['CliLoc', ((x, context) => [writeLocation(x[0], x), _atd_write_string(x[1], x)])(x.value, x)]
+    case 'CliCall':
+      return ['CliCall', ((x, context) => [((x, context) => [writeLocation(x[0], x), _atd_write_string(x[1], x)])(x[0], x), _atd_write_array(writeCliMatchIntermediateVar)(x[1], x), writeCliMatchCallTrace(x[2], x)])(x.value, x)]
+  }
+}
+
+export function readCliMatchCallTrace(x: any, context: any = x): CliMatchCallTrace {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'CliLoc':
+      return { kind: 'CliLoc', value: ((x, context): [Location, string] => { _atd_check_json_tuple(2, x, context); return [readLocation(x[0], x), _atd_read_string(x[1], x)] })(x[1], x) }
+    case 'CliCall':
+      return { kind: 'CliCall', value: ((x, context): [[Location, string], CliMatchIntermediateVar[], CliMatchCallTrace] => { _atd_check_json_tuple(3, x, context); return [((x, context): [Location, string] => { _atd_check_json_tuple(2, x, context); return [readLocation(x[0], x), _atd_read_string(x[1], x)] })(x[0], x), _atd_read_array(readCliMatchIntermediateVar)(x[1], x), readCliMatchCallTrace(x[2], x)] })(x[1], x) }
+    default:
+      _atd_bad_json('CliMatchCallTrace', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeCliMatchIntermediateVar(x: CliMatchIntermediateVar, context: any = x): any {
+  return {
+    'location': _atd_write_required_field('CliMatchIntermediateVar', 'location', writeLocation, x.location, x),
+    'content': _atd_write_required_field('CliMatchIntermediateVar', 'content', _atd_write_string, x.content, x),
+  };
+}
+
+export function readCliMatchIntermediateVar(x: any, context: any = x): CliMatchIntermediateVar {
+  return {
+    location: _atd_read_required_field('CliMatchIntermediateVar', 'location', readLocation, x['location'], x),
+    content: _atd_read_required_field('CliMatchIntermediateVar', 'content', _atd_read_string, x['content'], x),
   };
 }
 
@@ -808,6 +965,181 @@ export function readCoreSeverity(x: any, context: any = x): CoreSeverity {
   }
 }
 
+export function writeCliError(x: CliError, context: any = x): any {
+  return {
+    'code': _atd_write_required_field('CliError', 'code', _atd_write_int, x.code, x),
+    'level': _atd_write_required_field('CliError', 'level', _atd_write_string, x.level, x),
+    'type': _atd_write_required_field('CliError', 'type_', _atd_write_string, x.type_, x),
+    'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
+    'message': _atd_write_optional_field(_atd_write_string, x.message, x),
+    'path': _atd_write_optional_field(writeFpath, x.path, x),
+    'long_msg': _atd_write_optional_field(_atd_write_string, x.long_msg, x),
+    'short_msg': _atd_write_optional_field(_atd_write_string, x.short_msg, x),
+    'spans': _atd_write_optional_field(_atd_write_array(writeErrorSpan), x.spans, x),
+    'help': _atd_write_optional_field(_atd_write_string, x.help, x),
+  };
+}
+
+export function readCliError(x: any, context: any = x): CliError {
+  return {
+    code: _atd_read_required_field('CliError', 'code', _atd_read_int, x['code'], x),
+    level: _atd_read_required_field('CliError', 'level', _atd_read_string, x['level'], x),
+    type_: _atd_read_required_field('CliError', 'type', _atd_read_string, x['type'], x),
+    rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
+    message: _atd_read_optional_field(_atd_read_string, x['message'], x),
+    path: _atd_read_optional_field(readFpath, x['path'], x),
+    long_msg: _atd_read_optional_field(_atd_read_string, x['long_msg'], x),
+    short_msg: _atd_read_optional_field(_atd_read_string, x['short_msg'], x),
+    spans: _atd_read_optional_field(_atd_read_array(readErrorSpan), x['spans'], x),
+    help: _atd_read_optional_field(_atd_read_string, x['help'], x),
+  };
+}
+
+export function writeErrorSpan(x: ErrorSpan, context: any = x): any {
+  return {
+    'file': _atd_write_required_field('ErrorSpan', 'file', writeFpath, x.file, x),
+    'start': _atd_write_required_field('ErrorSpan', 'start', writePosition, x.start, x),
+    'end': _atd_write_required_field('ErrorSpan', 'end', writePosition, x.end, x),
+    'source_hash': _atd_write_optional_field(_atd_write_string, x.source_hash, x),
+    'config_start': _atd_write_optional_field(_atd_write_nullable(writePosition), x.config_start, x),
+    'config_end': _atd_write_optional_field(_atd_write_nullable(writePosition), x.config_end, x),
+    'config_path': _atd_write_optional_field(_atd_write_nullable(_atd_write_array(_atd_write_string)), x.config_path, x),
+    'context_start': _atd_write_optional_field(_atd_write_nullable(writePosition), x.context_start, x),
+    'context_end': _atd_write_optional_field(_atd_write_nullable(writePosition), x.context_end, x),
+  };
+}
+
+export function readErrorSpan(x: any, context: any = x): ErrorSpan {
+  return {
+    file: _atd_read_required_field('ErrorSpan', 'file', readFpath, x['file'], x),
+    start: _atd_read_required_field('ErrorSpan', 'start', readPosition, x['start'], x),
+    end: _atd_read_required_field('ErrorSpan', 'end', readPosition, x['end'], x),
+    source_hash: _atd_read_optional_field(_atd_read_string, x['source_hash'], x),
+    config_start: _atd_read_optional_field(_atd_read_nullable(readPosition), x['config_start'], x),
+    config_end: _atd_read_optional_field(_atd_read_nullable(readPosition), x['config_end'], x),
+    config_path: _atd_read_optional_field(_atd_read_nullable(_atd_read_array(_atd_read_string)), x['config_path'], x),
+    context_start: _atd_read_optional_field(_atd_read_nullable(readPosition), x['context_start'], x),
+    context_end: _atd_read_optional_field(_atd_read_nullable(readPosition), x['context_end'], x),
+  };
+}
+
+export function writeSkipReason(x: SkipReason, context: any = x): any {
+  switch (x.kind) {
+    case 'Gitignore_patterns_match':
+      return 'gitignore_patterns_match'
+    case 'Always_skipped':
+      return 'always_skipped'
+    case 'Semgrepignore_patterns_match':
+      return 'semgrepignore_patterns_match'
+    case 'Cli_include_flags_do_not_match':
+      return 'cli_include_flags_do_not_match'
+    case 'Cli_exclude_flags_match':
+      return 'cli_exclude_flags_match'
+    case 'Exceeded_size_limit':
+      return 'exceeded_size_limit'
+    case 'Analysis_failed_parser_or_internal_error':
+      return 'analysis_failed_parser_or_internal_error'
+    case 'Excluded_by_config':
+      return 'excluded_by_config'
+    case 'Wrong_language':
+      return 'wrong_language'
+    case 'Too_big':
+      return 'too_big'
+    case 'Minified':
+      return 'minified'
+    case 'Binary':
+      return 'binary'
+    case 'Irrelevant_rule':
+      return 'irrelevant_rule'
+    case 'Too_many_matches':
+      return 'too_many_matches'
+  }
+}
+
+export function readSkipReason(x: any, context: any = x): SkipReason {
+  switch (x) {
+    case 'gitignore_patterns_match':
+      return { kind: 'Gitignore_patterns_match' }
+    case 'always_skipped':
+      return { kind: 'Always_skipped' }
+    case 'semgrepignore_patterns_match':
+      return { kind: 'Semgrepignore_patterns_match' }
+    case 'cli_include_flags_do_not_match':
+      return { kind: 'Cli_include_flags_do_not_match' }
+    case 'cli_exclude_flags_match':
+      return { kind: 'Cli_exclude_flags_match' }
+    case 'exceeded_size_limit':
+      return { kind: 'Exceeded_size_limit' }
+    case 'analysis_failed_parser_or_internal_error':
+      return { kind: 'Analysis_failed_parser_or_internal_error' }
+    case 'excluded_by_config':
+      return { kind: 'Excluded_by_config' }
+    case 'wrong_language':
+      return { kind: 'Wrong_language' }
+    case 'too_big':
+      return { kind: 'Too_big' }
+    case 'minified':
+      return { kind: 'Minified' }
+    case 'binary':
+      return { kind: 'Binary' }
+    case 'irrelevant_rule':
+      return { kind: 'Irrelevant_rule' }
+    case 'too_many_matches':
+      return { kind: 'Too_many_matches' }
+    default:
+      _atd_bad_json('SkipReason', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeSkippedRule(x: SkippedRule, context: any = x): any {
+  return {
+    'rule_id': _atd_write_required_field('SkippedRule', 'rule_id', writeRuleId, x.rule_id, x),
+    'details': _atd_write_required_field('SkippedRule', 'details', _atd_write_string, x.details, x),
+    'position': _atd_write_required_field('SkippedRule', 'position', writePosition, x.position, x),
+  };
+}
+
+export function readSkippedRule(x: any, context: any = x): SkippedRule {
+  return {
+    rule_id: _atd_read_required_field('SkippedRule', 'rule_id', readRuleId, x['rule_id'], x),
+    details: _atd_read_required_field('SkippedRule', 'details', _atd_read_string, x['details'], x),
+    position: _atd_read_required_field('SkippedRule', 'position', readPosition, x['position'], x),
+  };
+}
+
+export function writeSkippedTarget(x: SkippedTarget, context: any = x): any {
+  return {
+    'path': _atd_write_required_field('SkippedTarget', 'path', writeFpath, x.path, x),
+    'reason': _atd_write_required_field('SkippedTarget', 'reason', writeSkipReason, x.reason, x),
+    'details': _atd_write_required_field('SkippedTarget', 'details', _atd_write_string, x.details, x),
+    'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
+  };
+}
+
+export function readSkippedTarget(x: any, context: any = x): SkippedTarget {
+  return {
+    path: _atd_read_required_field('SkippedTarget', 'path', readFpath, x['path'], x),
+    reason: _atd_read_required_field('SkippedTarget', 'reason', readSkipReason, x['reason'], x),
+    details: _atd_read_required_field('SkippedTarget', 'details', _atd_read_string, x['details'], x),
+    rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
+  };
+}
+
+export function writeCliSkippedTarget(x: CliSkippedTarget, context: any = x): any {
+  return {
+    'path': _atd_write_required_field('CliSkippedTarget', 'path', writeFpath, x.path, x),
+    'reason': _atd_write_required_field('CliSkippedTarget', 'reason', writeSkipReason, x.reason, x),
+  };
+}
+
+export function readCliSkippedTarget(x: any, context: any = x): CliSkippedTarget {
+  return {
+    path: _atd_read_required_field('CliSkippedTarget', 'path', readFpath, x['path'], x),
+    reason: _atd_read_required_field('CliSkippedTarget', 'reason', readSkipReason, x['reason'], x),
+  };
+}
+
 export function writeCoreStats(x: CoreStats, context: any = x): any {
   return {
     'okfiles': _atd_write_required_field('CoreStats', 'okfiles', _atd_write_int, x.okfiles, x),
@@ -819,6 +1151,22 @@ export function readCoreStats(x: any, context: any = x): CoreStats {
   return {
     okfiles: _atd_read_required_field('CoreStats', 'okfiles', _atd_read_int, x['okfiles'], x),
     errorfiles: _atd_read_required_field('CoreStats', 'errorfiles', _atd_read_int, x['errorfiles'], x),
+  };
+}
+
+export function writeCliPaths(x: CliPaths, context: any = x): any {
+  return {
+    'scanned': _atd_write_required_field('CliPaths', 'scanned', _atd_write_array(_atd_write_string), x.scanned, x),
+    '_comment': _atd_write_optional_field(_atd_write_string, x._comment, x),
+    'skipped': _atd_write_optional_field(_atd_write_array(writeCliSkippedTarget), x.skipped, x),
+  };
+}
+
+export function readCliPaths(x: any, context: any = x): CliPaths {
+  return {
+    scanned: _atd_read_required_field('CliPaths', 'scanned', _atd_read_array(_atd_read_string), x['scanned'], x),
+    _comment: _atd_read_optional_field(_atd_read_string, x['_comment'], x),
+    skipped: _atd_read_optional_field(_atd_read_array(readCliSkippedTarget), x['skipped'], x),
   };
 }
 
@@ -869,6 +1217,60 @@ export function readRuleTimes(x: any, context: any = x): RuleTimes {
     rule_id: _atd_read_required_field('RuleTimes', 'rule_id', readRuleId, x['rule_id'], x),
     parse_time: _atd_read_required_field('RuleTimes', 'parse_time', _atd_read_float, x['parse_time'], x),
     match_time: _atd_read_required_field('RuleTimes', 'match_time', _atd_read_float, x['match_time'], x),
+  };
+}
+
+export function writeCliTiming(x: CliTiming, context: any = x): any {
+  return {
+    'rules': _atd_write_required_field('CliTiming', 'rules', _atd_write_array(writeRuleIdDict), x.rules, x),
+    'rules_parse_time': _atd_write_required_field('CliTiming', 'rules_parse_time', _atd_write_float, x.rules_parse_time, x),
+    'profiling_times': _atd_write_required_field('CliTiming', 'profiling_times', _atd_write_assoc_map_to_object(_atd_write_float), x.profiling_times, x),
+    'targets': _atd_write_required_field('CliTiming', 'targets', _atd_write_array(writeCliTargetTimes), x.targets, x),
+    'total_bytes': _atd_write_required_field('CliTiming', 'total_bytes', _atd_write_int, x.total_bytes, x),
+    'max_memory_bytes': _atd_write_optional_field(_atd_write_int, x.max_memory_bytes, x),
+  };
+}
+
+export function readCliTiming(x: any, context: any = x): CliTiming {
+  return {
+    rules: _atd_read_required_field('CliTiming', 'rules', _atd_read_array(readRuleIdDict), x['rules'], x),
+    rules_parse_time: _atd_read_required_field('CliTiming', 'rules_parse_time', _atd_read_float, x['rules_parse_time'], x),
+    profiling_times: _atd_read_required_field('CliTiming', 'profiling_times', _atd_read_assoc_object_into_map(_atd_read_float), x['profiling_times'], x),
+    targets: _atd_read_required_field('CliTiming', 'targets', _atd_read_array(readCliTargetTimes), x['targets'], x),
+    total_bytes: _atd_read_required_field('CliTiming', 'total_bytes', _atd_read_int, x['total_bytes'], x),
+    max_memory_bytes: _atd_read_optional_field(_atd_read_int, x['max_memory_bytes'], x),
+  };
+}
+
+export function writeRuleIdDict(x: RuleIdDict, context: any = x): any {
+  return {
+    'id': _atd_write_required_field('RuleIdDict', 'id', writeRuleId, x.id, x),
+  };
+}
+
+export function readRuleIdDict(x: any, context: any = x): RuleIdDict {
+  return {
+    id: _atd_read_required_field('RuleIdDict', 'id', readRuleId, x['id'], x),
+  };
+}
+
+export function writeCliTargetTimes(x: CliTargetTimes, context: any = x): any {
+  return {
+    'path': _atd_write_required_field('CliTargetTimes', 'path', writeFpath, x.path, x),
+    'num_bytes': _atd_write_required_field('CliTargetTimes', 'num_bytes', _atd_write_int, x.num_bytes, x),
+    'match_times': _atd_write_required_field('CliTargetTimes', 'match_times', _atd_write_array(_atd_write_float), x.match_times, x),
+    'parse_times': _atd_write_required_field('CliTargetTimes', 'parse_times', _atd_write_array(_atd_write_float), x.parse_times, x),
+    'run_time': _atd_write_required_field('CliTargetTimes', 'run_time', _atd_write_float, x.run_time, x),
+  };
+}
+
+export function readCliTargetTimes(x: any, context: any = x): CliTargetTimes {
+  return {
+    path: _atd_read_required_field('CliTargetTimes', 'path', readFpath, x['path'], x),
+    num_bytes: _atd_read_required_field('CliTargetTimes', 'num_bytes', _atd_read_int, x['num_bytes'], x),
+    match_times: _atd_read_required_field('CliTargetTimes', 'match_times', _atd_read_array(_atd_read_float), x['match_times'], x),
+    parse_times: _atd_read_required_field('CliTargetTimes', 'parse_times', _atd_read_array(_atd_read_float), x['parse_times'], x),
+    run_time: _atd_read_required_field('CliTargetTimes', 'run_time', _atd_read_float, x['run_time'], x),
   };
 }
 
@@ -961,161 +1363,6 @@ export function readMatchingOperation(x: any, context: any = x): MatchingOperati
   }
 }
 
-export function writeCliMatchDataflowTrace(x: CliMatchDataflowTrace, context: any = x): any {
-  return {
-    'taint_source': _atd_write_optional_field(writeCliMatchCallTrace, x.taint_source, x),
-    'intermediate_vars': _atd_write_optional_field(_atd_write_array(writeCliMatchIntermediateVar), x.intermediate_vars, x),
-    'taint_sink': _atd_write_optional_field(writeCliMatchCallTrace, x.taint_sink, x),
-  };
-}
-
-export function readCliMatchDataflowTrace(x: any, context: any = x): CliMatchDataflowTrace {
-  return {
-    taint_source: _atd_read_optional_field(readCliMatchCallTrace, x['taint_source'], x),
-    intermediate_vars: _atd_read_optional_field(_atd_read_array(readCliMatchIntermediateVar), x['intermediate_vars'], x),
-    taint_sink: _atd_read_optional_field(readCliMatchCallTrace, x['taint_sink'], x),
-  };
-}
-
-export function writeCliMatchCallTrace(x: CliMatchCallTrace, context: any = x): any {
-  switch (x.kind) {
-    case 'CliLoc':
-      return ['CliLoc', ((x, context) => [writeLocation(x[0], x), _atd_write_string(x[1], x)])(x.value, x)]
-    case 'CliCall':
-      return ['CliCall', ((x, context) => [((x, context) => [writeLocation(x[0], x), _atd_write_string(x[1], x)])(x[0], x), _atd_write_array(writeCliMatchIntermediateVar)(x[1], x), writeCliMatchCallTrace(x[2], x)])(x.value, x)]
-  }
-}
-
-export function readCliMatchCallTrace(x: any, context: any = x): CliMatchCallTrace {
-  _atd_check_json_tuple(2, x, context)
-  switch (x[0]) {
-    case 'CliLoc':
-      return { kind: 'CliLoc', value: ((x, context): [Location, string] => { _atd_check_json_tuple(2, x, context); return [readLocation(x[0], x), _atd_read_string(x[1], x)] })(x[1], x) }
-    case 'CliCall':
-      return { kind: 'CliCall', value: ((x, context): [[Location, string], CliMatchIntermediateVar[], CliMatchCallTrace] => { _atd_check_json_tuple(3, x, context); return [((x, context): [Location, string] => { _atd_check_json_tuple(2, x, context); return [readLocation(x[0], x), _atd_read_string(x[1], x)] })(x[0], x), _atd_read_array(readCliMatchIntermediateVar)(x[1], x), readCliMatchCallTrace(x[2], x)] })(x[1], x) }
-    default:
-      _atd_bad_json('CliMatchCallTrace', x, context)
-      throw new Error('impossible')
-  }
-}
-
-export function writeCliMatchIntermediateVar(x: CliMatchIntermediateVar, context: any = x): any {
-  return {
-    'location': _atd_write_required_field('CliMatchIntermediateVar', 'location', writeLocation, x.location, x),
-    'content': _atd_write_required_field('CliMatchIntermediateVar', 'content', _atd_write_string, x.content, x),
-  };
-}
-
-export function readCliMatchIntermediateVar(x: any, context: any = x): CliMatchIntermediateVar {
-  return {
-    location: _atd_read_required_field('CliMatchIntermediateVar', 'location', readLocation, x['location'], x),
-    content: _atd_read_required_field('CliMatchIntermediateVar', 'content', _atd_read_string, x['content'], x),
-  };
-}
-
-export function writeSkippedTarget(x: SkippedTarget, context: any = x): any {
-  return {
-    'path': _atd_write_required_field('SkippedTarget', 'path', writeFpath, x.path, x),
-    'reason': _atd_write_required_field('SkippedTarget', 'reason', writeSkipReason, x.reason, x),
-    'details': _atd_write_required_field('SkippedTarget', 'details', _atd_write_string, x.details, x),
-    'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
-  };
-}
-
-export function readSkippedTarget(x: any, context: any = x): SkippedTarget {
-  return {
-    path: _atd_read_required_field('SkippedTarget', 'path', readFpath, x['path'], x),
-    reason: _atd_read_required_field('SkippedTarget', 'reason', readSkipReason, x['reason'], x),
-    details: _atd_read_required_field('SkippedTarget', 'details', _atd_read_string, x['details'], x),
-    rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
-  };
-}
-
-export function writeSkipReason(x: SkipReason, context: any = x): any {
-  switch (x.kind) {
-    case 'Gitignore_patterns_match':
-      return 'gitignore_patterns_match'
-    case 'Always_skipped':
-      return 'always_skipped'
-    case 'Semgrepignore_patterns_match':
-      return 'semgrepignore_patterns_match'
-    case 'Cli_include_flags_do_not_match':
-      return 'cli_include_flags_do_not_match'
-    case 'Cli_exclude_flags_match':
-      return 'cli_exclude_flags_match'
-    case 'Exceeded_size_limit':
-      return 'exceeded_size_limit'
-    case 'Analysis_failed_parser_or_internal_error':
-      return 'analysis_failed_parser_or_internal_error'
-    case 'Excluded_by_config':
-      return 'excluded_by_config'
-    case 'Wrong_language':
-      return 'wrong_language'
-    case 'Too_big':
-      return 'too_big'
-    case 'Minified':
-      return 'minified'
-    case 'Binary':
-      return 'binary'
-    case 'Irrelevant_rule':
-      return 'irrelevant_rule'
-    case 'Too_many_matches':
-      return 'too_many_matches'
-  }
-}
-
-export function readSkipReason(x: any, context: any = x): SkipReason {
-  switch (x) {
-    case 'gitignore_patterns_match':
-      return { kind: 'Gitignore_patterns_match' }
-    case 'always_skipped':
-      return { kind: 'Always_skipped' }
-    case 'semgrepignore_patterns_match':
-      return { kind: 'Semgrepignore_patterns_match' }
-    case 'cli_include_flags_do_not_match':
-      return { kind: 'Cli_include_flags_do_not_match' }
-    case 'cli_exclude_flags_match':
-      return { kind: 'Cli_exclude_flags_match' }
-    case 'exceeded_size_limit':
-      return { kind: 'Exceeded_size_limit' }
-    case 'analysis_failed_parser_or_internal_error':
-      return { kind: 'Analysis_failed_parser_or_internal_error' }
-    case 'excluded_by_config':
-      return { kind: 'Excluded_by_config' }
-    case 'wrong_language':
-      return { kind: 'Wrong_language' }
-    case 'too_big':
-      return { kind: 'Too_big' }
-    case 'minified':
-      return { kind: 'Minified' }
-    case 'binary':
-      return { kind: 'Binary' }
-    case 'irrelevant_rule':
-      return { kind: 'Irrelevant_rule' }
-    case 'too_many_matches':
-      return { kind: 'Too_many_matches' }
-    default:
-      _atd_bad_json('SkipReason', x, context)
-      throw new Error('impossible')
-  }
-}
-
-export function writeSkippedRule(x: SkippedRule, context: any = x): any {
-  return {
-    'rule_id': _atd_write_required_field('SkippedRule', 'rule_id', writeRuleId, x.rule_id, x),
-    'details': _atd_write_required_field('SkippedRule', 'details', _atd_write_string, x.details, x),
-    'position': _atd_write_required_field('SkippedRule', 'position', writePosition, x.position, x),
-  };
-}
-
-export function readSkippedRule(x: any, context: any = x): SkippedRule {
-  return {
-    rule_id: _atd_read_required_field('SkippedRule', 'rule_id', readRuleId, x['rule_id'], x),
-    details: _atd_read_required_field('SkippedRule', 'details', _atd_read_string, x['details'], x),
-    position: _atd_read_required_field('SkippedRule', 'position', readPosition, x['position'], x),
-  };
-}
-
 export function writeEngineKind(x: EngineKind, context: any = x): any {
   switch (x.kind) {
     case 'OSS':
@@ -1197,169 +1444,6 @@ export function readCoreOutputExtra(x: any, context: any = x): CoreOutputExtra {
   };
 }
 
-export function writeCliError(x: CliError, context: any = x): any {
-  return {
-    'code': _atd_write_required_field('CliError', 'code', _atd_write_int, x.code, x),
-    'level': _atd_write_required_field('CliError', 'level', _atd_write_string, x.level, x),
-    'type': _atd_write_required_field('CliError', 'type_', _atd_write_string, x.type_, x),
-    'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
-    'message': _atd_write_optional_field(_atd_write_string, x.message, x),
-    'path': _atd_write_optional_field(writeFpath, x.path, x),
-    'long_msg': _atd_write_optional_field(_atd_write_string, x.long_msg, x),
-    'short_msg': _atd_write_optional_field(_atd_write_string, x.short_msg, x),
-    'spans': _atd_write_optional_field(_atd_write_array(writeErrorSpan), x.spans, x),
-    'help': _atd_write_optional_field(_atd_write_string, x.help, x),
-  };
-}
-
-export function readCliError(x: any, context: any = x): CliError {
-  return {
-    code: _atd_read_required_field('CliError', 'code', _atd_read_int, x['code'], x),
-    level: _atd_read_required_field('CliError', 'level', _atd_read_string, x['level'], x),
-    type_: _atd_read_required_field('CliError', 'type', _atd_read_string, x['type'], x),
-    rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
-    message: _atd_read_optional_field(_atd_read_string, x['message'], x),
-    path: _atd_read_optional_field(readFpath, x['path'], x),
-    long_msg: _atd_read_optional_field(_atd_read_string, x['long_msg'], x),
-    short_msg: _atd_read_optional_field(_atd_read_string, x['short_msg'], x),
-    spans: _atd_read_optional_field(_atd_read_array(readErrorSpan), x['spans'], x),
-    help: _atd_read_optional_field(_atd_read_string, x['help'], x),
-  };
-}
-
-export function writeErrorSpan(x: ErrorSpan, context: any = x): any {
-  return {
-    'file': _atd_write_required_field('ErrorSpan', 'file', writeFpath, x.file, x),
-    'start': _atd_write_required_field('ErrorSpan', 'start', writePosition, x.start, x),
-    'end': _atd_write_required_field('ErrorSpan', 'end', writePosition, x.end, x),
-    'source_hash': _atd_write_optional_field(_atd_write_string, x.source_hash, x),
-    'config_start': _atd_write_optional_field(_atd_write_nullable(writePosition), x.config_start, x),
-    'config_end': _atd_write_optional_field(_atd_write_nullable(writePosition), x.config_end, x),
-    'config_path': _atd_write_optional_field(_atd_write_nullable(_atd_write_array(_atd_write_string)), x.config_path, x),
-    'context_start': _atd_write_optional_field(_atd_write_nullable(writePosition), x.context_start, x),
-    'context_end': _atd_write_optional_field(_atd_write_nullable(writePosition), x.context_end, x),
-  };
-}
-
-export function readErrorSpan(x: any, context: any = x): ErrorSpan {
-  return {
-    file: _atd_read_required_field('ErrorSpan', 'file', readFpath, x['file'], x),
-    start: _atd_read_required_field('ErrorSpan', 'start', readPosition, x['start'], x),
-    end: _atd_read_required_field('ErrorSpan', 'end', readPosition, x['end'], x),
-    source_hash: _atd_read_optional_field(_atd_read_string, x['source_hash'], x),
-    config_start: _atd_read_optional_field(_atd_read_nullable(readPosition), x['config_start'], x),
-    config_end: _atd_read_optional_field(_atd_read_nullable(readPosition), x['config_end'], x),
-    config_path: _atd_read_optional_field(_atd_read_nullable(_atd_read_array(_atd_read_string)), x['config_path'], x),
-    context_start: _atd_read_optional_field(_atd_read_nullable(readPosition), x['context_start'], x),
-    context_end: _atd_read_optional_field(_atd_read_nullable(readPosition), x['context_end'], x),
-  };
-}
-
-export function writeCliMatch(x: CliMatch, context: any = x): any {
-  return {
-    'check_id': _atd_write_required_field('CliMatch', 'check_id', writeRuleId, x.check_id, x),
-    'path': _atd_write_required_field('CliMatch', 'path', writeFpath, x.path, x),
-    'start': _atd_write_required_field('CliMatch', 'start', writePosition, x.start, x),
-    'end': _atd_write_required_field('CliMatch', 'end', writePosition, x.end, x),
-    'extra': _atd_write_required_field('CliMatch', 'extra', writeCliMatchExtra, x.extra, x),
-  };
-}
-
-export function readCliMatch(x: any, context: any = x): CliMatch {
-  return {
-    check_id: _atd_read_required_field('CliMatch', 'check_id', readRuleId, x['check_id'], x),
-    path: _atd_read_required_field('CliMatch', 'path', readFpath, x['path'], x),
-    start: _atd_read_required_field('CliMatch', 'start', readPosition, x['start'], x),
-    end: _atd_read_required_field('CliMatch', 'end', readPosition, x['end'], x),
-    extra: _atd_read_required_field('CliMatch', 'extra', readCliMatchExtra, x['extra'], x),
-  };
-}
-
-export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
-  return {
-    'metavars': _atd_write_optional_field(writeMetavars, x.metavars, x),
-    'fingerprint': _atd_write_required_field('CliMatchExtra', 'fingerprint', _atd_write_string, x.fingerprint, x),
-    'lines': _atd_write_required_field('CliMatchExtra', 'lines', _atd_write_string, x.lines, x),
-    'message': _atd_write_required_field('CliMatchExtra', 'message', _atd_write_string, x.message, x),
-    'metadata': _atd_write_required_field('CliMatchExtra', 'metadata', writeRawJson, x.metadata, x),
-    'severity': _atd_write_required_field('CliMatchExtra', 'severity', _atd_write_string, x.severity, x),
-    'fix': _atd_write_optional_field(_atd_write_string, x.fix, x),
-    'fix_regex': _atd_write_optional_field(writeFixRegex, x.fix_regex, x),
-    'is_ignored': _atd_write_optional_field(_atd_write_bool, x.is_ignored, x),
-    'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
-    'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
-    'dataflow_trace': _atd_write_optional_field(writeCliMatchDataflowTrace, x.dataflow_trace, x),
-    'engine_kind': _atd_write_optional_field(writeEngineKind, x.engine_kind, x),
-    'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
-    'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
-  };
-}
-
-export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
-  return {
-    metavars: _atd_read_optional_field(readMetavars, x['metavars'], x),
-    fingerprint: _atd_read_required_field('CliMatchExtra', 'fingerprint', _atd_read_string, x['fingerprint'], x),
-    lines: _atd_read_required_field('CliMatchExtra', 'lines', _atd_read_string, x['lines'], x),
-    message: _atd_read_required_field('CliMatchExtra', 'message', _atd_read_string, x['message'], x),
-    metadata: _atd_read_required_field('CliMatchExtra', 'metadata', readRawJson, x['metadata'], x),
-    severity: _atd_read_required_field('CliMatchExtra', 'severity', _atd_read_string, x['severity'], x),
-    fix: _atd_read_optional_field(_atd_read_string, x['fix'], x),
-    fix_regex: _atd_read_optional_field(readFixRegex, x['fix_regex'], x),
-    is_ignored: _atd_read_optional_field(_atd_read_bool, x['is_ignored'], x),
-    sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
-    fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
-    dataflow_trace: _atd_read_optional_field(readCliMatchDataflowTrace, x['dataflow_trace'], x),
-    engine_kind: _atd_read_optional_field(readEngineKind, x['engine_kind'], x),
-    validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
-    extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
-  };
-}
-
-export function writeFixRegex(x: FixRegex, context: any = x): any {
-  return {
-    'regex': _atd_write_required_field('FixRegex', 'regex', _atd_write_string, x.regex, x),
-    'replacement': _atd_write_required_field('FixRegex', 'replacement', _atd_write_string, x.replacement, x),
-    'count': _atd_write_optional_field(_atd_write_int, x.count, x),
-  };
-}
-
-export function readFixRegex(x: any, context: any = x): FixRegex {
-  return {
-    regex: _atd_read_required_field('FixRegex', 'regex', _atd_read_string, x['regex'], x),
-    replacement: _atd_read_required_field('FixRegex', 'replacement', _atd_read_string, x['replacement'], x),
-    count: _atd_read_optional_field(_atd_read_int, x['count'], x),
-  };
-}
-
-export function writeValidationState(x: ValidationState, context: any = x): any {
-  switch (x.kind) {
-    case 'CONFIRMED_VALID':
-      return 'CONFIRMED_VALID'
-    case 'CONFIRMED_INVALID':
-      return 'CONFIRMED_INVALID'
-    case 'VALIDATION_ERROR':
-      return 'VALIDATION_ERROR'
-    case 'NO_VALIDATOR':
-      return 'NO_VALIDATOR'
-  }
-}
-
-export function readValidationState(x: any, context: any = x): ValidationState {
-  switch (x) {
-    case 'CONFIRMED_VALID':
-      return { kind: 'CONFIRMED_VALID' }
-    case 'CONFIRMED_INVALID':
-      return { kind: 'CONFIRMED_INVALID' }
-    case 'VALIDATION_ERROR':
-      return { kind: 'VALIDATION_ERROR' }
-    case 'NO_VALIDATOR':
-      return { kind: 'NO_VALIDATOR' }
-    default:
-      _atd_bad_json('ValidationState', x, context)
-      throw new Error('impossible')
-  }
-}
-
 export function writeCliOutput(x: CliOutput, context: any = x): any {
   return {
     'version': _atd_write_optional_field(writeVersion, x.version, x),
@@ -1407,90 +1491,6 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
     rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
-  };
-}
-
-export function writeCliPaths(x: CliPaths, context: any = x): any {
-  return {
-    'scanned': _atd_write_required_field('CliPaths', 'scanned', _atd_write_array(_atd_write_string), x.scanned, x),
-    '_comment': _atd_write_optional_field(_atd_write_string, x._comment, x),
-    'skipped': _atd_write_optional_field(_atd_write_array(writeCliSkippedTarget), x.skipped, x),
-  };
-}
-
-export function readCliPaths(x: any, context: any = x): CliPaths {
-  return {
-    scanned: _atd_read_required_field('CliPaths', 'scanned', _atd_read_array(_atd_read_string), x['scanned'], x),
-    _comment: _atd_read_optional_field(_atd_read_string, x['_comment'], x),
-    skipped: _atd_read_optional_field(_atd_read_array(readCliSkippedTarget), x['skipped'], x),
-  };
-}
-
-export function writeCliSkippedTarget(x: CliSkippedTarget, context: any = x): any {
-  return {
-    'path': _atd_write_required_field('CliSkippedTarget', 'path', writeFpath, x.path, x),
-    'reason': _atd_write_required_field('CliSkippedTarget', 'reason', writeSkipReason, x.reason, x),
-  };
-}
-
-export function readCliSkippedTarget(x: any, context: any = x): CliSkippedTarget {
-  return {
-    path: _atd_read_required_field('CliSkippedTarget', 'path', readFpath, x['path'], x),
-    reason: _atd_read_required_field('CliSkippedTarget', 'reason', readSkipReason, x['reason'], x),
-  };
-}
-
-export function writeCliTiming(x: CliTiming, context: any = x): any {
-  return {
-    'rules': _atd_write_required_field('CliTiming', 'rules', _atd_write_array(writeRuleIdDict), x.rules, x),
-    'rules_parse_time': _atd_write_required_field('CliTiming', 'rules_parse_time', _atd_write_float, x.rules_parse_time, x),
-    'profiling_times': _atd_write_required_field('CliTiming', 'profiling_times', _atd_write_assoc_map_to_object(_atd_write_float), x.profiling_times, x),
-    'targets': _atd_write_required_field('CliTiming', 'targets', _atd_write_array(writeCliTargetTimes), x.targets, x),
-    'total_bytes': _atd_write_required_field('CliTiming', 'total_bytes', _atd_write_int, x.total_bytes, x),
-    'max_memory_bytes': _atd_write_optional_field(_atd_write_int, x.max_memory_bytes, x),
-  };
-}
-
-export function readCliTiming(x: any, context: any = x): CliTiming {
-  return {
-    rules: _atd_read_required_field('CliTiming', 'rules', _atd_read_array(readRuleIdDict), x['rules'], x),
-    rules_parse_time: _atd_read_required_field('CliTiming', 'rules_parse_time', _atd_read_float, x['rules_parse_time'], x),
-    profiling_times: _atd_read_required_field('CliTiming', 'profiling_times', _atd_read_assoc_object_into_map(_atd_read_float), x['profiling_times'], x),
-    targets: _atd_read_required_field('CliTiming', 'targets', _atd_read_array(readCliTargetTimes), x['targets'], x),
-    total_bytes: _atd_read_required_field('CliTiming', 'total_bytes', _atd_read_int, x['total_bytes'], x),
-    max_memory_bytes: _atd_read_optional_field(_atd_read_int, x['max_memory_bytes'], x),
-  };
-}
-
-export function writeRuleIdDict(x: RuleIdDict, context: any = x): any {
-  return {
-    'id': _atd_write_required_field('RuleIdDict', 'id', writeRuleId, x.id, x),
-  };
-}
-
-export function readRuleIdDict(x: any, context: any = x): RuleIdDict {
-  return {
-    id: _atd_read_required_field('RuleIdDict', 'id', readRuleId, x['id'], x),
-  };
-}
-
-export function writeCliTargetTimes(x: CliTargetTimes, context: any = x): any {
-  return {
-    'path': _atd_write_required_field('CliTargetTimes', 'path', writeFpath, x.path, x),
-    'num_bytes': _atd_write_required_field('CliTargetTimes', 'num_bytes', _atd_write_int, x.num_bytes, x),
-    'match_times': _atd_write_required_field('CliTargetTimes', 'match_times', _atd_write_array(_atd_write_float), x.match_times, x),
-    'parse_times': _atd_write_required_field('CliTargetTimes', 'parse_times', _atd_write_array(_atd_write_float), x.parse_times, x),
-    'run_time': _atd_write_required_field('CliTargetTimes', 'run_time', _atd_write_float, x.run_time, x),
-  };
-}
-
-export function readCliTargetTimes(x: any, context: any = x): CliTargetTimes {
-  return {
-    path: _atd_read_required_field('CliTargetTimes', 'path', readFpath, x['path'], x),
-    num_bytes: _atd_read_required_field('CliTargetTimes', 'num_bytes', _atd_read_int, x['num_bytes'], x),
-    match_times: _atd_read_required_field('CliTargetTimes', 'match_times', _atd_read_array(_atd_read_float), x['match_times'], x),
-    parse_times: _atd_read_required_field('CliTargetTimes', 'parse_times', _atd_read_array(_atd_read_float), x['parse_times'], x),
-    run_time: _atd_read_required_field('CliTargetTimes', 'run_time', _atd_read_float, x['run_time'], x),
   };
 }
 
