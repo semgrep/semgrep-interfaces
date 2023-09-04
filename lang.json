@@ -106,7 +106,16 @@
     "exts": [
       ".cc",
       ".cpp",
-      ".h"
+      ".cxx",
+      ".c++",
+      ".pcc",
+      ".tpp",
+      ".h",
+      ".hh",
+      ".hpp",
+      ".hxx",
+      ".inl",
+      ".ipp"
     ],
     "example_ext": ".cpp",
     "excluded_exts": [],
