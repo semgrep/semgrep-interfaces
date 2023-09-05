@@ -23,6 +23,8 @@ $defs:
         type: object
       body:
         type: string
+      auth:
+        type: object
   # EXPERIMENTAL
   response-content:
     properties:
