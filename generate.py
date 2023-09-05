@@ -246,7 +246,9 @@ LANGUAGES : List[Language] = [
         id_="cpp",
         name="C++",
         keys=["cpp", "c++"],
-        exts=[".cc", ".cpp", ".h"],
+        # Extensions are taken directly from tokei's language JSON file:
+        #   https://github.com/XAMPPRocky/tokei/blob/master/languages.json
+        exts=[".cc", ".cpp", ".cxx", ".c++", ".pcc", ".tpp", ".h", ".hh", ".hpp", ".hxx", ".inl", ".ipp"],
         example_ext=".cpp",
         maturity=Maturity.ALPHA,
         shebangs=[]
