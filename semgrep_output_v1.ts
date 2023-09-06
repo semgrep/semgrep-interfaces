@@ -184,7 +184,6 @@ export type ErrorSpan = {
 }
 
 export type SkipReason =
-| { kind: 'Gitignore_patterns_match' /* JSON: "gitignore_patterns_match" */ }
 | { kind: 'Always_skipped' /* JSON: "always_skipped" */ }
 | { kind: 'Semgrepignore_patterns_match' /* JSON: "semgrepignore_patterns_match" */ }
 | { kind: 'Cli_include_flags_do_not_match' /* JSON: "cli_include_flags_do_not_match" */ }
@@ -198,6 +197,20 @@ export type SkipReason =
 | { kind: 'Binary' /* JSON: "binary" */ }
 | { kind: 'Irrelevant_rule' /* JSON: "irrelevant_rule" */ }
 | { kind: 'Too_many_matches' /* JSON: "too_many_matches" */ }
+| { kind: 'Gitignore_patterns_match' /* JSON: "gitignore_patterns_match" */ }
+
+export type SkippedTarget = {
+  path: Fpath;
+  reason: SkipReason;
+  details?: string;
+  rule_id?: RuleId;
+}
+
+export type ScannedAndSkipped = {
+  scanned: string[];
+  _comment?: string;
+  skipped?: SkippedTarget[];
+}
 
 export type SkippedRule = {
   rule_id: RuleId;
@@ -205,27 +218,9 @@ export type SkippedRule = {
   position: Position;
 }
 
-export type SkippedTarget = {
-  path: Fpath;
-  reason: SkipReason;
-  details: string;
-  rule_id?: RuleId;
-}
-
-export type CliSkippedTarget = {
-  path: Fpath;
-  reason: SkipReason;
-}
-
 export type CoreStats = {
   okfiles: number /*int*/;
   errorfiles: number /*int*/;
-}
-
-export type CliPaths = {
-  scanned: string[];
-  _comment?: string;
-  skipped?: CliSkippedTarget[];
 }
 
 export type CoreTiming = {
@@ -321,7 +316,7 @@ export type CliOutput = {
   version?: Version;
   errors: CliError[];
   results: CliMatch[];
-  paths: CliPaths;
+  paths: ScannedAndSkipped;
   time?: CliTiming;
   explanations?: MatchingExplanation[];
   rules_by_engine?: RuleIdAndEngineKind[];
@@ -330,7 +325,7 @@ export type CliOutput = {
 }
 
 export type CliOutputExtra = {
-  paths: CliPaths;
+  paths: ScannedAndSkipped;
   time?: CliTiming;
   explanations?: MatchingExplanation[];
   rules_by_engine?: RuleIdAndEngineKind[];
@@ -1026,8 +1021,6 @@ export function readErrorSpan(x: any, context: any = x): ErrorSpan {
 
 export function writeSkipReason(x: SkipReason, context: any = x): any {
   switch (x.kind) {
-    case 'Gitignore_patterns_match':
-      return 'gitignore_patterns_match'
     case 'Always_skipped':
       return 'always_skipped'
     case 'Semgrepignore_patterns_match':
@@ -1054,13 +1047,13 @@ export function writeSkipReason(x: SkipReason, context: any = x): any {
       return 'irrelevant_rule'
     case 'Too_many_matches':
       return 'too_many_matches'
+    case 'Gitignore_patterns_match':
+      return 'gitignore_patterns_match'
   }
 }
 
 export function readSkipReason(x: any, context: any = x): SkipReason {
   switch (x) {
-    case 'gitignore_patterns_match':
-      return { kind: 'Gitignore_patterns_match' }
     case 'always_skipped':
       return { kind: 'Always_skipped' }
     case 'semgrepignore_patterns_match':
@@ -1087,10 +1080,46 @@ export function readSkipReason(x: any, context: any = x): SkipReason {
       return { kind: 'Irrelevant_rule' }
     case 'too_many_matches':
       return { kind: 'Too_many_matches' }
+    case 'gitignore_patterns_match':
+      return { kind: 'Gitignore_patterns_match' }
     default:
       _atd_bad_json('SkipReason', x, context)
       throw new Error('impossible')
   }
+}
+
+export function writeSkippedTarget(x: SkippedTarget, context: any = x): any {
+  return {
+    'path': _atd_write_required_field('SkippedTarget', 'path', writeFpath, x.path, x),
+    'reason': _atd_write_required_field('SkippedTarget', 'reason', writeSkipReason, x.reason, x),
+    'details': _atd_write_optional_field(_atd_write_string, x.details, x),
+    'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
+  };
+}
+
+export function readSkippedTarget(x: any, context: any = x): SkippedTarget {
+  return {
+    path: _atd_read_required_field('SkippedTarget', 'path', readFpath, x['path'], x),
+    reason: _atd_read_required_field('SkippedTarget', 'reason', readSkipReason, x['reason'], x),
+    details: _atd_read_optional_field(_atd_read_string, x['details'], x),
+    rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
+  };
+}
+
+export function writeScannedAndSkipped(x: ScannedAndSkipped, context: any = x): any {
+  return {
+    'scanned': _atd_write_required_field('ScannedAndSkipped', 'scanned', _atd_write_array(_atd_write_string), x.scanned, x),
+    '_comment': _atd_write_optional_field(_atd_write_string, x._comment, x),
+    'skipped': _atd_write_optional_field(_atd_write_array(writeSkippedTarget), x.skipped, x),
+  };
+}
+
+export function readScannedAndSkipped(x: any, context: any = x): ScannedAndSkipped {
+  return {
+    scanned: _atd_read_required_field('ScannedAndSkipped', 'scanned', _atd_read_array(_atd_read_string), x['scanned'], x),
+    _comment: _atd_read_optional_field(_atd_read_string, x['_comment'], x),
+    skipped: _atd_read_optional_field(_atd_read_array(readSkippedTarget), x['skipped'], x),
+  };
 }
 
 export function writeSkippedRule(x: SkippedRule, context: any = x): any {
@@ -1109,38 +1138,6 @@ export function readSkippedRule(x: any, context: any = x): SkippedRule {
   };
 }
 
-export function writeSkippedTarget(x: SkippedTarget, context: any = x): any {
-  return {
-    'path': _atd_write_required_field('SkippedTarget', 'path', writeFpath, x.path, x),
-    'reason': _atd_write_required_field('SkippedTarget', 'reason', writeSkipReason, x.reason, x),
-    'details': _atd_write_required_field('SkippedTarget', 'details', _atd_write_string, x.details, x),
-    'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
-  };
-}
-
-export function readSkippedTarget(x: any, context: any = x): SkippedTarget {
-  return {
-    path: _atd_read_required_field('SkippedTarget', 'path', readFpath, x['path'], x),
-    reason: _atd_read_required_field('SkippedTarget', 'reason', readSkipReason, x['reason'], x),
-    details: _atd_read_required_field('SkippedTarget', 'details', _atd_read_string, x['details'], x),
-    rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
-  };
-}
-
-export function writeCliSkippedTarget(x: CliSkippedTarget, context: any = x): any {
-  return {
-    'path': _atd_write_required_field('CliSkippedTarget', 'path', writeFpath, x.path, x),
-    'reason': _atd_write_required_field('CliSkippedTarget', 'reason', writeSkipReason, x.reason, x),
-  };
-}
-
-export function readCliSkippedTarget(x: any, context: any = x): CliSkippedTarget {
-  return {
-    path: _atd_read_required_field('CliSkippedTarget', 'path', readFpath, x['path'], x),
-    reason: _atd_read_required_field('CliSkippedTarget', 'reason', readSkipReason, x['reason'], x),
-  };
-}
-
 export function writeCoreStats(x: CoreStats, context: any = x): any {
   return {
     'okfiles': _atd_write_required_field('CoreStats', 'okfiles', _atd_write_int, x.okfiles, x),
@@ -1152,22 +1149,6 @@ export function readCoreStats(x: any, context: any = x): CoreStats {
   return {
     okfiles: _atd_read_required_field('CoreStats', 'okfiles', _atd_read_int, x['okfiles'], x),
     errorfiles: _atd_read_required_field('CoreStats', 'errorfiles', _atd_read_int, x['errorfiles'], x),
-  };
-}
-
-export function writeCliPaths(x: CliPaths, context: any = x): any {
-  return {
-    'scanned': _atd_write_required_field('CliPaths', 'scanned', _atd_write_array(_atd_write_string), x.scanned, x),
-    '_comment': _atd_write_optional_field(_atd_write_string, x._comment, x),
-    'skipped': _atd_write_optional_field(_atd_write_array(writeCliSkippedTarget), x.skipped, x),
-  };
-}
-
-export function readCliPaths(x: any, context: any = x): CliPaths {
-  return {
-    scanned: _atd_read_required_field('CliPaths', 'scanned', _atd_read_array(_atd_read_string), x['scanned'], x),
-    _comment: _atd_read_optional_field(_atd_read_string, x['_comment'], x),
-    skipped: _atd_read_optional_field(_atd_read_array(readCliSkippedTarget), x['skipped'], x),
   };
 }
 
@@ -1450,7 +1431,7 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
     'version': _atd_write_optional_field(writeVersion, x.version, x),
     'errors': _atd_write_required_field('CliOutput', 'errors', _atd_write_array(writeCliError), x.errors, x),
     'results': _atd_write_required_field('CliOutput', 'results', _atd_write_array(writeCliMatch), x.results, x),
-    'paths': _atd_write_required_field('CliOutput', 'paths', writeCliPaths, x.paths, x),
+    'paths': _atd_write_required_field('CliOutput', 'paths', writeScannedAndSkipped, x.paths, x),
     'time': _atd_write_optional_field(writeCliTiming, x.time, x),
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
@@ -1464,7 +1445,7 @@ export function readCliOutput(x: any, context: any = x): CliOutput {
     version: _atd_read_optional_field(readVersion, x['version'], x),
     errors: _atd_read_required_field('CliOutput', 'errors', _atd_read_array(readCliError), x['errors'], x),
     results: _atd_read_required_field('CliOutput', 'results', _atd_read_array(readCliMatch), x['results'], x),
-    paths: _atd_read_required_field('CliOutput', 'paths', readCliPaths, x['paths'], x),
+    paths: _atd_read_required_field('CliOutput', 'paths', readScannedAndSkipped, x['paths'], x),
     time: _atd_read_optional_field(readCliTiming, x['time'], x),
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
@@ -1475,7 +1456,7 @@ export function readCliOutput(x: any, context: any = x): CliOutput {
 
 export function writeCliOutputExtra(x: CliOutputExtra, context: any = x): any {
   return {
-    'paths': _atd_write_required_field('CliOutputExtra', 'paths', writeCliPaths, x.paths, x),
+    'paths': _atd_write_required_field('CliOutputExtra', 'paths', writeScannedAndSkipped, x.paths, x),
     'time': _atd_write_optional_field(writeCliTiming, x.time, x),
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
@@ -1486,7 +1467,7 @@ export function writeCliOutputExtra(x: CliOutputExtra, context: any = x): any {
 
 export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
   return {
-    paths: _atd_read_required_field('CliOutputExtra', 'paths', readCliPaths, x['paths'], x),
+    paths: _atd_read_required_field('CliOutputExtra', 'paths', readScannedAndSkipped, x['paths'], x),
     time: _atd_read_optional_field(readCliTiming, x['time'], x),
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),

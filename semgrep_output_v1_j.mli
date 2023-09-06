@@ -132,18 +132,18 @@ type target_time = Semgrep_output_v1_t.target_time = {
   [@@deriving show]
 
 type skip_reason = Semgrep_output_v1_t.skip_reason = 
-    Gitignore_patterns_match | Always_skipped | Semgrepignore_patterns_match
+    Always_skipped | Semgrepignore_patterns_match
   | Cli_include_flags_do_not_match | Cli_exclude_flags_match
   | Exceeded_size_limit | Analysis_failed_parser_or_internal_error
   | Excluded_by_config | Wrong_language | Too_big | Minified | Binary
-  | Irrelevant_rule | Too_many_matches
+  | Irrelevant_rule | Too_many_matches | Gitignore_patterns_match
 
   [@@deriving show]
 
 type skipped_target = Semgrep_output_v1_t.skipped_target = {
   path: fpath;
   reason: skip_reason;
-  details: string;
+  details: string option;
   rule_id: rule_id option
 }
   [@@deriving show]
@@ -152,6 +152,13 @@ type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
   rule_id: rule_id;
   details: string;
   position: position
+}
+  [@@deriving show]
+
+type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
+  scanned: string list;
+  _comment: string option;
+  skipped: skipped_target list option
 }
   [@@deriving show]
 
@@ -399,21 +406,8 @@ type cli_timing = Semgrep_output_v1_t.cli_timing = {
 }
   [@@deriving show]
 
-type cli_skipped_target = Semgrep_output_v1_t.cli_skipped_target = {
-  path: fpath;
-  reason: skip_reason
-}
-  [@@deriving show]
-
-type cli_paths = Semgrep_output_v1_t.cli_paths = {
-  scanned: string list;
-  _comment: string option;
-  skipped: cli_skipped_target list option
-}
-  [@@deriving show]
-
 type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
-  paths: cli_paths;
+  paths: scanned_and_skipped;
   time: cli_timing option;
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list option;
@@ -468,7 +462,7 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   version: version option;
   errors: cli_error list;
   results: cli_match list;
-  paths: cli_paths;
+  paths: scanned_and_skipped;
   time: cli_timing option;
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list option;
@@ -992,6 +986,26 @@ val read_skipped_rule :
 val skipped_rule_of_string :
   string -> skipped_rule
   (** Deserialize JSON data of type {!type:skipped_rule}. *)
+
+val write_scanned_and_skipped :
+  Buffer.t -> scanned_and_skipped -> unit
+  (** Output a JSON value of type {!type:scanned_and_skipped}. *)
+
+val string_of_scanned_and_skipped :
+  ?len:int -> scanned_and_skipped -> string
+  (** Serialize a value of type {!type:scanned_and_skipped}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_scanned_and_skipped :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scanned_and_skipped
+  (** Input JSON data of type {!type:scanned_and_skipped}. *)
+
+val scanned_and_skipped_of_string :
+  string -> scanned_and_skipped
+  (** Deserialize JSON data of type {!type:scanned_and_skipped}. *)
 
 val write_sca_parser_name :
   Buffer.t -> sca_parser_name -> unit
@@ -1592,46 +1606,6 @@ val read_cli_timing :
 val cli_timing_of_string :
   string -> cli_timing
   (** Deserialize JSON data of type {!type:cli_timing}. *)
-
-val write_cli_skipped_target :
-  Buffer.t -> cli_skipped_target -> unit
-  (** Output a JSON value of type {!type:cli_skipped_target}. *)
-
-val string_of_cli_skipped_target :
-  ?len:int -> cli_skipped_target -> string
-  (** Serialize a value of type {!type:cli_skipped_target}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cli_skipped_target :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_skipped_target
-  (** Input JSON data of type {!type:cli_skipped_target}. *)
-
-val cli_skipped_target_of_string :
-  string -> cli_skipped_target
-  (** Deserialize JSON data of type {!type:cli_skipped_target}. *)
-
-val write_cli_paths :
-  Buffer.t -> cli_paths -> unit
-  (** Output a JSON value of type {!type:cli_paths}. *)
-
-val string_of_cli_paths :
-  ?len:int -> cli_paths -> string
-  (** Serialize a value of type {!type:cli_paths}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cli_paths :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_paths
-  (** Input JSON data of type {!type:cli_paths}. *)
-
-val cli_paths_of_string :
-  string -> cli_paths
-  (** Deserialize JSON data of type {!type:cli_paths}. *)
 
 val write_cli_output_extra :
   Buffer.t -> cli_output_extra -> unit

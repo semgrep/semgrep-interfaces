@@ -44,10 +44,6 @@
  *   - see the TODO: (high-prio) and LATER: (low-prio) tags in this file
  *)
 
-(*****************************************************************************)
-(* Imports *)
-(*****************************************************************************)
-
 (* escape hatch *)
 type raw_json <ocaml module="Yojson.Basic" t="t" attr="deriving show"> = abstract
 
@@ -447,8 +443,6 @@ type error_span <ocaml attr="deriving show"> = {
 type skip_reason
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = [
-  (* New in osemgrep *)
-  | Gitignore_patterns_match <json name="gitignore_patterns_match">
   (* Originally returned by the Python CLI *)
   | Always_skipped <json name="always_skipped">
   | Semgrepignore_patterns_match <json name="semgrepignore_patterns_match">
@@ -465,7 +459,34 @@ type skip_reason
   | Binary <json name="binary">
   | Irrelevant_rule <json name="irrelevant_rule">
   | Too_many_matches <json name="too_many_matches">
+  (* New in osemgrep *)
+  | Gitignore_patterns_match <json name="gitignore_patterns_match">
 ] <ocaml repr="classic">
+
+(* coupling: ugly: with yield_json_objects() in target_manager.py *)
+type skipped_target
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = {
+  path: fpath;
+  reason: skip_reason;
+  (* since semgrep 1.39.0 (used to be return only by semgrep-core) *)
+  ?details: string option;
+  (* If the 'rule_id' field is missing, the target is assumed to have been
+   * skipped for all the rules *)
+  ?rule_id: rule_id option;
+}
+
+type scanned_and_skipped <ocaml attr="deriving show"> = {
+    scanned: string list;
+    (* really either _comment: (saying "you should use -v to get more info")
+     * or skipped:. We should have used a variant.
+     *)
+    ?_comment: string option;
+    (* TODO: needs fix in atdpy; see note tagged [X584759]
+     * ~skipped: skipped_target list;
+    *)
+    ?skipped: skipped_target list option;
+}
 
 type skipped_rule
   <ocaml attr="deriving show">
@@ -474,32 +495,6 @@ type skipped_rule
   details: string;
   (* position of the error in the rule file *)
   position: position;
-}
-
-(* ----------------------------- *)
-(* Core *)
-(* ----------------------------- *)
-(* If the 'rule_id' field is missing, the target is assumed to have
- *  been skipped for all the rules.
- *)
-type skipped_target
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = {
-  path: fpath;
-  reason: skip_reason;
-  details: string;
-  ?rule_id: rule_id option;
-}
-
-(* ----------------------------- *)
-(* CLI *)
-(* ----------------------------- *)
-(* LATER: could merge with skipped_target above.
- * coupling: with yield_json_objects() in target_manager.py
- *)
-type cli_skipped_target <ocaml attr="deriving show"> = {
-    path: fpath;
-    reason: skip_reason;
 }
 
 (*****************************************************************************)
@@ -519,17 +514,6 @@ type core_stats
 (* ----------------------------- *)
 (* CLI *)
 (* ----------------------------- *)
-
-type cli_paths <ocaml attr="deriving show"> = {
-    scanned: string list;
-    (* LATER: either _comment or skipped:, use a variant *)
-    ?_comment: string option;
-(*  TODO: needs fix in atdpy; see note tagged [X584759]
-    ~skipped: cli_skipped_target list;
-*)
-    ?skipped: cli_skipped_target list option;
-}
-
 
 (*****************************************************************************)
 (* Profiling information *)
@@ -747,7 +731,7 @@ type cli_output <ocaml attr="deriving show"> = {
 }
 
 type cli_output_extra <ocaml attr="deriving show"> = {
-    paths: cli_paths;
+    paths: scanned_and_skipped;
     ?time: cli_timing option;
     (* used only in TEXT format:
        ?color_output, per_finding_max_lines_limit, per_line_max_chars_limit

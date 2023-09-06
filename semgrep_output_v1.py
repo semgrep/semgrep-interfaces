@@ -1357,23 +1357,6 @@ class TargetTime:
 
 
 @dataclass(frozen=True)
-class GitignorePatternsMatch:
-    """Original type: skip_reason = [ ... | Gitignore_patterns_match | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'GitignorePatternsMatch'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'gitignore_patterns_match'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
 class AlwaysSkipped:
     """Original type: skip_reason = [ ... | Always_skipped | ... ]"""
 
@@ -1595,10 +1578,27 @@ class TooManyMatches:
 
 
 @dataclass(frozen=True)
+class GitignorePatternsMatch:
+    """Original type: skip_reason = [ ... | Gitignore_patterns_match | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'GitignorePatternsMatch'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'gitignore_patterns_match'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class SkipReason:
     """Original type: skip_reason = [ ... ]"""
 
-    value: Union[GitignorePatternsMatch, AlwaysSkipped, SemgrepignorePatternsMatch, CliIncludeFlagsDoNotMatch, CliExcludeFlagsMatch, ExceededSizeLimit, AnalysisFailedParserOrInternalError, ExcludedByConfig, WrongLanguage, TooBig, Minified, Binary, IrrelevantRule, TooManyMatches]
+    value: Union[AlwaysSkipped, SemgrepignorePatternsMatch, CliIncludeFlagsDoNotMatch, CliExcludeFlagsMatch, ExceededSizeLimit, AnalysisFailedParserOrInternalError, ExcludedByConfig, WrongLanguage, TooBig, Minified, Binary, IrrelevantRule, TooManyMatches, GitignorePatternsMatch]
 
     @property
     def kind(self) -> str:
@@ -1608,8 +1608,6 @@ class SkipReason:
     @classmethod
     def from_json(cls, x: Any) -> 'SkipReason':
         if isinstance(x, str):
-            if x == 'gitignore_patterns_match':
-                return cls(GitignorePatternsMatch())
             if x == 'always_skipped':
                 return cls(AlwaysSkipped())
             if x == 'semgrepignore_patterns_match':
@@ -1636,6 +1634,8 @@ class SkipReason:
                 return cls(IrrelevantRule())
             if x == 'too_many_matches':
                 return cls(TooManyMatches())
+            if x == 'gitignore_patterns_match':
+                return cls(GitignorePatternsMatch())
             _atd_bad_json('SkipReason', x)
         _atd_bad_json('SkipReason', x)
 
@@ -1656,7 +1656,7 @@ class SkippedTarget:
 
     path: Fpath
     reason: SkipReason
-    details: str
+    details: Optional[str] = None
     rule_id: Optional[RuleId] = None
 
     @classmethod
@@ -1665,7 +1665,7 @@ class SkippedTarget:
             return cls(
                 path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('SkippedTarget', 'path'),
                 reason=SkipReason.from_json(x['reason']) if 'reason' in x else _atd_missing_json_field('SkippedTarget', 'reason'),
-                details=_atd_read_string(x['details']) if 'details' in x else _atd_missing_json_field('SkippedTarget', 'details'),
+                details=_atd_read_string(x['details']) if 'details' in x else None,
                 rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else None,
             )
         else:
@@ -1675,7 +1675,8 @@ class SkippedTarget:
         res: Dict[str, Any] = {}
         res['path'] = (lambda x: x.to_json())(self.path)
         res['reason'] = (lambda x: x.to_json())(self.reason)
-        res['details'] = _atd_write_string(self.details)
+        if self.details is not None:
+            res['details'] = _atd_write_string(self.details)
         if self.rule_id is not None:
             res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
         return res
@@ -1716,6 +1717,42 @@ class SkippedRule:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'SkippedRule':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScannedAndSkipped:
+    """Original type: scanned_and_skipped = { ... }"""
+
+    scanned: List[str]
+    _comment: Optional[str] = None
+    skipped: Optional[List[SkippedTarget]] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScannedAndSkipped':
+        if isinstance(x, dict):
+            return cls(
+                scanned=_atd_read_list(_atd_read_string)(x['scanned']) if 'scanned' in x else _atd_missing_json_field('ScannedAndSkipped', 'scanned'),
+                _comment=_atd_read_string(x['_comment']) if '_comment' in x else None,
+                skipped=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
+            )
+        else:
+            _atd_bad_json('ScannedAndSkipped', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['scanned'] = _atd_write_list(_atd_write_string)(self.scanned)
+        if self._comment is not None:
+            res['_comment'] = _atd_write_string(self._comment)
+        if self.skipped is not None:
+            res['skipped'] = _atd_write_list((lambda x: x.to_json()))(self.skipped)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScannedAndSkipped':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -3697,77 +3734,10 @@ class CliTiming:
 
 
 @dataclass
-class CliSkippedTarget:
-    """Original type: cli_skipped_target = { ... }"""
-
-    path: Fpath
-    reason: SkipReason
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CliSkippedTarget':
-        if isinstance(x, dict):
-            return cls(
-                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('CliSkippedTarget', 'path'),
-                reason=SkipReason.from_json(x['reason']) if 'reason' in x else _atd_missing_json_field('CliSkippedTarget', 'reason'),
-            )
-        else:
-            _atd_bad_json('CliSkippedTarget', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['path'] = (lambda x: x.to_json())(self.path)
-        res['reason'] = (lambda x: x.to_json())(self.reason)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CliSkippedTarget':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class CliPaths:
-    """Original type: cli_paths = { ... }"""
-
-    scanned: List[str]
-    _comment: Optional[str] = None
-    skipped: Optional[List[CliSkippedTarget]] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CliPaths':
-        if isinstance(x, dict):
-            return cls(
-                scanned=_atd_read_list(_atd_read_string)(x['scanned']) if 'scanned' in x else _atd_missing_json_field('CliPaths', 'scanned'),
-                _comment=_atd_read_string(x['_comment']) if '_comment' in x else None,
-                skipped=_atd_read_list(CliSkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
-            )
-        else:
-            _atd_bad_json('CliPaths', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['scanned'] = _atd_write_list(_atd_write_string)(self.scanned)
-        if self._comment is not None:
-            res['_comment'] = _atd_write_string(self._comment)
-        if self.skipped is not None:
-            res['skipped'] = _atd_write_list((lambda x: x.to_json()))(self.skipped)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CliPaths':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class CliOutputExtra:
     """Original type: cli_output_extra = { ... }"""
 
-    paths: CliPaths
+    paths: ScannedAndSkipped
     time: Optional[CliTiming] = None
     explanations: Optional[List[MatchingExplanation]] = None
     rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
@@ -3778,7 +3748,7 @@ class CliOutputExtra:
     def from_json(cls, x: Any) -> 'CliOutputExtra':
         if isinstance(x, dict):
             return cls(
-                paths=CliPaths.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutputExtra', 'paths'),
+                paths=ScannedAndSkipped.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutputExtra', 'paths'),
                 time=CliTiming.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
@@ -3998,7 +3968,7 @@ class CliOutput:
 
     errors: List[CliError]
     results: List[CliMatch]
-    paths: CliPaths
+    paths: ScannedAndSkipped
     version: Optional[Version] = None
     time: Optional[CliTiming] = None
     explanations: Optional[List[MatchingExplanation]] = None
@@ -4012,7 +3982,7 @@ class CliOutput:
             return cls(
                 errors=_atd_read_list(CliError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CliOutput', 'errors'),
                 results=_atd_read_list(CliMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CliOutput', 'results'),
-                paths=CliPaths.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutput', 'paths'),
+                paths=ScannedAndSkipped.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutput', 'paths'),
                 version=Version.from_json(x['version']) if 'version' in x else None,
                 time=CliTiming.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
