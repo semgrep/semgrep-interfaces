@@ -14,7 +14,7 @@
       "type": "array",
       "items": { "$ref": "#/definitions/cli_match" }
     },
-    "paths": { "$ref": "#/definitions/cli_paths" },
+    "paths": { "$ref": "#/definitions/scanned_and_skipped" },
     "time": { "$ref": "#/definitions/cli_timing" },
     "explanations": {
       "type": "array",
@@ -340,7 +340,6 @@
     },
     "skip_reason": {
       "oneOf": [
-        { "const": "gitignore_patterns_match" },
         { "const": "always_skipped" },
         { "const": "semgrepignore_patterns_match" },
         { "const": "cli_include_flags_do_not_match" },
@@ -353,8 +352,31 @@
         { "const": "minified" },
         { "const": "binary" },
         { "const": "irrelevant_rule" },
-        { "const": "too_many_matches" }
+        { "const": "too_many_matches" },
+        { "const": "gitignore_patterns_match" }
       ]
+    },
+    "skipped_target": {
+      "type": "object",
+      "required": [ "path", "reason" ],
+      "properties": {
+        "path": { "$ref": "#/definitions/fpath" },
+        "reason": { "$ref": "#/definitions/skip_reason" },
+        "details": { "type": "string" },
+        "rule_id": { "$ref": "#/definitions/rule_id" }
+      }
+    },
+    "scanned_and_skipped": {
+      "type": "object",
+      "required": [ "scanned" ],
+      "properties": {
+        "scanned": { "type": "array", "items": { "type": "string" } },
+        "_comment": { "type": "string" },
+        "skipped": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/skipped_target" }
+        }
+      }
     },
     "skipped_rule": {
       "type": "object",
@@ -365,42 +387,12 @@
         "position": { "$ref": "#/definitions/position" }
       }
     },
-    "skipped_target": {
-      "type": "object",
-      "required": [ "path", "reason", "details" ],
-      "properties": {
-        "path": { "$ref": "#/definitions/fpath" },
-        "reason": { "$ref": "#/definitions/skip_reason" },
-        "details": { "type": "string" },
-        "rule_id": { "$ref": "#/definitions/rule_id" }
-      }
-    },
-    "cli_skipped_target": {
-      "type": "object",
-      "required": [ "path", "reason" ],
-      "properties": {
-        "path": { "$ref": "#/definitions/fpath" },
-        "reason": { "$ref": "#/definitions/skip_reason" }
-      }
-    },
     "core_stats": {
       "type": "object",
       "required": [ "okfiles", "errorfiles" ],
       "properties": {
         "okfiles": { "type": "integer" },
         "errorfiles": { "type": "integer" }
-      }
-    },
-    "cli_paths": {
-      "type": "object",
-      "required": [ "scanned" ],
-      "properties": {
-        "scanned": { "type": "array", "items": { "type": "string" } },
-        "_comment": { "type": "string" },
-        "skipped": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/cli_skipped_target" }
-        }
       }
     },
     "core_timing": {
@@ -601,7 +593,7 @@
       "type": "object",
       "required": [ "paths" ],
       "properties": {
-        "paths": { "$ref": "#/definitions/cli_paths" },
+        "paths": { "$ref": "#/definitions/scanned_and_skipped" },
         "time": { "$ref": "#/definitions/cli_timing" },
         "explanations": {
           "type": "array",
