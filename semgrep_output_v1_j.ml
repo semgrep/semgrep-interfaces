@@ -254,7 +254,8 @@ type finding = Semgrep_output_v1_t.finding = {
   is_blocking: bool;
   fixed_lines: string list option;
   sca_info: sca_info option;
-  dataflow_trace: cli_match_dataflow_trace option
+  dataflow_trace: cli_match_dataflow_trace option;
+  validation_state: validation_state option
 }
   [@@deriving show]
 
@@ -626,7 +627,7 @@ let read_fpath = (
 let fpath_of_string s =
   read_fpath (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_matching_operation : _ -> matching_operation -> _ = (
-  fun ob x ->
+  fun ob (x : matching_operation) ->
     match x with
       | And -> Buffer.add_string ob "\"And\""
       | Or -> Buffer.add_string ob "\"Or\""
@@ -2203,7 +2204,7 @@ let read__validation_state_option = (
 let _validation_state_option_of_string s =
   read__validation_state_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let rec write_cli_match_call_trace : _ -> cli_match_call_trace -> _ = (
-  fun ob x ->
+  fun ob (x : cli_match_call_trace) ->
     match x with
       | CliLoc x ->
         Buffer.add_string ob "[\"CliLoc\",";
@@ -4394,7 +4395,7 @@ let read_target_time = (
 let target_time_of_string s =
   read_target_time (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_skip_reason : _ -> skip_reason -> _ = (
-  fun ob x ->
+  fun ob (x : skip_reason) ->
     match x with
       | Gitignore_patterns_match -> Buffer.add_string ob "\"gitignore_patterns_match\""
       | Always_skipped -> Buffer.add_string ob "\"always_skipped\""
@@ -8217,6 +8218,17 @@ let write_finding : _ -> finding -> _ = (
       )
         ob x;
     );
+    (match x.validation_state with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"validation_state\":";
+      (
+        write_validation_state
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_finding ?(len = 1024) x =
@@ -8245,6 +8257,7 @@ let read_finding = (
     let field_fixed_lines = ref (None) in
     let field_sca_info = ref (None) in
     let field_dataflow_trace = ref (None) in
+    let field_validation_state = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -8434,6 +8447,14 @@ let read_finding = (
                       -1
                     )
               )
+            | 16 -> (
+                if String.unsafe_get s pos = 'v' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'e' then (
+                  18
+                )
+                else (
+                  -1
+                )
+              )
             | _ -> (
                 -1
               )
@@ -8592,6 +8613,16 @@ let read_finding = (
                 Some (
                   (
                     read_cli_match_dataflow_trace
+                  ) p lb
+                )
+              );
+            )
+          | 18 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_validation_state := (
+                Some (
+                  (
+                    read_validation_state
                   ) p lb
                 )
               );
@@ -8789,6 +8820,14 @@ let read_finding = (
                         -1
                       )
                 )
+              | 16 -> (
+                  if String.unsafe_get s pos = 'v' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'e' then (
+                    18
+                  )
+                  else (
+                    -1
+                  )
+                )
               | _ -> (
                   -1
                 )
@@ -8951,6 +8990,16 @@ let read_finding = (
                   )
                 );
               )
+            | 18 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_validation_state := (
+                  Some (
+                    (
+                      read_validation_state
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -8978,6 +9027,7 @@ let read_finding = (
             fixed_lines = !field_fixed_lines;
             sca_info = !field_sca_info;
             dataflow_trace = !field_dataflow_trace;
+            validation_state = !field_validation_state;
           }
          : finding)
       )
@@ -10751,7 +10801,7 @@ let read_core_stats = (
 let core_stats_of_string s =
   read_core_stats (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_severity : _ -> core_severity -> _ = (
-  fun ob x ->
+  fun ob (x : core_severity) ->
     match x with
       | Error -> Buffer.add_string ob "\"error\""
       | Warning -> Buffer.add_string ob "\"warning\""
@@ -11423,7 +11473,7 @@ let read__location_list = (
 let _location_list_of_string s =
   read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_error_kind : _ -> core_error_kind -> _ = (
-  fun ob x ->
+  fun ob (x : core_error_kind) ->
     match x with
       | LexicalError -> Buffer.add_string ob "\"Lexical error\""
       | ParseError -> Buffer.add_string ob "\"Syntax error\""

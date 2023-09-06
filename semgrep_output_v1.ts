@@ -492,6 +492,7 @@ export type Finding = {
   fixed_lines?: string[];
   sca_info?: ScaInfo;
   dataflow_trace?: CliMatchDataflowTrace;
+  validation_state?: ValidationState;
 }
 
 export type CveResult = {
@@ -1925,6 +1926,7 @@ export function writeFinding(x: Finding, context: any = x): any {
     'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
     'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
     'dataflow_trace': _atd_write_optional_field(writeCliMatchDataflowTrace, x.dataflow_trace, x),
+    'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
   };
 }
 
@@ -1948,6 +1950,7 @@ export function readFinding(x: any, context: any = x): Finding {
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
     sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
     dataflow_trace: _atd_read_optional_field(readCliMatchDataflowTrace, x['dataflow_trace'], x),
+    validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
   };
 }
 

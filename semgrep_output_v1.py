@@ -2641,6 +2641,7 @@ class Finding:
     fixed_lines: Optional[List[str]] = None
     sca_info: Optional[ScaInfo] = None
     dataflow_trace: Optional[CliMatchDataflowTrace] = None
+    validation_state: Optional[ValidationState] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Finding':
@@ -2664,6 +2665,7 @@ class Finding:
                 fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
                 sca_info=ScaInfo.from_json(x['sca_info']) if 'sca_info' in x else None,
                 dataflow_trace=CliMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
+                validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
             )
         else:
             _atd_bad_json('Finding', x)
@@ -2693,6 +2695,8 @@ class Finding:
             res['sca_info'] = (lambda x: x.to_json())(self.sca_info)
         if self.dataflow_trace is not None:
             res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
+        if self.validation_state is not None:
+            res['validation_state'] = (lambda x: x.to_json())(self.validation_state)
         return res
 
     @classmethod
