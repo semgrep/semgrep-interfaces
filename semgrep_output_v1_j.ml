@@ -35,8 +35,7 @@ type location = Semgrep_output_v1_t.location = {
 }
   [@@deriving show]
 
-type cli_match_intermediate_var =
-  Semgrep_output_v1_t.cli_match_intermediate_var = {
+type match_intermediate_var = Semgrep_output_v1_t.match_intermediate_var = {
   location: location;
   content: string
 }
@@ -66,29 +65,28 @@ type metavars = Semgrep_output_v1_t.metavars [@@deriving show]
 type validation_state = Semgrep_output_v1_t.validation_state
   [@@deriving show]
 
-type cli_match_call_trace = Semgrep_output_v1_t.cli_match_call_trace = 
+type match_call_trace = Semgrep_output_v1_t.match_call_trace = 
     CliLoc of (location * string)
   | CliCall
       of (
           (location * string)
-        * cli_match_intermediate_var list
-        * cli_match_call_trace
+        * match_intermediate_var list
+        * match_call_trace
       )
 
   [@@deriving show]
 
-type cli_match_dataflow_trace =
-  Semgrep_output_v1_t.cli_match_dataflow_trace = {
-  taint_source: cli_match_call_trace option;
-  intermediate_vars: cli_match_intermediate_var list option;
-  taint_sink: cli_match_call_trace option
+type match_dataflow_trace = Semgrep_output_v1_t.match_dataflow_trace = {
+  taint_source: match_call_trace option;
+  intermediate_vars: match_intermediate_var list option;
+  taint_sink: match_call_trace option
 }
   [@@deriving show]
 
 type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   message: string option;
   metavars: metavars;
-  dataflow_trace: cli_match_dataflow_trace option;
+  dataflow_trace: match_dataflow_trace option;
   rendered_fix: string option;
   engine_kind: engine_kind;
   validation_state: validation_state option;
@@ -261,7 +259,7 @@ type finding = Semgrep_output_v1_t.finding = {
   is_blocking: bool;
   fixed_lines: string list option;
   sca_info: sca_info option;
-  dataflow_trace: cli_match_dataflow_trace option;
+  dataflow_trace: match_dataflow_trace option;
   validation_state: validation_state option
 }
   [@@deriving show]
@@ -428,7 +426,7 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   is_ignored: bool option;
   sca_info: sca_info option;
   fixed_lines: string list option;
-  dataflow_trace: cli_match_dataflow_trace option;
+  dataflow_trace: match_dataflow_trace option;
   engine_kind: engine_kind option;
   validation_state: validation_state option;
   extra_extra: raw_json option
@@ -1221,8 +1219,8 @@ let read_location = (
 )
 let location_of_string s =
   read_location (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_cli_match_intermediate_var : _ -> cli_match_intermediate_var -> _ = (
-  fun ob (x : cli_match_intermediate_var) ->
+let write_match_intermediate_var : _ -> match_intermediate_var -> _ = (
+  fun ob (x : match_intermediate_var) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
     if !is_first then
@@ -1245,11 +1243,11 @@ let write_cli_match_intermediate_var : _ -> cli_match_intermediate_var -> _ = (
       ob x.content;
     Buffer.add_char ob '}';
 )
-let string_of_cli_match_intermediate_var ?(len = 1024) x =
+let string_of_match_intermediate_var ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_cli_match_intermediate_var ob x;
+  write_match_intermediate_var ob x;
   Buffer.contents ob
-let read_cli_match_intermediate_var = (
+let read_match_intermediate_var = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
@@ -1369,37 +1367,37 @@ let read_cli_match_intermediate_var = (
             location = (match !field_location with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "location");
             content = (match !field_content with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "content");
           }
-         : cli_match_intermediate_var)
+         : match_intermediate_var)
       )
 )
-let cli_match_intermediate_var_of_string s =
-  read_cli_match_intermediate_var (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__cli_match_intermediate_var_list = (
+let match_intermediate_var_of_string s =
+  read_match_intermediate_var (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__match_intermediate_var_list = (
   Atdgen_runtime.Oj_run.write_list (
-    write_cli_match_intermediate_var
+    write_match_intermediate_var
   )
 )
-let string_of__cli_match_intermediate_var_list ?(len = 1024) x =
+let string_of__match_intermediate_var_list ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__cli_match_intermediate_var_list ob x;
+  write__match_intermediate_var_list ob x;
   Buffer.contents ob
-let read__cli_match_intermediate_var_list = (
+let read__match_intermediate_var_list = (
   Atdgen_runtime.Oj_run.read_list (
-    read_cli_match_intermediate_var
+    read_match_intermediate_var
   )
 )
-let _cli_match_intermediate_var_list_of_string s =
-  read__cli_match_intermediate_var_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__option_e804780 = (
+let _match_intermediate_var_list_of_string s =
+  read__match_intermediate_var_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__match_intermediate_var_list_option = (
   Atdgen_runtime.Oj_run.write_std_option (
-    write__cli_match_intermediate_var_list
+    write__match_intermediate_var_list
   )
 )
-let string_of__option_e804780 ?(len = 1024) x =
+let string_of__match_intermediate_var_list_option ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__option_e804780 ob x;
+  write__match_intermediate_var_list_option ob x;
   Buffer.contents ob
-let read__option_e804780 = (
+let read__match_intermediate_var_list_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     match Yojson.Safe.start_any_variant p lb with
@@ -1412,7 +1410,7 @@ let read__option_e804780 = (
             | "Some" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read__cli_match_intermediate_var_list
+                  read__match_intermediate_var_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -1435,7 +1433,7 @@ let read__option_e804780 = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read__cli_match_intermediate_var_list
+                  read__match_intermediate_var_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -1445,8 +1443,8 @@ let read__option_e804780 = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-let _option_e804780_of_string s =
-  read__option_e804780 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _match_intermediate_var_list_option_of_string s =
+  read__match_intermediate_var_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_raw_json = (
   Yojson.Basic.write_t
 )
@@ -2197,7 +2195,7 @@ let read__validation_state_option = (
 )
 let _validation_state_option_of_string s =
   read__validation_state_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let rec write_cli_match_call_trace : _ -> cli_match_call_trace -> _ = (
+let rec write_match_call_trace : _ -> match_call_trace -> _ = (
   fun ob x ->
     match x with
       | CliLoc x ->
@@ -2245,24 +2243,24 @@ let rec write_cli_match_call_trace : _ -> cli_match_call_trace -> _ = (
             Buffer.add_char ob ',';
             (let _, x, _ = x in
             (
-              write__cli_match_intermediate_var_list
+              write__match_intermediate_var_list
             ) ob x
             );
             Buffer.add_char ob ',';
             (let _, _, x = x in
             (
-              write_cli_match_call_trace
+              write_match_call_trace
             ) ob x
             );
             Buffer.add_char ob ']';
         ) ob x;
         Buffer.add_char ob ']'
 )
-and string_of_cli_match_call_trace ?(len = 1024) x =
+and string_of_match_call_trace ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_cli_match_call_trace ob x;
+  write_match_call_trace ob x;
   Buffer.contents ob
-let rec read_cli_match_call_trace = (
+let rec read_match_call_trace = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     match Yojson.Safe.start_any_variant p lb with
@@ -2317,7 +2315,7 @@ let rec read_cli_match_call_trace = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              (CliLoc x : cli_match_call_trace)
+              (CliLoc x : match_call_trace)
             | "CliCall" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -2382,7 +2380,7 @@ let rec read_cli_match_call_trace = (
                       let x1 =
                         let x =
                           (
-                            read__cli_match_intermediate_var_list
+                            read__match_intermediate_var_list
                           ) p lb
                         in
                         incr len;
@@ -2393,7 +2391,7 @@ let rec read_cli_match_call_trace = (
                       let x2 =
                         let x =
                           (
-                            read_cli_match_call_trace
+                            read_match_call_trace
                           ) p lb
                         in
                         incr len;
@@ -2419,7 +2417,7 @@ let rec read_cli_match_call_trace = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              (CliCall x : cli_match_call_trace)
+              (CliCall x : match_call_trace)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -2481,7 +2479,7 @@ let rec read_cli_match_call_trace = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
-              (CliLoc x : cli_match_call_trace)
+              (CliLoc x : match_call_trace)
             | "CliCall" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -2548,7 +2546,7 @@ let rec read_cli_match_call_trace = (
                       let x1 =
                         let x =
                           (
-                            read__cli_match_intermediate_var_list
+                            read__match_intermediate_var_list
                           ) p lb
                         in
                         incr len;
@@ -2559,7 +2557,7 @@ let rec read_cli_match_call_trace = (
                       let x2 =
                         let x =
                           (
-                            read_cli_match_call_trace
+                            read_match_call_trace
                           ) p lb
                         in
                         incr len;
@@ -2585,23 +2583,23 @@ let rec read_cli_match_call_trace = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
-              (CliCall x : cli_match_call_trace)
+              (CliCall x : match_call_trace)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-and cli_match_call_trace_of_string s =
-  read_cli_match_call_trace (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__cli_match_call_trace_option = (
+and match_call_trace_of_string s =
+  read_match_call_trace (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__match_call_trace_option = (
   Atdgen_runtime.Oj_run.write_std_option (
-    write_cli_match_call_trace
+    write_match_call_trace
   )
 )
-let string_of__cli_match_call_trace_option ?(len = 1024) x =
+let string_of__match_call_trace_option ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__cli_match_call_trace_option ob x;
+  write__match_call_trace_option ob x;
   Buffer.contents ob
-let read__cli_match_call_trace_option = (
+let read__match_call_trace_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     match Yojson.Safe.start_any_variant p lb with
@@ -2614,7 +2612,7 @@ let read__cli_match_call_trace_option = (
             | "Some" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read_cli_match_call_trace
+                  read_match_call_trace
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -2637,7 +2635,7 @@ let read__cli_match_call_trace_option = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read_cli_match_call_trace
+                  read_match_call_trace
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -2647,10 +2645,10 @@ let read__cli_match_call_trace_option = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-let _cli_match_call_trace_option_of_string s =
-  read__cli_match_call_trace_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_cli_match_dataflow_trace : _ -> cli_match_dataflow_trace -> _ = (
-  fun ob (x : cli_match_dataflow_trace) ->
+let _match_call_trace_option_of_string s =
+  read__match_call_trace_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_match_dataflow_trace : _ -> match_dataflow_trace -> _ = (
+  fun ob (x : match_dataflow_trace) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
     (match x.taint_source with None -> () | Some x ->
@@ -2660,7 +2658,7 @@ let write_cli_match_dataflow_trace : _ -> cli_match_dataflow_trace -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"taint_source\":";
       (
-        write_cli_match_call_trace
+        write_match_call_trace
       )
         ob x;
     );
@@ -2671,7 +2669,7 @@ let write_cli_match_dataflow_trace : _ -> cli_match_dataflow_trace -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"intermediate_vars\":";
       (
-        write__cli_match_intermediate_var_list
+        write__match_intermediate_var_list
       )
         ob x;
     );
@@ -2682,17 +2680,17 @@ let write_cli_match_dataflow_trace : _ -> cli_match_dataflow_trace -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"taint_sink\":";
       (
-        write_cli_match_call_trace
+        write_match_call_trace
       )
         ob x;
     );
     Buffer.add_char ob '}';
 )
-let string_of_cli_match_dataflow_trace ?(len = 1024) x =
+let string_of_match_dataflow_trace ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_cli_match_dataflow_trace ob x;
+  write_match_dataflow_trace ob x;
   Buffer.contents ob
-let read_cli_match_dataflow_trace = (
+let read_match_dataflow_trace = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
@@ -2745,7 +2743,7 @@ let read_cli_match_dataflow_trace = (
               field_taint_source := (
                 Some (
                   (
-                    read_cli_match_call_trace
+                    read_match_call_trace
                   ) p lb
                 )
               );
@@ -2755,7 +2753,7 @@ let read_cli_match_dataflow_trace = (
               field_intermediate_vars := (
                 Some (
                   (
-                    read__cli_match_intermediate_var_list
+                    read__match_intermediate_var_list
                   ) p lb
                 )
               );
@@ -2765,7 +2763,7 @@ let read_cli_match_dataflow_trace = (
               field_taint_sink := (
                 Some (
                   (
-                    read_cli_match_call_trace
+                    read_match_call_trace
                   ) p lb
                 )
               );
@@ -2820,7 +2818,7 @@ let read_cli_match_dataflow_trace = (
                 field_taint_source := (
                   Some (
                     (
-                      read_cli_match_call_trace
+                      read_match_call_trace
                     ) p lb
                   )
                 );
@@ -2830,7 +2828,7 @@ let read_cli_match_dataflow_trace = (
                 field_intermediate_vars := (
                   Some (
                     (
-                      read__cli_match_intermediate_var_list
+                      read__match_intermediate_var_list
                     ) p lb
                   )
                 );
@@ -2840,7 +2838,7 @@ let read_cli_match_dataflow_trace = (
                 field_taint_sink := (
                   Some (
                     (
-                      read_cli_match_call_trace
+                      read_match_call_trace
                     ) p lb
                   )
                 );
@@ -2858,21 +2856,21 @@ let read_cli_match_dataflow_trace = (
             intermediate_vars = !field_intermediate_vars;
             taint_sink = !field_taint_sink;
           }
-         : cli_match_dataflow_trace)
+         : match_dataflow_trace)
       )
 )
-let cli_match_dataflow_trace_of_string s =
-  read_cli_match_dataflow_trace (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__cli_match_dataflow_trace_option = (
+let match_dataflow_trace_of_string s =
+  read_match_dataflow_trace (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__match_dataflow_trace_option = (
   Atdgen_runtime.Oj_run.write_std_option (
-    write_cli_match_dataflow_trace
+    write_match_dataflow_trace
   )
 )
-let string_of__cli_match_dataflow_trace_option ?(len = 1024) x =
+let string_of__match_dataflow_trace_option ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__cli_match_dataflow_trace_option ob x;
+  write__match_dataflow_trace_option ob x;
   Buffer.contents ob
-let read__cli_match_dataflow_trace_option = (
+let read__match_dataflow_trace_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     match Yojson.Safe.start_any_variant p lb with
@@ -2885,7 +2883,7 @@ let read__cli_match_dataflow_trace_option = (
             | "Some" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read_cli_match_dataflow_trace
+                  read_match_dataflow_trace
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -2908,7 +2906,7 @@ let read__cli_match_dataflow_trace_option = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read_cli_match_dataflow_trace
+                  read_match_dataflow_trace
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -2918,8 +2916,8 @@ let read__cli_match_dataflow_trace_option = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-let _cli_match_dataflow_trace_option_of_string s =
-  read__cli_match_dataflow_trace_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _match_dataflow_trace_option_of_string s =
+  read__match_dataflow_trace_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_match_extra : _ -> core_match_extra -> _ = (
   fun ob (x : core_match_extra) ->
     Buffer.add_char ob '{';
@@ -2951,7 +2949,7 @@ let write_core_match_extra : _ -> core_match_extra -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"dataflow_trace\":";
       (
-        write_cli_match_dataflow_trace
+        write_match_dataflow_trace
       )
         ob x;
     );
@@ -3121,7 +3119,7 @@ let read_core_match_extra = (
               field_dataflow_trace := (
                 Some (
                   (
-                    read_cli_match_dataflow_trace
+                    read_match_dataflow_trace
                   ) p lb
                 )
               );
@@ -3275,7 +3273,7 @@ let read_core_match_extra = (
                 field_dataflow_trace := (
                   Some (
                     (
-                      read_cli_match_dataflow_trace
+                      read_match_dataflow_trace
                     ) p lb
                   )
                 );
@@ -8517,7 +8515,7 @@ let write_finding : _ -> finding -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"dataflow_trace\":";
       (
-        write_cli_match_dataflow_trace
+        write_match_dataflow_trace
       )
         ob x;
     );
@@ -8915,7 +8913,7 @@ let read_finding = (
               field_dataflow_trace := (
                 Some (
                   (
-                    read_cli_match_dataflow_trace
+                    read_match_dataflow_trace
                   ) p lb
                 )
               );
@@ -9288,7 +9286,7 @@ let read_finding = (
                 field_dataflow_trace := (
                   Some (
                     (
-                      read_cli_match_dataflow_trace
+                      read_match_dataflow_trace
                     ) p lb
                   )
                 );
@@ -14686,7 +14684,7 @@ let write_cli_match_extra : _ -> cli_match_extra -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"dataflow_trace\":";
       (
-        write_cli_match_dataflow_trace
+        write_match_dataflow_trace
       )
         ob x;
     );
@@ -15036,7 +15034,7 @@ let read_cli_match_extra = (
               field_dataflow_trace := (
                 Some (
                   (
-                    read_cli_match_dataflow_trace
+                    read_match_dataflow_trace
                   ) p lb
                 )
               );
@@ -15363,7 +15361,7 @@ let read_cli_match_extra = (
                 field_dataflow_trace := (
                   Some (
                     (
-                      read_cli_match_dataflow_trace
+                      read_match_dataflow_trace
                     ) p lb
                   )
                 );

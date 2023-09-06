@@ -121,7 +121,7 @@ type core_match_extra
   <python decorator="dataclass(frozen=True)"> = {
   ?message: string option; (* rule.message (?) *)
   metavars: metavars;
-  ?dataflow_trace: cli_match_dataflow_trace option;
+  ?dataflow_trace: match_dataflow_trace option;
   (* If present, semgrep-core was able to compute a string that should be
    * inserted in place of the text in the matched range in order to fix the
    * finding. *)
@@ -178,7 +178,7 @@ type cli_match_extra <ocaml attr="deriving show"> = {
 
   (* EXPERIMENTAL: For now, present only for taint findings. May be extended to others
    * later on. *)
-  ?dataflow_trace: cli_match_dataflow_trace option;
+  ?dataflow_trace: match_dataflow_trace option;
 
   ?engine_kind: engine_kind option;
 
@@ -252,32 +252,32 @@ type svalue_value
 (*****************************************************************************)
 
 (* EXPERIMENTAL *)
-type cli_match_dataflow_trace
+type match_dataflow_trace
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
-  ?taint_source: cli_match_call_trace option;
+  ?taint_source: match_call_trace option;
   (* Intermediate variables which are involved in the dataflow. For taint, this
    * explains how the taint flows from the source to the sink. *)
-  ?intermediate_vars: cli_match_intermediate_var list option;
+  ?intermediate_vars: match_intermediate_var list option;
   (* For now, omitting the taint sink, since it's redundant data except for
    * certain cases that only appear with DeepSemgrep. We can add it in later
    * without breaking consumers. *)
-  ?taint_sink: cli_match_call_trace option;
+  ?taint_sink: match_call_trace option;
 }
 
 (* the string attached to the location is the actual text from the file
  * TODO: define a location_with_content type that can be reused.
  *)
-type cli_match_call_trace
+type match_call_trace
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True, order=True)"> = [
   | CliLoc of (location * string)
-  | CliCall of ((location * string) * cli_match_intermediate_var list * cli_match_call_trace)
+  | CliCall of ((location * string) * match_intermediate_var list * match_call_trace)
 ] <ocaml repr="classic">
 
 
 (* EXPERIMENTAL *)
-type cli_match_intermediate_var
+type match_intermediate_var
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
   location: location;
@@ -720,6 +720,7 @@ type core_output_extra
 (* CLI *)
 (* ----------------------------- *)
 
+(* TODO: rename to scan_output at some point *)
 type cli_output <ocaml attr="deriving show"> = {
     (* since: 0.92 *)
     ?version: version option;
@@ -959,7 +960,7 @@ type finding <ocaml attr="deriving show"> = {
   is_blocking: bool;
   ?fixed_lines: string list option;
   ?sca_info: sca_info option;
-  ?dataflow_trace: cli_match_dataflow_trace option;
+  ?dataflow_trace: match_dataflow_trace option;
   (* Added in semgrep 1.39.0 see comments in core_match. *)
   ?validation_state: validation_state option;
 }
