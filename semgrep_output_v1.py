@@ -677,21 +677,21 @@ class Location:
 
 
 @dataclass(frozen=True)
-class CliMatchIntermediateVar:
-    """Original type: cli_match_intermediate_var = { ... }"""
+class MatchIntermediateVar:
+    """Original type: match_intermediate_var = { ... }"""
 
     location: Location
     content: str
 
     @classmethod
-    def from_json(cls, x: Any) -> 'CliMatchIntermediateVar':
+    def from_json(cls, x: Any) -> 'MatchIntermediateVar':
         if isinstance(x, dict):
             return cls(
-                location=Location.from_json(x['location']) if 'location' in x else _atd_missing_json_field('CliMatchIntermediateVar', 'location'),
-                content=_atd_read_string(x['content']) if 'content' in x else _atd_missing_json_field('CliMatchIntermediateVar', 'content'),
+                location=Location.from_json(x['location']) if 'location' in x else _atd_missing_json_field('MatchIntermediateVar', 'location'),
+                content=_atd_read_string(x['content']) if 'content' in x else _atd_missing_json_field('MatchIntermediateVar', 'content'),
             )
         else:
-            _atd_bad_json('CliMatchIntermediateVar', x)
+            _atd_bad_json('MatchIntermediateVar', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
@@ -700,7 +700,7 @@ class CliMatchIntermediateVar:
         return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'CliMatchIntermediateVar':
+    def from_json_string(cls, x: str) -> 'MatchIntermediateVar':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -950,7 +950,7 @@ class ValidationState:
 
 @dataclass(frozen=True, order=True)
 class CliLoc:
-    """Original type: cli_match_call_trace = [ ... | CliLoc of ... | ... ]"""
+    """Original type: match_call_trace = [ ... | CliLoc of ... | ... ]"""
 
     value: Tuple[Location, str]
 
@@ -968,9 +968,9 @@ class CliLoc:
 
 @dataclass(frozen=True, order=True)
 class CliCall:
-    """Original type: cli_match_call_trace = [ ... | CliCall of ... | ... ]"""
+    """Original type: match_call_trace = [ ... | CliCall of ... | ... ]"""
 
-    value: Tuple[Tuple[Location, str], List[CliMatchIntermediateVar], CliMatchCallTrace]
+    value: Tuple[Tuple[Location, str], List[MatchIntermediateVar], MatchCallTrace]
 
     @property
     def kind(self) -> str:
@@ -985,8 +985,8 @@ class CliCall:
 
 
 @dataclass(frozen=True, order=True)
-class CliMatchCallTrace:
-    """Original type: cli_match_call_trace = [ ... ]"""
+class MatchCallTrace:
+    """Original type: match_call_trace = [ ... ]"""
 
     value: Union[CliLoc, CliCall]
 
@@ -996,21 +996,21 @@ class CliMatchCallTrace:
         return self.value.kind
 
     @classmethod
-    def from_json(cls, x: Any) -> 'CliMatchCallTrace':
+    def from_json(cls, x: Any) -> 'MatchCallTrace':
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'CliLoc':
                 return cls(CliLoc((lambda x: (Location.from_json(x[0]), _atd_read_string(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
             if cons == 'CliCall':
-                return cls(CliCall((lambda x: ((lambda x: (Location.from_json(x[0]), _atd_read_string(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[0]), _atd_read_list(CliMatchIntermediateVar.from_json)(x[1]), CliMatchCallTrace.from_json(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
-            _atd_bad_json('CliMatchCallTrace', x)
-        _atd_bad_json('CliMatchCallTrace', x)
+                return cls(CliCall((lambda x: ((lambda x: (Location.from_json(x[0]), _atd_read_string(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[0]), _atd_read_list(MatchIntermediateVar.from_json)(x[1]), MatchCallTrace.from_json(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
+            _atd_bad_json('MatchCallTrace', x)
+        _atd_bad_json('MatchCallTrace', x)
 
     def to_json(self) -> Any:
         return self.value.to_json()
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'CliMatchCallTrace':
+    def from_json_string(cls, x: str) -> 'MatchCallTrace':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1018,23 +1018,23 @@ class CliMatchCallTrace:
 
 
 @dataclass(frozen=True)
-class CliMatchDataflowTrace:
-    """Original type: cli_match_dataflow_trace = { ... }"""
+class MatchDataflowTrace:
+    """Original type: match_dataflow_trace = { ... }"""
 
-    taint_source: Optional[CliMatchCallTrace] = None
-    intermediate_vars: Optional[List[CliMatchIntermediateVar]] = None
-    taint_sink: Optional[CliMatchCallTrace] = None
+    taint_source: Optional[MatchCallTrace] = None
+    intermediate_vars: Optional[List[MatchIntermediateVar]] = None
+    taint_sink: Optional[MatchCallTrace] = None
 
     @classmethod
-    def from_json(cls, x: Any) -> 'CliMatchDataflowTrace':
+    def from_json(cls, x: Any) -> 'MatchDataflowTrace':
         if isinstance(x, dict):
             return cls(
-                taint_source=CliMatchCallTrace.from_json(x['taint_source']) if 'taint_source' in x else None,
-                intermediate_vars=_atd_read_list(CliMatchIntermediateVar.from_json)(x['intermediate_vars']) if 'intermediate_vars' in x else None,
-                taint_sink=CliMatchCallTrace.from_json(x['taint_sink']) if 'taint_sink' in x else None,
+                taint_source=MatchCallTrace.from_json(x['taint_source']) if 'taint_source' in x else None,
+                intermediate_vars=_atd_read_list(MatchIntermediateVar.from_json)(x['intermediate_vars']) if 'intermediate_vars' in x else None,
+                taint_sink=MatchCallTrace.from_json(x['taint_sink']) if 'taint_sink' in x else None,
             )
         else:
-            _atd_bad_json('CliMatchDataflowTrace', x)
+            _atd_bad_json('MatchDataflowTrace', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
@@ -1047,7 +1047,7 @@ class CliMatchDataflowTrace:
         return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'CliMatchDataflowTrace':
+    def from_json_string(cls, x: str) -> 'MatchDataflowTrace':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1061,7 +1061,7 @@ class CoreMatchExtra:
     metavars: Metavars
     engine_kind: EngineKind
     message: Optional[str] = None
-    dataflow_trace: Optional[CliMatchDataflowTrace] = None
+    dataflow_trace: Optional[MatchDataflowTrace] = None
     rendered_fix: Optional[str] = None
     validation_state: Optional[ValidationState] = None
     extra_extra: Optional[RawJson] = None
@@ -1073,7 +1073,7 @@ class CoreMatchExtra:
                 metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else _atd_missing_json_field('CoreMatchExtra', 'metavars'),
                 engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else _atd_missing_json_field('CoreMatchExtra', 'engine_kind'),
                 message=_atd_read_string(x['message']) if 'message' in x else None,
-                dataflow_trace=CliMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
+                dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 rendered_fix=_atd_read_string(x['rendered_fix']) if 'rendered_fix' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
                 extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
@@ -2677,7 +2677,7 @@ class Finding:
     hashes: Optional[FindingHashes] = None
     fixed_lines: Optional[List[str]] = None
     sca_info: Optional[ScaInfo] = None
-    dataflow_trace: Optional[CliMatchDataflowTrace] = None
+    dataflow_trace: Optional[MatchDataflowTrace] = None
     validation_state: Optional[ValidationState] = None
 
     @classmethod
@@ -2701,7 +2701,7 @@ class Finding:
                 hashes=FindingHashes.from_json(x['hashes']) if 'hashes' in x else None,
                 fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
                 sca_info=ScaInfo.from_json(x['sca_info']) if 'sca_info' in x else None,
-                dataflow_trace=CliMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
+                dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
             )
         else:
@@ -3795,7 +3795,7 @@ class CliMatchExtra:
     is_ignored: Optional[bool] = None
     sca_info: Optional[ScaInfo] = None
     fixed_lines: Optional[List[str]] = None
-    dataflow_trace: Optional[CliMatchDataflowTrace] = None
+    dataflow_trace: Optional[MatchDataflowTrace] = None
     engine_kind: Optional[EngineKind] = None
     validation_state: Optional[ValidationState] = None
     extra_extra: Optional[RawJson] = None
@@ -3815,7 +3815,7 @@ class CliMatchExtra:
                 is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else None,
                 sca_info=ScaInfo.from_json(x['sca_info']) if 'sca_info' in x else None,
                 fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
-                dataflow_trace=CliMatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
+                dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
                 extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,

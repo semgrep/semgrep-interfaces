@@ -35,8 +35,7 @@ type location = Semgrep_output_v1_t.location = {
 }
   [@@deriving show]
 
-type cli_match_intermediate_var =
-  Semgrep_output_v1_t.cli_match_intermediate_var = {
+type match_intermediate_var = Semgrep_output_v1_t.match_intermediate_var = {
   location: location;
   content: string
 }
@@ -66,29 +65,28 @@ type metavars = Semgrep_output_v1_t.metavars [@@deriving show]
 type validation_state = Semgrep_output_v1_t.validation_state
   [@@deriving show]
 
-type cli_match_call_trace = Semgrep_output_v1_t.cli_match_call_trace = 
+type match_call_trace = Semgrep_output_v1_t.match_call_trace = 
     CliLoc of (location * string)
   | CliCall
       of (
           (location * string)
-        * cli_match_intermediate_var list
-        * cli_match_call_trace
+        * match_intermediate_var list
+        * match_call_trace
       )
 
   [@@deriving show]
 
-type cli_match_dataflow_trace =
-  Semgrep_output_v1_t.cli_match_dataflow_trace = {
-  taint_source: cli_match_call_trace option;
-  intermediate_vars: cli_match_intermediate_var list option;
-  taint_sink: cli_match_call_trace option
+type match_dataflow_trace = Semgrep_output_v1_t.match_dataflow_trace = {
+  taint_source: match_call_trace option;
+  intermediate_vars: match_intermediate_var list option;
+  taint_sink: match_call_trace option
 }
   [@@deriving show]
 
 type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   message: string option;
   metavars: metavars;
-  dataflow_trace: cli_match_dataflow_trace option;
+  dataflow_trace: match_dataflow_trace option;
   rendered_fix: string option;
   engine_kind: engine_kind;
   validation_state: validation_state option;
@@ -261,7 +259,7 @@ type finding = Semgrep_output_v1_t.finding = {
   is_blocking: bool;
   fixed_lines: string list option;
   sca_info: sca_info option;
-  dataflow_trace: cli_match_dataflow_trace option;
+  dataflow_trace: match_dataflow_trace option;
   validation_state: validation_state option
 }
   [@@deriving show]
@@ -428,7 +426,7 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   is_ignored: bool option;
   sca_info: sca_info option;
   fixed_lines: string list option;
-  dataflow_trace: cli_match_dataflow_trace option;
+  dataflow_trace: match_dataflow_trace option;
   engine_kind: engine_kind option;
   validation_state: validation_state option;
   extra_extra: raw_json option
@@ -607,25 +605,25 @@ val location_of_string :
   string -> location
   (** Deserialize JSON data of type {!type:location}. *)
 
-val write_cli_match_intermediate_var :
-  Buffer.t -> cli_match_intermediate_var -> unit
-  (** Output a JSON value of type {!type:cli_match_intermediate_var}. *)
+val write_match_intermediate_var :
+  Buffer.t -> match_intermediate_var -> unit
+  (** Output a JSON value of type {!type:match_intermediate_var}. *)
 
-val string_of_cli_match_intermediate_var :
-  ?len:int -> cli_match_intermediate_var -> string
-  (** Serialize a value of type {!type:cli_match_intermediate_var}
+val string_of_match_intermediate_var :
+  ?len:int -> match_intermediate_var -> string
+  (** Serialize a value of type {!type:match_intermediate_var}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_cli_match_intermediate_var :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match_intermediate_var
-  (** Input JSON data of type {!type:cli_match_intermediate_var}. *)
+val read_match_intermediate_var :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> match_intermediate_var
+  (** Input JSON data of type {!type:match_intermediate_var}. *)
 
-val cli_match_intermediate_var_of_string :
-  string -> cli_match_intermediate_var
-  (** Deserialize JSON data of type {!type:cli_match_intermediate_var}. *)
+val match_intermediate_var_of_string :
+  string -> match_intermediate_var
+  (** Deserialize JSON data of type {!type:match_intermediate_var}. *)
 
 val write_raw_json :
   Buffer.t -> raw_json -> unit
@@ -747,45 +745,45 @@ val validation_state_of_string :
   string -> validation_state
   (** Deserialize JSON data of type {!type:validation_state}. *)
 
-val write_cli_match_call_trace :
-  Buffer.t -> cli_match_call_trace -> unit
-  (** Output a JSON value of type {!type:cli_match_call_trace}. *)
+val write_match_call_trace :
+  Buffer.t -> match_call_trace -> unit
+  (** Output a JSON value of type {!type:match_call_trace}. *)
 
-val string_of_cli_match_call_trace :
-  ?len:int -> cli_match_call_trace -> string
-  (** Serialize a value of type {!type:cli_match_call_trace}
+val string_of_match_call_trace :
+  ?len:int -> match_call_trace -> string
+  (** Serialize a value of type {!type:match_call_trace}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_cli_match_call_trace :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match_call_trace
-  (** Input JSON data of type {!type:cli_match_call_trace}. *)
+val read_match_call_trace :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> match_call_trace
+  (** Input JSON data of type {!type:match_call_trace}. *)
 
-val cli_match_call_trace_of_string :
-  string -> cli_match_call_trace
-  (** Deserialize JSON data of type {!type:cli_match_call_trace}. *)
+val match_call_trace_of_string :
+  string -> match_call_trace
+  (** Deserialize JSON data of type {!type:match_call_trace}. *)
 
-val write_cli_match_dataflow_trace :
-  Buffer.t -> cli_match_dataflow_trace -> unit
-  (** Output a JSON value of type {!type:cli_match_dataflow_trace}. *)
+val write_match_dataflow_trace :
+  Buffer.t -> match_dataflow_trace -> unit
+  (** Output a JSON value of type {!type:match_dataflow_trace}. *)
 
-val string_of_cli_match_dataflow_trace :
-  ?len:int -> cli_match_dataflow_trace -> string
-  (** Serialize a value of type {!type:cli_match_dataflow_trace}
+val string_of_match_dataflow_trace :
+  ?len:int -> match_dataflow_trace -> string
+  (** Serialize a value of type {!type:match_dataflow_trace}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_cli_match_dataflow_trace :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match_dataflow_trace
-  (** Input JSON data of type {!type:cli_match_dataflow_trace}. *)
+val read_match_dataflow_trace :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> match_dataflow_trace
+  (** Input JSON data of type {!type:match_dataflow_trace}. *)
 
-val cli_match_dataflow_trace_of_string :
-  string -> cli_match_dataflow_trace
-  (** Deserialize JSON data of type {!type:cli_match_dataflow_trace}. *)
+val match_dataflow_trace_of_string :
+  string -> match_dataflow_trace
+  (** Deserialize JSON data of type {!type:match_dataflow_trace}. *)
 
 val write_core_match_extra :
   Buffer.t -> core_match_extra -> unit

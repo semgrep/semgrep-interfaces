@@ -70,9 +70,7 @@
       "properties": {
         "message": { "type": "string" },
         "metavars": { "$ref": "#/definitions/metavars" },
-        "dataflow_trace": {
-          "$ref": "#/definitions/cli_match_dataflow_trace"
-        },
+        "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
         "rendered_fix": { "type": "string" },
         "engine_kind": { "$ref": "#/definitions/engine_kind" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
@@ -107,9 +105,7 @@
         "is_ignored": { "type": "boolean" },
         "sca_info": { "$ref": "#/definitions/sca_info" },
         "fixed_lines": { "type": "array", "items": { "type": "string" } },
-        "dataflow_trace": {
-          "$ref": "#/definitions/cli_match_dataflow_trace"
-        },
+        "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
         "engine_kind": { "$ref": "#/definitions/engine_kind" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
         "extra_extra": { "$ref": "#/definitions/raw_json" }
@@ -155,19 +151,19 @@
         "svalue_abstract_content": { "type": "string" }
       }
     },
-    "cli_match_dataflow_trace": {
+    "match_dataflow_trace": {
       "type": "object",
       "required": [],
       "properties": {
-        "taint_source": { "$ref": "#/definitions/cli_match_call_trace" },
+        "taint_source": { "$ref": "#/definitions/match_call_trace" },
         "intermediate_vars": {
           "type": "array",
-          "items": { "$ref": "#/definitions/cli_match_intermediate_var" }
+          "items": { "$ref": "#/definitions/match_intermediate_var" }
         },
-        "taint_sink": { "$ref": "#/definitions/cli_match_call_trace" }
+        "taint_sink": { "$ref": "#/definitions/match_call_trace" }
       }
     },
-    "cli_match_call_trace": {
+    "match_call_trace": {
       "oneOf": [
         {
           "type": "array",
@@ -207,18 +203,16 @@
                 },
                 {
                   "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/cli_match_intermediate_var"
-                  }
+                  "items": { "$ref": "#/definitions/match_intermediate_var" }
                 },
-                { "$ref": "#/definitions/cli_match_call_trace" }
+                { "$ref": "#/definitions/match_call_trace" }
               ]
             }
           ]
         }
       ]
     },
-    "cli_match_intermediate_var": {
+    "match_intermediate_var": {
       "type": "object",
       "required": [ "location", "content" ],
       "properties": {
@@ -867,9 +861,7 @@
         "is_blocking": { "type": "boolean" },
         "fixed_lines": { "type": "array", "items": { "type": "string" } },
         "sca_info": { "$ref": "#/definitions/sca_info" },
-        "dataflow_trace": {
-          "$ref": "#/definitions/cli_match_dataflow_trace"
-        },
+        "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
         "validation_state": { "$ref": "#/definitions/validation_state" }
       }
     },

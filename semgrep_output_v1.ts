@@ -43,7 +43,7 @@ export type CoreMatch = {
 export type CoreMatchExtra = {
   message?: string;
   metavars: Metavars;
-  dataflow_trace?: CliMatchDataflowTrace;
+  dataflow_trace?: MatchDataflowTrace;
   rendered_fix?: string;
   engine_kind: EngineKind;
   validation_state?: ValidationState;
@@ -70,7 +70,7 @@ export type CliMatchExtra = {
   is_ignored?: boolean;
   sca_info?: ScaInfo;
   fixed_lines?: string[];
-  dataflow_trace?: CliMatchDataflowTrace;
+  dataflow_trace?: MatchDataflowTrace;
   engine_kind?: EngineKind;
   validation_state?: ValidationState;
   extra_extra?: RawJson;
@@ -103,17 +103,17 @@ export type SvalueValue = {
   svalue_abstract_content: string;
 }
 
-export type CliMatchDataflowTrace = {
-  taint_source?: CliMatchCallTrace;
-  intermediate_vars?: CliMatchIntermediateVar[];
-  taint_sink?: CliMatchCallTrace;
+export type MatchDataflowTrace = {
+  taint_source?: MatchCallTrace;
+  intermediate_vars?: MatchIntermediateVar[];
+  taint_sink?: MatchCallTrace;
 }
 
-export type CliMatchCallTrace =
+export type MatchCallTrace =
 | { kind: 'CliLoc'; value: [Location, string] }
-| { kind: 'CliCall'; value: [[Location, string], CliMatchIntermediateVar[], CliMatchCallTrace] }
+| { kind: 'CliCall'; value: [[Location, string], MatchIntermediateVar[], MatchCallTrace] }
 
-export type CliMatchIntermediateVar = {
+export type MatchIntermediateVar = {
   location: Location;
   content: string;
 }
@@ -486,7 +486,7 @@ export type Finding = {
   is_blocking: boolean;
   fixed_lines?: string[];
   sca_info?: ScaInfo;
-  dataflow_trace?: CliMatchDataflowTrace;
+  dataflow_trace?: MatchDataflowTrace;
   validation_state?: ValidationState;
 }
 
@@ -586,7 +586,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
   return {
     'message': _atd_write_optional_field(_atd_write_string, x.message, x),
     'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
-    'dataflow_trace': _atd_write_optional_field(writeCliMatchDataflowTrace, x.dataflow_trace, x),
+    'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
     'rendered_fix': _atd_write_optional_field(_atd_write_string, x.rendered_fix, x),
     'engine_kind': _atd_write_required_field('CoreMatchExtra', 'engine_kind', writeEngineKind, x.engine_kind, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
@@ -598,7 +598,7 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
   return {
     message: _atd_read_optional_field(_atd_read_string, x['message'], x),
     metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
-    dataflow_trace: _atd_read_optional_field(readCliMatchDataflowTrace, x['dataflow_trace'], x),
+    dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
     rendered_fix: _atd_read_optional_field(_atd_read_string, x['rendered_fix'], x),
     engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineKind, x['engine_kind'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
@@ -639,7 +639,7 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'is_ignored': _atd_write_optional_field(_atd_write_bool, x.is_ignored, x),
     'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
     'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
-    'dataflow_trace': _atd_write_optional_field(writeCliMatchDataflowTrace, x.dataflow_trace, x),
+    'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
     'engine_kind': _atd_write_optional_field(writeEngineKind, x.engine_kind, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
@@ -659,7 +659,7 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     is_ignored: _atd_read_optional_field(_atd_read_bool, x['is_ignored'], x),
     sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
-    dataflow_trace: _atd_read_optional_field(readCliMatchDataflowTrace, x['dataflow_trace'], x),
+    dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
     engine_kind: _atd_read_optional_field(readEngineKind, x['engine_kind'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
@@ -753,55 +753,55 @@ export function readSvalueValue(x: any, context: any = x): SvalueValue {
   };
 }
 
-export function writeCliMatchDataflowTrace(x: CliMatchDataflowTrace, context: any = x): any {
+export function writeMatchDataflowTrace(x: MatchDataflowTrace, context: any = x): any {
   return {
-    'taint_source': _atd_write_optional_field(writeCliMatchCallTrace, x.taint_source, x),
-    'intermediate_vars': _atd_write_optional_field(_atd_write_array(writeCliMatchIntermediateVar), x.intermediate_vars, x),
-    'taint_sink': _atd_write_optional_field(writeCliMatchCallTrace, x.taint_sink, x),
+    'taint_source': _atd_write_optional_field(writeMatchCallTrace, x.taint_source, x),
+    'intermediate_vars': _atd_write_optional_field(_atd_write_array(writeMatchIntermediateVar), x.intermediate_vars, x),
+    'taint_sink': _atd_write_optional_field(writeMatchCallTrace, x.taint_sink, x),
   };
 }
 
-export function readCliMatchDataflowTrace(x: any, context: any = x): CliMatchDataflowTrace {
+export function readMatchDataflowTrace(x: any, context: any = x): MatchDataflowTrace {
   return {
-    taint_source: _atd_read_optional_field(readCliMatchCallTrace, x['taint_source'], x),
-    intermediate_vars: _atd_read_optional_field(_atd_read_array(readCliMatchIntermediateVar), x['intermediate_vars'], x),
-    taint_sink: _atd_read_optional_field(readCliMatchCallTrace, x['taint_sink'], x),
+    taint_source: _atd_read_optional_field(readMatchCallTrace, x['taint_source'], x),
+    intermediate_vars: _atd_read_optional_field(_atd_read_array(readMatchIntermediateVar), x['intermediate_vars'], x),
+    taint_sink: _atd_read_optional_field(readMatchCallTrace, x['taint_sink'], x),
   };
 }
 
-export function writeCliMatchCallTrace(x: CliMatchCallTrace, context: any = x): any {
+export function writeMatchCallTrace(x: MatchCallTrace, context: any = x): any {
   switch (x.kind) {
     case 'CliLoc':
       return ['CliLoc', ((x, context) => [writeLocation(x[0], x), _atd_write_string(x[1], x)])(x.value, x)]
     case 'CliCall':
-      return ['CliCall', ((x, context) => [((x, context) => [writeLocation(x[0], x), _atd_write_string(x[1], x)])(x[0], x), _atd_write_array(writeCliMatchIntermediateVar)(x[1], x), writeCliMatchCallTrace(x[2], x)])(x.value, x)]
+      return ['CliCall', ((x, context) => [((x, context) => [writeLocation(x[0], x), _atd_write_string(x[1], x)])(x[0], x), _atd_write_array(writeMatchIntermediateVar)(x[1], x), writeMatchCallTrace(x[2], x)])(x.value, x)]
   }
 }
 
-export function readCliMatchCallTrace(x: any, context: any = x): CliMatchCallTrace {
+export function readMatchCallTrace(x: any, context: any = x): MatchCallTrace {
   _atd_check_json_tuple(2, x, context)
   switch (x[0]) {
     case 'CliLoc':
       return { kind: 'CliLoc', value: ((x, context): [Location, string] => { _atd_check_json_tuple(2, x, context); return [readLocation(x[0], x), _atd_read_string(x[1], x)] })(x[1], x) }
     case 'CliCall':
-      return { kind: 'CliCall', value: ((x, context): [[Location, string], CliMatchIntermediateVar[], CliMatchCallTrace] => { _atd_check_json_tuple(3, x, context); return [((x, context): [Location, string] => { _atd_check_json_tuple(2, x, context); return [readLocation(x[0], x), _atd_read_string(x[1], x)] })(x[0], x), _atd_read_array(readCliMatchIntermediateVar)(x[1], x), readCliMatchCallTrace(x[2], x)] })(x[1], x) }
+      return { kind: 'CliCall', value: ((x, context): [[Location, string], MatchIntermediateVar[], MatchCallTrace] => { _atd_check_json_tuple(3, x, context); return [((x, context): [Location, string] => { _atd_check_json_tuple(2, x, context); return [readLocation(x[0], x), _atd_read_string(x[1], x)] })(x[0], x), _atd_read_array(readMatchIntermediateVar)(x[1], x), readMatchCallTrace(x[2], x)] })(x[1], x) }
     default:
-      _atd_bad_json('CliMatchCallTrace', x, context)
+      _atd_bad_json('MatchCallTrace', x, context)
       throw new Error('impossible')
   }
 }
 
-export function writeCliMatchIntermediateVar(x: CliMatchIntermediateVar, context: any = x): any {
+export function writeMatchIntermediateVar(x: MatchIntermediateVar, context: any = x): any {
   return {
-    'location': _atd_write_required_field('CliMatchIntermediateVar', 'location', writeLocation, x.location, x),
-    'content': _atd_write_required_field('CliMatchIntermediateVar', 'content', _atd_write_string, x.content, x),
+    'location': _atd_write_required_field('MatchIntermediateVar', 'location', writeLocation, x.location, x),
+    'content': _atd_write_required_field('MatchIntermediateVar', 'content', _atd_write_string, x.content, x),
   };
 }
 
-export function readCliMatchIntermediateVar(x: any, context: any = x): CliMatchIntermediateVar {
+export function readMatchIntermediateVar(x: any, context: any = x): MatchIntermediateVar {
   return {
-    location: _atd_read_required_field('CliMatchIntermediateVar', 'location', readLocation, x['location'], x),
-    content: _atd_read_required_field('CliMatchIntermediateVar', 'content', _atd_read_string, x['content'], x),
+    location: _atd_read_required_field('MatchIntermediateVar', 'location', readLocation, x['location'], x),
+    content: _atd_read_required_field('MatchIntermediateVar', 'content', _atd_read_string, x['content'], x),
   };
 }
 
@@ -1906,7 +1906,7 @@ export function writeFinding(x: Finding, context: any = x): any {
     'is_blocking': _atd_write_required_field('Finding', 'is_blocking', _atd_write_bool, x.is_blocking, x),
     'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
     'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
-    'dataflow_trace': _atd_write_optional_field(writeCliMatchDataflowTrace, x.dataflow_trace, x),
+    'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
   };
 }
@@ -1930,7 +1930,7 @@ export function readFinding(x: any, context: any = x): Finding {
     is_blocking: _atd_read_required_field('Finding', 'is_blocking', _atd_read_bool, x['is_blocking'], x),
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
     sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
-    dataflow_trace: _atd_read_optional_field(readCliMatchDataflowTrace, x['dataflow_trace'], x),
+    dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
   };
 }
