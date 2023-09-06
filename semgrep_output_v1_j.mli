@@ -322,6 +322,7 @@ type core_error_kind = Semgrep_output_v1_t.core_error_kind =
   | OutOfMemoryDuringInterfile
   | PartialParsing of location list
   | IncompatibleRule of incompatible_rule
+  | MissingPlugin
 
   [@@deriving show]
 

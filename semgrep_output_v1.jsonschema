@@ -277,7 +277,8 @@
             { "const": "IncompatibleRule" },
             { "$ref": "#/definitions/incompatible_rule" }
           ]
-        }
+        },
+        { "const": "MissingPlugin" }
       ]
     },
     "incompatible_rule": {

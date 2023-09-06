@@ -322,6 +322,7 @@ type core_error_kind = Semgrep_output_v1_t.core_error_kind =
   | OutOfMemoryDuringInterfile
   | PartialParsing of location list
   | IncompatibleRule of incompatible_rule
+  | MissingPlugin
 
   [@@deriving show]
 
@@ -11991,6 +11992,7 @@ let write_core_error_kind : _ -> core_error_kind -> _ = (
           write_incompatible_rule
         ) ob x;
         Buffer.add_char ob ']'
+      | MissingPlugin -> Buffer.add_string ob "\"MissingPlugin\""
 )
 let string_of_core_error_kind ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -12085,6 +12087,10 @@ let read_core_error_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (IncompatibleRule x : core_error_kind)
+            | "MissingPlugin" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (MissingPlugin : core_error_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -12118,6 +12124,8 @@ let read_core_error_kind = (
               (TimeoutDuringInterfile : core_error_kind)
             | "OOM during interfile analysis" ->
               (OutOfMemoryDuringInterfile : core_error_kind)
+            | "MissingPlugin" ->
+              (MissingPlugin : core_error_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
