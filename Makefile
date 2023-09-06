@@ -82,3 +82,17 @@ setup:
 .PHONY: test
 test:
 	$(MAKE) -C tests
+
+###############################################################################
+# Pad's targets
+###############################################################################
+
+pr:
+	git push origin `git rev-parse --abbrev-ref HEAD`
+	hub pull-request -b main -r returntocorp/pa
+
+push:
+	git push origin `git rev-parse --abbrev-ref HEAD`
+
+merge:
+	A=`git rev-parse --abbrev-ref HEAD` && git checkout main && git pull && git branch -D $$A
