@@ -314,9 +314,9 @@ type cve_results = Semgrep_output_v1_t.cve_results [@@deriving show]
 
 type core_timing = Semgrep_output_v1_t.core_timing = {
   rules: rule_id list;
-  rules_parse_time: float option;
+  rules_parse_time: float;
   targets: target_time list;
-  max_memory_bytes: int
+  max_memory_bytes: int option
 }
   [@@deriving show]
 

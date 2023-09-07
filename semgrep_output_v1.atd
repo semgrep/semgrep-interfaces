@@ -525,22 +525,21 @@ type core_stats
 
 (* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
 
-(* TODO: cmerge with profile below *)
+(* TODO: merge with profile below *)
 type core_timing
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
-  (* List of rules received by core *)
-  (* Needs to be separate to include rules read but not run on any target *)
   rules: rule_id list;
-  ?rules_parse_time: float option; (* not used in spacegrep *)
+
+  rules_parse_time: float;
 
   targets: target_time list;
+  (* TODO: total_bytes: int; *)
 
-  max_memory_bytes : int;
+  ?max_memory_bytes : int option;
 }
 
-(* later: could refactor [target_time] and [rule_times] to be equal
- * to cli_target_times *)
+(* TODO: merge with cli_target_times *)
 type target_time
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
@@ -599,6 +598,7 @@ type profile <ocaml attr="deriving show"> = {
     targets: cli_target_times list;
     total_bytes: int;
 
+    (* maximum amount of memory used by Semgrep during its execution *)
     ?max_memory_bytes : int option;
   }
 

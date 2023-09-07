@@ -2964,18 +2964,18 @@ class CoreTiming:
     """Original type: core_timing = { ... }"""
 
     rules: List[RuleId]
+    rules_parse_time: float
     targets: List[TargetTime]
-    max_memory_bytes: int
-    rules_parse_time: Optional[float] = None
+    max_memory_bytes: Optional[int] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreTiming':
         if isinstance(x, dict):
             return cls(
                 rules=_atd_read_list(RuleId.from_json)(x['rules']) if 'rules' in x else _atd_missing_json_field('CoreTiming', 'rules'),
+                rules_parse_time=_atd_read_float(x['rules_parse_time']) if 'rules_parse_time' in x else _atd_missing_json_field('CoreTiming', 'rules_parse_time'),
                 targets=_atd_read_list(TargetTime.from_json)(x['targets']) if 'targets' in x else _atd_missing_json_field('CoreTiming', 'targets'),
-                max_memory_bytes=_atd_read_int(x['max_memory_bytes']) if 'max_memory_bytes' in x else _atd_missing_json_field('CoreTiming', 'max_memory_bytes'),
-                rules_parse_time=_atd_read_float(x['rules_parse_time']) if 'rules_parse_time' in x else None,
+                max_memory_bytes=_atd_read_int(x['max_memory_bytes']) if 'max_memory_bytes' in x else None,
             )
         else:
             _atd_bad_json('CoreTiming', x)
@@ -2983,10 +2983,10 @@ class CoreTiming:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['rules'] = _atd_write_list((lambda x: x.to_json()))(self.rules)
+        res['rules_parse_time'] = _atd_write_float(self.rules_parse_time)
         res['targets'] = _atd_write_list((lambda x: x.to_json()))(self.targets)
-        res['max_memory_bytes'] = _atd_write_int(self.max_memory_bytes)
-        if self.rules_parse_time is not None:
-            res['rules_parse_time'] = _atd_write_float(self.rules_parse_time)
+        if self.max_memory_bytes is not None:
+            res['max_memory_bytes'] = _atd_write_int(self.max_memory_bytes)
         return res
 
     @classmethod

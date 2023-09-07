@@ -314,9 +314,9 @@ type cve_results = Semgrep_output_v1_t.cve_results [@@deriving show]
 
 type core_timing = Semgrep_output_v1_t.core_timing = {
   rules: rule_id list;
-  rules_parse_time: float option;
+  rules_parse_time: float;
   targets: target_time list;
-  max_memory_bytes: int
+  max_memory_bytes: int option
 }
   [@@deriving show]
 
@@ -11222,63 +11222,6 @@ let read__target_time_list = (
 )
 let _target_time_list_of_string s =
   read__target_time_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__float_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    Yojson.Safe.write_std_float
-  )
-)
-let string_of__float_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__float_option ob x;
-  Buffer.contents ob
-let read__float_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_number
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_number
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _float_option_of_string s =
-  read__float_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_timing : _ -> core_timing -> _ = (
   fun ob (x : core_timing) ->
     Buffer.add_char ob '{';
@@ -11292,17 +11235,15 @@ let write_core_timing : _ -> core_timing -> _ = (
       write__rule_id_list
     )
       ob x.rules;
-    (match x.rules_parse_time with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"rules_parse_time\":";
-      (
-        Yojson.Safe.write_std_float
-      )
-        ob x;
-    );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"rules_parse_time\":";
+    (
+      Yojson.Safe.write_std_float
+    )
+      ob x.rules_parse_time;
     if !is_first then
       is_first := false
     else
@@ -11312,15 +11253,17 @@ let write_core_timing : _ -> core_timing -> _ = (
       write__target_time_list
     )
       ob x.targets;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"max_memory_bytes\":";
-    (
-      Yojson.Safe.write_int
-    )
-      ob x.max_memory_bytes;
+    (match x.max_memory_bytes with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"max_memory_bytes\":";
+      (
+        Yojson.Safe.write_int
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_core_timing ?(len = 1024) x =
@@ -11399,15 +11342,13 @@ let read_core_timing = (
               )
             );
           | 1 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_rules_parse_time := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_number
-                  ) p lb
-                )
-              );
-            )
+            field_rules_parse_time := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_number
+                ) p lb
+              )
+            );
           | 2 ->
             field_targets := (
               Some (
@@ -11417,13 +11358,15 @@ let read_core_timing = (
               )
             );
           | 3 ->
-            field_max_memory_bytes := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_int
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_max_memory_bytes := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_int
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -11492,15 +11435,13 @@ let read_core_timing = (
                 )
               );
             | 1 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_rules_parse_time := (
-                  Some (
-                    (
-                      Atdgen_runtime.Oj_run.read_number
-                    ) p lb
-                  )
-                );
-              )
+              field_rules_parse_time := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_number
+                  ) p lb
+                )
+              );
             | 2 ->
               field_targets := (
                 Some (
@@ -11510,13 +11451,15 @@ let read_core_timing = (
                 )
               );
             | 3 ->
-              field_max_memory_bytes := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_int
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_max_memory_bytes := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_int
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -11527,9 +11470,9 @@ let read_core_timing = (
         (
           {
             rules = (match !field_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rules");
-            rules_parse_time = !field_rules_parse_time;
+            rules_parse_time = (match !field_rules_parse_time with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rules_parse_time");
             targets = (match !field_targets with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "targets");
-            max_memory_bytes = (match !field_max_memory_bytes with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "max_memory_bytes");
+            max_memory_bytes = !field_max_memory_bytes;
           }
          : core_timing)
       )

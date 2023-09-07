@@ -391,7 +391,7 @@
     },
     "core_timing": {
       "type": "object",
-      "required": [ "rules", "targets", "max_memory_bytes" ],
+      "required": [ "rules", "rules_parse_time", "targets" ],
       "properties": {
         "rules": {
           "type": "array",
