@@ -605,7 +605,7 @@ type profile <ocaml attr="deriving show"> = {
 type cli_target_times <ocaml attr="deriving show"> = {
     path: fpath;
     num_bytes: int;
-    (* each elt in the list refers to a rule in profiling.rules *)
+    (* each elt in the list refers to a rule in profile.rules *)
     match_times: float list;
     (* TODO: why a list? *)
     parse_times: float list;
