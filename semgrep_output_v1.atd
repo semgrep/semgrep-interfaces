@@ -693,9 +693,11 @@ type rule_id_and_engine_kind
 type core_output
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
+
   (* errors are guaranteed to be duplicate free; see also Report.ml *)
   errors: core_error list;
   results: core_match list;
+
   inherit core_output_extra;
 }
 
@@ -703,27 +705,13 @@ type core_output_extra
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {  
   ?skipped_targets <json name="skipped">: skipped_target list option;
-  (* sinced semgrep 0.86 *)
-  skipped_rules: skipped_rule list;
-
-  (* since semgrep 0.109. Note that as opposed to the dataflow trace,
-   * the explanations are not embedded inside a core_match
-   * because we give also explanations when things are
-   * not matching.
-   *)
-  ?explanations: matching_explanation list option;
-
-  stats: core_stats;
-  (* LATER: rename timing *)
   ?time: core_timing option;
-
-
-  (* since: 1.10.0 *)
-  (* These rules, classified by engine used, will let us be transparent in the CLI
-     output over what rules were run with what.
-   *)
+  ?explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list;
   engine_requested: engine_kind;
+  skipped_rules: skipped_rule list;
+
+  stats: core_stats;
 }
 
 (* ----------------------------- *)
@@ -749,11 +737,18 @@ type cli_output_extra <ocaml attr="deriving show"> = {
     paths: scanned_and_skipped;
     (* profiling information *)
     ?time: profile option;
-    (* debugging (rule writing) information
-     * EXPERIMENTAL: since semgrep 0.109? *)
+    (* debugging (rule writing) information.
+     * Note that as opposed to the dataflow trace, the explanations are not
+     * embedded inside a match because we give also explanations when things are
+     * not matching.
+     * EXPERIMENTAL: since semgrep 0.109
+     *)
     ?explanations: matching_explanation list option;
 
-    (* EXPERIMENTAL: since: 1.11.0 *)
+    (* These rules, classified by engine used, will let us be transparent in the CLI
+     * output over what rules were run with what.
+     * EXPERIMENTAL: since: 1.11.0
+     *)
     ?rules_by_engine: rule_id_and_engine_kind list option;
     ?engine_requested: engine_kind option;
 

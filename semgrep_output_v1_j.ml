@@ -333,12 +333,12 @@ type core_severity = Semgrep_output_v1_t.core_severity =
 
 type core_output_extra = Semgrep_output_v1_t.core_output_extra = {
   skipped_targets: skipped_target list option;
-  skipped_rules: skipped_rule list;
-  explanations: matching_explanation list option;
-  stats: core_stats;
   time: core_timing option;
+  explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list;
-  engine_requested: engine_kind
+  engine_requested: engine_kind;
+  skipped_rules: skipped_rule list;
+  stats: core_stats
 }
   [@@deriving show]
 
@@ -377,12 +377,12 @@ type core_output = Semgrep_output_v1_t.core_output = {
   errors: core_error list;
   results: core_match list;
   skipped_targets: skipped_target list option;
-  skipped_rules: skipped_rule list;
-  explanations: matching_explanation list option;
-  stats: core_stats;
   time: core_timing option;
+  explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list;
-  engine_requested: engine_kind
+  engine_requested: engine_kind;
+  skipped_rules: skipped_rule list;
+  stats: core_stats
 }
   [@@deriving show]
 
@@ -11844,35 +11844,6 @@ let write_core_output_extra : _ -> core_output_extra -> _ = (
       )
         ob x;
     );
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"skipped_rules\":";
-    (
-      write__skipped_rule_list
-    )
-      ob x.skipped_rules;
-    (match x.explanations with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"explanations\":";
-      (
-        write__matching_explanation_list
-      )
-        ob x;
-    );
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"stats\":";
-    (
-      write_core_stats
-    )
-      ob x.stats;
     (match x.time with None -> () | Some x ->
       if !is_first then
         is_first := false
@@ -11881,6 +11852,17 @@ let write_core_output_extra : _ -> core_output_extra -> _ = (
         Buffer.add_string ob "\"time\":";
       (
         write_core_timing
+      )
+        ob x;
+    );
+    (match x.explanations with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"explanations\":";
+      (
+        write__matching_explanation_list
       )
         ob x;
     );
@@ -11902,6 +11884,24 @@ let write_core_output_extra : _ -> core_output_extra -> _ = (
       write_engine_kind
     )
       ob x.engine_requested;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"skipped_rules\":";
+    (
+      write__skipped_rule_list
+    )
+      ob x.skipped_rules;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"stats\":";
+    (
+      write_core_stats
+    )
+      ob x.stats;
     Buffer.add_char ob '}';
 )
 let string_of_core_output_extra ?(len = 1024) x =
@@ -11913,12 +11913,12 @@ let read_core_output_extra = (
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
     let field_skipped_targets = ref (None) in
-    let field_skipped_rules = ref (None) in
-    let field_explanations = ref (None) in
-    let field_stats = ref (None) in
     let field_time = ref (None) in
+    let field_explanations = ref (None) in
     let field_rules_by_engine = ref (None) in
     let field_engine_requested = ref (None) in
+    let field_skipped_rules = ref (None) in
+    let field_stats = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -11930,7 +11930,7 @@ let read_core_output_extra = (
           match len with
             | 4 -> (
                 if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'e' then (
-                  4
+                  1
                 )
                 else (
                   -1
@@ -11938,7 +11938,7 @@ let read_core_output_extra = (
               )
             | 5 -> (
                 if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 's' then (
-                  3
+                  6
                 )
                 else (
                   -1
@@ -11962,7 +11962,7 @@ let read_core_output_extra = (
               )
             | 13 -> (
                 if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
-                  1
+                  5
                 )
                 else (
                   -1
@@ -11970,7 +11970,7 @@ let read_core_output_extra = (
               )
             | 15 -> (
                 if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'y' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'g' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 'e' then (
-                  5
+                  3
                 )
                 else (
                   -1
@@ -11978,7 +11978,7 @@ let read_core_output_extra = (
               )
             | 16 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
-                  6
+                  4
                 )
                 else (
                   -1
@@ -12003,13 +12003,15 @@ let read_core_output_extra = (
               );
             )
           | 1 ->
-            field_skipped_rules := (
-              Some (
-                (
-                  read__skipped_rule_list
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_time := (
+                Some (
+                  (
+                    read_core_timing
+                  ) p lb
+                )
+              );
+            )
           | 2 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_explanations := (
@@ -12021,24 +12023,6 @@ let read_core_output_extra = (
               );
             )
           | 3 ->
-            field_stats := (
-              Some (
-                (
-                  read_core_stats
-                ) p lb
-              )
-            );
-          | 4 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_time := (
-                Some (
-                  (
-                    read_core_timing
-                  ) p lb
-                )
-              );
-            )
-          | 5 ->
             field_rules_by_engine := (
               Some (
                 (
@@ -12046,11 +12030,27 @@ let read_core_output_extra = (
                 ) p lb
               )
             );
-          | 6 ->
+          | 4 ->
             field_engine_requested := (
               Some (
                 (
                   read_engine_kind
+                ) p lb
+              )
+            );
+          | 5 ->
+            field_skipped_rules := (
+              Some (
+                (
+                  read__skipped_rule_list
+                ) p lb
+              )
+            );
+          | 6 ->
+            field_stats := (
+              Some (
+                (
+                  read_core_stats
                 ) p lb
               )
             );
@@ -12069,7 +12069,7 @@ let read_core_output_extra = (
             match len with
               | 4 -> (
                   if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'e' then (
-                    4
+                    1
                   )
                   else (
                     -1
@@ -12077,7 +12077,7 @@ let read_core_output_extra = (
                 )
               | 5 -> (
                   if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 's' then (
-                    3
+                    6
                   )
                   else (
                     -1
@@ -12101,7 +12101,7 @@ let read_core_output_extra = (
                 )
               | 13 -> (
                   if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
-                    1
+                    5
                   )
                   else (
                     -1
@@ -12109,7 +12109,7 @@ let read_core_output_extra = (
                 )
               | 15 -> (
                   if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'y' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'g' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 'e' then (
-                    5
+                    3
                   )
                   else (
                     -1
@@ -12117,7 +12117,7 @@ let read_core_output_extra = (
                 )
               | 16 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
-                    6
+                    4
                   )
                   else (
                     -1
@@ -12142,13 +12142,15 @@ let read_core_output_extra = (
                 );
               )
             | 1 ->
-              field_skipped_rules := (
-                Some (
-                  (
-                    read__skipped_rule_list
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_time := (
+                  Some (
+                    (
+                      read_core_timing
+                    ) p lb
+                  )
+                );
+              )
             | 2 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_explanations := (
@@ -12160,24 +12162,6 @@ let read_core_output_extra = (
                 );
               )
             | 3 ->
-              field_stats := (
-                Some (
-                  (
-                    read_core_stats
-                  ) p lb
-                )
-              );
-            | 4 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_time := (
-                  Some (
-                    (
-                      read_core_timing
-                    ) p lb
-                  )
-                );
-              )
-            | 5 ->
               field_rules_by_engine := (
                 Some (
                   (
@@ -12185,11 +12169,27 @@ let read_core_output_extra = (
                   ) p lb
                 )
               );
-            | 6 ->
+            | 4 ->
               field_engine_requested := (
                 Some (
                   (
                     read_engine_kind
+                  ) p lb
+                )
+              );
+            | 5 ->
+              field_skipped_rules := (
+                Some (
+                  (
+                    read__skipped_rule_list
+                  ) p lb
+                )
+              );
+            | 6 ->
+              field_stats := (
+                Some (
+                  (
+                    read_core_stats
                   ) p lb
                 )
               );
@@ -12203,12 +12203,12 @@ let read_core_output_extra = (
         (
           {
             skipped_targets = !field_skipped_targets;
-            skipped_rules = (match !field_skipped_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "skipped_rules");
-            explanations = !field_explanations;
-            stats = (match !field_stats with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "stats");
             time = !field_time;
+            explanations = !field_explanations;
             rules_by_engine = (match !field_rules_by_engine with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rules_by_engine");
             engine_requested = (match !field_engine_requested with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "engine_requested");
+            skipped_rules = (match !field_skipped_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "skipped_rules");
+            stats = (match !field_stats with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "stats");
           }
          : core_output_extra)
       )
@@ -12847,35 +12847,6 @@ let write_core_output : _ -> core_output -> _ = (
       )
         ob x;
     );
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"skipped_rules\":";
-    (
-      write__skipped_rule_list
-    )
-      ob x.skipped_rules;
-    (match x.explanations with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"explanations\":";
-      (
-        write__matching_explanation_list
-      )
-        ob x;
-    );
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"stats\":";
-    (
-      write_core_stats
-    )
-      ob x.stats;
     (match x.time with None -> () | Some x ->
       if !is_first then
         is_first := false
@@ -12884,6 +12855,17 @@ let write_core_output : _ -> core_output -> _ = (
         Buffer.add_string ob "\"time\":";
       (
         write_core_timing
+      )
+        ob x;
+    );
+    (match x.explanations with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"explanations\":";
+      (
+        write__matching_explanation_list
       )
         ob x;
     );
@@ -12905,6 +12887,24 @@ let write_core_output : _ -> core_output -> _ = (
       write_engine_kind
     )
       ob x.engine_requested;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"skipped_rules\":";
+    (
+      write__skipped_rule_list
+    )
+      ob x.skipped_rules;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"stats\":";
+    (
+      write_core_stats
+    )
+      ob x.stats;
     Buffer.add_char ob '}';
 )
 let string_of_core_output ?(len = 1024) x =
@@ -12918,12 +12918,12 @@ let read_core_output = (
     let field_errors = ref (None) in
     let field_results = ref (None) in
     let field_skipped_targets = ref (None) in
-    let field_skipped_rules = ref (None) in
-    let field_explanations = ref (None) in
-    let field_stats = ref (None) in
     let field_time = ref (None) in
+    let field_explanations = ref (None) in
     let field_rules_by_engine = ref (None) in
     let field_engine_requested = ref (None) in
+    let field_skipped_rules = ref (None) in
+    let field_stats = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -12935,7 +12935,7 @@ let read_core_output = (
           match len with
             | 4 -> (
                 if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'e' then (
-                  6
+                  3
                 )
                 else (
                   -1
@@ -12943,7 +12943,7 @@ let read_core_output = (
               )
             | 5 -> (
                 if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 's' then (
-                  5
+                  8
                 )
                 else (
                   -1
@@ -12989,7 +12989,7 @@ let read_core_output = (
               )
             | 13 -> (
                 if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
-                  3
+                  7
                 )
                 else (
                   -1
@@ -12997,7 +12997,7 @@ let read_core_output = (
               )
             | 15 -> (
                 if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'y' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'g' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 'e' then (
-                  7
+                  5
                 )
                 else (
                   -1
@@ -13005,7 +13005,7 @@ let read_core_output = (
               )
             | 16 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
-                  8
+                  6
                 )
                 else (
                   -1
@@ -13046,13 +13046,15 @@ let read_core_output = (
               );
             )
           | 3 ->
-            field_skipped_rules := (
-              Some (
-                (
-                  read__skipped_rule_list
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_time := (
+                Some (
+                  (
+                    read_core_timing
+                  ) p lb
+                )
+              );
+            )
           | 4 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_explanations := (
@@ -13064,24 +13066,6 @@ let read_core_output = (
               );
             )
           | 5 ->
-            field_stats := (
-              Some (
-                (
-                  read_core_stats
-                ) p lb
-              )
-            );
-          | 6 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_time := (
-                Some (
-                  (
-                    read_core_timing
-                  ) p lb
-                )
-              );
-            )
-          | 7 ->
             field_rules_by_engine := (
               Some (
                 (
@@ -13089,11 +13073,27 @@ let read_core_output = (
                 ) p lb
               )
             );
-          | 8 ->
+          | 6 ->
             field_engine_requested := (
               Some (
                 (
                   read_engine_kind
+                ) p lb
+              )
+            );
+          | 7 ->
+            field_skipped_rules := (
+              Some (
+                (
+                  read__skipped_rule_list
+                ) p lb
+              )
+            );
+          | 8 ->
+            field_stats := (
+              Some (
+                (
+                  read_core_stats
                 ) p lb
               )
             );
@@ -13112,7 +13112,7 @@ let read_core_output = (
             match len with
               | 4 -> (
                   if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'e' then (
-                    6
+                    3
                   )
                   else (
                     -1
@@ -13120,7 +13120,7 @@ let read_core_output = (
                 )
               | 5 -> (
                   if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 's' then (
-                    5
+                    8
                   )
                   else (
                     -1
@@ -13166,7 +13166,7 @@ let read_core_output = (
                 )
               | 13 -> (
                   if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
-                    3
+                    7
                   )
                   else (
                     -1
@@ -13174,7 +13174,7 @@ let read_core_output = (
                 )
               | 15 -> (
                   if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'y' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'g' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 'e' then (
-                    7
+                    5
                   )
                   else (
                     -1
@@ -13182,7 +13182,7 @@ let read_core_output = (
                 )
               | 16 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
-                    8
+                    6
                   )
                   else (
                     -1
@@ -13223,13 +13223,15 @@ let read_core_output = (
                 );
               )
             | 3 ->
-              field_skipped_rules := (
-                Some (
-                  (
-                    read__skipped_rule_list
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_time := (
+                  Some (
+                    (
+                      read_core_timing
+                    ) p lb
+                  )
+                );
+              )
             | 4 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_explanations := (
@@ -13241,24 +13243,6 @@ let read_core_output = (
                 );
               )
             | 5 ->
-              field_stats := (
-                Some (
-                  (
-                    read_core_stats
-                  ) p lb
-                )
-              );
-            | 6 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_time := (
-                  Some (
-                    (
-                      read_core_timing
-                    ) p lb
-                  )
-                );
-              )
-            | 7 ->
               field_rules_by_engine := (
                 Some (
                   (
@@ -13266,11 +13250,27 @@ let read_core_output = (
                   ) p lb
                 )
               );
-            | 8 ->
+            | 6 ->
               field_engine_requested := (
                 Some (
                   (
                     read_engine_kind
+                  ) p lb
+                )
+              );
+            | 7 ->
+              field_skipped_rules := (
+                Some (
+                  (
+                    read__skipped_rule_list
+                  ) p lb
+                )
+              );
+            | 8 ->
+              field_stats := (
+                Some (
+                  (
+                    read_core_stats
                   ) p lb
                 )
               );
@@ -13286,12 +13286,12 @@ let read_core_output = (
             errors = (match !field_errors with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "errors");
             results = (match !field_results with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "results");
             skipped_targets = !field_skipped_targets;
-            skipped_rules = (match !field_skipped_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "skipped_rules");
-            explanations = !field_explanations;
-            stats = (match !field_stats with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "stats");
             time = !field_time;
+            explanations = !field_explanations;
             rules_by_engine = (match !field_rules_by_engine with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rules_by_engine");
             engine_requested = (match !field_engine_requested with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "engine_requested");
+            skipped_rules = (match !field_skipped_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "skipped_rules");
+            stats = (match !field_stats with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "stats");
           }
          : core_output)
       )

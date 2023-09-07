@@ -290,22 +290,22 @@ export type CoreOutput = {
   errors: CoreError[];
   results: CoreMatch[];
   skipped_targets?: SkippedTarget[];
-  skipped_rules: SkippedRule[];
-  explanations?: MatchingExplanation[];
-  stats: CoreStats;
   time?: CoreTiming;
+  explanations?: MatchingExplanation[];
   rules_by_engine: RuleIdAndEngineKind[];
   engine_requested: EngineKind;
+  skipped_rules: SkippedRule[];
+  stats: CoreStats;
 }
 
 export type CoreOutputExtra = {
   skipped_targets?: SkippedTarget[];
-  skipped_rules: SkippedRule[];
-  explanations?: MatchingExplanation[];
-  stats: CoreStats;
   time?: CoreTiming;
+  explanations?: MatchingExplanation[];
   rules_by_engine: RuleIdAndEngineKind[];
   engine_requested: EngineKind;
+  skipped_rules: SkippedRule[];
+  stats: CoreStats;
 }
 
 export type CliOutput = {
@@ -1363,12 +1363,12 @@ export function writeCoreOutput(x: CoreOutput, context: any = x): any {
     'errors': _atd_write_required_field('CoreOutput', 'errors', _atd_write_array(writeCoreError), x.errors, x),
     'results': _atd_write_required_field('CoreOutput', 'results', _atd_write_array(writeCoreMatch), x.results, x),
     'skipped': _atd_write_optional_field(_atd_write_array(writeSkippedTarget), x.skipped_targets, x),
-    'skipped_rules': _atd_write_required_field('CoreOutput', 'skipped_rules', _atd_write_array(writeSkippedRule), x.skipped_rules, x),
-    'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
-    'stats': _atd_write_required_field('CoreOutput', 'stats', writeCoreStats, x.stats, x),
     'time': _atd_write_optional_field(writeCoreTiming, x.time, x),
+    'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'rules_by_engine': _atd_write_required_field('CoreOutput', 'rules_by_engine', _atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_required_field('CoreOutput', 'engine_requested', writeEngineKind, x.engine_requested, x),
+    'skipped_rules': _atd_write_required_field('CoreOutput', 'skipped_rules', _atd_write_array(writeSkippedRule), x.skipped_rules, x),
+    'stats': _atd_write_required_field('CoreOutput', 'stats', writeCoreStats, x.stats, x),
   };
 }
 
@@ -1377,36 +1377,36 @@ export function readCoreOutput(x: any, context: any = x): CoreOutput {
     errors: _atd_read_required_field('CoreOutput', 'errors', _atd_read_array(readCoreError), x['errors'], x),
     results: _atd_read_required_field('CoreOutput', 'results', _atd_read_array(readCoreMatch), x['results'], x),
     skipped_targets: _atd_read_optional_field(_atd_read_array(readSkippedTarget), x['skipped'], x),
-    skipped_rules: _atd_read_required_field('CoreOutput', 'skipped_rules', _atd_read_array(readSkippedRule), x['skipped_rules'], x),
-    explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
-    stats: _atd_read_required_field('CoreOutput', 'stats', readCoreStats, x['stats'], x),
     time: _atd_read_optional_field(readCoreTiming, x['time'], x),
+    explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     rules_by_engine: _atd_read_required_field('CoreOutput', 'rules_by_engine', _atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_required_field('CoreOutput', 'engine_requested', readEngineKind, x['engine_requested'], x),
+    skipped_rules: _atd_read_required_field('CoreOutput', 'skipped_rules', _atd_read_array(readSkippedRule), x['skipped_rules'], x),
+    stats: _atd_read_required_field('CoreOutput', 'stats', readCoreStats, x['stats'], x),
   };
 }
 
 export function writeCoreOutputExtra(x: CoreOutputExtra, context: any = x): any {
   return {
     'skipped': _atd_write_optional_field(_atd_write_array(writeSkippedTarget), x.skipped_targets, x),
-    'skipped_rules': _atd_write_required_field('CoreOutputExtra', 'skipped_rules', _atd_write_array(writeSkippedRule), x.skipped_rules, x),
-    'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
-    'stats': _atd_write_required_field('CoreOutputExtra', 'stats', writeCoreStats, x.stats, x),
     'time': _atd_write_optional_field(writeCoreTiming, x.time, x),
+    'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'rules_by_engine': _atd_write_required_field('CoreOutputExtra', 'rules_by_engine', _atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_required_field('CoreOutputExtra', 'engine_requested', writeEngineKind, x.engine_requested, x),
+    'skipped_rules': _atd_write_required_field('CoreOutputExtra', 'skipped_rules', _atd_write_array(writeSkippedRule), x.skipped_rules, x),
+    'stats': _atd_write_required_field('CoreOutputExtra', 'stats', writeCoreStats, x.stats, x),
   };
 }
 
 export function readCoreOutputExtra(x: any, context: any = x): CoreOutputExtra {
   return {
     skipped_targets: _atd_read_optional_field(_atd_read_array(readSkippedTarget), x['skipped'], x),
-    skipped_rules: _atd_read_required_field('CoreOutputExtra', 'skipped_rules', _atd_read_array(readSkippedRule), x['skipped_rules'], x),
-    explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
-    stats: _atd_read_required_field('CoreOutputExtra', 'stats', readCoreStats, x['stats'], x),
     time: _atd_read_optional_field(readCoreTiming, x['time'], x),
+    explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     rules_by_engine: _atd_read_required_field('CoreOutputExtra', 'rules_by_engine', _atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_required_field('CoreOutputExtra', 'engine_requested', readEngineKind, x['engine_requested'], x),
+    skipped_rules: _atd_read_required_field('CoreOutputExtra', 'skipped_rules', _atd_read_array(readSkippedRule), x['skipped_rules'], x),
+    stats: _atd_read_required_field('CoreOutputExtra', 'stats', readCoreStats, x['stats'], x),
   };
 }
 

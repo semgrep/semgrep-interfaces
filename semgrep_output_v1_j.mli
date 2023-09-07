@@ -333,12 +333,12 @@ type core_severity = Semgrep_output_v1_t.core_severity =
 
 type core_output_extra = Semgrep_output_v1_t.core_output_extra = {
   skipped_targets: skipped_target list option;
-  skipped_rules: skipped_rule list;
-  explanations: matching_explanation list option;
-  stats: core_stats;
   time: core_timing option;
+  explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list;
-  engine_requested: engine_kind
+  engine_requested: engine_kind;
+  skipped_rules: skipped_rule list;
+  stats: core_stats
 }
   [@@deriving show]
 
@@ -377,12 +377,12 @@ type core_output = Semgrep_output_v1_t.core_output = {
   errors: core_error list;
   results: core_match list;
   skipped_targets: skipped_target list option;
-  skipped_rules: skipped_rule list;
-  explanations: matching_explanation list option;
-  stats: core_stats;
   time: core_timing option;
+  explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list;
-  engine_requested: engine_kind
+  engine_requested: engine_kind;
+  skipped_rules: skipped_rule list;
+  stats: core_stats
 }
   [@@deriving show]
 
