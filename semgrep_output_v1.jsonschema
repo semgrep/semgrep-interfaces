@@ -15,7 +15,7 @@
       "items": { "$ref": "#/definitions/cli_match" }
     },
     "paths": { "$ref": "#/definitions/scanned_and_skipped" },
-    "time": { "$ref": "#/definitions/cli_timing" },
+    "time": { "$ref": "#/definitions/profile" },
     "explanations": {
       "type": "array",
       "items": { "$ref": "#/definitions/matching_explanation" }
@@ -391,17 +391,17 @@
     },
     "core_timing": {
       "type": "object",
-      "required": [ "targets", "rules", "max_memory_bytes" ],
+      "required": [ "rules", "targets", "max_memory_bytes" ],
       "properties": {
-        "targets": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/target_time" }
-        },
         "rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/rule_id" }
         },
         "rules_parse_time": { "type": "number" },
+        "targets": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/target_time" }
+        },
         "max_memory_bytes": { "type": "integer" }
       }
     },
@@ -426,7 +426,7 @@
         "match_time": { "type": "number" }
       }
     },
-    "cli_timing": {
+    "profile": {
       "type": "object",
       "required": [
         "rules", "rules_parse_time", "profiling_times", "targets",
@@ -435,7 +435,7 @@
       "properties": {
         "rules": {
           "type": "array",
-          "items": { "$ref": "#/definitions/rule_id_dict" }
+          "items": { "$ref": "#/definitions/rule_id" }
         },
         "rules_parse_time": { "type": "number" },
         "profiling_times": {
@@ -449,11 +449,6 @@
         "total_bytes": { "type": "integer" },
         "max_memory_bytes": { "type": "integer" }
       }
-    },
-    "rule_id_dict": {
-      "type": "object",
-      "required": [ "id" ],
-      "properties": { "id": { "$ref": "#/definitions/rule_id" } }
     },
     "cli_target_times": {
       "type": "object",
@@ -588,7 +583,7 @@
       "required": [ "paths" ],
       "properties": {
         "paths": { "$ref": "#/definitions/scanned_and_skipped" },
-        "time": { "$ref": "#/definitions/cli_timing" },
+        "time": { "$ref": "#/definitions/profile" },
         "explanations": {
           "type": "array",
           "items": { "$ref": "#/definitions/matching_explanation" }

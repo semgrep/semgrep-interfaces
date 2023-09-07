@@ -518,22 +518,23 @@ type core_stats
 (*****************************************************************************)
 (* Profiling information *)
 (*****************************************************************************)
-
+(* coupling: with semgrep_metrics.atd performance section *)
 (* ----------------------------- *)
 (* Core *)
 (* ----------------------------- *)
 
 (* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
 
+(* TODO: cmerge with profile below *)
 type core_timing
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
-  targets: target_time list;
-
   (* List of rules received by core *)
   (* Needs to be separate to include rules read but not run on any target *)
   rules: rule_id list;
   ?rules_parse_time: float option; (* not used in spacegrep *)
+
+  targets: target_time list;
 
   max_memory_bytes : int;
 }
@@ -554,6 +555,7 @@ type rule_times
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
   rule_id: rule_id;
+  (* TODO: time to parse what? *)
   parse_time: float;
   match_time: float;
 }
@@ -561,45 +563,53 @@ type rule_times
 (* ----------------------------- *)
 (* CLI *)
 (* ----------------------------- *)
-(* LATER: could merge with core_timing above
- * coupling: if you change the JSON schema below, you probably need to
+(* coupling: if you change the JSON schema below, you probably need to
  * also modify perf/run-benchmarks. Run locally  $ ./run-benchmarks --dummy --upload
  *)
-type cli_timing <ocaml attr="deriving show"> = {
-    rules: rule_id_dict list;
+type profile <ocaml attr="deriving show"> = {
+    (* List of rules, including the one read but not run on any target.
+     * This list is actually more an array which allows other
+     * fields to reference rule by number instead of rule_id
+     * (e.g., match_times further below) saving space in the JSON.
+     *
+     * Upgrade note: this used to be defined as a rule_id_dict where
+     * each rule_id was inside a {id: rule_id} record (maybe so
+     * we could have given more profiling info about each rule, but
+     * this was never used, so better to make it simple).
+     *)
+    rules: rule_id list;
+
+    (* LESS? could be part of profiling_times below instead *)
     rules_parse_time: float;
-    (* LATER: define a cli_profiling_times with more precise keys *)
+    (* coupling: semgrep_metrics.atd profilingTimes field?
+     * LATER? define a cli_profiling_times with more precise keys? 
+     * type cli_profiling_times <ocaml attr="deriving show"> = {
+     *   config_time: float;
+     *   core_time: float;
+     *   ignores_time: float;
+     *   total_time: float;
+     *  }
+     * LATER: get rid of profiler.dump_stats
+     *)
     profiling_times: (string * float) list
       <json repr="object">
       <python repr="dict">
       <ts repr="map">;
+
     targets: cli_target_times list;
     total_bytes: int;
 
     ?max_memory_bytes : int option;
   }
 
-(* LATER: should just use rule_id *)
-type rule_id_dict <ocaml attr="deriving show"> = {
-  id: rule_id;
-}
-
-(* LATER: get rid of profiler.dump_stats
-type cli_profiling_times <ocaml attr="deriving show"> = {
-   config_time: float;
-   core_time: float;
-   ignores_time: float;
-   total_time: float;
-}
-*)
-
-(* similar to the [target_time] and [rule_times] type above *)
 type cli_target_times <ocaml attr="deriving show"> = {
     path: fpath;
     num_bytes: int;
-    (* each elt in the list refers to a rule in cli_timing.rules *)
+    (* each elt in the list refers to a rule in profiling.rules *)
     match_times: float list;
+    (* TODO: why a list? *)
     parse_times: float list;
+    (* run time for all rules on target? *)
     run_time: float;
 }
 
@@ -731,13 +741,16 @@ type cli_output <ocaml attr="deriving show"> = {
     inherit cli_output_extra;
 }
 
+(* TODO? used only in TEXT format:
+ * ?color_output, per_finding_max_lines_limit, per_line_max_chars_limit
+*)
 type cli_output_extra <ocaml attr="deriving show"> = {
+    (* targeting information *)
     paths: scanned_and_skipped;
-    ?time: cli_timing option;
-    (* used only in TEXT format:
-       ?color_output, per_finding_max_lines_limit, per_line_max_chars_limit
-     *)
-    (* EXPERIMENTAL: since semgrep 0.109? *)
+    (* profiling information *)
+    ?time: profile option;
+    (* debugging (rule writing) information
+     * EXPERIMENTAL: since semgrep 0.109? *)
     ?explanations: matching_explanation list option;
 
     (* EXPERIMENTAL: since: 1.11.0 *)
