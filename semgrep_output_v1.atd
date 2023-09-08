@@ -18,15 +18,15 @@
  * (any incompatible changes to the rule format should also require a major
  *  version upgrade). Hopefully, we will always be backward compatible.
  *
- * This file is translated in OCaml modules by atdgen.Look for the corresponding
- * Semgrep_output_v1_t.mli generated file and other related files
- * under dune's _build/ folder. A few types have the 'deriving show' decorator
- * below because those types are reused in semgrep core data structures and
- * we make heavy use of 'deriving show' in OCaml to help debug things.
+ * This file is translated in OCaml modules by atdgen. Look for the
+ * corresponding Semgrep_output_v1_[tj].ml[i] generated files
+ * under dune's _build/ folder. A few types below have the 'deriving show'
+ * decorator because those types are reused in semgrep core data structures
+ * and we make heavy use of 'deriving show' in OCaml to help debug things.
  *
  * This file is also translated in Python modules by atdpy.
  * For Python, a few types have the 'dataclass(frozen=True)' decorator
- * so that the class can be hashed and put in set. Indeed, with Frozen=True
+ * so that the class can be hashed and put in set. Indeed, with 'Frozen=True'
  * the class is immutable and dataclass can autogenerate a hash function for it.
  * 
  * Finally this file is translated in jsonschema/openapi spec by atdcat, and
@@ -42,13 +42,11 @@
  *    removing gradually the semgrep-core JSON output.
  *
  * There are other important form of outputs which are not specified here:
- *  - the schema for the generic AST dump is in AST_generic_v1.atd
+ *  - The schema for the generic AST dump is in AST_generic_v1.atd
  *  - The parsing stats of semgrep-core -parsing_stats -json have its own
  *    Parsing_stats.atd
- *
- * TODO:
- *   - get rid of semgrep-core output, merge with regular semgrep CLI output
- *   - see the TODO: (high-prio) and LATER: (low-prio) tags in this file
+ *  - The semgrep metrics sent to https://metrics.semgrep.dev in
+ *    semgrep_metrics.atd
  *)
 
 (* escape hatch *)
@@ -427,7 +425,10 @@ type error_span = {
 (* Skipping information *)
 (*****************************************************************************)
 
-(* A reason for skipping a target file or a pair (target, rule). *)
+(* A reason for skipping a target file or a pair (target, rule).
+ * Note that this type is also used in Report.ml hence the need
+ * for deriving show here.
+ *)
 type skip_reason <ocaml attr="deriving show"> = [
   (* Originally returned by the Python CLI *)
   | Always_skipped <json name="always_skipped">
@@ -449,10 +450,7 @@ type skip_reason <ocaml attr="deriving show"> = [
   | Gitignore_patterns_match <json name="gitignore_patterns_match">
 ] <ocaml repr="classic">
 
-(* coupling: ugly: with yield_json_objects() in target_manager.py
- * Note that this type is also used in Report.ml hence the need
- * for deriving show here.
- *)
+(* coupling: ugly: with yield_json_objects() in target_manager.py *)
 type skipped_target <ocaml attr="deriving show"> = {
   path: fpath;
   reason: skip_reason;
