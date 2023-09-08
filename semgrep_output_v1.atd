@@ -45,7 +45,7 @@
  *)
 
 (* escape hatch *)
-type raw_json <ocaml module="Yojson.Basic" t="t" attr="deriving show"> = abstract
+type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
 
 (*****************************************************************************)
 (* Versioning *)
@@ -77,8 +77,8 @@ type fpath <ocaml attr="deriving show"> = string
 
 (* a.k.a range *)
 type location
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = {
+     <ocaml attr="deriving show">
+     <python decorator="dataclass(frozen=True)"> = {
   path: fpath (* source file *);
   start: position;
   end <ocaml name="end_">: position;
@@ -104,18 +104,14 @@ type rule_id
 (* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
 
 (* TODO: now only core_match_extra differ, otherwise it's just like cli_match *)
-type core_match
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = {
+type core_match <python decorator="dataclass(frozen=True)"> = {
   check_id: rule_id;
   inherit location;
   extra: core_match_extra;
 }
 
 (* TODO: try to make it as close as possible to 'cli_match_extra' below *)
-type core_match_extra
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = {
+type core_match_extra <python decorator="dataclass(frozen=True)"> = {
   ?message: string option; (* rule.message (?) *)
   metavars: metavars;
   ?dataflow_trace: match_dataflow_trace option;
@@ -139,13 +135,13 @@ type core_match_extra
 (* CLI *)
 (* ----------------------------- *)
 
-type cli_match <ocaml attr="deriving show"> = {
+type cli_match = {
   check_id: rule_id;
   inherit location;
   extra: cli_match_extra;
 }
 
-type cli_match_extra <ocaml attr="deriving show"> = {
+type cli_match_extra = {
   (* TODO: inherit match_extra; but need ?metavars because of dependency_aware code *)
   ?metavars: metavars option;
 
@@ -188,7 +184,7 @@ type cli_match_extra <ocaml attr="deriving show"> = {
   ?extra_extra: raw_json option;
 }
 
-type fix_regex <ocaml attr="deriving show"> = {
+type fix_regex = {
   regex: string;
   replacement: string;
   ?count: int option;
@@ -212,7 +208,7 @@ type validation_state
  * TODO: semgrep-core always return a metavars, but dependency_aware Python code
  * does not always generate a metavars
 *)
-type metavars <ocaml attr="deriving show"> = (string * metavar_value) list
+type metavars = (string * metavar_value) list
   <json repr="object">
   <python repr="dict">
   <ts repr="map">
@@ -222,9 +218,7 @@ type metavars <ocaml attr="deriving show"> = (string * metavar_value) list
  * but with deep-semgrep a metavar could also refer to code in another file,
  * so simpler to generalize and 'inherit location'.
  *)
-type metavar_value
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = {
+type metavar_value <python decorator="dataclass(frozen=True)"> = {
   (* for certain metavariable like $...ARGS, 'end' may be equal to 'start'
    * to represent an empty metavariable value. The rest of the Python
    * code (message metavariable substitution and autofix) works
@@ -236,9 +230,7 @@ type metavar_value
   ?propagated_value: svalue_value option;
 }
 
-type svalue_value
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = {
+type svalue_value <python decorator="dataclass(frozen=True)"> = {
   ?svalue_start: position option;
   ?svalue_end: position option;
   svalue_abstract_content: string; (* value? *)
@@ -249,9 +241,7 @@ type svalue_value
 (*****************************************************************************)
 
 (* EXPERIMENTAL *)
-type match_dataflow_trace
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = {
+type match_dataflow_trace <python decorator="dataclass(frozen=True)"> = {
   ?taint_source: match_call_trace option;
   (* Intermediate variables which are involved in the dataflow. For taint, this
    * explains how the taint flows from the source to the sink. *)
@@ -265,18 +255,14 @@ type match_dataflow_trace
 (* the string attached to the location is the actual text from the file
  * TODO: define a location_with_content type that can be reused.
  *)
-type match_call_trace
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True, order=True)"> = [
+type match_call_trace <python decorator="dataclass(frozen=True, order=True)"> = [
   | CliLoc of (location * string)
   | CliCall of ((location * string) * match_intermediate_var list * match_call_trace)
 ] <ocaml repr="classic">
 
 
 (* EXPERIMENTAL *)
-type match_intermediate_var
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = {
+type match_intermediate_var <python decorator="dataclass(frozen=True)"> = {
   location: location;
   (* Unlike abstract_content, this is the actual text read from the
    * corresponding source file *)
@@ -300,9 +286,7 @@ type match_intermediate_var
  * extending cli_error with more fields (but those fields must be optional
  * to remain backward compatible
  *)
-type core_error
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = {
+type core_error <python decorator="dataclass(frozen=True)"> = {
   ?rule_id: rule_id option;
   error_type: core_error_kind;
   severity: core_severity;
@@ -353,8 +337,8 @@ type core_error_kind
 ] <ocaml repr="classic">
 
 type incompatible_rule
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = {
+     <ocaml attr="deriving show">
+     <python decorator="dataclass(frozen=True)"> = {
   rule_id: rule_id;
   this_version: version;
   ?min_version: version option;
@@ -379,7 +363,7 @@ type core_severity
 (* ----------------------------- *)
 (* (called SemgrepError in error.py) *)
 
-type cli_error <ocaml attr="deriving show"> = {
+type cli_error = {
   (* exit code? *)
   code: int;
   (* TODO: use a variant (Warning | Error | ...) *)
@@ -406,7 +390,7 @@ type cli_error <ocaml attr="deriving show"> = {
   ?help: string option;
 }
 
-type error_span <ocaml attr="deriving show"> = {
+type error_span = {
     (* for InvalidRuleSchemaError *)
     (* LATER: could inherit location; but file: vs path: *)
     (* TODO: source hash should probably also be mandatory? *)
@@ -460,10 +444,11 @@ type skip_reason
   | Gitignore_patterns_match <json name="gitignore_patterns_match">
 ] <ocaml repr="classic">
 
-(* coupling: ugly: with yield_json_objects() in target_manager.py *)
-type skipped_target
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = {
+(* coupling: ugly: with yield_json_objects() in target_manager.py
+ * Note that this type is also used in Report.ml hence the need
+ * for deriving show here.
+ *)
+type skipped_target <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True)"> = {
   path: fpath;
   reason: skip_reason;
   (* since semgrep 1.39.0 (used to be return only by semgrep-core) *)
@@ -473,7 +458,7 @@ type skipped_target
   ?rule_id: rule_id option;
 }
 
-type scanned_and_skipped <ocaml attr="deriving show"> = {
+type scanned_and_skipped = {
     scanned: string list;
     (* really either _comment: (saying "you should use -v to get more info")
      * or skipped:. We should have used a variant.
@@ -485,9 +470,7 @@ type scanned_and_skipped <ocaml attr="deriving show"> = {
     ?skipped: skipped_target list option;
 }
 
-type skipped_rule
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = {
+type skipped_rule <python decorator="dataclass(frozen=True)"> = {
   rule_id: rule_id;
   details: string;
   (* position of the error in the rule file *)
@@ -501,9 +484,7 @@ type skipped_rule
 (* ----------------------------- *)
 (* Core *)
 (* ----------------------------- *)
-type core_stats
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = {
+type core_stats <python decorator="dataclass(frozen=True)"> = {
   okfiles: int;
   errorfiles: int;
 }
@@ -523,9 +504,7 @@ type core_stats
 (* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
 
 (* TODO: merge with profile below *)
-type core_timing
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = {
+type core_timing <python decorator="dataclass(frozen=True)"> = {
   rules: rule_id list;
 
   rules_parse_time: float;
@@ -537,9 +516,7 @@ type core_timing
 }
 
 (* TODO: merge with cli_target_times *)
-type target_time
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = {
+type target_time <python decorator="dataclass(frozen=True)"> = {
   path: fpath;
   (* parse and match time for each rule on target *)
   rule_times: rule_times list;
@@ -547,9 +524,7 @@ type target_time
   run_time: float;
 }
 
-type rule_times
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = {
+type rule_times <python decorator="dataclass(frozen=True)"> = {
   rule_id: rule_id;
   (* TODO: time to parse what? *)
   parse_time: float;
@@ -562,7 +537,7 @@ type rule_times
 (* coupling: if you change the JSON schema below, you probably need to
  * also modify perf/run-benchmarks. Run locally  $ ./run-benchmarks --dummy --upload
  *)
-type profile <ocaml attr="deriving show"> = {
+type profile = {
     (* List of rules, including the one read but not run on any target.
      * This list is actually more an array which allows other
      * fields to reference rule by number instead of rule_id
@@ -599,7 +574,7 @@ type profile <ocaml attr="deriving show"> = {
     ?max_memory_bytes : int option;
   }
 
-type cli_target_times <ocaml attr="deriving show"> = {
+type cli_target_times = {
     path: fpath;
     num_bytes: int;
     (* each elt in the list refers to a rule in profile.rules *)
@@ -616,9 +591,7 @@ type cli_target_times <ocaml attr="deriving show"> = {
 (* coupling: semgrep-core/src/core/Matching_explanation.ml
  * LATER: merge with Matching_explanation.t at some point
  * EXPERIMENTAL *)
-type matching_explanation
-     <ocaml attr="deriving show">
-     <python decorator="dataclass(frozen=True)"> = {
+type matching_explanation <python decorator="dataclass(frozen=True)"> = {
     op: matching_operation;
     children: matching_explanation list;
     (* result matches at this node (can be empty when we reach a nomatch) *)
@@ -635,6 +608,8 @@ type matching_explanation
  * - Where filters (metavar-comparison, etc)
  * - tainting source/sink/sanitizer
  * - subpattern EllipsisAndStmt, ClassHeaderAndElems
+ * Note that this type is used in Matching_explanation.ml hence the need
+ * for deriving show below.
  *)
 type matching_operation
     <ocaml attr="deriving show { with_path = false}">
@@ -661,22 +636,18 @@ type matching_operation
   | ClassHeaderAndElems
 ] <ocaml repr="classic">
 
-
 (*****************************************************************************)
 (* Engine kind  *)
 (*****************************************************************************)
 
 type engine_kind
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = [
+     <ocaml attr="deriving show">
+     <python decorator="dataclass(frozen=True)"> = [
   | OSS
   | PRO
 ]
 
-type rule_id_and_engine_kind
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = (rule_id * engine_kind)
-
+type rule_id_and_engine_kind <python decorator="dataclass(frozen=True)"> = (rule_id * engine_kind)
                      
 (*****************************************************************************)
 (* Final output  *)
@@ -687,9 +658,7 @@ type rule_id_and_engine_kind
 (* ----------------------------- *)
 
 (* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
-type core_output
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = {
+type core_output <python decorator="dataclass(frozen=True)"> = {
 
   (* errors are guaranteed to be duplicate free; see also Report.ml *)
   errors: core_error list;
@@ -698,9 +667,7 @@ type core_output
   inherit core_output_extra;
 }
 
-type core_output_extra
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = {  
+type core_output_extra  <python decorator="dataclass(frozen=True)"> = {  
   ?skipped_targets <json name="skipped">: skipped_target list option;
   ?time: core_timing option;
   ?explanations: matching_explanation list option;
@@ -716,7 +683,7 @@ type core_output_extra
 (* ----------------------------- *)
 
 (* TODO: rename to scan_output at some point *)
-type cli_output <ocaml attr="deriving show"> = {
+type cli_output = {
     (* since: 0.92 *)
     ?version: version option;
 
@@ -729,7 +696,7 @@ type cli_output <ocaml attr="deriving show"> = {
 (* TODO? used only in TEXT format:
  * ?color_output, per_finding_max_lines_limit, per_line_max_chars_limit
 *)
-type cli_output_extra <ocaml attr="deriving show"> = {
+type cli_output_extra = {
     (* targeting information *)
     paths: scanned_and_skipped;
     (* profiling information *)
@@ -757,22 +724,20 @@ type cli_output_extra <ocaml attr="deriving show"> = {
 (* Semgrep Supply Chain (SSC, a.k.a., Software Composition Analysis (SCA)) *)
 (*****************************************************************************)
 (* EXPERIMENTAL *)
-type sca_info <ocaml attr="deriving show"> = {
+type sca_info = {
   reachable: bool;
   reachability_rule: bool;
   sca_finding_schema: int;
   dependency_match: dependency_match;
 }
 
-type dependency_match <ocaml attr="deriving show"> = {
+type dependency_match = {
   dependency_pattern: dependency_pattern;
   found_dependency: found_dependency;
   lockfile: string;
 }
 
-type ecosystem
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = [
+type ecosystem <python decorator="dataclass(frozen=True)"> = [
   | Npm <json name="npm">
   | Pypi  <json name="pypi">
   | Gem <json name="gem">
@@ -783,26 +748,24 @@ type ecosystem
   | Nuget <json name="nuget">
 ]
 
-type transitivity
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = [
+type transitivity <python decorator="dataclass(frozen=True)"> = [
   | Direct <json name="direct">
   | Transitive <json name="transitive">
   | Unknown <json name="unknown">
 ]
 
-type dependency_pattern <ocaml attr="deriving show"> = {
+type dependency_pattern = {
   ecosystem: ecosystem;
   package: string;
   semver_range: string;
 }
 
-type dependency_child <ocaml attr="deriving show"> = {
+type dependency_child = {
   package: string;
   version: string;
 }
 
-type found_dependency <ocaml attr="deriving show"> = {
+type found_dependency = {
   package: string;
   version: string;
   ecosystem: ecosystem;
@@ -818,7 +781,7 @@ type found_dependency <ocaml attr="deriving show"> = {
 }
 
 (* json names are to maintain backwards compatibility with the python enum it is replacing *)
-type sca_parser_name <ocaml attr="deriving show"> = [
+type sca_parser_name = [
   | Gemfile_lock <json name="gemfile_lock">
   | Go_mod <json name="go_mod">
   | Go_sum <json name="go_sum">
@@ -837,11 +800,13 @@ type sca_parser_name <ocaml attr="deriving show"> = [
   | Composer_lock <json name="composer_lock">
 ]
 
-type dependency_parser_error <ocaml attr="deriving show"> = {
+type dependency_parser_error = {
   path: string;
   parser: sca_parser_name;
   reason: string;
-  (* Not using `position` because this type must be backwards compatible with the python class it is replacing *)
+  (* Not using `position` because this type must be backwards compatible with the python
+   * class it is replacing.
+   *)
   ?line: int option;
   ?col: int option;
   ?text: string option;
@@ -851,23 +816,19 @@ type dependency_parser_error <ocaml attr="deriving show"> = {
 (* Contributors (App) *)
 (*****************************************************************************)
 
-(* 
- * https://semgrep.dev/docs/usage-limits
- *)
-type contributor <ocaml attr="deriving show"> = {
+(* See https://semgrep.dev/docs/usage-limits *)
+type contributor = {
     commit_author_name: string;
     commit_author_email: string;
 }
 
-type contribution <ocaml attr="deriving show"> = {
+type contribution = {
     commit_hash: string;
     commit_timestamp: string;
     contributor: contributor;
 }
 
-type contributions
-  <ocaml attr="deriving show"> = contribution list
-
+type contributions = contribution list
 
 (*****************************************************************************)
 (* Semgrep ci findings for the App *)
@@ -878,7 +839,7 @@ type contributions
 *)
 
 (* Sent by the CLI to /findings_and_ignores aka /results *)
-type ci_scan_results <ocaml attr="deriving show"> = {
+type ci_scan_results = {
   (* TODO: ?version: version option; *)
    findings: finding list;
    ignores: finding list;
@@ -893,14 +854,14 @@ type ci_scan_results <ocaml attr="deriving show"> = {
    ?dependencies: ci_scan_dependencies option;
 }
 
-type parsing_stats <ocaml attr="deriving show"> = {
+type parsing_stats = {
   targets_parsed: int;
   num_targets: int;
   bytes_parsed: int;
   num_bytes: int;
 }
 
-type ci_scan_complete_stats <ocaml attr="deriving show"> = {
+type ci_scan_complete_stats = {
   findings: int;
   errors: cli_error list;
   total_time: float;
@@ -920,13 +881,13 @@ type ci_scan_complete_stats <ocaml attr="deriving show"> = {
   ?engine_requested: string option;
 }
 
-type ci_scan_dependencies <ocaml attr="deriving show"> =  (string * found_dependency list) list
+type ci_scan_dependencies = (string * found_dependency list) list
     <json repr="object">
     <python repr="dict">
     <ts repr="map">
 
 (* Seny by the CLI to /complete *)
-type ci_scan_complete_response <ocaml attr="deriving show"> = {
+type ci_scan_complete_response = {
   exit_code: int;
   stats: ci_scan_complete_stats;
   ?dependencies: ci_scan_dependencies option;
@@ -934,7 +895,7 @@ type ci_scan_complete_response <ocaml attr="deriving show"> = {
   ?task_id: string option;
 }
 
-type finding_hashes <ocaml attr="deriving show"> = {
+type finding_hashes = {
   start_line_hash: string;
   end_line_hash: string;
   (* hash of the syntactic_context/code contents from start_line through end_line *)
@@ -944,7 +905,7 @@ type finding_hashes <ocaml attr="deriving show"> = {
 }
 
 (* TODO: rewrite rule_matches.to_app_finding_format() *)
-type finding <ocaml attr="deriving show"> = {
+type finding = {
   check_id: rule_id;
   path: fpath;
   line: int;
@@ -952,7 +913,8 @@ type finding <ocaml attr="deriving show"> = {
   end_line: int;
   end_column: int;
   message: string;
-  severity: abstract; (* int|string until minimum version exceeds 1.32.0, then string *)
+  (* int|string until minimum version exceeds 1.32.0, then string *)
+  severity: abstract;
   (* ?? *)
   index: int;
   commit_date: string;
@@ -966,6 +928,6 @@ type finding <ocaml attr="deriving show"> = {
   ?fixed_lines: string list option;
   ?sca_info: sca_info option;
   ?dataflow_trace: match_dataflow_trace option;
-  (* Added in semgrep 1.39.0 see comments in core_match. *)
+  (* Added in semgrep 1.39.0 see comments in cli_match_extra. *)
   ?validation_state: validation_state option;
 }
