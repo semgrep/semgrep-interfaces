@@ -18,12 +18,19 @@
  * (any incompatible changes to the rule format should also require a major
  *  version upgrade). Hopefully, we will always be backward compatible.
  *
- * This file is translated into OCaml modules by atdgen.
- * Look for the corresponding Semgrep_output_v1_t.mli and other related files
- * under dune's _build folder.
- * This file is also translated in Python modules by atdpy,
- * in jsonschema/openapi spec by atdcat, and in Typescript modules by
- * atdts.
+ * This file is translated in OCaml modules by atdgen.Look for the corresponding
+ * Semgrep_output_v1_t.mli generated file and other related files
+ * under dune's _build/ folder. A few types have the 'deriving show' decorator
+ * below because those types are reused in semgrep core data structures and
+ * we make heavy use of 'deriving show' in OCaml to help debug things.
+ *
+ * This file is also translated in Python modules by atdpy.
+ * For Python, a few types have the 'dataclass(frozen=True)' decorator
+ * so that the class can be hashed and put in set. Indeed, with Frozen=True
+ * the class is immutable and dataclass can autogenerate a hash function for it.
+ * 
+ * Finally this file is translated in jsonschema/openapi spec by atdcat, and
+ * in Typescript modules by atdts.
  *
  * history:
  *  - the types in this file were originally inferred from JSON_report.ml for
@@ -737,9 +744,9 @@ type dependency_match = {
   lockfile: string;
 }
 
-(* The frozen=True is needed; without it we get TypeError: unhashable type
- * during 'make quick-test' in semgrep.
- * TODO: why??
+(* both ecosystem and transitivity below have frozen=True so the generated
+ * classes can be hashed and put in sets (see calls to reachable_deps.add()
+ * in semgrep SCA code)
  *)
 type ecosystem <python decorator="dataclass(frozen=True)"> = [
   | Npm <json name="npm">
@@ -752,7 +759,7 @@ type ecosystem <python decorator="dataclass(frozen=True)"> = [
   | Nuget <json name="nuget">
 ]
 
-type transitivity = [
+type transitivity <python decorator="dataclass(frozen=True)"> = [
   | Direct <json name="direct">
   | Transitive <json name="transitive">
   | Unknown <json name="unknown">

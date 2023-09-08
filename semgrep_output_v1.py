@@ -1203,7 +1203,7 @@ class Version:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Direct:
     """Original type: transitivity = [ ... | Direct | ... ]"""
 
@@ -1220,7 +1220,7 @@ class Direct:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Transitive:
     """Original type: transitivity = [ ... | Transitive | ... ]"""
 
@@ -1237,7 +1237,7 @@ class Transitive:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Unknown:
     """Original type: transitivity = [ ... | Unknown | ... ]"""
 
@@ -1254,7 +1254,7 @@ class Unknown:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Transitivity:
     """Original type: transitivity = [ ... ]"""
 
