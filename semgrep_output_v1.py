@@ -347,7 +347,7 @@ class Fpath:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class And:
     """Original type: matching_operation = [ ... | And | ... ]"""
 
@@ -364,7 +364,7 @@ class And:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class Or:
     """Original type: matching_operation = [ ... | Or | ... ]"""
 
@@ -381,7 +381,7 @@ class Or:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class Inside:
     """Original type: matching_operation = [ ... | Inside | ... ]"""
 
@@ -398,7 +398,7 @@ class Inside:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class XPat:
     """Original type: matching_operation = [ ... | XPat of ... | ... ]"""
 
@@ -416,7 +416,7 @@ class XPat:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class Negation:
     """Original type: matching_operation = [ ... | Negation | ... ]"""
 
@@ -433,7 +433,7 @@ class Negation:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class Filter:
     """Original type: matching_operation = [ ... | Filter of ... | ... ]"""
 
@@ -451,7 +451,7 @@ class Filter:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class Taint:
     """Original type: matching_operation = [ ... | Taint | ... ]"""
 
@@ -468,7 +468,7 @@ class Taint:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class TaintSource:
     """Original type: matching_operation = [ ... | TaintSource | ... ]"""
 
@@ -485,7 +485,7 @@ class TaintSource:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class TaintSink:
     """Original type: matching_operation = [ ... | TaintSink | ... ]"""
 
@@ -502,7 +502,7 @@ class TaintSink:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class TaintSanitizer:
     """Original type: matching_operation = [ ... | TaintSanitizer | ... ]"""
 
@@ -519,7 +519,7 @@ class TaintSanitizer:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class EllipsisAndStmts:
     """Original type: matching_operation = [ ... | EllipsisAndStmts | ... ]"""
 
@@ -536,7 +536,7 @@ class EllipsisAndStmts:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class ClassHeaderAndElems:
     """Original type: matching_operation = [ ... | ClassHeaderAndElems | ... ]"""
 
@@ -553,7 +553,7 @@ class ClassHeaderAndElems:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class MatchingOperation:
     """Original type: matching_operation = [ ... ]"""
 
@@ -1145,7 +1145,7 @@ class CoreMatch:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class MatchingExplanation:
     """Original type: matching_explanation = { ... }"""
 
@@ -1288,7 +1288,7 @@ class Transitivity:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class RuleTimes:
     """Original type: rule_times = { ... }"""
 
@@ -1322,7 +1322,7 @@ class RuleTimes:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class TargetTime:
     """Original type: target_time = { ... }"""
 
@@ -1356,7 +1356,7 @@ class TargetTime:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class AlwaysSkipped:
     """Original type: skip_reason = [ ... | Always_skipped | ... ]"""
 
@@ -1373,7 +1373,7 @@ class AlwaysSkipped:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class SemgrepignorePatternsMatch:
     """Original type: skip_reason = [ ... | Semgrepignore_patterns_match | ... ]"""
 
@@ -1390,7 +1390,7 @@ class SemgrepignorePatternsMatch:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class CliIncludeFlagsDoNotMatch:
     """Original type: skip_reason = [ ... | Cli_include_flags_do_not_match | ... ]"""
 
@@ -1407,7 +1407,7 @@ class CliIncludeFlagsDoNotMatch:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class CliExcludeFlagsMatch:
     """Original type: skip_reason = [ ... | Cli_exclude_flags_match | ... ]"""
 
@@ -1424,7 +1424,7 @@ class CliExcludeFlagsMatch:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class ExceededSizeLimit:
     """Original type: skip_reason = [ ... | Exceeded_size_limit | ... ]"""
 
@@ -1441,7 +1441,7 @@ class ExceededSizeLimit:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class AnalysisFailedParserOrInternalError:
     """Original type: skip_reason = [ ... | Analysis_failed_parser_or_internal_error | ... ]"""
 
@@ -1458,7 +1458,7 @@ class AnalysisFailedParserOrInternalError:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class ExcludedByConfig:
     """Original type: skip_reason = [ ... | Excluded_by_config | ... ]"""
 
@@ -1475,7 +1475,7 @@ class ExcludedByConfig:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class WrongLanguage:
     """Original type: skip_reason = [ ... | Wrong_language | ... ]"""
 
@@ -1492,7 +1492,7 @@ class WrongLanguage:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class TooBig:
     """Original type: skip_reason = [ ... | Too_big | ... ]"""
 
@@ -1509,7 +1509,7 @@ class TooBig:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class Minified:
     """Original type: skip_reason = [ ... | Minified | ... ]"""
 
@@ -1526,7 +1526,7 @@ class Minified:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class Binary:
     """Original type: skip_reason = [ ... | Binary | ... ]"""
 
@@ -1543,7 +1543,7 @@ class Binary:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class IrrelevantRule:
     """Original type: skip_reason = [ ... | Irrelevant_rule | ... ]"""
 
@@ -1560,7 +1560,7 @@ class IrrelevantRule:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class TooManyMatches:
     """Original type: skip_reason = [ ... | Too_many_matches | ... ]"""
 
@@ -1577,7 +1577,7 @@ class TooManyMatches:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class GitignorePatternsMatch:
     """Original type: skip_reason = [ ... | Gitignore_patterns_match | ... ]"""
 
@@ -1594,7 +1594,7 @@ class GitignorePatternsMatch:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class SkipReason:
     """Original type: skip_reason = [ ... ]"""
 
@@ -1650,7 +1650,7 @@ class SkipReason:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class SkippedTarget:
     """Original type: skipped_target = { ... }"""
 
@@ -1689,7 +1689,7 @@ class SkippedTarget:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class SkippedRule:
     """Original type: skipped_rule = { ... }"""
 
@@ -2904,7 +2904,7 @@ class DependencyParserError:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class CoreTiming:
     """Original type: core_timing = { ... }"""
 
@@ -2942,7 +2942,7 @@ class CoreTiming:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class CoreStats:
     """Original type: core_stats = { ... }"""
 
