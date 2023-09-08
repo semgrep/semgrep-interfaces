@@ -339,7 +339,7 @@ type core_error_kind
   | PartialParsing of location list (* list of skipped tokens *)
   (* since semgrep 1.38.0 *)
   | IncompatibleRule of incompatible_rule
-  (* since semgrep 1.39.0 *)
+  (* since semgrep 1.40.0 *)
   | MissingPlugin
 ] <ocaml repr="classic">
 
