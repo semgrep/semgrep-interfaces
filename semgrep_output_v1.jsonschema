@@ -15,7 +15,7 @@
       "items": { "$ref": "#/definitions/cli_match" }
     },
     "paths": { "$ref": "#/definitions/scanned_and_skipped" },
-    "time": { "$ref": "#/definitions/cli_timing" },
+    "time": { "$ref": "#/definitions/profile" },
     "explanations": {
       "type": "array",
       "items": { "$ref": "#/definitions/matching_explanation" }
@@ -391,17 +391,17 @@
     },
     "core_timing": {
       "type": "object",
-      "required": [ "targets", "rules", "max_memory_bytes" ],
+      "required": [ "rules", "rules_parse_time", "targets" ],
       "properties": {
-        "targets": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/target_time" }
-        },
         "rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/rule_id" }
         },
         "rules_parse_time": { "type": "number" },
+        "targets": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/target_time" }
+        },
         "max_memory_bytes": { "type": "integer" }
       }
     },
@@ -426,7 +426,7 @@
         "match_time": { "type": "number" }
       }
     },
-    "cli_timing": {
+    "profile": {
       "type": "object",
       "required": [
         "rules", "rules_parse_time", "profiling_times", "targets",
@@ -435,7 +435,7 @@
       "properties": {
         "rules": {
           "type": "array",
-          "items": { "$ref": "#/definitions/rule_id_dict" }
+          "items": { "$ref": "#/definitions/rule_id" }
         },
         "rules_parse_time": { "type": "number" },
         "profiling_times": {
@@ -449,11 +449,6 @@
         "total_bytes": { "type": "integer" },
         "max_memory_bytes": { "type": "integer" }
       }
-    },
-    "rule_id_dict": {
-      "type": "object",
-      "required": [ "id" ],
-      "properties": { "id": { "$ref": "#/definitions/rule_id" } }
     },
     "cli_target_times": {
       "type": "object",
@@ -523,8 +518,8 @@
     "core_output": {
       "type": "object",
       "required": [
-        "errors", "results", "skipped_rules", "stats", "rules_by_engine",
-        "engine_requested"
+        "errors", "results", "rules_by_engine", "engine_requested",
+        "skipped_rules", "stats"
       ],
       "properties": {
         "errors": {
@@ -539,48 +534,48 @@
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_target" }
         },
-        "skipped_rules": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/skipped_rule" }
-        },
+        "time": { "$ref": "#/definitions/core_timing" },
         "explanations": {
           "type": "array",
           "items": { "$ref": "#/definitions/matching_explanation" }
         },
-        "stats": { "$ref": "#/definitions/core_stats" },
-        "time": { "$ref": "#/definitions/core_timing" },
         "rules_by_engine": {
           "type": "array",
           "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
         },
-        "engine_requested": { "$ref": "#/definitions/engine_kind" }
+        "engine_requested": { "$ref": "#/definitions/engine_kind" },
+        "skipped_rules": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/skipped_rule" }
+        },
+        "stats": { "$ref": "#/definitions/core_stats" }
       }
     },
     "core_output_extra": {
       "type": "object",
       "required": [
-        "skipped_rules", "stats", "rules_by_engine", "engine_requested"
+        "rules_by_engine", "engine_requested", "skipped_rules", "stats"
       ],
       "properties": {
         "skipped": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_target" }
         },
-        "skipped_rules": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/skipped_rule" }
-        },
+        "time": { "$ref": "#/definitions/core_timing" },
         "explanations": {
           "type": "array",
           "items": { "$ref": "#/definitions/matching_explanation" }
         },
-        "stats": { "$ref": "#/definitions/core_stats" },
-        "time": { "$ref": "#/definitions/core_timing" },
         "rules_by_engine": {
           "type": "array",
           "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
         },
-        "engine_requested": { "$ref": "#/definitions/engine_kind" }
+        "engine_requested": { "$ref": "#/definitions/engine_kind" },
+        "skipped_rules": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/skipped_rule" }
+        },
+        "stats": { "$ref": "#/definitions/core_stats" }
       }
     },
     "cli_output_extra": {
@@ -588,7 +583,7 @@
       "required": [ "paths" ],
       "properties": {
         "paths": { "$ref": "#/definitions/scanned_and_skipped" },
-        "time": { "$ref": "#/definitions/cli_timing" },
+        "time": { "$ref": "#/definitions/profile" },
         "explanations": {
           "type": "array",
           "items": { "$ref": "#/definitions/matching_explanation" }

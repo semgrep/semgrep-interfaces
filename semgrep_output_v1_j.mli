@@ -204,10 +204,26 @@ type sca_info = Semgrep_output_v1_t.sca_info = {
 }
   [@@deriving show]
 
-type rule_id_dict = Semgrep_output_v1_t.rule_id_dict = { id: rule_id }
+type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
   [@@deriving show]
 
-type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
+type cli_target_times = Semgrep_output_v1_t.cli_target_times = {
+  path: fpath;
+  num_bytes: int;
+  match_times: float list;
+  parse_times: float list;
+  run_time: float
+}
+  [@@deriving show]
+
+type profile = Semgrep_output_v1_t.profile = {
+  rules: rule_id list;
+  rules_parse_time: float;
+  profiling_times: (string * float) list;
+  targets: cli_target_times list;
+  total_bytes: int;
+  max_memory_bytes: int option
+}
   [@@deriving show]
 
 type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
@@ -297,10 +313,10 @@ type cve_result = Semgrep_output_v1_t.cve_result = {
 type cve_results = Semgrep_output_v1_t.cve_results [@@deriving show]
 
 type core_timing = Semgrep_output_v1_t.core_timing = {
-  targets: target_time list;
   rules: rule_id list;
-  rules_parse_time: float option;
-  max_memory_bytes: int
+  rules_parse_time: float;
+  targets: target_time list;
+  max_memory_bytes: int option
 }
   [@@deriving show]
 
@@ -317,12 +333,12 @@ type core_severity = Semgrep_output_v1_t.core_severity =
 
 type core_output_extra = Semgrep_output_v1_t.core_output_extra = {
   skipped_targets: skipped_target list option;
-  skipped_rules: skipped_rule list;
-  explanations: matching_explanation list option;
-  stats: core_stats;
   time: core_timing option;
+  explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list;
-  engine_requested: engine_kind
+  engine_requested: engine_kind;
+  skipped_rules: skipped_rule list;
+  stats: core_stats
 }
   [@@deriving show]
 
@@ -361,12 +377,12 @@ type core_output = Semgrep_output_v1_t.core_output = {
   errors: core_error list;
   results: core_match list;
   skipped_targets: skipped_target list option;
-  skipped_rules: skipped_rule list;
-  explanations: matching_explanation list option;
-  stats: core_stats;
   time: core_timing option;
+  explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list;
-  engine_requested: engine_kind
+  engine_requested: engine_kind;
+  skipped_rules: skipped_rule list;
+  stats: core_stats
 }
   [@@deriving show]
 
@@ -385,28 +401,9 @@ type contribution = Semgrep_output_v1_t.contribution = {
 
 type contributions = Semgrep_output_v1_t.contributions [@@deriving show]
 
-type cli_target_times = Semgrep_output_v1_t.cli_target_times = {
-  path: fpath;
-  num_bytes: int;
-  match_times: float list;
-  parse_times: float list;
-  run_time: float
-}
-  [@@deriving show]
-
-type cli_timing = Semgrep_output_v1_t.cli_timing = {
-  rules: rule_id_dict list;
-  rules_parse_time: float;
-  profiling_times: (string * float) list;
-  targets: cli_target_times list;
-  total_bytes: int;
-  max_memory_bytes: int option
-}
-  [@@deriving show]
-
 type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   paths: scanned_and_skipped;
-  time: cli_timing option;
+  time: profile option;
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option;
@@ -461,7 +458,7 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   errors: cli_error list;
   results: cli_match list;
   paths: scanned_and_skipped;
-  time: cli_timing option;
+  time: profile option;
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option;
@@ -1145,26 +1142,6 @@ val sca_info_of_string :
   string -> sca_info
   (** Deserialize JSON data of type {!type:sca_info}. *)
 
-val write_rule_id_dict :
-  Buffer.t -> rule_id_dict -> unit
-  (** Output a JSON value of type {!type:rule_id_dict}. *)
-
-val string_of_rule_id_dict :
-  ?len:int -> rule_id_dict -> string
-  (** Serialize a value of type {!type:rule_id_dict}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_rule_id_dict :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> rule_id_dict
-  (** Input JSON data of type {!type:rule_id_dict}. *)
-
-val rule_id_dict_of_string :
-  string -> rule_id_dict
-  (** Deserialize JSON data of type {!type:rule_id_dict}. *)
-
 val write_rule_id_and_engine_kind :
   Buffer.t -> rule_id_and_engine_kind -> unit
   (** Output a JSON value of type {!type:rule_id_and_engine_kind}. *)
@@ -1184,6 +1161,46 @@ val read_rule_id_and_engine_kind :
 val rule_id_and_engine_kind_of_string :
   string -> rule_id_and_engine_kind
   (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
+
+val write_cli_target_times :
+  Buffer.t -> cli_target_times -> unit
+  (** Output a JSON value of type {!type:cli_target_times}. *)
+
+val string_of_cli_target_times :
+  ?len:int -> cli_target_times -> string
+  (** Serialize a value of type {!type:cli_target_times}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_cli_target_times :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_target_times
+  (** Input JSON data of type {!type:cli_target_times}. *)
+
+val cli_target_times_of_string :
+  string -> cli_target_times
+  (** Deserialize JSON data of type {!type:cli_target_times}. *)
+
+val write_profile :
+  Buffer.t -> profile -> unit
+  (** Output a JSON value of type {!type:profile}. *)
+
+val string_of_profile :
+  ?len:int -> profile -> string
+  (** Serialize a value of type {!type:profile}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_profile :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> profile
+  (** Input JSON data of type {!type:profile}. *)
+
+val profile_of_string :
+  string -> profile
+  (** Deserialize JSON data of type {!type:profile}. *)
 
 val write_parsing_stats :
   Buffer.t -> parsing_stats -> unit
@@ -1564,46 +1581,6 @@ val read_contributions :
 val contributions_of_string :
   string -> contributions
   (** Deserialize JSON data of type {!type:contributions}. *)
-
-val write_cli_target_times :
-  Buffer.t -> cli_target_times -> unit
-  (** Output a JSON value of type {!type:cli_target_times}. *)
-
-val string_of_cli_target_times :
-  ?len:int -> cli_target_times -> string
-  (** Serialize a value of type {!type:cli_target_times}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cli_target_times :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_target_times
-  (** Input JSON data of type {!type:cli_target_times}. *)
-
-val cli_target_times_of_string :
-  string -> cli_target_times
-  (** Deserialize JSON data of type {!type:cli_target_times}. *)
-
-val write_cli_timing :
-  Buffer.t -> cli_timing -> unit
-  (** Output a JSON value of type {!type:cli_timing}. *)
-
-val string_of_cli_timing :
-  ?len:int -> cli_timing -> string
-  (** Serialize a value of type {!type:cli_timing}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cli_timing :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_timing
-  (** Input JSON data of type {!type:cli_timing}. *)
-
-val cli_timing_of_string :
-  string -> cli_timing
-  (** Deserialize JSON data of type {!type:cli_timing}. *)
 
 val write_cli_output_extra :
   Buffer.t -> cli_output_extra -> unit
