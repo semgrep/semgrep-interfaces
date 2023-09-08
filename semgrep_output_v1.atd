@@ -18,12 +18,19 @@
  * (any incompatible changes to the rule format should also require a major
  *  version upgrade). Hopefully, we will always be backward compatible.
  *
- * This file is translated into OCaml modules by atdgen.
- * Look for the corresponding Semgrep_output_v1_t.mli and other related files
- * under dune's _build folder.
- * This file is also translated in Python modules by atdpy,
- * in jsonschema/openapi spec by atdcat, and in Typescript modules by
- * atdts.
+ * This file is translated in OCaml modules by atdgen. Look for the
+ * corresponding Semgrep_output_v1_[tj].ml[i] generated files
+ * under dune's _build/ folder. A few types below have the 'deriving show'
+ * decorator because those types are reused in semgrep core data structures
+ * and we make heavy use of 'deriving show' in OCaml to help debug things.
+ *
+ * This file is also translated in Python modules by atdpy.
+ * For Python, a few types have the 'dataclass(frozen=True)' decorator
+ * so that the class can be hashed and put in set. Indeed, with 'Frozen=True'
+ * the class is immutable and dataclass can autogenerate a hash function for it.
+ * 
+ * Finally this file is translated in jsonschema/openapi spec by atdcat, and
+ * in Typescript modules by atdts.
  *
  * history:
  *  - the types in this file were originally inferred from JSON_report.ml for
@@ -35,13 +42,11 @@
  *    removing gradually the semgrep-core JSON output.
  *
  * There are other important form of outputs which are not specified here:
- *  - the schema for the generic AST dump is in AST_generic_v1.atd
+ *  - The schema for the generic AST dump is in AST_generic_v1.atd
  *  - The parsing stats of semgrep-core -parsing_stats -json have its own
  *    Parsing_stats.atd
- *
- * TODO:
- *   - get rid of semgrep-core output, merge with regular semgrep CLI output
- *   - see the TODO: (high-prio) and LATER: (low-prio) tags in this file
+ *  - The semgrep metrics sent to https://metrics.semgrep.dev in
+ *    semgrep_metrics.atd
  *)
 
 (* escape hatch *)
@@ -420,10 +425,11 @@ type error_span = {
 (* Skipping information *)
 (*****************************************************************************)
 
-(* A reason for skipping a target file or a pair (target, rule). *)
-type skip_reason
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = [
+(* A reason for skipping a target file or a pair (target, rule).
+ * Note that this type is also used in Report.ml hence the need
+ * for deriving show here.
+ *)
+type skip_reason <ocaml attr="deriving show"> = [
   (* Originally returned by the Python CLI *)
   | Always_skipped <json name="always_skipped">
   | Semgrepignore_patterns_match <json name="semgrepignore_patterns_match">
@@ -444,11 +450,8 @@ type skip_reason
   | Gitignore_patterns_match <json name="gitignore_patterns_match">
 ] <ocaml repr="classic">
 
-(* coupling: ugly: with yield_json_objects() in target_manager.py
- * Note that this type is also used in Report.ml hence the need
- * for deriving show here.
- *)
-type skipped_target <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True)"> = {
+(* coupling: ugly: with yield_json_objects() in target_manager.py *)
+type skipped_target <ocaml attr="deriving show"> = {
   path: fpath;
   reason: skip_reason;
   (* since semgrep 1.39.0 (used to be return only by semgrep-core) *)
@@ -470,7 +473,7 @@ type scanned_and_skipped = {
     ?skipped: skipped_target list option;
 }
 
-type skipped_rule <python decorator="dataclass(frozen=True)"> = {
+type skipped_rule = {
   rule_id: rule_id;
   details: string;
   (* position of the error in the rule file *)
@@ -484,7 +487,7 @@ type skipped_rule <python decorator="dataclass(frozen=True)"> = {
 (* ----------------------------- *)
 (* Core *)
 (* ----------------------------- *)
-type core_stats <python decorator="dataclass(frozen=True)"> = {
+type core_stats = {
   okfiles: int;
   errorfiles: int;
 }
@@ -504,7 +507,7 @@ type core_stats <python decorator="dataclass(frozen=True)"> = {
 (* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
 
 (* TODO: merge with profile below *)
-type core_timing <python decorator="dataclass(frozen=True)"> = {
+type core_timing = {
   rules: rule_id list;
 
   rules_parse_time: float;
@@ -516,7 +519,7 @@ type core_timing <python decorator="dataclass(frozen=True)"> = {
 }
 
 (* TODO: merge with cli_target_times *)
-type target_time <python decorator="dataclass(frozen=True)"> = {
+type target_time = {
   path: fpath;
   (* parse and match time for each rule on target *)
   rule_times: rule_times list;
@@ -524,7 +527,7 @@ type target_time <python decorator="dataclass(frozen=True)"> = {
   run_time: float;
 }
 
-type rule_times <python decorator="dataclass(frozen=True)"> = {
+type rule_times = {
   rule_id: rule_id;
   (* TODO: time to parse what? *)
   parse_time: float;
@@ -591,7 +594,7 @@ type cli_target_times = {
 (* coupling: semgrep-core/src/core/Matching_explanation.ml
  * LATER: merge with Matching_explanation.t at some point
  * EXPERIMENTAL *)
-type matching_explanation <python decorator="dataclass(frozen=True)"> = {
+type matching_explanation = {
     op: matching_operation;
     children: matching_explanation list;
     (* result matches at this node (can be empty when we reach a nomatch) *)
@@ -611,9 +614,7 @@ type matching_explanation <python decorator="dataclass(frozen=True)"> = {
  * Note that this type is used in Matching_explanation.ml hence the need
  * for deriving show below.
  *)
-type matching_operation
-    <ocaml attr="deriving show { with_path = false}">
-    <python decorator="dataclass(frozen=True)"> = [
+type matching_operation <ocaml attr="deriving show { with_path = false}"> = [
   | And
   | Or
   | Inside
@@ -658,7 +659,7 @@ type rule_id_and_engine_kind <python decorator="dataclass(frozen=True)"> = (rule
 (* ----------------------------- *)
 
 (* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
-type core_output <python decorator="dataclass(frozen=True)"> = {
+type core_output = {
 
   (* errors are guaranteed to be duplicate free; see also Report.ml *)
   errors: core_error list;
@@ -667,7 +668,7 @@ type core_output <python decorator="dataclass(frozen=True)"> = {
   inherit core_output_extra;
 }
 
-type core_output_extra  <python decorator="dataclass(frozen=True)"> = {  
+type core_output_extra = {  
   ?skipped_targets <json name="skipped">: skipped_target list option;
   ?time: core_timing option;
   ?explanations: matching_explanation list option;
@@ -737,6 +738,10 @@ type dependency_match = {
   lockfile: string;
 }
 
+(* both ecosystem and transitivity below have frozen=True so the generated
+ * classes can be hashed and put in sets (see calls to reachable_deps.add()
+ * in semgrep SCA code)
+ *)
 type ecosystem <python decorator="dataclass(frozen=True)"> = [
   | Npm <json name="npm">
   | Pypi  <json name="pypi">
