@@ -658,7 +658,7 @@ type rule_id_and_engine_kind <python decorator="dataclass(frozen=True)"> = (rule
 (* ----------------------------- *)
 
 (* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
-type core_output <python decorator="dataclass(frozen=True)"> = {
+type core_output = {
 
   (* errors are guaranteed to be duplicate free; see also Report.ml *)
   errors: core_error list;
@@ -667,7 +667,7 @@ type core_output <python decorator="dataclass(frozen=True)"> = {
   inherit core_output_extra;
 }
 
-type core_output_extra  <python decorator="dataclass(frozen=True)"> = {  
+type core_output_extra = {  
   ?skipped_targets <json name="skipped">: skipped_target list option;
   ?time: core_timing option;
   ?explanations: matching_explanation list option;
@@ -737,6 +737,10 @@ type dependency_match = {
   lockfile: string;
 }
 
+(* The frozen=True is needed; without it we get TypeError: unhashable type
+ * during 'make quick-test' in semgrep.
+ * TODO: why??
+ *)
 type ecosystem <python decorator="dataclass(frozen=True)"> = [
   | Npm <json name="npm">
   | Pypi  <json name="pypi">
@@ -748,7 +752,7 @@ type ecosystem <python decorator="dataclass(frozen=True)"> = [
   | Nuget <json name="nuget">
 ]
 
-type transitivity <python decorator="dataclass(frozen=True)"> = [
+type transitivity = [
   | Direct <json name="direct">
   | Transitive <json name="transitive">
   | Unknown <json name="unknown">

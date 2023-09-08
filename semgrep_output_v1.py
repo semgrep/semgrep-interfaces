@@ -1203,7 +1203,7 @@ class Version:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class Direct:
     """Original type: transitivity = [ ... | Direct | ... ]"""
 
@@ -1220,7 +1220,7 @@ class Direct:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class Transitive:
     """Original type: transitivity = [ ... | Transitive | ... ]"""
 
@@ -1237,7 +1237,7 @@ class Transitive:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class Unknown:
     """Original type: transitivity = [ ... | Unknown | ... ]"""
 
@@ -1254,7 +1254,7 @@ class Unknown:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class Transitivity:
     """Original type: transitivity = [ ... ]"""
 
@@ -3058,7 +3058,7 @@ class CoreSeverity:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class CoreOutputExtra:
     """Original type: core_output_extra = { ... }"""
 
@@ -3509,7 +3509,7 @@ class CoreError:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass
 class CoreOutput:
     """Original type: core_output = { ... }"""
 
