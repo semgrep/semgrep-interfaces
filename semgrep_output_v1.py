@@ -2905,61 +2905,6 @@ class DependencyParserError:
 
 
 @dataclass(frozen=True)
-class CveResult:
-    """Original type: cve_result = { ... }"""
-
-    url: str
-    filename: str
-    funcnames: List[str]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CveResult':
-        if isinstance(x, dict):
-            return cls(
-                url=_atd_read_string(x['url']) if 'url' in x else _atd_missing_json_field('CveResult', 'url'),
-                filename=_atd_read_string(x['filename']) if 'filename' in x else _atd_missing_json_field('CveResult', 'filename'),
-                funcnames=_atd_read_list(_atd_read_string)(x['funcnames']) if 'funcnames' in x else _atd_missing_json_field('CveResult', 'funcnames'),
-            )
-        else:
-            _atd_bad_json('CveResult', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['url'] = _atd_write_string(self.url)
-        res['filename'] = _atd_write_string(self.filename)
-        res['funcnames'] = _atd_write_list(_atd_write_string)(self.funcnames)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CveResult':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class CveResults:
-    """Original type: cve_results"""
-
-    value: List[CveResult]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CveResults':
-        return cls(_atd_read_list(CveResult.from_json)(x))
-
-    def to_json(self) -> Any:
-        return _atd_write_list((lambda x: x.to_json()))(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CveResults':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
 class CoreTiming:
     """Original type: core_timing = { ... }"""
 

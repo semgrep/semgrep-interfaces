@@ -303,15 +303,6 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
 }
   [@@deriving show]
 
-type cve_result = Semgrep_output_v1_t.cve_result = {
-  url: string;
-  filename: string;
-  funcnames: string list
-}
-  [@@deriving show]
-
-type cve_results = Semgrep_output_v1_t.cve_results [@@deriving show]
-
 type core_timing = Semgrep_output_v1_t.core_timing = {
   rules: rule_id list;
   rules_parse_time: float;
@@ -1341,46 +1332,6 @@ val read_dependency_parser_error :
 val dependency_parser_error_of_string :
   string -> dependency_parser_error
   (** Deserialize JSON data of type {!type:dependency_parser_error}. *)
-
-val write_cve_result :
-  Buffer.t -> cve_result -> unit
-  (** Output a JSON value of type {!type:cve_result}. *)
-
-val string_of_cve_result :
-  ?len:int -> cve_result -> string
-  (** Serialize a value of type {!type:cve_result}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cve_result :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cve_result
-  (** Input JSON data of type {!type:cve_result}. *)
-
-val cve_result_of_string :
-  string -> cve_result
-  (** Deserialize JSON data of type {!type:cve_result}. *)
-
-val write_cve_results :
-  Buffer.t -> cve_results -> unit
-  (** Output a JSON value of type {!type:cve_results}. *)
-
-val string_of_cve_results :
-  ?len:int -> cve_results -> string
-  (** Serialize a value of type {!type:cve_results}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cve_results :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cve_results
-  (** Input JSON data of type {!type:cve_results}. *)
-
-val cve_results_of_string :
-  string -> cve_results
-  (** Deserialize JSON data of type {!type:cve_results}. *)
 
 val write_core_timing :
   Buffer.t -> core_timing -> unit

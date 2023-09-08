@@ -1,48 +1,52 @@
 (* Semgrep metrics.
  *
  * The goal of this module is to specify the schema for the metrics
- * data sent by the Semgrep CLI to metrics.semgrep.dev.
+ * data sent by the Semgrep CLI to https://metrics.semgrep.dev.
+ *
+ * coupling: with semgrep/PRIVACY.md where we carefully document
+ * all the metrics we send with a big table explaining each field.
  *
  * translated originally from semgrep/cli/.../metrics.py
  *
  * TODO:
  * - some optional arguments should be removed when `osemgrep` replace
- *   `semgrep`. Currently, we tried to fit on tests and don't updated the
+ *   `semgrep`. Currently, we tried to fit on tests and don't update the
  *   JSON output. We tried to fit on the Python side too.
 *)
 
 <python text="from dataclasses import field">
 
 (*****************************************************************************)
-(* Entry point *)
+(* Basic types *)
 (*****************************************************************************)
-
-type payload = {
-    inherit toplevel;
-    environment <ocaml mutable>: environment;
-    performance <ocaml mutable>: performance;
-    extension <ocaml mutable>: extension;
-    errors <ocaml mutable>: errors;
-    value <ocaml mutable>: value;
-    ~parse_rate <ocaml mutable>: (string * parse_stat) list <json repr="object">;
-}
-
-(*****************************************************************************)
-(* Toplevel *)
-(*****************************************************************************)
-
-type toplevel = {
-    event_id <ocaml mutable>: uuid;
-    anonymous_user_id <python default="''"> <ocaml mutable>: string;
-    started_at <python default="Datetime('')"> <ocaml mutable>: datetime;
-    sent_at <python default="Datetime('')"> <ocaml mutable>: datetime;
-}
 
 (* TODO: better type *)
 type uuid = string
 
 (* TODO: better type *)
 type datetime = string
+
+type sha256hash = string
+
+(* TODO: type fpath = string *)
+
+(*****************************************************************************)
+(* Entry point *)
+(*****************************************************************************)
+
+type payload = {
+    event_id <ocaml mutable>: uuid;
+    anonymous_user_id <python default="''"> <ocaml mutable>: string;
+    started_at <python default="Datetime('')"> <ocaml mutable>: datetime;
+    sent_at <python default="Datetime('')"> <ocaml mutable>: datetime;
+    environment <ocaml mutable>: environment;
+    performance <ocaml mutable>: performance;
+    extension <ocaml mutable>: extension;
+    errors <ocaml mutable>: errors;
+    (* TODO? why called value? *)
+    value <ocaml mutable>: misc;
+    ~parse_rate <ocaml mutable>: (string * parse_stat) list <json repr="object">;
+}
 
 (*****************************************************************************)
 (* Environment *)
@@ -57,8 +61,6 @@ type environment = {
     ?integrationName <ocaml mutable>: string option;
     ~isAuthenticated <python default="False"> <ocaml mutable>: bool;
   }
-
-type sha256hash = string
 
 (*****************************************************************************)
 (* Performance *)
@@ -125,16 +127,11 @@ type extension = {
 (* Misc *)
 (*****************************************************************************)
 
-(* TODO? why called value? *)
-
-type value = {
-    inherit value_required;
+type misc = {
+    (* coupling: features is commented a lot in semgrep/PRIVACY.md *)
+    features <ocaml mutable>: string list;
     ?numFindings <ocaml mutable>: int option;
     ?numIgnored <ocaml mutable>: int option;
     ?ruleHashesWithFindings <ocaml mutable>: (string * int) list <json repr="object"> option;
     ~engineRequested <python default="'OSS'"> <ocaml mutable>: string;
   }
-
-type value_required = {
-    features <ocaml mutable>: string list; (* TODO: was a Set in metrics.py *)
-}

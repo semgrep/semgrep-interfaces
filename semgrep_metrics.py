@@ -264,77 +264,6 @@ from dataclasses import field
 
 
 @dataclass
-class ValueRequired:
-    """Original type: value_required = { ... }"""
-
-    features: List[str]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ValueRequired':
-        if isinstance(x, dict):
-            return cls(
-                features=_atd_read_list(_atd_read_string)(x['features']) if 'features' in x else _atd_missing_json_field('ValueRequired', 'features'),
-            )
-        else:
-            _atd_bad_json('ValueRequired', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['features'] = _atd_write_list(_atd_write_string)(self.features)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ValueRequired':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Value:
-    """Original type: value = { ... }"""
-
-    features: List[str]
-    numFindings: Optional[int] = None
-    numIgnored: Optional[int] = None
-    ruleHashesWithFindings: Optional[List[Tuple[str, int]]] = None
-    engineRequested: str = field(default_factory=lambda: 'OSS')
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Value':
-        if isinstance(x, dict):
-            return cls(
-                features=_atd_read_list(_atd_read_string)(x['features']) if 'features' in x else _atd_missing_json_field('Value', 'features'),
-                numFindings=_atd_read_int(x['numFindings']) if 'numFindings' in x else None,
-                numIgnored=_atd_read_int(x['numIgnored']) if 'numIgnored' in x else None,
-                ruleHashesWithFindings=_atd_read_assoc_object_into_list(_atd_read_int)(x['ruleHashesWithFindings']) if 'ruleHashesWithFindings' in x else None,
-                engineRequested=_atd_read_string(x['engineRequested']) if 'engineRequested' in x else 'OSS',
-            )
-        else:
-            _atd_bad_json('Value', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['features'] = _atd_write_list(_atd_write_string)(self.features)
-        if self.numFindings is not None:
-            res['numFindings'] = _atd_write_int(self.numFindings)
-        if self.numIgnored is not None:
-            res['numIgnored'] = _atd_write_int(self.numIgnored)
-        if self.ruleHashesWithFindings is not None:
-            res['ruleHashesWithFindings'] = _atd_write_assoc_list_to_object(_atd_write_int)(self.ruleHashesWithFindings)
-        res['engineRequested'] = _atd_write_string(self.engineRequested)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Value':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class Uuid:
     """Original type: uuid"""
 
@@ -349,64 +278,6 @@ class Uuid:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Uuid':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Datetime:
-    """Original type: datetime"""
-
-    value: str
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Datetime':
-        return cls(_atd_read_string(x))
-
-    def to_json(self) -> Any:
-        return _atd_write_string(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Datetime':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Toplevel:
-    """Original type: toplevel = { ... }"""
-
-    event_id: Uuid
-    anonymous_user_id: str
-    started_at: Datetime
-    sent_at: Datetime
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Toplevel':
-        if isinstance(x, dict):
-            return cls(
-                event_id=Uuid.from_json(x['event_id']) if 'event_id' in x else _atd_missing_json_field('Toplevel', 'event_id'),
-                anonymous_user_id=_atd_read_string(x['anonymous_user_id']) if 'anonymous_user_id' in x else _atd_missing_json_field('Toplevel', 'anonymous_user_id'),
-                started_at=Datetime.from_json(x['started_at']) if 'started_at' in x else _atd_missing_json_field('Toplevel', 'started_at'),
-                sent_at=Datetime.from_json(x['sent_at']) if 'sent_at' in x else _atd_missing_json_field('Toplevel', 'sent_at'),
-            )
-        else:
-            _atd_bad_json('Toplevel', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['event_id'] = (lambda x: x.to_json())(self.event_id)
-        res['anonymous_user_id'] = _atd_write_string(self.anonymous_user_id)
-        res['started_at'] = (lambda x: x.to_json())(self.started_at)
-        res['sent_at'] = (lambda x: x.to_json())(self.sent_at)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Toplevel':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -603,6 +474,49 @@ class ParseStat:
 
 
 @dataclass
+class Misc:
+    """Original type: misc = { ... }"""
+
+    features: List[str]
+    numFindings: Optional[int] = None
+    numIgnored: Optional[int] = None
+    ruleHashesWithFindings: Optional[List[Tuple[str, int]]] = None
+    engineRequested: str = field(default_factory=lambda: 'OSS')
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Misc':
+        if isinstance(x, dict):
+            return cls(
+                features=_atd_read_list(_atd_read_string)(x['features']) if 'features' in x else _atd_missing_json_field('Misc', 'features'),
+                numFindings=_atd_read_int(x['numFindings']) if 'numFindings' in x else None,
+                numIgnored=_atd_read_int(x['numIgnored']) if 'numIgnored' in x else None,
+                ruleHashesWithFindings=_atd_read_assoc_object_into_list(_atd_read_int)(x['ruleHashesWithFindings']) if 'ruleHashesWithFindings' in x else None,
+                engineRequested=_atd_read_string(x['engineRequested']) if 'engineRequested' in x else 'OSS',
+            )
+        else:
+            _atd_bad_json('Misc', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['features'] = _atd_write_list(_atd_write_string)(self.features)
+        if self.numFindings is not None:
+            res['numFindings'] = _atd_write_int(self.numFindings)
+        if self.numIgnored is not None:
+            res['numIgnored'] = _atd_write_int(self.numIgnored)
+        if self.ruleHashesWithFindings is not None:
+            res['ruleHashesWithFindings'] = _atd_write_assoc_list_to_object(_atd_write_int)(self.ruleHashesWithFindings)
+        res['engineRequested'] = _atd_write_string(self.engineRequested)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Misc':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Extension:
     """Original type: extension = { ... }"""
 
@@ -729,6 +643,27 @@ class Environment:
 
 
 @dataclass
+class Datetime:
+    """Original type: datetime"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Datetime':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Datetime':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Payload:
     """Original type: payload = { ... }"""
 
@@ -740,7 +675,7 @@ class Payload:
     performance: Performance
     extension: Extension
     errors: Errors
-    value: Value
+    value: Misc
     parse_rate: List[Tuple[str, ParseStat]] = field(default_factory=lambda: [])
 
     @classmethod
@@ -755,7 +690,7 @@ class Payload:
                 performance=Performance.from_json(x['performance']) if 'performance' in x else _atd_missing_json_field('Payload', 'performance'),
                 extension=Extension.from_json(x['extension']) if 'extension' in x else _atd_missing_json_field('Payload', 'extension'),
                 errors=Errors.from_json(x['errors']) if 'errors' in x else _atd_missing_json_field('Payload', 'errors'),
-                value=Value.from_json(x['value']) if 'value' in x else _atd_missing_json_field('Payload', 'value'),
+                value=Misc.from_json(x['value']) if 'value' in x else _atd_missing_json_field('Payload', 'value'),
                 parse_rate=_atd_read_assoc_object_into_list(ParseStat.from_json)(x['parse_rate']) if 'parse_rate' in x else [],
             )
         else:
