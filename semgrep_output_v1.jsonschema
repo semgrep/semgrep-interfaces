@@ -859,19 +859,6 @@
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
         "validation_state": { "$ref": "#/definitions/validation_state" }
       }
-    },
-    "cve_result": {
-      "type": "object",
-      "required": [ "url", "filename", "funcnames" ],
-      "properties": {
-        "url": { "type": "string" },
-        "filename": { "type": "string" },
-        "funcnames": { "type": "array", "items": { "type": "string" } }
-      }
-    },
-    "cve_results": {
-      "type": "array",
-      "items": { "$ref": "#/definitions/cve_result" }
     }
   }
 }

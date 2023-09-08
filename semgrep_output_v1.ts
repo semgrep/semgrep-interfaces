@@ -486,14 +486,6 @@ export type Finding = {
   validation_state?: ValidationState;
 }
 
-export type CveResult = {
-  url: string;
-  filename: string;
-  funcnames: string[];
-}
-
-export type CveResults = CveResult[]
-
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
 }
@@ -1917,30 +1909,6 @@ export function readFinding(x: any, context: any = x): Finding {
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
   };
-}
-
-export function writeCveResult(x: CveResult, context: any = x): any {
-  return {
-    'url': _atd_write_required_field('CveResult', 'url', _atd_write_string, x.url, x),
-    'filename': _atd_write_required_field('CveResult', 'filename', _atd_write_string, x.filename, x),
-    'funcnames': _atd_write_required_field('CveResult', 'funcnames', _atd_write_array(_atd_write_string), x.funcnames, x),
-  };
-}
-
-export function readCveResult(x: any, context: any = x): CveResult {
-  return {
-    url: _atd_read_required_field('CveResult', 'url', _atd_read_string, x['url'], x),
-    filename: _atd_read_required_field('CveResult', 'filename', _atd_read_string, x['filename'], x),
-    funcnames: _atd_read_required_field('CveResult', 'funcnames', _atd_read_array(_atd_read_string), x['funcnames'], x),
-  };
-}
-
-export function writeCveResults(x: CveResults, context: any = x): any {
-  return _atd_write_array(writeCveResult)(x, context);
-}
-
-export function readCveResults(x: any, context: any = x): CveResults {
-  return _atd_read_array(readCveResult)(x, context);
 }
 
 
