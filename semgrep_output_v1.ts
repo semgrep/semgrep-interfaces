@@ -145,6 +145,7 @@ export type CoreErrorKind =
 | { kind: 'OutOfMemoryDuringInterfile' /* JSON: "OOM during interfile analysis" */ }
 | { kind: 'PartialParsing'; value: Location[] }
 | { kind: 'IncompatibleRule'; value: IncompatibleRule }
+| { kind: 'MissingPlugin' }
 
 export type IncompatibleRule = {
   rule_id: RuleId;
@@ -851,6 +852,8 @@ export function writeCoreErrorKind(x: CoreErrorKind, context: any = x): any {
       return ['PartialParsing', _atd_write_array(writeLocation)(x.value, x)]
     case 'IncompatibleRule':
       return ['IncompatibleRule', writeIncompatibleRule(x.value, x)]
+    case 'MissingPlugin':
+      return 'MissingPlugin'
   }
 }
 
@@ -885,6 +888,8 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
         return { kind: 'TimeoutDuringInterfile' }
       case 'OOM during interfile analysis':
         return { kind: 'OutOfMemoryDuringInterfile' }
+      case 'MissingPlugin':
+        return { kind: 'MissingPlugin' }
       default:
         _atd_bad_json('CoreErrorKind', x, context)
         throw new Error('impossible')

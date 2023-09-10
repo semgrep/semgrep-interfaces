@@ -3400,10 +3400,27 @@ class IncompatibleRule_:
 
 
 @dataclass(frozen=True, order=True)
+class MissingPlugin:
+    """Original type: core_error_kind = [ ... | MissingPlugin | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'MissingPlugin'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'MissingPlugin'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
 class CoreErrorKind:
     """Original type: core_error_kind = [ ... ]"""
 
-    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, PatternParseError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, PartialParsing, IncompatibleRule_]
+    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, PatternParseError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, PartialParsing, IncompatibleRule_, MissingPlugin]
 
     @property
     def kind(self) -> str:
@@ -3441,6 +3458,8 @@ class CoreErrorKind:
                 return cls(TimeoutDuringInterfile())
             if x == 'OOM during interfile analysis':
                 return cls(OutOfMemoryDuringInterfile())
+            if x == 'MissingPlugin':
+                return cls(MissingPlugin())
             _atd_bad_json('CoreErrorKind', x)
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
