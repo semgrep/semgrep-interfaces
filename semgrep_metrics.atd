@@ -23,7 +23,7 @@
 (* TODO: better type *)
 type uuid = string
 
-(* TODO: better type *)
+(* TODO: better type. Stored as gmtime. *)
 type datetime = string
 
 type sha256hash = string
@@ -36,6 +36,7 @@ type sha256hash = string
 
 type payload = {
     event_id <ocaml mutable>: uuid;
+    (* as stored in ~/.semgrep/settings.yml *)
     anonymous_user_id <python default="''"> <ocaml mutable>: string;
     started_at <python default="Datetime('')"> <ocaml mutable>: datetime;
     sent_at <python default="Datetime('')"> <ocaml mutable>: datetime;
@@ -57,6 +58,7 @@ type environment = {
     projectHash <ocaml mutable>: sha256hash nullable;
     configNamesHash <python default="Sha256hash('')"> <ocaml mutable>: sha256hash;
     ?rulesHash <ocaml mutable>: sha256hash option;
+    (* TODO: should be just boolean *)
     ci <ocaml mutable>: string nullable;
     ?integrationName <ocaml mutable>: string option;
     ~isAuthenticated <python default="False"> <ocaml mutable>: bool;
@@ -133,5 +135,6 @@ type misc = {
     ?numFindings <ocaml mutable>: int option;
     ?numIgnored <ocaml mutable>: int option;
     ?ruleHashesWithFindings <ocaml mutable>: (string * int) list <json repr="object"> option;
+    (* TODO: should be OSS | Pro, see semgrep_output_v1.atd engine_kind type *)
     ~engineRequested <python default="'OSS'"> <ocaml mutable>: string;
   }
