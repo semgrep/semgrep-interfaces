@@ -1588,7 +1588,24 @@ class GitignorePatternsMatch:
 
     @staticmethod
     def to_json() -> Any:
-        return 'gitignore_patterns_match'
+        return 'Gitignore_patterns_match'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Dotfile:
+    """Original type: skip_reason = [ ... | Dotfile | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Dotfile'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Dotfile'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1598,7 +1615,7 @@ class GitignorePatternsMatch:
 class SkipReason:
     """Original type: skip_reason = [ ... ]"""
 
-    value: Union[AlwaysSkipped, SemgrepignorePatternsMatch, CliIncludeFlagsDoNotMatch, CliExcludeFlagsMatch, ExceededSizeLimit, AnalysisFailedParserOrInternalError, ExcludedByConfig, WrongLanguage, TooBig, Minified, Binary, IrrelevantRule, TooManyMatches, GitignorePatternsMatch]
+    value: Union[AlwaysSkipped, SemgrepignorePatternsMatch, CliIncludeFlagsDoNotMatch, CliExcludeFlagsMatch, ExceededSizeLimit, AnalysisFailedParserOrInternalError, ExcludedByConfig, WrongLanguage, TooBig, Minified, Binary, IrrelevantRule, TooManyMatches, GitignorePatternsMatch, Dotfile]
 
     @property
     def kind(self) -> str:
@@ -1634,8 +1651,10 @@ class SkipReason:
                 return cls(IrrelevantRule())
             if x == 'too_many_matches':
                 return cls(TooManyMatches())
-            if x == 'gitignore_patterns_match':
+            if x == 'Gitignore_patterns_match':
                 return cls(GitignorePatternsMatch())
+            if x == 'Dotfile':
+                return cls(Dotfile())
             _atd_bad_json('SkipReason', x)
         _atd_bad_json('SkipReason', x)
 

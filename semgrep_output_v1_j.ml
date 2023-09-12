@@ -124,7 +124,7 @@ type skip_reason = Semgrep_output_v1_t.skip_reason =
   | Cli_include_flags_do_not_match | Cli_exclude_flags_match
   | Exceeded_size_limit | Analysis_failed_parser_or_internal_error
   | Excluded_by_config | Wrong_language | Too_big | Minified | Binary
-  | Irrelevant_rule | Too_many_matches | Gitignore_patterns_match
+  | Irrelevant_rule | Too_many_matches | Gitignore_patterns_match | Dotfile
 
   [@@deriving show]
 
@@ -4349,7 +4349,8 @@ let write_skip_reason : _ -> skip_reason -> _ = (
       | Binary -> Buffer.add_string ob "\"binary\""
       | Irrelevant_rule -> Buffer.add_string ob "\"irrelevant_rule\""
       | Too_many_matches -> Buffer.add_string ob "\"too_many_matches\""
-      | Gitignore_patterns_match -> Buffer.add_string ob "\"gitignore_patterns_match\""
+      | Gitignore_patterns_match -> Buffer.add_string ob "\"Gitignore_patterns_match\""
+      | Dotfile -> Buffer.add_string ob "\"Dotfile\""
 )
 let string_of_skip_reason ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -4413,10 +4414,14 @@ let read_skip_reason = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (Too_many_matches : skip_reason)
-            | "gitignore_patterns_match" ->
+            | "Gitignore_patterns_match" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (Gitignore_patterns_match : skip_reason)
+            | "Dotfile" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Dotfile : skip_reason)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -4448,8 +4453,10 @@ let read_skip_reason = (
               (Irrelevant_rule : skip_reason)
             | "too_many_matches" ->
               (Too_many_matches : skip_reason)
-            | "gitignore_patterns_match" ->
+            | "Gitignore_patterns_match" ->
               (Gitignore_patterns_match : skip_reason)
+            | "Dotfile" ->
+              (Dotfile : skip_reason)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
