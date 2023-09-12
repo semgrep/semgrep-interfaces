@@ -348,7 +348,8 @@
         { "const": "binary" },
         { "const": "irrelevant_rule" },
         { "const": "too_many_matches" },
-        { "const": "gitignore_patterns_match" }
+        { "const": "Gitignore_patterns_match" },
+        { "const": "Dotfile" }
       ]
     },
     "skipped_target": {

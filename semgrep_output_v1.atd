@@ -449,7 +449,9 @@ type skip_reason <ocaml attr="deriving show"> = [
   | Irrelevant_rule <json name="irrelevant_rule">
   | Too_many_matches <json name="too_many_matches">
   (* New in osemgrep *)
-  | Gitignore_patterns_match <json name="gitignore_patterns_match">
+  | Gitignore_patterns_match
+  (* since 1.40.0 (dotfiles were always ignored, but not shown in the skip report *)
+  | Dotfile
 ] <ocaml repr="classic">
 
 (* coupling: ugly: with yield_json_objects() in target_manager.py *)
