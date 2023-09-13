@@ -285,20 +285,20 @@ class Uuid:
 
 
 @dataclass
-class Sha256hash:
-    """Original type: sha256hash"""
+class Sha256:
+    """Original type: sha256"""
 
     value: str
 
     @classmethod
-    def from_json(cls, x: Any) -> 'Sha256hash':
+    def from_json(cls, x: Any) -> 'Sha256':
         return cls(_atd_read_string(x))
 
     def to_json(self) -> Any:
         return _atd_write_string(self.value)
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'Sha256hash':
+    def from_json_string(cls, x: str) -> 'Sha256':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -599,10 +599,10 @@ class Environment:
     """Original type: environment = { ... }"""
 
     version: str
-    projectHash: Optional[Sha256hash]
-    configNamesHash: Sha256hash
+    projectHash: Optional[Sha256]
+    configNamesHash: Sha256
     ci: Optional[str]
-    rulesHash: Optional[Sha256hash] = None
+    rulesHash: Optional[Sha256] = None
     integrationName: Optional[str] = None
     isAuthenticated: bool = field(default_factory=lambda: False)
 
@@ -611,10 +611,10 @@ class Environment:
         if isinstance(x, dict):
             return cls(
                 version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('Environment', 'version'),
-                projectHash=_atd_read_nullable(Sha256hash.from_json)(x['projectHash']) if 'projectHash' in x else _atd_missing_json_field('Environment', 'projectHash'),
-                configNamesHash=Sha256hash.from_json(x['configNamesHash']) if 'configNamesHash' in x else _atd_missing_json_field('Environment', 'configNamesHash'),
+                projectHash=_atd_read_nullable(Sha256.from_json)(x['projectHash']) if 'projectHash' in x else _atd_missing_json_field('Environment', 'projectHash'),
+                configNamesHash=Sha256.from_json(x['configNamesHash']) if 'configNamesHash' in x else _atd_missing_json_field('Environment', 'configNamesHash'),
                 ci=_atd_read_nullable(_atd_read_string)(x['ci']) if 'ci' in x else _atd_missing_json_field('Environment', 'ci'),
-                rulesHash=Sha256hash.from_json(x['rulesHash']) if 'rulesHash' in x else None,
+                rulesHash=Sha256.from_json(x['rulesHash']) if 'rulesHash' in x else None,
                 integrationName=_atd_read_string(x['integrationName']) if 'integrationName' in x else None,
                 isAuthenticated=_atd_read_bool(x['isAuthenticated']) if 'isAuthenticated' in x else False,
             )

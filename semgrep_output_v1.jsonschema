@@ -32,6 +32,9 @@
   },
   "definitions": {
     "raw_json": {},
+    "uri": { "type": "string" },
+    "sha1": { "type": "string" },
+    "datetime": { "type": "string" },
     "version": { "type": "string" },
     "position": {
       "type": "object",
@@ -61,6 +64,11 @@
       "prefixItems": [
         { "$ref": "#/definitions/rule_id" },
         { "$ref": "#/definitions/engine_kind" }
+      ]
+    },
+    "product": {
+      "oneOf": [
+        { "const": "Code" }, { "const": "SCA" }, { "const": "Secrets" }
       ]
     },
     "validation_state": {
@@ -719,6 +727,47 @@
         "text": { "type": "string" }
       }
     },
+    "finding": {
+      "type": "object",
+      "required": [
+        "check_id", "path", "line", "column", "end_line", "end_column",
+        "message", "severity", "index", "commit_date", "syntactic_id",
+        "metadata", "is_blocking"
+      ],
+      "properties": {
+        "check_id": { "$ref": "#/definitions/rule_id" },
+        "path": { "$ref": "#/definitions/fpath" },
+        "line": { "type": "integer" },
+        "column": { "type": "integer" },
+        "end_line": { "type": "integer" },
+        "end_column": { "type": "integer" },
+        "message": { "type": "string" },
+        "severity": {},
+        "index": { "type": "integer" },
+        "commit_date": { "type": "string" },
+        "syntactic_id": { "type": "string" },
+        "match_based_id": { "type": "string" },
+        "hashes": { "$ref": "#/definitions/finding_hashes" },
+        "metadata": { "$ref": "#/definitions/raw_json" },
+        "is_blocking": { "type": "boolean" },
+        "fixed_lines": { "type": "array", "items": { "type": "string" } },
+        "sca_info": { "$ref": "#/definitions/sca_info" },
+        "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
+        "validation_state": { "$ref": "#/definitions/validation_state" }
+      }
+    },
+    "finding_hashes": {
+      "type": "object",
+      "required": [
+        "start_line_hash", "end_line_hash", "code_hash", "pattern_hash"
+      ],
+      "properties": {
+        "start_line_hash": { "type": "string" },
+        "end_line_hash": { "type": "string" },
+        "code_hash": { "type": "string" },
+        "pattern_hash": { "type": "string" }
+      }
+    },
     "ci_scan_results": {
       "type": "object",
       "required": [
@@ -827,45 +876,202 @@
         "num_bytes": { "type": "integer" }
       }
     },
-    "finding": {
+    "project_metadata": {
       "type": "object",
       "required": [
-        "check_id", "path", "line", "column", "end_line", "end_column",
-        "message", "severity", "index", "commit_date", "syntactic_id",
-        "metadata", "is_blocking"
+        "semgrep_version", "repository", "repo_url", "branch", "ci_job_url",
+        "commit", "commit_author_email", "commit_author_name",
+        "commit_author_username", "commit_author_image_url", "commit_title",
+        "commit_timestamp", "on", "pull_request_author_username",
+        "pull_request_author_image_url", "pull_request_id",
+        "pill_request_title", "scan_environment", "is_full_scan",
+        "is_sca_scan", "is_code_scan", "is_secrets_can"
       ],
       "properties": {
-        "check_id": { "$ref": "#/definitions/rule_id" },
-        "path": { "$ref": "#/definitions/fpath" },
-        "line": { "type": "integer" },
-        "column": { "type": "integer" },
-        "end_line": { "type": "integer" },
-        "end_column": { "type": "integer" },
-        "message": { "type": "string" },
-        "severity": {},
-        "index": { "type": "integer" },
-        "commit_date": { "type": "string" },
-        "syntactic_id": { "type": "string" },
-        "match_based_id": { "type": "string" },
-        "hashes": { "$ref": "#/definitions/finding_hashes" },
-        "metadata": { "$ref": "#/definitions/raw_json" },
-        "is_blocking": { "type": "boolean" },
-        "fixed_lines": { "type": "array", "items": { "type": "string" } },
-        "sca_info": { "$ref": "#/definitions/sca_info" },
-        "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
-        "validation_state": { "$ref": "#/definitions/validation_state" }
-      }
-    },
-    "finding_hashes": {
-      "type": "object",
-      "required": [
-        "start_line_hash", "end_line_hash", "code_hash", "pattern_hash"
-      ],
-      "properties": {
-        "start_line_hash": { "type": "string" },
-        "end_line_hash": { "type": "string" },
-        "code_hash": { "type": "string" },
-        "pattern_hash": { "type": "string" }
+        "semgrep_version": { "$ref": "#/definitions/version" },
+        "repository": { "type": "string" },
+        "repo_url": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" }, { "$ref": "#/definitions/uri" }
+              ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "branch": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "ci_job_url": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" }, { "$ref": "#/definitions/uri" }
+              ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "commit": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" }, { "$ref": "#/definitions/sha1" }
+              ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "commit_author_email": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "commit_author_name": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "commit_author_username": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "commit_author_image_url": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" }, { "$ref": "#/definitions/uri" }
+              ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "commit_title": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "commit_timestamp": { "$ref": "#/definitions/datetime" },
+        "on": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "pull_request_author_username": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "pull_request_author_image_url": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" }, { "$ref": "#/definitions/uri" }
+              ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "pull_request_id": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "pill_request_title": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "scan_environment": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "base_sha": { "$ref": "#/definitions/sha1" },
+        "start_sha": { "$ref": "#/definitions/sha1" },
+        "is_full_scan": { "type": "boolean" },
+        "is_sca_scan": { "type": "boolean" },
+        "is_code_scan": { "type": "boolean" },
+        "is_secrets_can": { "type": "boolean" }
       }
     }
   }

@@ -1203,6 +1203,27 @@ class Version:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class Uri:
+    """Original type: uri"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Uri':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Uri':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class Direct:
     """Original type: transitivity = [ ... | Direct | ... ]"""
@@ -1736,6 +1757,27 @@ class SkippedRule:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'SkippedRule':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Sha1:
+    """Original type: sha1"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Sha1':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Sha1':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -2500,6 +2542,126 @@ class RuleIdAndEngineKind:
 
 
 @dataclass
+class Datetime:
+    """Original type: datetime"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Datetime':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Datetime':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ProjectMetadata:
+    """Original type: project_metadata = { ... }"""
+
+    semgrep_version: Version
+    repository: str
+    repo_url: Optional[Uri]
+    branch: Optional[str]
+    ci_job_url: Optional[Uri]
+    commit: Optional[Sha1]
+    commit_author_email: Optional[str]
+    commit_author_name: Optional[str]
+    commit_author_username: Optional[str]
+    commit_author_image_url: Optional[Uri]
+    commit_title: Optional[str]
+    commit_timestamp: Datetime
+    on: Optional[str]
+    pull_request_author_username: Optional[str]
+    pull_request_author_image_url: Optional[Uri]
+    pull_request_id: Optional[str]
+    pill_request_title: Optional[str]
+    scan_environment: Optional[str]
+    is_full_scan: bool
+    is_sca_scan: bool
+    is_code_scan: bool
+    is_secrets_can: bool
+    base_sha: Optional[Sha1] = None
+    start_sha: Optional[Sha1] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ProjectMetadata':
+        if isinstance(x, dict):
+            return cls(
+                semgrep_version=Version.from_json(x['semgrep_version']) if 'semgrep_version' in x else _atd_missing_json_field('ProjectMetadata', 'semgrep_version'),
+                repository=_atd_read_string(x['repository']) if 'repository' in x else _atd_missing_json_field('ProjectMetadata', 'repository'),
+                repo_url=_atd_read_option(Uri.from_json)(x['repo_url']) if 'repo_url' in x else _atd_missing_json_field('ProjectMetadata', 'repo_url'),
+                branch=_atd_read_option(_atd_read_string)(x['branch']) if 'branch' in x else _atd_missing_json_field('ProjectMetadata', 'branch'),
+                ci_job_url=_atd_read_option(Uri.from_json)(x['ci_job_url']) if 'ci_job_url' in x else _atd_missing_json_field('ProjectMetadata', 'ci_job_url'),
+                commit=_atd_read_option(Sha1.from_json)(x['commit']) if 'commit' in x else _atd_missing_json_field('ProjectMetadata', 'commit'),
+                commit_author_email=_atd_read_option(_atd_read_string)(x['commit_author_email']) if 'commit_author_email' in x else _atd_missing_json_field('ProjectMetadata', 'commit_author_email'),
+                commit_author_name=_atd_read_option(_atd_read_string)(x['commit_author_name']) if 'commit_author_name' in x else _atd_missing_json_field('ProjectMetadata', 'commit_author_name'),
+                commit_author_username=_atd_read_option(_atd_read_string)(x['commit_author_username']) if 'commit_author_username' in x else _atd_missing_json_field('ProjectMetadata', 'commit_author_username'),
+                commit_author_image_url=_atd_read_option(Uri.from_json)(x['commit_author_image_url']) if 'commit_author_image_url' in x else _atd_missing_json_field('ProjectMetadata', 'commit_author_image_url'),
+                commit_title=_atd_read_option(_atd_read_string)(x['commit_title']) if 'commit_title' in x else _atd_missing_json_field('ProjectMetadata', 'commit_title'),
+                commit_timestamp=Datetime.from_json(x['commit_timestamp']) if 'commit_timestamp' in x else _atd_missing_json_field('ProjectMetadata', 'commit_timestamp'),
+                on=_atd_read_option(_atd_read_string)(x['on']) if 'on' in x else _atd_missing_json_field('ProjectMetadata', 'on'),
+                pull_request_author_username=_atd_read_option(_atd_read_string)(x['pull_request_author_username']) if 'pull_request_author_username' in x else _atd_missing_json_field('ProjectMetadata', 'pull_request_author_username'),
+                pull_request_author_image_url=_atd_read_option(Uri.from_json)(x['pull_request_author_image_url']) if 'pull_request_author_image_url' in x else _atd_missing_json_field('ProjectMetadata', 'pull_request_author_image_url'),
+                pull_request_id=_atd_read_option(_atd_read_string)(x['pull_request_id']) if 'pull_request_id' in x else _atd_missing_json_field('ProjectMetadata', 'pull_request_id'),
+                pill_request_title=_atd_read_option(_atd_read_string)(x['pill_request_title']) if 'pill_request_title' in x else _atd_missing_json_field('ProjectMetadata', 'pill_request_title'),
+                scan_environment=_atd_read_option(_atd_read_string)(x['scan_environment']) if 'scan_environment' in x else _atd_missing_json_field('ProjectMetadata', 'scan_environment'),
+                is_full_scan=_atd_read_bool(x['is_full_scan']) if 'is_full_scan' in x else _atd_missing_json_field('ProjectMetadata', 'is_full_scan'),
+                is_sca_scan=_atd_read_bool(x['is_sca_scan']) if 'is_sca_scan' in x else _atd_missing_json_field('ProjectMetadata', 'is_sca_scan'),
+                is_code_scan=_atd_read_bool(x['is_code_scan']) if 'is_code_scan' in x else _atd_missing_json_field('ProjectMetadata', 'is_code_scan'),
+                is_secrets_can=_atd_read_bool(x['is_secrets_can']) if 'is_secrets_can' in x else _atd_missing_json_field('ProjectMetadata', 'is_secrets_can'),
+                base_sha=Sha1.from_json(x['base_sha']) if 'base_sha' in x else None,
+                start_sha=Sha1.from_json(x['start_sha']) if 'start_sha' in x else None,
+            )
+        else:
+            _atd_bad_json('ProjectMetadata', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['semgrep_version'] = (lambda x: x.to_json())(self.semgrep_version)
+        res['repository'] = _atd_write_string(self.repository)
+        res['repo_url'] = _atd_write_option((lambda x: x.to_json()))(self.repo_url)
+        res['branch'] = _atd_write_option(_atd_write_string)(self.branch)
+        res['ci_job_url'] = _atd_write_option((lambda x: x.to_json()))(self.ci_job_url)
+        res['commit'] = _atd_write_option((lambda x: x.to_json()))(self.commit)
+        res['commit_author_email'] = _atd_write_option(_atd_write_string)(self.commit_author_email)
+        res['commit_author_name'] = _atd_write_option(_atd_write_string)(self.commit_author_name)
+        res['commit_author_username'] = _atd_write_option(_atd_write_string)(self.commit_author_username)
+        res['commit_author_image_url'] = _atd_write_option((lambda x: x.to_json()))(self.commit_author_image_url)
+        res['commit_title'] = _atd_write_option(_atd_write_string)(self.commit_title)
+        res['commit_timestamp'] = (lambda x: x.to_json())(self.commit_timestamp)
+        res['on'] = _atd_write_option(_atd_write_string)(self.on)
+        res['pull_request_author_username'] = _atd_write_option(_atd_write_string)(self.pull_request_author_username)
+        res['pull_request_author_image_url'] = _atd_write_option((lambda x: x.to_json()))(self.pull_request_author_image_url)
+        res['pull_request_id'] = _atd_write_option(_atd_write_string)(self.pull_request_id)
+        res['pill_request_title'] = _atd_write_option(_atd_write_string)(self.pill_request_title)
+        res['scan_environment'] = _atd_write_option(_atd_write_string)(self.scan_environment)
+        res['is_full_scan'] = _atd_write_bool(self.is_full_scan)
+        res['is_sca_scan'] = _atd_write_bool(self.is_sca_scan)
+        res['is_code_scan'] = _atd_write_bool(self.is_code_scan)
+        res['is_secrets_can'] = _atd_write_bool(self.is_secrets_can)
+        if self.base_sha is not None:
+            res['base_sha'] = (lambda x: x.to_json())(self.base_sha)
+        if self.start_sha is not None:
+            res['start_sha'] = (lambda x: x.to_json())(self.start_sha)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ProjectMetadata':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class CliTargetTimes:
     """Original type: cli_target_times = { ... }"""
 
@@ -2577,6 +2739,91 @@ class Profile:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Profile':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Code:
+    """Original type: product = [ ... | Code | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Code'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Code'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class SCA:
+    """Original type: product = [ ... | SCA | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SCA'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'SCA'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Secrets:
+    """Original type: product = [ ... | Secrets | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Secrets'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Secrets'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Product:
+    """Original type: product = [ ... ]"""
+
+    value: Union[Code, SCA, Secrets]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Product':
+        if isinstance(x, str):
+            if x == 'Code':
+                return cls(Code())
+            if x == 'SCA':
+                return cls(SCA())
+            if x == 'Secrets':
+                return cls(Secrets())
+            _atd_bad_json('Product', x)
+        _atd_bad_json('Product', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Product':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
