@@ -899,6 +899,7 @@ type finding = {
  * do not report new findings but instead detect that the finding
  * actually hashes to a previous old finding.
  * See also match_based_id which is yet another way to hash a finding.
+ * See also https://www.notion.so/semgrep/Identifying-unique-findings-match_based_id-and-syntactic_id
  *)
 type finding_hashes = {
   start_line_hash: string;
