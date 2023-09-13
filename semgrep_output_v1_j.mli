@@ -105,6 +105,8 @@ type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
 
 type version = Semgrep_output_v1_t.version [@@deriving show]
 
+type uri = Semgrep_output_v1_t.uri
+
 type transitivity = Semgrep_output_v1_t.transitivity
 
 type rule_times = Semgrep_output_v1_t.rule_times = {
@@ -141,6 +143,8 @@ type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
   details: string;
   position: position
 }
+
+type sha1 = Semgrep_output_v1_t.sha1
 
 type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
   scanned: fpath list;
@@ -189,6 +193,35 @@ type sca_info = Semgrep_output_v1_t.sca_info = {
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
 
+type datetime = Semgrep_output_v1_t.datetime
+
+type project_metadata = Semgrep_output_v1_t.project_metadata = {
+  semgrep_version: version;
+  repository: string;
+  repo_url: uri option;
+  branch: string option;
+  ci_job_url: uri option;
+  commit: sha1 option;
+  commit_author_email: string option;
+  commit_author_name: string option;
+  commit_author_username: string option;
+  commit_author_image_url: uri option;
+  commit_title: string option;
+  commit_timestamp: datetime;
+  on: string option;
+  pull_request_author_username: string option;
+  pull_request_author_image_url: uri option;
+  pull_request_id: string option;
+  pill_request_title: string option;
+  scan_environment: string option;
+  base_sha: sha1 option;
+  start_sha: sha1 option;
+  is_full_scan: bool;
+  is_sca_scan: bool;
+  is_code_scan: bool;
+  is_secrets_can: bool
+}
+
 type cli_target_times = Semgrep_output_v1_t.cli_target_times = {
   path: fpath;
   num_bytes: int;
@@ -205,6 +238,8 @@ type profile = Semgrep_output_v1_t.profile = {
   total_bytes: int;
   max_memory_bytes: int option
 }
+
+type product = Semgrep_output_v1_t.product [@@deriving show]
 
 type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
   targets_parsed: int;
@@ -812,6 +847,26 @@ val version_of_string :
   string -> version
   (** Deserialize JSON data of type {!type:version}. *)
 
+val write_uri :
+  Buffer.t -> uri -> unit
+  (** Output a JSON value of type {!type:uri}. *)
+
+val string_of_uri :
+  ?len:int -> uri -> string
+  (** Serialize a value of type {!type:uri}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_uri :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> uri
+  (** Input JSON data of type {!type:uri}. *)
+
+val uri_of_string :
+  string -> uri
+  (** Deserialize JSON data of type {!type:uri}. *)
+
 val write_transitivity :
   Buffer.t -> transitivity -> unit
   (** Output a JSON value of type {!type:transitivity}. *)
@@ -931,6 +986,26 @@ val read_skipped_rule :
 val skipped_rule_of_string :
   string -> skipped_rule
   (** Deserialize JSON data of type {!type:skipped_rule}. *)
+
+val write_sha1 :
+  Buffer.t -> sha1 -> unit
+  (** Output a JSON value of type {!type:sha1}. *)
+
+val string_of_sha1 :
+  ?len:int -> sha1 -> string
+  (** Serialize a value of type {!type:sha1}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sha1 :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sha1
+  (** Input JSON data of type {!type:sha1}. *)
+
+val sha1_of_string :
+  string -> sha1
+  (** Deserialize JSON data of type {!type:sha1}. *)
 
 val write_scanned_and_skipped :
   Buffer.t -> scanned_and_skipped -> unit
@@ -1112,6 +1187,46 @@ val rule_id_and_engine_kind_of_string :
   string -> rule_id_and_engine_kind
   (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
 
+val write_datetime :
+  Buffer.t -> datetime -> unit
+  (** Output a JSON value of type {!type:datetime}. *)
+
+val string_of_datetime :
+  ?len:int -> datetime -> string
+  (** Serialize a value of type {!type:datetime}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_datetime :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> datetime
+  (** Input JSON data of type {!type:datetime}. *)
+
+val datetime_of_string :
+  string -> datetime
+  (** Deserialize JSON data of type {!type:datetime}. *)
+
+val write_project_metadata :
+  Buffer.t -> project_metadata -> unit
+  (** Output a JSON value of type {!type:project_metadata}. *)
+
+val string_of_project_metadata :
+  ?len:int -> project_metadata -> string
+  (** Serialize a value of type {!type:project_metadata}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_project_metadata :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> project_metadata
+  (** Input JSON data of type {!type:project_metadata}. *)
+
+val project_metadata_of_string :
+  string -> project_metadata
+  (** Deserialize JSON data of type {!type:project_metadata}. *)
+
 val write_cli_target_times :
   Buffer.t -> cli_target_times -> unit
   (** Output a JSON value of type {!type:cli_target_times}. *)
@@ -1151,6 +1266,26 @@ val read_profile :
 val profile_of_string :
   string -> profile
   (** Deserialize JSON data of type {!type:profile}. *)
+
+val write_product :
+  Buffer.t -> product -> unit
+  (** Output a JSON value of type {!type:product}. *)
+
+val string_of_product :
+  ?len:int -> product -> string
+  (** Serialize a value of type {!type:product}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_product :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> product
+  (** Input JSON data of type {!type:product}. *)
+
+val product_of_string :
+  string -> product
+  (** Deserialize JSON data of type {!type:product}. *)
 
 val write_parsing_stats :
   Buffer.t -> parsing_stats -> unit

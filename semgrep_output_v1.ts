@@ -14,6 +14,12 @@
 
 export type RawJson = any
 
+export type Uri = string
+
+export type Sha1 = string
+
+export type Datetime = string
+
 export type Version = string
 
 export type Position = {
@@ -37,6 +43,11 @@ export type EngineKind =
 | { kind: 'PRO' }
 
 export type RuleIdAndEngineKind = [RuleId, EngineKind]
+
+export type Product =
+| { kind: 'Code' }
+| { kind: 'SCA' }
+| { kind: 'Secrets' }
 
 export type ValidationState =
 | { kind: 'CONFIRMED_VALID' }
@@ -408,6 +419,35 @@ export type DependencyParserError = {
   text?: string;
 }
 
+export type Finding = {
+  check_id: RuleId;
+  path: Fpath;
+  line: number /*int*/;
+  column: number /*int*/;
+  end_line: number /*int*/;
+  end_column: number /*int*/;
+  message: string;
+  severity: any;
+  index: number /*int*/;
+  commit_date: string;
+  syntactic_id: string;
+  match_based_id?: string;
+  hashes?: FindingHashes;
+  metadata: RawJson;
+  is_blocking: boolean;
+  fixed_lines?: string[];
+  sca_info?: ScaInfo;
+  dataflow_trace?: MatchDataflowTrace;
+  validation_state?: ValidationState;
+}
+
+export type FindingHashes = {
+  start_line_hash: string;
+  end_line_hash: string;
+  code_hash: string;
+  pattern_hash: string;
+}
+
 export type CiScanResults = {
   findings: Finding[];
   ignores: Finding[];
@@ -459,33 +499,31 @@ export type ParsingStats = {
   num_bytes: number /*int*/;
 }
 
-export type Finding = {
-  check_id: RuleId;
-  path: Fpath;
-  line: number /*int*/;
-  column: number /*int*/;
-  end_line: number /*int*/;
-  end_column: number /*int*/;
-  message: string;
-  severity: any;
-  index: number /*int*/;
-  commit_date: string;
-  syntactic_id: string;
-  match_based_id?: string;
-  hashes?: FindingHashes;
-  metadata: RawJson;
-  is_blocking: boolean;
-  fixed_lines?: string[];
-  sca_info?: ScaInfo;
-  dataflow_trace?: MatchDataflowTrace;
-  validation_state?: ValidationState;
-}
-
-export type FindingHashes = {
-  start_line_hash: string;
-  end_line_hash: string;
-  code_hash: string;
-  pattern_hash: string;
+export type ProjectMetadata = {
+  semgrep_version: Version;
+  repository: string;
+  repo_url: Option<Uri>;
+  branch: Option<string>;
+  ci_job_url: Option<Uri>;
+  commit: Option<Sha1>;
+  commit_author_email: Option<string>;
+  commit_author_name: Option<string>;
+  commit_author_username: Option<string>;
+  commit_author_image_url: Option<Uri>;
+  commit_title: Option<string>;
+  commit_timestamp: Datetime;
+  on: Option<string>;
+  pull_request_author_username: Option<string>;
+  pull_request_author_image_url: Option<Uri>;
+  pull_request_id: Option<string>;
+  pill_request_title: Option<string>;
+  scan_environment: Option<string>;
+  base_sha?: Sha1;
+  start_sha?: Sha1;
+  is_full_scan: boolean;
+  is_sca_scan: boolean;
+  is_code_scan: boolean;
+  is_secrets_can: boolean;
 }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
@@ -494,6 +532,30 @@ export function writeRawJson(x: RawJson, context: any = x): any {
 
 export function readRawJson(x: any, context: any = x): RawJson {
   return ((x: any, context): any => x)(x, context);
+}
+
+export function writeUri(x: Uri, context: any = x): any {
+  return _atd_write_string(x, context);
+}
+
+export function readUri(x: any, context: any = x): Uri {
+  return _atd_read_string(x, context);
+}
+
+export function writeSha1(x: Sha1, context: any = x): any {
+  return _atd_write_string(x, context);
+}
+
+export function readSha1(x: any, context: any = x): Sha1 {
+  return _atd_read_string(x, context);
+}
+
+export function writeDatetime(x: Datetime, context: any = x): any {
+  return _atd_write_string(x, context);
+}
+
+export function readDatetime(x: any, context: any = x): Datetime {
+  return _atd_read_string(x, context);
 }
 
 export function writeVersion(x: Version, context: any = x): any {
@@ -579,6 +641,31 @@ export function writeRuleIdAndEngineKind(x: RuleIdAndEngineKind, context: any = 
 
 export function readRuleIdAndEngineKind(x: any, context: any = x): RuleIdAndEngineKind {
   return ((x, context): [RuleId, EngineKind] => { _atd_check_json_tuple(2, x, context); return [readRuleId(x[0], x), readEngineKind(x[1], x)] })(x, context);
+}
+
+export function writeProduct(x: Product, context: any = x): any {
+  switch (x.kind) {
+    case 'Code':
+      return 'Code'
+    case 'SCA':
+      return 'SCA'
+    case 'Secrets':
+      return 'Secrets'
+  }
+}
+
+export function readProduct(x: any, context: any = x): Product {
+  switch (x) {
+    case 'Code':
+      return { kind: 'Code' }
+    case 'SCA':
+      return { kind: 'SCA' }
+    case 'Secrets':
+      return { kind: 'Secrets' }
+    default:
+      _atd_bad_json('Product', x, context)
+      throw new Error('impossible')
+  }
 }
 
 export function writeValidationState(x: ValidationState, context: any = x): any {
@@ -1721,6 +1808,72 @@ export function readDependencyParserError(x: any, context: any = x): DependencyP
   };
 }
 
+export function writeFinding(x: Finding, context: any = x): any {
+  return {
+    'check_id': _atd_write_required_field('Finding', 'check_id', writeRuleId, x.check_id, x),
+    'path': _atd_write_required_field('Finding', 'path', writeFpath, x.path, x),
+    'line': _atd_write_required_field('Finding', 'line', _atd_write_int, x.line, x),
+    'column': _atd_write_required_field('Finding', 'column', _atd_write_int, x.column, x),
+    'end_line': _atd_write_required_field('Finding', 'end_line', _atd_write_int, x.end_line, x),
+    'end_column': _atd_write_required_field('Finding', 'end_column', _atd_write_int, x.end_column, x),
+    'message': _atd_write_required_field('Finding', 'message', _atd_write_string, x.message, x),
+    'severity': _atd_write_required_field('Finding', 'severity', ((x: any, context): any => x), x.severity, x),
+    'index': _atd_write_required_field('Finding', 'index', _atd_write_int, x.index, x),
+    'commit_date': _atd_write_required_field('Finding', 'commit_date', _atd_write_string, x.commit_date, x),
+    'syntactic_id': _atd_write_required_field('Finding', 'syntactic_id', _atd_write_string, x.syntactic_id, x),
+    'match_based_id': _atd_write_optional_field(_atd_write_string, x.match_based_id, x),
+    'hashes': _atd_write_optional_field(writeFindingHashes, x.hashes, x),
+    'metadata': _atd_write_required_field('Finding', 'metadata', writeRawJson, x.metadata, x),
+    'is_blocking': _atd_write_required_field('Finding', 'is_blocking', _atd_write_bool, x.is_blocking, x),
+    'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
+    'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
+    'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
+    'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
+  };
+}
+
+export function readFinding(x: any, context: any = x): Finding {
+  return {
+    check_id: _atd_read_required_field('Finding', 'check_id', readRuleId, x['check_id'], x),
+    path: _atd_read_required_field('Finding', 'path', readFpath, x['path'], x),
+    line: _atd_read_required_field('Finding', 'line', _atd_read_int, x['line'], x),
+    column: _atd_read_required_field('Finding', 'column', _atd_read_int, x['column'], x),
+    end_line: _atd_read_required_field('Finding', 'end_line', _atd_read_int, x['end_line'], x),
+    end_column: _atd_read_required_field('Finding', 'end_column', _atd_read_int, x['end_column'], x),
+    message: _atd_read_required_field('Finding', 'message', _atd_read_string, x['message'], x),
+    severity: _atd_read_required_field('Finding', 'severity', ((x: any, context): any => x), x['severity'], x),
+    index: _atd_read_required_field('Finding', 'index', _atd_read_int, x['index'], x),
+    commit_date: _atd_read_required_field('Finding', 'commit_date', _atd_read_string, x['commit_date'], x),
+    syntactic_id: _atd_read_required_field('Finding', 'syntactic_id', _atd_read_string, x['syntactic_id'], x),
+    match_based_id: _atd_read_optional_field(_atd_read_string, x['match_based_id'], x),
+    hashes: _atd_read_optional_field(readFindingHashes, x['hashes'], x),
+    metadata: _atd_read_required_field('Finding', 'metadata', readRawJson, x['metadata'], x),
+    is_blocking: _atd_read_required_field('Finding', 'is_blocking', _atd_read_bool, x['is_blocking'], x),
+    fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
+    sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
+    dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
+    validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
+  };
+}
+
+export function writeFindingHashes(x: FindingHashes, context: any = x): any {
+  return {
+    'start_line_hash': _atd_write_required_field('FindingHashes', 'start_line_hash', _atd_write_string, x.start_line_hash, x),
+    'end_line_hash': _atd_write_required_field('FindingHashes', 'end_line_hash', _atd_write_string, x.end_line_hash, x),
+    'code_hash': _atd_write_required_field('FindingHashes', 'code_hash', _atd_write_string, x.code_hash, x),
+    'pattern_hash': _atd_write_required_field('FindingHashes', 'pattern_hash', _atd_write_string, x.pattern_hash, x),
+  };
+}
+
+export function readFindingHashes(x: any, context: any = x): FindingHashes {
+  return {
+    start_line_hash: _atd_read_required_field('FindingHashes', 'start_line_hash', _atd_read_string, x['start_line_hash'], x),
+    end_line_hash: _atd_read_required_field('FindingHashes', 'end_line_hash', _atd_read_string, x['end_line_hash'], x),
+    code_hash: _atd_read_required_field('FindingHashes', 'code_hash', _atd_read_string, x['code_hash'], x),
+    pattern_hash: _atd_read_required_field('FindingHashes', 'pattern_hash', _atd_read_string, x['pattern_hash'], x),
+  };
+}
+
 export function writeCiScanResults(x: CiScanResults, context: any = x): any {
   return {
     'findings': _atd_write_required_field('CiScanResults', 'findings', _atd_write_array(writeFinding), x.findings, x),
@@ -1855,69 +2008,61 @@ export function readParsingStats(x: any, context: any = x): ParsingStats {
   };
 }
 
-export function writeFinding(x: Finding, context: any = x): any {
+export function writeProjectMetadata(x: ProjectMetadata, context: any = x): any {
   return {
-    'check_id': _atd_write_required_field('Finding', 'check_id', writeRuleId, x.check_id, x),
-    'path': _atd_write_required_field('Finding', 'path', writeFpath, x.path, x),
-    'line': _atd_write_required_field('Finding', 'line', _atd_write_int, x.line, x),
-    'column': _atd_write_required_field('Finding', 'column', _atd_write_int, x.column, x),
-    'end_line': _atd_write_required_field('Finding', 'end_line', _atd_write_int, x.end_line, x),
-    'end_column': _atd_write_required_field('Finding', 'end_column', _atd_write_int, x.end_column, x),
-    'message': _atd_write_required_field('Finding', 'message', _atd_write_string, x.message, x),
-    'severity': _atd_write_required_field('Finding', 'severity', ((x: any, context): any => x), x.severity, x),
-    'index': _atd_write_required_field('Finding', 'index', _atd_write_int, x.index, x),
-    'commit_date': _atd_write_required_field('Finding', 'commit_date', _atd_write_string, x.commit_date, x),
-    'syntactic_id': _atd_write_required_field('Finding', 'syntactic_id', _atd_write_string, x.syntactic_id, x),
-    'match_based_id': _atd_write_optional_field(_atd_write_string, x.match_based_id, x),
-    'hashes': _atd_write_optional_field(writeFindingHashes, x.hashes, x),
-    'metadata': _atd_write_required_field('Finding', 'metadata', writeRawJson, x.metadata, x),
-    'is_blocking': _atd_write_required_field('Finding', 'is_blocking', _atd_write_bool, x.is_blocking, x),
-    'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
-    'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
-    'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
-    'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
+    'semgrep_version': _atd_write_required_field('ProjectMetadata', 'semgrep_version', writeVersion, x.semgrep_version, x),
+    'repository': _atd_write_required_field('ProjectMetadata', 'repository', _atd_write_string, x.repository, x),
+    'repo_url': _atd_write_required_field('ProjectMetadata', 'repo_url', _atd_write_option(writeUri), x.repo_url, x),
+    'branch': _atd_write_required_field('ProjectMetadata', 'branch', _atd_write_option(_atd_write_string), x.branch, x),
+    'ci_job_url': _atd_write_required_field('ProjectMetadata', 'ci_job_url', _atd_write_option(writeUri), x.ci_job_url, x),
+    'commit': _atd_write_required_field('ProjectMetadata', 'commit', _atd_write_option(writeSha1), x.commit, x),
+    'commit_author_email': _atd_write_required_field('ProjectMetadata', 'commit_author_email', _atd_write_option(_atd_write_string), x.commit_author_email, x),
+    'commit_author_name': _atd_write_required_field('ProjectMetadata', 'commit_author_name', _atd_write_option(_atd_write_string), x.commit_author_name, x),
+    'commit_author_username': _atd_write_required_field('ProjectMetadata', 'commit_author_username', _atd_write_option(_atd_write_string), x.commit_author_username, x),
+    'commit_author_image_url': _atd_write_required_field('ProjectMetadata', 'commit_author_image_url', _atd_write_option(writeUri), x.commit_author_image_url, x),
+    'commit_title': _atd_write_required_field('ProjectMetadata', 'commit_title', _atd_write_option(_atd_write_string), x.commit_title, x),
+    'commit_timestamp': _atd_write_required_field('ProjectMetadata', 'commit_timestamp', writeDatetime, x.commit_timestamp, x),
+    'on': _atd_write_required_field('ProjectMetadata', 'on', _atd_write_option(_atd_write_string), x.on, x),
+    'pull_request_author_username': _atd_write_required_field('ProjectMetadata', 'pull_request_author_username', _atd_write_option(_atd_write_string), x.pull_request_author_username, x),
+    'pull_request_author_image_url': _atd_write_required_field('ProjectMetadata', 'pull_request_author_image_url', _atd_write_option(writeUri), x.pull_request_author_image_url, x),
+    'pull_request_id': _atd_write_required_field('ProjectMetadata', 'pull_request_id', _atd_write_option(_atd_write_string), x.pull_request_id, x),
+    'pill_request_title': _atd_write_required_field('ProjectMetadata', 'pill_request_title', _atd_write_option(_atd_write_string), x.pill_request_title, x),
+    'scan_environment': _atd_write_required_field('ProjectMetadata', 'scan_environment', _atd_write_option(_atd_write_string), x.scan_environment, x),
+    'base_sha': _atd_write_optional_field(writeSha1, x.base_sha, x),
+    'start_sha': _atd_write_optional_field(writeSha1, x.start_sha, x),
+    'is_full_scan': _atd_write_required_field('ProjectMetadata', 'is_full_scan', _atd_write_bool, x.is_full_scan, x),
+    'is_sca_scan': _atd_write_required_field('ProjectMetadata', 'is_sca_scan', _atd_write_bool, x.is_sca_scan, x),
+    'is_code_scan': _atd_write_required_field('ProjectMetadata', 'is_code_scan', _atd_write_bool, x.is_code_scan, x),
+    'is_secrets_can': _atd_write_required_field('ProjectMetadata', 'is_secrets_can', _atd_write_bool, x.is_secrets_can, x),
   };
 }
 
-export function readFinding(x: any, context: any = x): Finding {
+export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
   return {
-    check_id: _atd_read_required_field('Finding', 'check_id', readRuleId, x['check_id'], x),
-    path: _atd_read_required_field('Finding', 'path', readFpath, x['path'], x),
-    line: _atd_read_required_field('Finding', 'line', _atd_read_int, x['line'], x),
-    column: _atd_read_required_field('Finding', 'column', _atd_read_int, x['column'], x),
-    end_line: _atd_read_required_field('Finding', 'end_line', _atd_read_int, x['end_line'], x),
-    end_column: _atd_read_required_field('Finding', 'end_column', _atd_read_int, x['end_column'], x),
-    message: _atd_read_required_field('Finding', 'message', _atd_read_string, x['message'], x),
-    severity: _atd_read_required_field('Finding', 'severity', ((x: any, context): any => x), x['severity'], x),
-    index: _atd_read_required_field('Finding', 'index', _atd_read_int, x['index'], x),
-    commit_date: _atd_read_required_field('Finding', 'commit_date', _atd_read_string, x['commit_date'], x),
-    syntactic_id: _atd_read_required_field('Finding', 'syntactic_id', _atd_read_string, x['syntactic_id'], x),
-    match_based_id: _atd_read_optional_field(_atd_read_string, x['match_based_id'], x),
-    hashes: _atd_read_optional_field(readFindingHashes, x['hashes'], x),
-    metadata: _atd_read_required_field('Finding', 'metadata', readRawJson, x['metadata'], x),
-    is_blocking: _atd_read_required_field('Finding', 'is_blocking', _atd_read_bool, x['is_blocking'], x),
-    fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
-    sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
-    dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
-    validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
-  };
-}
-
-export function writeFindingHashes(x: FindingHashes, context: any = x): any {
-  return {
-    'start_line_hash': _atd_write_required_field('FindingHashes', 'start_line_hash', _atd_write_string, x.start_line_hash, x),
-    'end_line_hash': _atd_write_required_field('FindingHashes', 'end_line_hash', _atd_write_string, x.end_line_hash, x),
-    'code_hash': _atd_write_required_field('FindingHashes', 'code_hash', _atd_write_string, x.code_hash, x),
-    'pattern_hash': _atd_write_required_field('FindingHashes', 'pattern_hash', _atd_write_string, x.pattern_hash, x),
-  };
-}
-
-export function readFindingHashes(x: any, context: any = x): FindingHashes {
-  return {
-    start_line_hash: _atd_read_required_field('FindingHashes', 'start_line_hash', _atd_read_string, x['start_line_hash'], x),
-    end_line_hash: _atd_read_required_field('FindingHashes', 'end_line_hash', _atd_read_string, x['end_line_hash'], x),
-    code_hash: _atd_read_required_field('FindingHashes', 'code_hash', _atd_read_string, x['code_hash'], x),
-    pattern_hash: _atd_read_required_field('FindingHashes', 'pattern_hash', _atd_read_string, x['pattern_hash'], x),
+    semgrep_version: _atd_read_required_field('ProjectMetadata', 'semgrep_version', readVersion, x['semgrep_version'], x),
+    repository: _atd_read_required_field('ProjectMetadata', 'repository', _atd_read_string, x['repository'], x),
+    repo_url: _atd_read_required_field('ProjectMetadata', 'repo_url', _atd_read_option(readUri), x['repo_url'], x),
+    branch: _atd_read_required_field('ProjectMetadata', 'branch', _atd_read_option(_atd_read_string), x['branch'], x),
+    ci_job_url: _atd_read_required_field('ProjectMetadata', 'ci_job_url', _atd_read_option(readUri), x['ci_job_url'], x),
+    commit: _atd_read_required_field('ProjectMetadata', 'commit', _atd_read_option(readSha1), x['commit'], x),
+    commit_author_email: _atd_read_required_field('ProjectMetadata', 'commit_author_email', _atd_read_option(_atd_read_string), x['commit_author_email'], x),
+    commit_author_name: _atd_read_required_field('ProjectMetadata', 'commit_author_name', _atd_read_option(_atd_read_string), x['commit_author_name'], x),
+    commit_author_username: _atd_read_required_field('ProjectMetadata', 'commit_author_username', _atd_read_option(_atd_read_string), x['commit_author_username'], x),
+    commit_author_image_url: _atd_read_required_field('ProjectMetadata', 'commit_author_image_url', _atd_read_option(readUri), x['commit_author_image_url'], x),
+    commit_title: _atd_read_required_field('ProjectMetadata', 'commit_title', _atd_read_option(_atd_read_string), x['commit_title'], x),
+    commit_timestamp: _atd_read_required_field('ProjectMetadata', 'commit_timestamp', readDatetime, x['commit_timestamp'], x),
+    on: _atd_read_required_field('ProjectMetadata', 'on', _atd_read_option(_atd_read_string), x['on'], x),
+    pull_request_author_username: _atd_read_required_field('ProjectMetadata', 'pull_request_author_username', _atd_read_option(_atd_read_string), x['pull_request_author_username'], x),
+    pull_request_author_image_url: _atd_read_required_field('ProjectMetadata', 'pull_request_author_image_url', _atd_read_option(readUri), x['pull_request_author_image_url'], x),
+    pull_request_id: _atd_read_required_field('ProjectMetadata', 'pull_request_id', _atd_read_option(_atd_read_string), x['pull_request_id'], x),
+    pill_request_title: _atd_read_required_field('ProjectMetadata', 'pill_request_title', _atd_read_option(_atd_read_string), x['pill_request_title'], x),
+    scan_environment: _atd_read_required_field('ProjectMetadata', 'scan_environment', _atd_read_option(_atd_read_string), x['scan_environment'], x),
+    base_sha: _atd_read_optional_field(readSha1, x['base_sha'], x),
+    start_sha: _atd_read_optional_field(readSha1, x['start_sha'], x),
+    is_full_scan: _atd_read_required_field('ProjectMetadata', 'is_full_scan', _atd_read_bool, x['is_full_scan'], x),
+    is_sca_scan: _atd_read_required_field('ProjectMetadata', 'is_sca_scan', _atd_read_bool, x['is_sca_scan'], x),
+    is_code_scan: _atd_read_required_field('ProjectMetadata', 'is_code_scan', _atd_read_bool, x['is_code_scan'], x),
+    is_secrets_can: _atd_read_required_field('ProjectMetadata', 'is_secrets_can', _atd_read_bool, x['is_secrets_can'], x),
   };
 }
 
