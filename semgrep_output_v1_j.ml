@@ -143,7 +143,7 @@ type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
 }
 
 type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
-  scanned: string list;
+  scanned: fpath list;
   _comment: string option;
   skipped: skipped_target list option
 }
@@ -428,7 +428,7 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   token: string option;
   searched_paths: string list;
   renamed_paths: string list;
-  rule_ids: string list;
+  rule_ids: rule_id list;
   contributions: contributions option;
   dependencies: ci_scan_dependencies option
 }
@@ -4996,22 +4996,6 @@ let read_skipped_rule = (
 )
 let skipped_rule_of_string s =
   read_skipped_rule (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__string_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    Yojson.Safe.write_string
-  )
-)
-let string_of__string_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__string_list ob x;
-  Buffer.contents ob
-let read__string_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    Atdgen_runtime.Oj_run.read_string
-  )
-)
-let _string_list_of_string s =
-  read__string_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__skipped_target_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_skipped_target
@@ -5085,6 +5069,22 @@ let read__skipped_target_list_option = (
 )
 let _skipped_target_list_option_of_string s =
   read__skipped_target_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__fpath_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_fpath
+  )
+)
+let string_of__fpath_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__fpath_list ob x;
+  Buffer.contents ob
+let read__fpath_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_fpath
+  )
+)
+let _fpath_list_of_string s =
+  read__fpath_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_scanned_and_skipped : _ -> scanned_and_skipped -> _ = (
   fun ob (x : scanned_and_skipped) ->
     Buffer.add_char ob '{';
@@ -5095,7 +5095,7 @@ let write_scanned_and_skipped : _ -> scanned_and_skipped -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"scanned\":";
     (
-      write__string_list
+      write__fpath_list
     )
       ob x.scanned;
     (match x._comment with None -> () | Some x ->
@@ -5189,7 +5189,7 @@ let read_scanned_and_skipped = (
             field_scanned := (
               Some (
                 (
-                  read__string_list
+                  read__fpath_list
                 ) p lb
               )
             );
@@ -5273,7 +5273,7 @@ let read_scanned_and_skipped = (
               field_scanned := (
                 Some (
                   (
-                    read__string_list
+                    read__fpath_list
                   ) p lb
                 )
               );
@@ -5706,6 +5706,22 @@ let read_dependency_child = (
 )
 let dependency_child_of_string s =
   read_dependency_child (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__string_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    Yojson.Safe.write_string
+  )
+)
+let string_of__string_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__string_list ob x;
+  Buffer.contents ob
+let read__string_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    Atdgen_runtime.Oj_run.read_string
+  )
+)
+let _string_list_of_string s =
+  read__string_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__x_b85b97f = (
   Atdgen_runtime.Oj_run.write_assoc_list (
     Yojson.Safe.write_string
@@ -16771,7 +16787,7 @@ let write_ci_scan_results : _ -> ci_scan_results -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"rule_ids\":";
     (
-      write__string_list
+      write__rule_id_list
     )
       ob x.rule_ids;
     (match x.contributions with None -> () | Some x ->
@@ -16951,7 +16967,7 @@ let read_ci_scan_results = (
             field_rule_ids := (
               Some (
                 (
-                  read__string_list
+                  read__rule_id_list
                 ) p lb
               )
             );
@@ -17116,7 +17132,7 @@ let read_ci_scan_results = (
               field_rule_ids := (
                 Some (
                   (
-                    read__string_list
+                    read__rule_id_list
                   ) p lb
                 )
               );

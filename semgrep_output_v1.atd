@@ -35,7 +35,7 @@
  * history:
  *  - the types in this file were originally inferred from JSON_report.ml for
  *    use by spacegrep when it was separate from semgrep-core. It's now also
- *    useds in JSON_report.ml
+ *    useds in JSON_report.ml (now called Core_json_output.ml)
  *  - it was extended to not only support semgrep-core JSON output but also
  *    (py)semgrep CLI output!
  *  - it was then simplified with the osemgrep migration effort by
@@ -90,13 +90,33 @@ type location
 }
 
 (*****************************************************************************)
-(* Rule id *)
+(* Simple semgrep types *)
 (*****************************************************************************)
 
 (* e.g., "javascript.security.do-not-use-eval" *)
 type rule_id
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = string
+
+(* TODO? PRO can actually have "flavors" (see Engine_type.ml) *)
+type engine_kind
+     <ocaml attr="deriving show">
+     <python decorator="dataclass(frozen=True)"> = [
+  | OSS
+  | PRO
+]
+
+type rule_id_and_engine_kind <python decorator="dataclass(frozen=True)"> = (rule_id * engine_kind)
+
+(* for secrets *)
+type validation_state
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = [
+  | CONFIRMED_VALID
+  | CONFIRMED_INVALID
+  | VALIDATION_ERROR
+  | NO_VALIDATOR
+]
 
 (*****************************************************************************)
 (* Matches *)
@@ -194,15 +214,6 @@ type fix_regex = {
   replacement: string;
   ?count: int option;
 }
-
-type validation_state
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = [
-  | CONFIRMED_VALID
-  | CONFIRMED_INVALID
-  | VALIDATION_ERROR
-  | NO_VALIDATOR
-] 
 
 (*****************************************************************************)
 (* Metavariables *)
@@ -466,7 +477,7 @@ type skipped_target <ocaml attr="deriving show"> = {
 }
 
 type scanned_and_skipped = {
-    scanned: string list;
+    scanned: fpath list;
     (* really either _comment: (saying "you should use -v to get more info")
      * or skipped:. We should have used a variant.
      *)
@@ -504,6 +515,7 @@ type core_stats = {
 (* Profiling information *)
 (*****************************************************************************)
 (* coupling: with semgrep_metrics.atd performance section *)
+
 (* ----------------------------- *)
 (* Core *)
 (* ----------------------------- *)
@@ -641,21 +653,9 @@ type matching_operation <ocaml attr="deriving show { with_path = false}"> = [
   | ClassHeaderAndElems
 ] <ocaml repr="classic">
 
-(*****************************************************************************)
-(* Engine kind  *)
-(*****************************************************************************)
 
-type engine_kind
-     <ocaml attr="deriving show">
-     <python decorator="dataclass(frozen=True)"> = [
-  | OSS
-  | PRO
-]
-
-type rule_id_and_engine_kind <python decorator="dataclass(frozen=True)"> = (rule_id * engine_kind)
-                     
 (*****************************************************************************)
-(* Final output  *)
+(* Final scan output  *)
 (*****************************************************************************)
 
 (* ----------------------------- *)
@@ -726,8 +726,10 @@ type cli_output_extra = {
 }
 
 (*****************************************************************************)
-(* Semgrep Supply Chain (SSC, a.k.a., Software Composition Analysis (SCA)) *)
+(* Semgrep Supply Chain (SSC) *)
 (*****************************************************************************)
+(* This is also known as Software Composition Analysis (SCA) *)
+
 (* EXPERIMENTAL *)
 type sca_info = {
   reachable: bool;
@@ -821,11 +823,44 @@ type dependency_parser_error = {
   ?text: string option;
 }
 
-(*****************************************************************************)
-(* Contributors (App) *)
-(*****************************************************************************)
 
-(* See https://semgrep.dev/docs/usage-limits *)
+(*****************************************************************************)
+(* Semgrep findings for the App *)
+(*****************************************************************************)
+(* TODO: see semgrep/app/scans.py
+ * there is also api_scans_meta, api_scans_ignores, and api_scans_complete
+ * EXPERIMENTAL
+*)
+
+(* ----------------------------- *)
+(* CI scan results *)
+(* ----------------------------- *)
+
+(* Sent by the CLI to /findings_and_ignores (a.k.a. /results) *)
+type ci_scan_results = {
+  (* TODO: ?version: version option; *)
+   findings: finding list;
+   ignores: finding list;
+
+   (* TODO? use a token type ? *)
+   token: string nullable;
+
+   (* TODO? use fpath ? *)
+   searched_paths: string list;
+   renamed_paths: string list;
+
+   rule_ids: rule_id list;
+
+   (* since semgrep 1.34.0 *)
+   ?contributions: contributions option;
+   (* since semgrep 1.38.0 *)
+   (* this data was originally sent to /complete, but we want to start sending it /results *)
+   ?dependencies: ci_scan_dependencies option;
+}
+
+(* See https://semgrep.dev/docs/usage-limits
+ * coupling: this must match Git_wrapper.git_log_json_format
+ *)
 type contributor = {
     commit_author_name: string;
     commit_author_email: string;
@@ -837,43 +872,34 @@ type contribution = {
     contributor: contributor;
 }
 
+(* we keep this alias because we need to generate code to parse and write
+ * list of contributions.
+ *)
 type contributions = contribution list
 
-(*****************************************************************************)
-(* Semgrep ci findings for the App *)
-(*****************************************************************************)
-(* TODO: see semgrep/app/scans.py
- * there is also api_scans_meta, api_scans_ignores, and api_scans_complete
- * EXPERIMENTAL
-*)
+type ci_scan_dependencies = (string * found_dependency list) list
+    <json repr="object">
+    <python repr="dict">
+    <ts repr="map">
 
-(* Sent by the CLI to /findings_and_ignores aka /results *)
-type ci_scan_results = {
-  (* TODO: ?version: version option; *)
-   findings: finding list;
-   ignores: finding list;
-   token: string nullable;
-   searched_paths: string list;
-   renamed_paths: string list;
-   rule_ids: string list;
-   (* since semgrep 1.34.0 *)
-   ?contributions: contributions option;
-   (* since semgrep 1.38.0 *)
-   (* this data was originally sent to /complete, but we want to start sending it /results *)
-   ?dependencies: ci_scan_dependencies option;
-}
+(* ----------------------------- *)
+(* CI scan complete response *)
+(* ----------------------------- *)
 
-type parsing_stats = {
-  targets_parsed: int;
-  num_targets: int;
-  bytes_parsed: int;
-  num_bytes: int;
+(* Sent by the CLI to /complete *)
+type ci_scan_complete_response = {
+  exit_code: int;
+  stats: ci_scan_complete_stats;
+  ?dependencies: ci_scan_dependencies option;
+  ?dependency_parser_errors: dependency_parser_error list option;
+  ?task_id: string option;
 }
 
 type ci_scan_complete_stats = {
   findings: int;
   errors: cli_error list;
   total_time: float;
+
   unsupported_exts: (string * int) list
     <json repr="object">
     <python repr="dict">
@@ -886,22 +912,61 @@ type ci_scan_complete_stats = {
     <json repr="object">
     <python repr="dict">
     <ts repr="map">;
+
   (* This is EngineType from python, which is different from engine_kind used in this file *)
   ?engine_requested: string option;
 }
 
-type ci_scan_dependencies = (string * found_dependency list) list
-    <json repr="object">
-    <python repr="dict">
-    <ts repr="map">
+type parsing_stats = {
+  targets_parsed: int;
+  num_targets: int;
+  bytes_parsed: int;
+  num_bytes: int;
+}
 
-(* Seny by the CLI to /complete *)
-type ci_scan_complete_response = {
-  exit_code: int;
-  stats: ci_scan_complete_stats;
-  ?dependencies: ci_scan_dependencies option;
-  ?dependency_parser_errors: dependency_parser_error list option;
-  ?task_id: string option;
+(* ----------------------------- *)
+(* Findings *)
+(* ----------------------------- *)
+
+(* TODO: rewrite rule_matches.to_app_finding_format()
+ * TODO: what's the endpoint? Where this is sent?
+ *)
+type finding = {
+  check_id: rule_id;
+
+  (* ugly: should reuse location instead of those 5 fields *)
+  path: fpath;
+  line: int;
+  column: int;
+  end_line: int;
+  end_column: int;
+
+  message: string;
+  (* int|string until minimum version exceeds 1.32.0, then string *)
+  severity: abstract;
+
+  (* ?? *)
+  index: int;
+
+  commit_date: string;
+
+  syntactic_id: string;
+  (* since semgrep 0.98 *)
+  ?match_based_id: string option;
+  (* since semgrep 1.14.0 *)
+  ?hashes: finding_hashes option;
+
+  metadata: raw_json;
+
+  (* ?? *)
+  is_blocking: bool;
+
+  ?fixed_lines: string list option;
+
+  ?sca_info: sca_info option;
+  ?dataflow_trace: match_dataflow_trace option;
+  (* Added in semgrep 1.39.0 see comments in cli_match_extra. *)
+  ?validation_state: validation_state option;
 }
 
 type finding_hashes = {
@@ -911,32 +976,4 @@ type finding_hashes = {
   code_hash: string;
   (* hash of the rule pattern with metavariables substituted in *)
   pattern_hash: string;
-}
-
-(* TODO: rewrite rule_matches.to_app_finding_format() *)
-type finding = {
-  check_id: rule_id;
-  path: fpath;
-  line: int;
-  column: int;
-  end_line: int;
-  end_column: int;
-  message: string;
-  (* int|string until minimum version exceeds 1.32.0, then string *)
-  severity: abstract;
-  (* ?? *)
-  index: int;
-  commit_date: string;
-  syntactic_id: string;
-  (* since semgrep 0.98 *)
-  ?match_based_id: string option;
-  (* since semgrep 1.14.0 *)
-  ?hashes: finding_hashes option;
-  metadata: raw_json;
-  is_blocking: bool;
-  ?fixed_lines: string list option;
-  ?sca_info: sca_info option;
-  ?dataflow_trace: match_dataflow_trace option;
-  (* Added in semgrep 1.39.0 see comments in cli_match_extra. *)
-  ?validation_state: validation_state option;
 }

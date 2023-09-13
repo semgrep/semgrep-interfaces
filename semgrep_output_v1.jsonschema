@@ -53,6 +53,24 @@
       }
     },
     "rule_id": { "type": "string" },
+    "engine_kind": { "oneOf": [ { "const": "OSS" }, { "const": "PRO" } ] },
+    "rule_id_and_engine_kind": {
+      "type": "array",
+      "minItems": 2,
+      "items": false,
+      "prefixItems": [
+        { "$ref": "#/definitions/rule_id" },
+        { "$ref": "#/definitions/engine_kind" }
+      ]
+    },
+    "validation_state": {
+      "oneOf": [
+        { "const": "CONFIRMED_VALID" },
+        { "const": "CONFIRMED_INVALID" },
+        { "const": "VALIDATION_ERROR" },
+        { "const": "NO_VALIDATOR" }
+      ]
+    },
     "core_match": {
       "type": "object",
       "required": [ "check_id", "path", "start", "end", "extra" ],
@@ -119,14 +137,6 @@
         "replacement": { "type": "string" },
         "count": { "type": "integer" }
       }
-    },
-    "validation_state": {
-      "oneOf": [
-        { "const": "CONFIRMED_VALID" },
-        { "const": "CONFIRMED_INVALID" },
-        { "const": "VALIDATION_ERROR" },
-        { "const": "NO_VALIDATOR" }
-      ]
     },
     "metavars": {
       "type": "object",
@@ -366,7 +376,10 @@
       "type": "object",
       "required": [ "scanned" ],
       "properties": {
-        "scanned": { "type": "array", "items": { "type": "string" } },
+        "scanned": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/fpath" }
+        },
         "_comment": { "type": "string" },
         "skipped": {
           "type": "array",
@@ -505,16 +518,6 @@
         { "const": "TaintSanitizer" },
         { "const": "EllipsisAndStmts" },
         { "const": "ClassHeaderAndElems" }
-      ]
-    },
-    "engine_kind": { "oneOf": [ { "const": "OSS" }, { "const": "PRO" } ] },
-    "rule_id_and_engine_kind": {
-      "type": "array",
-      "minItems": 2,
-      "items": false,
-      "prefixItems": [
-        { "$ref": "#/definitions/rule_id" },
-        { "$ref": "#/definitions/engine_kind" }
       ]
     },
     "core_output": {
@@ -716,6 +719,32 @@
         "text": { "type": "string" }
       }
     },
+    "ci_scan_results": {
+      "type": "object",
+      "required": [
+        "findings", "ignores", "token", "searched_paths", "renamed_paths",
+        "rule_ids"
+      ],
+      "properties": {
+        "findings": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/finding" }
+        },
+        "ignores": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/finding" }
+        },
+        "token": { "type": [ "string", "null" ] },
+        "searched_paths": { "type": "array", "items": { "type": "string" } },
+        "renamed_paths": { "type": "array", "items": { "type": "string" } },
+        "rule_ids": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/rule_id" }
+        },
+        "contributions": { "$ref": "#/definitions/contributions" },
+        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" }
+      }
+    },
     "contributor": {
       "type": "object",
       "required": [ "commit_author_name", "commit_author_email" ],
@@ -737,39 +766,25 @@
       "type": "array",
       "items": { "$ref": "#/definitions/contribution" }
     },
-    "ci_scan_results": {
+    "ci_scan_dependencies": {
       "type": "object",
-      "required": [
-        "findings", "ignores", "token", "searched_paths", "renamed_paths",
-        "rule_ids"
-      ],
-      "properties": {
-        "findings": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/finding" }
-        },
-        "ignores": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/finding" }
-        },
-        "token": { "type": [ "string", "null" ] },
-        "searched_paths": { "type": "array", "items": { "type": "string" } },
-        "renamed_paths": { "type": "array", "items": { "type": "string" } },
-        "rule_ids": { "type": "array", "items": { "type": "string" } },
-        "contributions": { "$ref": "#/definitions/contributions" },
-        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" }
+      "additionalProperties": {
+        "type": "array",
+        "items": { "$ref": "#/definitions/found_dependency" }
       }
     },
-    "parsing_stats": {
+    "ci_scan_complete_response": {
       "type": "object",
-      "required": [
-        "targets_parsed", "num_targets", "bytes_parsed", "num_bytes"
-      ],
+      "required": [ "exit_code", "stats" ],
       "properties": {
-        "targets_parsed": { "type": "integer" },
-        "num_targets": { "type": "integer" },
-        "bytes_parsed": { "type": "integer" },
-        "num_bytes": { "type": "integer" }
+        "exit_code": { "type": "integer" },
+        "stats": { "$ref": "#/definitions/ci_scan_complete_stats" },
+        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" },
+        "dependency_parser_errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/dependency_parser_error" }
+        },
+        "task_id": { "type": "string" }
       }
     },
     "ci_scan_complete_stats": {
@@ -800,37 +815,16 @@
         "engine_requested": { "type": "string" }
       }
     },
-    "ci_scan_dependencies": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "array",
-        "items": { "$ref": "#/definitions/found_dependency" }
-      }
-    },
-    "ci_scan_complete_response": {
-      "type": "object",
-      "required": [ "exit_code", "stats" ],
-      "properties": {
-        "exit_code": { "type": "integer" },
-        "stats": { "$ref": "#/definitions/ci_scan_complete_stats" },
-        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" },
-        "dependency_parser_errors": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/dependency_parser_error" }
-        },
-        "task_id": { "type": "string" }
-      }
-    },
-    "finding_hashes": {
+    "parsing_stats": {
       "type": "object",
       "required": [
-        "start_line_hash", "end_line_hash", "code_hash", "pattern_hash"
+        "targets_parsed", "num_targets", "bytes_parsed", "num_bytes"
       ],
       "properties": {
-        "start_line_hash": { "type": "string" },
-        "end_line_hash": { "type": "string" },
-        "code_hash": { "type": "string" },
-        "pattern_hash": { "type": "string" }
+        "targets_parsed": { "type": "integer" },
+        "num_targets": { "type": "integer" },
+        "bytes_parsed": { "type": "integer" },
+        "num_bytes": { "type": "integer" }
       }
     },
     "finding": {
@@ -860,6 +854,18 @@
         "sca_info": { "$ref": "#/definitions/sca_info" },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
         "validation_state": { "$ref": "#/definitions/validation_state" }
+      }
+    },
+    "finding_hashes": {
+      "type": "object",
+      "required": [
+        "start_line_hash", "end_line_hash", "code_hash", "pattern_hash"
+      ],
+      "properties": {
+        "start_line_hash": { "type": "string" },
+        "end_line_hash": { "type": "string" },
+        "code_hash": { "type": "string" },
+        "pattern_hash": { "type": "string" }
       }
     }
   }

@@ -32,6 +32,18 @@ export type Location = {
 
 export type RuleId = string
 
+export type EngineKind =
+| { kind: 'OSS' }
+| { kind: 'PRO' }
+
+export type RuleIdAndEngineKind = [RuleId, EngineKind]
+
+export type ValidationState =
+| { kind: 'CONFIRMED_VALID' }
+| { kind: 'CONFIRMED_INVALID' }
+| { kind: 'VALIDATION_ERROR' }
+| { kind: 'NO_VALIDATOR' }
+
 export type CoreMatch = {
   check_id: RuleId;
   path: Fpath;
@@ -81,12 +93,6 @@ export type FixRegex = {
   replacement: string;
   count?: number /*int*/;
 }
-
-export type ValidationState =
-| { kind: 'CONFIRMED_VALID' }
-| { kind: 'CONFIRMED_INVALID' }
-| { kind: 'VALIDATION_ERROR' }
-| { kind: 'NO_VALIDATOR' }
 
 export type Metavars = Map<string, MetavarValue>
 
@@ -209,7 +215,7 @@ export type SkippedTarget = {
 }
 
 export type ScannedAndSkipped = {
-  scanned: string[];
+  scanned: Fpath[];
   _comment?: string;
   skipped?: SkippedTarget[];
 }
@@ -281,12 +287,6 @@ export type MatchingOperation =
 | { kind: 'TaintSanitizer' }
 | { kind: 'EllipsisAndStmts' }
 | { kind: 'ClassHeaderAndElems' }
-
-export type EngineKind =
-| { kind: 'OSS' }
-| { kind: 'PRO' }
-
-export type RuleIdAndEngineKind = [RuleId, EngineKind]
 
 export type CoreOutput = {
   errors: CoreError[];
@@ -408,6 +408,17 @@ export type DependencyParserError = {
   text?: string;
 }
 
+export type CiScanResults = {
+  findings: Finding[];
+  ignores: Finding[];
+  token: (string | null);
+  searched_paths: string[];
+  renamed_paths: string[];
+  rule_ids: RuleId[];
+  contributions?: Contributions;
+  dependencies?: CiScanDependencies;
+}
+
 export type Contributor = {
   commit_author_name: string;
   commit_author_email: string;
@@ -421,22 +432,14 @@ export type Contribution = {
 
 export type Contributions = Contribution[]
 
-export type CiScanResults = {
-  findings: Finding[];
-  ignores: Finding[];
-  token: (string | null);
-  searched_paths: string[];
-  renamed_paths: string[];
-  rule_ids: string[];
-  contributions?: Contributions;
-  dependencies?: CiScanDependencies;
-}
+export type CiScanDependencies = Map<string, FoundDependency[]>
 
-export type ParsingStats = {
-  targets_parsed: number /*int*/;
-  num_targets: number /*int*/;
-  bytes_parsed: number /*int*/;
-  num_bytes: number /*int*/;
+export type CiScanCompleteResponse = {
+  exit_code: number /*int*/;
+  stats: CiScanCompleteStats;
+  dependencies?: CiScanDependencies;
+  dependency_parser_errors?: DependencyParserError[];
+  task_id?: string;
 }
 
 export type CiScanCompleteStats = {
@@ -449,21 +452,11 @@ export type CiScanCompleteStats = {
   engine_requested?: string;
 }
 
-export type CiScanDependencies = Map<string, FoundDependency[]>
-
-export type CiScanCompleteResponse = {
-  exit_code: number /*int*/;
-  stats: CiScanCompleteStats;
-  dependencies?: CiScanDependencies;
-  dependency_parser_errors?: DependencyParserError[];
-  task_id?: string;
-}
-
-export type FindingHashes = {
-  start_line_hash: string;
-  end_line_hash: string;
-  code_hash: string;
-  pattern_hash: string;
+export type ParsingStats = {
+  targets_parsed: number /*int*/;
+  num_targets: number /*int*/;
+  bytes_parsed: number /*int*/;
+  num_bytes: number /*int*/;
 }
 
 export type Finding = {
@@ -486,6 +479,13 @@ export type Finding = {
   sca_info?: ScaInfo;
   dataflow_trace?: MatchDataflowTrace;
   validation_state?: ValidationState;
+}
+
+export type FindingHashes = {
+  start_line_hash: string;
+  end_line_hash: string;
+  code_hash: string;
+  pattern_hash: string;
 }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
@@ -550,6 +550,64 @@ export function writeRuleId(x: RuleId, context: any = x): any {
 
 export function readRuleId(x: any, context: any = x): RuleId {
   return _atd_read_string(x, context);
+}
+
+export function writeEngineKind(x: EngineKind, context: any = x): any {
+  switch (x.kind) {
+    case 'OSS':
+      return 'OSS'
+    case 'PRO':
+      return 'PRO'
+  }
+}
+
+export function readEngineKind(x: any, context: any = x): EngineKind {
+  switch (x) {
+    case 'OSS':
+      return { kind: 'OSS' }
+    case 'PRO':
+      return { kind: 'PRO' }
+    default:
+      _atd_bad_json('EngineKind', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeRuleIdAndEngineKind(x: RuleIdAndEngineKind, context: any = x): any {
+  return ((x, context) => [writeRuleId(x[0], x), writeEngineKind(x[1], x)])(x, context);
+}
+
+export function readRuleIdAndEngineKind(x: any, context: any = x): RuleIdAndEngineKind {
+  return ((x, context): [RuleId, EngineKind] => { _atd_check_json_tuple(2, x, context); return [readRuleId(x[0], x), readEngineKind(x[1], x)] })(x, context);
+}
+
+export function writeValidationState(x: ValidationState, context: any = x): any {
+  switch (x.kind) {
+    case 'CONFIRMED_VALID':
+      return 'CONFIRMED_VALID'
+    case 'CONFIRMED_INVALID':
+      return 'CONFIRMED_INVALID'
+    case 'VALIDATION_ERROR':
+      return 'VALIDATION_ERROR'
+    case 'NO_VALIDATOR':
+      return 'NO_VALIDATOR'
+  }
+}
+
+export function readValidationState(x: any, context: any = x): ValidationState {
+  switch (x) {
+    case 'CONFIRMED_VALID':
+      return { kind: 'CONFIRMED_VALID' }
+    case 'CONFIRMED_INVALID':
+      return { kind: 'CONFIRMED_INVALID' }
+    case 'VALIDATION_ERROR':
+      return { kind: 'VALIDATION_ERROR' }
+    case 'NO_VALIDATOR':
+      return { kind: 'NO_VALIDATOR' }
+    default:
+      _atd_bad_json('ValidationState', x, context)
+      throw new Error('impossible')
+  }
 }
 
 export function writeCoreMatch(x: CoreMatch, context: any = x): any {
@@ -670,35 +728,6 @@ export function readFixRegex(x: any, context: any = x): FixRegex {
     replacement: _atd_read_required_field('FixRegex', 'replacement', _atd_read_string, x['replacement'], x),
     count: _atd_read_optional_field(_atd_read_int, x['count'], x),
   };
-}
-
-export function writeValidationState(x: ValidationState, context: any = x): any {
-  switch (x.kind) {
-    case 'CONFIRMED_VALID':
-      return 'CONFIRMED_VALID'
-    case 'CONFIRMED_INVALID':
-      return 'CONFIRMED_INVALID'
-    case 'VALIDATION_ERROR':
-      return 'VALIDATION_ERROR'
-    case 'NO_VALIDATOR':
-      return 'NO_VALIDATOR'
-  }
-}
-
-export function readValidationState(x: any, context: any = x): ValidationState {
-  switch (x) {
-    case 'CONFIRMED_VALID':
-      return { kind: 'CONFIRMED_VALID' }
-    case 'CONFIRMED_INVALID':
-      return { kind: 'CONFIRMED_INVALID' }
-    case 'VALIDATION_ERROR':
-      return { kind: 'VALIDATION_ERROR' }
-    case 'NO_VALIDATOR':
-      return { kind: 'NO_VALIDATOR' }
-    default:
-      _atd_bad_json('ValidationState', x, context)
-      throw new Error('impossible')
-  }
 }
 
 export function writeMetavars(x: Metavars, context: any = x): any {
@@ -1106,7 +1135,7 @@ export function readSkippedTarget(x: any, context: any = x): SkippedTarget {
 
 export function writeScannedAndSkipped(x: ScannedAndSkipped, context: any = x): any {
   return {
-    'scanned': _atd_write_required_field('ScannedAndSkipped', 'scanned', _atd_write_array(_atd_write_string), x.scanned, x),
+    'scanned': _atd_write_required_field('ScannedAndSkipped', 'scanned', _atd_write_array(writeFpath), x.scanned, x),
     '_comment': _atd_write_optional_field(_atd_write_string, x._comment, x),
     'skipped': _atd_write_optional_field(_atd_write_array(writeSkippedTarget), x.skipped, x),
   };
@@ -1114,7 +1143,7 @@ export function writeScannedAndSkipped(x: ScannedAndSkipped, context: any = x): 
 
 export function readScannedAndSkipped(x: any, context: any = x): ScannedAndSkipped {
   return {
-    scanned: _atd_read_required_field('ScannedAndSkipped', 'scanned', _atd_read_array(_atd_read_string), x['scanned'], x),
+    scanned: _atd_read_required_field('ScannedAndSkipped', 'scanned', _atd_read_array(readFpath), x['scanned'], x),
     _comment: _atd_read_optional_field(_atd_read_string, x['_comment'], x),
     skipped: _atd_read_optional_field(_atd_read_array(readSkippedTarget), x['skipped'], x),
   };
@@ -1329,35 +1358,6 @@ export function readMatchingOperation(x: any, context: any = x): MatchingOperati
         throw new Error('impossible')
     }
   }
-}
-
-export function writeEngineKind(x: EngineKind, context: any = x): any {
-  switch (x.kind) {
-    case 'OSS':
-      return 'OSS'
-    case 'PRO':
-      return 'PRO'
-  }
-}
-
-export function readEngineKind(x: any, context: any = x): EngineKind {
-  switch (x) {
-    case 'OSS':
-      return { kind: 'OSS' }
-    case 'PRO':
-      return { kind: 'PRO' }
-    default:
-      _atd_bad_json('EngineKind', x, context)
-      throw new Error('impossible')
-  }
-}
-
-export function writeRuleIdAndEngineKind(x: RuleIdAndEngineKind, context: any = x): any {
-  return ((x, context) => [writeRuleId(x[0], x), writeEngineKind(x[1], x)])(x, context);
-}
-
-export function readRuleIdAndEngineKind(x: any, context: any = x): RuleIdAndEngineKind {
-  return ((x, context): [RuleId, EngineKind] => { _atd_check_json_tuple(2, x, context); return [readRuleId(x[0], x), readEngineKind(x[1], x)] })(x, context);
 }
 
 export function writeCoreOutput(x: CoreOutput, context: any = x): any {
@@ -1721,6 +1721,32 @@ export function readDependencyParserError(x: any, context: any = x): DependencyP
   };
 }
 
+export function writeCiScanResults(x: CiScanResults, context: any = x): any {
+  return {
+    'findings': _atd_write_required_field('CiScanResults', 'findings', _atd_write_array(writeFinding), x.findings, x),
+    'ignores': _atd_write_required_field('CiScanResults', 'ignores', _atd_write_array(writeFinding), x.ignores, x),
+    'token': _atd_write_required_field('CiScanResults', 'token', _atd_write_nullable(_atd_write_string), x.token, x),
+    'searched_paths': _atd_write_required_field('CiScanResults', 'searched_paths', _atd_write_array(_atd_write_string), x.searched_paths, x),
+    'renamed_paths': _atd_write_required_field('CiScanResults', 'renamed_paths', _atd_write_array(_atd_write_string), x.renamed_paths, x),
+    'rule_ids': _atd_write_required_field('CiScanResults', 'rule_ids', _atd_write_array(writeRuleId), x.rule_ids, x),
+    'contributions': _atd_write_optional_field(writeContributions, x.contributions, x),
+    'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
+  };
+}
+
+export function readCiScanResults(x: any, context: any = x): CiScanResults {
+  return {
+    findings: _atd_read_required_field('CiScanResults', 'findings', _atd_read_array(readFinding), x['findings'], x),
+    ignores: _atd_read_required_field('CiScanResults', 'ignores', _atd_read_array(readFinding), x['ignores'], x),
+    token: _atd_read_required_field('CiScanResults', 'token', _atd_read_nullable(_atd_read_string), x['token'], x),
+    searched_paths: _atd_read_required_field('CiScanResults', 'searched_paths', _atd_read_array(_atd_read_string), x['searched_paths'], x),
+    renamed_paths: _atd_read_required_field('CiScanResults', 'renamed_paths', _atd_read_array(_atd_read_string), x['renamed_paths'], x),
+    rule_ids: _atd_read_required_field('CiScanResults', 'rule_ids', _atd_read_array(readRuleId), x['rule_ids'], x),
+    contributions: _atd_read_optional_field(readContributions, x['contributions'], x),
+    dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
+  };
+}
+
 export function writeContributor(x: Contributor, context: any = x): any {
   return {
     'commit_author_name': _atd_write_required_field('Contributor', 'commit_author_name', _atd_write_string, x.commit_author_name, x),
@@ -1759,74 +1785,6 @@ export function readContributions(x: any, context: any = x): Contributions {
   return _atd_read_array(readContribution)(x, context);
 }
 
-export function writeCiScanResults(x: CiScanResults, context: any = x): any {
-  return {
-    'findings': _atd_write_required_field('CiScanResults', 'findings', _atd_write_array(writeFinding), x.findings, x),
-    'ignores': _atd_write_required_field('CiScanResults', 'ignores', _atd_write_array(writeFinding), x.ignores, x),
-    'token': _atd_write_required_field('CiScanResults', 'token', _atd_write_nullable(_atd_write_string), x.token, x),
-    'searched_paths': _atd_write_required_field('CiScanResults', 'searched_paths', _atd_write_array(_atd_write_string), x.searched_paths, x),
-    'renamed_paths': _atd_write_required_field('CiScanResults', 'renamed_paths', _atd_write_array(_atd_write_string), x.renamed_paths, x),
-    'rule_ids': _atd_write_required_field('CiScanResults', 'rule_ids', _atd_write_array(_atd_write_string), x.rule_ids, x),
-    'contributions': _atd_write_optional_field(writeContributions, x.contributions, x),
-    'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
-  };
-}
-
-export function readCiScanResults(x: any, context: any = x): CiScanResults {
-  return {
-    findings: _atd_read_required_field('CiScanResults', 'findings', _atd_read_array(readFinding), x['findings'], x),
-    ignores: _atd_read_required_field('CiScanResults', 'ignores', _atd_read_array(readFinding), x['ignores'], x),
-    token: _atd_read_required_field('CiScanResults', 'token', _atd_read_nullable(_atd_read_string), x['token'], x),
-    searched_paths: _atd_read_required_field('CiScanResults', 'searched_paths', _atd_read_array(_atd_read_string), x['searched_paths'], x),
-    renamed_paths: _atd_read_required_field('CiScanResults', 'renamed_paths', _atd_read_array(_atd_read_string), x['renamed_paths'], x),
-    rule_ids: _atd_read_required_field('CiScanResults', 'rule_ids', _atd_read_array(_atd_read_string), x['rule_ids'], x),
-    contributions: _atd_read_optional_field(readContributions, x['contributions'], x),
-    dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
-  };
-}
-
-export function writeParsingStats(x: ParsingStats, context: any = x): any {
-  return {
-    'targets_parsed': _atd_write_required_field('ParsingStats', 'targets_parsed', _atd_write_int, x.targets_parsed, x),
-    'num_targets': _atd_write_required_field('ParsingStats', 'num_targets', _atd_write_int, x.num_targets, x),
-    'bytes_parsed': _atd_write_required_field('ParsingStats', 'bytes_parsed', _atd_write_int, x.bytes_parsed, x),
-    'num_bytes': _atd_write_required_field('ParsingStats', 'num_bytes', _atd_write_int, x.num_bytes, x),
-  };
-}
-
-export function readParsingStats(x: any, context: any = x): ParsingStats {
-  return {
-    targets_parsed: _atd_read_required_field('ParsingStats', 'targets_parsed', _atd_read_int, x['targets_parsed'], x),
-    num_targets: _atd_read_required_field('ParsingStats', 'num_targets', _atd_read_int, x['num_targets'], x),
-    bytes_parsed: _atd_read_required_field('ParsingStats', 'bytes_parsed', _atd_read_int, x['bytes_parsed'], x),
-    num_bytes: _atd_read_required_field('ParsingStats', 'num_bytes', _atd_read_int, x['num_bytes'], x),
-  };
-}
-
-export function writeCiScanCompleteStats(x: CiScanCompleteStats, context: any = x): any {
-  return {
-    'findings': _atd_write_required_field('CiScanCompleteStats', 'findings', _atd_write_int, x.findings, x),
-    'errors': _atd_write_required_field('CiScanCompleteStats', 'errors', _atd_write_array(writeCliError), x.errors, x),
-    'total_time': _atd_write_required_field('CiScanCompleteStats', 'total_time', _atd_write_float, x.total_time, x),
-    'unsupported_exts': _atd_write_required_field('CiScanCompleteStats', 'unsupported_exts', _atd_write_assoc_map_to_object(_atd_write_int), x.unsupported_exts, x),
-    'lockfile_scan_info': _atd_write_required_field('CiScanCompleteStats', 'lockfile_scan_info', _atd_write_assoc_map_to_object(_atd_write_int), x.lockfile_scan_info, x),
-    'parse_rate': _atd_write_required_field('CiScanCompleteStats', 'parse_rate', _atd_write_assoc_map_to_object(writeParsingStats), x.parse_rate, x),
-    'engine_requested': _atd_write_optional_field(_atd_write_string, x.engine_requested, x),
-  };
-}
-
-export function readCiScanCompleteStats(x: any, context: any = x): CiScanCompleteStats {
-  return {
-    findings: _atd_read_required_field('CiScanCompleteStats', 'findings', _atd_read_int, x['findings'], x),
-    errors: _atd_read_required_field('CiScanCompleteStats', 'errors', _atd_read_array(readCliError), x['errors'], x),
-    total_time: _atd_read_required_field('CiScanCompleteStats', 'total_time', _atd_read_float, x['total_time'], x),
-    unsupported_exts: _atd_read_required_field('CiScanCompleteStats', 'unsupported_exts', _atd_read_assoc_object_into_map(_atd_read_int), x['unsupported_exts'], x),
-    lockfile_scan_info: _atd_read_required_field('CiScanCompleteStats', 'lockfile_scan_info', _atd_read_assoc_object_into_map(_atd_read_int), x['lockfile_scan_info'], x),
-    parse_rate: _atd_read_required_field('CiScanCompleteStats', 'parse_rate', _atd_read_assoc_object_into_map(readParsingStats), x['parse_rate'], x),
-    engine_requested: _atd_read_optional_field(_atd_read_string, x['engine_requested'], x),
-  };
-}
-
 export function writeCiScanDependencies(x: CiScanDependencies, context: any = x): any {
   return _atd_write_assoc_map_to_object(_atd_write_array(writeFoundDependency))(x, context);
 }
@@ -1855,21 +1813,45 @@ export function readCiScanCompleteResponse(x: any, context: any = x): CiScanComp
   };
 }
 
-export function writeFindingHashes(x: FindingHashes, context: any = x): any {
+export function writeCiScanCompleteStats(x: CiScanCompleteStats, context: any = x): any {
   return {
-    'start_line_hash': _atd_write_required_field('FindingHashes', 'start_line_hash', _atd_write_string, x.start_line_hash, x),
-    'end_line_hash': _atd_write_required_field('FindingHashes', 'end_line_hash', _atd_write_string, x.end_line_hash, x),
-    'code_hash': _atd_write_required_field('FindingHashes', 'code_hash', _atd_write_string, x.code_hash, x),
-    'pattern_hash': _atd_write_required_field('FindingHashes', 'pattern_hash', _atd_write_string, x.pattern_hash, x),
+    'findings': _atd_write_required_field('CiScanCompleteStats', 'findings', _atd_write_int, x.findings, x),
+    'errors': _atd_write_required_field('CiScanCompleteStats', 'errors', _atd_write_array(writeCliError), x.errors, x),
+    'total_time': _atd_write_required_field('CiScanCompleteStats', 'total_time', _atd_write_float, x.total_time, x),
+    'unsupported_exts': _atd_write_required_field('CiScanCompleteStats', 'unsupported_exts', _atd_write_assoc_map_to_object(_atd_write_int), x.unsupported_exts, x),
+    'lockfile_scan_info': _atd_write_required_field('CiScanCompleteStats', 'lockfile_scan_info', _atd_write_assoc_map_to_object(_atd_write_int), x.lockfile_scan_info, x),
+    'parse_rate': _atd_write_required_field('CiScanCompleteStats', 'parse_rate', _atd_write_assoc_map_to_object(writeParsingStats), x.parse_rate, x),
+    'engine_requested': _atd_write_optional_field(_atd_write_string, x.engine_requested, x),
   };
 }
 
-export function readFindingHashes(x: any, context: any = x): FindingHashes {
+export function readCiScanCompleteStats(x: any, context: any = x): CiScanCompleteStats {
   return {
-    start_line_hash: _atd_read_required_field('FindingHashes', 'start_line_hash', _atd_read_string, x['start_line_hash'], x),
-    end_line_hash: _atd_read_required_field('FindingHashes', 'end_line_hash', _atd_read_string, x['end_line_hash'], x),
-    code_hash: _atd_read_required_field('FindingHashes', 'code_hash', _atd_read_string, x['code_hash'], x),
-    pattern_hash: _atd_read_required_field('FindingHashes', 'pattern_hash', _atd_read_string, x['pattern_hash'], x),
+    findings: _atd_read_required_field('CiScanCompleteStats', 'findings', _atd_read_int, x['findings'], x),
+    errors: _atd_read_required_field('CiScanCompleteStats', 'errors', _atd_read_array(readCliError), x['errors'], x),
+    total_time: _atd_read_required_field('CiScanCompleteStats', 'total_time', _atd_read_float, x['total_time'], x),
+    unsupported_exts: _atd_read_required_field('CiScanCompleteStats', 'unsupported_exts', _atd_read_assoc_object_into_map(_atd_read_int), x['unsupported_exts'], x),
+    lockfile_scan_info: _atd_read_required_field('CiScanCompleteStats', 'lockfile_scan_info', _atd_read_assoc_object_into_map(_atd_read_int), x['lockfile_scan_info'], x),
+    parse_rate: _atd_read_required_field('CiScanCompleteStats', 'parse_rate', _atd_read_assoc_object_into_map(readParsingStats), x['parse_rate'], x),
+    engine_requested: _atd_read_optional_field(_atd_read_string, x['engine_requested'], x),
+  };
+}
+
+export function writeParsingStats(x: ParsingStats, context: any = x): any {
+  return {
+    'targets_parsed': _atd_write_required_field('ParsingStats', 'targets_parsed', _atd_write_int, x.targets_parsed, x),
+    'num_targets': _atd_write_required_field('ParsingStats', 'num_targets', _atd_write_int, x.num_targets, x),
+    'bytes_parsed': _atd_write_required_field('ParsingStats', 'bytes_parsed', _atd_write_int, x.bytes_parsed, x),
+    'num_bytes': _atd_write_required_field('ParsingStats', 'num_bytes', _atd_write_int, x.num_bytes, x),
+  };
+}
+
+export function readParsingStats(x: any, context: any = x): ParsingStats {
+  return {
+    targets_parsed: _atd_read_required_field('ParsingStats', 'targets_parsed', _atd_read_int, x['targets_parsed'], x),
+    num_targets: _atd_read_required_field('ParsingStats', 'num_targets', _atd_read_int, x['num_targets'], x),
+    bytes_parsed: _atd_read_required_field('ParsingStats', 'bytes_parsed', _atd_read_int, x['bytes_parsed'], x),
+    num_bytes: _atd_read_required_field('ParsingStats', 'num_bytes', _atd_read_int, x['num_bytes'], x),
   };
 }
 
@@ -1918,6 +1900,24 @@ export function readFinding(x: any, context: any = x): Finding {
     sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
+  };
+}
+
+export function writeFindingHashes(x: FindingHashes, context: any = x): any {
+  return {
+    'start_line_hash': _atd_write_required_field('FindingHashes', 'start_line_hash', _atd_write_string, x.start_line_hash, x),
+    'end_line_hash': _atd_write_required_field('FindingHashes', 'end_line_hash', _atd_write_string, x.end_line_hash, x),
+    'code_hash': _atd_write_required_field('FindingHashes', 'code_hash', _atd_write_string, x.code_hash, x),
+    'pattern_hash': _atd_write_required_field('FindingHashes', 'pattern_hash', _atd_write_string, x.pattern_hash, x),
+  };
+}
+
+export function readFindingHashes(x: any, context: any = x): FindingHashes {
+  return {
+    start_line_hash: _atd_read_required_field('FindingHashes', 'start_line_hash', _atd_read_string, x['start_line_hash'], x),
+    end_line_hash: _atd_read_required_field('FindingHashes', 'end_line_hash', _atd_read_string, x['end_line_hash'], x),
+    code_hash: _atd_read_required_field('FindingHashes', 'code_hash', _atd_read_string, x['code_hash'], x),
+    pattern_hash: _atd_read_required_field('FindingHashes', 'pattern_hash', _atd_read_string, x['pattern_hash'], x),
   };
 }
 

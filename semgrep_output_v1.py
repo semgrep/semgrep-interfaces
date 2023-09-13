@@ -1746,7 +1746,7 @@ class SkippedRule:
 class ScannedAndSkipped:
     """Original type: scanned_and_skipped = { ... }"""
 
-    scanned: List[str]
+    scanned: List[Fpath]
     _comment: Optional[str] = None
     skipped: Optional[List[SkippedTarget]] = None
 
@@ -1754,7 +1754,7 @@ class ScannedAndSkipped:
     def from_json(cls, x: Any) -> 'ScannedAndSkipped':
         if isinstance(x, dict):
             return cls(
-                scanned=_atd_read_list(_atd_read_string)(x['scanned']) if 'scanned' in x else _atd_missing_json_field('ScannedAndSkipped', 'scanned'),
+                scanned=_atd_read_list(Fpath.from_json)(x['scanned']) if 'scanned' in x else _atd_missing_json_field('ScannedAndSkipped', 'scanned'),
                 _comment=_atd_read_string(x['_comment']) if '_comment' in x else None,
                 skipped=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
             )
@@ -1763,7 +1763,7 @@ class ScannedAndSkipped:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['scanned'] = _atd_write_list(_atd_write_string)(self.scanned)
+        res['scanned'] = _atd_write_list((lambda x: x.to_json()))(self.scanned)
         if self._comment is not None:
             res['_comment'] = _atd_write_string(self._comment)
         if self.skipped is not None:
@@ -4004,7 +4004,7 @@ class CiScanResults:
     token: Optional[str]
     searched_paths: List[str]
     renamed_paths: List[str]
-    rule_ids: List[str]
+    rule_ids: List[RuleId]
     contributions: Optional[Contributions] = None
     dependencies: Optional[CiScanDependencies] = None
 
@@ -4017,7 +4017,7 @@ class CiScanResults:
                 token=_atd_read_nullable(_atd_read_string)(x['token']) if 'token' in x else _atd_missing_json_field('CiScanResults', 'token'),
                 searched_paths=_atd_read_list(_atd_read_string)(x['searched_paths']) if 'searched_paths' in x else _atd_missing_json_field('CiScanResults', 'searched_paths'),
                 renamed_paths=_atd_read_list(_atd_read_string)(x['renamed_paths']) if 'renamed_paths' in x else _atd_missing_json_field('CiScanResults', 'renamed_paths'),
-                rule_ids=_atd_read_list(_atd_read_string)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('CiScanResults', 'rule_ids'),
+                rule_ids=_atd_read_list(RuleId.from_json)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('CiScanResults', 'rule_ids'),
                 contributions=Contributions.from_json(x['contributions']) if 'contributions' in x else None,
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
             )
@@ -4031,7 +4031,7 @@ class CiScanResults:
         res['token'] = _atd_write_nullable(_atd_write_string)(self.token)
         res['searched_paths'] = _atd_write_list(_atd_write_string)(self.searched_paths)
         res['renamed_paths'] = _atd_write_list(_atd_write_string)(self.renamed_paths)
-        res['rule_ids'] = _atd_write_list(_atd_write_string)(self.rule_ids)
+        res['rule_ids'] = _atd_write_list((lambda x: x.to_json()))(self.rule_ids)
         if self.contributions is not None:
             res['contributions'] = (lambda x: x.to_json())(self.contributions)
         if self.dependencies is not None:
