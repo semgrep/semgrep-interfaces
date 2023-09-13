@@ -143,7 +143,7 @@ type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
 }
 
 type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
-  scanned: string list;
+  scanned: fpath list;
   _comment: string option;
   skipped: skipped_target list option
 }
@@ -428,7 +428,7 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   token: string option;
   searched_paths: string list;
   renamed_paths: string list;
-  rule_ids: string list;
+  rule_ids: rule_id list;
   contributions: contributions option;
   dependencies: ci_scan_dependencies option
 }
