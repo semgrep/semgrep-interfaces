@@ -137,8 +137,8 @@ $defs:
                     title: Integer base to parse metavariable contents as
                     type: integer
                   strip:
-                    title: Whether to strip quotes from compared metavariables 
-                    type: boolean 
+                    title: Whether to strip quotes from compared metavariables
+                    type: boolean
               - required: [ metavariable ]
                 $ref: "#/$defs/new-pattern"
                 properties:
@@ -161,11 +161,11 @@ $defs:
     oneOf:
     - type: string
     # This is scuffed, but it seems that `allOf` does not short circuit.
-    # This schema can potentially run on things which are not objects 
-    # (such as lists), and if that happens, the validator will crash when 
+    # This schema can potentially run on things which are not objects
+    # (such as lists), and if that happens, the validator will crash when
     # it checks the keys of the object.
-    # I would normally just use `allOf`, but since it doensn't short circuit, 
-    # I had to instead make it this weird `if-then-else` thing to properly 
+    # I would normally just use `allOf`, but since it doensn't short circuit,
+    # I had to instead make it this weird `if-then-else` thing to properly
     # skip the keys check on a non-object.
     - if:
         type: object
@@ -839,7 +839,7 @@ properties:
           properties:
              include:
                 $ref: "#/$defs/path-array"
-             exclude: 
+             exclude:
                 $ref: "#/$defs/path-array"
         dest-language:
           title: Language to process the extracted result of this rule as
@@ -858,7 +858,11 @@ properties:
             - concat
             - separate
           default: separate
-      additionalProperties: false
+
+      # IMPORTANT: we are allowing additional fields so that the schema validator will not fail
+      # rules that might be using features the current semgrep version is unaware of. The min-version field
+      # should be used to indicate the earliest semgrep version that supports the rule.
+      additionalProperties: true
 
       allOf:
         # EXPERIMENTAL
@@ -891,10 +895,10 @@ properties:
         - if:
           # We should only proceed with this old-style taint rule if we do
           # not see a `taint` top-level key.
-          # Otherwise, it's a new-style taint rule. 
+          # Otherwise, it's a new-style taint rule.
             properties:
               mode:
-                const: taint 
+                const: taint
               taint: false
             required:
               - mode
@@ -905,7 +909,7 @@ properties:
               - languages
               - severity
               - pattern-sinks
-              - pattern-sources 
+              - pattern-sources
             properties:
               extract: false
               dest-language: false
@@ -923,7 +927,7 @@ properties:
             # If it has a top-level taint key, it must be a new-style taint rule.
             # It's allowed to have `mode: taint`, however.
             required:
-              - taint 
+              - taint
           then:
             required:
               - id
@@ -1003,7 +1007,7 @@ properties:
                     - pattern-regex
             else:
               oneOf:
-                # This is still here for error message purposes. 
+                # This is still here for error message purposes.
                 - required:
                     - pattern
                 - required:
