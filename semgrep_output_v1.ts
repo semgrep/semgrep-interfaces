@@ -246,6 +246,7 @@ export type CoreTiming = {
   rules: RuleId[];
   rules_parse_time: number;
   targets: TargetTime[];
+  total_bytes: number /*int*/;
   max_memory_bytes?: number /*int*/;
 }
 
@@ -1271,6 +1272,7 @@ export function writeCoreTiming(x: CoreTiming, context: any = x): any {
     'rules': _atd_write_required_field('CoreTiming', 'rules', _atd_write_array(writeRuleId), x.rules, x),
     'rules_parse_time': _atd_write_required_field('CoreTiming', 'rules_parse_time', _atd_write_float, x.rules_parse_time, x),
     'targets': _atd_write_required_field('CoreTiming', 'targets', _atd_write_array(writeTargetTime), x.targets, x),
+    'total_bytes': _atd_write_required_field('CoreTiming', 'total_bytes', _atd_write_int, x.total_bytes, x),
     'max_memory_bytes': _atd_write_optional_field(_atd_write_int, x.max_memory_bytes, x),
   };
 }
@@ -1280,6 +1282,7 @@ export function readCoreTiming(x: any, context: any = x): CoreTiming {
     rules: _atd_read_required_field('CoreTiming', 'rules', _atd_read_array(readRuleId), x['rules'], x),
     rules_parse_time: _atd_read_required_field('CoreTiming', 'rules_parse_time', _atd_read_float, x['rules_parse_time'], x),
     targets: _atd_read_required_field('CoreTiming', 'targets', _atd_read_array(readTargetTime), x['targets'], x),
+    total_bytes: _atd_read_required_field('CoreTiming', 'total_bytes', _atd_read_int, x['total_bytes'], x),
     max_memory_bytes: _atd_read_optional_field(_atd_read_int, x['max_memory_bytes'], x),
   };
 }

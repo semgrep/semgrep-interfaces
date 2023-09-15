@@ -414,7 +414,7 @@
     },
     "core_timing": {
       "type": "object",
-      "required": [ "rules", "rules_parse_time", "targets" ],
+      "required": [ "rules", "rules_parse_time", "targets", "total_bytes" ],
       "properties": {
         "rules": {
           "type": "array",
@@ -425,6 +425,7 @@
           "type": "array",
           "items": { "$ref": "#/definitions/target_time" }
         },
+        "total_bytes": { "type": "integer" },
         "max_memory_bytes": { "type": "integer" }
       }
     },

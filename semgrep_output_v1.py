@@ -3177,6 +3177,7 @@ class CoreTiming:
     rules: List[RuleId]
     rules_parse_time: float
     targets: List[TargetTime]
+    total_bytes: int
     max_memory_bytes: Optional[int] = None
 
     @classmethod
@@ -3186,6 +3187,7 @@ class CoreTiming:
                 rules=_atd_read_list(RuleId.from_json)(x['rules']) if 'rules' in x else _atd_missing_json_field('CoreTiming', 'rules'),
                 rules_parse_time=_atd_read_float(x['rules_parse_time']) if 'rules_parse_time' in x else _atd_missing_json_field('CoreTiming', 'rules_parse_time'),
                 targets=_atd_read_list(TargetTime.from_json)(x['targets']) if 'targets' in x else _atd_missing_json_field('CoreTiming', 'targets'),
+                total_bytes=_atd_read_int(x['total_bytes']) if 'total_bytes' in x else _atd_missing_json_field('CoreTiming', 'total_bytes'),
                 max_memory_bytes=_atd_read_int(x['max_memory_bytes']) if 'max_memory_bytes' in x else None,
             )
         else:
@@ -3196,6 +3198,7 @@ class CoreTiming:
         res['rules'] = _atd_write_list((lambda x: x.to_json()))(self.rules)
         res['rules_parse_time'] = _atd_write_float(self.rules_parse_time)
         res['targets'] = _atd_write_list((lambda x: x.to_json()))(self.targets)
+        res['total_bytes'] = _atd_write_int(self.total_bytes)
         if self.max_memory_bytes is not None:
             res['max_memory_bytes'] = _atd_write_int(self.max_memory_bytes)
         return res
