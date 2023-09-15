@@ -316,6 +316,7 @@ type core_timing = Semgrep_output_v1_t.core_timing = {
   rules: rule_id list;
   rules_parse_time: float;
   targets: target_time list;
+  total_bytes: int;
   max_memory_bytes: int option
 }
 

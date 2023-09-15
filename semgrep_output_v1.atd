@@ -546,7 +546,7 @@ type core_timing = {
   rules_parse_time: float;
 
   targets: target_time list;
-  (* TODO: total_bytes: int; *)
+  total_bytes: int;
 
   ?max_memory_bytes : int option;
 }
@@ -580,9 +580,11 @@ type profile = {
      * (e.g., match_times further below) saving space in the JSON.
      *
      * Upgrade note: this used to be defined as a rule_id_dict where
-     * each rule_id was inside a {id: rule_id} record (maybe so
-     * we could have given more profiling info about each rule, but
-     * this was never used, so better to make it simple).
+     * each rule_id was inside a {id: rule_id; ...} record so
+     * we could give parsing time info about each rule, but
+     * parsing one rule was never the slow part, so now we just juse the
+     * aggregated rules_parse_time below and do not need a
+     * complex rule_id_dict record anymore.
      *)
     rules: rule_id list;
 
@@ -615,9 +617,14 @@ type cli_target_times = {
     num_bytes: int;
     (* each elt in the list refers to a rule in profile.rules *)
     match_times: float list;
-    (* TODO: why a list? *)
+    (* emma: "when we were first diagnosing performance, I recorded every time
+     * the file was read (including the later times that were just reloading
+     * the parsed file) to make sure reading the file wasn't taking a significant
+     * amount of time. Now that we know it isn't, we don't need to record this anymore.
+     * TODO: just use a single float instead."
+     *)
     parse_times: float list;
-    (* run time for all rules on target? *)
+    (* run time for all rules on target *)
     run_time: float;
 }
 
@@ -1009,10 +1016,11 @@ type parsing_stats = {
 (* ----------------------------- *)
 (* Collect information about a project from the environment, filesystem,
  * git repo, etc.
+ * See also semgrep_metrics.atd and PRIVACY.md
  *)
 
 (* TODO:
- * - where this data is sent? which endpoint? how it related to the /results
+ * - where this data is sent? which endpoint? how is it related to the /results
  *   and /complete endpoints?
  * - we should use this in pysemgrep in meta.py for the to_dict() methods at least
  *   to be more typesafe
