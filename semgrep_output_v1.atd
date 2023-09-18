@@ -80,7 +80,7 @@ type position
   (* Byte position from the beginning of the file, starts at 0.
    * OCaml code sets it correctly. Python code sets it to a dummy value (-1).
    *)
-  offset: int;
+  ~offset: int;
 }
 
 (* File path.

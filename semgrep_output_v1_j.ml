@@ -796,7 +796,7 @@ let read_position = (
     Yojson.Safe.read_lcurl p lb;
     let field_line = ref (None) in
     let field_col = ref (None) in
-    let field_offset = ref (None) in
+    let field_offset = ref (0) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -855,13 +855,13 @@ let read_position = (
               )
             );
           | 2 ->
-            field_offset := (
-              Some (
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_offset := (
                 (
                   Atdgen_runtime.Oj_run.read_int
                 ) p lb
-              )
-            );
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -924,13 +924,13 @@ let read_position = (
                 )
               );
             | 2 ->
-              field_offset := (
-                Some (
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_offset := (
                   (
                     Atdgen_runtime.Oj_run.read_int
                   ) p lb
-                )
-              );
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -942,7 +942,7 @@ let read_position = (
           {
             line = (match !field_line with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "line");
             col = (match !field_col with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "col");
-            offset = (match !field_offset with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "offset");
+            offset = !field_offset;
           }
          : position)
       )
