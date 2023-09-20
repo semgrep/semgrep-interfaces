@@ -242,14 +242,6 @@ export type CoreStats = {
   errorfiles: number /*int*/;
 }
 
-export type CoreTiming = {
-  rules: RuleId[];
-  rules_parse_time: number;
-  targets: TargetTimes[];
-  total_bytes: number /*int*/;
-  max_memory_bytes?: number /*int*/;
-}
-
 export type Profile = {
   rules: RuleId[];
   rules_parse_time: number;
@@ -292,7 +284,7 @@ export type CoreOutput = {
   errors: CoreError[];
   results: CoreMatch[];
   skipped_targets?: SkippedTarget[];
-  time?: CoreTiming;
+  time?: Profile;
   explanations?: MatchingExplanation[];
   rules_by_engine: RuleIdAndEngineKind[];
   engine_requested: EngineKind;
@@ -302,7 +294,7 @@ export type CoreOutput = {
 
 export type CoreOutputExtra = {
   skipped_targets?: SkippedTarget[];
-  time?: CoreTiming;
+  time?: Profile;
   explanations?: MatchingExplanation[];
   rules_by_engine: RuleIdAndEngineKind[];
   engine_requested: EngineKind;
@@ -1255,26 +1247,6 @@ export function readCoreStats(x: any, context: any = x): CoreStats {
   };
 }
 
-export function writeCoreTiming(x: CoreTiming, context: any = x): any {
-  return {
-    'rules': _atd_write_required_field('CoreTiming', 'rules', _atd_write_array(writeRuleId), x.rules, x),
-    'rules_parse_time': _atd_write_required_field('CoreTiming', 'rules_parse_time', _atd_write_float, x.rules_parse_time, x),
-    'targets': _atd_write_required_field('CoreTiming', 'targets', _atd_write_array(writeTargetTimes), x.targets, x),
-    'total_bytes': _atd_write_required_field('CoreTiming', 'total_bytes', _atd_write_int, x.total_bytes, x),
-    'max_memory_bytes': _atd_write_optional_field(_atd_write_int, x.max_memory_bytes, x),
-  };
-}
-
-export function readCoreTiming(x: any, context: any = x): CoreTiming {
-  return {
-    rules: _atd_read_required_field('CoreTiming', 'rules', _atd_read_array(readRuleId), x['rules'], x),
-    rules_parse_time: _atd_read_required_field('CoreTiming', 'rules_parse_time', _atd_read_float, x['rules_parse_time'], x),
-    targets: _atd_read_required_field('CoreTiming', 'targets', _atd_read_array(readTargetTimes), x['targets'], x),
-    total_bytes: _atd_read_required_field('CoreTiming', 'total_bytes', _atd_read_int, x['total_bytes'], x),
-    max_memory_bytes: _atd_read_optional_field(_atd_read_int, x['max_memory_bytes'], x),
-  };
-}
-
 export function writeProfile(x: Profile, context: any = x): any {
   return {
     'rules': _atd_write_required_field('Profile', 'rules', _atd_write_array(writeRuleId), x.rules, x),
@@ -1411,7 +1383,7 @@ export function writeCoreOutput(x: CoreOutput, context: any = x): any {
     'errors': _atd_write_required_field('CoreOutput', 'errors', _atd_write_array(writeCoreError), x.errors, x),
     'results': _atd_write_required_field('CoreOutput', 'results', _atd_write_array(writeCoreMatch), x.results, x),
     'skipped': _atd_write_optional_field(_atd_write_array(writeSkippedTarget), x.skipped_targets, x),
-    'time': _atd_write_optional_field(writeCoreTiming, x.time, x),
+    'time': _atd_write_optional_field(writeProfile, x.time, x),
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'rules_by_engine': _atd_write_required_field('CoreOutput', 'rules_by_engine', _atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_required_field('CoreOutput', 'engine_requested', writeEngineKind, x.engine_requested, x),
@@ -1425,7 +1397,7 @@ export function readCoreOutput(x: any, context: any = x): CoreOutput {
     errors: _atd_read_required_field('CoreOutput', 'errors', _atd_read_array(readCoreError), x['errors'], x),
     results: _atd_read_required_field('CoreOutput', 'results', _atd_read_array(readCoreMatch), x['results'], x),
     skipped_targets: _atd_read_optional_field(_atd_read_array(readSkippedTarget), x['skipped'], x),
-    time: _atd_read_optional_field(readCoreTiming, x['time'], x),
+    time: _atd_read_optional_field(readProfile, x['time'], x),
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     rules_by_engine: _atd_read_required_field('CoreOutput', 'rules_by_engine', _atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_required_field('CoreOutput', 'engine_requested', readEngineKind, x['engine_requested'], x),
@@ -1437,7 +1409,7 @@ export function readCoreOutput(x: any, context: any = x): CoreOutput {
 export function writeCoreOutputExtra(x: CoreOutputExtra, context: any = x): any {
   return {
     'skipped': _atd_write_optional_field(_atd_write_array(writeSkippedTarget), x.skipped_targets, x),
-    'time': _atd_write_optional_field(writeCoreTiming, x.time, x),
+    'time': _atd_write_optional_field(writeProfile, x.time, x),
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'rules_by_engine': _atd_write_required_field('CoreOutputExtra', 'rules_by_engine', _atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_required_field('CoreOutputExtra', 'engine_requested', writeEngineKind, x.engine_requested, x),
@@ -1449,7 +1421,7 @@ export function writeCoreOutputExtra(x: CoreOutputExtra, context: any = x): any 
 export function readCoreOutputExtra(x: any, context: any = x): CoreOutputExtra {
   return {
     skipped_targets: _atd_read_optional_field(_atd_read_array(readSkippedTarget), x['skipped'], x),
-    time: _atd_read_optional_field(readCoreTiming, x['time'], x),
+    time: _atd_read_optional_field(readProfile, x['time'], x),
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     rules_by_engine: _atd_read_required_field('CoreOutputExtra', 'rules_by_engine', _atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_required_field('CoreOutputExtra', 'engine_requested', readEngineKind, x['engine_requested'], x),

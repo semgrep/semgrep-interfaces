@@ -300,14 +300,6 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
   text: string option
 }
 
-type core_timing = Semgrep_output_v1_t.core_timing = {
-  rules: rule_id list;
-  rules_parse_time: float;
-  targets: target_times list;
-  total_bytes: int;
-  max_memory_bytes: int option
-}
-
 type core_stats = Semgrep_output_v1_t.core_stats = {
   okfiles: int;
   errorfiles: int
@@ -320,7 +312,7 @@ type core_severity = Semgrep_output_v1_t.core_severity =
 
 type core_output_extra = Semgrep_output_v1_t.core_output_extra = {
   skipped_targets: skipped_target list option;
-  time: core_timing option;
+  time: profile option;
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list;
   engine_requested: engine_kind;
@@ -363,7 +355,7 @@ type core_output = Semgrep_output_v1_t.core_output = {
   errors: core_error list;
   results: core_match list;
   skipped_targets: skipped_target list option;
-  time: core_timing option;
+  time: profile option;
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list;
   engine_requested: engine_kind;
@@ -1375,26 +1367,6 @@ val read_dependency_parser_error :
 val dependency_parser_error_of_string :
   string -> dependency_parser_error
   (** Deserialize JSON data of type {!type:dependency_parser_error}. *)
-
-val write_core_timing :
-  Buffer.t -> core_timing -> unit
-  (** Output a JSON value of type {!type:core_timing}. *)
-
-val string_of_core_timing :
-  ?len:int -> core_timing -> string
-  (** Serialize a value of type {!type:core_timing}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_core_timing :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_timing
-  (** Input JSON data of type {!type:core_timing}. *)
-
-val core_timing_of_string :
-  string -> core_timing
-  (** Deserialize JSON data of type {!type:core_timing}. *)
 
 val write_core_stats :
   Buffer.t -> core_stats -> unit

@@ -412,23 +412,6 @@
         "errorfiles": { "type": "integer" }
       }
     },
-    "core_timing": {
-      "type": "object",
-      "required": [ "rules", "rules_parse_time", "targets", "total_bytes" ],
-      "properties": {
-        "rules": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/rule_id" }
-        },
-        "rules_parse_time": { "type": "number" },
-        "targets": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/target_times" }
-        },
-        "total_bytes": { "type": "integer" },
-        "max_memory_bytes": { "type": "integer" }
-      }
-    },
     "profile": {
       "type": "object",
       "required": [
@@ -527,7 +510,7 @@
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_target" }
         },
-        "time": { "$ref": "#/definitions/core_timing" },
+        "time": { "$ref": "#/definitions/profile" },
         "explanations": {
           "type": "array",
           "items": { "$ref": "#/definitions/matching_explanation" }
@@ -554,7 +537,7 @@
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_target" }
         },
-        "time": { "$ref": "#/definitions/core_timing" },
+        "time": { "$ref": "#/definitions/profile" },
         "explanations": {
           "type": "array",
           "items": { "$ref": "#/definitions/matching_explanation" }

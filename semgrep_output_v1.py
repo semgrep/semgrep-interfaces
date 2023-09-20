@@ -3103,47 +3103,6 @@ class DependencyParserError:
 
 
 @dataclass
-class CoreTiming:
-    """Original type: core_timing = { ... }"""
-
-    rules: List[RuleId]
-    rules_parse_time: float
-    targets: List[TargetTimes]
-    total_bytes: int
-    max_memory_bytes: Optional[int] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CoreTiming':
-        if isinstance(x, dict):
-            return cls(
-                rules=_atd_read_list(RuleId.from_json)(x['rules']) if 'rules' in x else _atd_missing_json_field('CoreTiming', 'rules'),
-                rules_parse_time=_atd_read_float(x['rules_parse_time']) if 'rules_parse_time' in x else _atd_missing_json_field('CoreTiming', 'rules_parse_time'),
-                targets=_atd_read_list(TargetTimes.from_json)(x['targets']) if 'targets' in x else _atd_missing_json_field('CoreTiming', 'targets'),
-                total_bytes=_atd_read_int(x['total_bytes']) if 'total_bytes' in x else _atd_missing_json_field('CoreTiming', 'total_bytes'),
-                max_memory_bytes=_atd_read_int(x['max_memory_bytes']) if 'max_memory_bytes' in x else None,
-            )
-        else:
-            _atd_bad_json('CoreTiming', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['rules'] = _atd_write_list((lambda x: x.to_json()))(self.rules)
-        res['rules_parse_time'] = _atd_write_float(self.rules_parse_time)
-        res['targets'] = _atd_write_list((lambda x: x.to_json()))(self.targets)
-        res['total_bytes'] = _atd_write_int(self.total_bytes)
-        if self.max_memory_bytes is not None:
-            res['max_memory_bytes'] = _atd_write_int(self.max_memory_bytes)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CoreTiming':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class CoreStats:
     """Original type: core_stats = { ... }"""
 
@@ -3268,7 +3227,7 @@ class CoreOutputExtra:
     skipped_rules: List[SkippedRule]
     stats: CoreStats
     skipped_targets: Optional[List[SkippedTarget]] = None
-    time: Optional[CoreTiming] = None
+    time: Optional[Profile] = None
     explanations: Optional[List[MatchingExplanation]] = None
 
     @classmethod
@@ -3280,7 +3239,7 @@ class CoreOutputExtra:
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else _atd_missing_json_field('CoreOutputExtra', 'skipped_rules'),
                 stats=CoreStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CoreOutputExtra', 'stats'),
                 skipped_targets=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
-                time=CoreTiming.from_json(x['time']) if 'time' in x else None,
+                time=Profile.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
             )
         else:
@@ -3740,7 +3699,7 @@ class CoreOutput:
     skipped_rules: List[SkippedRule]
     stats: CoreStats
     skipped_targets: Optional[List[SkippedTarget]] = None
-    time: Optional[CoreTiming] = None
+    time: Optional[Profile] = None
     explanations: Optional[List[MatchingExplanation]] = None
 
     @classmethod
@@ -3754,7 +3713,7 @@ class CoreOutput:
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else _atd_missing_json_field('CoreOutput', 'skipped_rules'),
                 stats=CoreStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CoreOutput', 'stats'),
                 skipped_targets=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
-                time=CoreTiming.from_json(x['time']) if 'time' in x else None,
+                time=Profile.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
             )
         else:
