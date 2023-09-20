@@ -533,49 +533,25 @@ type core_stats = {
 (*****************************************************************************)
 (* coupling: with semgrep_metrics.atd performance section *)
 
-(* ----------------------------- *)
-(* Core *)
-(* ----------------------------- *)
-
-(* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
-
 (* TODO: merge with profile below *)
 type core_timing = {
   rules: rule_id list;
 
   rules_parse_time: float;
 
-  targets: target_time list;
+  targets: target_times list;
   total_bytes: int;
 
   ?max_memory_bytes : int option;
 }
 
-(* TODO: merge with cli_target_times *)
-type target_time = {
-  path: fpath;
-  num_bytes: int;
-  (* parse and match time for each rule on target *)
-  rule_times: rule_times list;
-  (* run time for all rules on target *)
-  run_time: float;
-}
-
-type rule_times = {
-  rule_id: rule_id;
-  (* TODO: time to parse what? *)
-  parse_time: float;
-  match_time: float;
-}
-
-(* ----------------------------- *)
-(* CLI *)
-(* ----------------------------- *)
 (* coupling: if you change the JSON schema below, you probably need to
  * also modify perf/run-benchmarks. Run locally  $ ./run-benchmarks --dummy --upload
  *)
 type profile = {
     (* List of rules, including the one read but not run on any target.
+     * TODO? is this still true now that we just pass around the profile
+     *   computed in semgrep-core?
      * This list is actually more an array which allows other
      * fields to reference rule by number instead of rule_id
      * (e.g., match_times further below) saving space in the JSON.
@@ -606,14 +582,14 @@ type profile = {
       <python repr="dict">
       <ts repr="map">;
 
-    targets: cli_target_times list;
+    targets: target_times list;
     total_bytes: int;
 
     (* maximum amount of memory used by Semgrep during its execution *)
     ?max_memory_bytes : int option;
   }
 
-type cli_target_times = {
+type target_times = {
     path: fpath;
     num_bytes: int;
     (* each elt in the list refers to a rule in profile.rules *)

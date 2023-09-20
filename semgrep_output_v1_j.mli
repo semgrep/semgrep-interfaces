@@ -109,16 +109,11 @@ type uri = Semgrep_output_v1_t.uri
 
 type transitivity = Semgrep_output_v1_t.transitivity
 
-type rule_times = Semgrep_output_v1_t.rule_times = {
-  rule_id: rule_id;
-  parse_time: float;
-  match_time: float
-}
-
-type target_time = Semgrep_output_v1_t.target_time = {
+type target_times = Semgrep_output_v1_t.target_times = {
   path: fpath;
   num_bytes: int;
-  rule_times: rule_times list;
+  match_times: float list;
+  parse_times: float list;
   run_time: float
 }
 
@@ -223,19 +218,11 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   is_secrets_can: bool
 }
 
-type cli_target_times = Semgrep_output_v1_t.cli_target_times = {
-  path: fpath;
-  num_bytes: int;
-  match_times: float list;
-  parse_times: float list;
-  run_time: float
-}
-
 type profile = Semgrep_output_v1_t.profile = {
   rules: rule_id list;
   rules_parse_time: float;
   profiling_times: (string * float) list;
-  targets: cli_target_times list;
+  targets: target_times list;
   total_bytes: int;
   max_memory_bytes: int option
 }
@@ -316,7 +303,7 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
 type core_timing = Semgrep_output_v1_t.core_timing = {
   rules: rule_id list;
   rules_parse_time: float;
-  targets: target_time list;
+  targets: target_times list;
   total_bytes: int;
   max_memory_bytes: int option
 }
@@ -889,45 +876,25 @@ val transitivity_of_string :
   string -> transitivity
   (** Deserialize JSON data of type {!type:transitivity}. *)
 
-val write_rule_times :
-  Buffer.t -> rule_times -> unit
-  (** Output a JSON value of type {!type:rule_times}. *)
+val write_target_times :
+  Buffer.t -> target_times -> unit
+  (** Output a JSON value of type {!type:target_times}. *)
 
-val string_of_rule_times :
-  ?len:int -> rule_times -> string
-  (** Serialize a value of type {!type:rule_times}
+val string_of_target_times :
+  ?len:int -> target_times -> string
+  (** Serialize a value of type {!type:target_times}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_rule_times :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> rule_times
-  (** Input JSON data of type {!type:rule_times}. *)
+val read_target_times :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> target_times
+  (** Input JSON data of type {!type:target_times}. *)
 
-val rule_times_of_string :
-  string -> rule_times
-  (** Deserialize JSON data of type {!type:rule_times}. *)
-
-val write_target_time :
-  Buffer.t -> target_time -> unit
-  (** Output a JSON value of type {!type:target_time}. *)
-
-val string_of_target_time :
-  ?len:int -> target_time -> string
-  (** Serialize a value of type {!type:target_time}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_target_time :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> target_time
-  (** Input JSON data of type {!type:target_time}. *)
-
-val target_time_of_string :
-  string -> target_time
-  (** Deserialize JSON data of type {!type:target_time}. *)
+val target_times_of_string :
+  string -> target_times
+  (** Deserialize JSON data of type {!type:target_times}. *)
 
 val write_skip_reason :
   Buffer.t -> skip_reason -> unit
@@ -1228,26 +1195,6 @@ val read_project_metadata :
 val project_metadata_of_string :
   string -> project_metadata
   (** Deserialize JSON data of type {!type:project_metadata}. *)
-
-val write_cli_target_times :
-  Buffer.t -> cli_target_times -> unit
-  (** Output a JSON value of type {!type:cli_target_times}. *)
-
-val string_of_cli_target_times :
-  ?len:int -> cli_target_times -> string
-  (** Serialize a value of type {!type:cli_target_times}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cli_target_times :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_target_times
-  (** Input JSON data of type {!type:cli_target_times}. *)
-
-val cli_target_times_of_string :
-  string -> cli_target_times
-  (** Deserialize JSON data of type {!type:cli_target_times}. *)
 
 val write_profile :
   Buffer.t -> profile -> unit

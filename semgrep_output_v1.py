@@ -1310,70 +1310,39 @@ class Transitivity:
 
 
 @dataclass
-class RuleTimes:
-    """Original type: rule_times = { ... }"""
-
-    rule_id: RuleId
-    parse_time: float
-    match_time: float
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'RuleTimes':
-        if isinstance(x, dict):
-            return cls(
-                rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else _atd_missing_json_field('RuleTimes', 'rule_id'),
-                parse_time=_atd_read_float(x['parse_time']) if 'parse_time' in x else _atd_missing_json_field('RuleTimes', 'parse_time'),
-                match_time=_atd_read_float(x['match_time']) if 'match_time' in x else _atd_missing_json_field('RuleTimes', 'match_time'),
-            )
-        else:
-            _atd_bad_json('RuleTimes', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
-        res['parse_time'] = _atd_write_float(self.parse_time)
-        res['match_time'] = _atd_write_float(self.match_time)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'RuleTimes':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class TargetTime:
-    """Original type: target_time = { ... }"""
+class TargetTimes:
+    """Original type: target_times = { ... }"""
 
     path: Fpath
     num_bytes: int
-    rule_times: List[RuleTimes]
+    match_times: List[float]
+    parse_times: List[float]
     run_time: float
 
     @classmethod
-    def from_json(cls, x: Any) -> 'TargetTime':
+    def from_json(cls, x: Any) -> 'TargetTimes':
         if isinstance(x, dict):
             return cls(
-                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('TargetTime', 'path'),
-                num_bytes=_atd_read_int(x['num_bytes']) if 'num_bytes' in x else _atd_missing_json_field('TargetTime', 'num_bytes'),
-                rule_times=_atd_read_list(RuleTimes.from_json)(x['rule_times']) if 'rule_times' in x else _atd_missing_json_field('TargetTime', 'rule_times'),
-                run_time=_atd_read_float(x['run_time']) if 'run_time' in x else _atd_missing_json_field('TargetTime', 'run_time'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('TargetTimes', 'path'),
+                num_bytes=_atd_read_int(x['num_bytes']) if 'num_bytes' in x else _atd_missing_json_field('TargetTimes', 'num_bytes'),
+                match_times=_atd_read_list(_atd_read_float)(x['match_times']) if 'match_times' in x else _atd_missing_json_field('TargetTimes', 'match_times'),
+                parse_times=_atd_read_list(_atd_read_float)(x['parse_times']) if 'parse_times' in x else _atd_missing_json_field('TargetTimes', 'parse_times'),
+                run_time=_atd_read_float(x['run_time']) if 'run_time' in x else _atd_missing_json_field('TargetTimes', 'run_time'),
             )
         else:
-            _atd_bad_json('TargetTime', x)
+            _atd_bad_json('TargetTimes', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['path'] = (lambda x: x.to_json())(self.path)
         res['num_bytes'] = _atd_write_int(self.num_bytes)
-        res['rule_times'] = _atd_write_list((lambda x: x.to_json()))(self.rule_times)
+        res['match_times'] = _atd_write_list(_atd_write_float)(self.match_times)
+        res['parse_times'] = _atd_write_list(_atd_write_float)(self.parse_times)
         res['run_time'] = _atd_write_float(self.run_time)
         return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'TargetTime':
+    def from_json_string(cls, x: str) -> 'TargetTimes':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -2665,53 +2634,13 @@ class ProjectMetadata:
 
 
 @dataclass
-class CliTargetTimes:
-    """Original type: cli_target_times = { ... }"""
-
-    path: Fpath
-    num_bytes: int
-    match_times: List[float]
-    parse_times: List[float]
-    run_time: float
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CliTargetTimes':
-        if isinstance(x, dict):
-            return cls(
-                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('CliTargetTimes', 'path'),
-                num_bytes=_atd_read_int(x['num_bytes']) if 'num_bytes' in x else _atd_missing_json_field('CliTargetTimes', 'num_bytes'),
-                match_times=_atd_read_list(_atd_read_float)(x['match_times']) if 'match_times' in x else _atd_missing_json_field('CliTargetTimes', 'match_times'),
-                parse_times=_atd_read_list(_atd_read_float)(x['parse_times']) if 'parse_times' in x else _atd_missing_json_field('CliTargetTimes', 'parse_times'),
-                run_time=_atd_read_float(x['run_time']) if 'run_time' in x else _atd_missing_json_field('CliTargetTimes', 'run_time'),
-            )
-        else:
-            _atd_bad_json('CliTargetTimes', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['path'] = (lambda x: x.to_json())(self.path)
-        res['num_bytes'] = _atd_write_int(self.num_bytes)
-        res['match_times'] = _atd_write_list(_atd_write_float)(self.match_times)
-        res['parse_times'] = _atd_write_list(_atd_write_float)(self.parse_times)
-        res['run_time'] = _atd_write_float(self.run_time)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CliTargetTimes':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class Profile:
     """Original type: profile = { ... }"""
 
     rules: List[RuleId]
     rules_parse_time: float
     profiling_times: Dict[str, float]
-    targets: List[CliTargetTimes]
+    targets: List[TargetTimes]
     total_bytes: int
     max_memory_bytes: Optional[int] = None
 
@@ -2722,7 +2651,7 @@ class Profile:
                 rules=_atd_read_list(RuleId.from_json)(x['rules']) if 'rules' in x else _atd_missing_json_field('Profile', 'rules'),
                 rules_parse_time=_atd_read_float(x['rules_parse_time']) if 'rules_parse_time' in x else _atd_missing_json_field('Profile', 'rules_parse_time'),
                 profiling_times=_atd_read_assoc_object_into_dict(_atd_read_float)(x['profiling_times']) if 'profiling_times' in x else _atd_missing_json_field('Profile', 'profiling_times'),
-                targets=_atd_read_list(CliTargetTimes.from_json)(x['targets']) if 'targets' in x else _atd_missing_json_field('Profile', 'targets'),
+                targets=_atd_read_list(TargetTimes.from_json)(x['targets']) if 'targets' in x else _atd_missing_json_field('Profile', 'targets'),
                 total_bytes=_atd_read_int(x['total_bytes']) if 'total_bytes' in x else _atd_missing_json_field('Profile', 'total_bytes'),
                 max_memory_bytes=_atd_read_int(x['max_memory_bytes']) if 'max_memory_bytes' in x else None,
             )
@@ -3179,7 +3108,7 @@ class CoreTiming:
 
     rules: List[RuleId]
     rules_parse_time: float
-    targets: List[TargetTime]
+    targets: List[TargetTimes]
     total_bytes: int
     max_memory_bytes: Optional[int] = None
 
@@ -3189,7 +3118,7 @@ class CoreTiming:
             return cls(
                 rules=_atd_read_list(RuleId.from_json)(x['rules']) if 'rules' in x else _atd_missing_json_field('CoreTiming', 'rules'),
                 rules_parse_time=_atd_read_float(x['rules_parse_time']) if 'rules_parse_time' in x else _atd_missing_json_field('CoreTiming', 'rules_parse_time'),
-                targets=_atd_read_list(TargetTime.from_json)(x['targets']) if 'targets' in x else _atd_missing_json_field('CoreTiming', 'targets'),
+                targets=_atd_read_list(TargetTimes.from_json)(x['targets']) if 'targets' in x else _atd_missing_json_field('CoreTiming', 'targets'),
                 total_bytes=_atd_read_int(x['total_bytes']) if 'total_bytes' in x else _atd_missing_json_field('CoreTiming', 'total_bytes'),
                 max_memory_bytes=_atd_read_int(x['max_memory_bytes']) if 'max_memory_bytes' in x else None,
             )

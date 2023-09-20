@@ -423,32 +423,10 @@
         "rules_parse_time": { "type": "number" },
         "targets": {
           "type": "array",
-          "items": { "$ref": "#/definitions/target_time" }
+          "items": { "$ref": "#/definitions/target_times" }
         },
         "total_bytes": { "type": "integer" },
         "max_memory_bytes": { "type": "integer" }
-      }
-    },
-    "target_time": {
-      "type": "object",
-      "required": [ "path", "num_bytes", "rule_times", "run_time" ],
-      "properties": {
-        "path": { "$ref": "#/definitions/fpath" },
-        "num_bytes": { "type": "integer" },
-        "rule_times": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/rule_times" }
-        },
-        "run_time": { "type": "number" }
-      }
-    },
-    "rule_times": {
-      "type": "object",
-      "required": [ "rule_id", "parse_time", "match_time" ],
-      "properties": {
-        "rule_id": { "$ref": "#/definitions/rule_id" },
-        "parse_time": { "type": "number" },
-        "match_time": { "type": "number" }
       }
     },
     "profile": {
@@ -469,13 +447,13 @@
         },
         "targets": {
           "type": "array",
-          "items": { "$ref": "#/definitions/cli_target_times" }
+          "items": { "$ref": "#/definitions/target_times" }
         },
         "total_bytes": { "type": "integer" },
         "max_memory_bytes": { "type": "integer" }
       }
     },
-    "cli_target_times": {
+    "target_times": {
       "type": "object",
       "required": [
         "path", "num_bytes", "match_times", "parse_times", "run_time"

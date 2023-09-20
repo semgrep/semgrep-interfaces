@@ -245,34 +245,21 @@ export type CoreStats = {
 export type CoreTiming = {
   rules: RuleId[];
   rules_parse_time: number;
-  targets: TargetTime[];
+  targets: TargetTimes[];
   total_bytes: number /*int*/;
   max_memory_bytes?: number /*int*/;
-}
-
-export type TargetTime = {
-  path: Fpath;
-  num_bytes: number /*int*/;
-  rule_times: RuleTimes[];
-  run_time: number;
-}
-
-export type RuleTimes = {
-  rule_id: RuleId;
-  parse_time: number;
-  match_time: number;
 }
 
 export type Profile = {
   rules: RuleId[];
   rules_parse_time: number;
   profiling_times: Map<string, number>;
-  targets: CliTargetTimes[];
+  targets: TargetTimes[];
   total_bytes: number /*int*/;
   max_memory_bytes?: number /*int*/;
 }
 
-export type CliTargetTimes = {
+export type TargetTimes = {
   path: Fpath;
   num_bytes: number /*int*/;
   match_times: number[];
@@ -1272,7 +1259,7 @@ export function writeCoreTiming(x: CoreTiming, context: any = x): any {
   return {
     'rules': _atd_write_required_field('CoreTiming', 'rules', _atd_write_array(writeRuleId), x.rules, x),
     'rules_parse_time': _atd_write_required_field('CoreTiming', 'rules_parse_time', _atd_write_float, x.rules_parse_time, x),
-    'targets': _atd_write_required_field('CoreTiming', 'targets', _atd_write_array(writeTargetTime), x.targets, x),
+    'targets': _atd_write_required_field('CoreTiming', 'targets', _atd_write_array(writeTargetTimes), x.targets, x),
     'total_bytes': _atd_write_required_field('CoreTiming', 'total_bytes', _atd_write_int, x.total_bytes, x),
     'max_memory_bytes': _atd_write_optional_field(_atd_write_int, x.max_memory_bytes, x),
   };
@@ -1282,43 +1269,9 @@ export function readCoreTiming(x: any, context: any = x): CoreTiming {
   return {
     rules: _atd_read_required_field('CoreTiming', 'rules', _atd_read_array(readRuleId), x['rules'], x),
     rules_parse_time: _atd_read_required_field('CoreTiming', 'rules_parse_time', _atd_read_float, x['rules_parse_time'], x),
-    targets: _atd_read_required_field('CoreTiming', 'targets', _atd_read_array(readTargetTime), x['targets'], x),
+    targets: _atd_read_required_field('CoreTiming', 'targets', _atd_read_array(readTargetTimes), x['targets'], x),
     total_bytes: _atd_read_required_field('CoreTiming', 'total_bytes', _atd_read_int, x['total_bytes'], x),
     max_memory_bytes: _atd_read_optional_field(_atd_read_int, x['max_memory_bytes'], x),
-  };
-}
-
-export function writeTargetTime(x: TargetTime, context: any = x): any {
-  return {
-    'path': _atd_write_required_field('TargetTime', 'path', writeFpath, x.path, x),
-    'num_bytes': _atd_write_required_field('TargetTime', 'num_bytes', _atd_write_int, x.num_bytes, x),
-    'rule_times': _atd_write_required_field('TargetTime', 'rule_times', _atd_write_array(writeRuleTimes), x.rule_times, x),
-    'run_time': _atd_write_required_field('TargetTime', 'run_time', _atd_write_float, x.run_time, x),
-  };
-}
-
-export function readTargetTime(x: any, context: any = x): TargetTime {
-  return {
-    path: _atd_read_required_field('TargetTime', 'path', readFpath, x['path'], x),
-    num_bytes: _atd_read_required_field('TargetTime', 'num_bytes', _atd_read_int, x['num_bytes'], x),
-    rule_times: _atd_read_required_field('TargetTime', 'rule_times', _atd_read_array(readRuleTimes), x['rule_times'], x),
-    run_time: _atd_read_required_field('TargetTime', 'run_time', _atd_read_float, x['run_time'], x),
-  };
-}
-
-export function writeRuleTimes(x: RuleTimes, context: any = x): any {
-  return {
-    'rule_id': _atd_write_required_field('RuleTimes', 'rule_id', writeRuleId, x.rule_id, x),
-    'parse_time': _atd_write_required_field('RuleTimes', 'parse_time', _atd_write_float, x.parse_time, x),
-    'match_time': _atd_write_required_field('RuleTimes', 'match_time', _atd_write_float, x.match_time, x),
-  };
-}
-
-export function readRuleTimes(x: any, context: any = x): RuleTimes {
-  return {
-    rule_id: _atd_read_required_field('RuleTimes', 'rule_id', readRuleId, x['rule_id'], x),
-    parse_time: _atd_read_required_field('RuleTimes', 'parse_time', _atd_read_float, x['parse_time'], x),
-    match_time: _atd_read_required_field('RuleTimes', 'match_time', _atd_read_float, x['match_time'], x),
   };
 }
 
@@ -1327,7 +1280,7 @@ export function writeProfile(x: Profile, context: any = x): any {
     'rules': _atd_write_required_field('Profile', 'rules', _atd_write_array(writeRuleId), x.rules, x),
     'rules_parse_time': _atd_write_required_field('Profile', 'rules_parse_time', _atd_write_float, x.rules_parse_time, x),
     'profiling_times': _atd_write_required_field('Profile', 'profiling_times', _atd_write_assoc_map_to_object(_atd_write_float), x.profiling_times, x),
-    'targets': _atd_write_required_field('Profile', 'targets', _atd_write_array(writeCliTargetTimes), x.targets, x),
+    'targets': _atd_write_required_field('Profile', 'targets', _atd_write_array(writeTargetTimes), x.targets, x),
     'total_bytes': _atd_write_required_field('Profile', 'total_bytes', _atd_write_int, x.total_bytes, x),
     'max_memory_bytes': _atd_write_optional_field(_atd_write_int, x.max_memory_bytes, x),
   };
@@ -1338,29 +1291,29 @@ export function readProfile(x: any, context: any = x): Profile {
     rules: _atd_read_required_field('Profile', 'rules', _atd_read_array(readRuleId), x['rules'], x),
     rules_parse_time: _atd_read_required_field('Profile', 'rules_parse_time', _atd_read_float, x['rules_parse_time'], x),
     profiling_times: _atd_read_required_field('Profile', 'profiling_times', _atd_read_assoc_object_into_map(_atd_read_float), x['profiling_times'], x),
-    targets: _atd_read_required_field('Profile', 'targets', _atd_read_array(readCliTargetTimes), x['targets'], x),
+    targets: _atd_read_required_field('Profile', 'targets', _atd_read_array(readTargetTimes), x['targets'], x),
     total_bytes: _atd_read_required_field('Profile', 'total_bytes', _atd_read_int, x['total_bytes'], x),
     max_memory_bytes: _atd_read_optional_field(_atd_read_int, x['max_memory_bytes'], x),
   };
 }
 
-export function writeCliTargetTimes(x: CliTargetTimes, context: any = x): any {
+export function writeTargetTimes(x: TargetTimes, context: any = x): any {
   return {
-    'path': _atd_write_required_field('CliTargetTimes', 'path', writeFpath, x.path, x),
-    'num_bytes': _atd_write_required_field('CliTargetTimes', 'num_bytes', _atd_write_int, x.num_bytes, x),
-    'match_times': _atd_write_required_field('CliTargetTimes', 'match_times', _atd_write_array(_atd_write_float), x.match_times, x),
-    'parse_times': _atd_write_required_field('CliTargetTimes', 'parse_times', _atd_write_array(_atd_write_float), x.parse_times, x),
-    'run_time': _atd_write_required_field('CliTargetTimes', 'run_time', _atd_write_float, x.run_time, x),
+    'path': _atd_write_required_field('TargetTimes', 'path', writeFpath, x.path, x),
+    'num_bytes': _atd_write_required_field('TargetTimes', 'num_bytes', _atd_write_int, x.num_bytes, x),
+    'match_times': _atd_write_required_field('TargetTimes', 'match_times', _atd_write_array(_atd_write_float), x.match_times, x),
+    'parse_times': _atd_write_required_field('TargetTimes', 'parse_times', _atd_write_array(_atd_write_float), x.parse_times, x),
+    'run_time': _atd_write_required_field('TargetTimes', 'run_time', _atd_write_float, x.run_time, x),
   };
 }
 
-export function readCliTargetTimes(x: any, context: any = x): CliTargetTimes {
+export function readTargetTimes(x: any, context: any = x): TargetTimes {
   return {
-    path: _atd_read_required_field('CliTargetTimes', 'path', readFpath, x['path'], x),
-    num_bytes: _atd_read_required_field('CliTargetTimes', 'num_bytes', _atd_read_int, x['num_bytes'], x),
-    match_times: _atd_read_required_field('CliTargetTimes', 'match_times', _atd_read_array(_atd_read_float), x['match_times'], x),
-    parse_times: _atd_read_required_field('CliTargetTimes', 'parse_times', _atd_read_array(_atd_read_float), x['parse_times'], x),
-    run_time: _atd_read_required_field('CliTargetTimes', 'run_time', _atd_read_float, x['run_time'], x),
+    path: _atd_read_required_field('TargetTimes', 'path', readFpath, x['path'], x),
+    num_bytes: _atd_read_required_field('TargetTimes', 'num_bytes', _atd_read_int, x['num_bytes'], x),
+    match_times: _atd_read_required_field('TargetTimes', 'match_times', _atd_read_array(_atd_read_float), x['match_times'], x),
+    parse_times: _atd_read_required_field('TargetTimes', 'parse_times', _atd_read_array(_atd_read_float), x['parse_times'], x),
+    run_time: _atd_read_required_field('TargetTimes', 'run_time', _atd_read_float, x['run_time'], x),
   };
 }
 
