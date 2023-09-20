@@ -412,44 +412,6 @@
         "errorfiles": { "type": "integer" }
       }
     },
-    "core_timing": {
-      "type": "object",
-      "required": [ "rules", "rules_parse_time", "targets", "total_bytes" ],
-      "properties": {
-        "rules": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/rule_id" }
-        },
-        "rules_parse_time": { "type": "number" },
-        "targets": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/target_time" }
-        },
-        "total_bytes": { "type": "integer" },
-        "max_memory_bytes": { "type": "integer" }
-      }
-    },
-    "target_time": {
-      "type": "object",
-      "required": [ "path", "rule_times", "run_time" ],
-      "properties": {
-        "path": { "$ref": "#/definitions/fpath" },
-        "rule_times": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/rule_times" }
-        },
-        "run_time": { "type": "number" }
-      }
-    },
-    "rule_times": {
-      "type": "object",
-      "required": [ "rule_id", "parse_time", "match_time" ],
-      "properties": {
-        "rule_id": { "$ref": "#/definitions/rule_id" },
-        "parse_time": { "type": "number" },
-        "match_time": { "type": "number" }
-      }
-    },
     "profile": {
       "type": "object",
       "required": [
@@ -468,13 +430,13 @@
         },
         "targets": {
           "type": "array",
-          "items": { "$ref": "#/definitions/cli_target_times" }
+          "items": { "$ref": "#/definitions/target_times" }
         },
         "total_bytes": { "type": "integer" },
         "max_memory_bytes": { "type": "integer" }
       }
     },
-    "cli_target_times": {
+    "target_times": {
       "type": "object",
       "required": [
         "path", "num_bytes", "match_times", "parse_times", "run_time"
@@ -548,7 +510,7 @@
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_target" }
         },
-        "time": { "$ref": "#/definitions/core_timing" },
+        "time": { "$ref": "#/definitions/profile" },
         "explanations": {
           "type": "array",
           "items": { "$ref": "#/definitions/matching_explanation" }
@@ -575,7 +537,7 @@
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_target" }
         },
-        "time": { "$ref": "#/definitions/core_timing" },
+        "time": { "$ref": "#/definitions/profile" },
         "explanations": {
           "type": "array",
           "items": { "$ref": "#/definitions/matching_explanation" }

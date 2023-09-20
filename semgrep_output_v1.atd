@@ -18,6 +18,10 @@
  * (any incompatible changes to the rule format should also require a major
  *  version upgrade). Hopefully, we will always be backward compatible.
  *
+ * !!Again, keep in mind that this file is used both by the CLI to *produce* a
+ * JSON output, and by our backends to *consume* the JSON, including to
+ * consume the JSON produced by old versions of the CLI!!
+ *
  * This file is translated in OCaml modules by atdgen. Look for the
  * corresponding Semgrep_output_v1_[tj].ml[i] generated files
  * under dune's _build/ folder. A few types below have the 'deriving show'
@@ -79,6 +83,8 @@ type position
   col: int; (* starts from 1 *)
   (* Byte position from the beginning of the file, starts at 0.
    * OCaml code sets it correctly. Python code sets it to a dummy value (-1).
+   * This uses '~' because semgrep < 1.30? was *producing* positions without
+   * offset sometimes, and we want the backend to still *consume* such positions.
    *)
   ~offset: int;
 }
@@ -533,48 +539,13 @@ type core_stats = {
 (*****************************************************************************)
 (* coupling: with semgrep_metrics.atd performance section *)
 
-(* ----------------------------- *)
-(* Core *)
-(* ----------------------------- *)
-
-(* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
-
-(* TODO: merge with profile below *)
-type core_timing = {
-  rules: rule_id list;
-
-  rules_parse_time: float;
-
-  targets: target_time list;
-  total_bytes: int;
-
-  ?max_memory_bytes : int option;
-}
-
-(* TODO: merge with cli_target_times *)
-type target_time = {
-  path: fpath;
-  (* parse and match time for each rule on target *)
-  rule_times: rule_times list;
-  (* run time for all rules on target *)
-  run_time: float;
-}
-
-type rule_times = {
-  rule_id: rule_id;
-  (* TODO: time to parse what? *)
-  parse_time: float;
-  match_time: float;
-}
-
-(* ----------------------------- *)
-(* CLI *)
-(* ----------------------------- *)
 (* coupling: if you change the JSON schema below, you probably need to
  * also modify perf/run-benchmarks. Run locally  $ ./run-benchmarks --dummy --upload
  *)
 type profile = {
     (* List of rules, including the one read but not run on any target.
+     * TODO? is this still true now that we just pass around the profile
+     *   computed in semgrep-core?
      * This list is actually more an array which allows other
      * fields to reference rule by number instead of rule_id
      * (e.g., match_times further below) saving space in the JSON.
@@ -591,6 +562,9 @@ type profile = {
     (* LESS? could be part of profiling_times below instead *)
     rules_parse_time: float;
     (* coupling: semgrep_metrics.atd profilingTimes field?
+     * Those fields are not produced by semgrep-core; they
+     * are added by pysemgrep (and later osemgrep).
+     *
      * LATER? define a cli_profiling_times with more precise keys? 
      * type cli_profiling_times <ocaml attr="deriving show"> = {
      *   config_time: float;
@@ -605,14 +579,14 @@ type profile = {
       <python repr="dict">
       <ts repr="map">;
 
-    targets: cli_target_times list;
+    targets: target_times list;
     total_bytes: int;
 
-    (* maximum amount of memory used by Semgrep during its execution *)
+    (* maximum amount of memory used by Semgrep(-core) during its execution *)
     ?max_memory_bytes : int option;
   }
 
-type cli_target_times = {
+type target_times = {
     path: fpath;
     num_bytes: int;
     (* each elt in the list refers to a rule in profile.rules *)
@@ -696,10 +670,12 @@ type core_output = {
   inherit core_output_extra;
 }
 
+(* TODO: merge with cli_output_extra *)
 type core_output_extra = {  
   ?skipped_targets <json name="skipped">: skipped_target list option;
-  ?time: core_timing option;
+  ?time: profile option;
   ?explanations: matching_explanation list option;
+  
   rules_by_engine: rule_id_and_engine_kind list;
   engine_requested: engine_kind;
   skipped_rules: skipped_rule list;
