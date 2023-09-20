@@ -1348,6 +1348,7 @@ class TargetTime:
     """Original type: target_time = { ... }"""
 
     path: Fpath
+    num_bytes: int
     rule_times: List[RuleTimes]
     run_time: float
 
@@ -1356,6 +1357,7 @@ class TargetTime:
         if isinstance(x, dict):
             return cls(
                 path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('TargetTime', 'path'),
+                num_bytes=_atd_read_int(x['num_bytes']) if 'num_bytes' in x else _atd_missing_json_field('TargetTime', 'num_bytes'),
                 rule_times=_atd_read_list(RuleTimes.from_json)(x['rule_times']) if 'rule_times' in x else _atd_missing_json_field('TargetTime', 'rule_times'),
                 run_time=_atd_read_float(x['run_time']) if 'run_time' in x else _atd_missing_json_field('TargetTime', 'run_time'),
             )
@@ -1365,6 +1367,7 @@ class TargetTime:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['path'] = (lambda x: x.to_json())(self.path)
+        res['num_bytes'] = _atd_write_int(self.num_bytes)
         res['rule_times'] = _atd_write_list((lambda x: x.to_json()))(self.rule_times)
         res['run_time'] = _atd_write_float(self.run_time)
         return res

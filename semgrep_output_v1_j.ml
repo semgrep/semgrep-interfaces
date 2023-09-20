@@ -117,6 +117,7 @@ type rule_times = Semgrep_output_v1_t.rule_times = {
 
 type target_time = Semgrep_output_v1_t.target_time = {
   path: fpath;
+  num_bytes: int;
   rule_times: rule_times list;
   run_time: float
 }
@@ -4202,6 +4203,15 @@ let write_target_time : _ -> target_time -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
+      Buffer.add_string ob "\"num_bytes\":";
+    (
+      Yojson.Safe.write_int
+    )
+      ob x.num_bytes;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
       Buffer.add_string ob "\"rule_times\":";
     (
       write__rule_times_list
@@ -4227,6 +4237,7 @@ let read_target_time = (
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
     let field_path = ref (None) in
+    let field_num_bytes = ref (None) in
     let field_rule_times = ref (None) in
     let field_run_time = ref (None) in
     try
@@ -4248,7 +4259,15 @@ let read_target_time = (
               )
             | 8 -> (
                 if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'e' then (
-                  2
+                  3
+                )
+                else (
+                  -1
+                )
+              )
+            | 9 -> (
+                if String.unsafe_get s pos = 'n' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'y' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 's' then (
+                  1
                 )
                 else (
                   -1
@@ -4256,7 +4275,7 @@ let read_target_time = (
               )
             | 10 -> (
                 if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 's' then (
-                  1
+                  2
                 )
                 else (
                   -1
@@ -4279,6 +4298,14 @@ let read_target_time = (
               )
             );
           | 1 ->
+            field_num_bytes := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_int
+                ) p lb
+              )
+            );
+          | 2 ->
             field_rule_times := (
               Some (
                 (
@@ -4286,7 +4313,7 @@ let read_target_time = (
                 ) p lb
               )
             );
-          | 2 ->
+          | 3 ->
             field_run_time := (
               Some (
                 (
@@ -4317,7 +4344,15 @@ let read_target_time = (
                 )
               | 8 -> (
                   if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'e' then (
-                    2
+                    3
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 9 -> (
+                  if String.unsafe_get s pos = 'n' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'y' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 's' then (
+                    1
                   )
                   else (
                     -1
@@ -4325,7 +4360,7 @@ let read_target_time = (
                 )
               | 10 -> (
                   if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 's' then (
-                    1
+                    2
                   )
                   else (
                     -1
@@ -4348,6 +4383,14 @@ let read_target_time = (
                 )
               );
             | 1 ->
+              field_num_bytes := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_int
+                  ) p lb
+                )
+              );
+            | 2 ->
               field_rule_times := (
                 Some (
                   (
@@ -4355,7 +4398,7 @@ let read_target_time = (
                   ) p lb
                 )
               );
-            | 2 ->
+            | 3 ->
               field_run_time := (
                 Some (
                   (
@@ -4373,6 +4416,7 @@ let read_target_time = (
         (
           {
             path = (match !field_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "path");
+            num_bytes = (match !field_num_bytes with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "num_bytes");
             rule_times = (match !field_rule_times with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rule_times");
             run_time = (match !field_run_time with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "run_time");
           }

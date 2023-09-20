@@ -117,6 +117,7 @@ type rule_times = Semgrep_output_v1_t.rule_times = {
 
 type target_time = Semgrep_output_v1_t.target_time = {
   path: fpath;
+  num_bytes: int;
   rule_times: rule_times list;
   run_time: float
 }

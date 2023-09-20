@@ -431,9 +431,10 @@
     },
     "target_time": {
       "type": "object",
-      "required": [ "path", "rule_times", "run_time" ],
+      "required": [ "path", "num_bytes", "rule_times", "run_time" ],
       "properties": {
         "path": { "$ref": "#/definitions/fpath" },
+        "num_bytes": { "type": "integer" },
         "rule_times": {
           "type": "array",
           "items": { "$ref": "#/definitions/rule_times" }

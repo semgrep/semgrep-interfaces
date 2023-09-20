@@ -554,6 +554,7 @@ type core_timing = {
 (* TODO: merge with cli_target_times *)
 type target_time = {
   path: fpath;
+  num_bytes: int;
   (* parse and match time for each rule on target *)
   rule_times: rule_times list;
   (* run time for all rules on target *)

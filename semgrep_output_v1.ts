@@ -252,6 +252,7 @@ export type CoreTiming = {
 
 export type TargetTime = {
   path: Fpath;
+  num_bytes: number /*int*/;
   rule_times: RuleTimes[];
   run_time: number;
 }
@@ -1290,6 +1291,7 @@ export function readCoreTiming(x: any, context: any = x): CoreTiming {
 export function writeTargetTime(x: TargetTime, context: any = x): any {
   return {
     'path': _atd_write_required_field('TargetTime', 'path', writeFpath, x.path, x),
+    'num_bytes': _atd_write_required_field('TargetTime', 'num_bytes', _atd_write_int, x.num_bytes, x),
     'rule_times': _atd_write_required_field('TargetTime', 'rule_times', _atd_write_array(writeRuleTimes), x.rule_times, x),
     'run_time': _atd_write_required_field('TargetTime', 'run_time', _atd_write_float, x.run_time, x),
   };
@@ -1298,6 +1300,7 @@ export function writeTargetTime(x: TargetTime, context: any = x): any {
 export function readTargetTime(x: any, context: any = x): TargetTime {
   return {
     path: _atd_read_required_field('TargetTime', 'path', readFpath, x['path'], x),
+    num_bytes: _atd_read_required_field('TargetTime', 'num_bytes', _atd_read_int, x['num_bytes'], x),
     rule_times: _atd_read_required_field('TargetTime', 'rule_times', _atd_read_array(readRuleTimes), x['rule_times'], x),
     run_time: _atd_read_required_field('TargetTime', 'run_time', _atd_read_float, x['run_time'], x),
   };
