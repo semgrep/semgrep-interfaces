@@ -3,8 +3,9 @@
 (*****************************************************************************)
 (* Specification of the Semgrep CLI JSON output format using ATD
  * (see https://atd.readthedocs.io/en/latest/ for more information on ATD).
- * This file specifies for now mostly the JSON format of the 'semgrep scan'
- * command, the default command of semgrep.
+ * This file specifies the JSON format of the 'semgrep scan' command,
+ * the default command of semgrep, as well as the JSON format of messages
+ * sent to the Semgrep App backend by the 'semgrep ci' command.
  * For the definitions of the Semgrep input, see rule_schema_v1.yaml.
  *
  * This file has the _v1 suffix to explicitely represent the
@@ -99,7 +100,7 @@ type fpath <ocaml attr="deriving show"> = string
 type location
      <ocaml attr="deriving show">
      <python decorator="dataclass(frozen=True)"> = {
-  path: fpath (* source file *);
+  path: fpath;
   start: position;
   end <ocaml name="end_">: position;
 }
@@ -121,7 +122,8 @@ type engine_kind
   | PRO
 ]
 
-type rule_id_and_engine_kind <python decorator="dataclass(frozen=True)"> = (rule_id * engine_kind)
+type rule_id_and_engine_kind <python decorator="dataclass(frozen=True)"> =
+  (rule_id * engine_kind)
 
 type product
   <ocaml attr="deriving show">
@@ -502,7 +504,9 @@ type skipped_target <ocaml attr="deriving show"> = {
 type scanned_and_skipped = {
     scanned: fpath list;
     (* really either _comment: (saying "you should use -v to get more info")
-     * or skipped:. We should have used a variant.
+     * or skipped:. We should have used a variant
+     * TODO: just get rid of it; people should not inspect the JSON output to
+     * learn how to use semgrep.
      *)
     ?_comment: string option;
     (* TODO: needs fix in atdpy; see note tagged [X584759]
@@ -660,26 +664,15 @@ type matching_operation <ocaml attr="deriving show { with_path = false}"> = [
 (* Core *)
 (* ----------------------------- *)
 
-(* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
+(* TODO: merge with cli_output *)
 type core_output = {
-
+  ?version: version option;
+  results: core_match list;
   (* errors are guaranteed to be duplicate free; see also Report.ml *)
   errors: core_error list;
-  results: core_match list;
 
-  inherit core_output_extra;
+  inherit cli_output_extra;
   stats: core_stats;
-}
-
-(* TODO: merge with cli_output_extra *)
-type core_output_extra = {  
-  paths: scanned_and_skipped;
-  ?time: profile option;
-  ?explanations: matching_explanation list option;
-  
-  ?rules_by_engine: rule_id_and_engine_kind list option;
-  ?engine_requested: engine_kind option;
-  ~skipped_rules: skipped_rule list;
 }
 
 (* ----------------------------- *)

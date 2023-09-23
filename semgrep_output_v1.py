@@ -3218,53 +3218,6 @@ class CoreSeverity:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
-class CoreOutputExtra:
-    """Original type: core_output_extra = { ... }"""
-
-    paths: ScannedAndSkipped
-    time: Optional[Profile] = None
-    explanations: Optional[List[MatchingExplanation]] = None
-    rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
-    engine_requested: Optional[EngineKind] = None
-    skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CoreOutputExtra':
-        if isinstance(x, dict):
-            return cls(
-                paths=ScannedAndSkipped.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CoreOutputExtra', 'paths'),
-                time=Profile.from_json(x['time']) if 'time' in x else None,
-                explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
-                rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
-                engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
-                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
-            )
-        else:
-            _atd_bad_json('CoreOutputExtra', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['paths'] = (lambda x: x.to_json())(self.paths)
-        if self.time is not None:
-            res['time'] = (lambda x: x.to_json())(self.time)
-        if self.explanations is not None:
-            res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
-        if self.rules_by_engine is not None:
-            res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
-        if self.engine_requested is not None:
-            res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
-        res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CoreOutputExtra':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass(frozen=True, order=True)
 class LexicalError:
     """Original type: core_error_kind = [ ... | LexicalError | ... ]"""
@@ -3690,10 +3643,11 @@ class CoreError:
 class CoreOutput:
     """Original type: core_output = { ... }"""
 
-    errors: List[CoreError]
     results: List[CoreMatch]
+    errors: List[CoreError]
     paths: ScannedAndSkipped
     stats: CoreStats
+    version: Optional[Version] = None
     time: Optional[Profile] = None
     explanations: Optional[List[MatchingExplanation]] = None
     rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
@@ -3704,10 +3658,11 @@ class CoreOutput:
     def from_json(cls, x: Any) -> 'CoreOutput':
         if isinstance(x, dict):
             return cls(
-                errors=_atd_read_list(CoreError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CoreOutput', 'errors'),
                 results=_atd_read_list(CoreMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CoreOutput', 'results'),
+                errors=_atd_read_list(CoreError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CoreOutput', 'errors'),
                 paths=ScannedAndSkipped.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CoreOutput', 'paths'),
                 stats=CoreStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CoreOutput', 'stats'),
+                version=Version.from_json(x['version']) if 'version' in x else None,
                 time=Profile.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
@@ -3719,10 +3674,12 @@ class CoreOutput:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['results'] = _atd_write_list((lambda x: x.to_json()))(self.results)
+        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['paths'] = (lambda x: x.to_json())(self.paths)
         res['stats'] = (lambda x: x.to_json())(self.stats)
+        if self.version is not None:
+            res['version'] = (lambda x: x.to_json())(self.version)
         if self.time is not None:
             res['time'] = (lambda x: x.to_json())(self.time)
         if self.explanations is not None:

@@ -281,8 +281,9 @@ export type MatchingOperation =
 | { kind: 'ClassHeaderAndElems' }
 
 export type CoreOutput = {
-  errors: CoreError[];
+  version?: Version;
   results: CoreMatch[];
+  errors: CoreError[];
   paths: ScannedAndSkipped;
   time?: Profile;
   explanations?: MatchingExplanation[];
@@ -290,15 +291,6 @@ export type CoreOutput = {
   engine_requested?: EngineKind;
   skipped_rules: SkippedRule[];
   stats: CoreStats;
-}
-
-export type CoreOutputExtra = {
-  paths: ScannedAndSkipped;
-  time?: Profile;
-  explanations?: MatchingExplanation[];
-  rules_by_engine?: RuleIdAndEngineKind[];
-  engine_requested?: EngineKind;
-  skipped_rules: SkippedRule[];
 }
 
 export type CliOutput = {
@@ -1379,8 +1371,9 @@ export function readMatchingOperation(x: any, context: any = x): MatchingOperati
 
 export function writeCoreOutput(x: CoreOutput, context: any = x): any {
   return {
-    'errors': _atd_write_required_field('CoreOutput', 'errors', _atd_write_array(writeCoreError), x.errors, x),
+    'version': _atd_write_optional_field(writeVersion, x.version, x),
     'results': _atd_write_required_field('CoreOutput', 'results', _atd_write_array(writeCoreMatch), x.results, x),
+    'errors': _atd_write_required_field('CoreOutput', 'errors', _atd_write_array(writeCoreError), x.errors, x),
     'paths': _atd_write_required_field('CoreOutput', 'paths', writeScannedAndSkipped, x.paths, x),
     'time': _atd_write_optional_field(writeProfile, x.time, x),
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
@@ -1393,8 +1386,9 @@ export function writeCoreOutput(x: CoreOutput, context: any = x): any {
 
 export function readCoreOutput(x: any, context: any = x): CoreOutput {
   return {
-    errors: _atd_read_required_field('CoreOutput', 'errors', _atd_read_array(readCoreError), x['errors'], x),
+    version: _atd_read_optional_field(readVersion, x['version'], x),
     results: _atd_read_required_field('CoreOutput', 'results', _atd_read_array(readCoreMatch), x['results'], x),
+    errors: _atd_read_required_field('CoreOutput', 'errors', _atd_read_array(readCoreError), x['errors'], x),
     paths: _atd_read_required_field('CoreOutput', 'paths', readScannedAndSkipped, x['paths'], x),
     time: _atd_read_optional_field(readProfile, x['time'], x),
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
@@ -1402,28 +1396,6 @@ export function readCoreOutput(x: any, context: any = x): CoreOutput {
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
     stats: _atd_read_required_field('CoreOutput', 'stats', readCoreStats, x['stats'], x),
-  };
-}
-
-export function writeCoreOutputExtra(x: CoreOutputExtra, context: any = x): any {
-  return {
-    'paths': _atd_write_required_field('CoreOutputExtra', 'paths', writeScannedAndSkipped, x.paths, x),
-    'time': _atd_write_optional_field(writeProfile, x.time, x),
-    'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
-    'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
-    'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
-    'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
-  };
-}
-
-export function readCoreOutputExtra(x: any, context: any = x): CoreOutputExtra {
-  return {
-    paths: _atd_read_required_field('CoreOutputExtra', 'paths', readScannedAndSkipped, x['paths'], x),
-    time: _atd_read_optional_field(readProfile, x['time'], x),
-    explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
-    rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
-    engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
-    skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
   };
 }
 
