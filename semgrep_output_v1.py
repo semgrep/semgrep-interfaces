@@ -3222,41 +3222,42 @@ class CoreSeverity:
 class CoreOutputExtra:
     """Original type: core_output_extra = { ... }"""
 
-    rules_by_engine: List[RuleIdAndEngineKind]
-    engine_requested: EngineKind
-    skipped_rules: List[SkippedRule]
+    paths: ScannedAndSkipped
     stats: CoreStats
-    skipped_targets: Optional[List[SkippedTarget]] = None
     time: Optional[Profile] = None
     explanations: Optional[List[MatchingExplanation]] = None
+    rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
+    engine_requested: Optional[EngineKind] = None
+    skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreOutputExtra':
         if isinstance(x, dict):
             return cls(
-                rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else _atd_missing_json_field('CoreOutputExtra', 'rules_by_engine'),
-                engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else _atd_missing_json_field('CoreOutputExtra', 'engine_requested'),
-                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else _atd_missing_json_field('CoreOutputExtra', 'skipped_rules'),
+                paths=ScannedAndSkipped.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CoreOutputExtra', 'paths'),
                 stats=CoreStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CoreOutputExtra', 'stats'),
-                skipped_targets=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
                 time=Profile.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
+                rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
+                engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
+                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
             )
         else:
             _atd_bad_json('CoreOutputExtra', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
-        res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
-        res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
+        res['paths'] = (lambda x: x.to_json())(self.paths)
         res['stats'] = (lambda x: x.to_json())(self.stats)
-        if self.skipped_targets is not None:
-            res['skipped'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_targets)
         if self.time is not None:
             res['time'] = (lambda x: x.to_json())(self.time)
         if self.explanations is not None:
             res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
+        if self.rules_by_engine is not None:
+            res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
+        if self.engine_requested is not None:
+            res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
+        res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         return res
 
     @classmethod
@@ -3694,13 +3695,13 @@ class CoreOutput:
 
     errors: List[CoreError]
     results: List[CoreMatch]
-    rules_by_engine: List[RuleIdAndEngineKind]
-    engine_requested: EngineKind
-    skipped_rules: List[SkippedRule]
+    paths: ScannedAndSkipped
     stats: CoreStats
-    skipped_targets: Optional[List[SkippedTarget]] = None
     time: Optional[Profile] = None
     explanations: Optional[List[MatchingExplanation]] = None
+    rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
+    engine_requested: Optional[EngineKind] = None
+    skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreOutput':
@@ -3708,13 +3709,13 @@ class CoreOutput:
             return cls(
                 errors=_atd_read_list(CoreError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CoreOutput', 'errors'),
                 results=_atd_read_list(CoreMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CoreOutput', 'results'),
-                rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else _atd_missing_json_field('CoreOutput', 'rules_by_engine'),
-                engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else _atd_missing_json_field('CoreOutput', 'engine_requested'),
-                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else _atd_missing_json_field('CoreOutput', 'skipped_rules'),
+                paths=ScannedAndSkipped.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CoreOutput', 'paths'),
                 stats=CoreStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CoreOutput', 'stats'),
-                skipped_targets=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
                 time=Profile.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
+                rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
+                engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
+                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
             )
         else:
             _atd_bad_json('CoreOutput', x)
@@ -3723,16 +3724,17 @@ class CoreOutput:
         res: Dict[str, Any] = {}
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['results'] = _atd_write_list((lambda x: x.to_json()))(self.results)
-        res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
-        res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
-        res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
+        res['paths'] = (lambda x: x.to_json())(self.paths)
         res['stats'] = (lambda x: x.to_json())(self.stats)
-        if self.skipped_targets is not None:
-            res['skipped'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_targets)
         if self.time is not None:
             res['time'] = (lambda x: x.to_json())(self.time)
         if self.explanations is not None:
             res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
+        if self.rules_by_engine is not None:
+            res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
+        if self.engine_requested is not None:
+            res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
+        res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         return res
 
     @classmethod

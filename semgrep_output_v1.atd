@@ -672,13 +672,13 @@ type core_output = {
 
 (* TODO: merge with cli_output_extra *)
 type core_output_extra = {  
-  ?skipped_targets <json name="skipped">: skipped_target list option;
+  paths: scanned_and_skipped;
   ?time: profile option;
   ?explanations: matching_explanation list option;
   
-  rules_by_engine: rule_id_and_engine_kind list;
-  engine_requested: engine_kind;
-  skipped_rules: skipped_rule list;
+  ?rules_by_engine: rule_id_and_engine_kind list option;
+  ?engine_requested: engine_kind option;
+  ~skipped_rules: skipped_rule list;
 
   stats: core_stats;
 }

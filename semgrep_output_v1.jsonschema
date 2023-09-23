@@ -493,10 +493,7 @@
     },
     "core_output": {
       "type": "object",
-      "required": [
-        "errors", "results", "rules_by_engine", "engine_requested",
-        "skipped_rules", "stats"
-      ],
+      "required": [ "errors", "results", "paths", "stats" ],
       "properties": {
         "errors": {
           "type": "array",
@@ -506,10 +503,7 @@
           "type": "array",
           "items": { "$ref": "#/definitions/core_match" }
         },
-        "skipped": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/skipped_target" }
-        },
+        "paths": { "$ref": "#/definitions/scanned_and_skipped" },
         "time": { "$ref": "#/definitions/profile" },
         "explanations": {
           "type": "array",
@@ -529,14 +523,9 @@
     },
     "core_output_extra": {
       "type": "object",
-      "required": [
-        "rules_by_engine", "engine_requested", "skipped_rules", "stats"
-      ],
+      "required": [ "paths", "stats" ],
       "properties": {
-        "skipped": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/skipped_target" }
-        },
+        "paths": { "$ref": "#/definitions/scanned_and_skipped" },
         "time": { "$ref": "#/definitions/profile" },
         "explanations": {
           "type": "array",
