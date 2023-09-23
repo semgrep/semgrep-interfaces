@@ -523,7 +523,7 @@
     },
     "core_output_extra": {
       "type": "object",
-      "required": [ "paths", "stats" ],
+      "required": [ "paths" ],
       "properties": {
         "paths": { "$ref": "#/definitions/scanned_and_skipped" },
         "time": { "$ref": "#/definitions/profile" },
@@ -539,8 +539,7 @@
         "skipped_rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
-        },
-        "stats": { "$ref": "#/definitions/core_stats" }
+        }
       }
     },
     "cli_output_extra": {

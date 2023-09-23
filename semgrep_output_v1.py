@@ -3223,7 +3223,6 @@ class CoreOutputExtra:
     """Original type: core_output_extra = { ... }"""
 
     paths: ScannedAndSkipped
-    stats: CoreStats
     time: Optional[Profile] = None
     explanations: Optional[List[MatchingExplanation]] = None
     rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
@@ -3235,7 +3234,6 @@ class CoreOutputExtra:
         if isinstance(x, dict):
             return cls(
                 paths=ScannedAndSkipped.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CoreOutputExtra', 'paths'),
-                stats=CoreStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CoreOutputExtra', 'stats'),
                 time=Profile.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
@@ -3248,7 +3246,6 @@ class CoreOutputExtra:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['paths'] = (lambda x: x.to_json())(self.paths)
-        res['stats'] = (lambda x: x.to_json())(self.stats)
         if self.time is not None:
             res['time'] = (lambda x: x.to_json())(self.time)
         if self.explanations is not None:

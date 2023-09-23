@@ -299,7 +299,6 @@ export type CoreOutputExtra = {
   rules_by_engine?: RuleIdAndEngineKind[];
   engine_requested?: EngineKind;
   skipped_rules: SkippedRule[];
-  stats: CoreStats;
 }
 
 export type CliOutput = {
@@ -1414,7 +1413,6 @@ export function writeCoreOutputExtra(x: CoreOutputExtra, context: any = x): any 
     'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
-    'stats': _atd_write_required_field('CoreOutputExtra', 'stats', writeCoreStats, x.stats, x),
   };
 }
 
@@ -1426,7 +1424,6 @@ export function readCoreOutputExtra(x: any, context: any = x): CoreOutputExtra {
     rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
-    stats: _atd_read_required_field('CoreOutputExtra', 'stats', readCoreStats, x['stats'], x),
   };
 }
 

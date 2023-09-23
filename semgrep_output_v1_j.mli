@@ -316,8 +316,7 @@ type core_output_extra = Semgrep_output_v1_t.core_output_extra = {
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option;
-  skipped_rules: skipped_rule list;
-  stats: core_stats
+  skipped_rules: skipped_rule list
 }
 
 type core_error_kind = Semgrep_output_v1_t.core_error_kind = 

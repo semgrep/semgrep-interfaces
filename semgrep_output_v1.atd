@@ -668,6 +668,7 @@ type core_output = {
   results: core_match list;
 
   inherit core_output_extra;
+  stats: core_stats;
 }
 
 (* TODO: merge with cli_output_extra *)
@@ -679,8 +680,6 @@ type core_output_extra = {
   ?rules_by_engine: rule_id_and_engine_kind list option;
   ?engine_requested: engine_kind option;
   ~skipped_rules: skipped_rule list;
-
-  stats: core_stats;
 }
 
 (* ----------------------------- *)
