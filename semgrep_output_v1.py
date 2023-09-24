@@ -3102,37 +3102,6 @@ class DependencyParserError:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
-class CoreStats:
-    """Original type: core_stats = { ... }"""
-
-    okfiles: int
-    errorfiles: int
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CoreStats':
-        if isinstance(x, dict):
-            return cls(
-                okfiles=_atd_read_int(x['okfiles']) if 'okfiles' in x else _atd_missing_json_field('CoreStats', 'okfiles'),
-                errorfiles=_atd_read_int(x['errorfiles']) if 'errorfiles' in x else _atd_missing_json_field('CoreStats', 'errorfiles'),
-            )
-        else:
-            _atd_bad_json('CoreStats', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['okfiles'] = _atd_write_int(self.okfiles)
-        res['errorfiles'] = _atd_write_int(self.errorfiles)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CoreStats':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass(frozen=True)
 class Error:
     """Original type: core_severity = [ ... | Error | ... ]"""
@@ -3646,7 +3615,6 @@ class CoreOutput:
     results: List[CoreMatch]
     errors: List[CoreError]
     paths: ScannedAndSkipped
-    stats: CoreStats
     version: Optional[Version] = None
     time: Optional[Profile] = None
     explanations: Optional[List[MatchingExplanation]] = None
@@ -3661,7 +3629,6 @@ class CoreOutput:
                 results=_atd_read_list(CoreMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CoreOutput', 'results'),
                 errors=_atd_read_list(CoreError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CoreOutput', 'errors'),
                 paths=ScannedAndSkipped.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CoreOutput', 'paths'),
-                stats=CoreStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CoreOutput', 'stats'),
                 version=Version.from_json(x['version']) if 'version' in x else None,
                 time=Profile.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
@@ -3677,7 +3644,6 @@ class CoreOutput:
         res['results'] = _atd_write_list((lambda x: x.to_json()))(self.results)
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['paths'] = (lambda x: x.to_json())(self.paths)
-        res['stats'] = (lambda x: x.to_json())(self.stats)
         if self.version is not None:
             res['version'] = (lambda x: x.to_json())(self.version)
         if self.time is not None:
