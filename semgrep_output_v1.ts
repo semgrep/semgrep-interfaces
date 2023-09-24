@@ -227,7 +227,6 @@ export type SkippedTarget = {
 
 export type ScannedAndSkipped = {
   scanned: Fpath[];
-  _comment?: string;
   skipped?: SkippedTarget[];
 }
 
@@ -1195,7 +1194,6 @@ export function readSkippedTarget(x: any, context: any = x): SkippedTarget {
 export function writeScannedAndSkipped(x: ScannedAndSkipped, context: any = x): any {
   return {
     'scanned': _atd_write_required_field('ScannedAndSkipped', 'scanned', _atd_write_array(writeFpath), x.scanned, x),
-    '_comment': _atd_write_optional_field(_atd_write_string, x._comment, x),
     'skipped': _atd_write_optional_field(_atd_write_array(writeSkippedTarget), x.skipped, x),
   };
 }
@@ -1203,7 +1201,6 @@ export function writeScannedAndSkipped(x: ScannedAndSkipped, context: any = x): 
 export function readScannedAndSkipped(x: any, context: any = x): ScannedAndSkipped {
   return {
     scanned: _atd_read_required_field('ScannedAndSkipped', 'scanned', _atd_read_array(readFpath), x['scanned'], x),
-    _comment: _atd_read_optional_field(_atd_read_string, x['_comment'], x),
     skipped: _atd_read_optional_field(_atd_read_array(readSkippedTarget), x['skipped'], x),
   };
 }
