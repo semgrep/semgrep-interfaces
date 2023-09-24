@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package semgrep_runner_v1;
+
+option go_package = "semgrep_runner.v1";
+
+import "protos/semgrep_output_v1.proto";
+
+enum RuleFormat {
+  YAML = 0;
+  JSON = 1;
+  JSONNET = 2;
+}
+
+message FileBlob {
+    string file_path = 1;
+    string contents = 2;
+}
+
+message ScanRequest {
+    // the rule raw content
+    string rule = 1;
+    // how to parse the rule content
+    RuleFormat rule_format = 2;
+    // list of file blobs to receive via SubmitFileBlob service
+    repeated FileBlob files = 3;
+}
+
+message ScanResult {
+    // same as one of the repository_names in the request
+    string request_id = 1;
+    semgrep_output_v1.CliMatch cli_match = 2;
+}
+
+service ScanService {
+    // we provide a streaming interface here! to return results as soon as they arrive!
+    rpc Scan(ScanRequest) returns (stream ScanResult) {};
+}
