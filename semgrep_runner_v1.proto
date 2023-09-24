@@ -16,9 +16,10 @@ option go_package = "semgrep_runner.v1";
 import "protos/semgrep_output_v1.proto";
 
 enum RuleFormat {
-  YAML = 0;
-  JSON = 1;
-  JSONNET = 2;
+    RULE_FORMAT_UNSPECIFIED = 0;
+    RULE_FORMAT_YAML = 1;
+    RULE_FORMAT_JSON = 2;
+    RULE_FORMAT_JSONNET = 3;
 }
 
 message FilePath {
