@@ -1,3 +1,12 @@
+/*
+ * Spec of the Semgrep Runner service utilized in semgrep-proprietary server command.
+ * 
+ * This file has the _v1 suffix to explicitely represent the
+ * version of this protobuf format used by the Semgrep Runner service. 
+ * If you need to extend this file, please check that all changes are backwards compatible.
+ * If a breaking change is introduced (and ensure that it does need to be introduced), then
+ * bump the version number.
+ */
 syntax = "proto3";
 
 package semgrep_runner_v1;
@@ -12,8 +21,12 @@ enum RuleFormat {
   JSONNET = 2;
 }
 
+message FilePath {
+    string path = 1;
+}
+
 message FileBlob {
-    string file_path = 1;
+    FilePath file_path = 1;
     string contents = 2;
 }
 
@@ -27,7 +40,6 @@ message ScanRequest {
 }
 
 message ScanResult {
-    // same as one of the repository_names in the request
     string request_id = 1;
     semgrep_output_v1.CliMatch cli_match = 2;
 }
