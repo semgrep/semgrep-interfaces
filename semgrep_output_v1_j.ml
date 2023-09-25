@@ -199,17 +199,17 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   commit_author_email: string option;
   commit_author_name: string option;
   commit_author_username: string option;
-  commit_author_image_url: uri option;
+  commit_author_image_url: string option;
   commit_title: string option;
-  commit_timestamp: string;
+  commit_timestamp: string option;
   on: string option;
   pull_request_author_username: string option;
-  pull_request_author_image_url: uri option;
+  pull_request_author_image_url: string option;
   pull_request_id: string option;
   pull_request_title: string option;
   scan_environment: string option;
-  base_sha: sha1 option;
-  start_sha: sha1 option;
+  base_sha: string option;
+  start_sha: string option;
   is_full_scan: bool;
   is_sca_scan: bool option;
   is_code_scan: bool option;
@@ -6943,120 +6943,25 @@ let read_rule_id_and_engine_kind = (
 )
 let rule_id_and_engine_kind_of_string s =
   read_rule_id_and_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__uri_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_uri
+let write__string_nullable = (
+  Atdgen_runtime.Oj_run.write_nullable (
+    Yojson.Safe.write_string
   )
 )
-let string_of__uri_option ?(len = 1024) x =
+let string_of__string_nullable ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__uri_option ob x;
+  write__string_nullable ob x;
   Buffer.contents ob
-let read__uri_option = (
+let read__string_nullable = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_uri
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_uri
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    (if Yojson.Safe.read_null_if_possible p lb then None
+    else Some ((
+      Atdgen_runtime.Oj_run.read_string
+    ) p lb) : _ option)
 )
-let _uri_option_of_string s =
-  read__uri_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__sha1_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_sha1
-  )
-)
-let string_of__sha1_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__sha1_option ob x;
-  Buffer.contents ob
-let read__sha1_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_sha1
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_sha1
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _sha1_option_of_string s =
-  read__sha1_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _string_nullable_of_string s =
+  read__string_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__bool_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     Yojson.Safe.write_bool
@@ -7142,7 +7047,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"repo_url\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.repo_url;
     if !is_first then
@@ -7151,7 +7056,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"branch\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.branch;
     if !is_first then
@@ -7160,7 +7065,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"ci_job_url\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.ci_job_url;
     if !is_first then
@@ -7169,7 +7074,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.commit;
     if !is_first then
@@ -7178,7 +7083,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit_author_email\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.commit_author_email;
     if !is_first then
@@ -7187,7 +7092,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit_author_name\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.commit_author_name;
     if !is_first then
@@ -7196,7 +7101,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit_author_username\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.commit_author_username;
     if !is_first then
@@ -7205,7 +7110,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit_author_image_url\":";
     (
-      write__uri_option
+      write__string_nullable
     )
       ob x.commit_author_image_url;
     if !is_first then
@@ -7214,7 +7119,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit_title\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.commit_title;
     if !is_first then
@@ -7223,7 +7128,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit_timestamp\":";
     (
-      Yojson.Safe.write_string
+      write__string_nullable
     )
       ob x.commit_timestamp;
     if !is_first then
@@ -7232,7 +7137,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"on\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.on;
     if !is_first then
@@ -7241,7 +7146,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"pull_request_author_username\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.pull_request_author_username;
     if !is_first then
@@ -7250,7 +7155,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"pull_request_author_image_url\":";
     (
-      write__uri_option
+      write__string_nullable
     )
       ob x.pull_request_author_image_url;
     if !is_first then
@@ -7259,7 +7164,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"pull_request_id\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.pull_request_id;
     if !is_first then
@@ -7268,7 +7173,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"pull_request_title\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.pull_request_title;
     if !is_first then
@@ -7277,7 +7182,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"scan_environment\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.scan_environment;
     (match x.base_sha with None -> () | Some x ->
@@ -7287,7 +7192,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"base_sha\":";
       (
-        write_sha1
+        Yojson.Safe.write_string
       )
         ob x;
     );
@@ -7298,7 +7203,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"start_sha\":";
       (
-        write_sha1
+        Yojson.Safe.write_string
       )
         ob x;
     );
@@ -7660,7 +7565,7 @@ let read_project_metadata = (
             field_repo_url := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7668,7 +7573,7 @@ let read_project_metadata = (
             field_branch := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7676,7 +7581,7 @@ let read_project_metadata = (
             field_ci_job_url := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7684,7 +7589,7 @@ let read_project_metadata = (
             field_commit := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7692,7 +7597,7 @@ let read_project_metadata = (
             field_commit_author_email := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7700,7 +7605,7 @@ let read_project_metadata = (
             field_commit_author_name := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7708,7 +7613,7 @@ let read_project_metadata = (
             field_commit_author_username := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7716,7 +7621,7 @@ let read_project_metadata = (
             field_commit_author_image_url := (
               Some (
                 (
-                  read__uri_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7724,7 +7629,7 @@ let read_project_metadata = (
             field_commit_title := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7732,7 +7637,7 @@ let read_project_metadata = (
             field_commit_timestamp := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7740,7 +7645,7 @@ let read_project_metadata = (
             field_on := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7748,7 +7653,7 @@ let read_project_metadata = (
             field_pull_request_author_username := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7756,7 +7661,7 @@ let read_project_metadata = (
             field_pull_request_author_image_url := (
               Some (
                 (
-                  read__uri_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7764,7 +7669,7 @@ let read_project_metadata = (
             field_pull_request_id := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7772,7 +7677,7 @@ let read_project_metadata = (
             field_pull_request_title := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7780,7 +7685,7 @@ let read_project_metadata = (
             field_scan_environment := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7789,7 +7694,7 @@ let read_project_metadata = (
               field_base_sha := (
                 Some (
                   (
-                    read_sha1
+                    Atdgen_runtime.Oj_run.read_string
                   ) p lb
                 )
               );
@@ -7799,7 +7704,7 @@ let read_project_metadata = (
               field_start_sha := (
                 Some (
                   (
-                    read_sha1
+                    Atdgen_runtime.Oj_run.read_string
                   ) p lb
                 )
               );
@@ -8128,7 +8033,7 @@ let read_project_metadata = (
               field_repo_url := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8136,7 +8041,7 @@ let read_project_metadata = (
               field_branch := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8144,7 +8049,7 @@ let read_project_metadata = (
               field_ci_job_url := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8152,7 +8057,7 @@ let read_project_metadata = (
               field_commit := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8160,7 +8065,7 @@ let read_project_metadata = (
               field_commit_author_email := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8168,7 +8073,7 @@ let read_project_metadata = (
               field_commit_author_name := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8176,7 +8081,7 @@ let read_project_metadata = (
               field_commit_author_username := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8184,7 +8089,7 @@ let read_project_metadata = (
               field_commit_author_image_url := (
                 Some (
                   (
-                    read__uri_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8192,7 +8097,7 @@ let read_project_metadata = (
               field_commit_title := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8200,7 +8105,7 @@ let read_project_metadata = (
               field_commit_timestamp := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8208,7 +8113,7 @@ let read_project_metadata = (
               field_on := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8216,7 +8121,7 @@ let read_project_metadata = (
               field_pull_request_author_username := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8224,7 +8129,7 @@ let read_project_metadata = (
               field_pull_request_author_image_url := (
                 Some (
                   (
-                    read__uri_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8232,7 +8137,7 @@ let read_project_metadata = (
               field_pull_request_id := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8240,7 +8145,7 @@ let read_project_metadata = (
               field_pull_request_title := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8248,7 +8153,7 @@ let read_project_metadata = (
               field_scan_environment := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8257,7 +8162,7 @@ let read_project_metadata = (
                 field_base_sha := (
                   Some (
                     (
-                      read_sha1
+                      Atdgen_runtime.Oj_run.read_string
                     ) p lb
                   )
                 );
@@ -8267,7 +8172,7 @@ let read_project_metadata = (
                 field_start_sha := (
                   Some (
                     (
-                      read_sha1
+                      Atdgen_runtime.Oj_run.read_string
                     ) p lb
                   )
                 );
@@ -16957,25 +16862,6 @@ let read_ci_scan_dependencies = (
 )
 let ci_scan_dependencies_of_string s =
   read_ci_scan_dependencies (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__string_nullable = (
-  Atdgen_runtime.Oj_run.write_nullable (
-    Yojson.Safe.write_string
-  )
-)
-let string_of__string_nullable ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__string_nullable ob x;
-  Buffer.contents ob
-let read__string_nullable = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    (if Yojson.Safe.read_null_if_possible p lb then None
-    else Some ((
-      Atdgen_runtime.Oj_run.read_string
-    ) p lb) : _ option)
-)
-let _string_nullable_of_string s =
-  read__string_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__finding_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_finding
