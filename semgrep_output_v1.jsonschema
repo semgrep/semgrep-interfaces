@@ -815,8 +815,7 @@
         "commit_author_username", "commit_author_image_url", "commit_title",
         "commit_timestamp", "on", "pull_request_author_username",
         "pull_request_author_image_url", "pull_request_id",
-        "pill_request_title", "scan_environment", "is_full_scan",
-        "is_sca_scan", "is_code_scan", "is_secrets_can"
+        "pull_request_title", "scan_environment", "is_full_scan"
       ],
       "properties": {
         "semgrep_version": { "$ref": "#/definitions/version" },
@@ -827,9 +826,7 @@
               "type": "array",
               "minItems": 2,
               "items": false,
-              "prefixItems": [
-                { "const": "Some" }, { "$ref": "#/definitions/uri" }
-              ]
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
             },
             { "const": "None" }
           ]
@@ -851,9 +848,7 @@
               "type": "array",
               "minItems": 2,
               "items": false,
-              "prefixItems": [
-                { "const": "Some" }, { "$ref": "#/definitions/uri" }
-              ]
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
             },
             { "const": "None" }
           ]
@@ -864,9 +859,7 @@
               "type": "array",
               "minItems": 2,
               "items": false,
-              "prefixItems": [
-                { "const": "Some" }, { "$ref": "#/definitions/sha1" }
-              ]
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
             },
             { "const": "None" }
           ]
@@ -928,7 +921,7 @@
             { "const": "None" }
           ]
         },
-        "commit_timestamp": { "$ref": "#/definitions/datetime" },
+        "commit_timestamp": { "type": "string" },
         "on": {
           "oneOf": [
             {
@@ -975,7 +968,7 @@
             { "const": "None" }
           ]
         },
-        "pill_request_title": {
+        "pull_request_title": {
           "oneOf": [
             {
               "type": "array",
