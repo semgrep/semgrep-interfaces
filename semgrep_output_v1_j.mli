@@ -310,16 +310,6 @@ type core_severity = Semgrep_output_v1_t.core_severity =
 
   [@@deriving show]
 
-type core_output_extra = Semgrep_output_v1_t.core_output_extra = {
-  skipped_targets: skipped_target list option;
-  time: profile option;
-  explanations: matching_explanation list option;
-  rules_by_engine: rule_id_and_engine_kind list;
-  engine_requested: engine_kind;
-  skipped_rules: skipped_rule list;
-  stats: core_stats
-}
-
 type core_error_kind = Semgrep_output_v1_t.core_error_kind = 
     LexicalError
   | ParseError
@@ -352,13 +342,14 @@ type core_error = Semgrep_output_v1_t.core_error = {
 }
 
 type core_output = Semgrep_output_v1_t.core_output = {
-  errors: core_error list;
+  version: version option;
   results: core_match list;
-  skipped_targets: skipped_target list option;
+  errors: core_error list;
+  paths: scanned_and_skipped;
   time: profile option;
   explanations: matching_explanation list option;
-  rules_by_engine: rule_id_and_engine_kind list;
-  engine_requested: engine_kind;
+  rules_by_engine: rule_id_and_engine_kind list option;
+  engine_requested: engine_kind option;
   skipped_rules: skipped_rule list;
   stats: core_stats
 }
@@ -1407,26 +1398,6 @@ val read_core_severity :
 val core_severity_of_string :
   string -> core_severity
   (** Deserialize JSON data of type {!type:core_severity}. *)
-
-val write_core_output_extra :
-  Buffer.t -> core_output_extra -> unit
-  (** Output a JSON value of type {!type:core_output_extra}. *)
-
-val string_of_core_output_extra :
-  ?len:int -> core_output_extra -> string
-  (** Serialize a value of type {!type:core_output_extra}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_core_output_extra :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_output_extra
-  (** Input JSON data of type {!type:core_output_extra}. *)
-
-val core_output_extra_of_string :
-  string -> core_output_extra
-  (** Deserialize JSON data of type {!type:core_output_extra}. *)
 
 val write_core_error_kind :
   Buffer.t -> core_error_kind -> unit
