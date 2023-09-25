@@ -2540,7 +2540,7 @@ class ProjectMetadata:
     start_sha: Optional[str] = None
     is_sca_scan: Optional[bool] = None
     is_code_scan: Optional[bool] = None
-    is_secrets_can: Optional[bool] = None
+    is_secrets_scan: Optional[bool] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ProjectMetadata':
@@ -2569,7 +2569,7 @@ class ProjectMetadata:
                 start_sha=_atd_read_string(x['start_sha']) if 'start_sha' in x else None,
                 is_sca_scan=_atd_read_bool(x['is_sca_scan']) if 'is_sca_scan' in x else None,
                 is_code_scan=_atd_read_bool(x['is_code_scan']) if 'is_code_scan' in x else None,
-                is_secrets_can=_atd_read_bool(x['is_secrets_can']) if 'is_secrets_can' in x else None,
+                is_secrets_scan=_atd_read_bool(x['is_secrets_scan']) if 'is_secrets_scan' in x else None,
             )
         else:
             _atd_bad_json('ProjectMetadata', x)
@@ -2603,8 +2603,8 @@ class ProjectMetadata:
             res['is_sca_scan'] = _atd_write_bool(self.is_sca_scan)
         if self.is_code_scan is not None:
             res['is_code_scan'] = _atd_write_bool(self.is_code_scan)
-        if self.is_secrets_can is not None:
-            res['is_secrets_can'] = _atd_write_bool(self.is_secrets_can)
+        if self.is_secrets_scan is not None:
+            res['is_secrets_scan'] = _atd_write_bool(self.is_secrets_scan)
         return res
 
     @classmethod

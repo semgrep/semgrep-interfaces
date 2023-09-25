@@ -1050,5 +1050,5 @@ type project_metadata = {
      *)
     ?is_sca_scan: bool option;
     ?is_code_scan: bool option;
-    ?is_secrets_can: bool option;
+    ?is_secrets_scan: bool option;
 }

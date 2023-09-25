@@ -213,7 +213,7 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   is_full_scan: bool;
   is_sca_scan: bool option;
   is_code_scan: bool option;
-  is_secrets_can: bool option
+  is_secrets_scan: bool option
 }
 
 type profile = Semgrep_output_v1_t.profile = {
@@ -7238,12 +7238,12 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       )
         ob x;
     );
-    (match x.is_secrets_can with None -> () | Some x ->
+    (match x.is_secrets_scan with None -> () | Some x ->
       if !is_first then
         is_first := false
       else
         Buffer.add_char ob ',';
-        Buffer.add_string ob "\"is_secrets_can\":";
+        Buffer.add_string ob "\"is_secrets_scan\":";
       (
         Yojson.Safe.write_bool
       )
@@ -7282,7 +7282,7 @@ let read_project_metadata = (
     let field_is_full_scan = ref (None) in
     let field_is_sca_scan = ref (None) in
     let field_is_code_scan = ref (None) in
-    let field_is_secrets_can = ref (None) in
+    let field_is_secrets_scan = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -7423,16 +7423,16 @@ let read_project_metadata = (
                       -1
                     )
               )
-            | 14 -> (
-                if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'c' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'n' then (
-                  23
-                )
-                else (
-                  -1
-                )
-              )
             | 15 -> (
                 match String.unsafe_get s pos with
+                  | 'i' -> (
+                      if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'n' then (
+                        23
+                      )
+                      else (
+                        -1
+                      )
+                    )
                   | 'p' -> (
                       if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'q' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'd' then (
                         15
@@ -7739,7 +7739,7 @@ let read_project_metadata = (
             )
           | 23 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_is_secrets_can := (
+              field_is_secrets_scan := (
                 Some (
                   (
                     Atdgen_runtime.Oj_run.read_bool
@@ -7891,16 +7891,16 @@ let read_project_metadata = (
                         -1
                       )
                 )
-              | 14 -> (
-                  if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'c' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'n' then (
-                    23
-                  )
-                  else (
-                    -1
-                  )
-                )
               | 15 -> (
                   match String.unsafe_get s pos with
+                    | 'i' -> (
+                        if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'n' then (
+                          23
+                        )
+                        else (
+                          -1
+                        )
+                      )
                     | 'p' -> (
                         if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'q' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'd' then (
                           15
@@ -8207,7 +8207,7 @@ let read_project_metadata = (
               )
             | 23 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_is_secrets_can := (
+                field_is_secrets_scan := (
                   Some (
                     (
                       Atdgen_runtime.Oj_run.read_bool
@@ -8247,7 +8247,7 @@ let read_project_metadata = (
             is_full_scan = (match !field_is_full_scan with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "is_full_scan");
             is_sca_scan = !field_is_sca_scan;
             is_code_scan = !field_is_code_scan;
-            is_secrets_can = !field_is_secrets_can;
+            is_secrets_scan = !field_is_secrets_scan;
           }
          : project_metadata)
       )

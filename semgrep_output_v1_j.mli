@@ -213,7 +213,7 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   is_full_scan: bool;
   is_sca_scan: bool option;
   is_code_scan: bool option;
-  is_secrets_can: bool option
+  is_secrets_scan: bool option
 }
 
 type profile = Semgrep_output_v1_t.profile = {

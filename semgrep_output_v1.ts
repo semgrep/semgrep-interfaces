@@ -495,7 +495,7 @@ export type ProjectMetadata = {
   is_full_scan: boolean;
   is_sca_scan?: boolean;
   is_code_scan?: boolean;
-  is_secrets_can?: boolean;
+  is_secrets_scan?: boolean;
 }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
@@ -1933,7 +1933,7 @@ export function writeProjectMetadata(x: ProjectMetadata, context: any = x): any 
     'is_full_scan': _atd_write_required_field('ProjectMetadata', 'is_full_scan', _atd_write_bool, x.is_full_scan, x),
     'is_sca_scan': _atd_write_optional_field(_atd_write_bool, x.is_sca_scan, x),
     'is_code_scan': _atd_write_optional_field(_atd_write_bool, x.is_code_scan, x),
-    'is_secrets_can': _atd_write_optional_field(_atd_write_bool, x.is_secrets_can, x),
+    'is_secrets_scan': _atd_write_optional_field(_atd_write_bool, x.is_secrets_scan, x),
   };
 }
 
@@ -1962,7 +1962,7 @@ export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
     is_full_scan: _atd_read_required_field('ProjectMetadata', 'is_full_scan', _atd_read_bool, x['is_full_scan'], x),
     is_sca_scan: _atd_read_optional_field(_atd_read_bool, x['is_sca_scan'], x),
     is_code_scan: _atd_read_optional_field(_atd_read_bool, x['is_code_scan'], x),
-    is_secrets_can: _atd_read_optional_field(_atd_read_bool, x['is_secrets_can'], x),
+    is_secrets_scan: _atd_read_optional_field(_atd_read_bool, x['is_secrets_scan'], x),
   };
 }
 
