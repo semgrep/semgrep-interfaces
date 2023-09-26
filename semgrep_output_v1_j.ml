@@ -566,7 +566,7 @@ let read_fpath = (
 let fpath_of_string s =
   read_fpath (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_matching_operation : _ -> matching_operation -> _ = (
-  fun ob x ->
+  fun ob (x : matching_operation) ->
     match x with
       | And -> Buffer.add_string ob "\"And\""
       | Or -> Buffer.add_string ob "\"Or\""
@@ -2143,7 +2143,7 @@ let read__validation_state_option = (
 let _validation_state_option_of_string s =
   read__validation_state_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let rec write_match_call_trace : _ -> match_call_trace -> _ = (
-  fun ob x ->
+  fun ob (x : match_call_trace) ->
     match x with
       | CliLoc x ->
         Buffer.add_string ob "[\"CliLoc\",";
@@ -4236,7 +4236,7 @@ let read_target_times = (
 let target_times_of_string s =
   read_target_times (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_skip_reason : _ -> skip_reason -> _ = (
-  fun ob x ->
+  fun ob (x : skip_reason) ->
     match x with
       | Always_skipped -> Buffer.add_string ob "\"always_skipped\""
       | Semgrepignore_patterns_match -> Buffer.add_string ob "\"semgrepignore_patterns_match\""
@@ -11879,7 +11879,7 @@ let read_datetime = (
 let datetime_of_string s =
   read_datetime (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_severity : _ -> core_severity -> _ = (
-  fun ob x ->
+  fun ob (x : core_severity) ->
     match x with
       | Error -> Buffer.add_string ob "\"error\""
       | Warning -> Buffer.add_string ob "\"warning\""
@@ -11946,7 +11946,7 @@ let read__location_list = (
 let _location_list_of_string s =
   read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_error_kind : _ -> core_error_kind -> _ = (
-  fun ob x ->
+  fun ob (x : core_error_kind) ->
     match x with
       | LexicalError -> Buffer.add_string ob "\"Lexical error\""
       | ParseError -> Buffer.add_string ob "\"Syntax error\""
