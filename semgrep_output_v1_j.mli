@@ -144,7 +144,6 @@ type sha1 = Semgrep_output_v1_t.sha1
 
 type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
   scanned: fpath list;
-  _comment: string option;
   skipped: skipped_target list option
 }
 
@@ -189,33 +188,31 @@ type sca_info = Semgrep_output_v1_t.sca_info = {
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
 
-type datetime = Semgrep_output_v1_t.datetime
-
 type project_metadata = Semgrep_output_v1_t.project_metadata = {
   semgrep_version: version;
   repository: string;
-  repo_url: uri option;
+  repo_url: string option;
   branch: string option;
-  ci_job_url: uri option;
-  commit: sha1 option;
+  ci_job_url: string option;
+  commit: string option;
   commit_author_email: string option;
   commit_author_name: string option;
   commit_author_username: string option;
-  commit_author_image_url: uri option;
+  commit_author_image_url: string option;
   commit_title: string option;
-  commit_timestamp: datetime;
-  on: string option;
+  commit_timestamp: string option;
+  on: string;
   pull_request_author_username: string option;
-  pull_request_author_image_url: uri option;
+  pull_request_author_image_url: string option;
   pull_request_id: string option;
-  pill_request_title: string option;
-  scan_environment: string option;
-  base_sha: sha1 option;
-  start_sha: sha1 option;
+  pull_request_title: string option;
+  scan_environment: string;
+  base_sha: string option;
+  start_sha: string option;
   is_full_scan: bool;
-  is_sca_scan: bool;
-  is_code_scan: bool;
-  is_secrets_can: bool
+  is_sca_scan: bool option;
+  is_code_scan: bool option;
+  is_secrets_scan: bool option
 }
 
 type profile = Semgrep_output_v1_t.profile = {
@@ -299,6 +296,8 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
   col: int option;
   text: string option
 }
+
+type datetime = Semgrep_output_v1_t.datetime
 
 type core_severity = Semgrep_output_v1_t.core_severity = 
     Error | Warning | Info
@@ -1133,26 +1132,6 @@ val rule_id_and_engine_kind_of_string :
   string -> rule_id_and_engine_kind
   (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
 
-val write_datetime :
-  Buffer.t -> datetime -> unit
-  (** Output a JSON value of type {!type:datetime}. *)
-
-val string_of_datetime :
-  ?len:int -> datetime -> string
-  (** Serialize a value of type {!type:datetime}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_datetime :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> datetime
-  (** Input JSON data of type {!type:datetime}. *)
-
-val datetime_of_string :
-  string -> datetime
-  (** Deserialize JSON data of type {!type:datetime}. *)
-
 val write_project_metadata :
   Buffer.t -> project_metadata -> unit
   (** Output a JSON value of type {!type:project_metadata}. *)
@@ -1352,6 +1331,26 @@ val read_dependency_parser_error :
 val dependency_parser_error_of_string :
   string -> dependency_parser_error
   (** Deserialize JSON data of type {!type:dependency_parser_error}. *)
+
+val write_datetime :
+  Buffer.t -> datetime -> unit
+  (** Output a JSON value of type {!type:datetime}. *)
+
+val string_of_datetime :
+  ?len:int -> datetime -> string
+  (** Serialize a value of type {!type:datetime}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_datetime :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> datetime
+  (** Input JSON data of type {!type:datetime}. *)
+
+val datetime_of_string :
+  string -> datetime
+  (** Deserialize JSON data of type {!type:datetime}. *)
 
 val write_core_severity :
   Buffer.t -> core_severity -> unit

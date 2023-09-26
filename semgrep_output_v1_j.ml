@@ -144,7 +144,6 @@ type sha1 = Semgrep_output_v1_t.sha1
 
 type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
   scanned: fpath list;
-  _comment: string option;
   skipped: skipped_target list option
 }
 
@@ -189,33 +188,31 @@ type sca_info = Semgrep_output_v1_t.sca_info = {
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
 
-type datetime = Semgrep_output_v1_t.datetime
-
 type project_metadata = Semgrep_output_v1_t.project_metadata = {
   semgrep_version: version;
   repository: string;
-  repo_url: uri option;
+  repo_url: string option;
   branch: string option;
-  ci_job_url: uri option;
-  commit: sha1 option;
+  ci_job_url: string option;
+  commit: string option;
   commit_author_email: string option;
   commit_author_name: string option;
   commit_author_username: string option;
-  commit_author_image_url: uri option;
+  commit_author_image_url: string option;
   commit_title: string option;
-  commit_timestamp: datetime;
-  on: string option;
+  commit_timestamp: string option;
+  on: string;
   pull_request_author_username: string option;
-  pull_request_author_image_url: uri option;
+  pull_request_author_image_url: string option;
   pull_request_id: string option;
-  pill_request_title: string option;
-  scan_environment: string option;
-  base_sha: sha1 option;
-  start_sha: sha1 option;
+  pull_request_title: string option;
+  scan_environment: string;
+  base_sha: string option;
+  start_sha: string option;
   is_full_scan: bool;
-  is_sca_scan: bool;
-  is_code_scan: bool;
-  is_secrets_can: bool
+  is_sca_scan: bool option;
+  is_code_scan: bool option;
+  is_secrets_scan: bool option
 }
 
 type profile = Semgrep_output_v1_t.profile = {
@@ -299,6 +296,8 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
   col: int option;
   text: string option
 }
+
+type datetime = Semgrep_output_v1_t.datetime
 
 type core_severity = Semgrep_output_v1_t.core_severity = 
     Error | Warning | Info
@@ -5013,17 +5012,6 @@ let write_scanned_and_skipped : _ -> scanned_and_skipped -> _ = (
       write__fpath_list
     )
       ob x.scanned;
-    (match x._comment with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"_comment\":";
-      (
-        Yojson.Safe.write_string
-      )
-        ob x;
-    );
     (match x.skipped with None -> () | Some x ->
       if !is_first then
         is_first := false
@@ -5046,7 +5034,6 @@ let read_scanned_and_skipped = (
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
     let field_scanned = ref (None) in
-    let field__comment = ref (None) in
     let field_skipped = ref (None) in
     try
       Yojson.Safe.read_space p lb;
@@ -5056,45 +5043,31 @@ let read_scanned_and_skipped = (
         fun s pos len ->
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          match len with
-            | 7 -> (
-                if String.unsafe_get s pos = 's' then (
-                  match String.unsafe_get s (pos+1) with
-                    | 'c' -> (
-                        if String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
-                          0
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 'k' -> (
-                        if String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
-                          2
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
+          if len = 7 && String.unsafe_get s pos = 's' then (
+            match String.unsafe_get s (pos+1) with
+              | 'c' -> (
+                  if String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
                 )
-                else (
+              | 'k' -> (
+                  if String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
                   -1
                 )
-              )
-            | 8 -> (
-                if String.unsafe_get s pos = '_' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 't' then (
-                  1
-                )
-                else (
-                  -1
-                )
-              )
-            | _ -> (
-                -1
-              )
+          )
+          else (
+            -1
+          )
       in
       let i = Yojson.Safe.map_ident p f lb in
       Atdgen_runtime.Oj_run.read_until_field_value p lb;
@@ -5109,16 +5082,6 @@ let read_scanned_and_skipped = (
               )
             );
           | 1 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field__comment := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            )
-          | 2 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_skipped := (
                 Some (
@@ -5140,45 +5103,31 @@ let read_scanned_and_skipped = (
           fun s pos len ->
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            match len with
-              | 7 -> (
-                  if String.unsafe_get s pos = 's' then (
-                    match String.unsafe_get s (pos+1) with
-                      | 'c' -> (
-                          if String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
-                            0
-                          )
-                          else (
-                            -1
-                          )
-                        )
-                      | 'k' -> (
-                          if String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
-                            2
-                          )
-                          else (
-                            -1
-                          )
-                        )
-                      | _ -> (
-                          -1
-                        )
+            if len = 7 && String.unsafe_get s pos = 's' then (
+              match String.unsafe_get s (pos+1) with
+                | 'c' -> (
+                    if String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
+                      0
+                    )
+                    else (
+                      -1
+                    )
                   )
-                  else (
+                | 'k' -> (
+                    if String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
+                      1
+                    )
+                    else (
+                      -1
+                    )
+                  )
+                | _ -> (
                     -1
                   )
-                )
-              | 8 -> (
-                  if String.unsafe_get s pos = '_' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 't' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
+            )
+            else (
+              -1
+            )
         in
         let i = Yojson.Safe.map_ident p f lb in
         Atdgen_runtime.Oj_run.read_until_field_value p lb;
@@ -5193,16 +5142,6 @@ let read_scanned_and_skipped = (
                 )
               );
             | 1 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field__comment := (
-                  Some (
-                    (
-                      Atdgen_runtime.Oj_run.read_string
-                    ) p lb
-                  )
-                );
-              )
-            | 2 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_skipped := (
                   Some (
@@ -5222,7 +5161,6 @@ let read_scanned_and_skipped = (
         (
           {
             scanned = (match !field_scanned with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "scanned");
-            _comment = !field__comment;
             skipped = !field_skipped;
           }
          : scanned_and_skipped)
@@ -6937,28 +6875,35 @@ let read_rule_id_and_engine_kind = (
 )
 let rule_id_and_engine_kind_of_string s =
   read_rule_id_and_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_datetime = (
-  Yojson.Safe.write_string
-)
-let string_of_datetime ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_datetime ob x;
-  Buffer.contents ob
-let read_datetime = (
-  Atdgen_runtime.Oj_run.read_string
-)
-let datetime_of_string s =
-  read_datetime (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__uri_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_uri
+let write__string_nullable = (
+  Atdgen_runtime.Oj_run.write_nullable (
+    Yojson.Safe.write_string
   )
 )
-let string_of__uri_option ?(len = 1024) x =
+let string_of__string_nullable ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__uri_option ob x;
+  write__string_nullable ob x;
   Buffer.contents ob
-let read__uri_option = (
+let read__string_nullable = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    (if Yojson.Safe.read_null_if_possible p lb then None
+    else Some ((
+      Atdgen_runtime.Oj_run.read_string
+    ) p lb) : _ option)
+)
+let _string_nullable_of_string s =
+  read__string_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__bool_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    Yojson.Safe.write_bool
+  )
+)
+let string_of__bool_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__bool_option ob x;
+  Buffer.contents ob
+let read__bool_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     match Yojson.Safe.start_any_variant p lb with
@@ -6971,7 +6916,7 @@ let read__uri_option = (
             | "Some" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read_uri
+                  Atdgen_runtime.Oj_run.read_bool
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -6994,7 +6939,7 @@ let read__uri_option = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read_uri
+                  Atdgen_runtime.Oj_run.read_bool
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -7004,65 +6949,8 @@ let read__uri_option = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-let _uri_option_of_string s =
-  read__uri_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__sha1_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_sha1
-  )
-)
-let string_of__sha1_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__sha1_option ob x;
-  Buffer.contents ob
-let read__sha1_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_sha1
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_sha1
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _sha1_option_of_string s =
-  read__sha1_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _bool_option_of_string s =
+  read__bool_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_project_metadata : _ -> project_metadata -> _ = (
   fun ob (x : project_metadata) ->
     Buffer.add_char ob '{';
@@ -7091,7 +6979,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"repo_url\":";
     (
-      write__uri_option
+      write__string_nullable
     )
       ob x.repo_url;
     if !is_first then
@@ -7100,7 +6988,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"branch\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.branch;
     if !is_first then
@@ -7109,7 +6997,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"ci_job_url\":";
     (
-      write__uri_option
+      write__string_nullable
     )
       ob x.ci_job_url;
     if !is_first then
@@ -7118,7 +7006,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit\":";
     (
-      write__sha1_option
+      write__string_nullable
     )
       ob x.commit;
     if !is_first then
@@ -7127,7 +7015,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit_author_email\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.commit_author_email;
     if !is_first then
@@ -7136,7 +7024,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit_author_name\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.commit_author_name;
     if !is_first then
@@ -7145,7 +7033,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit_author_username\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.commit_author_username;
     if !is_first then
@@ -7154,7 +7042,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit_author_image_url\":";
     (
-      write__uri_option
+      write__string_nullable
     )
       ob x.commit_author_image_url;
     if !is_first then
@@ -7163,25 +7051,27 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit_title\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.commit_title;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"commit_timestamp\":";
-    (
-      write_datetime
-    )
-      ob x.commit_timestamp;
+    (match x.commit_timestamp with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"commit_timestamp\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
     if !is_first then
       is_first := false
     else
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"on\":";
     (
-      write__string_option
+      Yojson.Safe.write_string
     )
       ob x.on;
     if !is_first then
@@ -7190,7 +7080,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"pull_request_author_username\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.pull_request_author_username;
     if !is_first then
@@ -7199,7 +7089,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"pull_request_author_image_url\":";
     (
-      write__uri_option
+      write__string_nullable
     )
       ob x.pull_request_author_image_url;
     if !is_first then
@@ -7208,25 +7098,25 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"pull_request_id\":";
     (
-      write__string_option
+      write__string_nullable
     )
       ob x.pull_request_id;
     if !is_first then
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"pill_request_title\":";
+      Buffer.add_string ob "\"pull_request_title\":";
     (
-      write__string_option
+      write__string_nullable
     )
-      ob x.pill_request_title;
+      ob x.pull_request_title;
     if !is_first then
       is_first := false
     else
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"scan_environment\":";
     (
-      write__string_option
+      Yojson.Safe.write_string
     )
       ob x.scan_environment;
     (match x.base_sha with None -> () | Some x ->
@@ -7236,7 +7126,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"base_sha\":";
       (
-        write_sha1
+        Yojson.Safe.write_string
       )
         ob x;
     );
@@ -7247,7 +7137,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"start_sha\":";
       (
-        write_sha1
+        Yojson.Safe.write_string
       )
         ob x;
     );
@@ -7260,33 +7150,39 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Yojson.Safe.write_bool
     )
       ob x.is_full_scan;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"is_sca_scan\":";
-    (
-      Yojson.Safe.write_bool
-    )
-      ob x.is_sca_scan;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"is_code_scan\":";
-    (
-      Yojson.Safe.write_bool
-    )
-      ob x.is_code_scan;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"is_secrets_can\":";
-    (
-      Yojson.Safe.write_bool
-    )
-      ob x.is_secrets_can;
+    (match x.is_sca_scan with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"is_sca_scan\":";
+      (
+        Yojson.Safe.write_bool
+      )
+        ob x;
+    );
+    (match x.is_code_scan with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"is_code_scan\":";
+      (
+        Yojson.Safe.write_bool
+      )
+        ob x;
+    );
+    (match x.is_secrets_scan with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"is_secrets_scan\":";
+      (
+        Yojson.Safe.write_bool
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_project_metadata ?(len = 1024) x =
@@ -7313,14 +7209,14 @@ let read_project_metadata = (
     let field_pull_request_author_username = ref (None) in
     let field_pull_request_author_image_url = ref (None) in
     let field_pull_request_id = ref (None) in
-    let field_pill_request_title = ref (None) in
+    let field_pull_request_title = ref (None) in
     let field_scan_environment = ref (None) in
     let field_base_sha = ref (None) in
     let field_start_sha = ref (None) in
     let field_is_full_scan = ref (None) in
     let field_is_sca_scan = ref (None) in
     let field_is_code_scan = ref (None) in
-    let field_is_secrets_can = ref (None) in
+    let field_is_secrets_scan = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -7461,16 +7357,16 @@ let read_project_metadata = (
                       -1
                     )
               )
-            | 14 -> (
-                if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'c' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'n' then (
-                  23
-                )
-                else (
-                  -1
-                )
-              )
             | 15 -> (
                 match String.unsafe_get s pos with
+                  | 'i' -> (
+                      if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'n' then (
+                        23
+                      )
+                      else (
+                        -1
+                      )
+                    )
                   | 'p' -> (
                       if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'q' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'd' then (
                         15
@@ -7524,7 +7420,7 @@ let read_project_metadata = (
                       )
                     )
                   | 'p' -> (
-                      if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'q' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 't' && String.unsafe_get s (pos+16) = 'l' && String.unsafe_get s (pos+17) = 'e' then (
+                      if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'q' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 't' && String.unsafe_get s (pos+16) = 'l' && String.unsafe_get s (pos+17) = 'e' then (
                         16
                       )
                       else (
@@ -7603,7 +7499,7 @@ let read_project_metadata = (
             field_repo_url := (
               Some (
                 (
-                  read__uri_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7611,7 +7507,7 @@ let read_project_metadata = (
             field_branch := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7619,7 +7515,7 @@ let read_project_metadata = (
             field_ci_job_url := (
               Some (
                 (
-                  read__uri_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7627,7 +7523,7 @@ let read_project_metadata = (
             field_commit := (
               Some (
                 (
-                  read__sha1_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7635,7 +7531,7 @@ let read_project_metadata = (
             field_commit_author_email := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7643,7 +7539,7 @@ let read_project_metadata = (
             field_commit_author_name := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7651,7 +7547,7 @@ let read_project_metadata = (
             field_commit_author_username := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7659,7 +7555,7 @@ let read_project_metadata = (
             field_commit_author_image_url := (
               Some (
                 (
-                  read__uri_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7667,23 +7563,25 @@ let read_project_metadata = (
             field_commit_title := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
           | 11 ->
-            field_commit_timestamp := (
-              Some (
-                (
-                  read_datetime
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_commit_timestamp := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
           | 12 ->
             field_on := (
               Some (
                 (
-                  read__string_option
+                  Atdgen_runtime.Oj_run.read_string
                 ) p lb
               )
             );
@@ -7691,7 +7589,7 @@ let read_project_metadata = (
             field_pull_request_author_username := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7699,7 +7597,7 @@ let read_project_metadata = (
             field_pull_request_author_image_url := (
               Some (
                 (
-                  read__uri_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7707,15 +7605,15 @@ let read_project_metadata = (
             field_pull_request_id := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
           | 16 ->
-            field_pill_request_title := (
+            field_pull_request_title := (
               Some (
                 (
-                  read__string_option
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -7723,7 +7621,7 @@ let read_project_metadata = (
             field_scan_environment := (
               Some (
                 (
-                  read__string_option
+                  Atdgen_runtime.Oj_run.read_string
                 ) p lb
               )
             );
@@ -7732,7 +7630,7 @@ let read_project_metadata = (
               field_base_sha := (
                 Some (
                   (
-                    read_sha1
+                    Atdgen_runtime.Oj_run.read_string
                   ) p lb
                 )
               );
@@ -7742,7 +7640,7 @@ let read_project_metadata = (
               field_start_sha := (
                 Some (
                   (
-                    read_sha1
+                    Atdgen_runtime.Oj_run.read_string
                   ) p lb
                 )
               );
@@ -7756,29 +7654,35 @@ let read_project_metadata = (
               )
             );
           | 21 ->
-            field_is_sca_scan := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_bool
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_is_sca_scan := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            )
           | 22 ->
-            field_is_code_scan := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_bool
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_is_code_scan := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            )
           | 23 ->
-            field_is_secrets_can := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_bool
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_is_secrets_scan := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -7923,16 +7827,16 @@ let read_project_metadata = (
                         -1
                       )
                 )
-              | 14 -> (
-                  if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'c' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'n' then (
-                    23
-                  )
-                  else (
-                    -1
-                  )
-                )
               | 15 -> (
                   match String.unsafe_get s pos with
+                    | 'i' -> (
+                        if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'n' then (
+                          23
+                        )
+                        else (
+                          -1
+                        )
+                      )
                     | 'p' -> (
                         if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'q' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'd' then (
                           15
@@ -7986,7 +7890,7 @@ let read_project_metadata = (
                         )
                       )
                     | 'p' -> (
-                        if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'q' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 't' && String.unsafe_get s (pos+16) = 'l' && String.unsafe_get s (pos+17) = 'e' then (
+                        if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'q' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 't' && String.unsafe_get s (pos+16) = 'l' && String.unsafe_get s (pos+17) = 'e' then (
                           16
                         )
                         else (
@@ -8065,7 +7969,7 @@ let read_project_metadata = (
               field_repo_url := (
                 Some (
                   (
-                    read__uri_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8073,7 +7977,7 @@ let read_project_metadata = (
               field_branch := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8081,7 +7985,7 @@ let read_project_metadata = (
               field_ci_job_url := (
                 Some (
                   (
-                    read__uri_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8089,7 +7993,7 @@ let read_project_metadata = (
               field_commit := (
                 Some (
                   (
-                    read__sha1_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8097,7 +8001,7 @@ let read_project_metadata = (
               field_commit_author_email := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8105,7 +8009,7 @@ let read_project_metadata = (
               field_commit_author_name := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8113,7 +8017,7 @@ let read_project_metadata = (
               field_commit_author_username := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8121,7 +8025,7 @@ let read_project_metadata = (
               field_commit_author_image_url := (
                 Some (
                   (
-                    read__uri_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8129,23 +8033,25 @@ let read_project_metadata = (
               field_commit_title := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
             | 11 ->
-              field_commit_timestamp := (
-                Some (
-                  (
-                    read_datetime
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_commit_timestamp := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
             | 12 ->
               field_on := (
                 Some (
                   (
-                    read__string_option
+                    Atdgen_runtime.Oj_run.read_string
                   ) p lb
                 )
               );
@@ -8153,7 +8059,7 @@ let read_project_metadata = (
               field_pull_request_author_username := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8161,7 +8067,7 @@ let read_project_metadata = (
               field_pull_request_author_image_url := (
                 Some (
                   (
-                    read__uri_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8169,15 +8075,15 @@ let read_project_metadata = (
               field_pull_request_id := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
             | 16 ->
-              field_pill_request_title := (
+              field_pull_request_title := (
                 Some (
                   (
-                    read__string_option
+                    read__string_nullable
                   ) p lb
                 )
               );
@@ -8185,7 +8091,7 @@ let read_project_metadata = (
               field_scan_environment := (
                 Some (
                   (
-                    read__string_option
+                    Atdgen_runtime.Oj_run.read_string
                   ) p lb
                 )
               );
@@ -8194,7 +8100,7 @@ let read_project_metadata = (
                 field_base_sha := (
                   Some (
                     (
-                      read_sha1
+                      Atdgen_runtime.Oj_run.read_string
                     ) p lb
                   )
                 );
@@ -8204,7 +8110,7 @@ let read_project_metadata = (
                 field_start_sha := (
                   Some (
                     (
-                      read_sha1
+                      Atdgen_runtime.Oj_run.read_string
                     ) p lb
                   )
                 );
@@ -8218,29 +8124,35 @@ let read_project_metadata = (
                 )
               );
             | 21 ->
-              field_is_sca_scan := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_bool
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_is_sca_scan := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_bool
+                    ) p lb
+                  )
+                );
+              )
             | 22 ->
-              field_is_code_scan := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_bool
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_is_code_scan := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_bool
+                    ) p lb
+                  )
+                );
+              )
             | 23 ->
-              field_is_secrets_can := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_bool
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_is_secrets_scan := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_bool
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -8261,19 +8173,19 @@ let read_project_metadata = (
             commit_author_username = (match !field_commit_author_username with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_author_username");
             commit_author_image_url = (match !field_commit_author_image_url with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_author_image_url");
             commit_title = (match !field_commit_title with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_title");
-            commit_timestamp = (match !field_commit_timestamp with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_timestamp");
+            commit_timestamp = !field_commit_timestamp;
             on = (match !field_on with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "on");
             pull_request_author_username = (match !field_pull_request_author_username with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "pull_request_author_username");
             pull_request_author_image_url = (match !field_pull_request_author_image_url with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "pull_request_author_image_url");
             pull_request_id = (match !field_pull_request_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "pull_request_id");
-            pill_request_title = (match !field_pill_request_title with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "pill_request_title");
+            pull_request_title = (match !field_pull_request_title with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "pull_request_title");
             scan_environment = (match !field_scan_environment with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "scan_environment");
             base_sha = !field_base_sha;
             start_sha = !field_start_sha;
             is_full_scan = (match !field_is_full_scan with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "is_full_scan");
-            is_sca_scan = (match !field_is_sca_scan with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "is_sca_scan");
-            is_code_scan = (match !field_is_code_scan with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "is_code_scan");
-            is_secrets_can = (match !field_is_secrets_can with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "is_secrets_can");
+            is_sca_scan = !field_is_sca_scan;
+            is_code_scan = !field_is_code_scan;
+            is_secrets_scan = !field_is_secrets_scan;
           }
          : project_metadata)
       )
@@ -11954,6 +11866,18 @@ let read_dependency_parser_error = (
 )
 let dependency_parser_error_of_string s =
   read_dependency_parser_error (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_datetime = (
+  Yojson.Safe.write_string
+)
+let string_of_datetime ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_datetime ob x;
+  Buffer.contents ob
+let read_datetime = (
+  Atdgen_runtime.Oj_run.read_string
+)
+let datetime_of_string s =
+  read_datetime (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_severity : _ -> core_severity -> _ = (
   fun ob x ->
     match x with
@@ -14229,63 +14153,6 @@ let read__fix_regex_option = (
 )
 let _fix_regex_option_of_string s =
   read__fix_regex_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__bool_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    Yojson.Safe.write_bool
-  )
-)
-let string_of__bool_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__bool_option ob x;
-  Buffer.contents ob
-let read__bool_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_bool
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_bool
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _bool_option_of_string s =
-  read__bool_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_cli_match_extra : _ -> cli_match_extra -> _ = (
   fun ob (x : cli_match_extra) ->
     Buffer.add_char ob '{';
@@ -16725,25 +16592,6 @@ let read_ci_scan_dependencies = (
 )
 let ci_scan_dependencies_of_string s =
   read_ci_scan_dependencies (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__string_nullable = (
-  Atdgen_runtime.Oj_run.write_nullable (
-    Yojson.Safe.write_string
-  )
-)
-let string_of__string_nullable ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__string_nullable ob x;
-  Buffer.contents ob
-let read__string_nullable = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    (if Yojson.Safe.read_null_if_possible p lb then None
-    else Some ((
-      Atdgen_runtime.Oj_run.read_string
-    ) p lb) : _ option)
-)
-let _string_nullable_of_string s =
-  read__string_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__finding_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_finding
