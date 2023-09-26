@@ -404,12 +404,12 @@ export type ProjectMetadata = {
   commit_author_image_url: (string | null);
   commit_title: (string | null);
   commit_timestamp?: string;
-  on: (string | null);
+  on: string;
   pull_request_author_username: (string | null);
   pull_request_author_image_url: (string | null);
   pull_request_id: (string | null);
   pull_request_title: (string | null);
-  scan_environment: (string | null);
+  scan_environment: string;
   base_sha?: string;
   start_sha?: string;
   is_full_scan: boolean;
@@ -1722,12 +1722,12 @@ export function writeProjectMetadata(x: ProjectMetadata, context: any = x): any 
     'commit_author_image_url': _atd_write_required_field('ProjectMetadata', 'commit_author_image_url', _atd_write_nullable(_atd_write_string), x.commit_author_image_url, x),
     'commit_title': _atd_write_required_field('ProjectMetadata', 'commit_title', _atd_write_nullable(_atd_write_string), x.commit_title, x),
     'commit_timestamp': _atd_write_optional_field(_atd_write_string, x.commit_timestamp, x),
-    'on': _atd_write_required_field('ProjectMetadata', 'on', _atd_write_nullable(_atd_write_string), x.on, x),
+    'on': _atd_write_required_field('ProjectMetadata', 'on', _atd_write_string, x.on, x),
     'pull_request_author_username': _atd_write_required_field('ProjectMetadata', 'pull_request_author_username', _atd_write_nullable(_atd_write_string), x.pull_request_author_username, x),
     'pull_request_author_image_url': _atd_write_required_field('ProjectMetadata', 'pull_request_author_image_url', _atd_write_nullable(_atd_write_string), x.pull_request_author_image_url, x),
     'pull_request_id': _atd_write_required_field('ProjectMetadata', 'pull_request_id', _atd_write_nullable(_atd_write_string), x.pull_request_id, x),
     'pull_request_title': _atd_write_required_field('ProjectMetadata', 'pull_request_title', _atd_write_nullable(_atd_write_string), x.pull_request_title, x),
-    'scan_environment': _atd_write_required_field('ProjectMetadata', 'scan_environment', _atd_write_nullable(_atd_write_string), x.scan_environment, x),
+    'scan_environment': _atd_write_required_field('ProjectMetadata', 'scan_environment', _atd_write_string, x.scan_environment, x),
     'base_sha': _atd_write_optional_field(_atd_write_string, x.base_sha, x),
     'start_sha': _atd_write_optional_field(_atd_write_string, x.start_sha, x),
     'is_full_scan': _atd_write_required_field('ProjectMetadata', 'is_full_scan', _atd_write_bool, x.is_full_scan, x),
@@ -1751,12 +1751,12 @@ export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
     commit_author_image_url: _atd_read_required_field('ProjectMetadata', 'commit_author_image_url', _atd_read_nullable(_atd_read_string), x['commit_author_image_url'], x),
     commit_title: _atd_read_required_field('ProjectMetadata', 'commit_title', _atd_read_nullable(_atd_read_string), x['commit_title'], x),
     commit_timestamp: _atd_read_optional_field(_atd_read_string, x['commit_timestamp'], x),
-    on: _atd_read_required_field('ProjectMetadata', 'on', _atd_read_nullable(_atd_read_string), x['on'], x),
+    on: _atd_read_required_field('ProjectMetadata', 'on', _atd_read_string, x['on'], x),
     pull_request_author_username: _atd_read_required_field('ProjectMetadata', 'pull_request_author_username', _atd_read_nullable(_atd_read_string), x['pull_request_author_username'], x),
     pull_request_author_image_url: _atd_read_required_field('ProjectMetadata', 'pull_request_author_image_url', _atd_read_nullable(_atd_read_string), x['pull_request_author_image_url'], x),
     pull_request_id: _atd_read_required_field('ProjectMetadata', 'pull_request_id', _atd_read_nullable(_atd_read_string), x['pull_request_id'], x),
     pull_request_title: _atd_read_required_field('ProjectMetadata', 'pull_request_title', _atd_read_nullable(_atd_read_string), x['pull_request_title'], x),
-    scan_environment: _atd_read_required_field('ProjectMetadata', 'scan_environment', _atd_read_nullable(_atd_read_string), x['scan_environment'], x),
+    scan_environment: _atd_read_required_field('ProjectMetadata', 'scan_environment', _atd_read_string, x['scan_environment'], x),
     base_sha: _atd_read_optional_field(_atd_read_string, x['base_sha'], x),
     start_sha: _atd_read_optional_field(_atd_read_string, x['start_sha'], x),
     is_full_scan: _atd_read_required_field('ProjectMetadata', 'is_full_scan', _atd_read_bool, x['is_full_scan'], x),

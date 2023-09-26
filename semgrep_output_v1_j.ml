@@ -202,12 +202,12 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   commit_author_image_url: string option;
   commit_title: string option;
   commit_timestamp: string option;
-  on: string option;
+  on: string;
   pull_request_author_username: string option;
   pull_request_author_image_url: string option;
   pull_request_id: string option;
   pull_request_title: string option;
-  scan_environment: string option;
+  scan_environment: string;
   base_sha: string option;
   start_sha: string option;
   is_full_scan: bool;
@@ -7139,7 +7139,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"on\":";
     (
-      write__string_nullable
+      Yojson.Safe.write_string
     )
       ob x.on;
     if !is_first then
@@ -7184,7 +7184,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"scan_environment\":";
     (
-      write__string_nullable
+      Yojson.Safe.write_string
     )
       ob x.scan_environment;
     (match x.base_sha with None -> () | Some x ->
@@ -7649,7 +7649,7 @@ let read_project_metadata = (
             field_on := (
               Some (
                 (
-                  read__string_nullable
+                  Atdgen_runtime.Oj_run.read_string
                 ) p lb
               )
             );
@@ -7689,7 +7689,7 @@ let read_project_metadata = (
             field_scan_environment := (
               Some (
                 (
-                  read__string_nullable
+                  Atdgen_runtime.Oj_run.read_string
                 ) p lb
               )
             );
@@ -8119,7 +8119,7 @@ let read_project_metadata = (
               field_on := (
                 Some (
                   (
-                    read__string_nullable
+                    Atdgen_runtime.Oj_run.read_string
                   ) p lb
                 )
               );
@@ -8159,7 +8159,7 @@ let read_project_metadata = (
               field_scan_environment := (
                 Some (
                   (
-                    read__string_nullable
+                    Atdgen_runtime.Oj_run.read_string
                   ) p lb
                 )
               );

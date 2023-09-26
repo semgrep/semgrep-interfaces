@@ -202,12 +202,12 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   commit_author_image_url: string option;
   commit_title: string option;
   commit_timestamp: string option;
-  on: string option;
+  on: string;
   pull_request_author_username: string option;
   pull_request_author_image_url: string option;
   pull_request_id: string option;
   pull_request_title: string option;
-  scan_environment: string option;
+  scan_environment: string;
   base_sha: string option;
   start_sha: string option;
   is_full_scan: bool;

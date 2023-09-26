@@ -2528,12 +2528,12 @@ class ProjectMetadata:
     commit_author_username: Optional[str]
     commit_author_image_url: Optional[str]
     commit_title: Optional[str]
-    on: Optional[str]
+    on: str
     pull_request_author_username: Optional[str]
     pull_request_author_image_url: Optional[str]
     pull_request_id: Optional[str]
     pull_request_title: Optional[str]
-    scan_environment: Optional[str]
+    scan_environment: str
     is_full_scan: bool
     commit_timestamp: Optional[str] = None
     base_sha: Optional[str] = None
@@ -2557,12 +2557,12 @@ class ProjectMetadata:
                 commit_author_username=_atd_read_nullable(_atd_read_string)(x['commit_author_username']) if 'commit_author_username' in x else _atd_missing_json_field('ProjectMetadata', 'commit_author_username'),
                 commit_author_image_url=_atd_read_nullable(_atd_read_string)(x['commit_author_image_url']) if 'commit_author_image_url' in x else _atd_missing_json_field('ProjectMetadata', 'commit_author_image_url'),
                 commit_title=_atd_read_nullable(_atd_read_string)(x['commit_title']) if 'commit_title' in x else _atd_missing_json_field('ProjectMetadata', 'commit_title'),
-                on=_atd_read_nullable(_atd_read_string)(x['on']) if 'on' in x else _atd_missing_json_field('ProjectMetadata', 'on'),
+                on=_atd_read_string(x['on']) if 'on' in x else _atd_missing_json_field('ProjectMetadata', 'on'),
                 pull_request_author_username=_atd_read_nullable(_atd_read_string)(x['pull_request_author_username']) if 'pull_request_author_username' in x else _atd_missing_json_field('ProjectMetadata', 'pull_request_author_username'),
                 pull_request_author_image_url=_atd_read_nullable(_atd_read_string)(x['pull_request_author_image_url']) if 'pull_request_author_image_url' in x else _atd_missing_json_field('ProjectMetadata', 'pull_request_author_image_url'),
                 pull_request_id=_atd_read_nullable(_atd_read_string)(x['pull_request_id']) if 'pull_request_id' in x else _atd_missing_json_field('ProjectMetadata', 'pull_request_id'),
                 pull_request_title=_atd_read_nullable(_atd_read_string)(x['pull_request_title']) if 'pull_request_title' in x else _atd_missing_json_field('ProjectMetadata', 'pull_request_title'),
-                scan_environment=_atd_read_nullable(_atd_read_string)(x['scan_environment']) if 'scan_environment' in x else _atd_missing_json_field('ProjectMetadata', 'scan_environment'),
+                scan_environment=_atd_read_string(x['scan_environment']) if 'scan_environment' in x else _atd_missing_json_field('ProjectMetadata', 'scan_environment'),
                 is_full_scan=_atd_read_bool(x['is_full_scan']) if 'is_full_scan' in x else _atd_missing_json_field('ProjectMetadata', 'is_full_scan'),
                 commit_timestamp=_atd_read_string(x['commit_timestamp']) if 'commit_timestamp' in x else None,
                 base_sha=_atd_read_string(x['base_sha']) if 'base_sha' in x else None,
@@ -2587,12 +2587,12 @@ class ProjectMetadata:
         res['commit_author_username'] = _atd_write_nullable(_atd_write_string)(self.commit_author_username)
         res['commit_author_image_url'] = _atd_write_nullable(_atd_write_string)(self.commit_author_image_url)
         res['commit_title'] = _atd_write_nullable(_atd_write_string)(self.commit_title)
-        res['on'] = _atd_write_nullable(_atd_write_string)(self.on)
+        res['on'] = _atd_write_string(self.on)
         res['pull_request_author_username'] = _atd_write_nullable(_atd_write_string)(self.pull_request_author_username)
         res['pull_request_author_image_url'] = _atd_write_nullable(_atd_write_string)(self.pull_request_author_image_url)
         res['pull_request_id'] = _atd_write_nullable(_atd_write_string)(self.pull_request_id)
         res['pull_request_title'] = _atd_write_nullable(_atd_write_string)(self.pull_request_title)
-        res['scan_environment'] = _atd_write_nullable(_atd_write_string)(self.scan_environment)
+        res['scan_environment'] = _atd_write_string(self.scan_environment)
         res['is_full_scan'] = _atd_write_bool(self.is_full_scan)
         if self.commit_timestamp is not None:
             res['commit_timestamp'] = _atd_write_string(self.commit_timestamp)

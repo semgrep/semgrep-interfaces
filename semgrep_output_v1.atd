@@ -878,25 +878,29 @@ type project_metadata = {
     (* since 1.38.0 *)
     ?commit_timestamp: (*datetime*) string option;
 
-    (* ?? *)
-    on: string nullable;
+    (* CI event name ("pull_request"|"pull_request_target"|"push"|"unknown"|...)
+     * TODO: use enum
+     *)
+    on: string;
 
     pull_request_author_username: string nullable;
     pull_request_author_image_url: (*uri*) string nullable;
     pull_request_id: string nullable;
     pull_request_title: string nullable;
 
-    (* ?? *)
-    scan_environment: string nullable;
+    (* TODO: use enum with <json name="..."> *)
+    (* "git" | "github-actions" | "gitlab-ci" | "circleci"
+     * | "jenkins" | "bitbucket" | "azure-pipelines" | "buildkite" | "travis-ci" *)
+    scan_environment: string;
 
     (* Gitlab only*)
     ?base_sha: (*sha1*) string option;
     ?start_sha: (*sha1*) string option;
 
-    (* ?? *)
+    (* when not a differential scan *)
     is_full_scan: bool;
 
-    (* added later in ci.py.
+    (* added later in ci.py (not from meta.py)
      * TODO: should replace with 'scan_products: product list;'
      *)
     ?is_sca_scan: bool option;
