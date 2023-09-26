@@ -10,7 +10,12 @@ $defs:
   validator:
     properties:
       http:
-        type: object # TODO(cooper)
+        properties:
+          request:
+            $ref: "#/$defs/http-request-content"
+          response:
+            $ref: "#/$defs/http-response-content"
+        required: [ request, response ]
     # An individual validator shall be exactly one 'kind' of validator.
     oneOf:
       - required: [ http ]
@@ -54,7 +59,11 @@ $defs:
             name: string
             value: string
       content:
-        type: object # TODO(cooper): fields
+        type: object
+        properties:
+          # TODO(cooper): re-use languages sub-enum?
+          language: string 
+        $ref: "#/$defs/general-pattern-content"
   # EXPERIMENTAL
   new-source-pattern:
     $ref: "#/$defs/new-pattern"
