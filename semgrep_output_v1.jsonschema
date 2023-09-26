@@ -68,7 +68,7 @@
     },
     "product": {
       "oneOf": [
-        { "const": "Code" }, { "const": "SCA" }, { "const": "Secrets" }
+        { "const": "sast" }, { "const": "sca" }, { "const": "secrets" }
       ]
     },
     "validation_state": {

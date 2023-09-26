@@ -8590,9 +8590,9 @@ let profile_of_string s =
 let write_product = (
   fun ob x ->
     match x with
-      | `Code -> Buffer.add_string ob "\"Code\""
-      | `SCA -> Buffer.add_string ob "\"SCA\""
-      | `Secrets -> Buffer.add_string ob "\"Secrets\""
+      | `SAST -> Buffer.add_string ob "\"sast\""
+      | `SCA -> Buffer.add_string ob "\"sca\""
+      | `Secrets -> Buffer.add_string ob "\"secrets\""
 )
 let string_of_product ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -8604,15 +8604,15 @@ let read_product = (
     match Yojson.Safe.start_any_variant p lb with
       | `Edgy_bracket -> (
           match Yojson.Safe.read_ident p lb with
-            | "Code" ->
+            | "sast" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `Code
-            | "SCA" ->
+              `SAST
+            | "sca" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `SCA
-            | "Secrets" ->
+            | "secrets" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Secrets
@@ -8621,11 +8621,11 @@ let read_product = (
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
-            | "Code" ->
-              `Code
-            | "SCA" ->
+            | "sast" ->
+              `SAST
+            | "sca" ->
               `SCA
-            | "Secrets" ->
+            | "secrets" ->
               `Secrets
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
