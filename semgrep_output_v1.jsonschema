@@ -388,7 +388,6 @@
           "type": "array",
           "items": { "$ref": "#/definitions/fpath" }
         },
-        "_comment": { "type": "string" },
         "skipped": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_target" }

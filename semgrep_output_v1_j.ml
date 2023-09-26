@@ -144,7 +144,6 @@ type sha1 = Semgrep_output_v1_t.sha1
 
 type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
   scanned: fpath list;
-  _comment: string option;
   skipped: skipped_target list option
 }
 
@@ -5019,17 +5018,6 @@ let write_scanned_and_skipped : _ -> scanned_and_skipped -> _ = (
       write__fpath_list
     )
       ob x.scanned;
-    (match x._comment with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"_comment\":";
-      (
-        Yojson.Safe.write_string
-      )
-        ob x;
-    );
     (match x.skipped with None -> () | Some x ->
       if !is_first then
         is_first := false
@@ -5052,7 +5040,6 @@ let read_scanned_and_skipped = (
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
     let field_scanned = ref (None) in
-    let field__comment = ref (None) in
     let field_skipped = ref (None) in
     try
       Yojson.Safe.read_space p lb;
@@ -5062,45 +5049,31 @@ let read_scanned_and_skipped = (
         fun s pos len ->
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          match len with
-            | 7 -> (
-                if String.unsafe_get s pos = 's' then (
-                  match String.unsafe_get s (pos+1) with
-                    | 'c' -> (
-                        if String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
-                          0
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 'k' -> (
-                        if String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
-                          2
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
+          if len = 7 && String.unsafe_get s pos = 's' then (
+            match String.unsafe_get s (pos+1) with
+              | 'c' -> (
+                  if String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
                 )
-                else (
+              | 'k' -> (
+                  if String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
                   -1
                 )
-              )
-            | 8 -> (
-                if String.unsafe_get s pos = '_' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 't' then (
-                  1
-                )
-                else (
-                  -1
-                )
-              )
-            | _ -> (
-                -1
-              )
+          )
+          else (
+            -1
+          )
       in
       let i = Yojson.Safe.map_ident p f lb in
       Atdgen_runtime.Oj_run.read_until_field_value p lb;
@@ -5115,16 +5088,6 @@ let read_scanned_and_skipped = (
               )
             );
           | 1 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field__comment := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            )
-          | 2 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_skipped := (
                 Some (
@@ -5146,45 +5109,31 @@ let read_scanned_and_skipped = (
           fun s pos len ->
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            match len with
-              | 7 -> (
-                  if String.unsafe_get s pos = 's' then (
-                    match String.unsafe_get s (pos+1) with
-                      | 'c' -> (
-                          if String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
-                            0
-                          )
-                          else (
-                            -1
-                          )
-                        )
-                      | 'k' -> (
-                          if String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
-                            2
-                          )
-                          else (
-                            -1
-                          )
-                        )
-                      | _ -> (
-                          -1
-                        )
+            if len = 7 && String.unsafe_get s pos = 's' then (
+              match String.unsafe_get s (pos+1) with
+                | 'c' -> (
+                    if String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
+                      0
+                    )
+                    else (
+                      -1
+                    )
                   )
-                  else (
+                | 'k' -> (
+                    if String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
+                      1
+                    )
+                    else (
+                      -1
+                    )
+                  )
+                | _ -> (
                     -1
                   )
-                )
-              | 8 -> (
-                  if String.unsafe_get s pos = '_' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 't' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
+            )
+            else (
+              -1
+            )
         in
         let i = Yojson.Safe.map_ident p f lb in
         Atdgen_runtime.Oj_run.read_until_field_value p lb;
@@ -5199,16 +5148,6 @@ let read_scanned_and_skipped = (
                 )
               );
             | 1 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field__comment := (
-                  Some (
-                    (
-                      Atdgen_runtime.Oj_run.read_string
-                    ) p lb
-                  )
-                );
-              )
-            | 2 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_skipped := (
                   Some (
@@ -5228,7 +5167,6 @@ let read_scanned_and_skipped = (
         (
           {
             scanned = (match !field_scanned with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "scanned");
-            _comment = !field__comment;
             skipped = !field_skipped;
           }
          : scanned_and_skipped)

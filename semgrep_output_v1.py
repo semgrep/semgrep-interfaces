@@ -1761,7 +1761,6 @@ class ScannedAndSkipped:
     """Original type: scanned_and_skipped = { ... }"""
 
     scanned: List[Fpath]
-    _comment: Optional[str] = None
     skipped: Optional[List[SkippedTarget]] = None
 
     @classmethod
@@ -1769,7 +1768,6 @@ class ScannedAndSkipped:
         if isinstance(x, dict):
             return cls(
                 scanned=_atd_read_list(Fpath.from_json)(x['scanned']) if 'scanned' in x else _atd_missing_json_field('ScannedAndSkipped', 'scanned'),
-                _comment=_atd_read_string(x['_comment']) if '_comment' in x else None,
                 skipped=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else None,
             )
         else:
@@ -1778,8 +1776,6 @@ class ScannedAndSkipped:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['scanned'] = _atd_write_list((lambda x: x.to_json()))(self.scanned)
-        if self._comment is not None:
-            res['_comment'] = _atd_write_string(self._comment)
         if self.skipped is not None:
             res['skipped'] = _atd_write_list((lambda x: x.to_json()))(self.skipped)
         return res

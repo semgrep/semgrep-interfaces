@@ -507,13 +507,8 @@ type skipped_target <ocaml attr="deriving show"> = {
 
 type scanned_and_skipped = {
     scanned: fpath list;
-    (* really either _comment: (saying "you should use -v to get more info")
-     * or skipped:. We should have used a variant
-     * TODO: just get rid of it; people should not inspect the JSON output to
-     * learn how to use semgrep.
-     *)
-    ?_comment: string option;
-    (* TODO: needs fix in atdpy; see note tagged [X584759]
+    (* Note that you get this field only if you use semgrep --verbose.
+     * TODO: needs fix in atdpy; see note tagged [X584759]
      * ~skipped: skipped_target list;
     *)
     ?skipped: skipped_target list option;

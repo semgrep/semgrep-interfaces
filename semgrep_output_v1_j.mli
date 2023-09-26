@@ -144,7 +144,6 @@ type sha1 = Semgrep_output_v1_t.sha1
 
 type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
   scanned: fpath list;
-  _comment: string option;
   skipped: skipped_target list option
 }
 
