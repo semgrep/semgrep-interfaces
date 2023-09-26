@@ -3,16 +3,19 @@
 (*****************************************************************************)
 (* Specification of the Semgrep CLI JSON output format using ATD
  * (see https://atd.readthedocs.io/en/latest/ for more information on ATD).
+ *
  * This file specifies the JSON format of the 'semgrep scan' command,
  * the default command of semgrep, as well as the JSON format of messages
- * sent to the Semgrep App backend by the 'semgrep ci' command.
+ * sent to the Semgrep backend by the 'semgrep ci' command.
  * For the definitions of the Semgrep input, see rule_schema_v1.yaml.
  *
  * This file has the _v1 suffix to explicitely represent the
  * version of this JSON format. If you need to extend this file, please
  * be careful because you may break consumers of this format (e.g., the
- * Semgrep playground or Semgrep App backend or external users of this JSON).
- * See https://atd.readthedocs.io/en/latest/atdgen-tutorial.html?highlight=json#smooth-protocol-upgrades
+ * Semgrep playground or Semgrep backend or external users of this JSON).
+ * See
+ *    https://atd.readthedocs.io/en/latest/atdgen-tutorial.html#smooth-protocol-upgrades
+ *
  * for more information on how to smoothly extend the types in this file.
  * Any backward incompatible changes should require to upgrade the major
  * version of Semgrep as this JSON output is part of the "API" of Semgrep
@@ -21,7 +24,8 @@
  *
  * !!Again, keep in mind that this file is used both by the CLI to *produce* a
  * JSON output, and by our backends to *consume* the JSON, including to
- * consume the JSON produced by old versions of the CLI!!
+ * consume the JSON produced by old versions of the CLI. As of Sep 2023,
+ * our backend is still supporting as far as Semgrep 1.17.0!!
  *
  * This file is translated in OCaml modules by atdgen. Look for the
  * corresponding Semgrep_output_v1_[tj].ml[i] generated files
@@ -47,11 +51,11 @@
  *    removing gradually the semgrep-core JSON output.
  *
  * There are other important form of outputs which are not specified here:
- *  - The schema for the generic AST dump is in AST_generic_v1.atd
- *  - The parsing stats of semgrep-core -parsing_stats -json have its own
- *    Parsing_stats.atd
  *  - The semgrep metrics sent to https://metrics.semgrep.dev in
  *    semgrep_metrics.atd
+ *  - The parsing stats of semgrep-core -parsing_stats -json have its own
+ *    Parsing_stats.atd
+ *  - The schema for the generic AST dump is in AST_generic_v1.atd
  *)
 
 (* escape hatch *)
@@ -215,7 +219,7 @@ type cli_match_extra = {
   ?sca_info: sca_info option;
 
   (* TODO: done with monkey patching right now in the Python code,
-   * and seems to be used only when sending findings to the App.
+   * and seems to be used only when sending findings to the backend.
    *)
   ?fixed_lines: string list option;
 
@@ -812,11 +816,95 @@ type dependency_parser_error = {
 
 
 (*****************************************************************************)
-(* Semgrep findings for the App *)
+(* Data sent to the Semgrep backend *)
 (*****************************************************************************)
-(* TODO: see semgrep/app/scans.py
- * EXPERIMENTAL
+
+(* The sequence of http requests is mostly:
+ *  - /scans when starting a scan, with information about the project
+ *  - /results to send the findings to the backend
+ *  - /complete when done, with the exit code and a few more information
+ *
+ * TODO: see semgrep/app/scans.py
+ * alt: we could move all of this in a separate semgrep_posts_v1.atd file
 *)
+
+(* ----------------------------- *)
+(* Project metadata *)
+(* ----------------------------- *)
+(* Collect information about a project from the environment, filesystem,
+ * git repo, etc.
+ * See also semgrep_metrics.atd and PRIVACY.md
+ *
+ * Sent by the CLI to the POST /scans endpoint when a scan is created and when
+ * getting the scan config.
+ * TODO:
+ * - we should rewrite Project_metadata.ml in osemgrep to use this data-structure
+ *   instead of defining our own Project_metadata.t
+ * - we could split it in different parts and use inherit to make things clearer
+ *   (while still being backward compatible)
+ *)
+type project_metadata = {
+    semgrep_version: version;
+
+    (* git metadata.
+     * Many of those fields come from environment variables like GITHUB_xxx.
+     * TODO: see Github_metadata.ml
+     *)
+    repository: string;
+    repo_url: (*uri*) string nullable;
+    (* TODO: the branch should use a standard format? like refs/... ? or it can
+     * be a basic branch name like 'foobar'?
+     *)
+    branch: string nullable;
+
+    (* ?? *)
+    ci_job_url: (*uri*) string nullable;
+
+    commit: (*sha1*) string nullable;
+
+    (* TODO? inherit contributor instead? *)
+    (* TODO? Emile.mailbox in OCaml *)
+    commit_author_email: string nullable;
+    commit_author_name: string nullable;
+    commit_author_username: string nullable;
+    commit_author_image_url: (*uri*) string nullable;
+
+    commit_title: string nullable;
+    (* since 1.38.0 *)
+    ?commit_timestamp: (*datetime*) string option;
+
+    (* CI event name ("pull_request"|"pull_request_target"|"push"|"unknown"|...)
+     * TODO: use enum
+     *)
+    on: string;
+
+    pull_request_author_username: string nullable;
+    pull_request_author_image_url: (*uri*) string nullable;
+    pull_request_id: string nullable;
+    pull_request_title: string nullable;
+
+    (* TODO: use enum with <json name="..."> *)
+    (* "git" | "github-actions" | "gitlab-ci" | "circleci"
+     * | "jenkins" | "bitbucket" | "azure-pipelines" | "buildkite" | "travis-ci" *)
+    scan_environment: string;
+
+    (* Gitlab only*)
+    ?base_sha: (*sha1*) string option;
+    ?start_sha: (*sha1*) string option;
+
+    (* when not a differential scan *)
+    is_full_scan: bool;
+
+    (* added later in ci.py (not from meta.py)
+     * TODO: should replace with 'scan_products: product list;'
+     *)
+    ?is_sca_scan: bool option;
+    (* since 1.40.0 *)
+    ?is_code_scan: bool option;
+    (* since 1.41.0 *)
+    ?is_secrets_scan: bool option;
+}
+
 
 (* ----------------------------- *)
 (* Findings *)
@@ -972,78 +1060,4 @@ type parsing_stats = {
   num_targets: int;
   bytes_parsed: int;
   num_bytes: int;
-}
-
-(* ----------------------------- *)
-(* Project metadata *)
-(* ----------------------------- *)
-(* Collect information about a project from the environment, filesystem,
- * git repo, etc.
- * See also semgrep_metrics.atd and PRIVACY.md
- *)
-
-(* TODO:
- * - where this data is sent? which endpoint? how is it related to the /results
- *   and /complete endpoints?
- * - we should use this in pysemgrep in meta.py for the to_dict() methods at least
- *   to be more typesafe
- * - we should rewrite Project_metadata.ml in osemgrep to use this data-structure
- *   instead of defining our own Project_metadata.t
- * - we could move this in a separate .atd file
- * - we could split it in different parts and use inherit to make things clearer
- *   (while still being backward compatible)
- *)
-type project_metadata = {
-    semgrep_version: version;
-
-    (* git metadata.
-     * Many of those fields come from environment variables like GITHUB_xxx.
-     * TODO: see Github_metadata.ml
-     *)
-    repository: string;
-    repo_url: uri option;
-    (* TODO: the branch should use a standard format? like refs/... ? or it can
-     * be a basic branch name like 'foobar'?
-     *)
-    branch: string option;
-
-    (* ?? *)
-    ci_job_url: uri option;
-
-    commit: sha1 option;
-
-    (* TODO? inherit contributor instead? *)
-    (* TODO? Emile.mailbox in OCaml *)
-    commit_author_email: string option;
-    commit_author_name: string option;
-    commit_author_username: string option;
-    commit_author_image_url: uri option;
-
-    commit_title: string option;
-    commit_timestamp: datetime;
-
-    (* ?? *)
-    on: string option;
-
-    pull_request_author_username: string option;
-    pull_request_author_image_url: uri option;
-    pull_request_id: string option;
-    pill_request_title: string option;
-
-    (* ?? *)
-    scan_environment: string option;
-
-    (* Gitlab only*)
-    ?base_sha: sha1 option;
-    ?start_sha: sha1 option;
-
-    (* ?? *)
-    is_full_scan: bool;
-
-    (* adder later in ci.py.
-     * TODO: should replace with 'scan_products: product list;'
-     *)
-    is_sca_scan: bool;
-    is_code_scan: bool;
-    is_secrets_can: bool;
 }
