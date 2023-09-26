@@ -391,6 +391,33 @@ export type DependencyParserError = {
   text?: string;
 }
 
+export type ProjectMetadata = {
+  semgrep_version: Version;
+  repository: string;
+  repo_url: (string | null);
+  branch: (string | null);
+  ci_job_url: (string | null);
+  commit: (string | null);
+  commit_author_email: (string | null);
+  commit_author_name: (string | null);
+  commit_author_username: (string | null);
+  commit_author_image_url: (string | null);
+  commit_title: (string | null);
+  commit_timestamp?: string;
+  on: (string | null);
+  pull_request_author_username: (string | null);
+  pull_request_author_image_url: (string | null);
+  pull_request_id: (string | null);
+  pull_request_title: (string | null);
+  scan_environment: (string | null);
+  base_sha?: string;
+  start_sha?: string;
+  is_full_scan: boolean;
+  is_sca_scan?: boolean;
+  is_code_scan?: boolean;
+  is_secrets_scan?: boolean;
+}
+
 export type Finding = {
   check_id: RuleId;
   path: Fpath;
@@ -469,33 +496,6 @@ export type ParsingStats = {
   num_targets: number /*int*/;
   bytes_parsed: number /*int*/;
   num_bytes: number /*int*/;
-}
-
-export type ProjectMetadata = {
-  semgrep_version: Version;
-  repository: string;
-  repo_url: (string | null);
-  branch: (string | null);
-  ci_job_url: (string | null);
-  commit: (string | null);
-  commit_author_email: (string | null);
-  commit_author_name: (string | null);
-  commit_author_username: (string | null);
-  commit_author_image_url: (string | null);
-  commit_title: (string | null);
-  commit_timestamp: (string | null);
-  on: (string | null);
-  pull_request_author_username: (string | null);
-  pull_request_author_image_url: (string | null);
-  pull_request_id: (string | null);
-  pull_request_title: (string | null);
-  scan_environment: (string | null);
-  base_sha?: string;
-  start_sha?: string;
-  is_full_scan: boolean;
-  is_sca_scan?: boolean;
-  is_code_scan?: boolean;
-  is_secrets_scan?: boolean;
 }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
@@ -1708,6 +1708,64 @@ export function readDependencyParserError(x: any, context: any = x): DependencyP
   };
 }
 
+export function writeProjectMetadata(x: ProjectMetadata, context: any = x): any {
+  return {
+    'semgrep_version': _atd_write_required_field('ProjectMetadata', 'semgrep_version', writeVersion, x.semgrep_version, x),
+    'repository': _atd_write_required_field('ProjectMetadata', 'repository', _atd_write_string, x.repository, x),
+    'repo_url': _atd_write_required_field('ProjectMetadata', 'repo_url', _atd_write_nullable(_atd_write_string), x.repo_url, x),
+    'branch': _atd_write_required_field('ProjectMetadata', 'branch', _atd_write_nullable(_atd_write_string), x.branch, x),
+    'ci_job_url': _atd_write_required_field('ProjectMetadata', 'ci_job_url', _atd_write_nullable(_atd_write_string), x.ci_job_url, x),
+    'commit': _atd_write_required_field('ProjectMetadata', 'commit', _atd_write_nullable(_atd_write_string), x.commit, x),
+    'commit_author_email': _atd_write_required_field('ProjectMetadata', 'commit_author_email', _atd_write_nullable(_atd_write_string), x.commit_author_email, x),
+    'commit_author_name': _atd_write_required_field('ProjectMetadata', 'commit_author_name', _atd_write_nullable(_atd_write_string), x.commit_author_name, x),
+    'commit_author_username': _atd_write_required_field('ProjectMetadata', 'commit_author_username', _atd_write_nullable(_atd_write_string), x.commit_author_username, x),
+    'commit_author_image_url': _atd_write_required_field('ProjectMetadata', 'commit_author_image_url', _atd_write_nullable(_atd_write_string), x.commit_author_image_url, x),
+    'commit_title': _atd_write_required_field('ProjectMetadata', 'commit_title', _atd_write_nullable(_atd_write_string), x.commit_title, x),
+    'commit_timestamp': _atd_write_optional_field(_atd_write_string, x.commit_timestamp, x),
+    'on': _atd_write_required_field('ProjectMetadata', 'on', _atd_write_nullable(_atd_write_string), x.on, x),
+    'pull_request_author_username': _atd_write_required_field('ProjectMetadata', 'pull_request_author_username', _atd_write_nullable(_atd_write_string), x.pull_request_author_username, x),
+    'pull_request_author_image_url': _atd_write_required_field('ProjectMetadata', 'pull_request_author_image_url', _atd_write_nullable(_atd_write_string), x.pull_request_author_image_url, x),
+    'pull_request_id': _atd_write_required_field('ProjectMetadata', 'pull_request_id', _atd_write_nullable(_atd_write_string), x.pull_request_id, x),
+    'pull_request_title': _atd_write_required_field('ProjectMetadata', 'pull_request_title', _atd_write_nullable(_atd_write_string), x.pull_request_title, x),
+    'scan_environment': _atd_write_required_field('ProjectMetadata', 'scan_environment', _atd_write_nullable(_atd_write_string), x.scan_environment, x),
+    'base_sha': _atd_write_optional_field(_atd_write_string, x.base_sha, x),
+    'start_sha': _atd_write_optional_field(_atd_write_string, x.start_sha, x),
+    'is_full_scan': _atd_write_required_field('ProjectMetadata', 'is_full_scan', _atd_write_bool, x.is_full_scan, x),
+    'is_sca_scan': _atd_write_optional_field(_atd_write_bool, x.is_sca_scan, x),
+    'is_code_scan': _atd_write_optional_field(_atd_write_bool, x.is_code_scan, x),
+    'is_secrets_scan': _atd_write_optional_field(_atd_write_bool, x.is_secrets_scan, x),
+  };
+}
+
+export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
+  return {
+    semgrep_version: _atd_read_required_field('ProjectMetadata', 'semgrep_version', readVersion, x['semgrep_version'], x),
+    repository: _atd_read_required_field('ProjectMetadata', 'repository', _atd_read_string, x['repository'], x),
+    repo_url: _atd_read_required_field('ProjectMetadata', 'repo_url', _atd_read_nullable(_atd_read_string), x['repo_url'], x),
+    branch: _atd_read_required_field('ProjectMetadata', 'branch', _atd_read_nullable(_atd_read_string), x['branch'], x),
+    ci_job_url: _atd_read_required_field('ProjectMetadata', 'ci_job_url', _atd_read_nullable(_atd_read_string), x['ci_job_url'], x),
+    commit: _atd_read_required_field('ProjectMetadata', 'commit', _atd_read_nullable(_atd_read_string), x['commit'], x),
+    commit_author_email: _atd_read_required_field('ProjectMetadata', 'commit_author_email', _atd_read_nullable(_atd_read_string), x['commit_author_email'], x),
+    commit_author_name: _atd_read_required_field('ProjectMetadata', 'commit_author_name', _atd_read_nullable(_atd_read_string), x['commit_author_name'], x),
+    commit_author_username: _atd_read_required_field('ProjectMetadata', 'commit_author_username', _atd_read_nullable(_atd_read_string), x['commit_author_username'], x),
+    commit_author_image_url: _atd_read_required_field('ProjectMetadata', 'commit_author_image_url', _atd_read_nullable(_atd_read_string), x['commit_author_image_url'], x),
+    commit_title: _atd_read_required_field('ProjectMetadata', 'commit_title', _atd_read_nullable(_atd_read_string), x['commit_title'], x),
+    commit_timestamp: _atd_read_optional_field(_atd_read_string, x['commit_timestamp'], x),
+    on: _atd_read_required_field('ProjectMetadata', 'on', _atd_read_nullable(_atd_read_string), x['on'], x),
+    pull_request_author_username: _atd_read_required_field('ProjectMetadata', 'pull_request_author_username', _atd_read_nullable(_atd_read_string), x['pull_request_author_username'], x),
+    pull_request_author_image_url: _atd_read_required_field('ProjectMetadata', 'pull_request_author_image_url', _atd_read_nullable(_atd_read_string), x['pull_request_author_image_url'], x),
+    pull_request_id: _atd_read_required_field('ProjectMetadata', 'pull_request_id', _atd_read_nullable(_atd_read_string), x['pull_request_id'], x),
+    pull_request_title: _atd_read_required_field('ProjectMetadata', 'pull_request_title', _atd_read_nullable(_atd_read_string), x['pull_request_title'], x),
+    scan_environment: _atd_read_required_field('ProjectMetadata', 'scan_environment', _atd_read_nullable(_atd_read_string), x['scan_environment'], x),
+    base_sha: _atd_read_optional_field(_atd_read_string, x['base_sha'], x),
+    start_sha: _atd_read_optional_field(_atd_read_string, x['start_sha'], x),
+    is_full_scan: _atd_read_required_field('ProjectMetadata', 'is_full_scan', _atd_read_bool, x['is_full_scan'], x),
+    is_sca_scan: _atd_read_optional_field(_atd_read_bool, x['is_sca_scan'], x),
+    is_code_scan: _atd_read_optional_field(_atd_read_bool, x['is_code_scan'], x),
+    is_secrets_scan: _atd_read_optional_field(_atd_read_bool, x['is_secrets_scan'], x),
+  };
+}
+
 export function writeFinding(x: Finding, context: any = x): any {
   return {
     'check_id': _atd_write_required_field('Finding', 'check_id', writeRuleId, x.check_id, x),
@@ -1905,64 +1963,6 @@ export function readParsingStats(x: any, context: any = x): ParsingStats {
     num_targets: _atd_read_required_field('ParsingStats', 'num_targets', _atd_read_int, x['num_targets'], x),
     bytes_parsed: _atd_read_required_field('ParsingStats', 'bytes_parsed', _atd_read_int, x['bytes_parsed'], x),
     num_bytes: _atd_read_required_field('ParsingStats', 'num_bytes', _atd_read_int, x['num_bytes'], x),
-  };
-}
-
-export function writeProjectMetadata(x: ProjectMetadata, context: any = x): any {
-  return {
-    'semgrep_version': _atd_write_required_field('ProjectMetadata', 'semgrep_version', writeVersion, x.semgrep_version, x),
-    'repository': _atd_write_required_field('ProjectMetadata', 'repository', _atd_write_string, x.repository, x),
-    'repo_url': _atd_write_required_field('ProjectMetadata', 'repo_url', _atd_write_nullable(_atd_write_string), x.repo_url, x),
-    'branch': _atd_write_required_field('ProjectMetadata', 'branch', _atd_write_nullable(_atd_write_string), x.branch, x),
-    'ci_job_url': _atd_write_required_field('ProjectMetadata', 'ci_job_url', _atd_write_nullable(_atd_write_string), x.ci_job_url, x),
-    'commit': _atd_write_required_field('ProjectMetadata', 'commit', _atd_write_nullable(_atd_write_string), x.commit, x),
-    'commit_author_email': _atd_write_required_field('ProjectMetadata', 'commit_author_email', _atd_write_nullable(_atd_write_string), x.commit_author_email, x),
-    'commit_author_name': _atd_write_required_field('ProjectMetadata', 'commit_author_name', _atd_write_nullable(_atd_write_string), x.commit_author_name, x),
-    'commit_author_username': _atd_write_required_field('ProjectMetadata', 'commit_author_username', _atd_write_nullable(_atd_write_string), x.commit_author_username, x),
-    'commit_author_image_url': _atd_write_required_field('ProjectMetadata', 'commit_author_image_url', _atd_write_nullable(_atd_write_string), x.commit_author_image_url, x),
-    'commit_title': _atd_write_required_field('ProjectMetadata', 'commit_title', _atd_write_nullable(_atd_write_string), x.commit_title, x),
-    'commit_timestamp': _atd_write_required_field('ProjectMetadata', 'commit_timestamp', _atd_write_nullable(_atd_write_string), x.commit_timestamp, x),
-    'on': _atd_write_required_field('ProjectMetadata', 'on', _atd_write_nullable(_atd_write_string), x.on, x),
-    'pull_request_author_username': _atd_write_required_field('ProjectMetadata', 'pull_request_author_username', _atd_write_nullable(_atd_write_string), x.pull_request_author_username, x),
-    'pull_request_author_image_url': _atd_write_required_field('ProjectMetadata', 'pull_request_author_image_url', _atd_write_nullable(_atd_write_string), x.pull_request_author_image_url, x),
-    'pull_request_id': _atd_write_required_field('ProjectMetadata', 'pull_request_id', _atd_write_nullable(_atd_write_string), x.pull_request_id, x),
-    'pull_request_title': _atd_write_required_field('ProjectMetadata', 'pull_request_title', _atd_write_nullable(_atd_write_string), x.pull_request_title, x),
-    'scan_environment': _atd_write_required_field('ProjectMetadata', 'scan_environment', _atd_write_nullable(_atd_write_string), x.scan_environment, x),
-    'base_sha': _atd_write_optional_field(_atd_write_string, x.base_sha, x),
-    'start_sha': _atd_write_optional_field(_atd_write_string, x.start_sha, x),
-    'is_full_scan': _atd_write_required_field('ProjectMetadata', 'is_full_scan', _atd_write_bool, x.is_full_scan, x),
-    'is_sca_scan': _atd_write_optional_field(_atd_write_bool, x.is_sca_scan, x),
-    'is_code_scan': _atd_write_optional_field(_atd_write_bool, x.is_code_scan, x),
-    'is_secrets_scan': _atd_write_optional_field(_atd_write_bool, x.is_secrets_scan, x),
-  };
-}
-
-export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
-  return {
-    semgrep_version: _atd_read_required_field('ProjectMetadata', 'semgrep_version', readVersion, x['semgrep_version'], x),
-    repository: _atd_read_required_field('ProjectMetadata', 'repository', _atd_read_string, x['repository'], x),
-    repo_url: _atd_read_required_field('ProjectMetadata', 'repo_url', _atd_read_nullable(_atd_read_string), x['repo_url'], x),
-    branch: _atd_read_required_field('ProjectMetadata', 'branch', _atd_read_nullable(_atd_read_string), x['branch'], x),
-    ci_job_url: _atd_read_required_field('ProjectMetadata', 'ci_job_url', _atd_read_nullable(_atd_read_string), x['ci_job_url'], x),
-    commit: _atd_read_required_field('ProjectMetadata', 'commit', _atd_read_nullable(_atd_read_string), x['commit'], x),
-    commit_author_email: _atd_read_required_field('ProjectMetadata', 'commit_author_email', _atd_read_nullable(_atd_read_string), x['commit_author_email'], x),
-    commit_author_name: _atd_read_required_field('ProjectMetadata', 'commit_author_name', _atd_read_nullable(_atd_read_string), x['commit_author_name'], x),
-    commit_author_username: _atd_read_required_field('ProjectMetadata', 'commit_author_username', _atd_read_nullable(_atd_read_string), x['commit_author_username'], x),
-    commit_author_image_url: _atd_read_required_field('ProjectMetadata', 'commit_author_image_url', _atd_read_nullable(_atd_read_string), x['commit_author_image_url'], x),
-    commit_title: _atd_read_required_field('ProjectMetadata', 'commit_title', _atd_read_nullable(_atd_read_string), x['commit_title'], x),
-    commit_timestamp: _atd_read_required_field('ProjectMetadata', 'commit_timestamp', _atd_read_nullable(_atd_read_string), x['commit_timestamp'], x),
-    on: _atd_read_required_field('ProjectMetadata', 'on', _atd_read_nullable(_atd_read_string), x['on'], x),
-    pull_request_author_username: _atd_read_required_field('ProjectMetadata', 'pull_request_author_username', _atd_read_nullable(_atd_read_string), x['pull_request_author_username'], x),
-    pull_request_author_image_url: _atd_read_required_field('ProjectMetadata', 'pull_request_author_image_url', _atd_read_nullable(_atd_read_string), x['pull_request_author_image_url'], x),
-    pull_request_id: _atd_read_required_field('ProjectMetadata', 'pull_request_id', _atd_read_nullable(_atd_read_string), x['pull_request_id'], x),
-    pull_request_title: _atd_read_required_field('ProjectMetadata', 'pull_request_title', _atd_read_nullable(_atd_read_string), x['pull_request_title'], x),
-    scan_environment: _atd_read_required_field('ProjectMetadata', 'scan_environment', _atd_read_nullable(_atd_read_string), x['scan_environment'], x),
-    base_sha: _atd_read_optional_field(_atd_read_string, x['base_sha'], x),
-    start_sha: _atd_read_optional_field(_atd_read_string, x['start_sha'], x),
-    is_full_scan: _atd_read_required_field('ProjectMetadata', 'is_full_scan', _atd_read_bool, x['is_full_scan'], x),
-    is_sca_scan: _atd_read_optional_field(_atd_read_bool, x['is_sca_scan'], x),
-    is_code_scan: _atd_read_optional_field(_atd_read_bool, x['is_code_scan'], x),
-    is_secrets_scan: _atd_read_optional_field(_atd_read_bool, x['is_secrets_scan'], x),
   };
 }
 

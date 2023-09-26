@@ -658,6 +658,43 @@
         "text": { "type": "string" }
       }
     },
+    "project_metadata": {
+      "type": "object",
+      "required": [
+        "semgrep_version", "repository", "repo_url", "branch", "ci_job_url",
+        "commit", "commit_author_email", "commit_author_name",
+        "commit_author_username", "commit_author_image_url", "commit_title",
+        "on", "pull_request_author_username",
+        "pull_request_author_image_url", "pull_request_id",
+        "pull_request_title", "scan_environment", "is_full_scan"
+      ],
+      "properties": {
+        "semgrep_version": { "$ref": "#/definitions/version" },
+        "repository": { "type": "string" },
+        "repo_url": { "type": [ "string", "null" ] },
+        "branch": { "type": [ "string", "null" ] },
+        "ci_job_url": { "type": [ "string", "null" ] },
+        "commit": { "type": [ "string", "null" ] },
+        "commit_author_email": { "type": [ "string", "null" ] },
+        "commit_author_name": { "type": [ "string", "null" ] },
+        "commit_author_username": { "type": [ "string", "null" ] },
+        "commit_author_image_url": { "type": [ "string", "null" ] },
+        "commit_title": { "type": [ "string", "null" ] },
+        "commit_timestamp": { "type": "string" },
+        "on": { "type": [ "string", "null" ] },
+        "pull_request_author_username": { "type": [ "string", "null" ] },
+        "pull_request_author_image_url": { "type": [ "string", "null" ] },
+        "pull_request_id": { "type": [ "string", "null" ] },
+        "pull_request_title": { "type": [ "string", "null" ] },
+        "scan_environment": { "type": [ "string", "null" ] },
+        "base_sha": { "type": "string" },
+        "start_sha": { "type": "string" },
+        "is_full_scan": { "type": "boolean" },
+        "is_sca_scan": { "type": "boolean" },
+        "is_code_scan": { "type": "boolean" },
+        "is_secrets_scan": { "type": "boolean" }
+      }
+    },
     "finding": {
       "type": "object",
       "required": [
@@ -805,43 +842,6 @@
         "num_targets": { "type": "integer" },
         "bytes_parsed": { "type": "integer" },
         "num_bytes": { "type": "integer" }
-      }
-    },
-    "project_metadata": {
-      "type": "object",
-      "required": [
-        "semgrep_version", "repository", "repo_url", "branch", "ci_job_url",
-        "commit", "commit_author_email", "commit_author_name",
-        "commit_author_username", "commit_author_image_url", "commit_title",
-        "commit_timestamp", "on", "pull_request_author_username",
-        "pull_request_author_image_url", "pull_request_id",
-        "pull_request_title", "scan_environment", "is_full_scan"
-      ],
-      "properties": {
-        "semgrep_version": { "$ref": "#/definitions/version" },
-        "repository": { "type": "string" },
-        "repo_url": { "type": [ "string", "null" ] },
-        "branch": { "type": [ "string", "null" ] },
-        "ci_job_url": { "type": [ "string", "null" ] },
-        "commit": { "type": [ "string", "null" ] },
-        "commit_author_email": { "type": [ "string", "null" ] },
-        "commit_author_name": { "type": [ "string", "null" ] },
-        "commit_author_username": { "type": [ "string", "null" ] },
-        "commit_author_image_url": { "type": [ "string", "null" ] },
-        "commit_title": { "type": [ "string", "null" ] },
-        "commit_timestamp": { "type": [ "string", "null" ] },
-        "on": { "type": [ "string", "null" ] },
-        "pull_request_author_username": { "type": [ "string", "null" ] },
-        "pull_request_author_image_url": { "type": [ "string", "null" ] },
-        "pull_request_id": { "type": [ "string", "null" ] },
-        "pull_request_title": { "type": [ "string", "null" ] },
-        "scan_environment": { "type": [ "string", "null" ] },
-        "base_sha": { "type": "string" },
-        "start_sha": { "type": "string" },
-        "is_full_scan": { "type": "boolean" },
-        "is_sca_scan": { "type": "boolean" },
-        "is_code_scan": { "type": "boolean" },
-        "is_secrets_scan": { "type": "boolean" }
       }
     }
   }

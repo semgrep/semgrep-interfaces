@@ -7122,15 +7122,17 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       write__string_nullable
     )
       ob x.commit_title;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"commit_timestamp\":";
-    (
-      write__string_nullable
-    )
-      ob x.commit_timestamp;
+    (match x.commit_timestamp with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"commit_timestamp\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
     if !is_first then
       is_first := false
     else
@@ -7634,13 +7636,15 @@ let read_project_metadata = (
               )
             );
           | 11 ->
-            field_commit_timestamp := (
-              Some (
-                (
-                  read__string_nullable
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_commit_timestamp := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
           | 12 ->
             field_on := (
               Some (
@@ -8102,13 +8106,15 @@ let read_project_metadata = (
                 )
               );
             | 11 ->
-              field_commit_timestamp := (
-                Some (
-                  (
-                    read__string_nullable
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_commit_timestamp := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
             | 12 ->
               field_on := (
                 Some (
@@ -8235,7 +8241,7 @@ let read_project_metadata = (
             commit_author_username = (match !field_commit_author_username with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_author_username");
             commit_author_image_url = (match !field_commit_author_image_url with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_author_image_url");
             commit_title = (match !field_commit_title with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_title");
-            commit_timestamp = (match !field_commit_timestamp with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_timestamp");
+            commit_timestamp = !field_commit_timestamp;
             on = (match !field_on with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "on");
             pull_request_author_username = (match !field_pull_request_author_username with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "pull_request_author_username");
             pull_request_author_image_url = (match !field_pull_request_author_image_url with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "pull_request_author_image_url");
