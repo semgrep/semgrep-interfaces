@@ -236,11 +236,6 @@ export type SkippedRule = {
   position: Position;
 }
 
-export type CoreStats = {
-  okfiles: number /*int*/;
-  errorfiles: number /*int*/;
-}
-
 export type Profile = {
   rules: RuleId[];
   rules_parse_time: number;
@@ -289,7 +284,6 @@ export type CoreOutput = {
   rules_by_engine?: RuleIdAndEngineKind[];
   engine_requested?: EngineKind;
   skipped_rules: SkippedRule[];
-  stats: CoreStats;
 }
 
 export type CliOutput = {
@@ -1221,20 +1215,6 @@ export function readSkippedRule(x: any, context: any = x): SkippedRule {
   };
 }
 
-export function writeCoreStats(x: CoreStats, context: any = x): any {
-  return {
-    'okfiles': _atd_write_required_field('CoreStats', 'okfiles', _atd_write_int, x.okfiles, x),
-    'errorfiles': _atd_write_required_field('CoreStats', 'errorfiles', _atd_write_int, x.errorfiles, x),
-  };
-}
-
-export function readCoreStats(x: any, context: any = x): CoreStats {
-  return {
-    okfiles: _atd_read_required_field('CoreStats', 'okfiles', _atd_read_int, x['okfiles'], x),
-    errorfiles: _atd_read_required_field('CoreStats', 'errorfiles', _atd_read_int, x['errorfiles'], x),
-  };
-}
-
 export function writeProfile(x: Profile, context: any = x): any {
   return {
     'rules': _atd_write_required_field('Profile', 'rules', _atd_write_array(writeRuleId), x.rules, x),
@@ -1377,7 +1357,6 @@ export function writeCoreOutput(x: CoreOutput, context: any = x): any {
     'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
-    'stats': _atd_write_required_field('CoreOutput', 'stats', writeCoreStats, x.stats, x),
   };
 }
 
@@ -1392,7 +1371,6 @@ export function readCoreOutput(x: any, context: any = x): CoreOutput {
     rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
-    stats: _atd_read_required_field('CoreOutput', 'stats', readCoreStats, x['stats'], x),
   };
 }
 

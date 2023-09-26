@@ -403,14 +403,6 @@
         "position": { "$ref": "#/definitions/position" }
       }
     },
-    "core_stats": {
-      "type": "object",
-      "required": [ "okfiles", "errorfiles" ],
-      "properties": {
-        "okfiles": { "type": "integer" },
-        "errorfiles": { "type": "integer" }
-      }
-    },
     "profile": {
       "type": "object",
       "required": [
@@ -492,7 +484,7 @@
     },
     "core_output": {
       "type": "object",
-      "required": [ "results", "errors", "paths", "stats" ],
+      "required": [ "results", "errors", "paths" ],
       "properties": {
         "version": { "$ref": "#/definitions/version" },
         "results": {
@@ -517,8 +509,7 @@
         "skipped_rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
-        },
-        "stats": { "$ref": "#/definitions/core_stats" }
+        }
       }
     },
     "cli_output_extra": {

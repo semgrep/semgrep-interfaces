@@ -299,11 +299,6 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
 
 type datetime = Semgrep_output_v1_t.datetime
 
-type core_stats = Semgrep_output_v1_t.core_stats = {
-  okfiles: int;
-  errorfiles: int
-}
-
 type core_severity = Semgrep_output_v1_t.core_severity = 
     Error | Warning | Info
 
@@ -349,8 +344,7 @@ type core_output = Semgrep_output_v1_t.core_output = {
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option;
-  skipped_rules: skipped_rule list;
-  stats: core_stats
+  skipped_rules: skipped_rule list
 }
 
 type contributor = Semgrep_output_v1_t.contributor = {
@@ -1357,26 +1351,6 @@ val read_datetime :
 val datetime_of_string :
   string -> datetime
   (** Deserialize JSON data of type {!type:datetime}. *)
-
-val write_core_stats :
-  Buffer.t -> core_stats -> unit
-  (** Output a JSON value of type {!type:core_stats}. *)
-
-val string_of_core_stats :
-  ?len:int -> core_stats -> string
-  (** Serialize a value of type {!type:core_stats}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_core_stats :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_stats
-  (** Input JSON data of type {!type:core_stats}. *)
-
-val core_stats_of_string :
-  string -> core_stats
-  (** Deserialize JSON data of type {!type:core_stats}. *)
 
 val write_core_severity :
   Buffer.t -> core_severity -> unit
