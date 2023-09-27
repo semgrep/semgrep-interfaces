@@ -233,6 +233,8 @@ type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
   num_bytes: int
 }
 
+type meta = Semgrep_output_v1_t.meta = { meta: project_metadata }
+
 type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
   rule_id: rule_id;
   this_version: version;
@@ -1211,6 +1213,26 @@ val read_parsing_stats :
 val parsing_stats_of_string :
   string -> parsing_stats
   (** Deserialize JSON data of type {!type:parsing_stats}. *)
+
+val write_meta :
+  Buffer.t -> meta -> unit
+  (** Output a JSON value of type {!type:meta}. *)
+
+val string_of_meta :
+  ?len:int -> meta -> string
+  (** Serialize a value of type {!type:meta}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_meta :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> meta
+  (** Input JSON data of type {!type:meta}. *)
+
+val meta_of_string :
+  string -> meta
+  (** Deserialize JSON data of type {!type:meta}. *)
 
 val write_incompatible_rule :
   Buffer.t -> incompatible_rule -> unit

@@ -685,6 +685,11 @@
         "is_secrets_scan": { "type": "boolean" }
       }
     },
+    "meta": {
+      "type": "object",
+      "required": [ "meta" ],
+      "properties": { "meta": { "$ref": "#/definitions/project_metadata" } }
+    },
     "finding": {
       "type": "object",
       "required": [

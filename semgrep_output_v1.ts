@@ -411,6 +411,10 @@ export type ProjectMetadata = {
   is_secrets_scan?: boolean;
 }
 
+export type Meta = {
+  meta: ProjectMetadata;
+}
+
 export type Finding = {
   check_id: RuleId;
   path: Fpath;
@@ -1738,6 +1742,18 @@ export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
     is_sca_scan: _atd_read_optional_field(_atd_read_bool, x['is_sca_scan'], x),
     is_code_scan: _atd_read_optional_field(_atd_read_bool, x['is_code_scan'], x),
     is_secrets_scan: _atd_read_optional_field(_atd_read_bool, x['is_secrets_scan'], x),
+  };
+}
+
+export function writeMeta(x: Meta, context: any = x): any {
+  return {
+    'meta': _atd_write_required_field('Meta', 'meta', writeProjectMetadata, x.meta, x),
+  };
+}
+
+export function readMeta(x: any, context: any = x): Meta {
+  return {
+    meta: _atd_read_required_field('Meta', 'meta', readProjectMetadata, x['meta'], x),
   };
 }
 
