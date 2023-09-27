@@ -7,13 +7,20 @@ $schema: http://json-schema.org/draft-07/schema#
 #  comment before!!
 $defs:
   # EXPERIMENTAL
-  postprocessor-patterns-content:
-    type: array
-    minItems: 1
-    items:
-      ref: "#/$defs/general-pattern-content"
+  validator:
+    properties:
+      http:
+        properties:
+          request:
+            $ref: "#/$defs/http-request-content"
+          response:
+            $ref: "#/$defs/http-response-content"
+        required: [ request, response ]
+    # An individual validator shall be exactly one 'kind' of validator.
+    oneOf:
+      - required: [ http ]
   # EXPERIMENTAL
-  request-content:
+  http-request-content:
     properties:
       url:
         type: string
@@ -26,12 +33,40 @@ $defs:
       auth:
         type: object
   # EXPERIMENTAL
-  response-content:
+  http-response-content:
+    type: array
+    items:
+      $ref: "#/$defs/http-response-item"
+  # EXPERIMENTAL
+  http-response-item:
     properties:
-      return_code:
-        type: string
-      pattern-regex:
-        type: string
+      match:
+        $ref: "#/$defs/http-response-match"
+      result:
+        properties:
+          validity:
+            enum: [ valid, invalid ]
+
+  # EXPERIMENTAL
+  http-response-match:
+    properties:
+      status-code:
+        type: integer
+      headers:
+        type: array
+        items:
+          properties:
+            name:
+              type: string
+            value:
+              type: string
+      content:
+        type: object
+        properties:
+          # TODO(cooper): re-use languages sub-enum?
+          language:
+            type: string 
+        $ref: "#/$defs/general-pattern-content"
   # EXPERIMENTAL
   new-source-pattern:
     $ref: "#/$defs/new-pattern"
@@ -778,15 +813,14 @@ properties:
           $ref: "#/$defs/taint-content"
         taint:
           $ref: "#/$defs/new-taint-content"
-        # EXPERIMENTAL
-        postprocessor-patterns:
-          $ref: "#/$defs/postprocessor-patterns-content"
-        request:
-          $ref: "#/$defs/request-content"
-        response:
-          $ref: "#/$defs/response-content"
         join:
           $ref: "#/$defs/join-content"
+        # EXPERIMENTAL
+        validators:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/$defs/validator"
         fix:
           title: Replacement text to fix matched code. Can use matched metavariables.
           type: string
@@ -1032,32 +1066,3 @@ properties:
               pattern-propagators: false
               pattern-sanitizers: false
               join: false
-        - if:
-            properties:
-              mode:
-                const: semgrep_internal_postprocessor
-            required:
-              - mode
-          then:
-            required:
-              - id
-              - message
-              - severity
-              - postprocessor-patterns
-              - request
-              - response
-            properties:
-              extract: false
-              dest-language: false
-              # EXPERIMENTAL
-              transform: false
-              reduce: false
-              patterns: false
-              pattern: false
-              pattern-either: false
-              pattern-regex: false
-              pattern-sinks: false
-              pattern-sources: false
-              pattern-propagators: false
-              pattern-sanitizers: false
-              match: false
