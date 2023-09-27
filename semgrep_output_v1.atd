@@ -807,8 +807,12 @@ type dependency_parser_error = {
  *  - /results to send the findings to the backend
  *  - /complete when done, with the exit code and a few more information
  *
- * TODO: see semgrep/app/scans.py
+ * TODO:
+ *  - see semgrep/app/scans.py, need to port to ATD not just what we send, but
+ *    also the reply from the backend
+ *
  * alt: we could move all of this in a separate semgrep_posts_v1.atd file
+ * or semgrep_webapp_v1.atd
 *)
 
 (* ----------------------------- *)
@@ -821,8 +825,6 @@ type dependency_parser_error = {
  * Sent by the CLI to the POST /scans endpoint when a scan is created and when
  * getting the scan config.
  * TODO:
- * - we should rewrite Project_metadata.ml in osemgrep to use this data-structure
- *   instead of defining our own Project_metadata.t
  * - we could split it in different parts and use inherit to make things clearer
  *   (while still being backward compatible)
  *)
