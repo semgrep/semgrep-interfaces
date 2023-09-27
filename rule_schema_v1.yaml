@@ -51,18 +51,21 @@ $defs:
   http-response-match:
     properties:
       status-code:
-        type: int
+        type: integer
       headers:
         type: array
         items:
           properties:
-            name: string
-            value: string
+            name:
+              type: string
+            value:
+              type: string
       content:
         type: object
         properties:
           # TODO(cooper): re-use languages sub-enum?
-          language: string 
+          language:
+            type: string 
         $ref: "#/$defs/general-pattern-content"
   # EXPERIMENTAL
   new-source-pattern:
