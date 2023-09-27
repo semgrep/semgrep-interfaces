@@ -2778,6 +2778,34 @@ class ParsingStats:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class Meta:
+    """Original type: meta = { ... }"""
+
+    meta: ProjectMetadata
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Meta':
+        if isinstance(x, dict):
+            return cls(
+                meta=ProjectMetadata.from_json(x['meta']) if 'meta' in x else _atd_missing_json_field('Meta', 'meta'),
+            )
+        else:
+            _atd_bad_json('Meta', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['meta'] = (lambda x: x.to_json())(self.meta)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Meta':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class IncompatibleRule:
     """Original type: incompatible_rule = { ... }"""

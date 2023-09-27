@@ -875,7 +875,9 @@ type project_metadata = {
     ?base_sha: (*sha1*) string option;
     ?start_sha: (*sha1*) string option;
 
-    (* when not a differential scan *)
+    (* Check if the current Git repository has enough to determine the
+     * merge_base_ref.
+     *)
     is_full_scan: bool;
 
     (* added later in ci.py (not from meta.py)
@@ -888,6 +890,10 @@ type project_metadata = {
     ?is_secrets_scan: bool option;
 }
 
+(* we actually send a { meta: ... } to the http endpoint *)
+type meta = {
+    meta: project_metadata;
+}
 
 (* ----------------------------- *)
 (* Findings *)
