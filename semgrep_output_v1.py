@@ -2657,17 +2657,17 @@ class Profile:
 
 
 @dataclass(frozen=True)
-class Code:
-    """Original type: product = [ ... | Code | ... ]"""
+class SAST:
+    """Original type: product = [ ... | SAST | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'Code'
+        return 'SAST'
 
     @staticmethod
     def to_json() -> Any:
-        return 'Code'
+        return 'sast'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -2684,7 +2684,7 @@ class SCA:
 
     @staticmethod
     def to_json() -> Any:
-        return 'SCA'
+        return 'sca'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -2701,7 +2701,7 @@ class Secrets:
 
     @staticmethod
     def to_json() -> Any:
-        return 'Secrets'
+        return 'secrets'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -2711,7 +2711,7 @@ class Secrets:
 class Product:
     """Original type: product = [ ... ]"""
 
-    value: Union[Code, SCA, Secrets]
+    value: Union[SAST, SCA, Secrets]
 
     @property
     def kind(self) -> str:
@@ -2721,11 +2721,11 @@ class Product:
     @classmethod
     def from_json(cls, x: Any) -> 'Product':
         if isinstance(x, str):
-            if x == 'Code':
-                return cls(Code())
-            if x == 'SCA':
+            if x == 'sast':
+                return cls(SAST())
+            if x == 'sca':
                 return cls(SCA())
-            if x == 'Secrets':
+            if x == 'secrets':
                 return cls(Secrets())
             _atd_bad_json('Product', x)
         _atd_bad_json('Product', x)

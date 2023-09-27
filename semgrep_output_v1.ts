@@ -45,9 +45,9 @@ export type EngineKind =
 export type RuleIdAndEngineKind = [RuleId, EngineKind]
 
 export type Product =
-| { kind: 'Code' }
-| { kind: 'SCA' }
-| { kind: 'Secrets' }
+| { kind: 'SAST' /* JSON: "sast" */ }
+| { kind: 'SCA' /* JSON: "sca" */ }
+| { kind: 'Secrets' /* JSON: "secrets" */ }
 
 export type ValidationState =
 | { kind: 'CONFIRMED_VALID' }
@@ -610,22 +610,22 @@ export function readRuleIdAndEngineKind(x: any, context: any = x): RuleIdAndEngi
 
 export function writeProduct(x: Product, context: any = x): any {
   switch (x.kind) {
-    case 'Code':
-      return 'Code'
+    case 'SAST':
+      return 'sast'
     case 'SCA':
-      return 'SCA'
+      return 'sca'
     case 'Secrets':
-      return 'Secrets'
+      return 'secrets'
   }
 }
 
 export function readProduct(x: any, context: any = x): Product {
   switch (x) {
-    case 'Code':
-      return { kind: 'Code' }
-    case 'SCA':
+    case 'sast':
+      return { kind: 'SAST' }
+    case 'sca':
       return { kind: 'SCA' }
-    case 'Secrets':
+    case 'secrets':
       return { kind: 'Secrets' }
     default:
       _atd_bad_json('Product', x, context)
