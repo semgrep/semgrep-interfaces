@@ -193,6 +193,7 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   repository: string;
   repo_url: string option;
   branch: string option;
+  ref: string option;
   ci_job_url: string option;
   commit: string option;
   commit_author_email: string option;

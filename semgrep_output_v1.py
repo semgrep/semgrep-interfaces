@@ -2531,6 +2531,7 @@ class ProjectMetadata:
     pull_request_title: Optional[str]
     scan_environment: str
     is_full_scan: bool
+    ref: Optional[str] = None
     commit_timestamp: Optional[str] = None
     base_sha: Optional[str] = None
     start_sha: Optional[str] = None
@@ -2560,6 +2561,7 @@ class ProjectMetadata:
                 pull_request_title=_atd_read_nullable(_atd_read_string)(x['pull_request_title']) if 'pull_request_title' in x else _atd_missing_json_field('ProjectMetadata', 'pull_request_title'),
                 scan_environment=_atd_read_string(x['scan_environment']) if 'scan_environment' in x else _atd_missing_json_field('ProjectMetadata', 'scan_environment'),
                 is_full_scan=_atd_read_bool(x['is_full_scan']) if 'is_full_scan' in x else _atd_missing_json_field('ProjectMetadata', 'is_full_scan'),
+                ref=_atd_read_string(x['ref']) if 'ref' in x else None,
                 commit_timestamp=_atd_read_string(x['commit_timestamp']) if 'commit_timestamp' in x else None,
                 base_sha=_atd_read_string(x['base_sha']) if 'base_sha' in x else None,
                 start_sha=_atd_read_string(x['start_sha']) if 'start_sha' in x else None,
@@ -2590,6 +2592,8 @@ class ProjectMetadata:
         res['pull_request_title'] = _atd_write_nullable(_atd_write_string)(self.pull_request_title)
         res['scan_environment'] = _atd_write_string(self.scan_environment)
         res['is_full_scan'] = _atd_write_bool(self.is_full_scan)
+        if self.ref is not None:
+            res['ref'] = _atd_write_string(self.ref)
         if self.commit_timestamp is not None:
             res['commit_timestamp'] = _atd_write_string(self.commit_timestamp)
         if self.base_sha is not None:

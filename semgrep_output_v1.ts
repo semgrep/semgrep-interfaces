@@ -389,6 +389,7 @@ export type ProjectMetadata = {
   repository: string;
   repo_url: (string | null);
   branch: (string | null);
+  ref?: string;
   ci_job_url: (string | null);
   commit: (string | null);
   commit_author_email: (string | null);
@@ -1693,6 +1694,7 @@ export function writeProjectMetadata(x: ProjectMetadata, context: any = x): any 
     'repository': _atd_write_required_field('ProjectMetadata', 'repository', _atd_write_string, x.repository, x),
     'repo_url': _atd_write_required_field('ProjectMetadata', 'repo_url', _atd_write_nullable(_atd_write_string), x.repo_url, x),
     'branch': _atd_write_required_field('ProjectMetadata', 'branch', _atd_write_nullable(_atd_write_string), x.branch, x),
+    'ref': _atd_write_optional_field(_atd_write_string, x.ref, x),
     'ci_job_url': _atd_write_required_field('ProjectMetadata', 'ci_job_url', _atd_write_nullable(_atd_write_string), x.ci_job_url, x),
     'commit': _atd_write_required_field('ProjectMetadata', 'commit', _atd_write_nullable(_atd_write_string), x.commit, x),
     'commit_author_email': _atd_write_required_field('ProjectMetadata', 'commit_author_email', _atd_write_nullable(_atd_write_string), x.commit_author_email, x),
@@ -1722,6 +1724,7 @@ export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
     repository: _atd_read_required_field('ProjectMetadata', 'repository', _atd_read_string, x['repository'], x),
     repo_url: _atd_read_required_field('ProjectMetadata', 'repo_url', _atd_read_nullable(_atd_read_string), x['repo_url'], x),
     branch: _atd_read_required_field('ProjectMetadata', 'branch', _atd_read_nullable(_atd_read_string), x['branch'], x),
+    ref: _atd_read_optional_field(_atd_read_string, x['ref'], x),
     ci_job_url: _atd_read_required_field('ProjectMetadata', 'ci_job_url', _atd_read_nullable(_atd_read_string), x['ci_job_url'], x),
     commit: _atd_read_required_field('ProjectMetadata', 'commit', _atd_read_nullable(_atd_read_string), x['commit'], x),
     commit_author_email: _atd_read_required_field('ProjectMetadata', 'commit_author_email', _atd_read_nullable(_atd_read_string), x['commit_author_email'], x),

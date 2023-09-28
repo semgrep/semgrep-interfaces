@@ -37,7 +37,7 @@
  * For Python, a few types have the 'dataclass(frozen=True)' decorator
  * so that the class can be hashed and put in set. Indeed, with 'Frozen=True'
  * the class is immutable and dataclass can autogenerate a hash function for it.
- * 
+ *
  * Finally this file is translated in jsonschema/openapi spec by atdcat, and
  * in Typescript modules by atdts.
  *
@@ -404,7 +404,7 @@ type core_severity
   | Warning <json name="warning">
   | Info <json name="info">
 ] <ocaml repr="classic">
- 
+
 (* ----------------------------- *)
 (* CLI *)
 (* ----------------------------- *)
@@ -552,7 +552,7 @@ type profile = {
      * Those fields are not produced by semgrep-core; they
      * are added by pysemgrep (and later osemgrep).
      *
-     * LATER? define a cli_profiling_times with more precise keys? 
+     * LATER? define a cli_profiling_times with more precise keys?
      * type cli_profiling_times <ocaml attr="deriving show"> = {
      *   config_time: float;
      *   core_time: float;
@@ -837,10 +837,8 @@ type project_metadata = {
      *)
     repository: string;
     repo_url: (*uri*) string nullable;
-    (* TODO: the branch should use a standard format? like refs/... ? or it can
-     * be a basic branch name like 'foobar'?
-     *)
-    branch: string nullable;
+    branch: string nullable; (* doesn't have a consistent format, phase out over time *)
+    ?ref: string option; (* full symbolic ref eg refs/heads/main, since 1.42 *)
 
     (* ?? *)
     ci_job_url: (*uri*) string nullable;

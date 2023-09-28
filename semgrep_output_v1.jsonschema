@@ -663,6 +663,7 @@
         "repository": { "type": "string" },
         "repo_url": { "type": [ "string", "null" ] },
         "branch": { "type": [ "string", "null" ] },
+        "ref": { "type": "string" },
         "ci_job_url": { "type": [ "string", "null" ] },
         "commit": { "type": [ "string", "null" ] },
         "commit_author_email": { "type": [ "string", "null" ] },
