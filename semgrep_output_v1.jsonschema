@@ -685,10 +685,37 @@
         "is_secrets_scan": { "type": "boolean" }
       }
     },
-    "meta": {
+    "scan_metadata": {
+      "type": "object",
+      "required": [ "requested_products" ],
+      "properties": {
+        "requested_products": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" },
+                {
+                  "type": "array",
+                  "items": { "$ref": "#/definitions/product" }
+                }
+              ]
+            },
+            { "const": "None" }
+          ]
+        }
+      }
+    },
+    "create_scan_request": {
       "type": "object",
       "required": [ "meta" ],
-      "properties": { "meta": { "$ref": "#/definitions/project_metadata" } }
+      "properties": {
+        "meta": { "$ref": "#/definitions/project_metadata" },
+        "project": { "$ref": "#/definitions/project_metadata" },
+        "scan": { "$ref": "#/definitions/scan_metadata" }
+      }
     },
     "finding": {
       "type": "object",

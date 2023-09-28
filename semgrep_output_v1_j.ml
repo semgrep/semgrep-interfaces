@@ -147,6 +147,12 @@ type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
   skipped: skipped_target list option
 }
 
+type product = Semgrep_output_v1_t.product [@@deriving show]
+
+type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
+  requested_products: product list option
+}
+
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
 
 type ecosystem = Semgrep_output_v1_t.ecosystem
@@ -224,16 +230,12 @@ type profile = Semgrep_output_v1_t.profile = {
   max_memory_bytes: int option
 }
 
-type product = Semgrep_output_v1_t.product [@@deriving show]
-
 type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
   targets_parsed: int;
   num_targets: int;
   bytes_parsed: int;
   num_bytes: int
 }
-
-type meta = Semgrep_output_v1_t.meta = { meta: project_metadata }
 
 type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
   rule_id: rule_id;
@@ -300,6 +302,12 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
 }
 
 type datetime = Semgrep_output_v1_t.datetime
+
+type create_scan_request = Semgrep_output_v1_t.create_scan_request = {
+  meta: project_metadata;
+  project: project_metadata option;
+  scan: scan_metadata option
+}
 
 type core_severity = Semgrep_output_v1_t.core_severity = 
     Error | Warning | Info
@@ -5170,6 +5178,228 @@ let read_scanned_and_skipped = (
 )
 let scanned_and_skipped_of_string s =
   read_scanned_and_skipped (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_product = (
+  fun ob x ->
+    match x with
+      | `SAST -> Buffer.add_string ob "\"sast\""
+      | `SCA -> Buffer.add_string ob "\"sca\""
+      | `Secrets -> Buffer.add_string ob "\"secrets\""
+)
+let string_of_product ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_product ob x;
+  Buffer.contents ob
+let read_product = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "sast" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `SAST
+            | "sca" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `SCA
+            | "secrets" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Secrets
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "sast" ->
+              `SAST
+            | "sca" ->
+              `SCA
+            | "secrets" ->
+              `Secrets
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let product_of_string s =
+  read_product (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__product_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_product
+  )
+)
+let string_of__product_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__product_list ob x;
+  Buffer.contents ob
+let read__product_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_product
+  )
+)
+let _product_list_of_string s =
+  read__product_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__product_list_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write__product_list
+  )
+)
+let string_of__product_list_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__product_list_option ob x;
+  Buffer.contents ob
+let read__product_list_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__product_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__product_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _product_list_option_of_string s =
+  read__product_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_scan_metadata : _ -> scan_metadata -> _ = (
+  fun ob (x : scan_metadata) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"requested_products\":";
+    (
+      write__product_list_option
+    )
+      ob x.requested_products;
+    Buffer.add_char ob '}';
+)
+let string_of_scan_metadata ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_scan_metadata ob x;
+  Buffer.contents ob
+let read_scan_metadata = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_requested_products = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          if len = 18 && String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'q' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'p' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 't' && String.unsafe_get s (pos+17) = 's' then (
+            0
+          )
+          else (
+            -1
+          )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_requested_products := (
+              Some (
+                (
+                  read__product_list_option
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            if len = 18 && String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'q' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'p' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 't' && String.unsafe_get s (pos+17) = 's' then (
+              0
+            )
+            else (
+              -1
+            )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_requested_products := (
+                Some (
+                  (
+                    read__product_list_option
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            requested_products = (match !field_requested_products with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "requested_products");
+          }
+         : scan_metadata)
+      )
+)
+let scan_metadata_of_string s =
+  read_scan_metadata (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_sca_parser_name = (
   fun ob x ->
     match x with
@@ -8589,57 +8819,6 @@ let read_profile = (
 )
 let profile_of_string s =
   read_profile (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_product = (
-  fun ob x ->
-    match x with
-      | `SAST -> Buffer.add_string ob "\"sast\""
-      | `SCA -> Buffer.add_string ob "\"sca\""
-      | `Secrets -> Buffer.add_string ob "\"secrets\""
-)
-let string_of_product ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_product ob x;
-  Buffer.contents ob
-let read_product = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "sast" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `SAST
-            | "sca" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `SCA
-            | "secrets" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Secrets
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "sast" ->
-              `SAST
-            | "sca" ->
-              `SCA
-            | "secrets" ->
-              `Secrets
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let product_of_string s =
-  read_product (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_parsing_stats : _ -> parsing_stats -> _ = (
   fun ob (x : parsing_stats) ->
     Buffer.add_char ob '{';
@@ -8879,104 +9058,6 @@ let read_parsing_stats = (
 )
 let parsing_stats_of_string s =
   read_parsing_stats (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_meta : _ -> meta -> _ = (
-  fun ob (x : meta) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"meta\":";
-    (
-      write_project_metadata
-    )
-      ob x.meta;
-    Buffer.add_char ob '}';
-)
-let string_of_meta ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_meta ob x;
-  Buffer.contents ob
-let read_meta = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_meta = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          if len = 4 && String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' then (
-            0
-          )
-          else (
-            -1
-          )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_meta := (
-              Some (
-                (
-                  read_project_metadata
-                ) p lb
-              )
-            );
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            if len = 4 && String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' then (
-              0
-            )
-            else (
-              -1
-            )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_meta := (
-                Some (
-                  (
-                    read_project_metadata
-                  ) p lb
-                )
-              );
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            meta = (match !field_meta with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "meta");
-          }
-         : meta)
-      )
-)
-let meta_of_string s =
-  read_meta (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__version_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     write_version
@@ -11978,6 +12059,340 @@ let read_datetime = (
 )
 let datetime_of_string s =
   read_datetime (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__scan_metadata_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_scan_metadata
+  )
+)
+let string_of__scan_metadata_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__scan_metadata_option ob x;
+  Buffer.contents ob
+let read__scan_metadata_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_scan_metadata
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_scan_metadata
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _scan_metadata_option_of_string s =
+  read__scan_metadata_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__project_metadata_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_project_metadata
+  )
+)
+let string_of__project_metadata_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__project_metadata_option ob x;
+  Buffer.contents ob
+let read__project_metadata_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_project_metadata
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_project_metadata
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _project_metadata_option_of_string s =
+  read__project_metadata_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_create_scan_request : _ -> create_scan_request -> _ = (
+  fun ob (x : create_scan_request) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"meta\":";
+    (
+      write_project_metadata
+    )
+      ob x.meta;
+    (match x.project with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"project\":";
+      (
+        write_project_metadata
+      )
+        ob x;
+    );
+    (match x.scan with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"scan\":";
+      (
+        write_scan_metadata
+      )
+        ob x;
+    );
+    Buffer.add_char ob '}';
+)
+let string_of_create_scan_request ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_create_scan_request ob x;
+  Buffer.contents ob
+let read_create_scan_request = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_meta = ref (None) in
+    let field_project = ref (None) in
+    let field_scan = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 4 -> (
+                match String.unsafe_get s pos with
+                  | 'm' -> (
+                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' then (
+                        0
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 's' -> (
+                      if String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' then (
+                        2
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
+              )
+            | 7 -> (
+                if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'j' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 't' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_meta := (
+              Some (
+                (
+                  read_project_metadata
+                ) p lb
+              )
+            );
+          | 1 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_project := (
+                Some (
+                  (
+                    read_project_metadata
+                  ) p lb
+                )
+              );
+            )
+          | 2 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_scan := (
+                Some (
+                  (
+                    read_scan_metadata
+                  ) p lb
+                )
+              );
+            )
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 4 -> (
+                  match String.unsafe_get s pos with
+                    | 'm' -> (
+                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' then (
+                          0
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 's' -> (
+                        if String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' then (
+                          2
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
+                )
+              | 7 -> (
+                  if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'j' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 't' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_meta := (
+                Some (
+                  (
+                    read_project_metadata
+                  ) p lb
+                )
+              );
+            | 1 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_project := (
+                  Some (
+                    (
+                      read_project_metadata
+                    ) p lb
+                  )
+                );
+              )
+            | 2 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_scan := (
+                  Some (
+                    (
+                      read_scan_metadata
+                    ) p lb
+                  )
+                );
+              )
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            meta = (match !field_meta with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "meta");
+            project = !field_project;
+            scan = !field_scan;
+          }
+         : create_scan_request)
+      )
+)
+let create_scan_request_of_string s =
+  read_create_scan_request (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_severity : _ -> core_severity -> _ = (
   fun ob (x : core_severity) ->
     match x with

@@ -411,8 +411,14 @@ export type ProjectMetadata = {
   is_secrets_scan?: boolean;
 }
 
-export type Meta = {
+export type ScanMetadata = {
+  requested_products: Option<Product[]>;
+}
+
+export type CreateScanRequest = {
   meta: ProjectMetadata;
+  project?: ProjectMetadata;
+  scan?: ScanMetadata;
 }
 
 export type Finding = {
@@ -1745,15 +1751,31 @@ export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
   };
 }
 
-export function writeMeta(x: Meta, context: any = x): any {
+export function writeScanMetadata(x: ScanMetadata, context: any = x): any {
   return {
-    'meta': _atd_write_required_field('Meta', 'meta', writeProjectMetadata, x.meta, x),
+    'requested_products': _atd_write_required_field('ScanMetadata', 'requested_products', _atd_write_option(_atd_write_array(writeProduct)), x.requested_products, x),
   };
 }
 
-export function readMeta(x: any, context: any = x): Meta {
+export function readScanMetadata(x: any, context: any = x): ScanMetadata {
   return {
-    meta: _atd_read_required_field('Meta', 'meta', readProjectMetadata, x['meta'], x),
+    requested_products: _atd_read_required_field('ScanMetadata', 'requested_products', _atd_read_option(_atd_read_array(readProduct)), x['requested_products'], x),
+  };
+}
+
+export function writeCreateScanRequest(x: CreateScanRequest, context: any = x): any {
+  return {
+    'meta': _atd_write_required_field('CreateScanRequest', 'meta', writeProjectMetadata, x.meta, x),
+    'project': _atd_write_optional_field(writeProjectMetadata, x.project, x),
+    'scan': _atd_write_optional_field(writeScanMetadata, x.scan, x),
+  };
+}
+
+export function readCreateScanRequest(x: any, context: any = x): CreateScanRequest {
+  return {
+    meta: _atd_read_required_field('CreateScanRequest', 'meta', readProjectMetadata, x['meta'], x),
+    project: _atd_read_optional_field(readProjectMetadata, x['project'], x),
+    scan: _atd_read_optional_field(readScanMetadata, x['scan'], x),
   };
 }
 

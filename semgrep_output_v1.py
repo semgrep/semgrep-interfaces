@@ -1788,6 +1788,119 @@ class ScannedAndSkipped:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class SAST:
+    """Original type: product = [ ... | SAST | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SAST'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'sast'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class SCA:
+    """Original type: product = [ ... | SCA | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SCA'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'sca'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Secrets:
+    """Original type: product = [ ... | Secrets | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Secrets'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'secrets'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Product:
+    """Original type: product = [ ... ]"""
+
+    value: Union[SAST, SCA, Secrets]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Product':
+        if isinstance(x, str):
+            if x == 'sast':
+                return cls(SAST())
+            if x == 'sca':
+                return cls(SCA())
+            if x == 'secrets':
+                return cls(Secrets())
+            _atd_bad_json('Product', x)
+        _atd_bad_json('Product', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Product':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScanMetadata:
+    """Original type: scan_metadata = { ... }"""
+
+    requested_products: Optional[List[Product]]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScanMetadata':
+        if isinstance(x, dict):
+            return cls(
+                requested_products=_atd_read_option(_atd_read_list(Product.from_json))(x['requested_products']) if 'requested_products' in x else _atd_missing_json_field('ScanMetadata', 'requested_products'),
+            )
+        else:
+            _atd_bad_json('ScanMetadata', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['requested_products'] = _atd_write_option(_atd_write_list((lambda x: x.to_json())))(self.requested_products)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScanMetadata':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class GemfileLock:
     """Original type: sca_parser_name = [ ... | Gemfile_lock | ... ]"""
@@ -2656,91 +2769,6 @@ class Profile:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
-class SAST:
-    """Original type: product = [ ... | SAST | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'SAST'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'sast'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class SCA:
-    """Original type: product = [ ... | SCA | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'SCA'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'sca'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Secrets:
-    """Original type: product = [ ... | Secrets | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Secrets'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'secrets'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Product:
-    """Original type: product = [ ... ]"""
-
-    value: Union[SAST, SCA, Secrets]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Product':
-        if isinstance(x, str):
-            if x == 'sast':
-                return cls(SAST())
-            if x == 'sca':
-                return cls(SCA())
-            if x == 'secrets':
-                return cls(Secrets())
-            _atd_bad_json('Product', x)
-        _atd_bad_json('Product', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Product':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass
 class ParsingStats:
     """Original type: parsing_stats = { ... }"""
@@ -2772,34 +2800,6 @@ class ParsingStats:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ParsingStats':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Meta:
-    """Original type: meta = { ... }"""
-
-    meta: ProjectMetadata
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Meta':
-        if isinstance(x, dict):
-            return cls(
-                meta=ProjectMetadata.from_json(x['meta']) if 'meta' in x else _atd_missing_json_field('Meta', 'meta'),
-            )
-        else:
-            _atd_bad_json('Meta', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['meta'] = (lambda x: x.to_json())(self.meta)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Meta':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -3124,6 +3124,42 @@ class Datetime:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Datetime':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CreateScanRequest:
+    """Original type: create_scan_request = { ... }"""
+
+    meta: ProjectMetadata
+    project: Optional[ProjectMetadata] = None
+    scan: Optional[ScanMetadata] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CreateScanRequest':
+        if isinstance(x, dict):
+            return cls(
+                meta=ProjectMetadata.from_json(x['meta']) if 'meta' in x else _atd_missing_json_field('CreateScanRequest', 'meta'),
+                project=ProjectMetadata.from_json(x['project']) if 'project' in x else None,
+                scan=ScanMetadata.from_json(x['scan']) if 'scan' in x else None,
+            )
+        else:
+            _atd_bad_json('CreateScanRequest', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['meta'] = (lambda x: x.to_json())(self.meta)
+        if self.project is not None:
+            res['project'] = (lambda x: x.to_json())(self.project)
+        if self.scan is not None:
+            res['scan'] = (lambda x: x.to_json())(self.scan)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CreateScanRequest':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

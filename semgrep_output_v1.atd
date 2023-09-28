@@ -37,7 +37,7 @@
  * For Python, a few types have the 'dataclass(frozen=True)' decorator
  * so that the class can be hashed and put in set. Indeed, with 'Frozen=True'
  * the class is immutable and dataclass can autogenerate a hash function for it.
- * 
+ *
  * Finally this file is translated in jsonschema/openapi spec by atdcat, and
  * in Typescript modules by atdts.
  *
@@ -404,7 +404,7 @@ type core_severity
   | Warning <json name="warning">
   | Info <json name="info">
 ] <ocaml repr="classic">
- 
+
 (* ----------------------------- *)
 (* CLI *)
 (* ----------------------------- *)
@@ -552,7 +552,7 @@ type profile = {
      * Those fields are not produced by semgrep-core; they
      * are added by pysemgrep (and later osemgrep).
      *
-     * LATER? define a cli_profiling_times with more precise keys? 
+     * LATER? define a cli_profiling_times with more precise keys?
      * type cli_profiling_times <ocaml attr="deriving show"> = {
      *   config_time: float;
      *   core_time: float;
@@ -883,7 +883,7 @@ type project_metadata = {
     is_full_scan: bool;
 
     (* added later in ci.py (not from meta.py)
-     * TODO: should replace with 'scan_products: product list;'
+     * TODO: deprecate these in favor of scan_metadata
      *)
     ?is_sca_scan: bool option;
     (* since 1.40.0 *)
@@ -892,9 +892,14 @@ type project_metadata = {
     ?is_secrets_scan: bool option;
 }
 
-(* we actually send a { meta: ... } to the http endpoint *)
-type meta = {
-    meta: project_metadata;
+type scan_metadata = {
+  requested_products: product list option;
+}
+
+type create_scan_request = {
+    meta: project_metadata; (* until 1.43ish *)
+    ?project: project_metadata option; (* from 1.42, replacing meta *)
+    ?scan: scan_metadata option; (* from 1.42 *)
 }
 
 (* ----------------------------- *)
