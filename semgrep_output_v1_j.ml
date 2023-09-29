@@ -185,7 +185,7 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
 type project_config = Semgrep_output_v1_t.project_config
 
 type scan_request = Semgrep_output_v1_t.scan_request = {
-  meta: Yojson.Safe.t;
+  meta: raw_json;
   project_metadata: project_metadata option;
   project_config: project_config option;
   scan_metadata: scan_metadata option
@@ -6764,6 +6764,18 @@ let read_project_metadata = (
 )
 let project_metadata_of_string s =
   read_project_metadata (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_project_config = (
+  write_raw_json
+)
+let string_of_project_config ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_project_config ob x;
+  Buffer.contents ob
+let read_project_config = (
+  read_raw_json
+)
+let project_config_of_string s =
+  read_project_config (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__scan_metadata_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     write_scan_metadata
@@ -6945,7 +6957,7 @@ let write_scan_request : _ -> scan_request -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"meta\":";
     (
-      Yojson.Safe.write_json
+      write_raw_json
     )
       ob x.meta;
     (match x.project_metadata with None -> () | Some x ->
@@ -7048,7 +7060,7 @@ let read_scan_request = (
             field_meta := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_json
+                  read_raw_json
                 ) p lb
               )
             );
@@ -7139,7 +7151,7 @@ let read_scan_request = (
               field_meta := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_json
+                    read_raw_json
                   ) p lb
                 )
               );

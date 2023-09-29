@@ -185,7 +185,7 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
 type project_config = Semgrep_output_v1_t.project_config
 
 type scan_request = Semgrep_output_v1_t.scan_request = {
-  meta: Yojson.Safe.t;
+  meta: raw_json;
   project_metadata: project_metadata option;
   project_config: project_config option;
   scan_metadata: scan_metadata option
@@ -1047,6 +1047,26 @@ val read_project_metadata :
 val project_metadata_of_string :
   string -> project_metadata
   (** Deserialize JSON data of type {!type:project_metadata}. *)
+
+val write_project_config :
+  Buffer.t -> project_config -> unit
+  (** Output a JSON value of type {!type:project_config}. *)
+
+val string_of_project_config :
+  ?len:int -> project_config -> string
+  (** Serialize a value of type {!type:project_config}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_project_config :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> project_config
+  (** Input JSON data of type {!type:project_config}. *)
+
+val project_config_of_string :
+  string -> project_config
+  (** Deserialize JSON data of type {!type:project_config}. *)
 
 val write_scan_request :
   Buffer.t -> scan_request -> unit

@@ -697,12 +697,12 @@
         }
       }
     },
-    "project_config": {},
+    "project_config": { "$ref": "#/definitions/raw_json" },
     "scan_request": {
       "type": "object",
       "required": [ "meta" ],
       "properties": {
-        "meta": {},
+        "meta": { "$ref": "#/definitions/raw_json" },
         "project_metadata": { "$ref": "#/definitions/project_metadata" },
         "project_config": { "$ref": "#/definitions/project_config" },
         "scan_metadata": { "$ref": "#/definitions/scan_metadata" }

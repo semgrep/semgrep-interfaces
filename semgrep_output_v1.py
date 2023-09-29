@@ -2014,14 +2014,14 @@ class ProjectMetadata:
 class ProjectConfig:
     """Original type: project_config"""
 
-    value: Any
+    value: RawJson
 
     @classmethod
     def from_json(cls, x: Any) -> 'ProjectConfig':
-        return cls((lambda x: x)(x))
+        return cls(RawJson.from_json(x))
 
     def to_json(self) -> Any:
-        return (lambda x: x)(self.value)
+        return (lambda x: x.to_json())(self.value)
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ProjectConfig':
@@ -2035,7 +2035,7 @@ class ProjectConfig:
 class ScanRequest:
     """Original type: scan_request = { ... }"""
 
-    meta: Any
+    meta: RawJson
     project_metadata: Optional[ProjectMetadata] = None
     project_config: Optional[ProjectConfig] = None
     scan_metadata: Optional[ScanMetadata] = None
@@ -2044,7 +2044,7 @@ class ScanRequest:
     def from_json(cls, x: Any) -> 'ScanRequest':
         if isinstance(x, dict):
             return cls(
-                meta=(lambda x: x)(x['meta']) if 'meta' in x else _atd_missing_json_field('ScanRequest', 'meta'),
+                meta=RawJson.from_json(x['meta']) if 'meta' in x else _atd_missing_json_field('ScanRequest', 'meta'),
                 project_metadata=ProjectMetadata.from_json(x['project_metadata']) if 'project_metadata' in x else None,
                 project_config=ProjectConfig.from_json(x['project_config']) if 'project_config' in x else None,
                 scan_metadata=ScanMetadata.from_json(x['scan_metadata']) if 'scan_metadata' in x else None,
@@ -2054,7 +2054,7 @@ class ScanRequest:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['meta'] = (lambda x: x)(self.meta)
+        res['meta'] = (lambda x: x.to_json())(self.meta)
         if self.project_metadata is not None:
             res['project_metadata'] = (lambda x: x.to_json())(self.project_metadata)
         if self.project_config is not None:

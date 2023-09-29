@@ -900,7 +900,7 @@ type scan_metadata = {
 (* customer configured via .semgrepconfig.yml
  * TODO: type me
  *)
-type project_config = abstract
+type project_config = raw_json
 
 (* Sent by the CLI to the POST /scans endpoint when a scan is created and when
  * getting the scan config.
@@ -909,7 +909,7 @@ type project_config = abstract
 *)
 type scan_request = {
     (* until 1.43ish, was 'meta: project_metadata;' before *)
-    meta: abstract;
+    meta: raw_json;
     (* from 1.43 *)
     ?project_metadata: project_metadata option; (* replacing meta *)
     ?project_config: project_config option;
