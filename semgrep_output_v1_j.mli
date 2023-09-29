@@ -105,6 +105,8 @@ type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
 
 type version = Semgrep_output_v1_t.version [@@deriving show]
 
+type uuid = Semgrep_output_v1_t.uuid
+
 type uri = Semgrep_output_v1_t.uri
 
 type transitivity = Semgrep_output_v1_t.transitivity
@@ -827,6 +829,26 @@ val read_version :
 val version_of_string :
   string -> version
   (** Deserialize JSON data of type {!type:version}. *)
+
+val write_uuid :
+  Buffer.t -> uuid -> unit
+  (** Output a JSON value of type {!type:uuid}. *)
+
+val string_of_uuid :
+  ?len:int -> uuid -> string
+  (** Serialize a value of type {!type:uuid}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_uuid :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> uuid
+  (** Input JSON data of type {!type:uuid}. *)
+
+val uuid_of_string :
+  string -> uuid
+  (** Deserialize JSON data of type {!type:uuid}. *)
 
 val write_uri :
   Buffer.t -> uri -> unit

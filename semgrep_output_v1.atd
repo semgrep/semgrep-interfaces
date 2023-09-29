@@ -70,6 +70,9 @@ type sha1 = string
 (* TODO: could convert to ?? for OCaml *)
 type datetime = string
 
+(* TODO: could convert to Uuidm.t for OCaml *)
+type uuid = string
+
 (*****************************************************************************)
 (* Versioning *)
 (*****************************************************************************)
@@ -893,7 +896,7 @@ type project_metadata = {
 
 type scan_metadata = {
   cli_version: version;
-  unique_id: string; (* client generated uuid for the scan *)
+  unique_id: (* uuid *) string; (* client generated uuid for the scan *)
   requested_products: product list;
   }
 

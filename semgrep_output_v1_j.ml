@@ -105,6 +105,8 @@ type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
 
 type version = Semgrep_output_v1_t.version [@@deriving show]
 
+type uuid = Semgrep_output_v1_t.uuid
+
 type uri = Semgrep_output_v1_t.uri
 
 type transitivity = Semgrep_output_v1_t.transitivity
@@ -3878,6 +3880,18 @@ let read_version = (
 )
 let version_of_string s =
   read_version (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_uuid = (
+  Yojson.Safe.write_string
+)
+let string_of_uuid ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_uuid ob x;
+  Buffer.contents ob
+let read_uuid = (
+  Atdgen_runtime.Oj_run.read_string
+)
+let uuid_of_string s =
+  read_uuid (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_uri = (
   Yojson.Safe.write_string
 )

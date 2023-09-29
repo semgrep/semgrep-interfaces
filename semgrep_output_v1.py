@@ -1204,6 +1204,27 @@ class Version:
 
 
 @dataclass
+class Uuid:
+    """Original type: uuid"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Uuid':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Uuid':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Uri:
     """Original type: uri"""
 

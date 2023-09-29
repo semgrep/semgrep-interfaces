@@ -20,6 +20,8 @@ export type Sha1 = string
 
 export type Datetime = string
 
+export type Uuid = string
+
 export type Version = string
 
 export type Position = {
@@ -536,6 +538,14 @@ export function writeDatetime(x: Datetime, context: any = x): any {
 }
 
 export function readDatetime(x: any, context: any = x): Datetime {
+  return _atd_read_string(x, context);
+}
+
+export function writeUuid(x: Uuid, context: any = x): any {
+  return _atd_write_string(x, context);
+}
+
+export function readUuid(x: any, context: any = x): Uuid {
   return _atd_read_string(x, context);
 }
 

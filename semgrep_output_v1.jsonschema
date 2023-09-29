@@ -35,6 +35,7 @@
     "uri": { "type": "string" },
     "sha1": { "type": "string" },
     "datetime": { "type": "string" },
+    "uuid": { "type": "string" },
     "version": { "type": "string" },
     "position": {
       "type": "object",
