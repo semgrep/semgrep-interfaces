@@ -4193,6 +4193,7 @@ class CiScanCompleteResponse:
     dependencies: Optional[CiScanDependencies] = None
     dependency_parser_errors: Optional[List[DependencyParserError]] = None
     task_id: Optional[str] = None
+    final_attempt: Optional[bool] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanCompleteResponse':
@@ -4203,6 +4204,7 @@ class CiScanCompleteResponse:
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
                 dependency_parser_errors=_atd_read_list(DependencyParserError.from_json)(x['dependency_parser_errors']) if 'dependency_parser_errors' in x else None,
                 task_id=_atd_read_string(x['task_id']) if 'task_id' in x else None,
+                final_attempt=_atd_read_bool(x['final_attempt']) if 'final_attempt' in x else None,
             )
         else:
             _atd_bad_json('CiScanCompleteResponse', x)
@@ -4217,6 +4219,8 @@ class CiScanCompleteResponse:
             res['dependency_parser_errors'] = _atd_write_list((lambda x: x.to_json()))(self.dependency_parser_errors)
         if self.task_id is not None:
             res['task_id'] = _atd_write_string(self.task_id)
+        if self.final_attempt is not None:
+            res['final_attempt'] = _atd_write_bool(self.final_attempt)
         return res
 
     @classmethod
