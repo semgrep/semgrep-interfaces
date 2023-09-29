@@ -150,6 +150,7 @@ type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
 type product = Semgrep_output_v1_t.product [@@deriving show]
 
 type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
+  cli_version: version;
   unique_id: string;
   requested_products: product list
 }
@@ -5255,6 +5256,15 @@ let write_scan_metadata : _ -> scan_metadata -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
+      Buffer.add_string ob "\"cli_version\":";
+    (
+      write_version
+    )
+      ob x.cli_version;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
       Buffer.add_string ob "\"unique_id\":";
     (
       Yojson.Safe.write_string
@@ -5279,6 +5289,7 @@ let read_scan_metadata = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
+    let field_cli_version = ref (None) in
     let field_unique_id = ref (None) in
     let field_requested_products = ref (None) in
     try
@@ -5292,6 +5303,14 @@ let read_scan_metadata = (
           match len with
             | 9 -> (
                 if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'q' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'd' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | 11 -> (
+                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'v' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' then (
                   0
                 )
                 else (
@@ -5300,7 +5319,7 @@ let read_scan_metadata = (
               )
             | 18 -> (
                 if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'q' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'p' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 't' && String.unsafe_get s (pos+17) = 's' then (
-                  1
+                  2
                 )
                 else (
                   -1
@@ -5315,6 +5334,14 @@ let read_scan_metadata = (
       (
         match i with
           | 0 ->
+            field_cli_version := (
+              Some (
+                (
+                  read_version
+                ) p lb
+              )
+            );
+          | 1 ->
             field_unique_id := (
               Some (
                 (
@@ -5322,7 +5349,7 @@ let read_scan_metadata = (
                 ) p lb
               )
             );
-          | 1 ->
+          | 2 ->
             field_requested_products := (
               Some (
                 (
@@ -5345,6 +5372,14 @@ let read_scan_metadata = (
             match len with
               | 9 -> (
                   if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'q' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'd' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 11 -> (
+                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'v' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' then (
                     0
                   )
                   else (
@@ -5353,7 +5388,7 @@ let read_scan_metadata = (
                 )
               | 18 -> (
                   if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'q' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'p' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 't' && String.unsafe_get s (pos+17) = 's' then (
-                    1
+                    2
                   )
                   else (
                     -1
@@ -5368,6 +5403,14 @@ let read_scan_metadata = (
         (
           match i with
             | 0 ->
+              field_cli_version := (
+                Some (
+                  (
+                    read_version
+                  ) p lb
+                )
+              );
+            | 1 ->
               field_unique_id := (
                 Some (
                   (
@@ -5375,7 +5418,7 @@ let read_scan_metadata = (
                   ) p lb
                 )
               );
-            | 1 ->
+            | 2 ->
               field_requested_products := (
                 Some (
                   (
@@ -5392,6 +5435,7 @@ let read_scan_metadata = (
     with Yojson.End_of_object -> (
         (
           {
+            cli_version = (match !field_cli_version with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "cli_version");
             unique_id = (match !field_unique_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "unique_id");
             requested_products = (match !field_requested_products with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "requested_products");
           }

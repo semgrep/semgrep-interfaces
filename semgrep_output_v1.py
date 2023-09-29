@@ -1877,6 +1877,7 @@ class Product:
 class ScanMetadata:
     """Original type: scan_metadata = { ... }"""
 
+    cli_version: Version
     unique_id: str
     requested_products: List[Product]
 
@@ -1884,6 +1885,7 @@ class ScanMetadata:
     def from_json(cls, x: Any) -> 'ScanMetadata':
         if isinstance(x, dict):
             return cls(
+                cli_version=Version.from_json(x['cli_version']) if 'cli_version' in x else _atd_missing_json_field('ScanMetadata', 'cli_version'),
                 unique_id=_atd_read_string(x['unique_id']) if 'unique_id' in x else _atd_missing_json_field('ScanMetadata', 'unique_id'),
                 requested_products=_atd_read_list(Product.from_json)(x['requested_products']) if 'requested_products' in x else _atd_missing_json_field('ScanMetadata', 'requested_products'),
             )
@@ -1892,6 +1894,7 @@ class ScanMetadata:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
+        res['cli_version'] = (lambda x: x.to_json())(self.cli_version)
         res['unique_id'] = _atd_write_string(self.unique_id)
         res['requested_products'] = _atd_write_list((lambda x: x.to_json()))(self.requested_products)
         return res

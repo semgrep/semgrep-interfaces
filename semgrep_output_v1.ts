@@ -412,6 +412,7 @@ export type ProjectMetadata = {
 }
 
 export type ScanMetadata = {
+  cli_version: Version;
   unique_id: string;
   requested_products: Product[];
 }
@@ -1755,6 +1756,7 @@ export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
 
 export function writeScanMetadata(x: ScanMetadata, context: any = x): any {
   return {
+    'cli_version': _atd_write_required_field('ScanMetadata', 'cli_version', writeVersion, x.cli_version, x),
     'unique_id': _atd_write_required_field('ScanMetadata', 'unique_id', _atd_write_string, x.unique_id, x),
     'requested_products': _atd_write_required_field('ScanMetadata', 'requested_products', _atd_write_array(writeProduct), x.requested_products, x),
   };
@@ -1762,6 +1764,7 @@ export function writeScanMetadata(x: ScanMetadata, context: any = x): any {
 
 export function readScanMetadata(x: any, context: any = x): ScanMetadata {
   return {
+    cli_version: _atd_read_required_field('ScanMetadata', 'cli_version', readVersion, x['cli_version'], x),
     unique_id: _atd_read_required_field('ScanMetadata', 'unique_id', _atd_read_string, x['unique_id'], x),
     requested_products: _atd_read_required_field('ScanMetadata', 'requested_products', _atd_read_array(readProduct), x['requested_products'], x),
   };

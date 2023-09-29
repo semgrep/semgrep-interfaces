@@ -687,8 +687,9 @@
     },
     "scan_metadata": {
       "type": "object",
-      "required": [ "unique_id", "requested_products" ],
+      "required": [ "cli_version", "unique_id", "requested_products" ],
       "properties": {
+        "cli_version": { "$ref": "#/definitions/version" },
         "unique_id": { "type": "string" },
         "requested_products": {
           "type": "array",
