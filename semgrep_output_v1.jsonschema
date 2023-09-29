@@ -701,8 +701,9 @@
       "required": [ "meta" ],
       "properties": {
         "meta": { "$ref": "#/definitions/project_metadata" },
-        "project": { "$ref": "#/definitions/project_metadata" },
-        "scan": { "$ref": "#/definitions/scan_metadata" }
+        "project_metadata": { "$ref": "#/definitions/project_metadata" },
+        "project_config": { "$ref": "#/definitions/raw_json" },
+        "scan_metadata": { "$ref": "#/definitions/scan_metadata" }
       }
     },
     "finding": {

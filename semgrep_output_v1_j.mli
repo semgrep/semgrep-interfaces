@@ -306,8 +306,9 @@ type datetime = Semgrep_output_v1_t.datetime
 
 type create_scan_request = Semgrep_output_v1_t.create_scan_request = {
   meta: project_metadata;
-  project: project_metadata option;
-  scan: scan_metadata option
+  project_metadata: project_metadata option;
+  project_config: raw_json option;
+  scan_metadata: scan_metadata option
 }
 
 type core_severity = Semgrep_output_v1_t.core_severity = 

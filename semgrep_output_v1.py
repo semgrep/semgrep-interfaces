@@ -3138,16 +3138,18 @@ class CreateScanRequest:
     """Original type: create_scan_request = { ... }"""
 
     meta: ProjectMetadata
-    project: Optional[ProjectMetadata] = None
-    scan: Optional[ScanMetadata] = None
+    project_metadata: Optional[ProjectMetadata] = None
+    project_config: Optional[RawJson] = None
+    scan_metadata: Optional[ScanMetadata] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CreateScanRequest':
         if isinstance(x, dict):
             return cls(
                 meta=ProjectMetadata.from_json(x['meta']) if 'meta' in x else _atd_missing_json_field('CreateScanRequest', 'meta'),
-                project=ProjectMetadata.from_json(x['project']) if 'project' in x else None,
-                scan=ScanMetadata.from_json(x['scan']) if 'scan' in x else None,
+                project_metadata=ProjectMetadata.from_json(x['project_metadata']) if 'project_metadata' in x else None,
+                project_config=RawJson.from_json(x['project_config']) if 'project_config' in x else None,
+                scan_metadata=ScanMetadata.from_json(x['scan_metadata']) if 'scan_metadata' in x else None,
             )
         else:
             _atd_bad_json('CreateScanRequest', x)
@@ -3155,10 +3157,12 @@ class CreateScanRequest:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['meta'] = (lambda x: x.to_json())(self.meta)
-        if self.project is not None:
-            res['project'] = (lambda x: x.to_json())(self.project)
-        if self.scan is not None:
-            res['scan'] = (lambda x: x.to_json())(self.scan)
+        if self.project_metadata is not None:
+            res['project_metadata'] = (lambda x: x.to_json())(self.project_metadata)
+        if self.project_config is not None:
+            res['project_config'] = (lambda x: x.to_json())(self.project_config)
+        if self.scan_metadata is not None:
+            res['scan_metadata'] = (lambda x: x.to_json())(self.scan_metadata)
         return res
 
     @classmethod
