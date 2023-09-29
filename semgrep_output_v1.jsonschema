@@ -697,13 +697,14 @@
         }
       }
     },
-    "create_scan_request": {
+    "project_config": {},
+    "scan_request": {
       "type": "object",
       "required": [ "meta" ],
       "properties": {
         "meta": {},
         "project_metadata": { "$ref": "#/definitions/project_metadata" },
-        "project_config": {},
+        "project_config": { "$ref": "#/definitions/project_config" },
         "scan_metadata": { "$ref": "#/definitions/scan_metadata" }
       }
     },

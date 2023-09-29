@@ -155,6 +155,42 @@ type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
   requested_products: product list
 }
 
+type project_metadata = Semgrep_output_v1_t.project_metadata = {
+  semgrep_version: version;
+  repository: string;
+  repo_url: string option;
+  branch: string option;
+  ci_job_url: string option;
+  commit: string option;
+  commit_author_email: string option;
+  commit_author_name: string option;
+  commit_author_username: string option;
+  commit_author_image_url: string option;
+  commit_title: string option;
+  commit_timestamp: string option;
+  on: string;
+  pull_request_author_username: string option;
+  pull_request_author_image_url: string option;
+  pull_request_id: string option;
+  pull_request_title: string option;
+  scan_environment: string;
+  base_sha: string option;
+  start_sha: string option;
+  is_full_scan: bool;
+  is_sca_scan: bool option;
+  is_code_scan: bool option;
+  is_secrets_scan: bool option
+}
+
+type project_config = Semgrep_output_v1_t.project_config
+
+type scan_request = Semgrep_output_v1_t.scan_request = {
+  meta: Yojson.Safe.t;
+  project_metadata: project_metadata option;
+  project_config: project_config option;
+  scan_metadata: scan_metadata option
+}
+
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
 
 type ecosystem = Semgrep_output_v1_t.ecosystem
@@ -195,33 +231,6 @@ type sca_info = Semgrep_output_v1_t.sca_info = {
 }
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
-
-type project_metadata = Semgrep_output_v1_t.project_metadata = {
-  semgrep_version: version;
-  repository: string;
-  repo_url: string option;
-  branch: string option;
-  ci_job_url: string option;
-  commit: string option;
-  commit_author_email: string option;
-  commit_author_name: string option;
-  commit_author_username: string option;
-  commit_author_image_url: string option;
-  commit_title: string option;
-  commit_timestamp: string option;
-  on: string;
-  pull_request_author_username: string option;
-  pull_request_author_image_url: string option;
-  pull_request_id: string option;
-  pull_request_title: string option;
-  scan_environment: string;
-  base_sha: string option;
-  start_sha: string option;
-  is_full_scan: bool;
-  is_sca_scan: bool option;
-  is_code_scan: bool option;
-  is_secrets_scan: bool option
-}
 
 type profile = Semgrep_output_v1_t.profile = {
   rules: rule_id list;
@@ -304,13 +313,6 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
 }
 
 type datetime = Semgrep_output_v1_t.datetime
-
-type create_scan_request = Semgrep_output_v1_t.create_scan_request = {
-  meta: Yojson.Safe.t;
-  project_metadata: project_metadata option;
-  project_config: Yojson.Safe.t option;
-  scan_metadata: scan_metadata option
-}
 
 type core_severity = Semgrep_output_v1_t.core_severity = 
     Error | Warning | Info
@@ -1026,6 +1028,46 @@ val scan_metadata_of_string :
   string -> scan_metadata
   (** Deserialize JSON data of type {!type:scan_metadata}. *)
 
+val write_project_metadata :
+  Buffer.t -> project_metadata -> unit
+  (** Output a JSON value of type {!type:project_metadata}. *)
+
+val string_of_project_metadata :
+  ?len:int -> project_metadata -> string
+  (** Serialize a value of type {!type:project_metadata}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_project_metadata :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> project_metadata
+  (** Input JSON data of type {!type:project_metadata}. *)
+
+val project_metadata_of_string :
+  string -> project_metadata
+  (** Deserialize JSON data of type {!type:project_metadata}. *)
+
+val write_scan_request :
+  Buffer.t -> scan_request -> unit
+  (** Output a JSON value of type {!type:scan_request}. *)
+
+val string_of_scan_request :
+  ?len:int -> scan_request -> string
+  (** Serialize a value of type {!type:scan_request}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_scan_request :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scan_request
+  (** Input JSON data of type {!type:scan_request}. *)
+
+val scan_request_of_string :
+  string -> scan_request
+  (** Deserialize JSON data of type {!type:scan_request}. *)
+
 val write_sca_parser_name :
   Buffer.t -> sca_parser_name -> unit
   (** Output a JSON value of type {!type:sca_parser_name}. *)
@@ -1185,26 +1227,6 @@ val read_rule_id_and_engine_kind :
 val rule_id_and_engine_kind_of_string :
   string -> rule_id_and_engine_kind
   (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
-
-val write_project_metadata :
-  Buffer.t -> project_metadata -> unit
-  (** Output a JSON value of type {!type:project_metadata}. *)
-
-val string_of_project_metadata :
-  ?len:int -> project_metadata -> string
-  (** Serialize a value of type {!type:project_metadata}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_project_metadata :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> project_metadata
-  (** Input JSON data of type {!type:project_metadata}. *)
-
-val project_metadata_of_string :
-  string -> project_metadata
-  (** Deserialize JSON data of type {!type:project_metadata}. *)
 
 val write_profile :
   Buffer.t -> profile -> unit
@@ -1385,26 +1407,6 @@ val read_datetime :
 val datetime_of_string :
   string -> datetime
   (** Deserialize JSON data of type {!type:datetime}. *)
-
-val write_create_scan_request :
-  Buffer.t -> create_scan_request -> unit
-  (** Output a JSON value of type {!type:create_scan_request}. *)
-
-val string_of_create_scan_request :
-  ?len:int -> create_scan_request -> string
-  (** Serialize a value of type {!type:create_scan_request}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_create_scan_request :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> create_scan_request
-  (** Input JSON data of type {!type:create_scan_request}. *)
-
-val create_scan_request_of_string :
-  string -> create_scan_request
-  (** Deserialize JSON data of type {!type:create_scan_request}. *)
 
 val write_core_severity :
   Buffer.t -> core_severity -> unit

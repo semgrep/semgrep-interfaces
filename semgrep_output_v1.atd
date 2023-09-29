@@ -816,19 +816,18 @@ type dependency_parser_error = {
 *)
 
 (* ----------------------------- *)
-(* Project metadata *)
+(* Project metadata and config *)
 (* ----------------------------- *)
 (* Collect information about a project from the environment, filesystem,
  * git repo, etc.
  * See also semgrep_metrics.atd and PRIVACY.md
  *
- * Sent by the CLI to the POST /scans endpoint when a scan is created and when
- * getting the scan config.
  * TODO:
  * - we could split it in different parts and use inherit to make things clearer
  *   (while still being backward compatible)
  *)
 type project_metadata = {
+    (* TODO: deprecate in favor of scan_metadata.cli_version *)
     semgrep_version: version;
 
     (* git metadata.
@@ -873,7 +872,7 @@ type project_metadata = {
      * | "jenkins" | "bitbucket" | "azure-pipelines" | "buildkite" | "travis-ci" *)
     scan_environment: string;
 
-    (* Gitlab only*)
+    (* Gitlab only *)
     ?base_sha: (*sha1*) string option;
     ?start_sha: (*sha1*) string option;
 
@@ -883,7 +882,7 @@ type project_metadata = {
     is_full_scan: bool;
 
     (* added later in ci.py (not from meta.py)
-     * TODO: deprecate these in favor of scan_metadata
+     * TODO: deprecate these in favor of scan_metadata.requested_products
      *)
     ?is_sca_scan: bool option;
     (* since 1.40.0 *)
@@ -896,13 +895,25 @@ type scan_metadata = {
   cli_version: version;
   unique_id: string; (* client generated uuid for the scan *)
   requested_products: product list;
-}
+  }
 
-type create_scan_request = {
-    meta: abstract; (* until 1.43ish *)
-    ?project_metadata: project_metadata option; (* from 1.42, replacing meta *)
-    ?project_config: abstract option; (* from 1.42, TODO: type me *)
-    ?scan_metadata: scan_metadata option; (* from 1.42 *)
+(* customer configured via .semgrepconfig.yml
+ * TODO: type me
+ *)
+type project_config = abstract
+
+(* Sent by the CLI to the POST /scans endpoint when a scan is created and when
+ * getting the scan config.
+ * See also server/semgrep_app/cloud_platform/scan/models/scan.py in
+ * the backend.
+*)
+type scan_request = {
+    (* until 1.43ish, was 'meta: project_metadata;' before *)
+    meta: abstract;
+    (* from 1.43 *)
+    ?project_metadata: project_metadata option; (* replacing meta *)
+    ?project_config: project_config option;
+    ?scan_metadata: scan_metadata option;
 }
 
 (* ----------------------------- *)
@@ -1051,7 +1062,9 @@ type ci_scan_complete_stats = {
     <python repr="dict">
     <ts repr="map">;
 
-  (* This is EngineType from python, which is different from engine_kind used in this file *)
+ (* This is EngineType from python, which is different from engine_kind
+  * used in this file.
+  *)
   ?engine_requested: string option;
 }
 
