@@ -305,9 +305,9 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
 type datetime = Semgrep_output_v1_t.datetime
 
 type create_scan_request = Semgrep_output_v1_t.create_scan_request = {
-  meta: raw_json;
+  meta: Yojson.Safe.t;
   project_metadata: project_metadata option;
-  project_config: raw_json option;
+  project_config: Yojson.Safe.t option;
   scan_metadata: scan_metadata option
 }
 
@@ -12173,6 +12173,63 @@ let read__project_metadata_option = (
 )
 let _project_metadata_option_of_string s =
   read__project_metadata_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__abstract_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    Yojson.Safe.write_json
+  )
+)
+let string_of__abstract_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__abstract_option ob x;
+  Buffer.contents ob
+let read__abstract_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_json
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_json
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _abstract_option_of_string s =
+  read__abstract_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_create_scan_request : _ -> create_scan_request -> _ = (
   fun ob (x : create_scan_request) ->
     Buffer.add_char ob '{';
@@ -12183,7 +12240,7 @@ let write_create_scan_request : _ -> create_scan_request -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"meta\":";
     (
-      write_raw_json
+      Yojson.Safe.write_json
     )
       ob x.meta;
     (match x.project_metadata with None -> () | Some x ->
@@ -12204,7 +12261,7 @@ let write_create_scan_request : _ -> create_scan_request -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"project_config\":";
       (
-        write_raw_json
+        Yojson.Safe.write_json
       )
         ob x;
     );
@@ -12286,7 +12343,7 @@ let read_create_scan_request = (
             field_meta := (
               Some (
                 (
-                  read_raw_json
+                  Atdgen_runtime.Oj_run.read_json
                 ) p lb
               )
             );
@@ -12305,7 +12362,7 @@ let read_create_scan_request = (
               field_project_config := (
                 Some (
                   (
-                    read_raw_json
+                    Atdgen_runtime.Oj_run.read_json
                   ) p lb
                 )
               );
@@ -12377,7 +12434,7 @@ let read_create_scan_request = (
               field_meta := (
                 Some (
                   (
-                    read_raw_json
+                    Atdgen_runtime.Oj_run.read_json
                   ) p lb
                 )
               );
@@ -12396,7 +12453,7 @@ let read_create_scan_request = (
                 field_project_config := (
                   Some (
                     (
-                      read_raw_json
+                      Atdgen_runtime.Oj_run.read_json
                     ) p lb
                   )
                 );

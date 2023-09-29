@@ -898,9 +898,9 @@ type scan_metadata = {
 }
 
 type create_scan_request = {
-    meta: raw_json; (* until 1.43ish *)
+    meta: abstract; (* until 1.43ish *)
     ?project_metadata: project_metadata option; (* from 1.42, replacing meta *)
-    ?project_config: raw_json option; (* from 1.42, TODO: type me *)
+    ?project_config: abstract option; (* from 1.42, TODO: type me *)
     ?scan_metadata: scan_metadata option; (* from 1.42 *)
 }
 

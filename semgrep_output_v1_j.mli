@@ -305,9 +305,9 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
 type datetime = Semgrep_output_v1_t.datetime
 
 type create_scan_request = Semgrep_output_v1_t.create_scan_request = {
-  meta: raw_json;
+  meta: Yojson.Safe.t;
   project_metadata: project_metadata option;
-  project_config: raw_json option;
+  project_config: Yojson.Safe.t option;
   scan_metadata: scan_metadata option
 }
 
