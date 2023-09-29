@@ -813,7 +813,8 @@
           "type": "array",
           "items": { "$ref": "#/definitions/dependency_parser_error" }
         },
-        "task_id": { "type": "string" }
+        "task_id": { "type": "string" },
+        "final_attempt": { "type": "boolean" }
       }
     },
     "ci_scan_complete_stats": {

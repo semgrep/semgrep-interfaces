@@ -485,6 +485,7 @@ export type CiScanCompleteResponse = {
   dependencies?: CiScanDependencies;
   dependency_parser_errors?: DependencyParserError[];
   task_id?: string;
+  final_attempt?: boolean;
 }
 
 export type CiScanCompleteStats = {
@@ -1933,6 +1934,7 @@ export function writeCiScanCompleteResponse(x: CiScanCompleteResponse, context: 
     'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
     'dependency_parser_errors': _atd_write_optional_field(_atd_write_array(writeDependencyParserError), x.dependency_parser_errors, x),
     'task_id': _atd_write_optional_field(_atd_write_string, x.task_id, x),
+    'final_attempt': _atd_write_optional_field(_atd_write_bool, x.final_attempt, x),
   };
 }
 
@@ -1943,6 +1945,7 @@ export function readCiScanCompleteResponse(x: any, context: any = x): CiScanComp
     dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
     dependency_parser_errors: _atd_read_optional_field(_atd_read_array(readDependencyParserError), x['dependency_parser_errors'], x),
     task_id: _atd_read_optional_field(_atd_read_string, x['task_id'], x),
+    final_attempt: _atd_read_optional_field(_atd_read_bool, x['final_attempt'], x),
   };
 }
 

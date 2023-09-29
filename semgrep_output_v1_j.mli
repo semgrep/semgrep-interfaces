@@ -462,7 +462,8 @@ type ci_scan_complete_response =
   stats: ci_scan_complete_stats;
   dependencies: ci_scan_dependencies option;
   dependency_parser_errors: dependency_parser_error list option;
-  task_id: string option
+  task_id: string option;
+  final_attempt: bool option
 }
 
 val write_engine_kind :

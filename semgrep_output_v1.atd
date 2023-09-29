@@ -1030,6 +1030,7 @@ type ci_scan_complete_response = {
   ?dependencies: ci_scan_dependencies option;
   ?dependency_parser_errors: dependency_parser_error list option;
   ?task_id: string option;
+  ?final_attempt: bool option; (* always optional *)
 }
 
 type ci_scan_complete_stats = {

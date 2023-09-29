@@ -462,7 +462,8 @@ type ci_scan_complete_response =
   stats: ci_scan_complete_stats;
   dependencies: ci_scan_dependencies option;
   dependency_parser_errors: dependency_parser_error list option;
-  task_id: string option
+  task_id: string option;
+  final_attempt: bool option
 }
 
 let write__string_option = (
@@ -18388,6 +18389,17 @@ let write_ci_scan_complete_response : _ -> ci_scan_complete_response -> _ = (
       )
         ob x;
     );
+    (match x.final_attempt with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"final_attempt\":";
+      (
+        Yojson.Safe.write_bool
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_ci_scan_complete_response ?(len = 1024) x =
@@ -18403,6 +18415,7 @@ let read_ci_scan_complete_response = (
     let field_dependencies = ref (None) in
     let field_dependency_parser_errors = ref (None) in
     let field_task_id = ref (None) in
+    let field_final_attempt = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -18439,6 +18452,14 @@ let read_ci_scan_complete_response = (
             | 12 -> (
                 if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 's' then (
                   2
+                )
+                else (
+                  -1
+                )
+              )
+            | 13 -> (
+                if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'm' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 't' then (
+                  5
                 )
                 else (
                   -1
@@ -18506,6 +18527,16 @@ let read_ci_scan_complete_response = (
                 )
               );
             )
+          | 5 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_final_attempt := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -18546,6 +18577,14 @@ let read_ci_scan_complete_response = (
               | 12 -> (
                   if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 's' then (
                     2
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 13 -> (
+                  if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'm' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 't' then (
+                    5
                   )
                   else (
                     -1
@@ -18613,6 +18652,16 @@ let read_ci_scan_complete_response = (
                   )
                 );
               )
+            | 5 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_final_attempt := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_bool
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -18627,6 +18676,7 @@ let read_ci_scan_complete_response = (
             dependencies = !field_dependencies;
             dependency_parser_errors = !field_dependency_parser_errors;
             task_id = !field_task_id;
+            final_attempt = !field_final_attempt;
           }
          : ci_scan_complete_response)
       )
