@@ -412,7 +412,8 @@ export type ProjectMetadata = {
 }
 
 export type ScanMetadata = {
-  requested_products: Option<Product[]>;
+  unique_id: string;
+  requested_products: Product[];
 }
 
 export type CreateScanRequest = {
@@ -1753,13 +1754,15 @@ export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
 
 export function writeScanMetadata(x: ScanMetadata, context: any = x): any {
   return {
-    'requested_products': _atd_write_required_field('ScanMetadata', 'requested_products', _atd_write_option(_atd_write_array(writeProduct)), x.requested_products, x),
+    'unique_id': _atd_write_required_field('ScanMetadata', 'unique_id', _atd_write_string, x.unique_id, x),
+    'requested_products': _atd_write_required_field('ScanMetadata', 'requested_products', _atd_write_array(writeProduct), x.requested_products, x),
   };
 }
 
 export function readScanMetadata(x: any, context: any = x): ScanMetadata {
   return {
-    requested_products: _atd_read_required_field('ScanMetadata', 'requested_products', _atd_read_option(_atd_read_array(readProduct)), x['requested_products'], x),
+    unique_id: _atd_read_required_field('ScanMetadata', 'unique_id', _atd_read_string, x['unique_id'], x),
+    requested_products: _atd_read_required_field('ScanMetadata', 'requested_products', _atd_read_array(readProduct), x['requested_products'], x),
   };
 }
 

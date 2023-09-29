@@ -687,24 +687,12 @@
     },
     "scan_metadata": {
       "type": "object",
-      "required": [ "requested_products" ],
+      "required": [ "unique_id", "requested_products" ],
       "properties": {
+        "unique_id": { "type": "string" },
         "requested_products": {
-          "oneOf": [
-            {
-              "type": "array",
-              "minItems": 2,
-              "items": false,
-              "prefixItems": [
-                { "const": "Some" },
-                {
-                  "type": "array",
-                  "items": { "$ref": "#/definitions/product" }
-                }
-              ]
-            },
-            { "const": "None" }
-          ]
+          "type": "array",
+          "items": { "$ref": "#/definitions/product" }
         }
       }
     },

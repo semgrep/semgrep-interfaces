@@ -893,7 +893,8 @@ type project_metadata = {
 }
 
 type scan_metadata = {
-  requested_products: product list option;
+  unique_id: string; (* client generated uuid for the scan *)
+  requested_products: product list;
 }
 
 type create_scan_request = {

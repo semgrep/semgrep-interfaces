@@ -150,7 +150,8 @@ type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
 type product = Semgrep_output_v1_t.product [@@deriving show]
 
 type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
-  requested_products: product list option
+  unique_id: string;
+  requested_products: product list
 }
 
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
