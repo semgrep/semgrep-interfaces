@@ -3137,7 +3137,7 @@ class Datetime:
 class CreateScanRequest:
     """Original type: create_scan_request = { ... }"""
 
-    meta: ProjectMetadata
+    meta: RawJson
     project_metadata: Optional[ProjectMetadata] = None
     project_config: Optional[RawJson] = None
     scan_metadata: Optional[ScanMetadata] = None
@@ -3146,7 +3146,7 @@ class CreateScanRequest:
     def from_json(cls, x: Any) -> 'CreateScanRequest':
         if isinstance(x, dict):
             return cls(
-                meta=ProjectMetadata.from_json(x['meta']) if 'meta' in x else _atd_missing_json_field('CreateScanRequest', 'meta'),
+                meta=RawJson.from_json(x['meta']) if 'meta' in x else _atd_missing_json_field('CreateScanRequest', 'meta'),
                 project_metadata=ProjectMetadata.from_json(x['project_metadata']) if 'project_metadata' in x else None,
                 project_config=RawJson.from_json(x['project_config']) if 'project_config' in x else None,
                 scan_metadata=ScanMetadata.from_json(x['scan_metadata']) if 'scan_metadata' in x else None,

@@ -417,7 +417,7 @@ export type ScanMetadata = {
 }
 
 export type CreateScanRequest = {
-  meta: ProjectMetadata;
+  meta: RawJson;
   project_metadata?: ProjectMetadata;
   project_config?: RawJson;
   scan_metadata?: ScanMetadata;
@@ -1769,7 +1769,7 @@ export function readScanMetadata(x: any, context: any = x): ScanMetadata {
 
 export function writeCreateScanRequest(x: CreateScanRequest, context: any = x): any {
   return {
-    'meta': _atd_write_required_field('CreateScanRequest', 'meta', writeProjectMetadata, x.meta, x),
+    'meta': _atd_write_required_field('CreateScanRequest', 'meta', writeRawJson, x.meta, x),
     'project_metadata': _atd_write_optional_field(writeProjectMetadata, x.project_metadata, x),
     'project_config': _atd_write_optional_field(writeRawJson, x.project_config, x),
     'scan_metadata': _atd_write_optional_field(writeScanMetadata, x.scan_metadata, x),
@@ -1778,7 +1778,7 @@ export function writeCreateScanRequest(x: CreateScanRequest, context: any = x): 
 
 export function readCreateScanRequest(x: any, context: any = x): CreateScanRequest {
   return {
-    meta: _atd_read_required_field('CreateScanRequest', 'meta', readProjectMetadata, x['meta'], x),
+    meta: _atd_read_required_field('CreateScanRequest', 'meta', readRawJson, x['meta'], x),
     project_metadata: _atd_read_optional_field(readProjectMetadata, x['project_metadata'], x),
     project_config: _atd_read_optional_field(readRawJson, x['project_config'], x),
     scan_metadata: _atd_read_optional_field(readScanMetadata, x['scan_metadata'], x),

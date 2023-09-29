@@ -700,7 +700,7 @@
       "type": "object",
       "required": [ "meta" ],
       "properties": {
-        "meta": { "$ref": "#/definitions/project_metadata" },
+        "meta": { "$ref": "#/definitions/raw_json" },
         "project_metadata": { "$ref": "#/definitions/project_metadata" },
         "project_config": { "$ref": "#/definitions/raw_json" },
         "scan_metadata": { "$ref": "#/definitions/scan_metadata" }

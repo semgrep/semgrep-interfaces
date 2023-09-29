@@ -305,7 +305,7 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
 type datetime = Semgrep_output_v1_t.datetime
 
 type create_scan_request = Semgrep_output_v1_t.create_scan_request = {
-  meta: project_metadata;
+  meta: raw_json;
   project_metadata: project_metadata option;
   project_config: raw_json option;
   scan_metadata: scan_metadata option
@@ -12183,7 +12183,7 @@ let write_create_scan_request : _ -> create_scan_request -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"meta\":";
     (
-      write_project_metadata
+      write_raw_json
     )
       ob x.meta;
     (match x.project_metadata with None -> () | Some x ->
@@ -12286,7 +12286,7 @@ let read_create_scan_request = (
             field_meta := (
               Some (
                 (
-                  read_project_metadata
+                  read_raw_json
                 ) p lb
               )
             );
@@ -12377,7 +12377,7 @@ let read_create_scan_request = (
               field_meta := (
                 Some (
                   (
-                    read_project_metadata
+                    read_raw_json
                   ) p lb
                 )
               );
