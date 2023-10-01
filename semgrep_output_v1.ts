@@ -20,6 +20,8 @@ export type Sha1 = string
 
 export type Datetime = string
 
+export type Uuid = string
+
 export type Version = string
 
 export type Position = {
@@ -411,8 +413,19 @@ export type ProjectMetadata = {
   is_secrets_scan?: boolean;
 }
 
-export type Meta = {
-  meta: ProjectMetadata;
+export type ScanMetadata = {
+  cli_version: Version;
+  unique_id: string;
+  requested_products: Product[];
+}
+
+export type ProjectConfig = RawJson
+
+export type ScanRequest = {
+  meta: RawJson;
+  project_metadata?: ProjectMetadata;
+  project_config?: ProjectConfig;
+  scan_metadata?: ScanMetadata;
 }
 
 export type Finding = {
@@ -525,6 +538,14 @@ export function writeDatetime(x: Datetime, context: any = x): any {
 }
 
 export function readDatetime(x: any, context: any = x): Datetime {
+  return _atd_read_string(x, context);
+}
+
+export function writeUuid(x: Uuid, context: any = x): any {
+  return _atd_write_string(x, context);
+}
+
+export function readUuid(x: any, context: any = x): Uuid {
   return _atd_read_string(x, context);
 }
 
@@ -1746,15 +1767,45 @@ export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
   };
 }
 
-export function writeMeta(x: Meta, context: any = x): any {
+export function writeScanMetadata(x: ScanMetadata, context: any = x): any {
   return {
-    'meta': _atd_write_required_field('Meta', 'meta', writeProjectMetadata, x.meta, x),
+    'cli_version': _atd_write_required_field('ScanMetadata', 'cli_version', writeVersion, x.cli_version, x),
+    'unique_id': _atd_write_required_field('ScanMetadata', 'unique_id', _atd_write_string, x.unique_id, x),
+    'requested_products': _atd_write_required_field('ScanMetadata', 'requested_products', _atd_write_array(writeProduct), x.requested_products, x),
   };
 }
 
-export function readMeta(x: any, context: any = x): Meta {
+export function readScanMetadata(x: any, context: any = x): ScanMetadata {
   return {
-    meta: _atd_read_required_field('Meta', 'meta', readProjectMetadata, x['meta'], x),
+    cli_version: _atd_read_required_field('ScanMetadata', 'cli_version', readVersion, x['cli_version'], x),
+    unique_id: _atd_read_required_field('ScanMetadata', 'unique_id', _atd_read_string, x['unique_id'], x),
+    requested_products: _atd_read_required_field('ScanMetadata', 'requested_products', _atd_read_array(readProduct), x['requested_products'], x),
+  };
+}
+
+export function writeProjectConfig(x: ProjectConfig, context: any = x): any {
+  return writeRawJson(x, context);
+}
+
+export function readProjectConfig(x: any, context: any = x): ProjectConfig {
+  return readRawJson(x, context);
+}
+
+export function writeScanRequest(x: ScanRequest, context: any = x): any {
+  return {
+    'meta': _atd_write_required_field('ScanRequest', 'meta', writeRawJson, x.meta, x),
+    'project_metadata': _atd_write_optional_field(writeProjectMetadata, x.project_metadata, x),
+    'project_config': _atd_write_optional_field(writeProjectConfig, x.project_config, x),
+    'scan_metadata': _atd_write_optional_field(writeScanMetadata, x.scan_metadata, x),
+  };
+}
+
+export function readScanRequest(x: any, context: any = x): ScanRequest {
+  return {
+    meta: _atd_read_required_field('ScanRequest', 'meta', readRawJson, x['meta'], x),
+    project_metadata: _atd_read_optional_field(readProjectMetadata, x['project_metadata'], x),
+    project_config: _atd_read_optional_field(readProjectConfig, x['project_config'], x),
+    scan_metadata: _atd_read_optional_field(readScanMetadata, x['scan_metadata'], x),
   };
 }
 

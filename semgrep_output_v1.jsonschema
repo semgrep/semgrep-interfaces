@@ -35,6 +35,7 @@
     "uri": { "type": "string" },
     "sha1": { "type": "string" },
     "datetime": { "type": "string" },
+    "uuid": { "type": "string" },
     "version": { "type": "string" },
     "position": {
       "type": "object",
@@ -685,10 +686,28 @@
         "is_secrets_scan": { "type": "boolean" }
       }
     },
-    "meta": {
+    "scan_metadata": {
+      "type": "object",
+      "required": [ "cli_version", "unique_id", "requested_products" ],
+      "properties": {
+        "cli_version": { "$ref": "#/definitions/version" },
+        "unique_id": { "type": "string" },
+        "requested_products": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/product" }
+        }
+      }
+    },
+    "project_config": { "$ref": "#/definitions/raw_json" },
+    "scan_request": {
       "type": "object",
       "required": [ "meta" ],
-      "properties": { "meta": { "$ref": "#/definitions/project_metadata" } }
+      "properties": {
+        "meta": { "$ref": "#/definitions/raw_json" },
+        "project_metadata": { "$ref": "#/definitions/project_metadata" },
+        "project_config": { "$ref": "#/definitions/project_config" },
+        "scan_metadata": { "$ref": "#/definitions/scan_metadata" }
+      }
     },
     "finding": {
       "type": "object",

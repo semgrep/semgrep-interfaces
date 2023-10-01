@@ -105,6 +105,8 @@ type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
 
 type version = Semgrep_output_v1_t.version [@@deriving show]
 
+type uuid = Semgrep_output_v1_t.uuid
+
 type uri = Semgrep_output_v1_t.uri
 
 type transitivity = Semgrep_output_v1_t.transitivity
@@ -145,6 +147,50 @@ type sha1 = Semgrep_output_v1_t.sha1
 type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
   scanned: fpath list;
   skipped: skipped_target list option
+}
+
+type product = Semgrep_output_v1_t.product [@@deriving show]
+
+type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
+  cli_version: version;
+  unique_id: string;
+  requested_products: product list
+}
+
+type project_metadata = Semgrep_output_v1_t.project_metadata = {
+  semgrep_version: version;
+  repository: string;
+  repo_url: string option;
+  branch: string option;
+  ci_job_url: string option;
+  commit: string option;
+  commit_author_email: string option;
+  commit_author_name: string option;
+  commit_author_username: string option;
+  commit_author_image_url: string option;
+  commit_title: string option;
+  commit_timestamp: string option;
+  on: string;
+  pull_request_author_username: string option;
+  pull_request_author_image_url: string option;
+  pull_request_id: string option;
+  pull_request_title: string option;
+  scan_environment: string;
+  base_sha: string option;
+  start_sha: string option;
+  is_full_scan: bool;
+  is_sca_scan: bool option;
+  is_code_scan: bool option;
+  is_secrets_scan: bool option
+}
+
+type project_config = Semgrep_output_v1_t.project_config
+
+type scan_request = Semgrep_output_v1_t.scan_request = {
+  meta: raw_json;
+  project_metadata: project_metadata option;
+  project_config: project_config option;
+  scan_metadata: scan_metadata option
 }
 
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
@@ -188,33 +234,6 @@ type sca_info = Semgrep_output_v1_t.sca_info = {
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
 
-type project_metadata = Semgrep_output_v1_t.project_metadata = {
-  semgrep_version: version;
-  repository: string;
-  repo_url: string option;
-  branch: string option;
-  ci_job_url: string option;
-  commit: string option;
-  commit_author_email: string option;
-  commit_author_name: string option;
-  commit_author_username: string option;
-  commit_author_image_url: string option;
-  commit_title: string option;
-  commit_timestamp: string option;
-  on: string;
-  pull_request_author_username: string option;
-  pull_request_author_image_url: string option;
-  pull_request_id: string option;
-  pull_request_title: string option;
-  scan_environment: string;
-  base_sha: string option;
-  start_sha: string option;
-  is_full_scan: bool;
-  is_sca_scan: bool option;
-  is_code_scan: bool option;
-  is_secrets_scan: bool option
-}
-
 type profile = Semgrep_output_v1_t.profile = {
   rules: rule_id list;
   rules_parse_time: float;
@@ -224,16 +243,12 @@ type profile = Semgrep_output_v1_t.profile = {
   max_memory_bytes: int option
 }
 
-type product = Semgrep_output_v1_t.product [@@deriving show]
-
 type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
   targets_parsed: int;
   num_targets: int;
   bytes_parsed: int;
   num_bytes: int
 }
-
-type meta = Semgrep_output_v1_t.meta = { meta: project_metadata }
 
 type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
   rule_id: rule_id;
@@ -815,6 +830,26 @@ val version_of_string :
   string -> version
   (** Deserialize JSON data of type {!type:version}. *)
 
+val write_uuid :
+  Buffer.t -> uuid -> unit
+  (** Output a JSON value of type {!type:uuid}. *)
+
+val string_of_uuid :
+  ?len:int -> uuid -> string
+  (** Serialize a value of type {!type:uuid}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_uuid :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> uuid
+  (** Input JSON data of type {!type:uuid}. *)
+
+val uuid_of_string :
+  string -> uuid
+  (** Deserialize JSON data of type {!type:uuid}. *)
+
 val write_uri :
   Buffer.t -> uri -> unit
   (** Output a JSON value of type {!type:uri}. *)
@@ -974,6 +1009,106 @@ val read_scanned_and_skipped :
 val scanned_and_skipped_of_string :
   string -> scanned_and_skipped
   (** Deserialize JSON data of type {!type:scanned_and_skipped}. *)
+
+val write_product :
+  Buffer.t -> product -> unit
+  (** Output a JSON value of type {!type:product}. *)
+
+val string_of_product :
+  ?len:int -> product -> string
+  (** Serialize a value of type {!type:product}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_product :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> product
+  (** Input JSON data of type {!type:product}. *)
+
+val product_of_string :
+  string -> product
+  (** Deserialize JSON data of type {!type:product}. *)
+
+val write_scan_metadata :
+  Buffer.t -> scan_metadata -> unit
+  (** Output a JSON value of type {!type:scan_metadata}. *)
+
+val string_of_scan_metadata :
+  ?len:int -> scan_metadata -> string
+  (** Serialize a value of type {!type:scan_metadata}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_scan_metadata :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scan_metadata
+  (** Input JSON data of type {!type:scan_metadata}. *)
+
+val scan_metadata_of_string :
+  string -> scan_metadata
+  (** Deserialize JSON data of type {!type:scan_metadata}. *)
+
+val write_project_metadata :
+  Buffer.t -> project_metadata -> unit
+  (** Output a JSON value of type {!type:project_metadata}. *)
+
+val string_of_project_metadata :
+  ?len:int -> project_metadata -> string
+  (** Serialize a value of type {!type:project_metadata}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_project_metadata :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> project_metadata
+  (** Input JSON data of type {!type:project_metadata}. *)
+
+val project_metadata_of_string :
+  string -> project_metadata
+  (** Deserialize JSON data of type {!type:project_metadata}. *)
+
+val write_project_config :
+  Buffer.t -> project_config -> unit
+  (** Output a JSON value of type {!type:project_config}. *)
+
+val string_of_project_config :
+  ?len:int -> project_config -> string
+  (** Serialize a value of type {!type:project_config}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_project_config :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> project_config
+  (** Input JSON data of type {!type:project_config}. *)
+
+val project_config_of_string :
+  string -> project_config
+  (** Deserialize JSON data of type {!type:project_config}. *)
+
+val write_scan_request :
+  Buffer.t -> scan_request -> unit
+  (** Output a JSON value of type {!type:scan_request}. *)
+
+val string_of_scan_request :
+  ?len:int -> scan_request -> string
+  (** Serialize a value of type {!type:scan_request}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_scan_request :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scan_request
+  (** Input JSON data of type {!type:scan_request}. *)
+
+val scan_request_of_string :
+  string -> scan_request
+  (** Deserialize JSON data of type {!type:scan_request}. *)
 
 val write_sca_parser_name :
   Buffer.t -> sca_parser_name -> unit
@@ -1135,26 +1270,6 @@ val rule_id_and_engine_kind_of_string :
   string -> rule_id_and_engine_kind
   (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
 
-val write_project_metadata :
-  Buffer.t -> project_metadata -> unit
-  (** Output a JSON value of type {!type:project_metadata}. *)
-
-val string_of_project_metadata :
-  ?len:int -> project_metadata -> string
-  (** Serialize a value of type {!type:project_metadata}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_project_metadata :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> project_metadata
-  (** Input JSON data of type {!type:project_metadata}. *)
-
-val project_metadata_of_string :
-  string -> project_metadata
-  (** Deserialize JSON data of type {!type:project_metadata}. *)
-
 val write_profile :
   Buffer.t -> profile -> unit
   (** Output a JSON value of type {!type:profile}. *)
@@ -1175,26 +1290,6 @@ val profile_of_string :
   string -> profile
   (** Deserialize JSON data of type {!type:profile}. *)
 
-val write_product :
-  Buffer.t -> product -> unit
-  (** Output a JSON value of type {!type:product}. *)
-
-val string_of_product :
-  ?len:int -> product -> string
-  (** Serialize a value of type {!type:product}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_product :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> product
-  (** Input JSON data of type {!type:product}. *)
-
-val product_of_string :
-  string -> product
-  (** Deserialize JSON data of type {!type:product}. *)
-
 val write_parsing_stats :
   Buffer.t -> parsing_stats -> unit
   (** Output a JSON value of type {!type:parsing_stats}. *)
@@ -1214,26 +1309,6 @@ val read_parsing_stats :
 val parsing_stats_of_string :
   string -> parsing_stats
   (** Deserialize JSON data of type {!type:parsing_stats}. *)
-
-val write_meta :
-  Buffer.t -> meta -> unit
-  (** Output a JSON value of type {!type:meta}. *)
-
-val string_of_meta :
-  ?len:int -> meta -> string
-  (** Serialize a value of type {!type:meta}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_meta :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> meta
-  (** Input JSON data of type {!type:meta}. *)
-
-val meta_of_string :
-  string -> meta
-  (** Deserialize JSON data of type {!type:meta}. *)
 
 val write_incompatible_rule :
   Buffer.t -> incompatible_rule -> unit
