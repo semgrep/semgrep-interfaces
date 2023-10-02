@@ -460,8 +460,7 @@ type ci_scan_complete_stats = Semgrep_output_v1_t.ci_scan_complete_stats = {
   engine_requested: string option
 }
 
-type ci_scan_complete_response =
-  Semgrep_output_v1_t.ci_scan_complete_response = {
+type ci_scan_complete = Semgrep_output_v1_t.ci_scan_complete = {
   exit_code: int;
   stats: ci_scan_complete_stats;
   dependencies: ci_scan_dependencies option;
@@ -1750,23 +1749,23 @@ val ci_scan_complete_stats_of_string :
   string -> ci_scan_complete_stats
   (** Deserialize JSON data of type {!type:ci_scan_complete_stats}. *)
 
-val write_ci_scan_complete_response :
-  Buffer.t -> ci_scan_complete_response -> unit
-  (** Output a JSON value of type {!type:ci_scan_complete_response}. *)
+val write_ci_scan_complete :
+  Buffer.t -> ci_scan_complete -> unit
+  (** Output a JSON value of type {!type:ci_scan_complete}. *)
 
-val string_of_ci_scan_complete_response :
-  ?len:int -> ci_scan_complete_response -> string
-  (** Serialize a value of type {!type:ci_scan_complete_response}
+val string_of_ci_scan_complete :
+  ?len:int -> ci_scan_complete -> string
+  (** Serialize a value of type {!type:ci_scan_complete}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_ci_scan_complete_response :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_scan_complete_response
-  (** Input JSON data of type {!type:ci_scan_complete_response}. *)
+val read_ci_scan_complete :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_scan_complete
+  (** Input JSON data of type {!type:ci_scan_complete}. *)
 
-val ci_scan_complete_response_of_string :
-  string -> ci_scan_complete_response
-  (** Deserialize JSON data of type {!type:ci_scan_complete_response}. *)
+val ci_scan_complete_of_string :
+  string -> ci_scan_complete
+  (** Deserialize JSON data of type {!type:ci_scan_complete}. *)
 

@@ -460,8 +460,7 @@ type ci_scan_complete_stats = Semgrep_output_v1_t.ci_scan_complete_stats = {
   engine_requested: string option
 }
 
-type ci_scan_complete_response =
-  Semgrep_output_v1_t.ci_scan_complete_response = {
+type ci_scan_complete = Semgrep_output_v1_t.ci_scan_complete = {
   exit_code: int;
   stats: ci_scan_complete_stats;
   dependencies: ci_scan_dependencies option;
@@ -18362,8 +18361,8 @@ let read__dependency_parser_error_list_option = (
 )
 let _dependency_parser_error_list_option_of_string s =
   read__dependency_parser_error_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_ci_scan_complete_response : _ -> ci_scan_complete_response -> _ = (
-  fun ob (x : ci_scan_complete_response) ->
+let write_ci_scan_complete : _ -> ci_scan_complete -> _ = (
+  fun ob (x : ci_scan_complete) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
     if !is_first then
@@ -18430,11 +18429,11 @@ let write_ci_scan_complete_response : _ -> ci_scan_complete_response -> _ = (
     );
     Buffer.add_char ob '}';
 )
-let string_of_ci_scan_complete_response ?(len = 1024) x =
+let string_of_ci_scan_complete ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_ci_scan_complete_response ob x;
+  write_ci_scan_complete ob x;
   Buffer.contents ob
-let read_ci_scan_complete_response = (
+let read_ci_scan_complete = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
@@ -18706,8 +18705,8 @@ let read_ci_scan_complete_response = (
             task_id = !field_task_id;
             final_attempt = !field_final_attempt;
           }
-         : ci_scan_complete_response)
+         : ci_scan_complete)
       )
 )
-let ci_scan_complete_response_of_string s =
-  read_ci_scan_complete_response (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let ci_scan_complete_of_string s =
+  read_ci_scan_complete (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
