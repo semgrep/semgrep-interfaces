@@ -1041,7 +1041,7 @@ type ci_scan_dependencies = (string * found_dependency list) list
 type ci_scan_complete = {
   exit_code: int;
   stats: ci_scan_complete_stats;
-  ?dependencies: ci_scan_dependencies option;
+  ?dependencies: ci_scan_dependencies option; (* remove when min version is 1.38.0 *)
   ?dependency_parser_errors: dependency_parser_error list option;
   ?task_id: string option;
   ?final_attempt: bool option; (* always optional *)
