@@ -961,7 +961,11 @@ type scan_config = {
     enabled_products: product list;
     (* patterns *)
     ignored_files: string list;
-}
+  }
+
+(* TODO: add a ci_config_from_cloud this time returned by backend?
+ * similar to ci_config_from_repo but in the other direction.
+ *)
 
 (* ----------------------------- *)
 (* Findings *)
