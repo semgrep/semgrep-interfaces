@@ -193,6 +193,28 @@ type scan_request = Semgrep_output_v1_t.scan_request = {
   scan_metadata: scan_metadata option
 }
 
+type scan_config_request = Semgrep_output_v1_t.scan_config_request = {
+  dry_run: bool;
+  repo_name: string;
+  sca: bool;
+  full_scan: bool;
+  semgrep_version: version
+}
+
+type scan_config = Semgrep_output_v1_t.scan_config = {
+  deployment_id: int;
+  deployment_name: string;
+  policy_names: string list;
+  rule_config: string;
+  autofix: bool;
+  deepsemgrep: bool;
+  dependency_query: bool;
+  triage_ignored_syntactic_ids: string list;
+  triage_ignored_match_based_ids: string list;
+  enabled_products: product list;
+  ignored_files: string list
+}
+
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
 
 type ecosystem = Semgrep_output_v1_t.ecosystem
@@ -1109,6 +1131,46 @@ val read_scan_request :
 val scan_request_of_string :
   string -> scan_request
   (** Deserialize JSON data of type {!type:scan_request}. *)
+
+val write_scan_config_request :
+  Buffer.t -> scan_config_request -> unit
+  (** Output a JSON value of type {!type:scan_config_request}. *)
+
+val string_of_scan_config_request :
+  ?len:int -> scan_config_request -> string
+  (** Serialize a value of type {!type:scan_config_request}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_scan_config_request :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scan_config_request
+  (** Input JSON data of type {!type:scan_config_request}. *)
+
+val scan_config_request_of_string :
+  string -> scan_config_request
+  (** Deserialize JSON data of type {!type:scan_config_request}. *)
+
+val write_scan_config :
+  Buffer.t -> scan_config -> unit
+  (** Output a JSON value of type {!type:scan_config}. *)
+
+val string_of_scan_config :
+  ?len:int -> scan_config -> string
+  (** Serialize a value of type {!type:scan_config}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_scan_config :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scan_config
+  (** Input JSON data of type {!type:scan_config}. *)
+
+val scan_config_of_string :
+  string -> scan_config
+  (** Deserialize JSON data of type {!type:scan_config}. *)
 
 val write_sca_parser_name :
   Buffer.t -> sca_parser_name -> unit
