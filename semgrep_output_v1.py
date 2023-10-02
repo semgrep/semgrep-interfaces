@@ -4273,8 +4273,8 @@ class CiScanCompleteStats:
 
 
 @dataclass
-class CiScanCompleteResponse:
-    """Original type: ci_scan_complete_response = { ... }"""
+class CiScanComplete:
+    """Original type: ci_scan_complete = { ... }"""
 
     exit_code: int
     stats: CiScanCompleteStats
@@ -4284,18 +4284,18 @@ class CiScanCompleteResponse:
     final_attempt: Optional[bool] = None
 
     @classmethod
-    def from_json(cls, x: Any) -> 'CiScanCompleteResponse':
+    def from_json(cls, x: Any) -> 'CiScanComplete':
         if isinstance(x, dict):
             return cls(
-                exit_code=_atd_read_int(x['exit_code']) if 'exit_code' in x else _atd_missing_json_field('CiScanCompleteResponse', 'exit_code'),
-                stats=CiScanCompleteStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CiScanCompleteResponse', 'stats'),
+                exit_code=_atd_read_int(x['exit_code']) if 'exit_code' in x else _atd_missing_json_field('CiScanComplete', 'exit_code'),
+                stats=CiScanCompleteStats.from_json(x['stats']) if 'stats' in x else _atd_missing_json_field('CiScanComplete', 'stats'),
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
                 dependency_parser_errors=_atd_read_list(DependencyParserError.from_json)(x['dependency_parser_errors']) if 'dependency_parser_errors' in x else None,
                 task_id=_atd_read_string(x['task_id']) if 'task_id' in x else None,
                 final_attempt=_atd_read_bool(x['final_attempt']) if 'final_attempt' in x else None,
             )
         else:
-            _atd_bad_json('CiScanCompleteResponse', x)
+            _atd_bad_json('CiScanComplete', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
@@ -4312,7 +4312,7 @@ class CiScanCompleteResponse:
         return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'CiScanCompleteResponse':
+    def from_json_string(cls, x: str) -> 'CiScanComplete':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
