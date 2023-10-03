@@ -2140,12 +2140,12 @@ class ScanConfig:
     deployment_name: str
     policy_names: List[str]
     rule_config: str
-    autofix: bool
-    deepsemgrep: bool
-    dependency_query: bool
-    triage_ignored_syntactic_ids: List[str]
-    triage_ignored_match_based_ids: List[str]
-    ignored_files: List[str]
+    autofix: bool = field(default_factory=lambda: False)
+    deepsemgrep: bool = field(default_factory=lambda: False)
+    dependency_query: bool = field(default_factory=lambda: False)
+    triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
+    triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
+    ignored_files: List[str] = field(default_factory=lambda: [])
     enabled_products: Optional[List[Product]] = None
 
     @classmethod
@@ -2156,12 +2156,12 @@ class ScanConfig:
                 deployment_name=_atd_read_string(x['deployment_name']) if 'deployment_name' in x else _atd_missing_json_field('ScanConfig', 'deployment_name'),
                 policy_names=_atd_read_list(_atd_read_string)(x['policy_names']) if 'policy_names' in x else _atd_missing_json_field('ScanConfig', 'policy_names'),
                 rule_config=_atd_read_string(x['rule_config']) if 'rule_config' in x else _atd_missing_json_field('ScanConfig', 'rule_config'),
-                autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else _atd_missing_json_field('ScanConfig', 'autofix'),
-                deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else _atd_missing_json_field('ScanConfig', 'deepsemgrep'),
-                dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else _atd_missing_json_field('ScanConfig', 'dependency_query'),
-                triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else _atd_missing_json_field('ScanConfig', 'triage_ignored_syntactic_ids'),
-                triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else _atd_missing_json_field('ScanConfig', 'triage_ignored_match_based_ids'),
-                ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else _atd_missing_json_field('ScanConfig', 'ignored_files'),
+                autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
+                deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
+                dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
+                triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
+                triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
+                ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
                 enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else None,
             )
         else:

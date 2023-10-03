@@ -725,10 +725,7 @@
     "scan_config": {
       "type": "object",
       "required": [
-        "deployment_id", "deployment_name", "policy_names", "rule_config",
-        "autofix", "deepsemgrep", "dependency_query",
-        "triage_ignored_syntactic_ids", "triage_ignored_match_based_ids",
-        "ignored_files"
+        "deployment_id", "deployment_name", "policy_names", "rule_config"
       ],
       "properties": {
         "deployment_id": { "type": "integer" },

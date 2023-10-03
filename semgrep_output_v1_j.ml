@@ -7725,12 +7725,12 @@ let read_scan_config = (
     let field_deployment_name = ref (None) in
     let field_policy_names = ref (None) in
     let field_rule_config = ref (None) in
-    let field_autofix = ref (None) in
-    let field_deepsemgrep = ref (None) in
-    let field_dependency_query = ref (None) in
-    let field_triage_ignored_syntactic_ids = ref (None) in
-    let field_triage_ignored_match_based_ids = ref (None) in
-    let field_ignored_files = ref (None) in
+    let field_autofix = ref (false) in
+    let field_deepsemgrep = ref (false) in
+    let field_dependency_query = ref (false) in
+    let field_triage_ignored_syntactic_ids = ref ([]) in
+    let field_triage_ignored_match_based_ids = ref ([]) in
+    let field_ignored_files = ref ([]) in
     let field_enabled_products = ref (None) in
     try
       Yojson.Safe.read_space p lb;
@@ -7888,53 +7888,53 @@ let read_scan_config = (
               )
             );
           | 4 ->
-            field_autofix := (
-              Some (
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_autofix := (
                 (
                   Atdgen_runtime.Oj_run.read_bool
                 ) p lb
-              )
-            );
+              );
+            )
           | 5 ->
-            field_deepsemgrep := (
-              Some (
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_deepsemgrep := (
                 (
                   Atdgen_runtime.Oj_run.read_bool
                 ) p lb
-              )
-            );
+              );
+            )
           | 6 ->
-            field_dependency_query := (
-              Some (
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_dependency_query := (
                 (
                   Atdgen_runtime.Oj_run.read_bool
                 ) p lb
-              )
-            );
+              );
+            )
           | 7 ->
-            field_triage_ignored_syntactic_ids := (
-              Some (
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_triage_ignored_syntactic_ids := (
                 (
                   read__string_list
                 ) p lb
-              )
-            );
+              );
+            )
           | 8 ->
-            field_triage_ignored_match_based_ids := (
-              Some (
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_triage_ignored_match_based_ids := (
                 (
                   read__string_list
                 ) p lb
-              )
-            );
+              );
+            )
           | 9 ->
-            field_ignored_files := (
-              Some (
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_ignored_files := (
                 (
                   read__string_list
                 ) p lb
-              )
-            );
+              );
+            )
           | 10 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_enabled_products := (
@@ -8105,53 +8105,53 @@ let read_scan_config = (
                 )
               );
             | 4 ->
-              field_autofix := (
-                Some (
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_autofix := (
                   (
                     Atdgen_runtime.Oj_run.read_bool
                   ) p lb
-                )
-              );
+                );
+              )
             | 5 ->
-              field_deepsemgrep := (
-                Some (
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_deepsemgrep := (
                   (
                     Atdgen_runtime.Oj_run.read_bool
                   ) p lb
-                )
-              );
+                );
+              )
             | 6 ->
-              field_dependency_query := (
-                Some (
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_dependency_query := (
                   (
                     Atdgen_runtime.Oj_run.read_bool
                   ) p lb
-                )
-              );
+                );
+              )
             | 7 ->
-              field_triage_ignored_syntactic_ids := (
-                Some (
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_triage_ignored_syntactic_ids := (
                   (
                     read__string_list
                   ) p lb
-                )
-              );
+                );
+              )
             | 8 ->
-              field_triage_ignored_match_based_ids := (
-                Some (
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_triage_ignored_match_based_ids := (
                   (
                     read__string_list
                   ) p lb
-                )
-              );
+                );
+              )
             | 9 ->
-              field_ignored_files := (
-                Some (
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_ignored_files := (
                   (
                     read__string_list
                   ) p lb
-                )
-              );
+                );
+              )
             | 10 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_enabled_products := (
@@ -8175,12 +8175,12 @@ let read_scan_config = (
             deployment_name = (match !field_deployment_name with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "deployment_name");
             policy_names = (match !field_policy_names with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "policy_names");
             rule_config = (match !field_rule_config with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rule_config");
-            autofix = (match !field_autofix with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "autofix");
-            deepsemgrep = (match !field_deepsemgrep with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "deepsemgrep");
-            dependency_query = (match !field_dependency_query with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "dependency_query");
-            triage_ignored_syntactic_ids = (match !field_triage_ignored_syntactic_ids with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "triage_ignored_syntactic_ids");
-            triage_ignored_match_based_ids = (match !field_triage_ignored_match_based_ids with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "triage_ignored_match_based_ids");
-            ignored_files = (match !field_ignored_files with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "ignored_files");
+            autofix = !field_autofix;
+            deepsemgrep = !field_deepsemgrep;
+            dependency_query = !field_dependency_query;
+            triage_ignored_syntactic_ids = !field_triage_ignored_syntactic_ids;
+            triage_ignored_match_based_ids = !field_triage_ignored_match_based_ids;
+            ignored_files = !field_ignored_files;
             enabled_products = !field_enabled_products;
           }
          : scan_config)

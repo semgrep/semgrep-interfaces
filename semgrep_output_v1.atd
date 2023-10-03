@@ -954,13 +954,13 @@ type scan_config = {
     policy_names: string list;
     (* rules raw content in JSON format *)
     rule_config: string;
-    autofix: bool;
-    deepsemgrep: bool;
-    dependency_query: bool;
-    triage_ignored_syntactic_ids: string list;
-    triage_ignored_match_based_ids: string list;
-    (* patterns *)
-    ignored_files: string list;
+    ~autofix: bool;
+    ~deepsemgrep: bool;
+    ~dependency_query: bool;
+    ~triage_ignored_syntactic_ids: string list;
+    ~triage_ignored_match_based_ids: string list;
+    (* glob patterns *)
+    ~ignored_files: string list;
     (* since 1.37.0 *)
     ?enabled_products: product list option;
   }
