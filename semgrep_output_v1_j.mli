@@ -80,6 +80,8 @@ type match_dataflow_trace = Semgrep_output_v1_t.match_dataflow_trace = {
 
 type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   message: string option;
+  metadata: raw_json option;
+  severity: string option;
   metavars: metavars;
   dataflow_trace: match_dataflow_trace option;
   rendered_fix: string option;

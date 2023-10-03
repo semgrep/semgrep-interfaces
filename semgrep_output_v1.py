@@ -1061,6 +1061,8 @@ class CoreMatchExtra:
     metavars: Metavars
     engine_kind: EngineKind
     message: Optional[str] = None
+    metadata: Optional[RawJson] = None
+    severity: Optional[str] = None
     dataflow_trace: Optional[MatchDataflowTrace] = None
     rendered_fix: Optional[str] = None
     validation_state: Optional[ValidationState] = None
@@ -1073,6 +1075,8 @@ class CoreMatchExtra:
                 metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else _atd_missing_json_field('CoreMatchExtra', 'metavars'),
                 engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else _atd_missing_json_field('CoreMatchExtra', 'engine_kind'),
                 message=_atd_read_string(x['message']) if 'message' in x else None,
+                metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else None,
+                severity=_atd_read_string(x['severity']) if 'severity' in x else None,
                 dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 rendered_fix=_atd_read_string(x['rendered_fix']) if 'rendered_fix' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
@@ -1087,6 +1091,10 @@ class CoreMatchExtra:
         res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
         if self.message is not None:
             res['message'] = _atd_write_string(self.message)
+        if self.metadata is not None:
+            res['metadata'] = (lambda x: x.to_json())(self.metadata)
+        if self.severity is not None:
+            res['severity'] = _atd_write_string(self.severity)
         if self.dataflow_trace is not None:
             res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
         if self.rendered_fix is not None:

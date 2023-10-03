@@ -96,6 +96,8 @@
       "required": [ "metavars", "engine_kind" ],
       "properties": {
         "message": { "type": "string" },
+        "metadata": { "$ref": "#/definitions/raw_json" },
+        "severity": { "type": "string" },
         "metavars": { "$ref": "#/definitions/metavars" },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
         "rendered_fix": { "type": "string" },

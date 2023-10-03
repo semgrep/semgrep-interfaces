@@ -67,6 +67,8 @@ export type CoreMatch = {
 
 export type CoreMatchExtra = {
   message?: string;
+  metadata?: RawJson;
+  severity?: string;
   metavars: Metavars;
   dataflow_trace?: MatchDataflowTrace;
   rendered_fix?: string;
@@ -711,6 +713,8 @@ export function readCoreMatch(x: any, context: any = x): CoreMatch {
 export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
   return {
     'message': _atd_write_optional_field(_atd_write_string, x.message, x),
+    'metadata': _atd_write_optional_field(writeRawJson, x.metadata, x),
+    'severity': _atd_write_optional_field(_atd_write_string, x.severity, x),
     'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
     'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
     'rendered_fix': _atd_write_optional_field(_atd_write_string, x.rendered_fix, x),
@@ -723,6 +727,8 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
 export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
   return {
     message: _atd_read_optional_field(_atd_read_string, x['message'], x),
+    metadata: _atd_read_optional_field(readRawJson, x['metadata'], x),
+    severity: _atd_read_optional_field(_atd_read_string, x['severity'], x),
     metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
     rendered_fix: _atd_read_optional_field(_atd_read_string, x['rendered_fix'], x),
