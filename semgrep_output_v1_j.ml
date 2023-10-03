@@ -211,8 +211,8 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   dependency_query: bool;
   triage_ignored_syntactic_ids: string list;
   triage_ignored_match_based_ids: string list;
-  enabled_products: product list;
-  ignored_files: string list
+  ignored_files: string list;
+  enabled_products: product list option
 }
 
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
@@ -7549,6 +7549,63 @@ let read__string_list = (
 )
 let _string_list_of_string s =
   read__string_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__product_list_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write__product_list
+  )
+)
+let string_of__product_list_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__product_list_option ob x;
+  Buffer.contents ob
+let read__product_list_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__product_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__product_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _product_list_option_of_string s =
+  read__product_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_scan_config : _ -> scan_config -> _ = (
   fun ob (x : scan_config) ->
     Buffer.add_char ob '{';
@@ -7638,20 +7695,22 @@ let write_scan_config : _ -> scan_config -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"enabled_products\":";
-    (
-      write__product_list
-    )
-      ob x.enabled_products;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
       Buffer.add_string ob "\"ignored_files\":";
     (
       write__string_list
     )
       ob x.ignored_files;
+    (match x.enabled_products with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"enabled_products\":";
+      (
+        write__product_list
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_scan_config ?(len = 1024) x =
@@ -7671,8 +7730,8 @@ let read_scan_config = (
     let field_dependency_query = ref (None) in
     let field_triage_ignored_syntactic_ids = ref (None) in
     let field_triage_ignored_match_based_ids = ref (None) in
-    let field_enabled_products = ref (None) in
     let field_ignored_files = ref (None) in
+    let field_enabled_products = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -7732,7 +7791,7 @@ let read_scan_config = (
                     )
                   | 'i' -> (
                       if String.unsafe_get s (pos+1) = 'g' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
-                        10
+                        9
                       )
                       else (
                         -1
@@ -7762,7 +7821,7 @@ let read_scan_config = (
                     )
                   | 'e' -> (
                       if String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'c' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 's' then (
-                        9
+                        10
                       )
                       else (
                         -1
@@ -7869,14 +7928,6 @@ let read_scan_config = (
               )
             );
           | 9 ->
-            field_enabled_products := (
-              Some (
-                (
-                  read__product_list
-                ) p lb
-              )
-            );
-          | 10 ->
             field_ignored_files := (
               Some (
                 (
@@ -7884,6 +7935,16 @@ let read_scan_config = (
                 ) p lb
               )
             );
+          | 10 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_enabled_products := (
+                Some (
+                  (
+                    read__product_list
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -7947,7 +8008,7 @@ let read_scan_config = (
                       )
                     | 'i' -> (
                         if String.unsafe_get s (pos+1) = 'g' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
-                          10
+                          9
                         )
                         else (
                           -1
@@ -7977,7 +8038,7 @@ let read_scan_config = (
                       )
                     | 'e' -> (
                         if String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'c' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 's' then (
-                          9
+                          10
                         )
                         else (
                           -1
@@ -8084,14 +8145,6 @@ let read_scan_config = (
                 )
               );
             | 9 ->
-              field_enabled_products := (
-                Some (
-                  (
-                    read__product_list
-                  ) p lb
-                )
-              );
-            | 10 ->
               field_ignored_files := (
                 Some (
                   (
@@ -8099,6 +8152,16 @@ let read_scan_config = (
                   ) p lb
                 )
               );
+            | 10 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_enabled_products := (
+                  Some (
+                    (
+                      read__product_list
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -8117,8 +8180,8 @@ let read_scan_config = (
             dependency_query = (match !field_dependency_query with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "dependency_query");
             triage_ignored_syntactic_ids = (match !field_triage_ignored_syntactic_ids with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "triage_ignored_syntactic_ids");
             triage_ignored_match_based_ids = (match !field_triage_ignored_match_based_ids with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "triage_ignored_match_based_ids");
-            enabled_products = (match !field_enabled_products with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "enabled_products");
             ignored_files = (match !field_ignored_files with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "ignored_files");
+            enabled_products = !field_enabled_products;
           }
          : scan_config)
       )

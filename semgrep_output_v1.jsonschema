@@ -728,7 +728,7 @@
         "deployment_id", "deployment_name", "policy_names", "rule_config",
         "autofix", "deepsemgrep", "dependency_query",
         "triage_ignored_syntactic_ids", "triage_ignored_match_based_ids",
-        "enabled_products", "ignored_files"
+        "ignored_files"
       ],
       "properties": {
         "deployment_id": { "type": "integer" },
@@ -746,11 +746,11 @@
           "type": "array",
           "items": { "type": "string" }
         },
+        "ignored_files": { "type": "array", "items": { "type": "string" } },
         "enabled_products": {
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
-        },
-        "ignored_files": { "type": "array", "items": { "type": "string" } }
+        }
       }
     },
     "finding": {

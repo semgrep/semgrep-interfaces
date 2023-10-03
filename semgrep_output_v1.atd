@@ -962,7 +962,7 @@ type scan_config = {
     (* patterns *)
     ignored_files: string list;
     (* since 1.37.0 *)
-    ?enabled_products: product list;
+    ?enabled_products: product list option;
   }
 
 (* TODO: add a ci_config_from_cloud this time returned by backend?

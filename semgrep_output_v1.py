@@ -2145,8 +2145,8 @@ class ScanConfig:
     dependency_query: bool
     triage_ignored_syntactic_ids: List[str]
     triage_ignored_match_based_ids: List[str]
-    enabled_products: List[Product]
     ignored_files: List[str]
+    enabled_products: Optional[List[Product]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanConfig':
@@ -2161,8 +2161,8 @@ class ScanConfig:
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else _atd_missing_json_field('ScanConfig', 'dependency_query'),
                 triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else _atd_missing_json_field('ScanConfig', 'triage_ignored_syntactic_ids'),
                 triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else _atd_missing_json_field('ScanConfig', 'triage_ignored_match_based_ids'),
-                enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else _atd_missing_json_field('ScanConfig', 'enabled_products'),
                 ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else _atd_missing_json_field('ScanConfig', 'ignored_files'),
+                enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else None,
             )
         else:
             _atd_bad_json('ScanConfig', x)
@@ -2178,8 +2178,9 @@ class ScanConfig:
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
         res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
         res['triage_ignored_match_based_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_match_based_ids)
-        res['enabled_products'] = _atd_write_list((lambda x: x.to_json()))(self.enabled_products)
         res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
+        if self.enabled_products is not None:
+            res['enabled_products'] = _atd_write_list((lambda x: x.to_json()))(self.enabled_products)
         return res
 
     @classmethod

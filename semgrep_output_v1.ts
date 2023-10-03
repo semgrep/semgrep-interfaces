@@ -446,8 +446,8 @@ export type ScanConfig = {
   dependency_query: boolean;
   triage_ignored_syntactic_ids: string[];
   triage_ignored_match_based_ids: string[];
-  enabled_products: Product[];
   ignored_files: string[];
+  enabled_products?: Product[];
 }
 
 export type Finding = {
@@ -1862,8 +1862,8 @@ export function writeScanConfig(x: ScanConfig, context: any = x): any {
     'dependency_query': _atd_write_required_field('ScanConfig', 'dependency_query', _atd_write_bool, x.dependency_query, x),
     'triage_ignored_syntactic_ids': _atd_write_required_field('ScanConfig', 'triage_ignored_syntactic_ids', _atd_write_array(_atd_write_string), x.triage_ignored_syntactic_ids, x),
     'triage_ignored_match_based_ids': _atd_write_required_field('ScanConfig', 'triage_ignored_match_based_ids', _atd_write_array(_atd_write_string), x.triage_ignored_match_based_ids, x),
-    'enabled_products': _atd_write_required_field('ScanConfig', 'enabled_products', _atd_write_array(writeProduct), x.enabled_products, x),
     'ignored_files': _atd_write_required_field('ScanConfig', 'ignored_files', _atd_write_array(_atd_write_string), x.ignored_files, x),
+    'enabled_products': _atd_write_optional_field(_atd_write_array(writeProduct), x.enabled_products, x),
   };
 }
 
@@ -1878,8 +1878,8 @@ export function readScanConfig(x: any, context: any = x): ScanConfig {
     dependency_query: _atd_read_required_field('ScanConfig', 'dependency_query', _atd_read_bool, x['dependency_query'], x),
     triage_ignored_syntactic_ids: _atd_read_required_field('ScanConfig', 'triage_ignored_syntactic_ids', _atd_read_array(_atd_read_string), x['triage_ignored_syntactic_ids'], x),
     triage_ignored_match_based_ids: _atd_read_required_field('ScanConfig', 'triage_ignored_match_based_ids', _atd_read_array(_atd_read_string), x['triage_ignored_match_based_ids'], x),
-    enabled_products: _atd_read_required_field('ScanConfig', 'enabled_products', _atd_read_array(readProduct), x['enabled_products'], x),
     ignored_files: _atd_read_required_field('ScanConfig', 'ignored_files', _atd_read_array(_atd_read_string), x['ignored_files'], x),
+    enabled_products: _atd_read_optional_field(_atd_read_array(readProduct), x['enabled_products'], x),
   };
 }
 

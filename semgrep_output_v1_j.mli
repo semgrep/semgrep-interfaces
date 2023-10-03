@@ -211,8 +211,8 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   dependency_query: bool;
   triage_ignored_syntactic_ids: string list;
   triage_ignored_match_based_ids: string list;
-  enabled_products: product list;
-  ignored_files: string list
+  ignored_files: string list;
+  enabled_products: product list option
 }
 
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
