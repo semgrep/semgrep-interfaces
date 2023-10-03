@@ -1058,7 +1058,7 @@ type ci_scan_results = {
 
 (* TODO: response to /results is {
   errors: {message: string} list;
-  ?task_id: int option;
+  ?task_id: string option;
 }
  *)
 
