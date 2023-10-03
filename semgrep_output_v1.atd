@@ -805,8 +805,10 @@ type dependency_parser_error = {
 (* Data sent to the Semgrep backend *)
 (*****************************************************************************)
 
-(* The sequence of http requests is mostly:
- *  - /scans when starting a scan, with information about the project
+(* The sequence of HTTP requests is mostly:
+ *  - /deployments/current with token
+ *    and response with deployment name
+ *  - /deployments/scans when starting a scan, with information about the project
  *    and response with scan_id
  *  - /scans/<scan_id>/config to request the scan config
  *    and response with scan_config including the rules to use
@@ -826,6 +828,10 @@ type dependency_parser_error = {
 (* ----------------------------- *)
 (* Scan request *)
 (* ----------------------------- *)
+
+(* TODO: deployment_config? from POST to deployments/current
+ *)
+
 
 (* Collect information about a project from the environment, filesystem,
  * git repo, etc.
@@ -936,7 +942,7 @@ type scan_response_bis = {
 }
 *)
 
-(* TODO? seems used only for dry_run and passed urlencoded to scans/config?xxx
+(* TODO? seems used only for dry_run and passed urlencoded to /scans/config?xxx
 type scan_config_request = {
     dry_run: bool;
     (* project_metadata.repository *)
@@ -946,7 +952,7 @@ type scan_config_request = {
     full_scan: bool;
     semgrep_version : version;
 }
-*)
+ *)
 
 (* Response by the backend to the CLI to the POST /scans/<scan_id>/config *)
 type scan_config = {
