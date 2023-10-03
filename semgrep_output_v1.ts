@@ -428,14 +428,6 @@ export type ScanRequest = {
   scan_metadata?: ScanMetadata;
 }
 
-export type ScanConfigRequest = {
-  dry_run: boolean;
-  repo_name: string;
-  sca: boolean;
-  full_scan: boolean;
-  semgrep_version: Version;
-}
-
 export type ScanConfig = {
   deployment_id: number /*int*/;
   deployment_name: string;
@@ -1828,26 +1820,6 @@ export function readScanRequest(x: any, context: any = x): ScanRequest {
     project_metadata: _atd_read_optional_field(readProjectMetadata, x['project_metadata'], x),
     project_config: _atd_read_optional_field(readProjectConfig, x['project_config'], x),
     scan_metadata: _atd_read_optional_field(readScanMetadata, x['scan_metadata'], x),
-  };
-}
-
-export function writeScanConfigRequest(x: ScanConfigRequest, context: any = x): any {
-  return {
-    'dry_run': _atd_write_required_field('ScanConfigRequest', 'dry_run', _atd_write_bool, x.dry_run, x),
-    'repo_name': _atd_write_required_field('ScanConfigRequest', 'repo_name', _atd_write_string, x.repo_name, x),
-    'sca': _atd_write_required_field('ScanConfigRequest', 'sca', _atd_write_bool, x.sca, x),
-    'full_scan': _atd_write_required_field('ScanConfigRequest', 'full_scan', _atd_write_bool, x.full_scan, x),
-    'semgrep_version': _atd_write_required_field('ScanConfigRequest', 'semgrep_version', writeVersion, x.semgrep_version, x),
-  };
-}
-
-export function readScanConfigRequest(x: any, context: any = x): ScanConfigRequest {
-  return {
-    dry_run: _atd_read_required_field('ScanConfigRequest', 'dry_run', _atd_read_bool, x['dry_run'], x),
-    repo_name: _atd_read_required_field('ScanConfigRequest', 'repo_name', _atd_read_string, x['repo_name'], x),
-    sca: _atd_read_required_field('ScanConfigRequest', 'sca', _atd_read_bool, x['sca'], x),
-    full_scan: _atd_read_required_field('ScanConfigRequest', 'full_scan', _atd_read_bool, x['full_scan'], x),
-    semgrep_version: _atd_read_required_field('ScanConfigRequest', 'semgrep_version', readVersion, x['semgrep_version'], x),
   };
 }
 

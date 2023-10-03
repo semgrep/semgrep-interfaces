@@ -193,14 +193,6 @@ type scan_request = Semgrep_output_v1_t.scan_request = {
   scan_metadata: scan_metadata option
 }
 
-type scan_config_request = Semgrep_output_v1_t.scan_config_request = {
-  dry_run: bool;
-  repo_name: string;
-  sca: bool;
-  full_scan: bool;
-  semgrep_version: version
-}
-
 type scan_config = Semgrep_output_v1_t.scan_config = {
   deployment_id: int;
   deployment_name: string;
@@ -1130,26 +1122,6 @@ val read_scan_request :
 val scan_request_of_string :
   string -> scan_request
   (** Deserialize JSON data of type {!type:scan_request}. *)
-
-val write_scan_config_request :
-  Buffer.t -> scan_config_request -> unit
-  (** Output a JSON value of type {!type:scan_config_request}. *)
-
-val string_of_scan_config_request :
-  ?len:int -> scan_config_request -> string
-  (** Serialize a value of type {!type:scan_config_request}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_scan_config_request :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scan_config_request
-  (** Input JSON data of type {!type:scan_config_request}. *)
-
-val scan_config_request_of_string :
-  string -> scan_config_request
-  (** Deserialize JSON data of type {!type:scan_config_request}. *)
 
 val write_scan_config :
   Buffer.t -> scan_config -> unit

@@ -709,19 +709,6 @@
         "scan_metadata": { "$ref": "#/definitions/scan_metadata" }
       }
     },
-    "scan_config_request": {
-      "type": "object",
-      "required": [
-        "dry_run", "repo_name", "sca", "full_scan", "semgrep_version"
-      ],
-      "properties": {
-        "dry_run": { "type": "boolean" },
-        "repo_name": { "type": "string" },
-        "sca": { "type": "boolean" },
-        "full_scan": { "type": "boolean" },
-        "semgrep_version": { "$ref": "#/definitions/version" }
-      }
-    },
     "scan_config": {
       "type": "object",
       "required": [

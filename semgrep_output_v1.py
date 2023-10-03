@@ -2093,46 +2093,6 @@ class ScanRequest:
 
 
 @dataclass
-class ScanConfigRequest:
-    """Original type: scan_config_request = { ... }"""
-
-    dry_run: bool
-    repo_name: str
-    sca: bool
-    full_scan: bool
-    semgrep_version: Version
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ScanConfigRequest':
-        if isinstance(x, dict):
-            return cls(
-                dry_run=_atd_read_bool(x['dry_run']) if 'dry_run' in x else _atd_missing_json_field('ScanConfigRequest', 'dry_run'),
-                repo_name=_atd_read_string(x['repo_name']) if 'repo_name' in x else _atd_missing_json_field('ScanConfigRequest', 'repo_name'),
-                sca=_atd_read_bool(x['sca']) if 'sca' in x else _atd_missing_json_field('ScanConfigRequest', 'sca'),
-                full_scan=_atd_read_bool(x['full_scan']) if 'full_scan' in x else _atd_missing_json_field('ScanConfigRequest', 'full_scan'),
-                semgrep_version=Version.from_json(x['semgrep_version']) if 'semgrep_version' in x else _atd_missing_json_field('ScanConfigRequest', 'semgrep_version'),
-            )
-        else:
-            _atd_bad_json('ScanConfigRequest', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['dry_run'] = _atd_write_bool(self.dry_run)
-        res['repo_name'] = _atd_write_string(self.repo_name)
-        res['sca'] = _atd_write_bool(self.sca)
-        res['full_scan'] = _atd_write_bool(self.full_scan)
-        res['semgrep_version'] = (lambda x: x.to_json())(self.semgrep_version)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ScanConfigRequest':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class ScanConfig:
     """Original type: scan_config = { ... }"""
 

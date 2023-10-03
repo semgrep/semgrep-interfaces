@@ -936,7 +936,7 @@ type scan_response_bis = {
 }
 *)
 
-(* Sent by the CLI to the POST /scans/<scan_id>/config *)
+(* TODO? seems used only for dry_run and passed urlencoded to scans/config?xxx
 type scan_config_request = {
     dry_run: bool;
     (* project_metadata.repository *)
@@ -946,6 +946,7 @@ type scan_config_request = {
     full_scan: bool;
     semgrep_version : version;
 }
+*)
 
 (* Response by the backend to the CLI to the POST /scans/<scan_id>/config *)
 type scan_config = {
