@@ -931,6 +931,7 @@ type scan_response = {
 type scan_response_bis = {
     (* the scan id *)
     id: string;
+    (* since 1.37.0 *)
     ?enabled_products: product list;
 }
 *)
@@ -958,9 +959,10 @@ type scan_config = {
     dependency_query: bool;
     triage_ignored_syntactic_ids: string list;
     triage_ignored_match_based_ids: string list;
-    enabled_products: product list;
     (* patterns *)
     ignored_files: string list;
+    (* since 1.37.0 *)
+    ?enabled_products: product list;
   }
 
 (* TODO: add a ci_config_from_cloud this time returned by backend?
@@ -1097,6 +1099,7 @@ type ci_scan_complete = {
   stats: ci_scan_complete_stats;
   ?dependencies: ci_scan_dependencies option; (* remove when min version is 1.38.0 *)
   ?dependency_parser_errors: dependency_parser_error list option;
+  (* since 1.31.0 *)
   ?task_id: string option;
   ?final_attempt: bool option; (* always optional *)
   }
