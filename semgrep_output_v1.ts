@@ -505,7 +505,7 @@ export type Contributions = Contribution[]
 
 export type CiScanDependencies = Map<string, FoundDependency[]>
 
-export type CiScanCompleteResponse = {
+export type CiScanComplete = {
   exit_code: number /*int*/;
   stats: CiScanCompleteStats;
   dependencies?: CiScanDependencies;
@@ -2021,10 +2021,10 @@ export function readCiScanDependencies(x: any, context: any = x): CiScanDependen
   return _atd_read_assoc_object_into_map(_atd_read_array(readFoundDependency))(x, context);
 }
 
-export function writeCiScanCompleteResponse(x: CiScanCompleteResponse, context: any = x): any {
+export function writeCiScanComplete(x: CiScanComplete, context: any = x): any {
   return {
-    'exit_code': _atd_write_required_field('CiScanCompleteResponse', 'exit_code', _atd_write_int, x.exit_code, x),
-    'stats': _atd_write_required_field('CiScanCompleteResponse', 'stats', writeCiScanCompleteStats, x.stats, x),
+    'exit_code': _atd_write_required_field('CiScanComplete', 'exit_code', _atd_write_int, x.exit_code, x),
+    'stats': _atd_write_required_field('CiScanComplete', 'stats', writeCiScanCompleteStats, x.stats, x),
     'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
     'dependency_parser_errors': _atd_write_optional_field(_atd_write_array(writeDependencyParserError), x.dependency_parser_errors, x),
     'task_id': _atd_write_optional_field(_atd_write_string, x.task_id, x),
@@ -2032,10 +2032,10 @@ export function writeCiScanCompleteResponse(x: CiScanCompleteResponse, context: 
   };
 }
 
-export function readCiScanCompleteResponse(x: any, context: any = x): CiScanCompleteResponse {
+export function readCiScanComplete(x: any, context: any = x): CiScanComplete {
   return {
-    exit_code: _atd_read_required_field('CiScanCompleteResponse', 'exit_code', _atd_read_int, x['exit_code'], x),
-    stats: _atd_read_required_field('CiScanCompleteResponse', 'stats', readCiScanCompleteStats, x['stats'], x),
+    exit_code: _atd_read_required_field('CiScanComplete', 'exit_code', _atd_read_int, x['exit_code'], x),
+    stats: _atd_read_required_field('CiScanComplete', 'stats', readCiScanCompleteStats, x['stats'], x),
     dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
     dependency_parser_errors: _atd_read_optional_field(_atd_read_array(readDependencyParserError), x['dependency_parser_errors'], x),
     task_id: _atd_read_optional_field(_atd_read_string, x['task_id'], x),

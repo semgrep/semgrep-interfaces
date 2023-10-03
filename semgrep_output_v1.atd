@@ -1092,10 +1092,10 @@ type ci_scan_dependencies = (string * found_dependency list) list
 (* ----------------------------- *)
 
 (* Sent by the CLI to /complete *)
-type ci_scan_complete_response = {
+type ci_scan_complete = {
   exit_code: int;
   stats: ci_scan_complete_stats;
-  ?dependencies: ci_scan_dependencies option;
+  ?dependencies: ci_scan_dependencies option; (* remove when min version is 1.38.0 *)
   ?dependency_parser_errors: dependency_parser_error list option;
   ?task_id: string option;
   ?final_attempt: bool option; (* always optional *)
@@ -1125,10 +1125,9 @@ type ci_scan_complete_stats = {
     <json repr="object">
     <python repr="dict">
     <ts repr="map">;
-
- (* This is EngineType from python, which is different from engine_kind
-  * used in this file.
-  *)
+  (* This is EngineType from python, which is different from engine_kind
+   * used in this file.
+   *)
   ?engine_requested: string option;
 }
 
