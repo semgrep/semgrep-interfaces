@@ -950,7 +950,9 @@ type scan_config_request = {
 (* Response by the backend to the CLI to the POST /scans/<scan_id>/config *)
 type scan_config = {
     deployment_id: int;
+    (* the org name *)
     deployment_name: string;
+    (* ex: "audit", "comment", "block" TODO use enum? *)
     policy_names: string list;
     (* rules raw content in JSON format *)
     rule_config: string;
