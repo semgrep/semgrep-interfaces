@@ -296,6 +296,20 @@ message ScanRequest {
   ScanMetadata scan_metadata = 76122041;
 }
 
+message ScanConfig {
+  int64 deployment_id = 188822146;
+  string deployment_name = 129624728;
+  repeated string policy_names = 175625923;
+  string rule_config = 403140712;
+  bool autofix = 82457874;
+  bool deepsemgrep = 444846865;
+  bool dependency_query = 471197362;
+  repeated string triage_ignored_syntactic_ids = 211590151;
+  repeated string triage_ignored_match_based_ids = 327942260;
+  repeated string ignored_files = 482076310;
+  repeated google.protobuf.Any enabled_products = 447415338;
+}
+
 message Finding {
   string check_id = 244492357;
   string path = 3212859;

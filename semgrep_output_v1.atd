@@ -61,17 +61,17 @@
 (* escape hatch *)
 type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
 
-(* TODO: could convert to Uri.t for OCaml *)
+(* TODO: could convert to Uri.t for OCaml, using 'string wrap' *)
 type uri = string
 
-(* TODO: could convert to Digestif.SHA1.t for OCaml *)
+(* TODO: could convert to Digestif.SHA1.t for OCaml, using 'string wrap' *)
 type sha1 = string
+
+(* TODO: could convert to Uuidm.t for OCaml, using 'string wrap' *)
+type uuid = string
 
 (* TODO: could convert to ?? for OCaml *)
 type datetime = string
-
-(* TODO: could convert to Uuidm.t for OCaml *)
-type uuid = string
 
 (*****************************************************************************)
 (* Versioning *)
@@ -98,7 +98,7 @@ type position
 }
 
 (* File path.
- * TODO: could convert directly to Fpath.t for OCaml
+ * TODO: could convert directly to Fpath.t for OCaml with 'string wrap'
  * TODO: could convert directly to Path class of pathlib library for Python
  *)
 type fpath <ocaml attr="deriving show"> = string
@@ -158,7 +158,7 @@ type validation_state
 (* Core *)
 (* ----------------------------- *)
 
-(* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
+(* EXPERIMENTAL: Do not rely on those core_xxx types, they will disappear *)
 
 (* TODO: now only core_match_extra differ, otherwise it's just like cli_match *)
 type core_match <python decorator="dataclass(frozen=True)"> = {
@@ -325,7 +325,7 @@ type match_intermediate_var <python decorator="dataclass(frozen=True)"> = {
   content: string;
   (* This type happens to be mostly the same as a location for now, but
    * it's split out because Iago has plans to extend this with more information
-   * *)
+   *)
 }
 
 (*****************************************************************************)
@@ -335,7 +335,7 @@ type match_intermediate_var <python decorator="dataclass(frozen=True)"> = {
 (* ----------------------------- *)
 (* Core *)
 (* ----------------------------- *)
-(* EXPERIMENTAL: Do not rely on those internal types, they might disappear *)
+(* EXPERIMENTAL: Do not rely on those internal types, they will disappear *)
 
 (* See Semgrep_error_code.ml *)
 (* TODO: try to make it as close as possible to 'cli_error' above, possibly
@@ -744,6 +744,7 @@ type ecosystem <python decorator="dataclass(frozen=True)"> = [
   | Maven <json name="maven">
   | Composer <json name="composer">
   | Nuget <json name="nuget">
+  | Pub <json name="pub">
 ]
 
 type transitivity <python decorator="dataclass(frozen=True)"> = [
@@ -815,22 +816,34 @@ type dependency_parser_error = {
 (* Data sent to the Semgrep backend *)
 (*****************************************************************************)
 
-(* The sequence of http requests is mostly:
- *  - /scans when starting a scan, with information about the project
+(* The sequence of HTTP requests is mostly:
+ *  - /deployments/current with token
+ *    and response with deployment name
+ *  - /deployments/scans when starting a scan, with information about the project
+ *    and response with scan_id
+ *  - /scans/<scan_id>/config to request the scan config
+ *    and response with scan_config including the rules to use
  *  - /results to send the findings to the backend
+ *    and response with errors and task_id
  *  - /complete when done, with the exit code and a few more information
+ *    and response with app_block_override and reason
  *
  * TODO:
  *  - see semgrep/app/scans.py, need to port to ATD not just what we send, but
- *    also the reply from the backend
+ *    also the responses from the backend
  *
  * alt: we could move all of this in a separate semgrep_posts_v1.atd file
  * or semgrep_webapp_v1.atd
 *)
 
 (* ----------------------------- *)
-(* Project metadata and config *)
+(* Scan request *)
 (* ----------------------------- *)
+
+(* TODO: deployment_config? from POST to deployments/current
+ *)
+
+
 (* Collect information about a project from the environment, filesystem,
  * git repo, etc.
  * See also semgrep_metrics.atd and PRIVACY.md
@@ -843,9 +856,8 @@ type project_metadata = {
     (* TODO: deprecate in favor of scan_metadata.cli_version *)
     semgrep_version: version;
 
-    (* git metadata.
-     * Many of those fields come from environment variables like GITHUB_xxx.
-     * TODO: see Github_metadata.ml
+    (* Git metadata. Many of those fields come from environment variables like
+     * GITHUB_xxx.
      *)
     repository: string;
     repo_url: (*uri*) string nullable;
@@ -911,12 +923,11 @@ type scan_metadata = {
   }
 
 (* customer configured via .semgrepconfig.yml
- * TODO: type me
+ * TODO: type me, and rename maybe ci_config_from_repo
  *)
 type project_config = raw_json
 
-(* Sent by the CLI to the POST /scans endpoint when a scan is created and when
- * getting the scan config.
+(* Sent by the CLI to the POST /scans endpoint when a scan is created.
  * See also server/semgrep_app/cloud_platform/scan/models/scan.py in
  * the backend.
 *)
@@ -928,6 +939,55 @@ type scan_request = {
     ?project_config: project_config option;
     ?scan_metadata: scan_metadata option;
 }
+
+(* Response by the backend to the CLI to the POST /scans *)
+(* TODO
+type scan_response = {
+    scan: scan_response_bis;
+}
+type scan_response_bis = {
+    (* the scan id *)
+    id: string;
+    (* since 1.37.0 *)
+    ?enabled_products: product list;
+}
+*)
+
+(* TODO? seems used only for dry_run and passed urlencoded to /scans/config?xxx
+type scan_config_request = {
+    dry_run: bool;
+    (* project_metadata.repository *)
+    repo_name: string;
+    (* TODO: deprecate, prefer scan_request.scan_metadata.requested_products *)
+    sca: bool;
+    full_scan: bool;
+    semgrep_version : version;
+}
+ *)
+
+(* Response by the backend to the CLI to the POST /scans/<scan_id>/config *)
+type scan_config = {
+    deployment_id: int;
+    (* the org name *)
+    deployment_name: string;
+    (* ex: "audit", "comment", "block" TODO use enum? *)
+    policy_names: string list;
+    (* rules raw content in JSON format *)
+    rule_config: string;
+    ~autofix: bool;
+    ~deepsemgrep: bool;
+    ~dependency_query: bool;
+    ~triage_ignored_syntactic_ids: string list;
+    ~triage_ignored_match_based_ids: string list;
+    (* glob patterns *)
+    ~ignored_files: string list;
+    (* since 1.37.0 *)
+    ?enabled_products: product list option;
+  }
+
+(* TODO: add a ci_config_from_cloud this time returned by backend?
+ * similar to ci_config_from_repo but in the other direction.
+ *)
 
 (* ----------------------------- *)
 (* Findings *)
@@ -1018,6 +1078,12 @@ type ci_scan_results = {
    ?dependencies: ci_scan_dependencies option;
 }
 
+(* TODO: response to /results is {
+  errors: {message: string} list;
+  ?task_id: string option;
+}
+ *)
+
 (* See https://semgrep.dev/docs/usage-limits
  * coupling: this must match Git_wrapper.git_log_json_format
  *)
@@ -1053,9 +1119,17 @@ type ci_scan_complete = {
   stats: ci_scan_complete_stats;
   ?dependencies: ci_scan_dependencies option; (* remove when min version is 1.38.0 *)
   ?dependency_parser_errors: dependency_parser_error list option;
+  (* since 1.31.0 *)
   ?task_id: string option;
   ?final_attempt: bool option; (* always optional *)
+  }
+
+(* TODO: response to /complete is {
+   success: bool;
+   app_block_override: bool;
+   app_block_reason: string;
 }
+ *)
 
 type ci_scan_complete_stats = {
   findings: int;
@@ -1086,3 +1160,14 @@ type parsing_stats = {
   bytes_parsed: int;
   num_bytes: int;
 }
+
+(* ----------------------------- *)
+(* CI scan failure *)
+(* ----------------------------- *)
+
+(* TODO: Sent by the CLI to /scans/<scan_id>/error
+  type scan_failure = {
+     exit_code: int;
+     stderr: string;
+  }
+ *)
