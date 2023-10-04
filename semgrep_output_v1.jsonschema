@@ -34,8 +34,8 @@
     "raw_json": {},
     "uri": { "type": "string" },
     "sha1": { "type": "string" },
-    "datetime": { "type": "string" },
     "uuid": { "type": "string" },
+    "datetime": { "type": "string" },
     "version": { "type": "string" },
     "position": {
       "type": "object",
@@ -707,6 +707,34 @@
         "project_metadata": { "$ref": "#/definitions/project_metadata" },
         "project_config": { "$ref": "#/definitions/project_config" },
         "scan_metadata": { "$ref": "#/definitions/scan_metadata" }
+      }
+    },
+    "scan_config": {
+      "type": "object",
+      "required": [
+        "deployment_id", "deployment_name", "policy_names", "rule_config"
+      ],
+      "properties": {
+        "deployment_id": { "type": "integer" },
+        "deployment_name": { "type": "string" },
+        "policy_names": { "type": "array", "items": { "type": "string" } },
+        "rule_config": { "type": "string" },
+        "autofix": { "type": "boolean" },
+        "deepsemgrep": { "type": "boolean" },
+        "dependency_query": { "type": "boolean" },
+        "triage_ignored_syntactic_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "triage_ignored_match_based_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "ignored_files": { "type": "array", "items": { "type": "string" } },
+        "enabled_products": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/product" }
+        }
       }
     },
     "finding": {
