@@ -565,7 +565,8 @@
         { "const": "cargo" },
         { "const": "maven" },
         { "const": "composer" },
-        { "const": "nuget" }
+        { "const": "nuget" },
+        { "const": "pub" }
       ]
     },
     "transitivity": {

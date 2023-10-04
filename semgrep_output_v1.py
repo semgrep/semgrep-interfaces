@@ -2620,10 +2620,27 @@ class Nuget:
 
 
 @dataclass(frozen=True)
+class Pub:
+    """Original type: ecosystem = [ ... | Pub | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Pub'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'pub'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class Ecosystem:
     """Original type: ecosystem = [ ... ]"""
 
-    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget]
+    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub]
 
     @property
     def kind(self) -> str:
@@ -2649,6 +2666,8 @@ class Ecosystem:
                 return cls(Composer())
             if x == 'nuget':
                 return cls(Nuget())
+            if x == 'pub':
+                return cls(Pub())
             _atd_bad_json('Ecosystem', x)
         _atd_bad_json('Ecosystem', x)
 
