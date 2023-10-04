@@ -734,6 +734,7 @@ type ecosystem <python decorator="dataclass(frozen=True)"> = [
   | Maven <json name="maven">
   | Composer <json name="composer">
   | Nuget <json name="nuget">
+  | Pub <json name="pub">
 ]
 
 type transitivity <python decorator="dataclass(frozen=True)"> = [
