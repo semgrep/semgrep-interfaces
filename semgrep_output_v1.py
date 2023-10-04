@@ -750,6 +750,129 @@ class RuleId:
 
 
 @dataclass(frozen=True)
+class Error:
+    """Original type: severity = [ ... | Error | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Error'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'error'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Warning:
+    """Original type: severity = [ ... | Warning | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Warning'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'warning'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Info:
+    """Original type: severity = [ ... | Info | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Info'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'info'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Experiment:
+    """Original type: severity = [ ... | Experiment | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Experiment'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'experiment'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Inventory:
+    """Original type: severity = [ ... | Inventory | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Inventory'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'inventory'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Severity:
+    """Original type: severity = [ ... ]"""
+
+    value: Union[Error, Warning, Info, Experiment, Inventory]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Severity':
+        if isinstance(x, str):
+            if x == 'error':
+                return cls(Error())
+            if x == 'warning':
+                return cls(Warning())
+            if x == 'info':
+                return cls(Info())
+            if x == 'experiment':
+                return cls(Experiment())
+            if x == 'inventory':
+                return cls(Inventory())
+            _atd_bad_json('Severity', x)
+        _atd_bad_json('Severity', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Severity':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class SvalueValue:
     """Original type: svalue_value = { ... }"""
 
@@ -1062,7 +1185,7 @@ class CoreMatchExtra:
     engine_kind: EngineKind
     message: Optional[str] = None
     metadata: Optional[RawJson] = None
-    severity: Optional[str] = None
+    severity: Optional[Severity] = None
     dataflow_trace: Optional[MatchDataflowTrace] = None
     rendered_fix: Optional[str] = None
     validation_state: Optional[ValidationState] = None
@@ -1076,7 +1199,7 @@ class CoreMatchExtra:
                 engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else _atd_missing_json_field('CoreMatchExtra', 'engine_kind'),
                 message=_atd_read_string(x['message']) if 'message' in x else None,
                 metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else None,
-                severity=_atd_read_string(x['severity']) if 'severity' in x else None,
+                severity=Severity.from_json(x['severity']) if 'severity' in x else None,
                 dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 rendered_fix=_atd_read_string(x['rendered_fix']) if 'rendered_fix' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
@@ -1094,7 +1217,7 @@ class CoreMatchExtra:
         if self.metadata is not None:
             res['metadata'] = (lambda x: x.to_json())(self.metadata)
         if self.severity is not None:
-            res['severity'] = _atd_write_string(self.severity)
+            res['severity'] = (lambda x: x.to_json())(self.severity)
         if self.dataflow_trace is not None:
             res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
         if self.rendered_fix is not None:
@@ -3226,91 +3349,6 @@ class Datetime:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
-class Error:
-    """Original type: core_severity = [ ... | Error | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Error'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'error'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Warning:
-    """Original type: core_severity = [ ... | Warning | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Warning'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'warning'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Info:
-    """Original type: core_severity = [ ... | Info | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Info'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'info'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class CoreSeverity:
-    """Original type: core_severity = [ ... ]"""
-
-    value: Union[Error, Warning, Info]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CoreSeverity':
-        if isinstance(x, str):
-            if x == 'error':
-                return cls(Error())
-            if x == 'warning':
-                return cls(Warning())
-            if x == 'info':
-                return cls(Info())
-            _atd_bad_json('CoreSeverity', x)
-        _atd_bad_json('CoreSeverity', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CoreSeverity':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass(frozen=True, order=True)
 class LexicalError:
     """Original type: core_error_kind = [ ... | LexicalError | ... ]"""
@@ -3692,7 +3730,7 @@ class CoreError:
     """Original type: core_error = { ... }"""
 
     error_type: CoreErrorKind
-    severity: CoreSeverity
+    severity: Severity
     location: Location
     message: str
     rule_id: Optional[RuleId] = None
@@ -3703,7 +3741,7 @@ class CoreError:
         if isinstance(x, dict):
             return cls(
                 error_type=CoreErrorKind.from_json(x['error_type']) if 'error_type' in x else _atd_missing_json_field('CoreError', 'error_type'),
-                severity=CoreSeverity.from_json(x['severity']) if 'severity' in x else _atd_missing_json_field('CoreError', 'severity'),
+                severity=Severity.from_json(x['severity']) if 'severity' in x else _atd_missing_json_field('CoreError', 'severity'),
                 location=Location.from_json(x['location']) if 'location' in x else _atd_missing_json_field('CoreError', 'location'),
                 message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('CoreError', 'message'),
                 rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else None,
@@ -3930,7 +3968,7 @@ class CliMatchExtra:
     lines: str
     message: str
     metadata: RawJson
-    severity: str
+    severity: Severity
     metavars: Optional[Metavars] = None
     fix: Optional[str] = None
     fix_regex: Optional[FixRegex] = None
@@ -3950,7 +3988,7 @@ class CliMatchExtra:
                 lines=_atd_read_string(x['lines']) if 'lines' in x else _atd_missing_json_field('CliMatchExtra', 'lines'),
                 message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('CliMatchExtra', 'message'),
                 metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else _atd_missing_json_field('CliMatchExtra', 'metadata'),
-                severity=_atd_read_string(x['severity']) if 'severity' in x else _atd_missing_json_field('CliMatchExtra', 'severity'),
+                severity=Severity.from_json(x['severity']) if 'severity' in x else _atd_missing_json_field('CliMatchExtra', 'severity'),
                 metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else None,
                 fix=_atd_read_string(x['fix']) if 'fix' in x else None,
                 fix_regex=FixRegex.from_json(x['fix_regex']) if 'fix_regex' in x else None,
@@ -3971,7 +4009,7 @@ class CliMatchExtra:
         res['lines'] = _atd_write_string(self.lines)
         res['message'] = _atd_write_string(self.message)
         res['metadata'] = (lambda x: x.to_json())(self.metadata)
-        res['severity'] = _atd_write_string(self.severity)
+        res['severity'] = (lambda x: x.to_json())(self.severity)
         if self.metavars is not None:
             res['metavars'] = (lambda x: x.to_json())(self.metavars)
         if self.fix is not None:

@@ -68,7 +68,7 @@ export type CoreMatch = {
 export type CoreMatchExtra = {
   message?: string;
   metadata?: RawJson;
-  severity?: string;
+  severity?: Severity;
   metavars: Metavars;
   dataflow_trace?: MatchDataflowTrace;
   rendered_fix?: string;
@@ -91,7 +91,7 @@ export type CliMatchExtra = {
   lines: string;
   message: string;
   metadata: RawJson;
-  severity: string;
+  severity: Severity;
   fix?: string;
   fix_regex?: FixRegex;
   is_ignored?: boolean;
@@ -142,7 +142,7 @@ export type MatchIntermediateVar = {
 export type CoreError = {
   rule_id?: RuleId;
   error_type: CoreErrorKind;
-  severity: CoreSeverity;
+  severity: Severity;
   location: Location;
   message: string;
   details?: string;
@@ -175,10 +175,12 @@ export type IncompatibleRule = {
   max_version?: Version;
 }
 
-export type CoreSeverity =
+export type Severity =
 | { kind: 'Error' /* JSON: "error" */ }
 | { kind: 'Warning' /* JSON: "warning" */ }
 | { kind: 'Info' /* JSON: "info" */ }
+| { kind: 'Experiment' /* JSON: "experiment" */ }
+| { kind: 'Inventory' /* JSON: "inventory" */ }
 
 export type CliError = {
   code: number /*int*/;
@@ -714,7 +716,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
   return {
     'message': _atd_write_optional_field(_atd_write_string, x.message, x),
     'metadata': _atd_write_optional_field(writeRawJson, x.metadata, x),
-    'severity': _atd_write_optional_field(_atd_write_string, x.severity, x),
+    'severity': _atd_write_optional_field(writeSeverity, x.severity, x),
     'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
     'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
     'rendered_fix': _atd_write_optional_field(_atd_write_string, x.rendered_fix, x),
@@ -728,7 +730,7 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
   return {
     message: _atd_read_optional_field(_atd_read_string, x['message'], x),
     metadata: _atd_read_optional_field(readRawJson, x['metadata'], x),
-    severity: _atd_read_optional_field(_atd_read_string, x['severity'], x),
+    severity: _atd_read_optional_field(readSeverity, x['severity'], x),
     metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
     rendered_fix: _atd_read_optional_field(_atd_read_string, x['rendered_fix'], x),
@@ -765,7 +767,7 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'lines': _atd_write_required_field('CliMatchExtra', 'lines', _atd_write_string, x.lines, x),
     'message': _atd_write_required_field('CliMatchExtra', 'message', _atd_write_string, x.message, x),
     'metadata': _atd_write_required_field('CliMatchExtra', 'metadata', writeRawJson, x.metadata, x),
-    'severity': _atd_write_required_field('CliMatchExtra', 'severity', _atd_write_string, x.severity, x),
+    'severity': _atd_write_required_field('CliMatchExtra', 'severity', writeSeverity, x.severity, x),
     'fix': _atd_write_optional_field(_atd_write_string, x.fix, x),
     'fix_regex': _atd_write_optional_field(writeFixRegex, x.fix_regex, x),
     'is_ignored': _atd_write_optional_field(_atd_write_bool, x.is_ignored, x),
@@ -785,7 +787,7 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     lines: _atd_read_required_field('CliMatchExtra', 'lines', _atd_read_string, x['lines'], x),
     message: _atd_read_required_field('CliMatchExtra', 'message', _atd_read_string, x['message'], x),
     metadata: _atd_read_required_field('CliMatchExtra', 'metadata', readRawJson, x['metadata'], x),
-    severity: _atd_read_required_field('CliMatchExtra', 'severity', _atd_read_string, x['severity'], x),
+    severity: _atd_read_required_field('CliMatchExtra', 'severity', readSeverity, x['severity'], x),
     fix: _atd_read_optional_field(_atd_read_string, x['fix'], x),
     fix_regex: _atd_read_optional_field(readFixRegex, x['fix_regex'], x),
     is_ignored: _atd_read_optional_field(_atd_read_bool, x['is_ignored'], x),
@@ -912,7 +914,7 @@ export function writeCoreError(x: CoreError, context: any = x): any {
   return {
     'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
     'error_type': _atd_write_required_field('CoreError', 'error_type', writeCoreErrorKind, x.error_type, x),
-    'severity': _atd_write_required_field('CoreError', 'severity', writeCoreSeverity, x.severity, x),
+    'severity': _atd_write_required_field('CoreError', 'severity', writeSeverity, x.severity, x),
     'location': _atd_write_required_field('CoreError', 'location', writeLocation, x.location, x),
     'message': _atd_write_required_field('CoreError', 'message', _atd_write_string, x.message, x),
     'details': _atd_write_optional_field(_atd_write_string, x.details, x),
@@ -923,7 +925,7 @@ export function readCoreError(x: any, context: any = x): CoreError {
   return {
     rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
     error_type: _atd_read_required_field('CoreError', 'error_type', readCoreErrorKind, x['error_type'], x),
-    severity: _atd_read_required_field('CoreError', 'severity', readCoreSeverity, x['severity'], x),
+    severity: _atd_read_required_field('CoreError', 'severity', readSeverity, x['severity'], x),
     location: _atd_read_required_field('CoreError', 'location', readLocation, x['location'], x),
     message: _atd_read_required_field('CoreError', 'message', _atd_read_string, x['message'], x),
     details: _atd_read_optional_field(_atd_read_string, x['details'], x),
@@ -1043,7 +1045,7 @@ export function readIncompatibleRule(x: any, context: any = x): IncompatibleRule
   };
 }
 
-export function writeCoreSeverity(x: CoreSeverity, context: any = x): any {
+export function writeSeverity(x: Severity, context: any = x): any {
   switch (x.kind) {
     case 'Error':
       return 'error'
@@ -1051,10 +1053,14 @@ export function writeCoreSeverity(x: CoreSeverity, context: any = x): any {
       return 'warning'
     case 'Info':
       return 'info'
+    case 'Experiment':
+      return 'experiment'
+    case 'Inventory':
+      return 'inventory'
   }
 }
 
-export function readCoreSeverity(x: any, context: any = x): CoreSeverity {
+export function readSeverity(x: any, context: any = x): Severity {
   switch (x) {
     case 'error':
       return { kind: 'Error' }
@@ -1062,8 +1068,12 @@ export function readCoreSeverity(x: any, context: any = x): CoreSeverity {
       return { kind: 'Warning' }
     case 'info':
       return { kind: 'Info' }
+    case 'experiment':
+      return { kind: 'Experiment' }
+    case 'inventory':
+      return { kind: 'Inventory' }
     default:
-      _atd_bad_json('CoreSeverity', x, context)
+      _atd_bad_json('Severity', x, context)
       throw new Error('impossible')
   }
 }
