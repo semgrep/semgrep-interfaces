@@ -169,7 +169,16 @@ type core_match <python decorator="dataclass(frozen=True)"> = {
 
 (* TODO: try to make it as close as possible to 'cli_match_extra' below *)
 type core_match_extra <python decorator="dataclass(frozen=True)"> = {
-  ?message: string option; (* rule.message (?) *)
+  (* These fields generally come from the rule, but may be set here if they're
+   * being overriden for that particular finding. This would currently occur
+   * for rule with a validator for secrets, depending on what the valdiator
+   * might match, but could be expanded in the future.
+   *
+   * Added in semgrep 1.44.0 *)
+  ?message: string option;
+  ?metadata: raw_json option;
+  ?severity: severity option;
+
   metavars: metavars;
   ?dataflow_trace: match_dataflow_trace option;
   (* If present, semgrep-core was able to compute a string that should be
@@ -209,8 +218,7 @@ type cli_match_extra = {
   (* fields coming from the rule *)
   message: string;
   metadata: raw_json;
-  (* LATER: use a variant for severity *)
-  severity: string;
+  severity: severity;
 
   (* fields derived from the rule *)
   ?fix: string option;
@@ -337,7 +345,7 @@ type match_intermediate_var <python decorator="dataclass(frozen=True)"> = {
 type core_error <python decorator="dataclass(frozen=True)"> = {
   ?rule_id: rule_id option;
   error_type: core_error_kind;
-  severity: core_severity;
+  severity: severity;
   location: location;
   message: string;
   ?details: string option;
@@ -400,12 +408,14 @@ type incompatible_rule
    warning = something wrong that should be fixed
    info = some special condition worth knowing about
 *)
-type core_severity
-    <ocaml attr="deriving show">
+type severity
+    <ocaml attr="deriving show, eq">
     <python decorator="dataclass(frozen=True)"> = [
-  | Error <json name="error">
-  | Warning <json name="warning">
-  | Info <json name="info">
+  | Error <json name="ERROR">
+  | Warning <json name="WARNING">
+  | Info <json name="INFO">
+  | Experiment <json name="EXPERIMENT">
+  | Inventory <json name="INVENTORY">
 ] <ocaml repr="classic">
 
 (* ----------------------------- *)

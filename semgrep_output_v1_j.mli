@@ -44,6 +44,11 @@ type raw_json = Yojson.Basic.t
 
 type rule_id = Semgrep_output_v1_t.rule_id [@@deriving show]
 
+type severity = Semgrep_output_v1_t.severity = 
+    Error | Warning | Info | Experiment | Inventory
+
+  [@@deriving show, eq]
+
 type svalue_value = Semgrep_output_v1_t.svalue_value = {
   svalue_start: position option;
   svalue_end: position option;
@@ -80,6 +85,8 @@ type match_dataflow_trace = Semgrep_output_v1_t.match_dataflow_trace = {
 
 type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   message: string option;
+  metadata: raw_json option;
+  severity: severity option;
   metavars: metavars;
   dataflow_trace: match_dataflow_trace option;
   rendered_fix: string option;
@@ -330,11 +337,6 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
 
 type datetime = Semgrep_output_v1_t.datetime
 
-type core_severity = Semgrep_output_v1_t.core_severity = 
-    Error | Warning | Info
-
-  [@@deriving show]
-
 type core_error_kind = Semgrep_output_v1_t.core_error_kind = 
     LexicalError
   | ParseError
@@ -360,7 +362,7 @@ type core_error_kind = Semgrep_output_v1_t.core_error_kind =
 type core_error = Semgrep_output_v1_t.core_error = {
   rule_id: rule_id option;
   error_type: core_error_kind;
-  severity: core_severity;
+  severity: severity;
   location: location;
   message: string;
   details: string option
@@ -406,7 +408,7 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   lines: string;
   message: string;
   metadata: raw_json;
-  severity: string;
+  severity: severity;
   fix: string option;
   fix_regex: fix_regex option;
   is_ignored: bool option;
@@ -642,6 +644,26 @@ val read_rule_id :
 val rule_id_of_string :
   string -> rule_id
   (** Deserialize JSON data of type {!type:rule_id}. *)
+
+val write_severity :
+  Buffer.t -> severity -> unit
+  (** Output a JSON value of type {!type:severity}. *)
+
+val string_of_severity :
+  ?len:int -> severity -> string
+  (** Serialize a value of type {!type:severity}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_severity :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> severity
+  (** Input JSON data of type {!type:severity}. *)
+
+val severity_of_string :
+  string -> severity
+  (** Deserialize JSON data of type {!type:severity}. *)
 
 val write_svalue_value :
   Buffer.t -> svalue_value -> unit
@@ -1482,26 +1504,6 @@ val read_datetime :
 val datetime_of_string :
   string -> datetime
   (** Deserialize JSON data of type {!type:datetime}. *)
-
-val write_core_severity :
-  Buffer.t -> core_severity -> unit
-  (** Output a JSON value of type {!type:core_severity}. *)
-
-val string_of_core_severity :
-  ?len:int -> core_severity -> string
-  (** Serialize a value of type {!type:core_severity}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_core_severity :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_severity
-  (** Input JSON data of type {!type:core_severity}. *)
-
-val core_severity_of_string :
-  string -> core_severity
-  (** Deserialize JSON data of type {!type:core_severity}. *)
 
 val write_core_error_kind :
   Buffer.t -> core_error_kind -> unit

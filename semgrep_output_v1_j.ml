@@ -44,6 +44,11 @@ type raw_json = Yojson.Basic.t
 
 type rule_id = Semgrep_output_v1_t.rule_id [@@deriving show]
 
+type severity = Semgrep_output_v1_t.severity = 
+    Error | Warning | Info | Experiment | Inventory
+
+  [@@deriving show, eq]
+
 type svalue_value = Semgrep_output_v1_t.svalue_value = {
   svalue_start: position option;
   svalue_end: position option;
@@ -80,6 +85,8 @@ type match_dataflow_trace = Semgrep_output_v1_t.match_dataflow_trace = {
 
 type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   message: string option;
+  metadata: raw_json option;
+  severity: severity option;
   metavars: metavars;
   dataflow_trace: match_dataflow_trace option;
   rendered_fix: string option;
@@ -330,11 +337,6 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
 
 type datetime = Semgrep_output_v1_t.datetime
 
-type core_severity = Semgrep_output_v1_t.core_severity = 
-    Error | Warning | Info
-
-  [@@deriving show]
-
 type core_error_kind = Semgrep_output_v1_t.core_error_kind = 
     LexicalError
   | ParseError
@@ -360,7 +362,7 @@ type core_error_kind = Semgrep_output_v1_t.core_error_kind =
 type core_error = Semgrep_output_v1_t.core_error = {
   rule_id: rule_id option;
   error_type: core_error_kind;
-  severity: core_severity;
+  severity: severity;
   location: location;
   message: string;
   details: string option
@@ -406,7 +408,7 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   lines: string;
   message: string;
   metadata: raw_json;
-  severity: string;
+  severity: severity;
   fix: string option;
   fix_regex: fix_regex option;
   is_ignored: bool option;
@@ -597,7 +599,7 @@ let read_fpath = (
 let fpath_of_string s =
   read_fpath (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_matching_operation : _ -> matching_operation -> _ = (
-  fun ob x ->
+  fun ob (x : matching_operation) ->
     match x with
       | And -> Buffer.add_string ob "\"And\""
       | Or -> Buffer.add_string ob "\"Or\""
@@ -1504,6 +1506,128 @@ let read_rule_id = (
 )
 let rule_id_of_string s =
   read_rule_id (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_severity : _ -> severity -> _ = (
+  fun ob (x : severity) ->
+    match x with
+      | Error -> Buffer.add_string ob "\"ERROR\""
+      | Warning -> Buffer.add_string ob "\"WARNING\""
+      | Info -> Buffer.add_string ob "\"INFO\""
+      | Experiment -> Buffer.add_string ob "\"EXPERIMENT\""
+      | Inventory -> Buffer.add_string ob "\"INVENTORY\""
+)
+let string_of_severity ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_severity ob x;
+  Buffer.contents ob
+let read_severity = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "ERROR" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Error : severity)
+            | "WARNING" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Warning : severity)
+            | "INFO" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Info : severity)
+            | "EXPERIMENT" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Experiment : severity)
+            | "INVENTORY" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Inventory : severity)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "ERROR" ->
+              (Error : severity)
+            | "WARNING" ->
+              (Warning : severity)
+            | "INFO" ->
+              (Info : severity)
+            | "EXPERIMENT" ->
+              (Experiment : severity)
+            | "INVENTORY" ->
+              (Inventory : severity)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let severity_of_string s =
+  read_severity (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__severity_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_severity
+  )
+)
+let string_of__severity_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__severity_option ob x;
+  Buffer.contents ob
+let read__severity_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_severity
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_severity
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _severity_option_of_string s =
+  read__severity_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_svalue_value : _ -> svalue_value -> _ = (
   fun ob (x : svalue_value) ->
     Buffer.add_char ob '{';
@@ -2174,7 +2298,7 @@ let read__validation_state_option = (
 let _validation_state_option_of_string s =
   read__validation_state_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let rec write_match_call_trace : _ -> match_call_trace -> _ = (
-  fun ob x ->
+  fun ob (x : match_call_trace) ->
     match x with
       | CliLoc x ->
         Buffer.add_string ob "[\"CliLoc\",";
@@ -2911,6 +3035,28 @@ let write_core_match_extra : _ -> core_match_extra -> _ = (
       )
         ob x;
     );
+    (match x.metadata with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"metadata\":";
+      (
+        write_raw_json
+      )
+        ob x;
+    );
+    (match x.severity with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"severity\":";
+      (
+        write_severity
+      )
+        ob x;
+    );
     if !is_first then
       is_first := false
     else
@@ -2984,6 +3130,8 @@ let read_core_match_extra = (
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
     let field_message = ref (None) in
+    let field_metadata = ref (None) in
+    let field_severity = ref (None) in
     let field_metavars = ref (None) in
     let field_dataflow_trace = ref (None) in
     let field_rendered_fix = ref (None) in
@@ -3008,19 +3156,52 @@ let read_core_match_extra = (
                 )
               )
             | 8 -> (
-                if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'v' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' then (
-                  1
-                )
-                else (
-                  -1
-                )
+                match String.unsafe_get s pos with
+                  | 'm' -> (
+                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' then (
+                        match String.unsafe_get s (pos+4) with
+                          | 'd' -> (
+                              if String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'a' then (
+                                1
+                              )
+                              else (
+                                -1
+                              )
+                            )
+                          | 'v' -> (
+                              if String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' then (
+                                3
+                              )
+                              else (
+                                -1
+                              )
+                            )
+                          | _ -> (
+                              -1
+                            )
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 's' -> (
+                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'v' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'y' then (
+                        2
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
               )
             | 11 -> (
                 if String.unsafe_get s pos = 'e' then (
                   match String.unsafe_get s (pos+1) with
                     | 'n' -> (
                         if String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'k' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'd' then (
-                          4
+                          6
                         )
                         else (
                           -1
@@ -3028,7 +3209,7 @@ let read_core_match_extra = (
                       )
                     | 'x' -> (
                         if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'x' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' then (
-                          6
+                          8
                         )
                         else (
                           -1
@@ -3044,7 +3225,7 @@ let read_core_match_extra = (
               )
             | 12 -> (
                 if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'f' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'x' then (
-                  3
+                  5
                 )
                 else (
                   -1
@@ -3052,7 +3233,7 @@ let read_core_match_extra = (
               )
             | 14 -> (
                 if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'e' then (
-                  2
+                  4
                 )
                 else (
                   -1
@@ -3060,7 +3241,7 @@ let read_core_match_extra = (
               )
             | 16 -> (
                 if String.unsafe_get s pos = 'v' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'e' then (
-                  5
+                  7
                 )
                 else (
                   -1
@@ -3085,6 +3266,26 @@ let read_core_match_extra = (
               );
             )
           | 1 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_metadata := (
+                Some (
+                  (
+                    read_raw_json
+                  ) p lb
+                )
+              );
+            )
+          | 2 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_severity := (
+                Some (
+                  (
+                    read_severity
+                  ) p lb
+                )
+              );
+            )
+          | 3 ->
             field_metavars := (
               Some (
                 (
@@ -3092,7 +3293,7 @@ let read_core_match_extra = (
                 ) p lb
               )
             );
-          | 2 ->
+          | 4 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_dataflow_trace := (
                 Some (
@@ -3102,7 +3303,7 @@ let read_core_match_extra = (
                 )
               );
             )
-          | 3 ->
+          | 5 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_rendered_fix := (
                 Some (
@@ -3112,7 +3313,7 @@ let read_core_match_extra = (
                 )
               );
             )
-          | 4 ->
+          | 6 ->
             field_engine_kind := (
               Some (
                 (
@@ -3120,7 +3321,7 @@ let read_core_match_extra = (
                 ) p lb
               )
             );
-          | 5 ->
+          | 7 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_validation_state := (
                 Some (
@@ -3130,7 +3331,7 @@ let read_core_match_extra = (
                 )
               );
             )
-          | 6 ->
+          | 8 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_extra_extra := (
                 Some (
@@ -3162,19 +3363,52 @@ let read_core_match_extra = (
                   )
                 )
               | 8 -> (
-                  if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'v' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
+                  match String.unsafe_get s pos with
+                    | 'm' -> (
+                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' then (
+                          match String.unsafe_get s (pos+4) with
+                            | 'd' -> (
+                                if String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'a' then (
+                                  1
+                                )
+                                else (
+                                  -1
+                                )
+                              )
+                            | 'v' -> (
+                                if String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' then (
+                                  3
+                                )
+                                else (
+                                  -1
+                                )
+                              )
+                            | _ -> (
+                                -1
+                              )
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 's' -> (
+                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'v' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'y' then (
+                          2
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
                 )
               | 11 -> (
                   if String.unsafe_get s pos = 'e' then (
                     match String.unsafe_get s (pos+1) with
                       | 'n' -> (
                           if String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'k' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'd' then (
-                            4
+                            6
                           )
                           else (
                             -1
@@ -3182,7 +3416,7 @@ let read_core_match_extra = (
                         )
                       | 'x' -> (
                           if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'x' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' then (
-                            6
+                            8
                           )
                           else (
                             -1
@@ -3198,7 +3432,7 @@ let read_core_match_extra = (
                 )
               | 12 -> (
                   if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'f' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'x' then (
-                    3
+                    5
                   )
                   else (
                     -1
@@ -3206,7 +3440,7 @@ let read_core_match_extra = (
                 )
               | 14 -> (
                   if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'e' then (
-                    2
+                    4
                   )
                   else (
                     -1
@@ -3214,7 +3448,7 @@ let read_core_match_extra = (
                 )
               | 16 -> (
                   if String.unsafe_get s pos = 'v' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'e' then (
-                    5
+                    7
                   )
                   else (
                     -1
@@ -3239,6 +3473,26 @@ let read_core_match_extra = (
                 );
               )
             | 1 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_metadata := (
+                  Some (
+                    (
+                      read_raw_json
+                    ) p lb
+                  )
+                );
+              )
+            | 2 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_severity := (
+                  Some (
+                    (
+                      read_severity
+                    ) p lb
+                  )
+                );
+              )
+            | 3 ->
               field_metavars := (
                 Some (
                   (
@@ -3246,7 +3500,7 @@ let read_core_match_extra = (
                   ) p lb
                 )
               );
-            | 2 ->
+            | 4 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_dataflow_trace := (
                   Some (
@@ -3256,7 +3510,7 @@ let read_core_match_extra = (
                   )
                 );
               )
-            | 3 ->
+            | 5 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_rendered_fix := (
                   Some (
@@ -3266,7 +3520,7 @@ let read_core_match_extra = (
                   )
                 );
               )
-            | 4 ->
+            | 6 ->
               field_engine_kind := (
                 Some (
                   (
@@ -3274,7 +3528,7 @@ let read_core_match_extra = (
                   ) p lb
                 )
               );
-            | 5 ->
+            | 7 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_validation_state := (
                   Some (
@@ -3284,7 +3538,7 @@ let read_core_match_extra = (
                   )
                 );
               )
-            | 6 ->
+            | 8 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_extra_extra := (
                   Some (
@@ -3304,6 +3558,8 @@ let read_core_match_extra = (
         (
           {
             message = !field_message;
+            metadata = !field_metadata;
+            severity = !field_severity;
             metavars = (match !field_metavars with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "metavars");
             dataflow_trace = !field_dataflow_trace;
             rendered_fix = !field_rendered_fix;
@@ -4279,7 +4535,7 @@ let read_target_times = (
 let target_times_of_string s =
   read_target_times (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_skip_reason : _ -> skip_reason -> _ = (
-  fun ob x ->
+  fun ob (x : skip_reason) ->
     match x with
       | Always_skipped -> Buffer.add_string ob "\"always_skipped\""
       | Semgrepignore_patterns_match -> Buffer.add_string ob "\"semgrepignore_patterns_match\""
@@ -13219,57 +13475,6 @@ let read_datetime = (
 )
 let datetime_of_string s =
   read_datetime (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_core_severity : _ -> core_severity -> _ = (
-  fun ob x ->
-    match x with
-      | Error -> Buffer.add_string ob "\"error\""
-      | Warning -> Buffer.add_string ob "\"warning\""
-      | Info -> Buffer.add_string ob "\"info\""
-)
-let string_of_core_severity ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_core_severity ob x;
-  Buffer.contents ob
-let read_core_severity = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Error : core_severity)
-            | "warning" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Warning : core_severity)
-            | "info" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Info : core_severity)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "error" ->
-              (Error : core_severity)
-            | "warning" ->
-              (Warning : core_severity)
-            | "info" ->
-              (Info : core_severity)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let core_severity_of_string s =
-  read_core_severity (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__location_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_location
@@ -13287,7 +13492,7 @@ let read__location_list = (
 let _location_list_of_string s =
   read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_error_kind : _ -> core_error_kind -> _ = (
-  fun ob x ->
+  fun ob (x : core_error_kind) ->
     match x with
       | LexicalError -> Buffer.add_string ob "\"Lexical error\""
       | ParseError -> Buffer.add_string ob "\"Syntax error\""
@@ -13529,7 +13734,7 @@ let write_core_error : _ -> core_error -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"severity\":";
     (
-      write_core_severity
+      write_severity
     )
       ob x.severity;
     if !is_first then
@@ -13676,7 +13881,7 @@ let read_core_error = (
             field_severity := (
               Some (
                 (
-                  read_core_severity
+                  read_severity
                 ) p lb
               )
             );
@@ -13809,7 +14014,7 @@ let read_core_error = (
               field_severity := (
                 Some (
                   (
-                    read_core_severity
+                    read_severity
                   ) p lb
                 )
               );
@@ -15551,7 +15756,7 @@ let write_cli_match_extra : _ -> cli_match_extra -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"severity\":";
     (
-      Yojson.Safe.write_string
+      write_severity
     )
       ob x.severity;
     (match x.fix with None -> () | Some x ->
@@ -15907,7 +16112,7 @@ let read_cli_match_extra = (
             field_severity := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_severity
                 ) p lb
               )
             );
@@ -16234,7 +16439,7 @@ let read_cli_match_extra = (
               field_severity := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_severity
                   ) p lb
                 )
               );
