@@ -406,9 +406,11 @@ type incompatible_rule
 }
 
 (*
-   error = something wrong that must be fixed
-   warning = something wrong that should be fixed
-   info = some special condition worth knowing about
+   Error = something wrong that must be fixed
+   Warning = something wrong that should be fixed
+   Info = some special condition worth knowing about
+   Experiment = guess what
+   Inventory = deprecated: was used for the Code Asset Inventory (CAI) project
 *)
 type severity
     <ocaml attr="deriving show, eq">
