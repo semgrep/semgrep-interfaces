@@ -314,11 +314,11 @@
     },
     "severity": {
       "oneOf": [
-        { "const": "error" },
-        { "const": "warning" },
-        { "const": "info" },
-        { "const": "experiment" },
-        { "const": "inventory" }
+        { "const": "ERROR" },
+        { "const": "WARNING" },
+        { "const": "INFO" },
+        { "const": "EXPERIMENT" },
+        { "const": "INVENTORY" }
       ]
     },
     "cli_error": {

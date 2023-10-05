@@ -411,11 +411,11 @@ type incompatible_rule
 type severity
     <ocaml attr="deriving show, eq">
     <python decorator="dataclass(frozen=True)"> = [
-  | Error <json name="error">
-  | Warning <json name="warning">
-  | Info <json name="info">
-  | Experiment <json name="experiment">
-  | Inventory <json name="inventory">
+  | Error <json name="ERROR">
+  | Warning <json name="WARNING">
+  | Info <json name="INFO">
+  | Experiment <json name="EXPERIMENT">
+  | Inventory <json name="INVENTORY">
 ] <ocaml repr="classic">
 
 (* ----------------------------- *)

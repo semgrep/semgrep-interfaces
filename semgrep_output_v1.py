@@ -760,7 +760,7 @@ class Error:
 
     @staticmethod
     def to_json() -> Any:
-        return 'error'
+        return 'ERROR'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -777,7 +777,7 @@ class Warning:
 
     @staticmethod
     def to_json() -> Any:
-        return 'warning'
+        return 'WARNING'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -794,7 +794,7 @@ class Info:
 
     @staticmethod
     def to_json() -> Any:
-        return 'info'
+        return 'INFO'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -811,7 +811,7 @@ class Experiment:
 
     @staticmethod
     def to_json() -> Any:
-        return 'experiment'
+        return 'EXPERIMENT'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -828,7 +828,7 @@ class Inventory:
 
     @staticmethod
     def to_json() -> Any:
-        return 'inventory'
+        return 'INVENTORY'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -848,15 +848,15 @@ class Severity:
     @classmethod
     def from_json(cls, x: Any) -> 'Severity':
         if isinstance(x, str):
-            if x == 'error':
+            if x == 'ERROR':
                 return cls(Error())
-            if x == 'warning':
+            if x == 'WARNING':
                 return cls(Warning())
-            if x == 'info':
+            if x == 'INFO':
                 return cls(Info())
-            if x == 'experiment':
+            if x == 'EXPERIMENT':
                 return cls(Experiment())
-            if x == 'inventory':
+            if x == 'INVENTORY':
                 return cls(Inventory())
             _atd_bad_json('Severity', x)
         _atd_bad_json('Severity', x)

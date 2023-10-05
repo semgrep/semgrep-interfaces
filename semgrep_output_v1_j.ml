@@ -1509,11 +1509,11 @@ let rule_id_of_string s =
 let write_severity : _ -> severity -> _ = (
   fun ob (x : severity) ->
     match x with
-      | Error -> Buffer.add_string ob "\"error\""
-      | Warning -> Buffer.add_string ob "\"warning\""
-      | Info -> Buffer.add_string ob "\"info\""
-      | Experiment -> Buffer.add_string ob "\"experiment\""
-      | Inventory -> Buffer.add_string ob "\"inventory\""
+      | Error -> Buffer.add_string ob "\"ERROR\""
+      | Warning -> Buffer.add_string ob "\"WARNING\""
+      | Info -> Buffer.add_string ob "\"INFO\""
+      | Experiment -> Buffer.add_string ob "\"EXPERIMENT\""
+      | Inventory -> Buffer.add_string ob "\"INVENTORY\""
 )
 let string_of_severity ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -1525,23 +1525,23 @@ let read_severity = (
     match Yojson.Safe.start_any_variant p lb with
       | `Edgy_bracket -> (
           match Yojson.Safe.read_ident p lb with
-            | "error" ->
+            | "ERROR" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (Error : severity)
-            | "warning" ->
+            | "WARNING" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (Warning : severity)
-            | "info" ->
+            | "INFO" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (Info : severity)
-            | "experiment" ->
+            | "EXPERIMENT" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (Experiment : severity)
-            | "inventory" ->
+            | "INVENTORY" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (Inventory : severity)
@@ -1550,15 +1550,15 @@ let read_severity = (
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
-            | "error" ->
+            | "ERROR" ->
               (Error : severity)
-            | "warning" ->
+            | "WARNING" ->
               (Warning : severity)
-            | "info" ->
+            | "INFO" ->
               (Info : severity)
-            | "experiment" ->
+            | "EXPERIMENT" ->
               (Experiment : severity)
-            | "inventory" ->
+            | "INVENTORY" ->
               (Inventory : severity)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x

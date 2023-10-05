@@ -176,11 +176,11 @@ export type IncompatibleRule = {
 }
 
 export type Severity =
-| { kind: 'Error' /* JSON: "error" */ }
-| { kind: 'Warning' /* JSON: "warning" */ }
-| { kind: 'Info' /* JSON: "info" */ }
-| { kind: 'Experiment' /* JSON: "experiment" */ }
-| { kind: 'Inventory' /* JSON: "inventory" */ }
+| { kind: 'Error' /* JSON: "ERROR" */ }
+| { kind: 'Warning' /* JSON: "WARNING" */ }
+| { kind: 'Info' /* JSON: "INFO" */ }
+| { kind: 'Experiment' /* JSON: "EXPERIMENT" */ }
+| { kind: 'Inventory' /* JSON: "INVENTORY" */ }
 
 export type CliError = {
   code: number /*int*/;
@@ -1063,29 +1063,29 @@ export function readIncompatibleRule(x: any, context: any = x): IncompatibleRule
 export function writeSeverity(x: Severity, context: any = x): any {
   switch (x.kind) {
     case 'Error':
-      return 'error'
+      return 'ERROR'
     case 'Warning':
-      return 'warning'
+      return 'WARNING'
     case 'Info':
-      return 'info'
+      return 'INFO'
     case 'Experiment':
-      return 'experiment'
+      return 'EXPERIMENT'
     case 'Inventory':
-      return 'inventory'
+      return 'INVENTORY'
   }
 }
 
 export function readSeverity(x: any, context: any = x): Severity {
   switch (x) {
-    case 'error':
+    case 'ERROR':
       return { kind: 'Error' }
-    case 'warning':
+    case 'WARNING':
       return { kind: 'Warning' }
-    case 'info':
+    case 'INFO':
       return { kind: 'Info' }
-    case 'experiment':
+    case 'EXPERIMENT':
       return { kind: 'Experiment' }
-    case 'inventory':
+    case 'INVENTORY':
       return { kind: 'Inventory' }
     default:
       _atd_bad_json('Severity', x, context)
