@@ -52,10 +52,10 @@ export type Product =
 | { kind: 'Secrets' /* JSON: "secrets" */ }
 
 export type ValidationState =
-| { kind: 'CONFIRMED_VALID' }
-| { kind: 'CONFIRMED_INVALID' }
-| { kind: 'VALIDATION_ERROR' }
-| { kind: 'NO_VALIDATOR' }
+| { kind: 'Confirmed_valid' /* JSON: "CONFIRMED_VALID" */ }
+| { kind: 'Confirmed_invalid' /* JSON: "CONFIRMED_INVALID" */ }
+| { kind: 'Validation_error' /* JSON: "VALIDATION_ERROR" */ }
+| { kind: 'No_validator' /* JSON: "NO_VALIDATOR" */ }
 
 export type CoreMatch = {
   check_id: RuleId;
@@ -680,13 +680,13 @@ export function readProduct(x: any, context: any = x): Product {
 
 export function writeValidationState(x: ValidationState, context: any = x): any {
   switch (x.kind) {
-    case 'CONFIRMED_VALID':
+    case 'Confirmed_valid':
       return 'CONFIRMED_VALID'
-    case 'CONFIRMED_INVALID':
+    case 'Confirmed_invalid':
       return 'CONFIRMED_INVALID'
-    case 'VALIDATION_ERROR':
+    case 'Validation_error':
       return 'VALIDATION_ERROR'
-    case 'NO_VALIDATOR':
+    case 'No_validator':
       return 'NO_VALIDATOR'
   }
 }
@@ -694,13 +694,13 @@ export function writeValidationState(x: ValidationState, context: any = x): any 
 export function readValidationState(x: any, context: any = x): ValidationState {
   switch (x) {
     case 'CONFIRMED_VALID':
-      return { kind: 'CONFIRMED_VALID' }
+      return { kind: 'Confirmed_valid' }
     case 'CONFIRMED_INVALID':
-      return { kind: 'CONFIRMED_INVALID' }
+      return { kind: 'Confirmed_invalid' }
     case 'VALIDATION_ERROR':
-      return { kind: 'VALIDATION_ERROR' }
+      return { kind: 'Validation_error' }
     case 'NO_VALIDATOR':
-      return { kind: 'NO_VALIDATOR' }
+      return { kind: 'No_validator' }
     default:
       _atd_bad_json('ValidationState', x, context)
       throw new Error('impossible')

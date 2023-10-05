@@ -4,9 +4,9 @@
 (* Specification of the Semgrep CLI JSON output format using ATD
  * (see https://atd.readthedocs.io/en/latest/ for more information on ATD).
  *
- * This file specifies the JSON format of the 'semgrep scan' command,
- * the default command of semgrep, as well as the JSON format of messages
- * sent to the Semgrep backend by the 'semgrep ci' command.
+ * This file specifies the JSON format of the 'semgrep scan --json' command,
+ * as well as the JSON format of messages sent to the Semgrep backend by the
+ * 'semgrep ci' command.
  * For the definitions of the Semgrep input, see rule_schema_v1.yaml.
  *
  * This file has the _v1 suffix to explicitely represent the
@@ -49,6 +49,8 @@
  *    (py)semgrep CLI output!
  *  - it was then simplified with the osemgrep migration effort by
  *    removing gradually the semgrep-core JSON output.
+ *  - it was extended to support 'semgrep ci' output to type most messages
+ *    sent between the Semgrep CLI and the Semgrep backend
  *
  * There are other important form of outputs which are not specified here:
  *  - The semgrep metrics sent to https://metrics.semgrep.dev in
@@ -144,10 +146,10 @@ type product
 type validation_state
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = [
-  | CONFIRMED_VALID
-  | CONFIRMED_INVALID
-  | VALIDATION_ERROR
-  | NO_VALIDATOR
+  | Confirmed_valid <json name="CONFIRMED_VALID">
+  | Confirmed_invalid <json name="CONFIRMED_INVALID">
+  | Validation_error <json name="VALIDATION_ERROR">
+  | No_validator <json name="NO_VALIDATOR">
 ]
 
 (*****************************************************************************)

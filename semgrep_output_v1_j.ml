@@ -599,7 +599,7 @@ let read_fpath = (
 let fpath_of_string s =
   read_fpath (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_matching_operation : _ -> matching_operation -> _ = (
-  fun ob (x : matching_operation) ->
+  fun ob x ->
     match x with
       | And -> Buffer.add_string ob "\"And\""
       | Or -> Buffer.add_string ob "\"Or\""
@@ -1507,7 +1507,7 @@ let read_rule_id = (
 let rule_id_of_string s =
   read_rule_id (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_severity : _ -> severity -> _ = (
-  fun ob (x : severity) ->
+  fun ob x ->
     match x with
       | Error -> Buffer.add_string ob "\"ERROR\""
       | Warning -> Buffer.add_string ob "\"WARNING\""
@@ -2185,10 +2185,10 @@ let metavars_of_string s =
 let write_validation_state = (
   fun ob x ->
     match x with
-      | `CONFIRMED_VALID -> Buffer.add_string ob "\"CONFIRMED_VALID\""
-      | `CONFIRMED_INVALID -> Buffer.add_string ob "\"CONFIRMED_INVALID\""
-      | `VALIDATION_ERROR -> Buffer.add_string ob "\"VALIDATION_ERROR\""
-      | `NO_VALIDATOR -> Buffer.add_string ob "\"NO_VALIDATOR\""
+      | `Confirmed_valid -> Buffer.add_string ob "\"CONFIRMED_VALID\""
+      | `Confirmed_invalid -> Buffer.add_string ob "\"CONFIRMED_INVALID\""
+      | `Validation_error -> Buffer.add_string ob "\"VALIDATION_ERROR\""
+      | `No_validator -> Buffer.add_string ob "\"NO_VALIDATOR\""
 )
 let string_of_validation_state ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -2203,32 +2203,32 @@ let read_validation_state = (
             | "CONFIRMED_VALID" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `CONFIRMED_VALID
+              `Confirmed_valid
             | "CONFIRMED_INVALID" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `CONFIRMED_INVALID
+              `Confirmed_invalid
             | "VALIDATION_ERROR" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `VALIDATION_ERROR
+              `Validation_error
             | "NO_VALIDATOR" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `NO_VALIDATOR
+              `No_validator
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "CONFIRMED_VALID" ->
-              `CONFIRMED_VALID
+              `Confirmed_valid
             | "CONFIRMED_INVALID" ->
-              `CONFIRMED_INVALID
+              `Confirmed_invalid
             | "VALIDATION_ERROR" ->
-              `VALIDATION_ERROR
+              `Validation_error
             | "NO_VALIDATOR" ->
-              `NO_VALIDATOR
+              `No_validator
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -2298,7 +2298,7 @@ let read__validation_state_option = (
 let _validation_state_option_of_string s =
   read__validation_state_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let rec write_match_call_trace : _ -> match_call_trace -> _ = (
-  fun ob (x : match_call_trace) ->
+  fun ob x ->
     match x with
       | CliLoc x ->
         Buffer.add_string ob "[\"CliLoc\",";
@@ -4535,7 +4535,7 @@ let read_target_times = (
 let target_times_of_string s =
   read_target_times (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_skip_reason : _ -> skip_reason -> _ = (
-  fun ob (x : skip_reason) ->
+  fun ob x ->
     match x with
       | Always_skipped -> Buffer.add_string ob "\"always_skipped\""
       | Semgrepignore_patterns_match -> Buffer.add_string ob "\"semgrepignore_patterns_match\""
@@ -13492,7 +13492,7 @@ let read__location_list = (
 let _location_list_of_string s =
   read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_error_kind : _ -> core_error_kind -> _ = (
-  fun ob (x : core_error_kind) ->
+  fun ob x ->
     match x with
       | LexicalError -> Buffer.add_string ob "\"Lexical error\""
       | ParseError -> Buffer.add_string ob "\"Syntax error\""
