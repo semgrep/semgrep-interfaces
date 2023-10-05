@@ -153,7 +153,7 @@ type product
  * could adjust that, by adding another state.
 *)
 type validation_state
-  <ocaml attr="deriving show">
+  <ocaml attr="deriving show, eq">
   <python decorator="dataclass(frozen=True)"> = [
   | Confirmed_valid <json name="CONFIRMED_VALID">
   | Confirmed_invalid <json name="CONFIRMED_INVALID">

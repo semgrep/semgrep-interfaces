@@ -65,7 +65,7 @@ type metavar_value = Semgrep_output_v1_t.metavar_value = {
 type metavars = Semgrep_output_v1_t.metavars
 
 type validation_state = Semgrep_output_v1_t.validation_state
-  [@@deriving show]
+  [@@deriving show, eq]
 
 type match_call_trace = Semgrep_output_v1_t.match_call_trace = 
     CliLoc of (location * string)
