@@ -641,7 +641,8 @@
         { "const": "yarn_2" },
         { "const": "pomtree" },
         { "const": "cargo" },
-        { "const": "composer_lock" }
+        { "const": "composer_lock" },
+        { "const": "pubspec_lock" }
       ]
     },
     "dependency_parser_error": {

@@ -8161,6 +8161,7 @@ let write_sca_parser_name = (
       | `Pomtree -> Buffer.add_string ob "\"pomtree\""
       | `Cargo_parser -> Buffer.add_string ob "\"cargo\""
       | `Composer_lock -> Buffer.add_string ob "\"composer_lock\""
+      | `Pubspec_lock -> Buffer.add_string ob "\"pubspec_lock\""
 )
 let string_of_sca_parser_name ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -8236,6 +8237,10 @@ let read_sca_parser_name = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Composer_lock
+            | "pubspec_lock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Pubspec_lock
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -8273,6 +8278,8 @@ let read_sca_parser_name = (
               `Cargo_parser
             | "composer_lock" ->
               `Composer_lock
+            | "pubspec_lock" ->
+              `Pubspec_lock
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
