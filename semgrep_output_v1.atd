@@ -17,15 +17,20 @@
  *    https://atd.readthedocs.io/en/latest/atdgen-tutorial.html#smooth-protocol-upgrades
  *
  * for more information on how to smoothly extend the types in this file.
+ *
  * Any backward incompatible changes should require to upgrade the major
  * version of Semgrep as this JSON output is part of the "API" of Semgrep
  * (any incompatible changes to the rule format should also require a major
  *  version upgrade). Hopefully, we will always be backward compatible.
+ * However, a few fields are tagged with 'EXPERIMENTAL' meaning external users
+ * should not rely on them as those fields may be changed or removed.
+ * They are not part of the "API" of Semgrep.
  *
  * !!Again, keep in mind that this file is used both by the CLI to *produce* a
  * JSON output, and by our backends to *consume* the JSON, including to
  * consume the JSON produced by old versions of the CLI. As of Sep 2023,
  * our backend is still supporting as far as Semgrep 1.17.0!!
+ *
  *
  * This file is translated in OCaml modules by atdgen. Look for the
  * corresponding Semgrep_output_v1_[tj].ml[i] generated files
@@ -142,7 +147,11 @@ type product
   | Secrets <json name="secrets">
 ]
 
-(* for secrets *)
+(* EXPERIMENTAL: This type is used by postprocessors for secrets to report back
+ * the validity of a finding. No_validator is currently also used when no
+ * validation has yet occurred, which if that becomes confusing we
+ * could adjust that, by adding another state.
+*)
 type validation_state
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = [
@@ -189,7 +198,7 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
   ?rendered_fix: string option;
   engine_kind: engine_kind;
   (* If present indicates the status of postprocessor validation. This field
-   * not being present should be equivalent to NO_VALIDATOR.
+   * not being present should be equivalent to No_validator.
    * Added in semgrep 1.37.0 *)
   ?validation_state : validation_state option;
   (* Escape hatch to pass untyped info from semgrep-core to the semgrep output.
@@ -242,8 +251,8 @@ type cli_match_extra = {
 
   ?engine_kind: engine_kind option;
 
-  (* If present indicates the status of postprocessor validation. This field
-   * not being present should be equivalent to NO_VALIDATOR.
+  (* EXPERIMENTAL: If present indicates the status of postprocessor validation. This
+   * field not being present should be equivalent to No_validator.
    * Added in semgrep 1.37.0 *)
   ?validation_state: validation_state option;
 
@@ -820,7 +829,11 @@ type dependency_parser_error = {
 (* Data sent to the Semgrep backend *)
 (*****************************************************************************)
 
-(* The sequence of HTTP requests is mostly:
+(* EXPERIMENTAL: do not rely on the types in this section; those are internal
+ * types used to communicate with the Semgrep backend and are not meant
+ * to be consumed directly by Semgrep users or tools wrapping up Semgrep.
+ *
+ * The sequence of HTTP requests is mostly:
  *  - /deployments/current with token
  *    and response with deployment name
  *  - /deployments/scans when starting a scan, with information about the project
