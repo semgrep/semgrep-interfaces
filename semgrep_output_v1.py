@@ -2555,10 +2555,27 @@ class ComposerLock:
 
 
 @dataclass
+class PubspecLock:
+    """Original type: sca_parser_name = [ ... | Pubspec_lock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PubspecLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'pubspec_lock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class ScaParserName:
     """Original type: sca_parser_name = [ ... ]"""
 
-    value: Union[GemfileLock, GoMod, GoSum, GradleLockfile, GradleBuild, Jsondoc, Pipfile, PnpmLock, PoetryLock, PyprojectToml, Requirements, Yarn1, Yarn2, Pomtree, CargoParser, ComposerLock]
+    value: Union[GemfileLock, GoMod, GoSum, GradleLockfile, GradleBuild, Jsondoc, Pipfile, PnpmLock, PoetryLock, PyprojectToml, Requirements, Yarn1, Yarn2, Pomtree, CargoParser, ComposerLock, PubspecLock]
 
     @property
     def kind(self) -> str:
@@ -2600,6 +2617,8 @@ class ScaParserName:
                 return cls(CargoParser())
             if x == 'composer_lock':
                 return cls(ComposerLock())
+            if x == 'pubspec_lock':
+                return cls(PubspecLock())
             _atd_bad_json('ScaParserName', x)
         _atd_bad_json('ScaParserName', x)
 
