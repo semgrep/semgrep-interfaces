@@ -57,6 +57,20 @@
       }
     },
     "rule_id": { "type": "string" },
+    "rule_severity": {
+      "oneOf": [
+        { "const": "ERROR" },
+        { "const": "WARNING" },
+        { "const": "INFO" },
+        { "const": "EXPERIMENT" },
+        { "const": "INVENTORY" }
+      ]
+    },
+    "error_severity": {
+      "oneOf": [
+        { "const": "ERROR" }, { "const": "WARNING" }, { "const": "INFO" }
+      ]
+    },
     "engine_kind": { "oneOf": [ { "const": "OSS" }, { "const": "PRO" } ] },
     "rule_id_and_engine_kind": {
       "type": "array",
@@ -97,7 +111,7 @@
       "properties": {
         "message": { "type": "string" },
         "metadata": { "$ref": "#/definitions/raw_json" },
-        "severity": { "$ref": "#/definitions/severity" },
+        "severity": { "$ref": "#/definitions/rule_severity" },
         "metavars": { "$ref": "#/definitions/metavars" },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
         "rendered_fix": { "type": "string" },
@@ -128,7 +142,7 @@
         "lines": { "type": "string" },
         "message": { "type": "string" },
         "metadata": { "$ref": "#/definitions/raw_json" },
-        "severity": { "$ref": "#/definitions/severity" },
+        "severity": { "$ref": "#/definitions/rule_severity" },
         "fix": { "type": "string" },
         "fix_regex": { "$ref": "#/definitions/fix_regex" },
         "is_ignored": { "type": "boolean" },
@@ -247,7 +261,7 @@
       "properties": {
         "rule_id": { "$ref": "#/definitions/rule_id" },
         "error_type": { "$ref": "#/definitions/core_error_kind" },
-        "severity": { "$ref": "#/definitions/severity" },
+        "severity": { "$ref": "#/definitions/error_severity" },
         "location": { "$ref": "#/definitions/location" },
         "message": { "type": "string" },
         "details": { "type": "string" }
@@ -311,15 +325,6 @@
         "min_version": { "$ref": "#/definitions/version" },
         "max_version": { "$ref": "#/definitions/version" }
       }
-    },
-    "severity": {
-      "oneOf": [
-        { "const": "ERROR" },
-        { "const": "WARNING" },
-        { "const": "INFO" },
-        { "const": "EXPERIMENT" },
-        { "const": "INVENTORY" }
-      ]
     },
     "cli_error": {
       "type": "object",
