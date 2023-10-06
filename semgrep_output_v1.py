@@ -968,13 +968,13 @@ class Metavars:
 
 
 @dataclass(frozen=True)
-class CONFIRMEDVALID:
-    """Original type: validation_state = [ ... | CONFIRMED_VALID | ... ]"""
+class ConfirmedValid:
+    """Original type: validation_state = [ ... | Confirmed_valid | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'CONFIRMEDVALID'
+        return 'ConfirmedValid'
 
     @staticmethod
     def to_json() -> Any:
@@ -985,13 +985,13 @@ class CONFIRMEDVALID:
 
 
 @dataclass(frozen=True)
-class CONFIRMEDINVALID:
-    """Original type: validation_state = [ ... | CONFIRMED_INVALID | ... ]"""
+class ConfirmedInvalid:
+    """Original type: validation_state = [ ... | Confirmed_invalid | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'CONFIRMEDINVALID'
+        return 'ConfirmedInvalid'
 
     @staticmethod
     def to_json() -> Any:
@@ -1002,13 +1002,13 @@ class CONFIRMEDINVALID:
 
 
 @dataclass(frozen=True)
-class VALIDATIONERROR:
-    """Original type: validation_state = [ ... | VALIDATION_ERROR | ... ]"""
+class ValidationError:
+    """Original type: validation_state = [ ... | Validation_error | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'VALIDATIONERROR'
+        return 'ValidationError'
 
     @staticmethod
     def to_json() -> Any:
@@ -1019,13 +1019,13 @@ class VALIDATIONERROR:
 
 
 @dataclass(frozen=True)
-class NOVALIDATOR:
-    """Original type: validation_state = [ ... | NO_VALIDATOR | ... ]"""
+class NoValidator:
+    """Original type: validation_state = [ ... | No_validator | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'NOVALIDATOR'
+        return 'NoValidator'
 
     @staticmethod
     def to_json() -> Any:
@@ -1039,7 +1039,7 @@ class NOVALIDATOR:
 class ValidationState:
     """Original type: validation_state = [ ... ]"""
 
-    value: Union[CONFIRMEDVALID, CONFIRMEDINVALID, VALIDATIONERROR, NOVALIDATOR]
+    value: Union[ConfirmedValid, ConfirmedInvalid, ValidationError, NoValidator]
 
     @property
     def kind(self) -> str:
@@ -1050,13 +1050,13 @@ class ValidationState:
     def from_json(cls, x: Any) -> 'ValidationState':
         if isinstance(x, str):
             if x == 'CONFIRMED_VALID':
-                return cls(CONFIRMEDVALID())
+                return cls(ConfirmedValid())
             if x == 'CONFIRMED_INVALID':
-                return cls(CONFIRMEDINVALID())
+                return cls(ConfirmedInvalid())
             if x == 'VALIDATION_ERROR':
-                return cls(VALIDATIONERROR())
+                return cls(ValidationError())
             if x == 'NO_VALIDATOR':
-                return cls(NOVALIDATOR())
+                return cls(NoValidator())
             _atd_bad_json('ValidationState', x)
         _atd_bad_json('ValidationState', x)
 

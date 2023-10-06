@@ -4,9 +4,9 @@
 (* Specification of the Semgrep CLI JSON output format using ATD
  * (see https://atd.readthedocs.io/en/latest/ for more information on ATD).
  *
- * This file specifies the JSON format of the 'semgrep scan' command,
- * the default command of semgrep, as well as the JSON format of messages
- * sent to the Semgrep backend by the 'semgrep ci' command.
+ * This file specifies the JSON format of the 'semgrep scan --json' command,
+ * as well as the JSON format of messages sent to the Semgrep backend by the
+ * 'semgrep ci' command.
  * For the definitions of the Semgrep input, see rule_schema_v1.yaml.
  *
  * This file has the _v1 suffix to explicitely represent the
@@ -17,15 +17,20 @@
  *    https://atd.readthedocs.io/en/latest/atdgen-tutorial.html#smooth-protocol-upgrades
  *
  * for more information on how to smoothly extend the types in this file.
+ *
  * Any backward incompatible changes should require to upgrade the major
  * version of Semgrep as this JSON output is part of the "API" of Semgrep
  * (any incompatible changes to the rule format should also require a major
  *  version upgrade). Hopefully, we will always be backward compatible.
+ * However, a few fields are tagged with 'EXPERIMENTAL' meaning external users
+ * should not rely on them as those fields may be changed or removed.
+ * They are not part of the "API" of Semgrep.
  *
  * !!Again, keep in mind that this file is used both by the CLI to *produce* a
  * JSON output, and by our backends to *consume* the JSON, including to
  * consume the JSON produced by old versions of the CLI. As of Sep 2023,
  * our backend is still supporting as far as Semgrep 1.17.0!!
+ *
  *
  * This file is translated in OCaml modules by atdgen. Look for the
  * corresponding Semgrep_output_v1_[tj].ml[i] generated files
@@ -49,6 +54,8 @@
  *    (py)semgrep CLI output!
  *  - it was then simplified with the osemgrep migration effort by
  *    removing gradually the semgrep-core JSON output.
+ *  - it was extended to support 'semgrep ci' output to type most messages
+ *    sent between the Semgrep CLI and the Semgrep backend
  *
  * There are other important form of outputs which are not specified here:
  *  - The semgrep metrics sent to https://metrics.semgrep.dev in
@@ -140,14 +147,18 @@ type product
   | Secrets <json name="secrets">
 ]
 
-(* for secrets *)
+(* EXPERIMENTAL: This type is used by postprocessors for secrets to report back
+ * the validity of a finding. No_validator is currently also used when no
+ * validation has yet occurred, which if that becomes confusing we
+ * could adjust that, by adding another state.
+*)
 type validation_state
-  <ocaml attr="deriving show">
+  <ocaml attr="deriving show, eq">
   <python decorator="dataclass(frozen=True)"> = [
-  | CONFIRMED_VALID
-  | CONFIRMED_INVALID
-  | VALIDATION_ERROR
-  | NO_VALIDATOR
+  | Confirmed_valid <json name="CONFIRMED_VALID">
+  | Confirmed_invalid <json name="CONFIRMED_INVALID">
+  | Validation_error <json name="VALIDATION_ERROR">
+  | No_validator <json name="NO_VALIDATOR">
 ]
 
 (*****************************************************************************)
@@ -187,7 +198,7 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
   ?rendered_fix: string option;
   engine_kind: engine_kind;
   (* If present indicates the status of postprocessor validation. This field
-   * not being present should be equivalent to NO_VALIDATOR.
+   * not being present should be equivalent to No_validator.
    * Added in semgrep 1.37.0 *)
   ?validation_state : validation_state option;
   (* Escape hatch to pass untyped info from semgrep-core to the semgrep output.
@@ -240,8 +251,8 @@ type cli_match_extra = {
 
   ?engine_kind: engine_kind option;
 
-  (* If present indicates the status of postprocessor validation. This field
-   * not being present should be equivalent to NO_VALIDATOR.
+  (* EXPERIMENTAL: If present indicates the status of postprocessor validation. This
+   * field not being present should be equivalent to No_validator.
    * Added in semgrep 1.37.0 *)
   ?validation_state: validation_state option;
 
@@ -404,9 +415,11 @@ type incompatible_rule
 }
 
 (*
-   error = something wrong that must be fixed
-   warning = something wrong that should be fixed
-   info = some special condition worth knowing about
+   Error = something wrong that must be fixed
+   Warning = something wrong that should be fixed
+   Info = some special condition worth knowing about
+   Experiment = guess what
+   Inventory = deprecated: was used for the Code Asset Inventory (CAI) project
 *)
 type severity
     <ocaml attr="deriving show, eq">
@@ -817,7 +830,11 @@ type dependency_parser_error = {
 (* Data sent to the Semgrep backend *)
 (*****************************************************************************)
 
-(* The sequence of HTTP requests is mostly:
+(* EXPERIMENTAL: do not rely on the types in this section; those are internal
+ * types used to communicate with the Semgrep backend and are not meant
+ * to be consumed directly by Semgrep users or tools wrapping up Semgrep.
+ *
+ * The sequence of HTTP requests is mostly:
  *  - /deployments/current with token
  *    and response with deployment name
  *  - /deployments/scans when starting a scan, with information about the project
