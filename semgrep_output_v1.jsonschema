@@ -57,7 +57,7 @@
       }
     },
     "rule_id": { "type": "string" },
-    "rule_severity": {
+    "match_severity": {
       "oneOf": [
         { "const": "ERROR" },
         { "const": "WARNING" },
@@ -111,7 +111,7 @@
       "properties": {
         "message": { "type": "string" },
         "metadata": { "$ref": "#/definitions/raw_json" },
-        "severity": { "$ref": "#/definitions/rule_severity" },
+        "severity": { "$ref": "#/definitions/match_severity" },
         "metavars": { "$ref": "#/definitions/metavars" },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
         "rendered_fix": { "type": "string" },
@@ -142,7 +142,7 @@
         "lines": { "type": "string" },
         "message": { "type": "string" },
         "metadata": { "$ref": "#/definitions/raw_json" },
-        "severity": { "$ref": "#/definitions/rule_severity" },
+        "severity": { "$ref": "#/definitions/match_severity" },
         "fix": { "type": "string" },
         "fix_regex": { "$ref": "#/definitions/fix_regex" },
         "is_ignored": { "type": "boolean" },

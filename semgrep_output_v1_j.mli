@@ -5,6 +5,9 @@ type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
 type fpath = Semgrep_output_v1_t.fpath [@@deriving show]
 
+type match_severity = Semgrep_output_v1_t.match_severity
+  [@@deriving show, eq]
+
 type matching_operation = Semgrep_output_v1_t.matching_operation = 
     And
   | Or
@@ -44,8 +47,6 @@ type raw_json = Yojson.Basic.t
 
 type rule_id = Semgrep_output_v1_t.rule_id [@@deriving show]
 
-type rule_severity = Semgrep_output_v1_t.rule_severity [@@deriving show, eq]
-
 type svalue_value = Semgrep_output_v1_t.svalue_value = {
   svalue_start: position option;
   svalue_end: position option;
@@ -83,7 +84,7 @@ type match_dataflow_trace = Semgrep_output_v1_t.match_dataflow_trace = {
 type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   message: string option;
   metadata: raw_json option;
-  severity: rule_severity option;
+  severity: match_severity option;
   metavars: metavars;
   dataflow_trace: match_dataflow_trace option;
   rendered_fix: string option;
@@ -408,7 +409,7 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   lines: string;
   message: string;
   metadata: raw_json;
-  severity: rule_severity;
+  severity: match_severity;
   fix: string option;
   fix_regex: fix_regex option;
   is_ignored: bool option;
@@ -524,6 +525,26 @@ val read_fpath :
 val fpath_of_string :
   string -> fpath
   (** Deserialize JSON data of type {!type:fpath}. *)
+
+val write_match_severity :
+  Buffer.t -> match_severity -> unit
+  (** Output a JSON value of type {!type:match_severity}. *)
+
+val string_of_match_severity :
+  ?len:int -> match_severity -> string
+  (** Serialize a value of type {!type:match_severity}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_match_severity :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> match_severity
+  (** Input JSON data of type {!type:match_severity}. *)
+
+val match_severity_of_string :
+  string -> match_severity
+  (** Deserialize JSON data of type {!type:match_severity}. *)
 
 val write_matching_operation :
   Buffer.t -> matching_operation -> unit
@@ -644,26 +665,6 @@ val read_rule_id :
 val rule_id_of_string :
   string -> rule_id
   (** Deserialize JSON data of type {!type:rule_id}. *)
-
-val write_rule_severity :
-  Buffer.t -> rule_severity -> unit
-  (** Output a JSON value of type {!type:rule_severity}. *)
-
-val string_of_rule_severity :
-  ?len:int -> rule_severity -> string
-  (** Serialize a value of type {!type:rule_severity}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_rule_severity :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> rule_severity
-  (** Input JSON data of type {!type:rule_severity}. *)
-
-val rule_severity_of_string :
-  string -> rule_severity
-  (** Deserialize JSON data of type {!type:rule_severity}. *)
 
 val write_svalue_value :
   Buffer.t -> svalue_value -> unit

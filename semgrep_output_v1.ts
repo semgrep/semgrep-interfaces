@@ -40,7 +40,7 @@ export type Location = {
 
 export type RuleId = string
 
-export type RuleSeverity =
+export type MatchSeverity =
 | { kind: 'Error' /* JSON: "ERROR" */ }
 | { kind: 'Warning' /* JSON: "WARNING" */ }
 | { kind: 'Info' /* JSON: "INFO" */ }
@@ -80,7 +80,7 @@ export type CoreMatch = {
 export type CoreMatchExtra = {
   message?: string;
   metadata?: RawJson;
-  severity?: RuleSeverity;
+  severity?: MatchSeverity;
   metavars: Metavars;
   dataflow_trace?: MatchDataflowTrace;
   rendered_fix?: string;
@@ -103,7 +103,7 @@ export type CliMatchExtra = {
   lines: string;
   message: string;
   metadata: RawJson;
-  severity: RuleSeverity;
+  severity: MatchSeverity;
   fix?: string;
   fix_regex?: FixRegex;
   is_ignored?: boolean;
@@ -630,7 +630,7 @@ export function readRuleId(x: any, context: any = x): RuleId {
   return _atd_read_string(x, context);
 }
 
-export function writeRuleSeverity(x: RuleSeverity, context: any = x): any {
+export function writeMatchSeverity(x: MatchSeverity, context: any = x): any {
   switch (x.kind) {
     case 'Error':
       return 'ERROR'
@@ -645,7 +645,7 @@ export function writeRuleSeverity(x: RuleSeverity, context: any = x): any {
   }
 }
 
-export function readRuleSeverity(x: any, context: any = x): RuleSeverity {
+export function readMatchSeverity(x: any, context: any = x): MatchSeverity {
   switch (x) {
     case 'ERROR':
       return { kind: 'Error' }
@@ -658,7 +658,7 @@ export function readRuleSeverity(x: any, context: any = x): RuleSeverity {
     case 'INVENTORY':
       return { kind: 'Inventory' }
     default:
-      _atd_bad_json('RuleSeverity', x, context)
+      _atd_bad_json('MatchSeverity', x, context)
       throw new Error('impossible')
   }
 }
@@ -795,7 +795,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
   return {
     'message': _atd_write_optional_field(_atd_write_string, x.message, x),
     'metadata': _atd_write_optional_field(writeRawJson, x.metadata, x),
-    'severity': _atd_write_optional_field(writeRuleSeverity, x.severity, x),
+    'severity': _atd_write_optional_field(writeMatchSeverity, x.severity, x),
     'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
     'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
     'rendered_fix': _atd_write_optional_field(_atd_write_string, x.rendered_fix, x),
@@ -809,7 +809,7 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
   return {
     message: _atd_read_optional_field(_atd_read_string, x['message'], x),
     metadata: _atd_read_optional_field(readRawJson, x['metadata'], x),
-    severity: _atd_read_optional_field(readRuleSeverity, x['severity'], x),
+    severity: _atd_read_optional_field(readMatchSeverity, x['severity'], x),
     metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
     rendered_fix: _atd_read_optional_field(_atd_read_string, x['rendered_fix'], x),
@@ -846,7 +846,7 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'lines': _atd_write_required_field('CliMatchExtra', 'lines', _atd_write_string, x.lines, x),
     'message': _atd_write_required_field('CliMatchExtra', 'message', _atd_write_string, x.message, x),
     'metadata': _atd_write_required_field('CliMatchExtra', 'metadata', writeRawJson, x.metadata, x),
-    'severity': _atd_write_required_field('CliMatchExtra', 'severity', writeRuleSeverity, x.severity, x),
+    'severity': _atd_write_required_field('CliMatchExtra', 'severity', writeMatchSeverity, x.severity, x),
     'fix': _atd_write_optional_field(_atd_write_string, x.fix, x),
     'fix_regex': _atd_write_optional_field(writeFixRegex, x.fix_regex, x),
     'is_ignored': _atd_write_optional_field(_atd_write_bool, x.is_ignored, x),
@@ -866,7 +866,7 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     lines: _atd_read_required_field('CliMatchExtra', 'lines', _atd_read_string, x['lines'], x),
     message: _atd_read_required_field('CliMatchExtra', 'message', _atd_read_string, x['message'], x),
     metadata: _atd_read_required_field('CliMatchExtra', 'metadata', readRawJson, x['metadata'], x),
-    severity: _atd_read_required_field('CliMatchExtra', 'severity', readRuleSeverity, x['severity'], x),
+    severity: _atd_read_required_field('CliMatchExtra', 'severity', readMatchSeverity, x['severity'], x),
     fix: _atd_read_optional_field(_atd_read_string, x['fix'], x),
     fix_regex: _atd_read_optional_field(readFixRegex, x['fix_regex'], x),
     is_ignored: _atd_read_optional_field(_atd_read_bool, x['is_ignored'], x),
