@@ -3390,7 +3390,7 @@ class Error_:
 
     @staticmethod
     def to_json() -> Any:
-        return 'ERROR'
+        return 'error'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -3407,7 +3407,7 @@ class Warning_:
 
     @staticmethod
     def to_json() -> Any:
-        return 'WARNING'
+        return 'warn'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -3424,7 +3424,7 @@ class Info_:
 
     @staticmethod
     def to_json() -> Any:
-        return 'INFO'
+        return 'info'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -3444,11 +3444,11 @@ class ErrorSeverity:
     @classmethod
     def from_json(cls, x: Any) -> 'ErrorSeverity':
         if isinstance(x, str):
-            if x == 'ERROR':
+            if x == 'error':
                 return cls(Error_())
-            if x == 'WARNING':
+            if x == 'warn':
                 return cls(Warning_())
-            if x == 'INFO':
+            if x == 'info':
                 return cls(Info_())
             _atd_bad_json('ErrorSeverity', x)
         _atd_bad_json('ErrorSeverity', x)
@@ -4267,7 +4267,7 @@ class CliError:
     """Original type: cli_error = { ... }"""
 
     code: int
-    level: str
+    level: ErrorSeverity
     type_: str
     rule_id: Optional[RuleId] = None
     message: Optional[str] = None
@@ -4282,7 +4282,7 @@ class CliError:
         if isinstance(x, dict):
             return cls(
                 code=_atd_read_int(x['code']) if 'code' in x else _atd_missing_json_field('CliError', 'code'),
-                level=_atd_read_string(x['level']) if 'level' in x else _atd_missing_json_field('CliError', 'level'),
+                level=ErrorSeverity.from_json(x['level']) if 'level' in x else _atd_missing_json_field('CliError', 'level'),
                 type_=_atd_read_string(x['type']) if 'type' in x else _atd_missing_json_field('CliError', 'type'),
                 rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else None,
                 message=_atd_read_string(x['message']) if 'message' in x else None,
@@ -4298,7 +4298,7 @@ class CliError:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['code'] = _atd_write_int(self.code)
-        res['level'] = _atd_write_string(self.level)
+        res['level'] = (lambda x: x.to_json())(self.level)
         res['type'] = _atd_write_string(self.type_)
         if self.rule_id is not None:
             res['rule_id'] = (lambda x: x.to_json())(self.rule_id)

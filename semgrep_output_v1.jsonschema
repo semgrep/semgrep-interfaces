@@ -68,7 +68,7 @@
     },
     "error_severity": {
       "oneOf": [
-        { "const": "ERROR" }, { "const": "WARNING" }, { "const": "INFO" }
+        { "const": "error" }, { "const": "warn" }, { "const": "info" }
       ]
     },
     "engine_kind": { "oneOf": [ { "const": "OSS" }, { "const": "PRO" } ] },
@@ -331,7 +331,7 @@
       "required": [ "code", "level", "type" ],
       "properties": {
         "code": { "type": "integer" },
-        "level": { "type": "string" },
+        "level": { "$ref": "#/definitions/error_severity" },
         "type": { "type": "string" },
         "rule_id": { "$ref": "#/definitions/rule_id" },
         "message": { "type": "string" },

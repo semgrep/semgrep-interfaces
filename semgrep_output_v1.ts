@@ -48,9 +48,9 @@ export type MatchSeverity =
 | { kind: 'Inventory' /* JSON: "INVENTORY" */ }
 
 export type ErrorSeverity =
-| { kind: 'Error' /* JSON: "ERROR" */ }
-| { kind: 'Warning' /* JSON: "WARNING" */ }
-| { kind: 'Info' /* JSON: "INFO" */ }
+| { kind: 'Error' /* JSON: "error" */ }
+| { kind: 'Warning' /* JSON: "warn" */ }
+| { kind: 'Info' /* JSON: "info" */ }
 
 export type EngineKind =
 | { kind: 'OSS' }
@@ -189,7 +189,7 @@ export type IncompatibleRule = {
 
 export type CliError = {
   code: number /*int*/;
-  level: string;
+  level: ErrorSeverity;
   type_: string;
   rule_id?: RuleId;
   message?: string;
@@ -666,21 +666,21 @@ export function readMatchSeverity(x: any, context: any = x): MatchSeverity {
 export function writeErrorSeverity(x: ErrorSeverity, context: any = x): any {
   switch (x.kind) {
     case 'Error':
-      return 'ERROR'
+      return 'error'
     case 'Warning':
-      return 'WARNING'
+      return 'warn'
     case 'Info':
-      return 'INFO'
+      return 'info'
   }
 }
 
 export function readErrorSeverity(x: any, context: any = x): ErrorSeverity {
   switch (x) {
-    case 'ERROR':
+    case 'error':
       return { kind: 'Error' }
-    case 'WARNING':
+    case 'warn':
       return { kind: 'Warning' }
-    case 'INFO':
+    case 'info':
       return { kind: 'Info' }
     default:
       _atd_bad_json('ErrorSeverity', x, context)
@@ -1127,7 +1127,7 @@ export function readIncompatibleRule(x: any, context: any = x): IncompatibleRule
 export function writeCliError(x: CliError, context: any = x): any {
   return {
     'code': _atd_write_required_field('CliError', 'code', _atd_write_int, x.code, x),
-    'level': _atd_write_required_field('CliError', 'level', _atd_write_string, x.level, x),
+    'level': _atd_write_required_field('CliError', 'level', writeErrorSeverity, x.level, x),
     'type': _atd_write_required_field('CliError', 'type_', _atd_write_string, x.type_, x),
     'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
     'message': _atd_write_optional_field(_atd_write_string, x.message, x),
@@ -1142,7 +1142,7 @@ export function writeCliError(x: CliError, context: any = x): any {
 export function readCliError(x: any, context: any = x): CliError {
   return {
     code: _atd_read_required_field('CliError', 'code', _atd_read_int, x['code'], x),
-    level: _atd_read_required_field('CliError', 'level', _atd_read_string, x['level'], x),
+    level: _atd_read_required_field('CliError', 'level', readErrorSeverity, x['level'], x),
     type_: _atd_read_required_field('CliError', 'type', _atd_read_string, x['type'], x),
     rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
     message: _atd_read_optional_field(_atd_read_string, x['message'], x),

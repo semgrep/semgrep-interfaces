@@ -431,7 +431,7 @@ type cli_match = Semgrep_output_v1_t.cli_match = {
 
 type cli_error = Semgrep_output_v1_t.cli_error = {
   code: int;
-  level: string;
+  level: error_severity;
   type_: string;
   rule_id: rule_id option;
   message: string option;
@@ -13107,9 +13107,9 @@ let error_span_of_string s =
 let write_error_severity = (
   fun ob x ->
     match x with
-      | `Error -> Buffer.add_string ob "\"ERROR\""
-      | `Warning -> Buffer.add_string ob "\"WARNING\""
-      | `Info -> Buffer.add_string ob "\"INFO\""
+      | `Error -> Buffer.add_string ob "\"error\""
+      | `Warning -> Buffer.add_string ob "\"warn\""
+      | `Info -> Buffer.add_string ob "\"info\""
 )
 let string_of_error_severity ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -13121,15 +13121,15 @@ let read_error_severity = (
     match Yojson.Safe.start_any_variant p lb with
       | `Edgy_bracket -> (
           match Yojson.Safe.read_ident p lb with
-            | "ERROR" ->
+            | "error" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Error
-            | "WARNING" ->
+            | "warn" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Warning
-            | "INFO" ->
+            | "info" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Info
@@ -13138,11 +13138,11 @@ let read_error_severity = (
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
-            | "ERROR" ->
+            | "error" ->
               `Error
-            | "WARNING" ->
+            | "warn" ->
               `Warning
-            | "INFO" ->
+            | "info" ->
               `Info
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
@@ -17065,7 +17065,7 @@ let write_cli_error : _ -> cli_error -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"level\":";
     (
-      Yojson.Safe.write_string
+      write_error_severity
     )
       ob x.level;
     if !is_first then
@@ -17301,7 +17301,7 @@ let read_cli_error = (
             field_level := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_error_severity
                 ) p lb
               )
             );
@@ -17514,7 +17514,7 @@ let read_cli_error = (
               field_level := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_error_severity
                   ) p lb
                 )
               );

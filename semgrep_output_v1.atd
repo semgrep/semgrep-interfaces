@@ -158,14 +158,14 @@ type match_severity
    This is used to specify the severity of errors which
    happened during Semgrep execution (e.g., a parse error)
 
-   alt: could reuse match_severity but seems cleaner to define different type
+   alt: could reuse match_severity but seems cleaner to define its own type
 *)
 type error_severity
     <ocaml attr="deriving show, eq">
     <python decorator="dataclass(frozen=True)"> = [
-  | Error <json name="ERROR">
-  | Warning <json name="WARNING">
-  | Info <json name="INFO">
+  | Error <json name="error">
+  | Warning <json name="warn">
+  | Info <json name="info">
 ]
 
 (* TODO? PRO can actually have "flavors" (see Engine_type.ml) *)
@@ -460,10 +460,9 @@ type incompatible_rule
 (* (called SemgrepError in error.py) *)
 
 type cli_error = {
-  (* exit code? *)
+  (* exit code for the type_ of error *)
   code: int;
-  (* TODO: use error_severity *)
-  level: string;
+  level: error_severity;
   (* TODO: use a variant that or inherit/extend core_error_kind
    * Right now we can't just use core_error_kind because SemgrepException
    * can also use self.__name__ for the type_, so we need to list
