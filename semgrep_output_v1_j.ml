@@ -5,6 +5,9 @@ type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
 type fpath = Semgrep_output_v1_t.fpath [@@deriving show]
 
+type match_severity = Semgrep_output_v1_t.match_severity
+  [@@deriving show, eq]
+
 type matching_operation = Semgrep_output_v1_t.matching_operation = 
     And
   | Or
@@ -44,11 +47,6 @@ type raw_json = Yojson.Basic.t
 
 type rule_id = Semgrep_output_v1_t.rule_id [@@deriving show]
 
-type severity = Semgrep_output_v1_t.severity = 
-    Error | Warning | Info | Experiment | Inventory
-
-  [@@deriving show, eq]
-
 type svalue_value = Semgrep_output_v1_t.svalue_value = {
   svalue_start: position option;
   svalue_end: position option;
@@ -86,7 +84,7 @@ type match_dataflow_trace = Semgrep_output_v1_t.match_dataflow_trace = {
 type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   message: string option;
   metadata: raw_json option;
-  severity: severity option;
+  severity: match_severity option;
   metavars: metavars;
   dataflow_trace: match_dataflow_trace option;
   rendered_fix: string option;
@@ -326,6 +324,9 @@ type error_span = Semgrep_output_v1_t.error_span = {
   context_end: position option option
 }
 
+type error_severity = Semgrep_output_v1_t.error_severity
+  [@@deriving show, eq]
+
 type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
   path: string;
   parser: sca_parser_name;
@@ -362,7 +363,7 @@ type core_error_kind = Semgrep_output_v1_t.core_error_kind =
 type core_error = Semgrep_output_v1_t.core_error = {
   rule_id: rule_id option;
   error_type: core_error_kind;
-  severity: severity;
+  severity: error_severity;
   location: location;
   message: string;
   details: string option
@@ -408,7 +409,7 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   lines: string;
   message: string;
   metadata: raw_json;
-  severity: severity;
+  severity: match_severity;
   fix: string option;
   fix_regex: fix_regex option;
   is_ignored: bool option;
@@ -598,6 +599,128 @@ let read_fpath = (
 )
 let fpath_of_string s =
   read_fpath (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_match_severity = (
+  fun ob x ->
+    match x with
+      | `Error -> Buffer.add_string ob "\"ERROR\""
+      | `Warning -> Buffer.add_string ob "\"WARNING\""
+      | `Info -> Buffer.add_string ob "\"INFO\""
+      | `Experiment -> Buffer.add_string ob "\"EXPERIMENT\""
+      | `Inventory -> Buffer.add_string ob "\"INVENTORY\""
+)
+let string_of_match_severity ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_match_severity ob x;
+  Buffer.contents ob
+let read_match_severity = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "ERROR" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Error
+            | "WARNING" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Warning
+            | "INFO" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Info
+            | "EXPERIMENT" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Experiment
+            | "INVENTORY" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Inventory
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "ERROR" ->
+              `Error
+            | "WARNING" ->
+              `Warning
+            | "INFO" ->
+              `Info
+            | "EXPERIMENT" ->
+              `Experiment
+            | "INVENTORY" ->
+              `Inventory
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let match_severity_of_string s =
+  read_match_severity (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__match_severity_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_match_severity
+  )
+)
+let string_of__match_severity_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__match_severity_option ob x;
+  Buffer.contents ob
+let read__match_severity_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_match_severity
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_match_severity
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _match_severity_option_of_string s =
+  read__match_severity_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_matching_operation : _ -> matching_operation -> _ = (
   fun ob x ->
     match x with
@@ -1506,128 +1629,6 @@ let read_rule_id = (
 )
 let rule_id_of_string s =
   read_rule_id (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_severity : _ -> severity -> _ = (
-  fun ob x ->
-    match x with
-      | Error -> Buffer.add_string ob "\"ERROR\""
-      | Warning -> Buffer.add_string ob "\"WARNING\""
-      | Info -> Buffer.add_string ob "\"INFO\""
-      | Experiment -> Buffer.add_string ob "\"EXPERIMENT\""
-      | Inventory -> Buffer.add_string ob "\"INVENTORY\""
-)
-let string_of_severity ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_severity ob x;
-  Buffer.contents ob
-let read_severity = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "ERROR" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Error : severity)
-            | "WARNING" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Warning : severity)
-            | "INFO" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Info : severity)
-            | "EXPERIMENT" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Experiment : severity)
-            | "INVENTORY" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Inventory : severity)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "ERROR" ->
-              (Error : severity)
-            | "WARNING" ->
-              (Warning : severity)
-            | "INFO" ->
-              (Info : severity)
-            | "EXPERIMENT" ->
-              (Experiment : severity)
-            | "INVENTORY" ->
-              (Inventory : severity)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let severity_of_string s =
-  read_severity (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__severity_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_severity
-  )
-)
-let string_of__severity_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__severity_option ob x;
-  Buffer.contents ob
-let read__severity_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_severity
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_severity
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _severity_option_of_string s =
-  read__severity_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_svalue_value : _ -> svalue_value -> _ = (
   fun ob (x : svalue_value) ->
     Buffer.add_char ob '{';
@@ -3053,7 +3054,7 @@ let write_core_match_extra : _ -> core_match_extra -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"severity\":";
       (
-        write_severity
+        write_match_severity
       )
         ob x;
     );
@@ -3280,7 +3281,7 @@ let read_core_match_extra = (
               field_severity := (
                 Some (
                   (
-                    read_severity
+                    read_match_severity
                   ) p lb
                 )
               );
@@ -3487,7 +3488,7 @@ let read_core_match_extra = (
                 field_severity := (
                   Some (
                     (
-                      read_severity
+                      read_match_severity
                     ) p lb
                   )
                 );
@@ -13103,6 +13104,57 @@ let read_error_span = (
 )
 let error_span_of_string s =
   read_error_span (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_error_severity = (
+  fun ob x ->
+    match x with
+      | `Error -> Buffer.add_string ob "\"ERROR\""
+      | `Warning -> Buffer.add_string ob "\"WARNING\""
+      | `Info -> Buffer.add_string ob "\"INFO\""
+)
+let string_of_error_severity ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_error_severity ob x;
+  Buffer.contents ob
+let read_error_severity = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "ERROR" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Error
+            | "WARNING" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Warning
+            | "INFO" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Info
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "ERROR" ->
+              `Error
+            | "WARNING" ->
+              `Warning
+            | "INFO" ->
+              `Info
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let error_severity_of_string s =
+  read_error_severity (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_dependency_parser_error : _ -> dependency_parser_error -> _ = (
   fun ob (x : dependency_parser_error) ->
     Buffer.add_char ob '{';
@@ -13741,7 +13793,7 @@ let write_core_error : _ -> core_error -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"severity\":";
     (
-      write_severity
+      write_error_severity
     )
       ob x.severity;
     if !is_first then
@@ -13888,7 +13940,7 @@ let read_core_error = (
             field_severity := (
               Some (
                 (
-                  read_severity
+                  read_error_severity
                 ) p lb
               )
             );
@@ -14021,7 +14073,7 @@ let read_core_error = (
               field_severity := (
                 Some (
                   (
-                    read_severity
+                    read_error_severity
                   ) p lb
                 )
               );
@@ -15763,7 +15815,7 @@ let write_cli_match_extra : _ -> cli_match_extra -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"severity\":";
     (
-      write_severity
+      write_match_severity
     )
       ob x.severity;
     (match x.fix with None -> () | Some x ->
@@ -16119,7 +16171,7 @@ let read_cli_match_extra = (
             field_severity := (
               Some (
                 (
-                  read_severity
+                  read_match_severity
                 ) p lb
               )
             );
@@ -16446,7 +16498,7 @@ let read_cli_match_extra = (
               field_severity := (
                 Some (
                   (
-                    read_severity
+                    read_match_severity
                   ) p lb
                 )
               );
