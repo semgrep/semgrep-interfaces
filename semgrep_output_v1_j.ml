@@ -130,7 +130,7 @@ type skip_reason = Semgrep_output_v1_t.skip_reason =
   | Exceeded_size_limit | Analysis_failed_parser_or_internal_error
   | Excluded_by_config | Wrong_language | Too_big | Minified | Binary
   | Irrelevant_rule | Too_many_matches | Gitignore_patterns_match | Dotfile
-  | Inexistent_file
+  | Nonexistent_file
 
   [@@deriving show]
 
@@ -4554,7 +4554,7 @@ let write_skip_reason : _ -> skip_reason -> _ = (
       | Too_many_matches -> Buffer.add_string ob "\"too_many_matches\""
       | Gitignore_patterns_match -> Buffer.add_string ob "\"Gitignore_patterns_match\""
       | Dotfile -> Buffer.add_string ob "\"Dotfile\""
-      | Inexistent_file -> Buffer.add_string ob "\"Inexistent_file\""
+      | Nonexistent_file -> Buffer.add_string ob "\"Nonexistent_file\""
 )
 let string_of_skip_reason ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -4626,10 +4626,10 @@ let read_skip_reason = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (Dotfile : skip_reason)
-            | "Inexistent_file" ->
+            | "Nonexistent_file" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              (Inexistent_file : skip_reason)
+              (Nonexistent_file : skip_reason)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -4665,8 +4665,8 @@ let read_skip_reason = (
               (Gitignore_patterns_match : skip_reason)
             | "Dotfile" ->
               (Dotfile : skip_reason)
-            | "Inexistent_file" ->
-              (Inexistent_file : skip_reason)
+            | "Nonexistent_file" ->
+              (Nonexistent_file : skip_reason)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

@@ -380,7 +380,7 @@
         { "const": "too_many_matches" },
         { "const": "Gitignore_patterns_match" },
         { "const": "Dotfile" },
-        { "const": "Inexistent_file" }
+        { "const": "Nonexistent_file" }
       ]
     },
     "skipped_target": {
