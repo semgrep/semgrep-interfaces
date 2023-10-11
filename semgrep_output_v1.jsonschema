@@ -379,7 +379,8 @@
         { "const": "irrelevant_rule" },
         { "const": "too_many_matches" },
         { "const": "Gitignore_patterns_match" },
-        { "const": "Dotfile" }
+        { "const": "Dotfile" },
+        { "const": "Inexistent_file" }
       ]
     },
     "skipped_target": {
