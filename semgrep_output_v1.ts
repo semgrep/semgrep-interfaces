@@ -228,7 +228,7 @@ export type SkipReason =
 | { kind: 'Too_many_matches' /* JSON: "too_many_matches" */ }
 | { kind: 'Gitignore_patterns_match' }
 | { kind: 'Dotfile' }
-| { kind: 'Inexistent_file' }
+| { kind: 'Nonexistent_file' }
 
 export type SkippedTarget = {
   path: Fpath;
@@ -1215,8 +1215,8 @@ export function writeSkipReason(x: SkipReason, context: any = x): any {
       return 'Gitignore_patterns_match'
     case 'Dotfile':
       return 'Dotfile'
-    case 'Inexistent_file':
-      return 'Inexistent_file'
+    case 'Nonexistent_file':
+      return 'Nonexistent_file'
   }
 }
 
@@ -1252,8 +1252,8 @@ export function readSkipReason(x: any, context: any = x): SkipReason {
       return { kind: 'Gitignore_patterns_match' }
     case 'Dotfile':
       return { kind: 'Dotfile' }
-    case 'Inexistent_file':
-      return { kind: 'Inexistent_file' }
+    case 'Nonexistent_file':
+      return { kind: 'Nonexistent_file' }
     default:
       _atd_bad_json('SkipReason', x, context)
       throw new Error('impossible')
