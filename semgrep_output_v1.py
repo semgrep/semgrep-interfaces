@@ -3340,6 +3340,439 @@ class Finding:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True, order=True)
+class LexicalError:
+    """Original type: error_type = [ ... | LexicalError | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'LexicalError'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Lexical error'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class ParseError:
+    """Original type: error_type = [ ... | ParseError | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ParseError'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Syntax error'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class SpecifiedParseError:
+    """Original type: error_type = [ ... | SpecifiedParseError | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SpecifiedParseError'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Other syntax error'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class AstBuilderError:
+    """Original type: error_type = [ ... | AstBuilderError | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'AstBuilderError'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'AST builder error'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class RuleParseError:
+    """Original type: error_type = [ ... | RuleParseError | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RuleParseError'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Rule parse error'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class SemgrepError:
+    """Original type: error_type = [ ... | SemgrepError | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SemgrepError'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'SemgrepError'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class InvalidRuleSchemaError:
+    """Original type: error_type = [ ... | InvalidRuleSchemaError | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'InvalidRuleSchemaError'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'InvalidRuleSchemaError'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class UnknownLanguageError:
+    """Original type: error_type = [ ... | UnknownLanguageError | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'UnknownLanguageError'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'UnknownLanguageError'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class PatternParseError:
+    """Original type: error_type = [ ... | PatternParseError of ... | ... ]"""
+
+    value: List[str]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PatternParseError'
+
+    def to_json(self) -> Any:
+        return ['Pattern parse error', _atd_write_list(_atd_write_string)(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class InvalidYaml:
+    """Original type: error_type = [ ... | InvalidYaml | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'InvalidYaml'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Invalid YAML'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class MatchingError:
+    """Original type: error_type = [ ... | MatchingError | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'MatchingError'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Internal matching error'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class SemgrepMatchFound:
+    """Original type: error_type = [ ... | SemgrepMatchFound | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SemgrepMatchFound'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Semgrep match found'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class TooManyMatches_:
+    """Original type: error_type = [ ... | TooManyMatches | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'TooManyMatches_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Too many matches'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class FatalError:
+    """Original type: error_type = [ ... | FatalError | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'FatalError'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Fatal error'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class Timeout:
+    """Original type: error_type = [ ... | Timeout | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Timeout'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Timeout'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class OutOfMemory:
+    """Original type: error_type = [ ... | OutOfMemory | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'OutOfMemory'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Out of memory'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class TimeoutDuringInterfile:
+    """Original type: error_type = [ ... | TimeoutDuringInterfile | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'TimeoutDuringInterfile'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Timeout during interfile analysis'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class OutOfMemoryDuringInterfile:
+    """Original type: error_type = [ ... | OutOfMemoryDuringInterfile | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'OutOfMemoryDuringInterfile'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'OOM during interfile analysis'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class PartialParsing:
+    """Original type: error_type = [ ... | PartialParsing of ... | ... ]"""
+
+    value: List[Location]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PartialParsing'
+
+    def to_json(self) -> Any:
+        return ['PartialParsing', _atd_write_list((lambda x: x.to_json()))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class IncompatibleRule_:
+    """Original type: error_type = [ ... | IncompatibleRule of ... | ... ]"""
+
+    value: IncompatibleRule
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'IncompatibleRule_'
+
+    def to_json(self) -> Any:
+        return ['IncompatibleRule', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class MissingPlugin:
+    """Original type: error_type = [ ... | MissingPlugin | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'MissingPlugin'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'MissingPlugin'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class ErrorType:
+    """Original type: error_type = [ ... ]"""
+
+    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, PatternParseError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, PartialParsing, IncompatibleRule_, MissingPlugin]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ErrorType':
+        if isinstance(x, str):
+            if x == 'Lexical error':
+                return cls(LexicalError())
+            if x == 'Syntax error':
+                return cls(ParseError())
+            if x == 'Other syntax error':
+                return cls(SpecifiedParseError())
+            if x == 'AST builder error':
+                return cls(AstBuilderError())
+            if x == 'Rule parse error':
+                return cls(RuleParseError())
+            if x == 'SemgrepError':
+                return cls(SemgrepError())
+            if x == 'InvalidRuleSchemaError':
+                return cls(InvalidRuleSchemaError())
+            if x == 'UnknownLanguageError':
+                return cls(UnknownLanguageError())
+            if x == 'Invalid YAML':
+                return cls(InvalidYaml())
+            if x == 'Internal matching error':
+                return cls(MatchingError())
+            if x == 'Semgrep match found':
+                return cls(SemgrepMatchFound())
+            if x == 'Too many matches':
+                return cls(TooManyMatches_())
+            if x == 'Fatal error':
+                return cls(FatalError())
+            if x == 'Timeout':
+                return cls(Timeout())
+            if x == 'Out of memory':
+                return cls(OutOfMemory())
+            if x == 'Timeout during interfile analysis':
+                return cls(TimeoutDuringInterfile())
+            if x == 'OOM during interfile analysis':
+                return cls(OutOfMemoryDuringInterfile())
+            if x == 'MissingPlugin':
+                return cls(MissingPlugin())
+            _atd_bad_json('ErrorType', x)
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'Pattern parse error':
+                return cls(PatternParseError(_atd_read_list(_atd_read_string)(x[1])))
+            if cons == 'PartialParsing':
+                return cls(PartialParsing(_atd_read_list(Location.from_json)(x[1])))
+            if cons == 'IncompatibleRule':
+                return cls(IncompatibleRule_(IncompatibleRule.from_json(x[1])))
+            _atd_bad_json('ErrorType', x)
+        _atd_bad_json('ErrorType', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ErrorType':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class ErrorSpan:
     """Original type: error_span = { ... }"""
@@ -3550,387 +3983,11 @@ class Datetime:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True, order=True)
-class LexicalError:
-    """Original type: core_error_kind = [ ... | LexicalError | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'LexicalError'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Lexical error'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class ParseError:
-    """Original type: core_error_kind = [ ... | ParseError | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'ParseError'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Syntax error'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class SpecifiedParseError:
-    """Original type: core_error_kind = [ ... | SpecifiedParseError | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'SpecifiedParseError'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Other syntax error'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class AstBuilderError:
-    """Original type: core_error_kind = [ ... | AstBuilderError | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'AstBuilderError'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'AST builder error'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class RuleParseError:
-    """Original type: core_error_kind = [ ... | RuleParseError | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'RuleParseError'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Rule parse error'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class PatternParseError:
-    """Original type: core_error_kind = [ ... | PatternParseError of ... | ... ]"""
-
-    value: List[str]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PatternParseError'
-
-    def to_json(self) -> Any:
-        return ['Pattern parse error', _atd_write_list(_atd_write_string)(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class InvalidYaml:
-    """Original type: core_error_kind = [ ... | InvalidYaml | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'InvalidYaml'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Invalid YAML'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class MatchingError:
-    """Original type: core_error_kind = [ ... | MatchingError | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'MatchingError'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Internal matching error'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class SemgrepMatchFound:
-    """Original type: core_error_kind = [ ... | SemgrepMatchFound | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'SemgrepMatchFound'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Semgrep match found'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class TooManyMatches_:
-    """Original type: core_error_kind = [ ... | TooManyMatches | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'TooManyMatches_'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Too many matches'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class FatalError:
-    """Original type: core_error_kind = [ ... | FatalError | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'FatalError'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Fatal error'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class Timeout:
-    """Original type: core_error_kind = [ ... | Timeout | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Timeout'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Timeout'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class OutOfMemory:
-    """Original type: core_error_kind = [ ... | OutOfMemory | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'OutOfMemory'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Out of memory'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class TimeoutDuringInterfile:
-    """Original type: core_error_kind = [ ... | TimeoutDuringInterfile | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'TimeoutDuringInterfile'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Timeout during interfile analysis'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class OutOfMemoryDuringInterfile:
-    """Original type: core_error_kind = [ ... | OutOfMemoryDuringInterfile | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'OutOfMemoryDuringInterfile'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'OOM during interfile analysis'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class PartialParsing:
-    """Original type: core_error_kind = [ ... | PartialParsing of ... | ... ]"""
-
-    value: List[Location]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PartialParsing'
-
-    def to_json(self) -> Any:
-        return ['PartialParsing', _atd_write_list((lambda x: x.to_json()))(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class IncompatibleRule_:
-    """Original type: core_error_kind = [ ... | IncompatibleRule of ... | ... ]"""
-
-    value: IncompatibleRule
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'IncompatibleRule_'
-
-    def to_json(self) -> Any:
-        return ['IncompatibleRule', (lambda x: x.to_json())(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class MissingPlugin:
-    """Original type: core_error_kind = [ ... | MissingPlugin | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'MissingPlugin'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'MissingPlugin'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
-class CoreErrorKind:
-    """Original type: core_error_kind = [ ... ]"""
-
-    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, PatternParseError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, PartialParsing, IncompatibleRule_, MissingPlugin]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CoreErrorKind':
-        if isinstance(x, str):
-            if x == 'Lexical error':
-                return cls(LexicalError())
-            if x == 'Syntax error':
-                return cls(ParseError())
-            if x == 'Other syntax error':
-                return cls(SpecifiedParseError())
-            if x == 'AST builder error':
-                return cls(AstBuilderError())
-            if x == 'Rule parse error':
-                return cls(RuleParseError())
-            if x == 'Invalid YAML':
-                return cls(InvalidYaml())
-            if x == 'Internal matching error':
-                return cls(MatchingError())
-            if x == 'Semgrep match found':
-                return cls(SemgrepMatchFound())
-            if x == 'Too many matches':
-                return cls(TooManyMatches_())
-            if x == 'Fatal error':
-                return cls(FatalError())
-            if x == 'Timeout':
-                return cls(Timeout())
-            if x == 'Out of memory':
-                return cls(OutOfMemory())
-            if x == 'Timeout during interfile analysis':
-                return cls(TimeoutDuringInterfile())
-            if x == 'OOM during interfile analysis':
-                return cls(OutOfMemoryDuringInterfile())
-            if x == 'MissingPlugin':
-                return cls(MissingPlugin())
-            _atd_bad_json('CoreErrorKind', x)
-        if isinstance(x, List) and len(x) == 2:
-            cons = x[0]
-            if cons == 'Pattern parse error':
-                return cls(PatternParseError(_atd_read_list(_atd_read_string)(x[1])))
-            if cons == 'PartialParsing':
-                return cls(PartialParsing(_atd_read_list(Location.from_json)(x[1])))
-            if cons == 'IncompatibleRule':
-                return cls(IncompatibleRule_(IncompatibleRule.from_json(x[1])))
-            _atd_bad_json('CoreErrorKind', x)
-        _atd_bad_json('CoreErrorKind', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CoreErrorKind':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass(frozen=True)
 class CoreError:
     """Original type: core_error = { ... }"""
 
-    error_type: CoreErrorKind
+    error_type: ErrorType
     severity: ErrorSeverity
     location: Location
     message: str
@@ -3941,7 +3998,7 @@ class CoreError:
     def from_json(cls, x: Any) -> 'CoreError':
         if isinstance(x, dict):
             return cls(
-                error_type=CoreErrorKind.from_json(x['error_type']) if 'error_type' in x else _atd_missing_json_field('CoreError', 'error_type'),
+                error_type=ErrorType.from_json(x['error_type']) if 'error_type' in x else _atd_missing_json_field('CoreError', 'error_type'),
                 severity=ErrorSeverity.from_json(x['severity']) if 'severity' in x else _atd_missing_json_field('CoreError', 'severity'),
                 location=Location.from_json(x['location']) if 'location' in x else _atd_missing_json_field('CoreError', 'location'),
                 message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('CoreError', 'message'),

@@ -151,21 +151,15 @@ export type MatchIntermediateVar = {
   content: string;
 }
 
-export type CoreError = {
-  rule_id?: RuleId;
-  error_type: CoreErrorKind;
-  severity: ErrorSeverity;
-  location: Location;
-  message: string;
-  details?: string;
-}
-
-export type CoreErrorKind =
+export type ErrorType =
 | { kind: 'LexicalError' /* JSON: "Lexical error" */ }
 | { kind: 'ParseError' /* JSON: "Syntax error" */ }
 | { kind: 'SpecifiedParseError' /* JSON: "Other syntax error" */ }
 | { kind: 'AstBuilderError' /* JSON: "AST builder error" */ }
 | { kind: 'RuleParseError' /* JSON: "Rule parse error" */ }
+| { kind: 'SemgrepError' }
+| { kind: 'InvalidRuleSchemaError' }
+| { kind: 'UnknownLanguageError' }
 | { kind: 'PatternParseError' /* JSON: "Pattern parse error" */; value: string[] }
 | { kind: 'InvalidYaml' /* JSON: "Invalid YAML" */ }
 | { kind: 'MatchingError' /* JSON: "Internal matching error" */ }
@@ -185,6 +179,15 @@ export type IncompatibleRule = {
   this_version: Version;
   min_version?: Version;
   max_version?: Version;
+}
+
+export type CoreError = {
+  rule_id?: RuleId;
+  error_type: ErrorType;
+  severity: ErrorSeverity;
+  location: Location;
+  message: string;
+  details?: string;
 }
 
 export type CliError = {
@@ -990,29 +993,7 @@ export function readMatchIntermediateVar(x: any, context: any = x): MatchInterme
   };
 }
 
-export function writeCoreError(x: CoreError, context: any = x): any {
-  return {
-    'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
-    'error_type': _atd_write_required_field('CoreError', 'error_type', writeCoreErrorKind, x.error_type, x),
-    'severity': _atd_write_required_field('CoreError', 'severity', writeErrorSeverity, x.severity, x),
-    'location': _atd_write_required_field('CoreError', 'location', writeLocation, x.location, x),
-    'message': _atd_write_required_field('CoreError', 'message', _atd_write_string, x.message, x),
-    'details': _atd_write_optional_field(_atd_write_string, x.details, x),
-  };
-}
-
-export function readCoreError(x: any, context: any = x): CoreError {
-  return {
-    rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
-    error_type: _atd_read_required_field('CoreError', 'error_type', readCoreErrorKind, x['error_type'], x),
-    severity: _atd_read_required_field('CoreError', 'severity', readErrorSeverity, x['severity'], x),
-    location: _atd_read_required_field('CoreError', 'location', readLocation, x['location'], x),
-    message: _atd_read_required_field('CoreError', 'message', _atd_read_string, x['message'], x),
-    details: _atd_read_optional_field(_atd_read_string, x['details'], x),
-  };
-}
-
-export function writeCoreErrorKind(x: CoreErrorKind, context: any = x): any {
+export function writeErrorType(x: ErrorType, context: any = x): any {
   switch (x.kind) {
     case 'LexicalError':
       return 'Lexical error'
@@ -1024,6 +1005,12 @@ export function writeCoreErrorKind(x: CoreErrorKind, context: any = x): any {
       return 'AST builder error'
     case 'RuleParseError':
       return 'Rule parse error'
+    case 'SemgrepError':
+      return 'SemgrepError'
+    case 'InvalidRuleSchemaError':
+      return 'InvalidRuleSchemaError'
+    case 'UnknownLanguageError':
+      return 'UnknownLanguageError'
     case 'PatternParseError':
       return ['Pattern parse error', _atd_write_array(_atd_write_string)(x.value, x)]
     case 'InvalidYaml':
@@ -1053,7 +1040,7 @@ export function writeCoreErrorKind(x: CoreErrorKind, context: any = x): any {
   }
 }
 
-export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
+export function readErrorType(x: any, context: any = x): ErrorType {
   if (typeof x === 'string') {
     switch (x) {
       case 'Lexical error':
@@ -1066,6 +1053,12 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
         return { kind: 'AstBuilderError' }
       case 'Rule parse error':
         return { kind: 'RuleParseError' }
+      case 'SemgrepError':
+        return { kind: 'SemgrepError' }
+      case 'InvalidRuleSchemaError':
+        return { kind: 'InvalidRuleSchemaError' }
+      case 'UnknownLanguageError':
+        return { kind: 'UnknownLanguageError' }
       case 'Invalid YAML':
         return { kind: 'InvalidYaml' }
       case 'Internal matching error':
@@ -1087,7 +1080,7 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
       case 'MissingPlugin':
         return { kind: 'MissingPlugin' }
       default:
-        _atd_bad_json('CoreErrorKind', x, context)
+        _atd_bad_json('ErrorType', x, context)
         throw new Error('impossible')
     }
   }
@@ -1101,7 +1094,7 @@ export function readCoreErrorKind(x: any, context: any = x): CoreErrorKind {
       case 'IncompatibleRule':
         return { kind: 'IncompatibleRule', value: readIncompatibleRule(x[1], x) }
       default:
-        _atd_bad_json('CoreErrorKind', x, context)
+        _atd_bad_json('ErrorType', x, context)
         throw new Error('impossible')
     }
   }
@@ -1122,6 +1115,28 @@ export function readIncompatibleRule(x: any, context: any = x): IncompatibleRule
     this_version: _atd_read_required_field('IncompatibleRule', 'this_version', readVersion, x['this_version'], x),
     min_version: _atd_read_optional_field(readVersion, x['min_version'], x),
     max_version: _atd_read_optional_field(readVersion, x['max_version'], x),
+  };
+}
+
+export function writeCoreError(x: CoreError, context: any = x): any {
+  return {
+    'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
+    'error_type': _atd_write_required_field('CoreError', 'error_type', writeErrorType, x.error_type, x),
+    'severity': _atd_write_required_field('CoreError', 'severity', writeErrorSeverity, x.severity, x),
+    'location': _atd_write_required_field('CoreError', 'location', writeLocation, x.location, x),
+    'message': _atd_write_required_field('CoreError', 'message', _atd_write_string, x.message, x),
+    'details': _atd_write_optional_field(_atd_write_string, x.details, x),
+  };
+}
+
+export function readCoreError(x: any, context: any = x): CoreError {
+  return {
+    rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
+    error_type: _atd_read_required_field('CoreError', 'error_type', readErrorType, x['error_type'], x),
+    severity: _atd_read_required_field('CoreError', 'severity', readErrorSeverity, x['severity'], x),
+    location: _atd_read_required_field('CoreError', 'location', readLocation, x['location'], x),
+    message: _atd_read_required_field('CoreError', 'message', _atd_read_string, x['message'], x),
+    details: _atd_read_optional_field(_atd_read_string, x['details'], x),
   };
 }
 
