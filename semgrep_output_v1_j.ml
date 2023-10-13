@@ -313,6 +313,31 @@ type finding = Semgrep_output_v1_t.finding = {
   validation_state: validation_state option
 }
 
+type error_type = Semgrep_output_v1_t.error_type = 
+    LexicalError
+  | ParseError
+  | SpecifiedParseError
+  | AstBuilderError
+  | RuleParseError
+  | SemgrepError
+  | InvalidRuleSchemaError
+  | UnknownLanguageError
+  | PatternParseError of string list
+  | InvalidYaml
+  | MatchingError
+  | SemgrepMatchFound
+  | TooManyMatches
+  | FatalError
+  | Timeout
+  | OutOfMemory
+  | TimeoutDuringInterfile
+  | OutOfMemoryDuringInterfile
+  | PartialParsing of location list
+  | IncompatibleRule of incompatible_rule
+  | MissingPlugin
+
+  [@@deriving show]
+
 type error_span = Semgrep_output_v1_t.error_span = {
   file: fpath;
   start: position;
@@ -339,31 +364,9 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
 
 type datetime = Semgrep_output_v1_t.datetime
 
-type core_error_kind = Semgrep_output_v1_t.core_error_kind = 
-    LexicalError
-  | ParseError
-  | SpecifiedParseError
-  | AstBuilderError
-  | RuleParseError
-  | PatternParseError of string list
-  | InvalidYaml
-  | MatchingError
-  | SemgrepMatchFound
-  | TooManyMatches
-  | FatalError
-  | Timeout
-  | OutOfMemory
-  | TimeoutDuringInterfile
-  | OutOfMemoryDuringInterfile
-  | PartialParsing of location list
-  | IncompatibleRule of incompatible_rule
-  | MissingPlugin
-
-  [@@deriving show]
-
 type core_error = Semgrep_output_v1_t.core_error = {
   rule_id: rule_id option;
-  error_type: core_error_kind;
+  error_type: error_type;
   severity: error_severity;
   location: location;
   message: string;
@@ -12436,6 +12439,256 @@ let read_finding = (
 )
 let finding_of_string s =
   read_finding (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__location_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_location
+  )
+)
+let string_of__location_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__location_list ob x;
+  Buffer.contents ob
+let read__location_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_location
+  )
+)
+let _location_list_of_string s =
+  read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_error_type : _ -> error_type -> _ = (
+  fun ob x ->
+    match x with
+      | LexicalError -> Buffer.add_string ob "\"Lexical error\""
+      | ParseError -> Buffer.add_string ob "\"Syntax error\""
+      | SpecifiedParseError -> Buffer.add_string ob "\"Other syntax error\""
+      | AstBuilderError -> Buffer.add_string ob "\"AST builder error\""
+      | RuleParseError -> Buffer.add_string ob "\"Rule parse error\""
+      | SemgrepError -> Buffer.add_string ob "\"SemgrepError\""
+      | InvalidRuleSchemaError -> Buffer.add_string ob "\"InvalidRuleSchemaError\""
+      | UnknownLanguageError -> Buffer.add_string ob "\"UnknownLanguageError\""
+      | PatternParseError x ->
+        Buffer.add_string ob "[\"Pattern parse error\",";
+        (
+          write__string_list
+        ) ob x;
+        Buffer.add_char ob ']'
+      | InvalidYaml -> Buffer.add_string ob "\"Invalid YAML\""
+      | MatchingError -> Buffer.add_string ob "\"Internal matching error\""
+      | SemgrepMatchFound -> Buffer.add_string ob "\"Semgrep match found\""
+      | TooManyMatches -> Buffer.add_string ob "\"Too many matches\""
+      | FatalError -> Buffer.add_string ob "\"Fatal error\""
+      | Timeout -> Buffer.add_string ob "\"Timeout\""
+      | OutOfMemory -> Buffer.add_string ob "\"Out of memory\""
+      | TimeoutDuringInterfile -> Buffer.add_string ob "\"Timeout during interfile analysis\""
+      | OutOfMemoryDuringInterfile -> Buffer.add_string ob "\"OOM during interfile analysis\""
+      | PartialParsing x ->
+        Buffer.add_string ob "[\"PartialParsing\",";
+        (
+          write__location_list
+        ) ob x;
+        Buffer.add_char ob ']'
+      | IncompatibleRule x ->
+        Buffer.add_string ob "[\"IncompatibleRule\",";
+        (
+          write_incompatible_rule
+        ) ob x;
+        Buffer.add_char ob ']'
+      | MissingPlugin -> Buffer.add_string ob "\"MissingPlugin\""
+)
+let string_of_error_type ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_error_type ob x;
+  Buffer.contents ob
+let read_error_type = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "Lexical error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (LexicalError : error_type)
+            | "Syntax error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (ParseError : error_type)
+            | "Other syntax error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (SpecifiedParseError : error_type)
+            | "AST builder error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (AstBuilderError : error_type)
+            | "Rule parse error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (RuleParseError : error_type)
+            | "SemgrepError" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (SemgrepError : error_type)
+            | "InvalidRuleSchemaError" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (InvalidRuleSchemaError : error_type)
+            | "UnknownLanguageError" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (UnknownLanguageError : error_type)
+            | "Pattern parse error" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__string_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PatternParseError x : error_type)
+            | "Invalid YAML" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (InvalidYaml : error_type)
+            | "Internal matching error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (MatchingError : error_type)
+            | "Semgrep match found" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (SemgrepMatchFound : error_type)
+            | "Too many matches" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (TooManyMatches : error_type)
+            | "Fatal error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (FatalError : error_type)
+            | "Timeout" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Timeout : error_type)
+            | "Out of memory" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (OutOfMemory : error_type)
+            | "Timeout during interfile analysis" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (TimeoutDuringInterfile : error_type)
+            | "OOM during interfile analysis" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (OutOfMemoryDuringInterfile : error_type)
+            | "PartialParsing" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__location_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PartialParsing x : error_type)
+            | "IncompatibleRule" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_incompatible_rule
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (IncompatibleRule x : error_type)
+            | "MissingPlugin" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (MissingPlugin : error_type)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "Lexical error" ->
+              (LexicalError : error_type)
+            | "Syntax error" ->
+              (ParseError : error_type)
+            | "Other syntax error" ->
+              (SpecifiedParseError : error_type)
+            | "AST builder error" ->
+              (AstBuilderError : error_type)
+            | "Rule parse error" ->
+              (RuleParseError : error_type)
+            | "SemgrepError" ->
+              (SemgrepError : error_type)
+            | "InvalidRuleSchemaError" ->
+              (InvalidRuleSchemaError : error_type)
+            | "UnknownLanguageError" ->
+              (UnknownLanguageError : error_type)
+            | "Invalid YAML" ->
+              (InvalidYaml : error_type)
+            | "Internal matching error" ->
+              (MatchingError : error_type)
+            | "Semgrep match found" ->
+              (SemgrepMatchFound : error_type)
+            | "Too many matches" ->
+              (TooManyMatches : error_type)
+            | "Fatal error" ->
+              (FatalError : error_type)
+            | "Timeout" ->
+              (Timeout : error_type)
+            | "Out of memory" ->
+              (OutOfMemory : error_type)
+            | "Timeout during interfile analysis" ->
+              (TimeoutDuringInterfile : error_type)
+            | "OOM during interfile analysis" ->
+              (OutOfMemoryDuringInterfile : error_type)
+            | "MissingPlugin" ->
+              (MissingPlugin : error_type)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Pattern parse error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__string_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (PatternParseError x : error_type)
+            | "PartialParsing" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__location_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (PartialParsing x : error_type)
+            | "IncompatibleRule" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_incompatible_rule
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (IncompatibleRule x : error_type)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let error_type_of_string s =
+  read_error_type (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__string_list_nullable = (
   Atdgen_runtime.Oj_run.write_nullable (
     write__string_list
@@ -13542,235 +13795,6 @@ let read_datetime = (
 )
 let datetime_of_string s =
   read_datetime (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__location_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_location
-  )
-)
-let string_of__location_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__location_list ob x;
-  Buffer.contents ob
-let read__location_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_location
-  )
-)
-let _location_list_of_string s =
-  read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_core_error_kind : _ -> core_error_kind -> _ = (
-  fun ob x ->
-    match x with
-      | LexicalError -> Buffer.add_string ob "\"Lexical error\""
-      | ParseError -> Buffer.add_string ob "\"Syntax error\""
-      | SpecifiedParseError -> Buffer.add_string ob "\"Other syntax error\""
-      | AstBuilderError -> Buffer.add_string ob "\"AST builder error\""
-      | RuleParseError -> Buffer.add_string ob "\"Rule parse error\""
-      | PatternParseError x ->
-        Buffer.add_string ob "[\"Pattern parse error\",";
-        (
-          write__string_list
-        ) ob x;
-        Buffer.add_char ob ']'
-      | InvalidYaml -> Buffer.add_string ob "\"Invalid YAML\""
-      | MatchingError -> Buffer.add_string ob "\"Internal matching error\""
-      | SemgrepMatchFound -> Buffer.add_string ob "\"Semgrep match found\""
-      | TooManyMatches -> Buffer.add_string ob "\"Too many matches\""
-      | FatalError -> Buffer.add_string ob "\"Fatal error\""
-      | Timeout -> Buffer.add_string ob "\"Timeout\""
-      | OutOfMemory -> Buffer.add_string ob "\"Out of memory\""
-      | TimeoutDuringInterfile -> Buffer.add_string ob "\"Timeout during interfile analysis\""
-      | OutOfMemoryDuringInterfile -> Buffer.add_string ob "\"OOM during interfile analysis\""
-      | PartialParsing x ->
-        Buffer.add_string ob "[\"PartialParsing\",";
-        (
-          write__location_list
-        ) ob x;
-        Buffer.add_char ob ']'
-      | IncompatibleRule x ->
-        Buffer.add_string ob "[\"IncompatibleRule\",";
-        (
-          write_incompatible_rule
-        ) ob x;
-        Buffer.add_char ob ']'
-      | MissingPlugin -> Buffer.add_string ob "\"MissingPlugin\""
-)
-let string_of_core_error_kind ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_core_error_kind ob x;
-  Buffer.contents ob
-let read_core_error_kind = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "Lexical error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (LexicalError : core_error_kind)
-            | "Syntax error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (ParseError : core_error_kind)
-            | "Other syntax error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (SpecifiedParseError : core_error_kind)
-            | "AST builder error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (AstBuilderError : core_error_kind)
-            | "Rule parse error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (RuleParseError : core_error_kind)
-            | "Pattern parse error" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__string_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PatternParseError x : core_error_kind)
-            | "Invalid YAML" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (InvalidYaml : core_error_kind)
-            | "Internal matching error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (MatchingError : core_error_kind)
-            | "Semgrep match found" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (SemgrepMatchFound : core_error_kind)
-            | "Too many matches" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (TooManyMatches : core_error_kind)
-            | "Fatal error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (FatalError : core_error_kind)
-            | "Timeout" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Timeout : core_error_kind)
-            | "Out of memory" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (OutOfMemory : core_error_kind)
-            | "Timeout during interfile analysis" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (TimeoutDuringInterfile : core_error_kind)
-            | "OOM during interfile analysis" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (OutOfMemoryDuringInterfile : core_error_kind)
-            | "PartialParsing" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__location_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PartialParsing x : core_error_kind)
-            | "IncompatibleRule" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_incompatible_rule
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (IncompatibleRule x : core_error_kind)
-            | "MissingPlugin" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (MissingPlugin : core_error_kind)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "Lexical error" ->
-              (LexicalError : core_error_kind)
-            | "Syntax error" ->
-              (ParseError : core_error_kind)
-            | "Other syntax error" ->
-              (SpecifiedParseError : core_error_kind)
-            | "AST builder error" ->
-              (AstBuilderError : core_error_kind)
-            | "Rule parse error" ->
-              (RuleParseError : core_error_kind)
-            | "Invalid YAML" ->
-              (InvalidYaml : core_error_kind)
-            | "Internal matching error" ->
-              (MatchingError : core_error_kind)
-            | "Semgrep match found" ->
-              (SemgrepMatchFound : core_error_kind)
-            | "Too many matches" ->
-              (TooManyMatches : core_error_kind)
-            | "Fatal error" ->
-              (FatalError : core_error_kind)
-            | "Timeout" ->
-              (Timeout : core_error_kind)
-            | "Out of memory" ->
-              (OutOfMemory : core_error_kind)
-            | "Timeout during interfile analysis" ->
-              (TimeoutDuringInterfile : core_error_kind)
-            | "OOM during interfile analysis" ->
-              (OutOfMemoryDuringInterfile : core_error_kind)
-            | "MissingPlugin" ->
-              (MissingPlugin : core_error_kind)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Pattern parse error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__string_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (PatternParseError x : core_error_kind)
-            | "PartialParsing" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__location_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (PartialParsing x : core_error_kind)
-            | "IncompatibleRule" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_incompatible_rule
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (IncompatibleRule x : core_error_kind)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let core_error_kind_of_string s =
-  read_core_error_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_error : _ -> core_error -> _ = (
   fun ob (x : core_error) ->
     Buffer.add_char ob '{';
@@ -13792,7 +13816,7 @@ let write_core_error : _ -> core_error -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"error_type\":";
     (
-      write_core_error_kind
+      write_error_type
     )
       ob x.error_type;
     if !is_first then
@@ -13940,7 +13964,7 @@ let read_core_error = (
             field_error_type := (
               Some (
                 (
-                  read_core_error_kind
+                  read_error_type
                 ) p lb
               )
             );
@@ -14073,7 +14097,7 @@ let read_core_error = (
               field_error_type := (
                 Some (
                   (
-                    read_core_error_kind
+                    read_error_type
                   ) p lb
                 )
               );

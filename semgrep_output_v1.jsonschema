@@ -255,25 +255,16 @@
         "content": { "type": "string" }
       }
     },
-    "core_error": {
-      "type": "object",
-      "required": [ "error_type", "severity", "location", "message" ],
-      "properties": {
-        "rule_id": { "$ref": "#/definitions/rule_id" },
-        "error_type": { "$ref": "#/definitions/core_error_kind" },
-        "severity": { "$ref": "#/definitions/error_severity" },
-        "location": { "$ref": "#/definitions/location" },
-        "message": { "type": "string" },
-        "details": { "type": "string" }
-      }
-    },
-    "core_error_kind": {
+    "error_type": {
       "oneOf": [
         { "const": "Lexical error" },
         { "const": "Syntax error" },
         { "const": "Other syntax error" },
         { "const": "AST builder error" },
         { "const": "Rule parse error" },
+        { "const": "SemgrepError" },
+        { "const": "InvalidRuleSchemaError" },
+        { "const": "UnknownLanguageError" },
         {
           "type": "array",
           "minItems": 2,
@@ -324,6 +315,18 @@
         "this_version": { "$ref": "#/definitions/version" },
         "min_version": { "$ref": "#/definitions/version" },
         "max_version": { "$ref": "#/definitions/version" }
+      }
+    },
+    "core_error": {
+      "type": "object",
+      "required": [ "error_type", "severity", "location", "message" ],
+      "properties": {
+        "rule_id": { "$ref": "#/definitions/rule_id" },
+        "error_type": { "$ref": "#/definitions/error_type" },
+        "severity": { "$ref": "#/definitions/error_severity" },
+        "location": { "$ref": "#/definitions/location" },
+        "message": { "type": "string" },
+        "details": { "type": "string" }
       }
     },
     "cli_error": {

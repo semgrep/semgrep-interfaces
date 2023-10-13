@@ -313,6 +313,31 @@ type finding = Semgrep_output_v1_t.finding = {
   validation_state: validation_state option
 }
 
+type error_type = Semgrep_output_v1_t.error_type = 
+    LexicalError
+  | ParseError
+  | SpecifiedParseError
+  | AstBuilderError
+  | RuleParseError
+  | SemgrepError
+  | InvalidRuleSchemaError
+  | UnknownLanguageError
+  | PatternParseError of string list
+  | InvalidYaml
+  | MatchingError
+  | SemgrepMatchFound
+  | TooManyMatches
+  | FatalError
+  | Timeout
+  | OutOfMemory
+  | TimeoutDuringInterfile
+  | OutOfMemoryDuringInterfile
+  | PartialParsing of location list
+  | IncompatibleRule of incompatible_rule
+  | MissingPlugin
+
+  [@@deriving show]
+
 type error_span = Semgrep_output_v1_t.error_span = {
   file: fpath;
   start: position;
@@ -339,31 +364,9 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
 
 type datetime = Semgrep_output_v1_t.datetime
 
-type core_error_kind = Semgrep_output_v1_t.core_error_kind = 
-    LexicalError
-  | ParseError
-  | SpecifiedParseError
-  | AstBuilderError
-  | RuleParseError
-  | PatternParseError of string list
-  | InvalidYaml
-  | MatchingError
-  | SemgrepMatchFound
-  | TooManyMatches
-  | FatalError
-  | Timeout
-  | OutOfMemory
-  | TimeoutDuringInterfile
-  | OutOfMemoryDuringInterfile
-  | PartialParsing of location list
-  | IncompatibleRule of incompatible_rule
-  | MissingPlugin
-
-  [@@deriving show]
-
 type core_error = Semgrep_output_v1_t.core_error = {
   rule_id: rule_id option;
-  error_type: core_error_kind;
+  error_type: error_type;
   severity: error_severity;
   location: location;
   message: string;
@@ -1447,6 +1450,26 @@ val finding_of_string :
   string -> finding
   (** Deserialize JSON data of type {!type:finding}. *)
 
+val write_error_type :
+  Buffer.t -> error_type -> unit
+  (** Output a JSON value of type {!type:error_type}. *)
+
+val string_of_error_type :
+  ?len:int -> error_type -> string
+  (** Serialize a value of type {!type:error_type}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_error_type :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> error_type
+  (** Input JSON data of type {!type:error_type}. *)
+
+val error_type_of_string :
+  string -> error_type
+  (** Deserialize JSON data of type {!type:error_type}. *)
+
 val write_error_span :
   Buffer.t -> error_span -> unit
   (** Output a JSON value of type {!type:error_span}. *)
@@ -1526,26 +1549,6 @@ val read_datetime :
 val datetime_of_string :
   string -> datetime
   (** Deserialize JSON data of type {!type:datetime}. *)
-
-val write_core_error_kind :
-  Buffer.t -> core_error_kind -> unit
-  (** Output a JSON value of type {!type:core_error_kind}. *)
-
-val string_of_core_error_kind :
-  ?len:int -> core_error_kind -> string
-  (** Serialize a value of type {!type:core_error_kind}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_core_error_kind :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_error_kind
-  (** Input JSON data of type {!type:core_error_kind}. *)
-
-val core_error_kind_of_string :
-  string -> core_error_kind
-  (** Deserialize JSON data of type {!type:core_error_kind}. *)
 
 val write_core_error :
   Buffer.t -> core_error -> unit

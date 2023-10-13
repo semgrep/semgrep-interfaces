@@ -68,6 +68,10 @@
 (* escape hatch *)
 type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
 
+(*****************************************************************************)
+(* String aliases *)
+(*****************************************************************************)
+
 (* TODO: could convert to Uri.t for OCaml, using 'string wrap' *)
 type uri = string
 
@@ -383,30 +387,11 @@ type match_intermediate_var <python decorator="dataclass(frozen=True)"> = {
 (* Errors *)
 (*****************************************************************************)
 
-(* ----------------------------- *)
-(* Core *)
-(* ----------------------------- *)
-(* EXPERIMENTAL: Do not rely on those internal types, they will disappear *)
-
-(* See Semgrep_error_code.ml *)
-(* TODO: try to make it as close as possible to 'cli_error' above, possibly
- * extending cli_error with more fields (but those fields must be optional
- * to remain backward compatible
- *)
-type core_error <python decorator="dataclass(frozen=True)"> = {
-  ?rule_id: rule_id option;
-  error_type: core_error_kind;
-  severity: error_severity;
-  location: location;
-  message: string;
-  ?details: string option;
-  }
-
 (* coupling: if you add a constructor here with arguments, you probably need to adjust
  * _error_type_string() in semgrep/.../error.py
  * TODO? move all those <json name="..."> in _error_type_string()
  *)
-type core_error_kind
+type error_type
     <ocaml attr="deriving show">
     <python decorator="dataclass(frozen=True, order=True)"> = [
   (* File parsing related errors;
@@ -423,6 +408,10 @@ type core_error_kind
    * TODO? should we move invalid_rule_error_kind here?
    *)
   | RuleParseError <json name="Rule parse error">
+  (* generated in pysemgrep only. TODO: some should take error_span in parameter *)
+  | SemgrepError <json name="SemgrepError">
+  | InvalidRuleSchemaError <json name="InvalidRuleSchemaError">
+  | UnknownLanguageError <json name="UnknownLanguageError">
   (* the string list is the "YAML path" of the pattern, e.g. ["rules"; "1"; ...] *)
   | PatternParseError <json name="Pattern parse error"> of string list
   | InvalidYaml <json name="Invalid YAML">
@@ -454,6 +443,28 @@ type incompatible_rule
   ?max_version: version option;
 }
 
+(* TODO: type exit_code = ... *)
+
+
+(* ----------------------------- *)
+(* Core *)
+(* ----------------------------- *)
+(* EXPERIMENTAL: Do not rely on those internal types, they will disappear *)
+
+(* See Semgrep_error_code.ml *)
+(* TODO: try to make it as close as possible to 'cli_error' above, possibly
+ * extending cli_error with more fields (but those fields must be optional
+ * to remain backward compatible
+ *)
+type core_error <python decorator="dataclass(frozen=True)"> = {
+  ?rule_id: rule_id option;
+  error_type: error_type;
+  severity: error_severity;
+  location: location;
+  message: string;
+  ?details: string option;
+  }
+
 (* ----------------------------- *)
 (* CLI *)
 (* ----------------------------- *)
@@ -463,11 +474,7 @@ type cli_error = {
   (* exit code for the type_ of error *)
   code: int;
   level: error_severity;
-  (* TODO: use a variant that or inherit/extend core_error_kind
-   * Right now we can't just use core_error_kind because SemgrepException
-   * can also use self.__name__ for the type_, so we need to list
-   * all the possible classes here (see error.py)
-   *)
+  (* TODO: use error_type *)
   type_ <json name="type">: string;
 
   (* LATER: use a variant instead of all those ?xxx types *)
