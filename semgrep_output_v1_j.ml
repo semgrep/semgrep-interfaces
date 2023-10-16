@@ -436,7 +436,7 @@ type cli_match = Semgrep_output_v1_t.cli_match = {
 type cli_error = Semgrep_output_v1_t.cli_error = {
   code: int;
   level: error_severity;
-  type_: string;
+  type_: error_type;
   rule_id: rule_id option;
   message: string option;
   path: fpath option;
@@ -12493,7 +12493,7 @@ let write_error_type : _ -> error_type -> _ = (
           write_incompatible_rule
         ) ob x;
         Buffer.add_char ob ']'
-      | MissingPlugin -> Buffer.add_string ob "\"MissingPlugin\""
+      | MissingPlugin -> Buffer.add_string ob "\"Missing plugin\""
 )
 let string_of_error_type ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -12600,7 +12600,7 @@ let read_error_type = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (IncompatibleRule x : error_type)
-            | "MissingPlugin" ->
+            | "Missing plugin" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (MissingPlugin : error_type)
@@ -12643,7 +12643,7 @@ let read_error_type = (
               (TimeoutDuringInterfile : error_type)
             | "OOM during interfile analysis" ->
               (OutOfMemoryDuringInterfile : error_type)
-            | "MissingPlugin" ->
+            | "Missing plugin" ->
               (MissingPlugin : error_type)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
@@ -17106,7 +17106,7 @@ let write_cli_error : _ -> cli_error -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"type\":";
     (
-      Yojson.Safe.write_string
+      write_error_type
     )
       ob x.type_;
     (match x.rule_id with None -> () | Some x ->
@@ -17341,7 +17341,7 @@ let read_cli_error = (
             field_type_ := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_error_type
                 ) p lb
               )
             );
@@ -17554,7 +17554,7 @@ let read_cli_error = (
               field_type_ := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_error_type
                   ) p lb
                 )
               );

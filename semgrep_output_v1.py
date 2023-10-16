@@ -3694,7 +3694,7 @@ class MissingPlugin:
 
     @staticmethod
     def to_json() -> Any:
-        return 'MissingPlugin'
+        return 'Missing plugin'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -3748,7 +3748,7 @@ class ErrorType:
                 return cls(TimeoutDuringInterfile())
             if x == 'OOM during interfile analysis':
                 return cls(OutOfMemoryDuringInterfile())
-            if x == 'MissingPlugin':
+            if x == 'Missing plugin':
                 return cls(MissingPlugin())
             _atd_bad_json('ErrorType', x)
         if isinstance(x, List) and len(x) == 2:
@@ -4344,7 +4344,7 @@ class CliError:
 
     code: int
     level: ErrorSeverity
-    type_: str
+    type_: ErrorType
     rule_id: Optional[RuleId] = None
     message: Optional[str] = None
     path: Optional[Fpath] = None
@@ -4359,7 +4359,7 @@ class CliError:
             return cls(
                 code=_atd_read_int(x['code']) if 'code' in x else _atd_missing_json_field('CliError', 'code'),
                 level=ErrorSeverity.from_json(x['level']) if 'level' in x else _atd_missing_json_field('CliError', 'level'),
-                type_=_atd_read_string(x['type']) if 'type' in x else _atd_missing_json_field('CliError', 'type'),
+                type_=ErrorType.from_json(x['type']) if 'type' in x else _atd_missing_json_field('CliError', 'type'),
                 rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else None,
                 message=_atd_read_string(x['message']) if 'message' in x else None,
                 path=Fpath.from_json(x['path']) if 'path' in x else None,
@@ -4375,7 +4375,7 @@ class CliError:
         res: Dict[str, Any] = {}
         res['code'] = _atd_write_int(self.code)
         res['level'] = (lambda x: x.to_json())(self.level)
-        res['type'] = _atd_write_string(self.type_)
+        res['type'] = (lambda x: x.to_json())(self.type_)
         if self.rule_id is not None:
             res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
         if self.message is not None:

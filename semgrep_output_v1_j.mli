@@ -436,7 +436,7 @@ type cli_match = Semgrep_output_v1_t.cli_match = {
 type cli_error = Semgrep_output_v1_t.cli_error = {
   code: int;
   level: error_severity;
-  type_: string;
+  type_: error_type;
   rule_id: rule_id option;
   message: string option;
   path: fpath option;

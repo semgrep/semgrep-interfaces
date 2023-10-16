@@ -110,8 +110,13 @@ type parse_stat = {
 
 type errors = {
     ?returnCode <ocaml mutable>: int option;
-    ?errors <ocaml mutable>: string list option;
+    ?errors <ocaml mutable>: error list option;
 }
+
+(* This is to_json_string(semgrep_output_v1.error_type)
+ * TODO: string -> semgrep_output_v1.error_type but need ATD modules.
+ *)
+type error = string
 
 (*****************************************************************************)
 (* Extension *)

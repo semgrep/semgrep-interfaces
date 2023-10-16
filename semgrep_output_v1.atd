@@ -389,7 +389,6 @@ type match_intermediate_var <python decorator="dataclass(frozen=True)"> = {
 
 (* coupling: if you add a constructor here with arguments, you probably need to adjust
  * _error_type_string() in semgrep/.../error.py
- * TODO? move all those <json name="..."> in _error_type_string()
  *)
 type error_type
     <ocaml attr="deriving show">
@@ -431,7 +430,7 @@ type error_type
   (* since semgrep 1.38.0 *)
   | IncompatibleRule of incompatible_rule
   (* since semgrep 1.40.0 *)
-  | MissingPlugin
+  | MissingPlugin <json name="Missing plugin">
 ] <ocaml repr="classic">
 
 type incompatible_rule
@@ -474,8 +473,12 @@ type cli_error = {
   (* exit code for the type_ of error *)
   code: int;
   level: error_severity;
-  (* TODO: use error_type *)
-  type_ <json name="type">: string;
+  (* before 1.45.0 the type was 'string', but was the result
+   * of converting error_type into a string, so using directly
+   * 'error_type' below should be mostly backward compatible
+   * thx to the <json name> annotations in error_type.
+   *)
+  type_ <json name="type">: error_type;
 
   (* LATER: use a variant instead of all those ?xxx types *)
 

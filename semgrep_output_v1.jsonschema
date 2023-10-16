@@ -304,7 +304,7 @@
             { "$ref": "#/definitions/incompatible_rule" }
           ]
         },
-        { "const": "MissingPlugin" }
+        { "const": "Missing plugin" }
       ]
     },
     "incompatible_rule": {
@@ -335,7 +335,7 @@
       "properties": {
         "code": { "type": "integer" },
         "level": { "$ref": "#/definitions/error_severity" },
-        "type": { "type": "string" },
+        "type": { "$ref": "#/definitions/error_type" },
         "rule_id": { "$ref": "#/definitions/rule_id" },
         "message": { "type": "string" },
         "path": { "$ref": "#/definitions/fpath" },
