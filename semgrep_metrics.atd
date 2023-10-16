@@ -113,7 +113,7 @@ type errors = {
     ?errors <ocaml mutable>: error list option;
 }
 
-(* This is to_json_string(semgrep_output_v1.error_type)
+(* This is semgrep_output_v1.error_type but in a string form
  * TODO: string -> semgrep_output_v1.error_type but need ATD modules.
  *)
 type error = string
