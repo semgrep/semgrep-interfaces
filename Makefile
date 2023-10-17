@@ -50,7 +50,7 @@ build: $(FILES)
 %_j.ml %_j.mli: %.atd
 	atdgen -j -j-std -j-defaults $<
 
-# need atdts >= 2.11.0
+# need atdts >= 2.13.0
 %.ts: %.atd
 	atdts $<
 

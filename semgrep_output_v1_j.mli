@@ -166,19 +166,19 @@ type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
 type project_metadata = Semgrep_output_v1_t.project_metadata = {
   semgrep_version: version;
   repository: string;
-  repo_url: string option;
+  repo_url: uri option;
   branch: string option;
-  ci_job_url: string option;
+  ci_job_url: uri option;
   commit: string option;
   commit_author_email: string option;
   commit_author_name: string option;
   commit_author_username: string option;
-  commit_author_image_url: string option;
+  commit_author_image_url: uri option;
   commit_title: string option;
   commit_timestamp: string option;
   on: string;
   pull_request_author_username: string option;
-  pull_request_author_image_url: string option;
+  pull_request_author_image_url: uri option;
   pull_request_id: string option;
   pull_request_title: string option;
   scan_environment: string;
@@ -464,8 +464,8 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   findings: finding list;
   ignores: finding list;
   token: string option;
-  searched_paths: string list;
-  renamed_paths: string list;
+  searched_paths: fpath list;
+  renamed_paths: fpath list;
   rule_ids: rule_id list;
   contributions: contributions option;
   dependencies: ci_scan_dependencies option

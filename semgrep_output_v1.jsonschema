@@ -679,19 +679,19 @@
       "properties": {
         "semgrep_version": { "$ref": "#/definitions/version" },
         "repository": { "type": "string" },
-        "repo_url": { "type": [ "string", "null" ] },
+        "repo_url": { "$ref": "#/definitions/uri" },
         "branch": { "type": [ "string", "null" ] },
-        "ci_job_url": { "type": [ "string", "null" ] },
+        "ci_job_url": { "$ref": "#/definitions/uri" },
         "commit": { "type": [ "string", "null" ] },
         "commit_author_email": { "type": [ "string", "null" ] },
         "commit_author_name": { "type": [ "string", "null" ] },
         "commit_author_username": { "type": [ "string", "null" ] },
-        "commit_author_image_url": { "type": [ "string", "null" ] },
+        "commit_author_image_url": { "$ref": "#/definitions/uri" },
         "commit_title": { "type": [ "string", "null" ] },
         "commit_timestamp": { "type": "string" },
         "on": { "type": "string" },
         "pull_request_author_username": { "type": [ "string", "null" ] },
-        "pull_request_author_image_url": { "type": [ "string", "null" ] },
+        "pull_request_author_image_url": { "$ref": "#/definitions/uri" },
         "pull_request_id": { "type": [ "string", "null" ] },
         "pull_request_title": { "type": [ "string", "null" ] },
         "scan_environment": { "type": "string" },
@@ -811,8 +811,14 @@
           "items": { "$ref": "#/definitions/finding" }
         },
         "token": { "type": [ "string", "null" ] },
-        "searched_paths": { "type": "array", "items": { "type": "string" } },
-        "renamed_paths": { "type": "array", "items": { "type": "string" } },
+        "searched_paths": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/fpath" }
+        },
+        "renamed_paths": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/fpath" }
+        },
         "rule_ids": {
           "type": "array",
           "items": { "$ref": "#/definitions/rule_id" }

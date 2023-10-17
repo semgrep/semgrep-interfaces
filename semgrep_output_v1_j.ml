@@ -166,19 +166,19 @@ type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
 type project_metadata = Semgrep_output_v1_t.project_metadata = {
   semgrep_version: version;
   repository: string;
-  repo_url: string option;
+  repo_url: uri option;
   branch: string option;
-  ci_job_url: string option;
+  ci_job_url: uri option;
   commit: string option;
   commit_author_email: string option;
   commit_author_name: string option;
   commit_author_username: string option;
-  commit_author_image_url: string option;
+  commit_author_image_url: uri option;
   commit_title: string option;
   commit_timestamp: string option;
   on: string;
   pull_request_author_username: string option;
-  pull_request_author_image_url: string option;
+  pull_request_author_image_url: uri option;
   pull_request_id: string option;
   pull_request_title: string option;
   scan_environment: string;
@@ -464,8 +464,8 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   findings: finding list;
   ignores: finding list;
   token: string option;
-  searched_paths: string list;
-  renamed_paths: string list;
+  searched_paths: fpath list;
+  renamed_paths: fpath list;
   rule_ids: rule_id list;
   contributions: contributions option;
   dependencies: ci_scan_dependencies option
@@ -547,6 +547,18 @@ let read__string_option = (
 )
 let _string_option_of_string s =
   read__string_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__string_wrap = (
+  Yojson.Safe.write_string
+)
+let string_of__string_wrap ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__string_wrap ob x;
+  Buffer.contents ob
+let read__string_wrap = (
+  Atdgen_runtime.Oj_run.read_string
+)
+let _string_wrap_of_string s =
+  read__string_wrap (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_engine_kind = (
   fun ob x ->
     match x with
@@ -592,14 +604,14 @@ let read_engine_kind = (
 let engine_kind_of_string s =
   read_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_fpath = (
-  Yojson.Safe.write_string
+  write__string_wrap
 )
 let string_of_fpath ?(len = 1024) x =
   let ob = Buffer.create len in
   write_fpath ob x;
   Buffer.contents ob
 let read_fpath = (
-  Atdgen_runtime.Oj_run.read_string
+  read__string_wrap
 )
 let fpath_of_string s =
   read_fpath (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
@@ -726,7 +738,7 @@ let read__match_severity_option = (
 let _match_severity_option_of_string s =
   read__match_severity_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_matching_operation : _ -> matching_operation -> _ = (
-  fun ob x ->
+  fun ob (x : matching_operation) ->
     match x with
       | And -> Buffer.add_string ob "\"And\""
       | Or -> Buffer.add_string ob "\"Or\""
@@ -2303,7 +2315,7 @@ let read__validation_state_option = (
 let _validation_state_option_of_string s =
   read__validation_state_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let rec write_match_call_trace : _ -> match_call_trace -> _ = (
-  fun ob x ->
+  fun ob (x : match_call_trace) ->
     match x with
       | CliLoc x ->
         Buffer.add_string ob "[\"CliLoc\",";
@@ -4166,15 +4178,34 @@ let read_uuid = (
 )
 let uuid_of_string s =
   read_uuid (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_71ae52d = (
+  fun ob x -> (
+    let x = ( ATDStringWrap.Uri.unwrap ) x in (
+      Yojson.Safe.write_string
+    ) ob x)
+)
+let string_of__x_71ae52d ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__x_71ae52d ob x;
+  Buffer.contents ob
+let read__x_71ae52d = (
+  fun p lb ->
+    let x = (
+      Atdgen_runtime.Oj_run.read_string
+    ) p lb in
+    ( ATDStringWrap.Uri.wrap ) x
+)
+let _x_71ae52d_of_string s =
+  read__x_71ae52d (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_uri = (
-  Yojson.Safe.write_string
+  write__x_71ae52d
 )
 let string_of_uri ?(len = 1024) x =
   let ob = Buffer.create len in
   write_uri ob x;
   Buffer.contents ob
 let read_uri = (
-  Atdgen_runtime.Oj_run.read_string
+  read__x_71ae52d
 )
 let uri_of_string s =
   read_uri (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
@@ -4540,7 +4571,7 @@ let read_target_times = (
 let target_times_of_string s =
   read_target_times (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_skip_reason : _ -> skip_reason -> _ = (
-  fun ob x ->
+  fun ob (x : skip_reason) ->
     match x with
       | Always_skipped -> Buffer.add_string ob "\"always_skipped\""
       | Semgrepignore_patterns_match -> Buffer.add_string ob "\"semgrepignore_patterns_match\""
@@ -5742,6 +5773,25 @@ let read_scan_metadata = (
 )
 let scan_metadata_of_string s =
   read_scan_metadata (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__uri_nullable = (
+  Atdgen_runtime.Oj_run.write_nullable (
+    write_uri
+  )
+)
+let string_of__uri_nullable ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__uri_nullable ob x;
+  Buffer.contents ob
+let read__uri_nullable = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    (if Yojson.Safe.read_null_if_possible p lb then None
+    else Some ((
+      read_uri
+    ) p lb) : _ option)
+)
+let _uri_nullable_of_string s =
+  read__uri_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__string_nullable = (
   Atdgen_runtime.Oj_run.write_nullable (
     Yojson.Safe.write_string
@@ -5846,7 +5896,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"repo_url\":";
     (
-      write__string_nullable
+      write__uri_nullable
     )
       ob x.repo_url;
     if !is_first then
@@ -5864,7 +5914,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"ci_job_url\":";
     (
-      write__string_nullable
+      write__uri_nullable
     )
       ob x.ci_job_url;
     if !is_first then
@@ -5909,7 +5959,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit_author_image_url\":";
     (
-      write__string_nullable
+      write__uri_nullable
     )
       ob x.commit_author_image_url;
     if !is_first then
@@ -5956,7 +6006,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"pull_request_author_image_url\":";
     (
-      write__string_nullable
+      write__uri_nullable
     )
       ob x.pull_request_author_image_url;
     if !is_first then
@@ -6366,7 +6416,7 @@ let read_project_metadata = (
             field_repo_url := (
               Some (
                 (
-                  read__string_nullable
+                  read__uri_nullable
                 ) p lb
               )
             );
@@ -6382,7 +6432,7 @@ let read_project_metadata = (
             field_ci_job_url := (
               Some (
                 (
-                  read__string_nullable
+                  read__uri_nullable
                 ) p lb
               )
             );
@@ -6422,7 +6472,7 @@ let read_project_metadata = (
             field_commit_author_image_url := (
               Some (
                 (
-                  read__string_nullable
+                  read__uri_nullable
                 ) p lb
               )
             );
@@ -6464,7 +6514,7 @@ let read_project_metadata = (
             field_pull_request_author_image_url := (
               Some (
                 (
-                  read__string_nullable
+                  read__uri_nullable
                 ) p lb
               )
             );
@@ -6836,7 +6886,7 @@ let read_project_metadata = (
               field_repo_url := (
                 Some (
                   (
-                    read__string_nullable
+                    read__uri_nullable
                   ) p lb
                 )
               );
@@ -6852,7 +6902,7 @@ let read_project_metadata = (
               field_ci_job_url := (
                 Some (
                   (
-                    read__string_nullable
+                    read__uri_nullable
                   ) p lb
                 )
               );
@@ -6892,7 +6942,7 @@ let read_project_metadata = (
               field_commit_author_image_url := (
                 Some (
                   (
-                    read__string_nullable
+                    read__uri_nullable
                   ) p lb
                 )
               );
@@ -6934,7 +6984,7 @@ let read_project_metadata = (
               field_pull_request_author_image_url := (
                 Some (
                   (
-                    read__string_nullable
+                    read__uri_nullable
                   ) p lb
                 )
               );
@@ -12456,7 +12506,7 @@ let read__location_list = (
 let _location_list_of_string s =
   read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_error_type : _ -> error_type -> _ = (
-  fun ob x ->
+  fun ob (x : error_type) ->
     match x with
       | LexicalError -> Buffer.add_string ob "\"Lexical error\""
       | ParseError -> Buffer.add_string ob "\"Syntax error\""
@@ -18396,7 +18446,7 @@ let write_ci_scan_results : _ -> ci_scan_results -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"searched_paths\":";
     (
-      write__string_list
+      write__fpath_list
     )
       ob x.searched_paths;
     if !is_first then
@@ -18405,7 +18455,7 @@ let write_ci_scan_results : _ -> ci_scan_results -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"renamed_paths\":";
     (
-      write__string_list
+      write__fpath_list
     )
       ob x.renamed_paths;
     if !is_first then
@@ -18578,7 +18628,7 @@ let read_ci_scan_results = (
             field_searched_paths := (
               Some (
                 (
-                  read__string_list
+                  read__fpath_list
                 ) p lb
               )
             );
@@ -18586,7 +18636,7 @@ let read_ci_scan_results = (
             field_renamed_paths := (
               Some (
                 (
-                  read__string_list
+                  read__fpath_list
                 ) p lb
               )
             );
@@ -18743,7 +18793,7 @@ let read_ci_scan_results = (
               field_searched_paths := (
                 Some (
                   (
-                    read__string_list
+                    read__fpath_list
                   ) p lb
                 )
               );
@@ -18751,7 +18801,7 @@ let read_ci_scan_results = (
               field_renamed_paths := (
                 Some (
                   (
-                    read__string_list
+                    read__fpath_list
                   ) p lb
                 )
               );
