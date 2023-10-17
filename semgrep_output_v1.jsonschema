@@ -265,15 +265,6 @@
         { "const": "SemgrepError" },
         { "const": "InvalidRuleSchemaError" },
         { "const": "UnknownLanguageError" },
-        {
-          "type": "array",
-          "minItems": 2,
-          "items": false,
-          "prefixItems": [
-            { "const": "Pattern parse error" },
-            { "type": "array", "items": { "type": "string" } }
-          ]
-        },
         { "const": "Invalid YAML" },
         { "const": "Internal matching error" },
         { "const": "Semgrep match found" },
@@ -283,6 +274,16 @@
         { "const": "Out of memory" },
         { "const": "Timeout during interfile analysis" },
         { "const": "OOM during interfile analysis" },
+        { "const": "Missing plugin" },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "PatternParseError" },
+            { "type": "array", "items": { "type": "string" } }
+          ]
+        },
         {
           "type": "array",
           "minItems": 2,
@@ -304,7 +305,8 @@
             { "$ref": "#/definitions/incompatible_rule" }
           ]
         },
-        { "const": "Missing plugin" }
+        { "const": "Pattern parse error" },
+        { "const": "Incompatible rule" }
       ]
     },
     "incompatible_rule": {

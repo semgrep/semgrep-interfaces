@@ -322,7 +322,6 @@ type error_type = Semgrep_output_v1_t.error_type =
   | SemgrepError
   | InvalidRuleSchemaError
   | UnknownLanguageError
-  | PatternParseError of string list
   | InvalidYaml
   | MatchingError
   | SemgrepMatchFound
@@ -332,9 +331,12 @@ type error_type = Semgrep_output_v1_t.error_type =
   | OutOfMemory
   | TimeoutDuringInterfile
   | OutOfMemoryDuringInterfile
+  | MissingPlugin
+  | PatternParseError of string list
   | PartialParsing of location list
   | IncompatibleRule of incompatible_rule
-  | MissingPlugin
+  | PatternParseError0
+  | IncompatibleRule0
 
   [@@deriving show]
 
