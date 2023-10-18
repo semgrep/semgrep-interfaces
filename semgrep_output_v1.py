@@ -2084,18 +2084,18 @@ class ProjectMetadata:
 
     semgrep_version: Version
     repository: str
-    repo_url: Optional[str]
+    repo_url: Optional[Uri]
     branch: Optional[str]
-    ci_job_url: Optional[str]
+    ci_job_url: Optional[Uri]
     commit: Optional[str]
     commit_author_email: Optional[str]
     commit_author_name: Optional[str]
     commit_author_username: Optional[str]
-    commit_author_image_url: Optional[str]
+    commit_author_image_url: Optional[Uri]
     commit_title: Optional[str]
     on: str
     pull_request_author_username: Optional[str]
-    pull_request_author_image_url: Optional[str]
+    pull_request_author_image_url: Optional[Uri]
     pull_request_id: Optional[str]
     pull_request_title: Optional[str]
     scan_environment: str
@@ -2113,18 +2113,18 @@ class ProjectMetadata:
             return cls(
                 semgrep_version=Version.from_json(x['semgrep_version']) if 'semgrep_version' in x else _atd_missing_json_field('ProjectMetadata', 'semgrep_version'),
                 repository=_atd_read_string(x['repository']) if 'repository' in x else _atd_missing_json_field('ProjectMetadata', 'repository'),
-                repo_url=_atd_read_nullable(_atd_read_string)(x['repo_url']) if 'repo_url' in x else _atd_missing_json_field('ProjectMetadata', 'repo_url'),
+                repo_url=_atd_read_nullable(Uri.from_json)(x['repo_url']) if 'repo_url' in x else _atd_missing_json_field('ProjectMetadata', 'repo_url'),
                 branch=_atd_read_nullable(_atd_read_string)(x['branch']) if 'branch' in x else _atd_missing_json_field('ProjectMetadata', 'branch'),
-                ci_job_url=_atd_read_nullable(_atd_read_string)(x['ci_job_url']) if 'ci_job_url' in x else _atd_missing_json_field('ProjectMetadata', 'ci_job_url'),
+                ci_job_url=_atd_read_nullable(Uri.from_json)(x['ci_job_url']) if 'ci_job_url' in x else _atd_missing_json_field('ProjectMetadata', 'ci_job_url'),
                 commit=_atd_read_nullable(_atd_read_string)(x['commit']) if 'commit' in x else _atd_missing_json_field('ProjectMetadata', 'commit'),
                 commit_author_email=_atd_read_nullable(_atd_read_string)(x['commit_author_email']) if 'commit_author_email' in x else _atd_missing_json_field('ProjectMetadata', 'commit_author_email'),
                 commit_author_name=_atd_read_nullable(_atd_read_string)(x['commit_author_name']) if 'commit_author_name' in x else _atd_missing_json_field('ProjectMetadata', 'commit_author_name'),
                 commit_author_username=_atd_read_nullable(_atd_read_string)(x['commit_author_username']) if 'commit_author_username' in x else _atd_missing_json_field('ProjectMetadata', 'commit_author_username'),
-                commit_author_image_url=_atd_read_nullable(_atd_read_string)(x['commit_author_image_url']) if 'commit_author_image_url' in x else _atd_missing_json_field('ProjectMetadata', 'commit_author_image_url'),
+                commit_author_image_url=_atd_read_nullable(Uri.from_json)(x['commit_author_image_url']) if 'commit_author_image_url' in x else _atd_missing_json_field('ProjectMetadata', 'commit_author_image_url'),
                 commit_title=_atd_read_nullable(_atd_read_string)(x['commit_title']) if 'commit_title' in x else _atd_missing_json_field('ProjectMetadata', 'commit_title'),
                 on=_atd_read_string(x['on']) if 'on' in x else _atd_missing_json_field('ProjectMetadata', 'on'),
                 pull_request_author_username=_atd_read_nullable(_atd_read_string)(x['pull_request_author_username']) if 'pull_request_author_username' in x else _atd_missing_json_field('ProjectMetadata', 'pull_request_author_username'),
-                pull_request_author_image_url=_atd_read_nullable(_atd_read_string)(x['pull_request_author_image_url']) if 'pull_request_author_image_url' in x else _atd_missing_json_field('ProjectMetadata', 'pull_request_author_image_url'),
+                pull_request_author_image_url=_atd_read_nullable(Uri.from_json)(x['pull_request_author_image_url']) if 'pull_request_author_image_url' in x else _atd_missing_json_field('ProjectMetadata', 'pull_request_author_image_url'),
                 pull_request_id=_atd_read_nullable(_atd_read_string)(x['pull_request_id']) if 'pull_request_id' in x else _atd_missing_json_field('ProjectMetadata', 'pull_request_id'),
                 pull_request_title=_atd_read_nullable(_atd_read_string)(x['pull_request_title']) if 'pull_request_title' in x else _atd_missing_json_field('ProjectMetadata', 'pull_request_title'),
                 scan_environment=_atd_read_string(x['scan_environment']) if 'scan_environment' in x else _atd_missing_json_field('ProjectMetadata', 'scan_environment'),
@@ -2143,18 +2143,18 @@ class ProjectMetadata:
         res: Dict[str, Any] = {}
         res['semgrep_version'] = (lambda x: x.to_json())(self.semgrep_version)
         res['repository'] = _atd_write_string(self.repository)
-        res['repo_url'] = _atd_write_nullable(_atd_write_string)(self.repo_url)
+        res['repo_url'] = _atd_write_nullable((lambda x: x.to_json()))(self.repo_url)
         res['branch'] = _atd_write_nullable(_atd_write_string)(self.branch)
-        res['ci_job_url'] = _atd_write_nullable(_atd_write_string)(self.ci_job_url)
+        res['ci_job_url'] = _atd_write_nullable((lambda x: x.to_json()))(self.ci_job_url)
         res['commit'] = _atd_write_nullable(_atd_write_string)(self.commit)
         res['commit_author_email'] = _atd_write_nullable(_atd_write_string)(self.commit_author_email)
         res['commit_author_name'] = _atd_write_nullable(_atd_write_string)(self.commit_author_name)
         res['commit_author_username'] = _atd_write_nullable(_atd_write_string)(self.commit_author_username)
-        res['commit_author_image_url'] = _atd_write_nullable(_atd_write_string)(self.commit_author_image_url)
+        res['commit_author_image_url'] = _atd_write_nullable((lambda x: x.to_json()))(self.commit_author_image_url)
         res['commit_title'] = _atd_write_nullable(_atd_write_string)(self.commit_title)
         res['on'] = _atd_write_string(self.on)
         res['pull_request_author_username'] = _atd_write_nullable(_atd_write_string)(self.pull_request_author_username)
-        res['pull_request_author_image_url'] = _atd_write_nullable(_atd_write_string)(self.pull_request_author_image_url)
+        res['pull_request_author_image_url'] = _atd_write_nullable((lambda x: x.to_json()))(self.pull_request_author_image_url)
         res['pull_request_id'] = _atd_write_nullable(_atd_write_string)(self.pull_request_id)
         res['pull_request_title'] = _atd_write_nullable(_atd_write_string)(self.pull_request_title)
         res['scan_environment'] = _atd_write_string(self.scan_environment)
@@ -4485,8 +4485,8 @@ class CiScanResults:
     findings: List[Finding]
     ignores: List[Finding]
     token: Optional[str]
-    searched_paths: List[str]
-    renamed_paths: List[str]
+    searched_paths: List[Fpath]
+    renamed_paths: List[Fpath]
     rule_ids: List[RuleId]
     contributions: Optional[Contributions] = None
     dependencies: Optional[CiScanDependencies] = None
@@ -4498,8 +4498,8 @@ class CiScanResults:
                 findings=_atd_read_list(Finding.from_json)(x['findings']) if 'findings' in x else _atd_missing_json_field('CiScanResults', 'findings'),
                 ignores=_atd_read_list(Finding.from_json)(x['ignores']) if 'ignores' in x else _atd_missing_json_field('CiScanResults', 'ignores'),
                 token=_atd_read_nullable(_atd_read_string)(x['token']) if 'token' in x else _atd_missing_json_field('CiScanResults', 'token'),
-                searched_paths=_atd_read_list(_atd_read_string)(x['searched_paths']) if 'searched_paths' in x else _atd_missing_json_field('CiScanResults', 'searched_paths'),
-                renamed_paths=_atd_read_list(_atd_read_string)(x['renamed_paths']) if 'renamed_paths' in x else _atd_missing_json_field('CiScanResults', 'renamed_paths'),
+                searched_paths=_atd_read_list(Fpath.from_json)(x['searched_paths']) if 'searched_paths' in x else _atd_missing_json_field('CiScanResults', 'searched_paths'),
+                renamed_paths=_atd_read_list(Fpath.from_json)(x['renamed_paths']) if 'renamed_paths' in x else _atd_missing_json_field('CiScanResults', 'renamed_paths'),
                 rule_ids=_atd_read_list(RuleId.from_json)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('CiScanResults', 'rule_ids'),
                 contributions=Contributions.from_json(x['contributions']) if 'contributions' in x else None,
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
@@ -4512,8 +4512,8 @@ class CiScanResults:
         res['findings'] = _atd_write_list((lambda x: x.to_json()))(self.findings)
         res['ignores'] = _atd_write_list((lambda x: x.to_json()))(self.ignores)
         res['token'] = _atd_write_nullable(_atd_write_string)(self.token)
-        res['searched_paths'] = _atd_write_list(_atd_write_string)(self.searched_paths)
-        res['renamed_paths'] = _atd_write_list(_atd_write_string)(self.renamed_paths)
+        res['searched_paths'] = _atd_write_list((lambda x: x.to_json()))(self.searched_paths)
+        res['renamed_paths'] = _atd_write_list((lambda x: x.to_json()))(self.renamed_paths)
         res['rule_ids'] = _atd_write_list((lambda x: x.to_json()))(self.rule_ids)
         if self.contributions is not None:
             res['contributions'] = (lambda x: x.to_json())(self.contributions)
