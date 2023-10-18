@@ -547,18 +547,25 @@ let read__string_option = (
 )
 let _string_option_of_string s =
   read__string_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__string_wrap = (
-  Yojson.Safe.write_string
+let write__x_b7c1b6a = (
+  fun ob x -> (
+    let x = ( ATDStringWrap.Fpath.unwrap ) x in (
+      Yojson.Safe.write_string
+    ) ob x)
 )
-let string_of__string_wrap ?(len = 1024) x =
+let string_of__x_b7c1b6a ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__string_wrap ob x;
+  write__x_b7c1b6a ob x;
   Buffer.contents ob
-let read__string_wrap = (
-  Atdgen_runtime.Oj_run.read_string
+let read__x_b7c1b6a = (
+  fun p lb ->
+    let x = (
+      Atdgen_runtime.Oj_run.read_string
+    ) p lb in
+    ( ATDStringWrap.Fpath.wrap ) x
 )
-let _string_wrap_of_string s =
-  read__string_wrap (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _x_b7c1b6a_of_string s =
+  read__x_b7c1b6a (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_engine_kind = (
   fun ob x ->
     match x with
@@ -604,14 +611,14 @@ let read_engine_kind = (
 let engine_kind_of_string s =
   read_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_fpath = (
-  write__string_wrap
+  write__x_b7c1b6a
 )
 let string_of_fpath ?(len = 1024) x =
   let ob = Buffer.create len in
   write_fpath ob x;
   Buffer.contents ob
 let read_fpath = (
-  read__string_wrap
+  read__x_b7c1b6a
 )
 let fpath_of_string s =
   read_fpath (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
