@@ -13,9 +13,7 @@
  * version of this JSON format. If you need to extend this file, please
  * be careful because you may break consumers of this format (e.g., the
  * Semgrep playground or Semgrep backend or external users of this JSON).
- * See
- *    https://atd.readthedocs.io/en/latest/atdgen-tutorial.html#smooth-protocol-upgrades
- *
+ * See https://atd.readthedocs.io/en/latest/atdgen-tutorial.html#smooth-protocol-upgrades
  * for more information on how to smoothly extend the types in this file.
  *
  * Any backward incompatible changes should require to upgrade the major
@@ -106,7 +104,8 @@ type position
 }
 
 (* File path. less: could convert directly to Path class of pathlib library for Python *)
-type fpath <ocaml attr="deriving show"> = string wrap <ocaml module="ATDStringWrap.Fpath">
+type fpath <ocaml attr="deriving show"> =
+  string wrap <ocaml module="ATDStringWrap.Fpath">
 
 (* a.k.a range *)
 type location
@@ -123,8 +122,9 @@ type location
 
 (* e.g., "javascript.security.do-not-use-eval" *)
 type rule_id
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = string
+     <ocaml attr="deriving show">
+     <python decorator="dataclass(frozen=True)"> =
+  string wrap <ocaml module="ATDStringWrap.Ruleid">
 
 (*
    Error = something wrong that must be fixed
