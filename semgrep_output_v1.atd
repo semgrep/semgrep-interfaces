@@ -105,10 +105,8 @@ type position
   ~offset: int;
 }
 
-(* File path. less: could convert directly to Path class of pathlib library for Python
- * TODO: <ocaml module="ATDStringWrap.Fpath">
- *)
-type fpath <ocaml attr="deriving show"> = string wrap
+(* File path. less: could convert directly to Path class of pathlib library for Python *)
+type fpath <ocaml attr="deriving show"> = string wrap <ocaml module="ATDStringWrap.Fpath">
 
 (* a.k.a range *)
 type location
