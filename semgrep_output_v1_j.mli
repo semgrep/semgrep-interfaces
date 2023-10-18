@@ -159,7 +159,7 @@ type product = Semgrep_output_v1_t.product [@@deriving show]
 
 type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
   cli_version: version;
-  unique_id: string;
+  unique_id: uuid;
   requested_products: product list
 }
 
@@ -169,7 +169,7 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   repo_url: uri option;
   branch: string option;
   ci_job_url: uri option;
-  commit: string option;
+  commit: sha1 option;
   commit_author_email: string option;
   commit_author_name: string option;
   commit_author_username: string option;
@@ -182,8 +182,8 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   pull_request_id: string option;
   pull_request_title: string option;
   scan_environment: string;
-  base_sha: string option;
-  start_sha: string option;
+  base_sha: sha1 option;
+  start_sha: sha1 option;
   is_full_scan: bool;
   is_sca_scan: bool option;
   is_code_scan: bool option;

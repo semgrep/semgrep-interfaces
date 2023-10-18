@@ -682,7 +682,7 @@
         "repo_url": { "$ref": "#/definitions/uri" },
         "branch": { "type": [ "string", "null" ] },
         "ci_job_url": { "$ref": "#/definitions/uri" },
-        "commit": { "type": [ "string", "null" ] },
+        "commit": { "$ref": "#/definitions/sha1" },
         "commit_author_email": { "type": [ "string", "null" ] },
         "commit_author_name": { "type": [ "string", "null" ] },
         "commit_author_username": { "type": [ "string", "null" ] },
@@ -695,8 +695,8 @@
         "pull_request_id": { "type": [ "string", "null" ] },
         "pull_request_title": { "type": [ "string", "null" ] },
         "scan_environment": { "type": "string" },
-        "base_sha": { "type": "string" },
-        "start_sha": { "type": "string" },
+        "base_sha": { "$ref": "#/definitions/sha1" },
+        "start_sha": { "$ref": "#/definitions/sha1" },
         "is_full_scan": { "type": "boolean" },
         "is_sca_scan": { "type": "boolean" },
         "is_code_scan": { "type": "boolean" },
@@ -708,7 +708,7 @@
       "required": [ "cli_version", "unique_id", "requested_products" ],
       "properties": {
         "cli_version": { "$ref": "#/definitions/version" },
-        "unique_id": { "type": "string" },
+        "unique_id": { "$ref": "#/definitions/uuid" },
         "requested_products": {
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
