@@ -74,11 +74,9 @@ type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
 
 type uri = string wrap <ocaml module="ATDStringWrap.Uri">
 
-(* TODO: could convert to Digestif.SHA1.t for OCaml, using 'string wrap' *)
-type sha1 = string
+type sha1 = string wrap <ocaml module="ATDStringWrap.Sha1">
 
-(* TODO: could convert to Uuidm.t for OCaml, using 'string wrap' *)
-type uuid = string
+type uuid = string wrap <ocaml module="ATDStringWrap.Uuidm">
 
 (* TODO: could convert to ?? for OCaml *)
 type datetime = string
@@ -108,8 +106,7 @@ type position
 }
 
 (* File path. less: could convert directly to Path class of pathlib library for Python
- * TODO: <ocaml module="ATDStringWrap.Fpath"> but I get compilation
- * error in semgrep_output_v1_j.ml, weird! Bug in atdgen?
+ * TODO: <ocaml module="ATDStringWrap.Fpath">
  *)
 type fpath <ocaml attr="deriving show"> = string wrap
 
@@ -917,7 +914,7 @@ type project_metadata = {
     (* ?? *)
     ci_job_url: uri nullable;
 
-    commit: (*sha1*) string nullable;
+    commit: sha1 nullable;
 
     (* TODO? inherit contributor instead? *)
     (* TODO? Emile.mailbox in OCaml *)
@@ -946,8 +943,8 @@ type project_metadata = {
     scan_environment: string;
 
     (* Gitlab only *)
-    ?base_sha: (*sha1*) string option;
-    ?start_sha: (*sha1*) string option;
+    ?base_sha: sha1 option;
+    ?start_sha: sha1 option;
 
     (* Check if the current Git repository has enough to determine the
      * merge_base_ref.
@@ -966,7 +963,7 @@ type project_metadata = {
 
 type scan_metadata = {
   cli_version: version;
-  unique_id: (* uuid *) string; (* client generated uuid for the scan *)
+  unique_id: uuid; (* client generated uuid for the scan *)
   requested_products: product list;
   }
 

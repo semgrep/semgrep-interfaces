@@ -159,7 +159,7 @@ type product = Semgrep_output_v1_t.product [@@deriving show]
 
 type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
   cli_version: version;
-  unique_id: string;
+  unique_id: uuid;
   requested_products: product list
 }
 
@@ -169,7 +169,7 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   repo_url: uri option;
   branch: string option;
   ci_job_url: uri option;
-  commit: string option;
+  commit: sha1 option;
   commit_author_email: string option;
   commit_author_name: string option;
   commit_author_username: string option;
@@ -182,8 +182,8 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   pull_request_id: string option;
   pull_request_title: string option;
   scan_environment: string;
-  base_sha: string option;
-  start_sha: string option;
+  base_sha: sha1 option;
+  start_sha: sha1 option;
   is_full_scan: bool;
   is_sca_scan: bool option;
   is_code_scan: bool option;
@@ -4166,15 +4166,34 @@ let read_version = (
 )
 let version_of_string s =
   read_version (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_3606e07 = (
+  fun ob x -> (
+    let x = ( ATDStringWrap.Uuidm.unwrap ) x in (
+      Yojson.Safe.write_string
+    ) ob x)
+)
+let string_of__x_3606e07 ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__x_3606e07 ob x;
+  Buffer.contents ob
+let read__x_3606e07 = (
+  fun p lb ->
+    let x = (
+      Atdgen_runtime.Oj_run.read_string
+    ) p lb in
+    ( ATDStringWrap.Uuidm.wrap ) x
+)
+let _x_3606e07_of_string s =
+  read__x_3606e07 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_uuid = (
-  Yojson.Safe.write_string
+  write__x_3606e07
 )
 let string_of_uuid ?(len = 1024) x =
   let ob = Buffer.create len in
   write_uuid ob x;
   Buffer.contents ob
 let read_uuid = (
-  Atdgen_runtime.Oj_run.read_string
+  read__x_3606e07
 )
 let uuid_of_string s =
   read_uuid (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
@@ -5240,15 +5259,34 @@ let read_skipped_rule = (
 )
 let skipped_rule_of_string s =
   read_skipped_rule (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_7b58b4a = (
+  fun ob x -> (
+    let x = ( ATDStringWrap.Sha1.unwrap ) x in (
+      Yojson.Safe.write_string
+    ) ob x)
+)
+let string_of__x_7b58b4a ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__x_7b58b4a ob x;
+  Buffer.contents ob
+let read__x_7b58b4a = (
+  fun p lb ->
+    let x = (
+      Atdgen_runtime.Oj_run.read_string
+    ) p lb in
+    ( ATDStringWrap.Sha1.wrap ) x
+)
+let _x_7b58b4a_of_string s =
+  read__x_7b58b4a (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_sha1 = (
-  Yojson.Safe.write_string
+  write__x_7b58b4a
 )
 let string_of_sha1 ?(len = 1024) x =
   let ob = Buffer.create len in
   write_sha1 ob x;
   Buffer.contents ob
 let read_sha1 = (
-  Atdgen_runtime.Oj_run.read_string
+  read__x_7b58b4a
 )
 let sha1_of_string s =
   read_sha1 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
@@ -5596,7 +5634,7 @@ let write_scan_metadata : _ -> scan_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"unique_id\":";
     (
-      Yojson.Safe.write_string
+      write_uuid
     )
       ob x.unique_id;
     if !is_first then
@@ -5674,7 +5712,7 @@ let read_scan_metadata = (
             field_unique_id := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_uuid
                 ) p lb
               )
             );
@@ -5743,7 +5781,7 @@ let read_scan_metadata = (
               field_unique_id := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_uuid
                   ) p lb
                 )
               );
@@ -5811,6 +5849,82 @@ let read__string_nullable = (
 )
 let _string_nullable_of_string s =
   read__string_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__sha1_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_sha1
+  )
+)
+let string_of__sha1_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__sha1_option ob x;
+  Buffer.contents ob
+let read__sha1_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_sha1
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_sha1
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _sha1_option_of_string s =
+  read__sha1_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__sha1_nullable = (
+  Atdgen_runtime.Oj_run.write_nullable (
+    write_sha1
+  )
+)
+let string_of__sha1_nullable ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__sha1_nullable ob x;
+  Buffer.contents ob
+let read__sha1_nullable = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    (if Yojson.Safe.read_null_if_possible p lb then None
+    else Some ((
+      read_sha1
+    ) p lb) : _ option)
+)
+let _sha1_nullable_of_string s =
+  read__sha1_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__bool_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     Yojson.Safe.write_bool
@@ -5923,7 +6037,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit\":";
     (
-      write__string_nullable
+      write__sha1_nullable
     )
       ob x.commit;
     if !is_first then
@@ -6043,7 +6157,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"base_sha\":";
       (
-        Yojson.Safe.write_string
+        write_sha1
       )
         ob x;
     );
@@ -6054,7 +6168,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"start_sha\":";
       (
-        Yojson.Safe.write_string
+        write_sha1
       )
         ob x;
     );
@@ -6440,7 +6554,7 @@ let read_project_metadata = (
             field_commit := (
               Some (
                 (
-                  read__string_nullable
+                  read__sha1_nullable
                 ) p lb
               )
             );
@@ -6547,7 +6661,7 @@ let read_project_metadata = (
               field_base_sha := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_sha1
                   ) p lb
                 )
               );
@@ -6557,7 +6671,7 @@ let read_project_metadata = (
               field_start_sha := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_sha1
                   ) p lb
                 )
               );
@@ -6910,7 +7024,7 @@ let read_project_metadata = (
               field_commit := (
                 Some (
                   (
-                    read__string_nullable
+                    read__sha1_nullable
                   ) p lb
                 )
               );
@@ -7017,7 +7131,7 @@ let read_project_metadata = (
                 field_base_sha := (
                   Some (
                     (
-                      Atdgen_runtime.Oj_run.read_string
+                      read_sha1
                     ) p lb
                   )
                 );
@@ -7027,7 +7141,7 @@ let read_project_metadata = (
                 field_start_sha := (
                   Some (
                     (
-                      Atdgen_runtime.Oj_run.read_string
+                      read_sha1
                     ) p lb
                   )
                 );
