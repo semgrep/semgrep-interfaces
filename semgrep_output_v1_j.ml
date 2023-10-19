@@ -159,31 +159,31 @@ type product = Semgrep_output_v1_t.product [@@deriving show]
 
 type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
   cli_version: version;
-  unique_id: string;
+  unique_id: uuid;
   requested_products: product list
 }
 
 type project_metadata = Semgrep_output_v1_t.project_metadata = {
   semgrep_version: version;
   repository: string;
-  repo_url: string option;
+  repo_url: uri option;
   branch: string option;
-  ci_job_url: string option;
-  commit: string option;
+  ci_job_url: uri option;
+  commit: sha1 option;
   commit_author_email: string option;
   commit_author_name: string option;
   commit_author_username: string option;
-  commit_author_image_url: string option;
+  commit_author_image_url: uri option;
   commit_title: string option;
   commit_timestamp: string option;
   on: string;
   pull_request_author_username: string option;
-  pull_request_author_image_url: string option;
+  pull_request_author_image_url: uri option;
   pull_request_id: string option;
   pull_request_title: string option;
   scan_environment: string;
-  base_sha: string option;
-  start_sha: string option;
+  base_sha: sha1 option;
+  start_sha: sha1 option;
   is_full_scan: bool;
   is_sca_scan: bool option;
   is_code_scan: bool option;
@@ -466,8 +466,8 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   findings: finding list;
   ignores: finding list;
   token: string option;
-  searched_paths: string list;
-  renamed_paths: string list;
+  searched_paths: fpath list;
+  renamed_paths: fpath list;
   rule_ids: rule_id list;
   contributions: contributions option;
   dependencies: ci_scan_dependencies option
@@ -549,6 +549,44 @@ let read__string_option = (
 )
 let _string_option_of_string s =
   read__string_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_b7c1b6a = (
+  fun ob x -> (
+    let x = ( ATDStringWrap.Fpath.unwrap ) x in (
+      Yojson.Safe.write_string
+    ) ob x)
+)
+let string_of__x_b7c1b6a ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__x_b7c1b6a ob x;
+  Buffer.contents ob
+let read__x_b7c1b6a = (
+  fun p lb ->
+    let x = (
+      Atdgen_runtime.Oj_run.read_string
+    ) p lb in
+    ( ATDStringWrap.Fpath.wrap ) x
+)
+let _x_b7c1b6a_of_string s =
+  read__x_b7c1b6a (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_ba914e0 = (
+  fun ob x -> (
+    let x = ( ATDStringWrap.Ruleid.unwrap ) x in (
+      Yojson.Safe.write_string
+    ) ob x)
+)
+let string_of__x_ba914e0 ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__x_ba914e0 ob x;
+  Buffer.contents ob
+let read__x_ba914e0 = (
+  fun p lb ->
+    let x = (
+      Atdgen_runtime.Oj_run.read_string
+    ) p lb in
+    ( ATDStringWrap.Ruleid.wrap ) x
+)
+let _x_ba914e0_of_string s =
+  read__x_ba914e0 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_engine_kind = (
   fun ob x ->
     match x with
@@ -594,14 +632,14 @@ let read_engine_kind = (
 let engine_kind_of_string s =
   read_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_fpath = (
-  Yojson.Safe.write_string
+  write__x_b7c1b6a
 )
 let string_of_fpath ?(len = 1024) x =
   let ob = Buffer.create len in
   write_fpath ob x;
   Buffer.contents ob
 let read_fpath = (
-  Atdgen_runtime.Oj_run.read_string
+  read__x_b7c1b6a
 )
 let fpath_of_string s =
   read_fpath (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
@@ -728,7 +766,7 @@ let read__match_severity_option = (
 let _match_severity_option_of_string s =
   read__match_severity_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_matching_operation : _ -> matching_operation -> _ = (
-  fun ob x ->
+  fun ob (x : matching_operation) ->
     match x with
       | And -> Buffer.add_string ob "\"And\""
       | Or -> Buffer.add_string ob "\"Or\""
@@ -1624,14 +1662,14 @@ let read__raw_json_option = (
 let _raw_json_option_of_string s =
   read__raw_json_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_rule_id = (
-  Yojson.Safe.write_string
+  write__x_ba914e0
 )
 let string_of_rule_id ?(len = 1024) x =
   let ob = Buffer.create len in
   write_rule_id ob x;
   Buffer.contents ob
 let read_rule_id = (
-  Atdgen_runtime.Oj_run.read_string
+  read__x_ba914e0
 )
 let rule_id_of_string s =
   read_rule_id (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
@@ -2305,7 +2343,7 @@ let read__validation_state_option = (
 let _validation_state_option_of_string s =
   read__validation_state_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let rec write_match_call_trace : _ -> match_call_trace -> _ = (
-  fun ob x ->
+  fun ob (x : match_call_trace) ->
     match x with
       | CliLoc x ->
         Buffer.add_string ob "[\"CliLoc\",";
@@ -4156,27 +4194,65 @@ let read_version = (
 )
 let version_of_string s =
   read_version (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_3606e07 = (
+  fun ob x -> (
+    let x = ( ATDStringWrap.Uuidm.unwrap ) x in (
+      Yojson.Safe.write_string
+    ) ob x)
+)
+let string_of__x_3606e07 ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__x_3606e07 ob x;
+  Buffer.contents ob
+let read__x_3606e07 = (
+  fun p lb ->
+    let x = (
+      Atdgen_runtime.Oj_run.read_string
+    ) p lb in
+    ( ATDStringWrap.Uuidm.wrap ) x
+)
+let _x_3606e07_of_string s =
+  read__x_3606e07 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_uuid = (
-  Yojson.Safe.write_string
+  write__x_3606e07
 )
 let string_of_uuid ?(len = 1024) x =
   let ob = Buffer.create len in
   write_uuid ob x;
   Buffer.contents ob
 let read_uuid = (
-  Atdgen_runtime.Oj_run.read_string
+  read__x_3606e07
 )
 let uuid_of_string s =
   read_uuid (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_71ae52d = (
+  fun ob x -> (
+    let x = ( ATDStringWrap.Uri.unwrap ) x in (
+      Yojson.Safe.write_string
+    ) ob x)
+)
+let string_of__x_71ae52d ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__x_71ae52d ob x;
+  Buffer.contents ob
+let read__x_71ae52d = (
+  fun p lb ->
+    let x = (
+      Atdgen_runtime.Oj_run.read_string
+    ) p lb in
+    ( ATDStringWrap.Uri.wrap ) x
+)
+let _x_71ae52d_of_string s =
+  read__x_71ae52d (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_uri = (
-  Yojson.Safe.write_string
+  write__x_71ae52d
 )
 let string_of_uri ?(len = 1024) x =
   let ob = Buffer.create len in
   write_uri ob x;
   Buffer.contents ob
 let read_uri = (
-  Atdgen_runtime.Oj_run.read_string
+  read__x_71ae52d
 )
 let uri_of_string s =
   read_uri (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
@@ -4542,7 +4618,7 @@ let read_target_times = (
 let target_times_of_string s =
   read_target_times (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_skip_reason : _ -> skip_reason -> _ = (
-  fun ob x ->
+  fun ob (x : skip_reason) ->
     match x with
       | Always_skipped -> Buffer.add_string ob "\"always_skipped\""
       | Semgrepignore_patterns_match -> Buffer.add_string ob "\"semgrepignore_patterns_match\""
@@ -5211,15 +5287,34 @@ let read_skipped_rule = (
 )
 let skipped_rule_of_string s =
   read_skipped_rule (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_7b58b4a = (
+  fun ob x -> (
+    let x = ( ATDStringWrap.Sha1.unwrap ) x in (
+      Yojson.Safe.write_string
+    ) ob x)
+)
+let string_of__x_7b58b4a ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__x_7b58b4a ob x;
+  Buffer.contents ob
+let read__x_7b58b4a = (
+  fun p lb ->
+    let x = (
+      Atdgen_runtime.Oj_run.read_string
+    ) p lb in
+    ( ATDStringWrap.Sha1.wrap ) x
+)
+let _x_7b58b4a_of_string s =
+  read__x_7b58b4a (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_sha1 = (
-  Yojson.Safe.write_string
+  write__x_7b58b4a
 )
 let string_of_sha1 ?(len = 1024) x =
   let ob = Buffer.create len in
   write_sha1 ob x;
   Buffer.contents ob
 let read_sha1 = (
-  Atdgen_runtime.Oj_run.read_string
+  read__x_7b58b4a
 )
 let sha1_of_string s =
   read_sha1 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
@@ -5567,7 +5662,7 @@ let write_scan_metadata : _ -> scan_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"unique_id\":";
     (
-      Yojson.Safe.write_string
+      write_uuid
     )
       ob x.unique_id;
     if !is_first then
@@ -5645,7 +5740,7 @@ let read_scan_metadata = (
             field_unique_id := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_uuid
                 ) p lb
               )
             );
@@ -5714,7 +5809,7 @@ let read_scan_metadata = (
               field_unique_id := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_uuid
                   ) p lb
                 )
               );
@@ -5744,6 +5839,25 @@ let read_scan_metadata = (
 )
 let scan_metadata_of_string s =
   read_scan_metadata (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__uri_nullable = (
+  Atdgen_runtime.Oj_run.write_nullable (
+    write_uri
+  )
+)
+let string_of__uri_nullable ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__uri_nullable ob x;
+  Buffer.contents ob
+let read__uri_nullable = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    (if Yojson.Safe.read_null_if_possible p lb then None
+    else Some ((
+      read_uri
+    ) p lb) : _ option)
+)
+let _uri_nullable_of_string s =
+  read__uri_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__string_nullable = (
   Atdgen_runtime.Oj_run.write_nullable (
     Yojson.Safe.write_string
@@ -5763,6 +5877,82 @@ let read__string_nullable = (
 )
 let _string_nullable_of_string s =
   read__string_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__sha1_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_sha1
+  )
+)
+let string_of__sha1_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__sha1_option ob x;
+  Buffer.contents ob
+let read__sha1_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_sha1
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_sha1
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _sha1_option_of_string s =
+  read__sha1_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__sha1_nullable = (
+  Atdgen_runtime.Oj_run.write_nullable (
+    write_sha1
+  )
+)
+let string_of__sha1_nullable ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__sha1_nullable ob x;
+  Buffer.contents ob
+let read__sha1_nullable = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    (if Yojson.Safe.read_null_if_possible p lb then None
+    else Some ((
+      read_sha1
+    ) p lb) : _ option)
+)
+let _sha1_nullable_of_string s =
+  read__sha1_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__bool_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     Yojson.Safe.write_bool
@@ -5848,7 +6038,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"repo_url\":";
     (
-      write__string_nullable
+      write__uri_nullable
     )
       ob x.repo_url;
     if !is_first then
@@ -5866,7 +6056,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"ci_job_url\":";
     (
-      write__string_nullable
+      write__uri_nullable
     )
       ob x.ci_job_url;
     if !is_first then
@@ -5875,7 +6065,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit\":";
     (
-      write__string_nullable
+      write__sha1_nullable
     )
       ob x.commit;
     if !is_first then
@@ -5911,7 +6101,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit_author_image_url\":";
     (
-      write__string_nullable
+      write__uri_nullable
     )
       ob x.commit_author_image_url;
     if !is_first then
@@ -5958,7 +6148,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"pull_request_author_image_url\":";
     (
-      write__string_nullable
+      write__uri_nullable
     )
       ob x.pull_request_author_image_url;
     if !is_first then
@@ -5995,7 +6185,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"base_sha\":";
       (
-        Yojson.Safe.write_string
+        write_sha1
       )
         ob x;
     );
@@ -6006,7 +6196,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"start_sha\":";
       (
-        Yojson.Safe.write_string
+        write_sha1
       )
         ob x;
     );
@@ -6368,7 +6558,7 @@ let read_project_metadata = (
             field_repo_url := (
               Some (
                 (
-                  read__string_nullable
+                  read__uri_nullable
                 ) p lb
               )
             );
@@ -6384,7 +6574,7 @@ let read_project_metadata = (
             field_ci_job_url := (
               Some (
                 (
-                  read__string_nullable
+                  read__uri_nullable
                 ) p lb
               )
             );
@@ -6392,7 +6582,7 @@ let read_project_metadata = (
             field_commit := (
               Some (
                 (
-                  read__string_nullable
+                  read__sha1_nullable
                 ) p lb
               )
             );
@@ -6424,7 +6614,7 @@ let read_project_metadata = (
             field_commit_author_image_url := (
               Some (
                 (
-                  read__string_nullable
+                  read__uri_nullable
                 ) p lb
               )
             );
@@ -6466,7 +6656,7 @@ let read_project_metadata = (
             field_pull_request_author_image_url := (
               Some (
                 (
-                  read__string_nullable
+                  read__uri_nullable
                 ) p lb
               )
             );
@@ -6499,7 +6689,7 @@ let read_project_metadata = (
               field_base_sha := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_sha1
                   ) p lb
                 )
               );
@@ -6509,7 +6699,7 @@ let read_project_metadata = (
               field_start_sha := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_sha1
                   ) p lb
                 )
               );
@@ -6838,7 +7028,7 @@ let read_project_metadata = (
               field_repo_url := (
                 Some (
                   (
-                    read__string_nullable
+                    read__uri_nullable
                   ) p lb
                 )
               );
@@ -6854,7 +7044,7 @@ let read_project_metadata = (
               field_ci_job_url := (
                 Some (
                   (
-                    read__string_nullable
+                    read__uri_nullable
                   ) p lb
                 )
               );
@@ -6862,7 +7052,7 @@ let read_project_metadata = (
               field_commit := (
                 Some (
                   (
-                    read__string_nullable
+                    read__sha1_nullable
                   ) p lb
                 )
               );
@@ -6894,7 +7084,7 @@ let read_project_metadata = (
               field_commit_author_image_url := (
                 Some (
                   (
-                    read__string_nullable
+                    read__uri_nullable
                   ) p lb
                 )
               );
@@ -6936,7 +7126,7 @@ let read_project_metadata = (
               field_pull_request_author_image_url := (
                 Some (
                   (
-                    read__string_nullable
+                    read__uri_nullable
                   ) p lb
                 )
               );
@@ -6969,7 +7159,7 @@ let read_project_metadata = (
                 field_base_sha := (
                   Some (
                     (
-                      Atdgen_runtime.Oj_run.read_string
+                      read_sha1
                     ) p lb
                   )
                 );
@@ -6979,7 +7169,7 @@ let read_project_metadata = (
                 field_start_sha := (
                   Some (
                     (
-                      Atdgen_runtime.Oj_run.read_string
+                      read_sha1
                     ) p lb
                   )
                 );
@@ -12458,7 +12648,7 @@ let read__location_list = (
 let _location_list_of_string s =
   read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_error_type : _ -> error_type -> _ = (
-  fun ob x ->
+  fun ob (x : error_type) ->
     match x with
       | LexicalError -> Buffer.add_string ob "\"Lexical error\""
       | ParseError -> Buffer.add_string ob "\"Syntax error\""
@@ -18412,7 +18602,7 @@ let write_ci_scan_results : _ -> ci_scan_results -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"searched_paths\":";
     (
-      write__string_list
+      write__fpath_list
     )
       ob x.searched_paths;
     if !is_first then
@@ -18421,7 +18611,7 @@ let write_ci_scan_results : _ -> ci_scan_results -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"renamed_paths\":";
     (
-      write__string_list
+      write__fpath_list
     )
       ob x.renamed_paths;
     if !is_first then
@@ -18594,7 +18784,7 @@ let read_ci_scan_results = (
             field_searched_paths := (
               Some (
                 (
-                  read__string_list
+                  read__fpath_list
                 ) p lb
               )
             );
@@ -18602,7 +18792,7 @@ let read_ci_scan_results = (
             field_renamed_paths := (
               Some (
                 (
-                  read__string_list
+                  read__fpath_list
                 ) p lb
               )
             );
@@ -18759,7 +18949,7 @@ let read_ci_scan_results = (
               field_searched_paths := (
                 Some (
                   (
-                    read__string_list
+                    read__fpath_list
                   ) p lb
                 )
               );
@@ -18767,7 +18957,7 @@ let read_ci_scan_results = (
               field_renamed_paths := (
                 Some (
                   (
-                    read__string_list
+                    read__fpath_list
                   ) p lb
                 )
               );

@@ -9,6 +9,8 @@
     of type 'Foo'.
 */
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
 
@@ -406,24 +408,24 @@ export type DependencyParserError = {
 export type ProjectMetadata = {
   semgrep_version: Version;
   repository: string;
-  repo_url: (string | null);
+  repo_url: (Uri | null);
   branch: (string | null);
-  ci_job_url: (string | null);
-  commit: (string | null);
+  ci_job_url: (Uri | null);
+  commit: (Sha1 | null);
   commit_author_email: (string | null);
   commit_author_name: (string | null);
   commit_author_username: (string | null);
-  commit_author_image_url: (string | null);
+  commit_author_image_url: (Uri | null);
   commit_title: (string | null);
   commit_timestamp?: string;
   on: string;
   pull_request_author_username: (string | null);
-  pull_request_author_image_url: (string | null);
+  pull_request_author_image_url: (Uri | null);
   pull_request_id: (string | null);
   pull_request_title: (string | null);
   scan_environment: string;
-  base_sha?: string;
-  start_sha?: string;
+  base_sha?: Sha1;
+  start_sha?: Sha1;
   is_full_scan: boolean;
   is_sca_scan?: boolean;
   is_code_scan?: boolean;
@@ -432,7 +434,7 @@ export type ProjectMetadata = {
 
 export type ScanMetadata = {
   cli_version: Version;
-  unique_id: string;
+  unique_id: Uuid;
   requested_products: Product[];
 }
 
@@ -492,8 +494,8 @@ export type CiScanResults = {
   findings: Finding[];
   ignores: Finding[];
   token: (string | null);
-  searched_paths: string[];
-  renamed_paths: string[];
+  searched_paths: Fpath[];
+  renamed_paths: Fpath[];
   rule_ids: RuleId[];
   contributions?: Contributions;
   dependencies?: CiScanDependencies;
@@ -1813,24 +1815,24 @@ export function writeProjectMetadata(x: ProjectMetadata, context: any = x): any 
   return {
     'semgrep_version': _atd_write_required_field('ProjectMetadata', 'semgrep_version', writeVersion, x.semgrep_version, x),
     'repository': _atd_write_required_field('ProjectMetadata', 'repository', _atd_write_string, x.repository, x),
-    'repo_url': _atd_write_required_field('ProjectMetadata', 'repo_url', _atd_write_nullable(_atd_write_string), x.repo_url, x),
+    'repo_url': _atd_write_required_field('ProjectMetadata', 'repo_url', _atd_write_nullable(writeUri), x.repo_url, x),
     'branch': _atd_write_required_field('ProjectMetadata', 'branch', _atd_write_nullable(_atd_write_string), x.branch, x),
-    'ci_job_url': _atd_write_required_field('ProjectMetadata', 'ci_job_url', _atd_write_nullable(_atd_write_string), x.ci_job_url, x),
-    'commit': _atd_write_required_field('ProjectMetadata', 'commit', _atd_write_nullable(_atd_write_string), x.commit, x),
+    'ci_job_url': _atd_write_required_field('ProjectMetadata', 'ci_job_url', _atd_write_nullable(writeUri), x.ci_job_url, x),
+    'commit': _atd_write_required_field('ProjectMetadata', 'commit', _atd_write_nullable(writeSha1), x.commit, x),
     'commit_author_email': _atd_write_required_field('ProjectMetadata', 'commit_author_email', _atd_write_nullable(_atd_write_string), x.commit_author_email, x),
     'commit_author_name': _atd_write_required_field('ProjectMetadata', 'commit_author_name', _atd_write_nullable(_atd_write_string), x.commit_author_name, x),
     'commit_author_username': _atd_write_required_field('ProjectMetadata', 'commit_author_username', _atd_write_nullable(_atd_write_string), x.commit_author_username, x),
-    'commit_author_image_url': _atd_write_required_field('ProjectMetadata', 'commit_author_image_url', _atd_write_nullable(_atd_write_string), x.commit_author_image_url, x),
+    'commit_author_image_url': _atd_write_required_field('ProjectMetadata', 'commit_author_image_url', _atd_write_nullable(writeUri), x.commit_author_image_url, x),
     'commit_title': _atd_write_required_field('ProjectMetadata', 'commit_title', _atd_write_nullable(_atd_write_string), x.commit_title, x),
     'commit_timestamp': _atd_write_optional_field(_atd_write_string, x.commit_timestamp, x),
     'on': _atd_write_required_field('ProjectMetadata', 'on', _atd_write_string, x.on, x),
     'pull_request_author_username': _atd_write_required_field('ProjectMetadata', 'pull_request_author_username', _atd_write_nullable(_atd_write_string), x.pull_request_author_username, x),
-    'pull_request_author_image_url': _atd_write_required_field('ProjectMetadata', 'pull_request_author_image_url', _atd_write_nullable(_atd_write_string), x.pull_request_author_image_url, x),
+    'pull_request_author_image_url': _atd_write_required_field('ProjectMetadata', 'pull_request_author_image_url', _atd_write_nullable(writeUri), x.pull_request_author_image_url, x),
     'pull_request_id': _atd_write_required_field('ProjectMetadata', 'pull_request_id', _atd_write_nullable(_atd_write_string), x.pull_request_id, x),
     'pull_request_title': _atd_write_required_field('ProjectMetadata', 'pull_request_title', _atd_write_nullable(_atd_write_string), x.pull_request_title, x),
     'scan_environment': _atd_write_required_field('ProjectMetadata', 'scan_environment', _atd_write_string, x.scan_environment, x),
-    'base_sha': _atd_write_optional_field(_atd_write_string, x.base_sha, x),
-    'start_sha': _atd_write_optional_field(_atd_write_string, x.start_sha, x),
+    'base_sha': _atd_write_optional_field(writeSha1, x.base_sha, x),
+    'start_sha': _atd_write_optional_field(writeSha1, x.start_sha, x),
     'is_full_scan': _atd_write_required_field('ProjectMetadata', 'is_full_scan', _atd_write_bool, x.is_full_scan, x),
     'is_sca_scan': _atd_write_optional_field(_atd_write_bool, x.is_sca_scan, x),
     'is_code_scan': _atd_write_optional_field(_atd_write_bool, x.is_code_scan, x),
@@ -1842,24 +1844,24 @@ export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
   return {
     semgrep_version: _atd_read_required_field('ProjectMetadata', 'semgrep_version', readVersion, x['semgrep_version'], x),
     repository: _atd_read_required_field('ProjectMetadata', 'repository', _atd_read_string, x['repository'], x),
-    repo_url: _atd_read_required_field('ProjectMetadata', 'repo_url', _atd_read_nullable(_atd_read_string), x['repo_url'], x),
+    repo_url: _atd_read_required_field('ProjectMetadata', 'repo_url', _atd_read_nullable(readUri), x['repo_url'], x),
     branch: _atd_read_required_field('ProjectMetadata', 'branch', _atd_read_nullable(_atd_read_string), x['branch'], x),
-    ci_job_url: _atd_read_required_field('ProjectMetadata', 'ci_job_url', _atd_read_nullable(_atd_read_string), x['ci_job_url'], x),
-    commit: _atd_read_required_field('ProjectMetadata', 'commit', _atd_read_nullable(_atd_read_string), x['commit'], x),
+    ci_job_url: _atd_read_required_field('ProjectMetadata', 'ci_job_url', _atd_read_nullable(readUri), x['ci_job_url'], x),
+    commit: _atd_read_required_field('ProjectMetadata', 'commit', _atd_read_nullable(readSha1), x['commit'], x),
     commit_author_email: _atd_read_required_field('ProjectMetadata', 'commit_author_email', _atd_read_nullable(_atd_read_string), x['commit_author_email'], x),
     commit_author_name: _atd_read_required_field('ProjectMetadata', 'commit_author_name', _atd_read_nullable(_atd_read_string), x['commit_author_name'], x),
     commit_author_username: _atd_read_required_field('ProjectMetadata', 'commit_author_username', _atd_read_nullable(_atd_read_string), x['commit_author_username'], x),
-    commit_author_image_url: _atd_read_required_field('ProjectMetadata', 'commit_author_image_url', _atd_read_nullable(_atd_read_string), x['commit_author_image_url'], x),
+    commit_author_image_url: _atd_read_required_field('ProjectMetadata', 'commit_author_image_url', _atd_read_nullable(readUri), x['commit_author_image_url'], x),
     commit_title: _atd_read_required_field('ProjectMetadata', 'commit_title', _atd_read_nullable(_atd_read_string), x['commit_title'], x),
     commit_timestamp: _atd_read_optional_field(_atd_read_string, x['commit_timestamp'], x),
     on: _atd_read_required_field('ProjectMetadata', 'on', _atd_read_string, x['on'], x),
     pull_request_author_username: _atd_read_required_field('ProjectMetadata', 'pull_request_author_username', _atd_read_nullable(_atd_read_string), x['pull_request_author_username'], x),
-    pull_request_author_image_url: _atd_read_required_field('ProjectMetadata', 'pull_request_author_image_url', _atd_read_nullable(_atd_read_string), x['pull_request_author_image_url'], x),
+    pull_request_author_image_url: _atd_read_required_field('ProjectMetadata', 'pull_request_author_image_url', _atd_read_nullable(readUri), x['pull_request_author_image_url'], x),
     pull_request_id: _atd_read_required_field('ProjectMetadata', 'pull_request_id', _atd_read_nullable(_atd_read_string), x['pull_request_id'], x),
     pull_request_title: _atd_read_required_field('ProjectMetadata', 'pull_request_title', _atd_read_nullable(_atd_read_string), x['pull_request_title'], x),
     scan_environment: _atd_read_required_field('ProjectMetadata', 'scan_environment', _atd_read_string, x['scan_environment'], x),
-    base_sha: _atd_read_optional_field(_atd_read_string, x['base_sha'], x),
-    start_sha: _atd_read_optional_field(_atd_read_string, x['start_sha'], x),
+    base_sha: _atd_read_optional_field(readSha1, x['base_sha'], x),
+    start_sha: _atd_read_optional_field(readSha1, x['start_sha'], x),
     is_full_scan: _atd_read_required_field('ProjectMetadata', 'is_full_scan', _atd_read_bool, x['is_full_scan'], x),
     is_sca_scan: _atd_read_optional_field(_atd_read_bool, x['is_sca_scan'], x),
     is_code_scan: _atd_read_optional_field(_atd_read_bool, x['is_code_scan'], x),
@@ -1870,7 +1872,7 @@ export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
 export function writeScanMetadata(x: ScanMetadata, context: any = x): any {
   return {
     'cli_version': _atd_write_required_field('ScanMetadata', 'cli_version', writeVersion, x.cli_version, x),
-    'unique_id': _atd_write_required_field('ScanMetadata', 'unique_id', _atd_write_string, x.unique_id, x),
+    'unique_id': _atd_write_required_field('ScanMetadata', 'unique_id', writeUuid, x.unique_id, x),
     'requested_products': _atd_write_required_field('ScanMetadata', 'requested_products', _atd_write_array(writeProduct), x.requested_products, x),
   };
 }
@@ -1878,7 +1880,7 @@ export function writeScanMetadata(x: ScanMetadata, context: any = x): any {
 export function readScanMetadata(x: any, context: any = x): ScanMetadata {
   return {
     cli_version: _atd_read_required_field('ScanMetadata', 'cli_version', readVersion, x['cli_version'], x),
-    unique_id: _atd_read_required_field('ScanMetadata', 'unique_id', _atd_read_string, x['unique_id'], x),
+    unique_id: _atd_read_required_field('ScanMetadata', 'unique_id', readUuid, x['unique_id'], x),
     requested_products: _atd_read_required_field('ScanMetadata', 'requested_products', _atd_read_array(readProduct), x['requested_products'], x),
   };
 }
@@ -2012,8 +2014,8 @@ export function writeCiScanResults(x: CiScanResults, context: any = x): any {
     'findings': _atd_write_required_field('CiScanResults', 'findings', _atd_write_array(writeFinding), x.findings, x),
     'ignores': _atd_write_required_field('CiScanResults', 'ignores', _atd_write_array(writeFinding), x.ignores, x),
     'token': _atd_write_required_field('CiScanResults', 'token', _atd_write_nullable(_atd_write_string), x.token, x),
-    'searched_paths': _atd_write_required_field('CiScanResults', 'searched_paths', _atd_write_array(_atd_write_string), x.searched_paths, x),
-    'renamed_paths': _atd_write_required_field('CiScanResults', 'renamed_paths', _atd_write_array(_atd_write_string), x.renamed_paths, x),
+    'searched_paths': _atd_write_required_field('CiScanResults', 'searched_paths', _atd_write_array(writeFpath), x.searched_paths, x),
+    'renamed_paths': _atd_write_required_field('CiScanResults', 'renamed_paths', _atd_write_array(writeFpath), x.renamed_paths, x),
     'rule_ids': _atd_write_required_field('CiScanResults', 'rule_ids', _atd_write_array(writeRuleId), x.rule_ids, x),
     'contributions': _atd_write_optional_field(writeContributions, x.contributions, x),
     'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
@@ -2025,8 +2027,8 @@ export function readCiScanResults(x: any, context: any = x): CiScanResults {
     findings: _atd_read_required_field('CiScanResults', 'findings', _atd_read_array(readFinding), x['findings'], x),
     ignores: _atd_read_required_field('CiScanResults', 'ignores', _atd_read_array(readFinding), x['ignores'], x),
     token: _atd_read_required_field('CiScanResults', 'token', _atd_read_nullable(_atd_read_string), x['token'], x),
-    searched_paths: _atd_read_required_field('CiScanResults', 'searched_paths', _atd_read_array(_atd_read_string), x['searched_paths'], x),
-    renamed_paths: _atd_read_required_field('CiScanResults', 'renamed_paths', _atd_read_array(_atd_read_string), x['renamed_paths'], x),
+    searched_paths: _atd_read_required_field('CiScanResults', 'searched_paths', _atd_read_array(readFpath), x['searched_paths'], x),
+    renamed_paths: _atd_read_required_field('CiScanResults', 'renamed_paths', _atd_read_array(readFpath), x['renamed_paths'], x),
     rule_ids: _atd_read_required_field('CiScanResults', 'rule_ids', _atd_read_array(readRuleId), x['rule_ids'], x),
     contributions: _atd_read_optional_field(readContributions, x['contributions'], x),
     dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
