@@ -60,6 +60,7 @@ type environment = {
     ?rulesHash <ocaml mutable>: sha256 option;
     (* TODO: should be just boolean *)
     ci <ocaml mutable>: string nullable;
+    ?baselineCommitHash <ocaml mutable> : sha256 option;
     ?integrationName <ocaml mutable>: string option;
     ~isAuthenticated <python default="False"> <ocaml mutable>: bool;
   }
@@ -134,6 +135,7 @@ type misc = {
     features <ocaml mutable>: string list;
     ?numFindings <ocaml mutable>: int option;
     ?numIgnored <ocaml mutable>: int option;
+    ?diffDepth <ocaml mutable>: int option;
     ?ruleHashesWithFindings <ocaml mutable>: (string * int) list <json repr="object"> option;
     (* TODO: should be OSS | Pro, see semgrep_output_v1.atd engine_kind type *)
     ~engineRequested <python default="'OSS'"> <ocaml mutable>: string;

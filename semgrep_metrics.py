@@ -480,6 +480,7 @@ class Misc:
     features: List[str]
     numFindings: Optional[int] = None
     numIgnored: Optional[int] = None
+    diffDepth: Optional[int] = None
     ruleHashesWithFindings: Optional[List[Tuple[str, int]]] = None
     engineRequested: str = field(default_factory=lambda: 'OSS')
 
@@ -490,6 +491,7 @@ class Misc:
                 features=_atd_read_list(_atd_read_string)(x['features']) if 'features' in x else _atd_missing_json_field('Misc', 'features'),
                 numFindings=_atd_read_int(x['numFindings']) if 'numFindings' in x else None,
                 numIgnored=_atd_read_int(x['numIgnored']) if 'numIgnored' in x else None,
+                diffDepth=_atd_read_int(x['diffDepth']) if 'diffDepth' in x else None,
                 ruleHashesWithFindings=_atd_read_assoc_object_into_list(_atd_read_int)(x['ruleHashesWithFindings']) if 'ruleHashesWithFindings' in x else None,
                 engineRequested=_atd_read_string(x['engineRequested']) if 'engineRequested' in x else 'OSS',
             )
@@ -503,6 +505,8 @@ class Misc:
             res['numFindings'] = _atd_write_int(self.numFindings)
         if self.numIgnored is not None:
             res['numIgnored'] = _atd_write_int(self.numIgnored)
+        if self.diffDepth is not None:
+            res['diffDepth'] = _atd_write_int(self.diffDepth)
         if self.ruleHashesWithFindings is not None:
             res['ruleHashesWithFindings'] = _atd_write_assoc_list_to_object(_atd_write_int)(self.ruleHashesWithFindings)
         res['engineRequested'] = _atd_write_string(self.engineRequested)
@@ -603,6 +607,7 @@ class Environment:
     configNamesHash: Sha256
     ci: Optional[str]
     rulesHash: Optional[Sha256] = None
+    baselineCommitHash: Optional[Sha256] = None
     integrationName: Optional[str] = None
     isAuthenticated: bool = field(default_factory=lambda: False)
 
@@ -615,6 +620,7 @@ class Environment:
                 configNamesHash=Sha256.from_json(x['configNamesHash']) if 'configNamesHash' in x else _atd_missing_json_field('Environment', 'configNamesHash'),
                 ci=_atd_read_nullable(_atd_read_string)(x['ci']) if 'ci' in x else _atd_missing_json_field('Environment', 'ci'),
                 rulesHash=Sha256.from_json(x['rulesHash']) if 'rulesHash' in x else None,
+                baselineCommitHash=Sha256.from_json(x['baselineCommitHash']) if 'baselineCommitHash' in x else None,
                 integrationName=_atd_read_string(x['integrationName']) if 'integrationName' in x else None,
                 isAuthenticated=_atd_read_bool(x['isAuthenticated']) if 'isAuthenticated' in x else False,
             )
@@ -629,6 +635,8 @@ class Environment:
         res['ci'] = _atd_write_nullable(_atd_write_string)(self.ci)
         if self.rulesHash is not None:
             res['rulesHash'] = (lambda x: x.to_json())(self.rulesHash)
+        if self.baselineCommitHash is not None:
+            res['baselineCommitHash'] = (lambda x: x.to_json())(self.baselineCommitHash)
         if self.integrationName is not None:
             res['integrationName'] = _atd_write_string(self.integrationName)
         res['isAuthenticated'] = _atd_write_bool(self.isAuthenticated)
