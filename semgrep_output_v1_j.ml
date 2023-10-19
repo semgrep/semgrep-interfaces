@@ -566,6 +566,25 @@ let read__x_b7c1b6a = (
 )
 let _x_b7c1b6a_of_string s =
   read__x_b7c1b6a (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_ba914e0 = (
+  fun ob x -> (
+    let x = ( ATDStringWrap.Ruleid.unwrap ) x in (
+      Yojson.Safe.write_string
+    ) ob x)
+)
+let string_of__x_ba914e0 ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__x_ba914e0 ob x;
+  Buffer.contents ob
+let read__x_ba914e0 = (
+  fun p lb ->
+    let x = (
+      Atdgen_runtime.Oj_run.read_string
+    ) p lb in
+    ( ATDStringWrap.Ruleid.wrap ) x
+)
+let _x_ba914e0_of_string s =
+  read__x_ba914e0 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_engine_kind = (
   fun ob x ->
     match x with
@@ -1641,14 +1660,14 @@ let read__raw_json_option = (
 let _raw_json_option_of_string s =
   read__raw_json_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_rule_id = (
-  Yojson.Safe.write_string
+  write__x_ba914e0
 )
 let string_of_rule_id ?(len = 1024) x =
   let ob = Buffer.create len in
   write_rule_id ob x;
   Buffer.contents ob
 let read_rule_id = (
-  Atdgen_runtime.Oj_run.read_string
+  read__x_ba914e0
 )
 let rule_id_of_string s =
   read_rule_id (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
