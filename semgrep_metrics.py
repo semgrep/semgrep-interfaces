@@ -341,6 +341,35 @@ class RuleStats:
 
 
 @dataclass
+class ProFeatures:
+    """Original type: pro_features = { ... }"""
+
+    diffDepth: Optional[int] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ProFeatures':
+        if isinstance(x, dict):
+            return cls(
+                diffDepth=_atd_read_int(x['diffDepth']) if 'diffDepth' in x else None,
+            )
+        else:
+            _atd_bad_json('ProFeatures', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        if self.diffDepth is not None:
+            res['diffDepth'] = _atd_write_int(self.diffDepth)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ProFeatures':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class FileStats:
     """Original type: file_stats = { ... }"""
 
@@ -478,9 +507,9 @@ class Misc:
     """Original type: misc = { ... }"""
 
     features: List[str]
+    proFeatures: ProFeatures
     numFindings: Optional[int] = None
     numIgnored: Optional[int] = None
-    diffDepth: Optional[int] = None
     ruleHashesWithFindings: Optional[List[Tuple[str, int]]] = None
     engineRequested: str = field(default_factory=lambda: 'OSS')
 
@@ -489,9 +518,9 @@ class Misc:
         if isinstance(x, dict):
             return cls(
                 features=_atd_read_list(_atd_read_string)(x['features']) if 'features' in x else _atd_missing_json_field('Misc', 'features'),
+                proFeatures=ProFeatures.from_json(x['proFeatures']) if 'proFeatures' in x else _atd_missing_json_field('Misc', 'proFeatures'),
                 numFindings=_atd_read_int(x['numFindings']) if 'numFindings' in x else None,
                 numIgnored=_atd_read_int(x['numIgnored']) if 'numIgnored' in x else None,
-                diffDepth=_atd_read_int(x['diffDepth']) if 'diffDepth' in x else None,
                 ruleHashesWithFindings=_atd_read_assoc_object_into_list(_atd_read_int)(x['ruleHashesWithFindings']) if 'ruleHashesWithFindings' in x else None,
                 engineRequested=_atd_read_string(x['engineRequested']) if 'engineRequested' in x else 'OSS',
             )
@@ -501,12 +530,11 @@ class Misc:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['features'] = _atd_write_list(_atd_write_string)(self.features)
+        res['proFeatures'] = (lambda x: x.to_json())(self.proFeatures)
         if self.numFindings is not None:
             res['numFindings'] = _atd_write_int(self.numFindings)
         if self.numIgnored is not None:
             res['numIgnored'] = _atd_write_int(self.numIgnored)
-        if self.diffDepth is not None:
-            res['diffDepth'] = _atd_write_int(self.diffDepth)
         if self.ruleHashesWithFindings is not None:
             res['ruleHashesWithFindings'] = _atd_write_assoc_list_to_object(_atd_write_int)(self.ruleHashesWithFindings)
         res['engineRequested'] = _atd_write_string(self.engineRequested)
