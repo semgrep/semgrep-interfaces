@@ -20,33 +20,43 @@
 (* Basic types *)
 (*****************************************************************************)
 
-(* TODO: better type *)
-type uuid = string
+type uuid = string wrap <ocaml module="ATDStringWrap.Uuidm">
 
-(* TODO: better type. Stored as gmtime. *)
-type datetime = string
+type sha256 = string wrap <ocaml module="ATDStringWrap.Sha256">
 
-type sha256 = string
+(* GMT time (in osemgrep at least), in isoformat *)
+type datetime = string wrap <ocaml module="ATDStringWrap.Datetime">
 
-(* TODO: type fpath = string *)
+type lang = string
+
+(* Note that there is no 'fpath' type here. We don't send concrete filenames *)
 
 (*****************************************************************************)
 (* Entry point *)
 (*****************************************************************************)
 
 type payload = {
+    (* required event and timing *)
     event_id <ocaml mutable>: uuid;
     (* as stored in ~/.semgrep/settings.yml *)
     anonymous_user_id <python default="''"> <ocaml mutable>: string;
     started_at <python default="Datetime('')"> <ocaml mutable>: datetime;
     sent_at <python default="Datetime('')"> <ocaml mutable>: datetime;
+
+    (* other fields *)
     environment <ocaml mutable>: environment;
     performance <ocaml mutable>: performance;
     extension <ocaml mutable>: extension;
     errors <ocaml mutable>: errors;
     (* TODO? why called value? *)
     value <ocaml mutable>: misc;
-    ~parse_rate <ocaml mutable>: (string * parse_stat) list <json repr="object">;
+    (* the string is a 'lang' below but we can't use the alias because this
+     * confuses atd which is checking for a 'string' because of the json
+     * repr annotation coming after.
+     * TODO? should we move under performance instead of at the top here?
+     *)
+    ~parse_rate <ocaml mutable>: (string (* lang *) * parse_stat) list
+                                 <json repr="object">;
 }
 
 (*****************************************************************************)
@@ -54,6 +64,7 @@ type payload = {
 (*****************************************************************************)
 
 type environment = {
+    (* semgrep version *)
     version <ocaml mutable>: string;
     projectHash <ocaml mutable>: sha256 nullable;
     configNamesHash <python default="Sha256hash('')"> <ocaml mutable>: sha256;
