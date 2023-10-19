@@ -124,6 +124,8 @@ type target_times = Semgrep_output_v1_t.target_times = {
   run_time: float
 }
 
+type tag = Semgrep_output_v1_t.tag
+
 type skip_reason = Semgrep_output_v1_t.skip_reason = 
     Always_skipped | Semgrepignore_patterns_match
   | Cli_include_flags_do_not_match | Cli_exclude_flags_match
@@ -190,12 +192,15 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   is_secrets_scan: bool option
 }
 
-type project_config = Semgrep_output_v1_t.project_config
+type ci_config_from_repo = Semgrep_output_v1_t.ci_config_from_repo = {
+  version: version;
+  tags: tag list option
+}
 
 type scan_request = Semgrep_output_v1_t.scan_request = {
   meta: raw_json;
   project_metadata: project_metadata option;
-  project_config: project_config option;
+  project_config: ci_config_from_repo option;
   scan_metadata: scan_metadata option
 }
 
@@ -4617,6 +4622,18 @@ let read_target_times = (
 )
 let target_times_of_string s =
   read_target_times (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_tag = (
+  Yojson.Safe.write_string
+)
+let string_of_tag ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_tag ob x;
+  Buffer.contents ob
+let read_tag = (
+  Atdgen_runtime.Oj_run.read_string
+)
+let tag_of_string s =
+  read_tag (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_skip_reason : _ -> skip_reason -> _ = (
   fun ob (x : skip_reason) ->
     match x with
@@ -7251,18 +7268,238 @@ let read_project_metadata = (
 )
 let project_metadata_of_string s =
   read_project_metadata (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_project_config = (
-  write_raw_json
+let write__tag_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_tag
+  )
 )
-let string_of_project_config ?(len = 1024) x =
+let string_of__tag_list ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_project_config ob x;
+  write__tag_list ob x;
   Buffer.contents ob
-let read_project_config = (
-  read_raw_json
+let read__tag_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_tag
+  )
 )
-let project_config_of_string s =
-  read_project_config (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _tag_list_of_string s =
+  read__tag_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__tag_list_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write__tag_list
+  )
+)
+let string_of__tag_list_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__tag_list_option ob x;
+  Buffer.contents ob
+let read__tag_list_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__tag_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__tag_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _tag_list_option_of_string s =
+  read__tag_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_ci_config_from_repo : _ -> ci_config_from_repo -> _ = (
+  fun ob (x : ci_config_from_repo) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"version\":";
+    (
+      write_version
+    )
+      ob x.version;
+    (match x.tags with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"tags\":";
+      (
+        write__tag_list
+      )
+        ob x;
+    );
+    Buffer.add_char ob '}';
+)
+let string_of_ci_config_from_repo ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_ci_config_from_repo ob x;
+  Buffer.contents ob
+let read_ci_config_from_repo = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_version = ref (None) in
+    let field_tags = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 4 -> (
+                if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 's' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | 7 -> (
+                if String.unsafe_get s pos = 'v' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'n' then (
+                  0
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_version := (
+              Some (
+                (
+                  read_version
+                ) p lb
+              )
+            );
+          | 1 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_tags := (
+                Some (
+                  (
+                    read__tag_list
+                  ) p lb
+                )
+              );
+            )
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 4 -> (
+                  if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 's' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 7 -> (
+                  if String.unsafe_get s pos = 'v' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'n' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_version := (
+                Some (
+                  (
+                    read_version
+                  ) p lb
+                )
+              );
+            | 1 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_tags := (
+                  Some (
+                    (
+                      read__tag_list
+                    ) p lb
+                  )
+                );
+              )
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            version = (match !field_version with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "version");
+            tags = !field_tags;
+          }
+         : ci_config_from_repo)
+      )
+)
+let ci_config_from_repo_of_string s =
+  read_ci_config_from_repo (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__scan_metadata_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     write_scan_metadata
@@ -7377,16 +7614,16 @@ let read__project_metadata_option = (
 )
 let _project_metadata_option_of_string s =
   read__project_metadata_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__project_config_option = (
+let write__ci_config_from_repo_option = (
   Atdgen_runtime.Oj_run.write_std_option (
-    write_project_config
+    write_ci_config_from_repo
   )
 )
-let string_of__project_config_option ?(len = 1024) x =
+let string_of__ci_config_from_repo_option ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__project_config_option ob x;
+  write__ci_config_from_repo_option ob x;
   Buffer.contents ob
-let read__project_config_option = (
+let read__ci_config_from_repo_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     match Yojson.Safe.start_any_variant p lb with
@@ -7399,7 +7636,7 @@ let read__project_config_option = (
             | "Some" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read_project_config
+                  read_ci_config_from_repo
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -7422,7 +7659,7 @@ let read__project_config_option = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read_project_config
+                  read_ci_config_from_repo
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -7432,8 +7669,8 @@ let read__project_config_option = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-let _project_config_option_of_string s =
-  read__project_config_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _ci_config_from_repo_option_of_string s =
+  read__ci_config_from_repo_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_scan_request : _ -> scan_request -> _ = (
   fun ob (x : scan_request) ->
     Buffer.add_char ob '{';
@@ -7465,7 +7702,7 @@ let write_scan_request : _ -> scan_request -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"project_config\":";
       (
-        write_project_config
+        write_ci_config_from_repo
       )
         ob x;
     );
@@ -7566,7 +7803,7 @@ let read_scan_request = (
               field_project_config := (
                 Some (
                   (
-                    read_project_config
+                    read_ci_config_from_repo
                   ) p lb
                 )
               );
@@ -7657,7 +7894,7 @@ let read_scan_request = (
                 field_project_config := (
                   Some (
                     (
-                      read_project_config
+                      read_ci_config_from_repo
                     ) p lb
                   )
                 );

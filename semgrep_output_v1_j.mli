@@ -124,6 +124,8 @@ type target_times = Semgrep_output_v1_t.target_times = {
   run_time: float
 }
 
+type tag = Semgrep_output_v1_t.tag
+
 type skip_reason = Semgrep_output_v1_t.skip_reason = 
     Always_skipped | Semgrepignore_patterns_match
   | Cli_include_flags_do_not_match | Cli_exclude_flags_match
@@ -190,12 +192,15 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   is_secrets_scan: bool option
 }
 
-type project_config = Semgrep_output_v1_t.project_config
+type ci_config_from_repo = Semgrep_output_v1_t.ci_config_from_repo = {
+  version: version;
+  tags: tag list option
+}
 
 type scan_request = Semgrep_output_v1_t.scan_request = {
   meta: raw_json;
   project_metadata: project_metadata option;
-  project_config: project_config option;
+  project_config: ci_config_from_repo option;
   scan_metadata: scan_metadata option
 }
 
@@ -952,6 +957,26 @@ val target_times_of_string :
   string -> target_times
   (** Deserialize JSON data of type {!type:target_times}. *)
 
+val write_tag :
+  Buffer.t -> tag -> unit
+  (** Output a JSON value of type {!type:tag}. *)
+
+val string_of_tag :
+  ?len:int -> tag -> string
+  (** Serialize a value of type {!type:tag}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_tag :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> tag
+  (** Input JSON data of type {!type:tag}. *)
+
+val tag_of_string :
+  string -> tag
+  (** Deserialize JSON data of type {!type:tag}. *)
+
 val write_skip_reason :
   Buffer.t -> skip_reason -> unit
   (** Output a JSON value of type {!type:skip_reason}. *)
@@ -1112,25 +1137,25 @@ val project_metadata_of_string :
   string -> project_metadata
   (** Deserialize JSON data of type {!type:project_metadata}. *)
 
-val write_project_config :
-  Buffer.t -> project_config -> unit
-  (** Output a JSON value of type {!type:project_config}. *)
+val write_ci_config_from_repo :
+  Buffer.t -> ci_config_from_repo -> unit
+  (** Output a JSON value of type {!type:ci_config_from_repo}. *)
 
-val string_of_project_config :
-  ?len:int -> project_config -> string
-  (** Serialize a value of type {!type:project_config}
+val string_of_ci_config_from_repo :
+  ?len:int -> ci_config_from_repo -> string
+  (** Serialize a value of type {!type:ci_config_from_repo}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_project_config :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> project_config
-  (** Input JSON data of type {!type:project_config}. *)
+val read_ci_config_from_repo :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_config_from_repo
+  (** Input JSON data of type {!type:ci_config_from_repo}. *)
 
-val project_config_of_string :
-  string -> project_config
-  (** Deserialize JSON data of type {!type:project_config}. *)
+val ci_config_from_repo_of_string :
+  string -> ci_config_from_repo
+  (** Deserialize JSON data of type {!type:ci_config_from_repo}. *)
 
 val write_scan_request :
   Buffer.t -> scan_request -> unit

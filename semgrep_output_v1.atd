@@ -867,7 +867,7 @@ type dependency_parser_error = {
 
 
 (*****************************************************************************)
-(* Data sent to the Semgrep backend *)
+(* Communications with the Semgrep backend *)
 (*****************************************************************************)
 
 (* EXPERIMENTAL: do not rely on the types in this section; those are internal
@@ -895,11 +895,48 @@ type dependency_parser_error = {
 *)
 
 (* ----------------------------- *)
+(* CI Configuration *)
+(* ----------------------------- *)
+
+(* content of the .semgrepconfig.yml in the repository *)
+type ci_config_from_repo = {
+    (* version of the .semgrepconfig.yml format. "V1" right now (useful?) *)
+    version: version;
+    ?tags: tag list option;
+}
+(* ?? ex? *)
+type tag = string
+
+(* Response by the backend to the CLI to the POST /scans/<scan_id>/config *)
+type scan_config = {
+    deployment_id: int;
+    (* the org name *)
+    deployment_name: string;
+    (* ex: "audit", "comment", "block" TODO use enum? *)
+    policy_names: string list;
+    (* rules raw content in JSON format *)
+    rule_config: string;
+    (* TODO: move all of that in a ci_config_from_cloud *)
+    ~autofix: bool;
+    ~deepsemgrep: bool;
+    ~dependency_query: bool;
+    ~triage_ignored_syntactic_ids: string list;
+    ~triage_ignored_match_based_ids: string list;
+    (* glob patterns *)
+    ~ignored_files: string list;
+    (* since 1.37.0 *)
+    ?enabled_products: product list option;
+  }
+
+(* TODO: add a ci_config_from_cloud this time returned by backend?
+ * similar to ci_config_from_repo but in the other direction.
+ *)
+
+(* ----------------------------- *)
 (* Scan request *)
 (* ----------------------------- *)
 
-(* TODO: deployment_config? from POST to deployments/current
- *)
+(* TODO: deployment_config? from POST to deployments/current *)
 
 
 (* Collect information about a project from the environment, filesystem,
@@ -980,11 +1017,6 @@ type scan_metadata = {
   requested_products: product list;
   }
 
-(* customer configured via .semgrepconfig.yml
- * TODO: type me, and rename maybe ci_config_from_repo
- *)
-type project_config = raw_json
-
 (* Sent by the CLI to the POST /scans endpoint when a scan is created.
  * See also server/semgrep_app/cloud_platform/scan/models/scan.py in
  * the backend.
@@ -994,7 +1026,7 @@ type scan_request = {
     meta: raw_json;
     (* from 1.43 *)
     ?project_metadata: project_metadata option; (* replacing meta *)
-    ?project_config: project_config option;
+    ?project_config: ci_config_from_repo option;
     ?scan_metadata: scan_metadata option;
 }
 
@@ -1021,30 +1053,6 @@ type scan_config_request = {
     full_scan: bool;
     semgrep_version : version;
 }
- *)
-
-(* Response by the backend to the CLI to the POST /scans/<scan_id>/config *)
-type scan_config = {
-    deployment_id: int;
-    (* the org name *)
-    deployment_name: string;
-    (* ex: "audit", "comment", "block" TODO use enum? *)
-    policy_names: string list;
-    (* rules raw content in JSON format *)
-    rule_config: string;
-    ~autofix: bool;
-    ~deepsemgrep: bool;
-    ~dependency_query: bool;
-    ~triage_ignored_syntactic_ids: string list;
-    ~triage_ignored_match_based_ids: string list;
-    (* glob patterns *)
-    ~ignored_files: string list;
-    (* since 1.37.0 *)
-    ?enabled_products: product list option;
-  }
-
-(* TODO: add a ci_config_from_cloud this time returned by backend?
- * similar to ci_config_from_repo but in the other direction.
  *)
 
 (* ----------------------------- *)

@@ -1502,6 +1502,27 @@ class TargetTimes:
 
 
 @dataclass
+class Tag:
+    """Original type: tag"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Tag':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Tag':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class AlwaysSkipped:
     """Original type: skip_reason = [ ... | Always_skipped | ... ]"""
 
@@ -2182,20 +2203,31 @@ class ProjectMetadata:
 
 
 @dataclass
-class ProjectConfig:
-    """Original type: project_config"""
+class CiConfigFromRepo:
+    """Original type: ci_config_from_repo = { ... }"""
 
-    value: RawJson
+    version: Version
+    tags: Optional[List[Tag]] = None
 
     @classmethod
-    def from_json(cls, x: Any) -> 'ProjectConfig':
-        return cls(RawJson.from_json(x))
+    def from_json(cls, x: Any) -> 'CiConfigFromRepo':
+        if isinstance(x, dict):
+            return cls(
+                version=Version.from_json(x['version']) if 'version' in x else _atd_missing_json_field('CiConfigFromRepo', 'version'),
+                tags=_atd_read_list(Tag.from_json)(x['tags']) if 'tags' in x else None,
+            )
+        else:
+            _atd_bad_json('CiConfigFromRepo', x)
 
     def to_json(self) -> Any:
-        return (lambda x: x.to_json())(self.value)
+        res: Dict[str, Any] = {}
+        res['version'] = (lambda x: x.to_json())(self.version)
+        if self.tags is not None:
+            res['tags'] = _atd_write_list((lambda x: x.to_json()))(self.tags)
+        return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'ProjectConfig':
+    def from_json_string(cls, x: str) -> 'CiConfigFromRepo':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -2208,7 +2240,7 @@ class ScanRequest:
 
     meta: RawJson
     project_metadata: Optional[ProjectMetadata] = None
-    project_config: Optional[ProjectConfig] = None
+    project_config: Optional[CiConfigFromRepo] = None
     scan_metadata: Optional[ScanMetadata] = None
 
     @classmethod
@@ -2217,7 +2249,7 @@ class ScanRequest:
             return cls(
                 meta=RawJson.from_json(x['meta']) if 'meta' in x else _atd_missing_json_field('ScanRequest', 'meta'),
                 project_metadata=ProjectMetadata.from_json(x['project_metadata']) if 'project_metadata' in x else None,
-                project_config=ProjectConfig.from_json(x['project_config']) if 'project_config' in x else None,
+                project_config=CiConfigFromRepo.from_json(x['project_config']) if 'project_config' in x else None,
                 scan_metadata=ScanMetadata.from_json(x['scan_metadata']) if 'scan_metadata' in x else None,
             )
         else:

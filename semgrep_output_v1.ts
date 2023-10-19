@@ -405,6 +405,27 @@ export type DependencyParserError = {
   text?: string;
 }
 
+export type CiConfigFromRepo = {
+  version: Version;
+  tags?: Tag[];
+}
+
+export type Tag = string
+
+export type ScanConfig = {
+  deployment_id: number /*int*/;
+  deployment_name: string;
+  policy_names: string[];
+  rule_config: string;
+  autofix: boolean;
+  deepsemgrep: boolean;
+  dependency_query: boolean;
+  triage_ignored_syntactic_ids: string[];
+  triage_ignored_match_based_ids: string[];
+  ignored_files: string[];
+  enabled_products?: Product[];
+}
+
 export type ProjectMetadata = {
   semgrep_version: Version;
   repository: string;
@@ -438,27 +459,11 @@ export type ScanMetadata = {
   requested_products: Product[];
 }
 
-export type ProjectConfig = RawJson
-
 export type ScanRequest = {
   meta: RawJson;
   project_metadata?: ProjectMetadata;
-  project_config?: ProjectConfig;
+  project_config?: CiConfigFromRepo;
   scan_metadata?: ScanMetadata;
-}
-
-export type ScanConfig = {
-  deployment_id: number /*int*/;
-  deployment_name: string;
-  policy_names: string[];
-  rule_config: string;
-  autofix: boolean;
-  deepsemgrep: boolean;
-  dependency_query: boolean;
-  triage_ignored_syntactic_ids: string[];
-  triage_ignored_match_based_ids: string[];
-  ignored_files: string[];
-  enabled_products?: Product[];
 }
 
 export type Finding = {
@@ -1811,6 +1816,60 @@ export function readDependencyParserError(x: any, context: any = x): DependencyP
   };
 }
 
+export function writeCiConfigFromRepo(x: CiConfigFromRepo, context: any = x): any {
+  return {
+    'version': _atd_write_required_field('CiConfigFromRepo', 'version', writeVersion, x.version, x),
+    'tags': _atd_write_optional_field(_atd_write_array(writeTag), x.tags, x),
+  };
+}
+
+export function readCiConfigFromRepo(x: any, context: any = x): CiConfigFromRepo {
+  return {
+    version: _atd_read_required_field('CiConfigFromRepo', 'version', readVersion, x['version'], x),
+    tags: _atd_read_optional_field(_atd_read_array(readTag), x['tags'], x),
+  };
+}
+
+export function writeTag(x: Tag, context: any = x): any {
+  return _atd_write_string(x, context);
+}
+
+export function readTag(x: any, context: any = x): Tag {
+  return _atd_read_string(x, context);
+}
+
+export function writeScanConfig(x: ScanConfig, context: any = x): any {
+  return {
+    'deployment_id': _atd_write_required_field('ScanConfig', 'deployment_id', _atd_write_int, x.deployment_id, x),
+    'deployment_name': _atd_write_required_field('ScanConfig', 'deployment_name', _atd_write_string, x.deployment_name, x),
+    'policy_names': _atd_write_required_field('ScanConfig', 'policy_names', _atd_write_array(_atd_write_string), x.policy_names, x),
+    'rule_config': _atd_write_required_field('ScanConfig', 'rule_config', _atd_write_string, x.rule_config, x),
+    'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
+    'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
+    'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
+    'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
+    'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
+    'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
+    'enabled_products': _atd_write_optional_field(_atd_write_array(writeProduct), x.enabled_products, x),
+  };
+}
+
+export function readScanConfig(x: any, context: any = x): ScanConfig {
+  return {
+    deployment_id: _atd_read_required_field('ScanConfig', 'deployment_id', _atd_read_int, x['deployment_id'], x),
+    deployment_name: _atd_read_required_field('ScanConfig', 'deployment_name', _atd_read_string, x['deployment_name'], x),
+    policy_names: _atd_read_required_field('ScanConfig', 'policy_names', _atd_read_array(_atd_read_string), x['policy_names'], x),
+    rule_config: _atd_read_required_field('ScanConfig', 'rule_config', _atd_read_string, x['rule_config'], x),
+    autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
+    deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
+    dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
+    triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),
+    triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
+    ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
+    enabled_products: _atd_read_optional_field(_atd_read_array(readProduct), x['enabled_products'], x),
+  };
+}
+
 export function writeProjectMetadata(x: ProjectMetadata, context: any = x): any {
   return {
     'semgrep_version': _atd_write_required_field('ProjectMetadata', 'semgrep_version', writeVersion, x.semgrep_version, x),
@@ -1885,19 +1944,11 @@ export function readScanMetadata(x: any, context: any = x): ScanMetadata {
   };
 }
 
-export function writeProjectConfig(x: ProjectConfig, context: any = x): any {
-  return writeRawJson(x, context);
-}
-
-export function readProjectConfig(x: any, context: any = x): ProjectConfig {
-  return readRawJson(x, context);
-}
-
 export function writeScanRequest(x: ScanRequest, context: any = x): any {
   return {
     'meta': _atd_write_required_field('ScanRequest', 'meta', writeRawJson, x.meta, x),
     'project_metadata': _atd_write_optional_field(writeProjectMetadata, x.project_metadata, x),
-    'project_config': _atd_write_optional_field(writeProjectConfig, x.project_config, x),
+    'project_config': _atd_write_optional_field(writeCiConfigFromRepo, x.project_config, x),
     'scan_metadata': _atd_write_optional_field(writeScanMetadata, x.scan_metadata, x),
   };
 }
@@ -1906,40 +1957,8 @@ export function readScanRequest(x: any, context: any = x): ScanRequest {
   return {
     meta: _atd_read_required_field('ScanRequest', 'meta', readRawJson, x['meta'], x),
     project_metadata: _atd_read_optional_field(readProjectMetadata, x['project_metadata'], x),
-    project_config: _atd_read_optional_field(readProjectConfig, x['project_config'], x),
+    project_config: _atd_read_optional_field(readCiConfigFromRepo, x['project_config'], x),
     scan_metadata: _atd_read_optional_field(readScanMetadata, x['scan_metadata'], x),
-  };
-}
-
-export function writeScanConfig(x: ScanConfig, context: any = x): any {
-  return {
-    'deployment_id': _atd_write_required_field('ScanConfig', 'deployment_id', _atd_write_int, x.deployment_id, x),
-    'deployment_name': _atd_write_required_field('ScanConfig', 'deployment_name', _atd_write_string, x.deployment_name, x),
-    'policy_names': _atd_write_required_field('ScanConfig', 'policy_names', _atd_write_array(_atd_write_string), x.policy_names, x),
-    'rule_config': _atd_write_required_field('ScanConfig', 'rule_config', _atd_write_string, x.rule_config, x),
-    'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
-    'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
-    'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
-    'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
-    'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
-    'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
-    'enabled_products': _atd_write_optional_field(_atd_write_array(writeProduct), x.enabled_products, x),
-  };
-}
-
-export function readScanConfig(x: any, context: any = x): ScanConfig {
-  return {
-    deployment_id: _atd_read_required_field('ScanConfig', 'deployment_id', _atd_read_int, x['deployment_id'], x),
-    deployment_name: _atd_read_required_field('ScanConfig', 'deployment_name', _atd_read_string, x['deployment_name'], x),
-    policy_names: _atd_read_required_field('ScanConfig', 'policy_names', _atd_read_array(_atd_read_string), x['policy_names'], x),
-    rule_config: _atd_read_required_field('ScanConfig', 'rule_config', _atd_read_string, x['rule_config'], x),
-    autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
-    deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
-    dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
-    triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),
-    triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
-    ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
-    enabled_products: _atd_read_optional_field(_atd_read_array(readProduct), x['enabled_products'], x),
   };
 }
 
