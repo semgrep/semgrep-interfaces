@@ -562,18 +562,39 @@ class Extension:
 
 
 @dataclass
+class Error:
+    """Original type: error"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Error':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Error':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Errors:
     """Original type: errors = { ... }"""
 
     returnCode: Optional[int] = None
-    errors: Optional[List[str]] = None
+    errors: Optional[List[Error]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Errors':
         if isinstance(x, dict):
             return cls(
                 returnCode=_atd_read_int(x['returnCode']) if 'returnCode' in x else None,
-                errors=_atd_read_list(_atd_read_string)(x['errors']) if 'errors' in x else None,
+                errors=_atd_read_list(Error.from_json)(x['errors']) if 'errors' in x else None,
             )
         else:
             _atd_bad_json('Errors', x)
@@ -583,7 +604,7 @@ class Errors:
         if self.returnCode is not None:
             res['returnCode'] = _atd_write_int(self.returnCode)
         if self.errors is not None:
-            res['errors'] = _atd_write_list(_atd_write_string)(self.errors)
+            res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         return res
 
     @classmethod

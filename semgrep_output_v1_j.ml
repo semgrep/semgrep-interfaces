@@ -322,7 +322,6 @@ type error_type = Semgrep_output_v1_t.error_type =
   | SemgrepError
   | InvalidRuleSchemaError
   | UnknownLanguageError
-  | PatternParseError of string list
   | InvalidYaml
   | MatchingError
   | SemgrepMatchFound
@@ -332,9 +331,12 @@ type error_type = Semgrep_output_v1_t.error_type =
   | OutOfMemory
   | TimeoutDuringInterfile
   | OutOfMemoryDuringInterfile
+  | MissingPlugin
+  | PatternParseError of string list
   | PartialParsing of location list
   | IncompatibleRule of incompatible_rule
-  | MissingPlugin
+  | PatternParseError0
+  | IncompatibleRule0
 
   [@@deriving show]
 
@@ -436,7 +438,7 @@ type cli_match = Semgrep_output_v1_t.cli_match = {
 type cli_error = Semgrep_output_v1_t.cli_error = {
   code: int;
   level: error_severity;
-  type_: string;
+  type_: error_type;
   rule_id: rule_id option;
   message: string option;
   path: fpath option;
@@ -12656,12 +12658,6 @@ let write_error_type : _ -> error_type -> _ = (
       | SemgrepError -> Buffer.add_string ob "\"SemgrepError\""
       | InvalidRuleSchemaError -> Buffer.add_string ob "\"InvalidRuleSchemaError\""
       | UnknownLanguageError -> Buffer.add_string ob "\"UnknownLanguageError\""
-      | PatternParseError x ->
-        Buffer.add_string ob "[\"Pattern parse error\",";
-        (
-          write__string_list
-        ) ob x;
-        Buffer.add_char ob ']'
       | InvalidYaml -> Buffer.add_string ob "\"Invalid YAML\""
       | MatchingError -> Buffer.add_string ob "\"Internal matching error\""
       | SemgrepMatchFound -> Buffer.add_string ob "\"Semgrep match found\""
@@ -12671,6 +12667,13 @@ let write_error_type : _ -> error_type -> _ = (
       | OutOfMemory -> Buffer.add_string ob "\"Out of memory\""
       | TimeoutDuringInterfile -> Buffer.add_string ob "\"Timeout during interfile analysis\""
       | OutOfMemoryDuringInterfile -> Buffer.add_string ob "\"OOM during interfile analysis\""
+      | MissingPlugin -> Buffer.add_string ob "\"Missing plugin\""
+      | PatternParseError x ->
+        Buffer.add_string ob "[\"PatternParseError\",";
+        (
+          write__string_list
+        ) ob x;
+        Buffer.add_char ob ']'
       | PartialParsing x ->
         Buffer.add_string ob "[\"PartialParsing\",";
         (
@@ -12683,7 +12686,8 @@ let write_error_type : _ -> error_type -> _ = (
           write_incompatible_rule
         ) ob x;
         Buffer.add_char ob ']'
-      | MissingPlugin -> Buffer.add_string ob "\"MissingPlugin\""
+      | PatternParseError0 -> Buffer.add_string ob "\"Pattern parse error\""
+      | IncompatibleRule0 -> Buffer.add_string ob "\"Incompatible rule\""
 )
 let string_of_error_type ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -12727,15 +12731,6 @@ let read_error_type = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (UnknownLanguageError : error_type)
-            | "Pattern parse error" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__string_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PatternParseError x : error_type)
             | "Invalid YAML" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -12772,6 +12767,19 @@ let read_error_type = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (OutOfMemoryDuringInterfile : error_type)
+            | "Missing plugin" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (MissingPlugin : error_type)
+            | "PatternParseError" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__string_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PatternParseError x : error_type)
             | "PartialParsing" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -12790,10 +12798,14 @@ let read_error_type = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (IncompatibleRule x : error_type)
-            | "MissingPlugin" ->
+            | "Pattern parse error" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              (MissingPlugin : error_type)
+              (PatternParseError0 : error_type)
+            | "Incompatible rule" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (IncompatibleRule0 : error_type)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -12833,14 +12845,18 @@ let read_error_type = (
               (TimeoutDuringInterfile : error_type)
             | "OOM during interfile analysis" ->
               (OutOfMemoryDuringInterfile : error_type)
-            | "MissingPlugin" ->
+            | "Missing plugin" ->
               (MissingPlugin : error_type)
+            | "Pattern parse error" ->
+              (PatternParseError0 : error_type)
+            | "Incompatible rule" ->
+              (IncompatibleRule0 : error_type)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
       | `Square_bracket -> (
           match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Pattern parse error" ->
+            | "PatternParseError" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
@@ -17296,7 +17312,7 @@ let write_cli_error : _ -> cli_error -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"type\":";
     (
-      Yojson.Safe.write_string
+      write_error_type
     )
       ob x.type_;
     (match x.rule_id with None -> () | Some x ->
@@ -17531,7 +17547,7 @@ let read_cli_error = (
             field_type_ := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_error_type
                 ) p lb
               )
             );
@@ -17744,7 +17760,7 @@ let read_cli_error = (
               field_type_ := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_error_type
                   ) p lb
                 )
               );

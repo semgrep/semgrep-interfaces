@@ -162,7 +162,6 @@ export type ErrorType =
 | { kind: 'SemgrepError' }
 | { kind: 'InvalidRuleSchemaError' }
 | { kind: 'UnknownLanguageError' }
-| { kind: 'PatternParseError' /* JSON: "Pattern parse error" */; value: string[] }
 | { kind: 'InvalidYaml' /* JSON: "Invalid YAML" */ }
 | { kind: 'MatchingError' /* JSON: "Internal matching error" */ }
 | { kind: 'SemgrepMatchFound' /* JSON: "Semgrep match found" */ }
@@ -172,9 +171,12 @@ export type ErrorType =
 | { kind: 'OutOfMemory' /* JSON: "Out of memory" */ }
 | { kind: 'TimeoutDuringInterfile' /* JSON: "Timeout during interfile analysis" */ }
 | { kind: 'OutOfMemoryDuringInterfile' /* JSON: "OOM during interfile analysis" */ }
+| { kind: 'MissingPlugin' /* JSON: "Missing plugin" */ }
+| { kind: 'PatternParseError'; value: string[] }
 | { kind: 'PartialParsing'; value: Location[] }
 | { kind: 'IncompatibleRule'; value: IncompatibleRule }
-| { kind: 'MissingPlugin' }
+| { kind: 'PatternParseError0' /* JSON: "Pattern parse error" */ }
+| { kind: 'IncompatibleRule0' /* JSON: "Incompatible rule" */ }
 
 export type IncompatibleRule = {
   rule_id: RuleId;
@@ -195,7 +197,7 @@ export type CoreError = {
 export type CliError = {
   code: number /*int*/;
   level: ErrorSeverity;
-  type_: string;
+  type_: ErrorType;
   rule_id?: RuleId;
   message?: string;
   path?: Fpath;
@@ -1013,8 +1015,6 @@ export function writeErrorType(x: ErrorType, context: any = x): any {
       return 'InvalidRuleSchemaError'
     case 'UnknownLanguageError':
       return 'UnknownLanguageError'
-    case 'PatternParseError':
-      return ['Pattern parse error', _atd_write_array(_atd_write_string)(x.value, x)]
     case 'InvalidYaml':
       return 'Invalid YAML'
     case 'MatchingError':
@@ -1033,12 +1033,18 @@ export function writeErrorType(x: ErrorType, context: any = x): any {
       return 'Timeout during interfile analysis'
     case 'OutOfMemoryDuringInterfile':
       return 'OOM during interfile analysis'
+    case 'MissingPlugin':
+      return 'Missing plugin'
+    case 'PatternParseError':
+      return ['PatternParseError', _atd_write_array(_atd_write_string)(x.value, x)]
     case 'PartialParsing':
       return ['PartialParsing', _atd_write_array(writeLocation)(x.value, x)]
     case 'IncompatibleRule':
       return ['IncompatibleRule', writeIncompatibleRule(x.value, x)]
-    case 'MissingPlugin':
-      return 'MissingPlugin'
+    case 'PatternParseError0':
+      return 'Pattern parse error'
+    case 'IncompatibleRule0':
+      return 'Incompatible rule'
   }
 }
 
@@ -1079,8 +1085,12 @@ export function readErrorType(x: any, context: any = x): ErrorType {
         return { kind: 'TimeoutDuringInterfile' }
       case 'OOM during interfile analysis':
         return { kind: 'OutOfMemoryDuringInterfile' }
-      case 'MissingPlugin':
+      case 'Missing plugin':
         return { kind: 'MissingPlugin' }
+      case 'Pattern parse error':
+        return { kind: 'PatternParseError0' }
+      case 'Incompatible rule':
+        return { kind: 'IncompatibleRule0' }
       default:
         _atd_bad_json('ErrorType', x, context)
         throw new Error('impossible')
@@ -1089,7 +1099,7 @@ export function readErrorType(x: any, context: any = x): ErrorType {
   else {
     _atd_check_json_tuple(2, x, context)
     switch (x[0]) {
-      case 'Pattern parse error':
+      case 'PatternParseError':
         return { kind: 'PatternParseError', value: _atd_read_array(_atd_read_string)(x[1], x) }
       case 'PartialParsing':
         return { kind: 'PartialParsing', value: _atd_read_array(readLocation)(x[1], x) }
@@ -1146,7 +1156,7 @@ export function writeCliError(x: CliError, context: any = x): any {
   return {
     'code': _atd_write_required_field('CliError', 'code', _atd_write_int, x.code, x),
     'level': _atd_write_required_field('CliError', 'level', writeErrorSeverity, x.level, x),
-    'type': _atd_write_required_field('CliError', 'type_', _atd_write_string, x.type_, x),
+    'type': _atd_write_required_field('CliError', 'type_', writeErrorType, x.type_, x),
     'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
     'message': _atd_write_optional_field(_atd_write_string, x.message, x),
     'path': _atd_write_optional_field(writeFpath, x.path, x),
@@ -1161,7 +1171,7 @@ export function readCliError(x: any, context: any = x): CliError {
   return {
     code: _atd_read_required_field('CliError', 'code', _atd_read_int, x['code'], x),
     level: _atd_read_required_field('CliError', 'level', readErrorSeverity, x['level'], x),
-    type_: _atd_read_required_field('CliError', 'type', _atd_read_string, x['type'], x),
+    type_: _atd_read_required_field('CliError', 'type', readErrorType, x['type'], x),
     rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
     message: _atd_read_optional_field(_atd_read_string, x['message'], x),
     path: _atd_read_optional_field(readFpath, x['path'], x),

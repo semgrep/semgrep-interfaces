@@ -381,9 +381,9 @@ type match_intermediate_var <python decorator="dataclass(frozen=True)"> = {
 (* Errors *)
 (*****************************************************************************)
 
-(* coupling: if you add a constructor here with arguments, you probably need to adjust
- * _error_type_string() in semgrep/.../error.py
- * TODO? move all those <json name="..."> in _error_type_string()
+(* coupling: if you add a constructor here with arguments, you probably need
+ * to adjust _error_type_string() in error.py for pysemgrep and
+ * Error.string_of_error_type() for osemgrep.
  *)
 type error_type
     <ocaml attr="deriving show">
@@ -406,8 +406,6 @@ type error_type
   | SemgrepError <json name="SemgrepError">
   | InvalidRuleSchemaError <json name="InvalidRuleSchemaError">
   | UnknownLanguageError <json name="UnknownLanguageError">
-  (* the string list is the "YAML path" of the pattern, e.g. ["rules"; "1"; ...] *)
-  | PatternParseError <json name="Pattern parse error"> of string list
   | InvalidYaml <json name="Invalid YAML">
   (* matching (semgrep) related *)
   | MatchingError (* internal error, e.g., NoTokenLocation *) <json name="Internal matching error">
@@ -420,12 +418,23 @@ type error_type
   (* pro-engine specific *)
   | TimeoutDuringInterfile <json name="Timeout during interfile analysis">
   | OutOfMemoryDuringInterfile <json name="OOM during interfile analysis">
+  (* since semgrep 1.40.0 *)
+  | MissingPlugin <json name="Missing plugin">
+  (* !constructors with arguments! *)
+  (* the string list is the "YAML path" of the pattern, e.g. ["rules"; "1"; ...] *)
+  | PatternParseError of string list
   (* since semgrep 0.97 *)
   | PartialParsing of location list (* list of skipped tokens *)
   (* since semgrep 1.38.0 *)
   | IncompatibleRule of incompatible_rule
-  (* since semgrep 1.40.0 *)
-  | MissingPlugin
+  (* Those Xxx0 variants were introduced in semgrep 1.45.0, but actually they
+   * are here so that our backend can read the cli_error.type_ from old semgrep
+   * versions that were translating the PatternParseError _ and IncompatibleRule _
+   * above as a single string (instead of a list ["PatternParseError", ...] now).
+   * There is no PartialParsing0 because this was encoded as a ParseError instead.
+   * *)
+  | PatternParseError0 <json name="Pattern parse error">
+  | IncompatibleRule0 <json name="Incompatible rule">
 ] <ocaml repr="classic">
 
 type incompatible_rule
@@ -468,8 +477,14 @@ type cli_error = {
   (* exit code for the type_ of error *)
   code: int;
   level: error_severity;
-  (* TODO: use error_type *)
-  type_ <json name="type">: string;
+  (* before 1.45.0 the type below was 'string', but was the result
+   * of converting error_type into a string, so using directly
+   * 'error_type' below should be mostly backward compatible
+   * thx to the <json name> annotations in error_type.
+   * To be fully backward compatible, we actually introduced the
+   * PatternParseError0 and IncompatibleRule0 cases in error_type.
+   *)
+  type_ <json name="type">: error_type;
 
   (* LATER: use a variant instead of all those ?xxx types *)
 

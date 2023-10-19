@@ -322,7 +322,6 @@ type error_type = Semgrep_output_v1_t.error_type =
   | SemgrepError
   | InvalidRuleSchemaError
   | UnknownLanguageError
-  | PatternParseError of string list
   | InvalidYaml
   | MatchingError
   | SemgrepMatchFound
@@ -332,9 +331,12 @@ type error_type = Semgrep_output_v1_t.error_type =
   | OutOfMemory
   | TimeoutDuringInterfile
   | OutOfMemoryDuringInterfile
+  | MissingPlugin
+  | PatternParseError of string list
   | PartialParsing of location list
   | IncompatibleRule of incompatible_rule
-  | MissingPlugin
+  | PatternParseError0
+  | IncompatibleRule0
 
   [@@deriving show]
 
@@ -436,7 +438,7 @@ type cli_match = Semgrep_output_v1_t.cli_match = {
 type cli_error = Semgrep_output_v1_t.cli_error = {
   code: int;
   level: error_severity;
-  type_: string;
+  type_: error_type;
   rule_id: rule_id option;
   message: string option;
   path: fpath option;

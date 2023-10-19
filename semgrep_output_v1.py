@@ -3477,24 +3477,6 @@ class UnknownLanguageError:
 
 
 @dataclass(frozen=True, order=True)
-class PatternParseError:
-    """Original type: error_type = [ ... | PatternParseError of ... | ... ]"""
-
-    value: List[str]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PatternParseError'
-
-    def to_json(self) -> Any:
-        return ['Pattern parse error', _atd_write_list(_atd_write_string)(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
 class InvalidYaml:
     """Original type: error_type = [ ... | InvalidYaml | ... ]"""
 
@@ -3648,6 +3630,41 @@ class OutOfMemoryDuringInterfile:
 
 
 @dataclass(frozen=True, order=True)
+class MissingPlugin:
+    """Original type: error_type = [ ... | MissingPlugin | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'MissingPlugin'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Missing plugin'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class PatternParseError:
+    """Original type: error_type = [ ... | PatternParseError of ... | ... ]"""
+
+    value: List[str]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PatternParseError'
+
+    def to_json(self) -> Any:
+        return ['PatternParseError', _atd_write_list(_atd_write_string)(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
 class PartialParsing:
     """Original type: error_type = [ ... | PartialParsing of ... | ... ]"""
 
@@ -3684,17 +3701,34 @@ class IncompatibleRule_:
 
 
 @dataclass(frozen=True, order=True)
-class MissingPlugin:
-    """Original type: error_type = [ ... | MissingPlugin | ... ]"""
+class PatternParseError0:
+    """Original type: error_type = [ ... | PatternParseError0 | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'MissingPlugin'
+        return 'PatternParseError0'
 
     @staticmethod
     def to_json() -> Any:
-        return 'MissingPlugin'
+        return 'Pattern parse error'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class IncompatibleRule0:
+    """Original type: error_type = [ ... | IncompatibleRule0 | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'IncompatibleRule0'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Incompatible rule'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -3704,7 +3738,7 @@ class MissingPlugin:
 class ErrorType:
     """Original type: error_type = [ ... ]"""
 
-    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, PatternParseError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, PartialParsing, IncompatibleRule_, MissingPlugin]
+    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0]
 
     @property
     def kind(self) -> str:
@@ -3748,12 +3782,16 @@ class ErrorType:
                 return cls(TimeoutDuringInterfile())
             if x == 'OOM during interfile analysis':
                 return cls(OutOfMemoryDuringInterfile())
-            if x == 'MissingPlugin':
+            if x == 'Missing plugin':
                 return cls(MissingPlugin())
+            if x == 'Pattern parse error':
+                return cls(PatternParseError0())
+            if x == 'Incompatible rule':
+                return cls(IncompatibleRule0())
             _atd_bad_json('ErrorType', x)
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
-            if cons == 'Pattern parse error':
+            if cons == 'PatternParseError':
                 return cls(PatternParseError(_atd_read_list(_atd_read_string)(x[1])))
             if cons == 'PartialParsing':
                 return cls(PartialParsing(_atd_read_list(Location.from_json)(x[1])))
@@ -4344,7 +4382,7 @@ class CliError:
 
     code: int
     level: ErrorSeverity
-    type_: str
+    type_: ErrorType
     rule_id: Optional[RuleId] = None
     message: Optional[str] = None
     path: Optional[Fpath] = None
@@ -4359,7 +4397,7 @@ class CliError:
             return cls(
                 code=_atd_read_int(x['code']) if 'code' in x else _atd_missing_json_field('CliError', 'code'),
                 level=ErrorSeverity.from_json(x['level']) if 'level' in x else _atd_missing_json_field('CliError', 'level'),
-                type_=_atd_read_string(x['type']) if 'type' in x else _atd_missing_json_field('CliError', 'type'),
+                type_=ErrorType.from_json(x['type']) if 'type' in x else _atd_missing_json_field('CliError', 'type'),
                 rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else None,
                 message=_atd_read_string(x['message']) if 'message' in x else None,
                 path=Fpath.from_json(x['path']) if 'path' in x else None,
@@ -4375,7 +4413,7 @@ class CliError:
         res: Dict[str, Any] = {}
         res['code'] = _atd_write_int(self.code)
         res['level'] = (lambda x: x.to_json())(self.level)
-        res['type'] = _atd_write_string(self.type_)
+        res['type'] = (lambda x: x.to_json())(self.type_)
         if self.rule_id is not None:
             res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
         if self.message is not None:
