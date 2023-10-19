@@ -668,6 +668,43 @@
         "text": { "type": "string" }
       }
     },
+    "ci_config_from_repo": {
+      "type": "object",
+      "required": [ "version" ],
+      "properties": {
+        "version": { "$ref": "#/definitions/version" },
+        "tags": { "type": "array", "items": { "$ref": "#/definitions/tag" } }
+      }
+    },
+    "tag": { "type": "string" },
+    "scan_config": {
+      "type": "object",
+      "required": [
+        "deployment_id", "deployment_name", "policy_names", "rule_config"
+      ],
+      "properties": {
+        "deployment_id": { "type": "integer" },
+        "deployment_name": { "type": "string" },
+        "policy_names": { "type": "array", "items": { "type": "string" } },
+        "rule_config": { "type": "string" },
+        "autofix": { "type": "boolean" },
+        "deepsemgrep": { "type": "boolean" },
+        "dependency_query": { "type": "boolean" },
+        "triage_ignored_syntactic_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "triage_ignored_match_based_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "ignored_files": { "type": "array", "items": { "type": "string" } },
+        "enabled_products": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/product" }
+        }
+      }
+    },
     "project_metadata": {
       "type": "object",
       "required": [
@@ -717,43 +754,14 @@
         }
       }
     },
-    "project_config": { "$ref": "#/definitions/raw_json" },
     "scan_request": {
       "type": "object",
       "required": [ "meta" ],
       "properties": {
         "meta": { "$ref": "#/definitions/raw_json" },
         "project_metadata": { "$ref": "#/definitions/project_metadata" },
-        "project_config": { "$ref": "#/definitions/project_config" },
+        "project_config": { "$ref": "#/definitions/ci_config_from_repo" },
         "scan_metadata": { "$ref": "#/definitions/scan_metadata" }
-      }
-    },
-    "scan_config": {
-      "type": "object",
-      "required": [
-        "deployment_id", "deployment_name", "policy_names", "rule_config"
-      ],
-      "properties": {
-        "deployment_id": { "type": "integer" },
-        "deployment_name": { "type": "string" },
-        "policy_names": { "type": "array", "items": { "type": "string" } },
-        "rule_config": { "type": "string" },
-        "autofix": { "type": "boolean" },
-        "deepsemgrep": { "type": "boolean" },
-        "dependency_query": { "type": "boolean" },
-        "triage_ignored_syntactic_ids": {
-          "type": "array",
-          "items": { "type": "string" }
-        },
-        "triage_ignored_match_based_ids": {
-          "type": "array",
-          "items": { "type": "string" }
-        },
-        "ignored_files": { "type": "array", "items": { "type": "string" } },
-        "enabled_products": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/product" }
-        }
       }
     },
     "finding": {
