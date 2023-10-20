@@ -71,6 +71,10 @@ type environment = {
     ?rulesHash <ocaml mutable>: sha256 option;
     (* TODO: should be just boolean *)
     ci <ocaml mutable>: string nullable;
+    (* indicates whether `--baseline-commit` option has been specified. When
+       `baseline_commit` option is set, it implies that the scan is operating
+       in differential scan mode. Since semgrep 1.46 *)
+    ~isDiffScan <python default="False"> <ocaml mutable> : bool;
     ?integrationName <ocaml mutable>: string option;
     ~isAuthenticated <python default="False"> <ocaml mutable>: bool;
   }
@@ -146,9 +150,17 @@ type extension = {
 (* Misc *)
 (*****************************************************************************)
 
+type pro_features = {
+    (* The value is determined by the `--diff-depth` option, and it's utilized
+       for inter-file differential scanning. Since semgrep 1.46 *)
+    ?diffDepth <ocaml mutable>: int option;
+}
+
 type misc = {
     (* coupling: features is commented a lot in semgrep/PRIVACY.md *)
     features <ocaml mutable>: string list;
+    (* Since semgrep 1.46 *)
+    ?proFeatures <ocaml mutable>: pro_features option;
     ?numFindings <ocaml mutable>: int option;
     ?numIgnored <ocaml mutable>: int option;
     ?ruleHashesWithFindings <ocaml mutable>: (string * int) list <json repr="object"> option;

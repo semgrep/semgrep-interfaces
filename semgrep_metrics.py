@@ -341,6 +341,35 @@ class RuleStats:
 
 
 @dataclass
+class ProFeatures:
+    """Original type: pro_features = { ... }"""
+
+    diffDepth: Optional[int] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ProFeatures':
+        if isinstance(x, dict):
+            return cls(
+                diffDepth=_atd_read_int(x['diffDepth']) if 'diffDepth' in x else None,
+            )
+        else:
+            _atd_bad_json('ProFeatures', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        if self.diffDepth is not None:
+            res['diffDepth'] = _atd_write_int(self.diffDepth)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ProFeatures':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class FileStats:
     """Original type: file_stats = { ... }"""
 
@@ -478,6 +507,7 @@ class Misc:
     """Original type: misc = { ... }"""
 
     features: List[str]
+    proFeatures: Optional[ProFeatures] = None
     numFindings: Optional[int] = None
     numIgnored: Optional[int] = None
     ruleHashesWithFindings: Optional[List[Tuple[str, int]]] = None
@@ -488,6 +518,7 @@ class Misc:
         if isinstance(x, dict):
             return cls(
                 features=_atd_read_list(_atd_read_string)(x['features']) if 'features' in x else _atd_missing_json_field('Misc', 'features'),
+                proFeatures=ProFeatures.from_json(x['proFeatures']) if 'proFeatures' in x else None,
                 numFindings=_atd_read_int(x['numFindings']) if 'numFindings' in x else None,
                 numIgnored=_atd_read_int(x['numIgnored']) if 'numIgnored' in x else None,
                 ruleHashesWithFindings=_atd_read_assoc_object_into_list(_atd_read_int)(x['ruleHashesWithFindings']) if 'ruleHashesWithFindings' in x else None,
@@ -499,6 +530,8 @@ class Misc:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['features'] = _atd_write_list(_atd_write_string)(self.features)
+        if self.proFeatures is not None:
+            res['proFeatures'] = (lambda x: x.to_json())(self.proFeatures)
         if self.numFindings is not None:
             res['numFindings'] = _atd_write_int(self.numFindings)
         if self.numIgnored is not None:
@@ -624,6 +657,7 @@ class Environment:
     configNamesHash: Sha256
     ci: Optional[str]
     rulesHash: Optional[Sha256] = None
+    isDiffScan: bool = field(default_factory=lambda: False)
     integrationName: Optional[str] = None
     isAuthenticated: bool = field(default_factory=lambda: False)
 
@@ -636,6 +670,7 @@ class Environment:
                 configNamesHash=Sha256.from_json(x['configNamesHash']) if 'configNamesHash' in x else _atd_missing_json_field('Environment', 'configNamesHash'),
                 ci=_atd_read_nullable(_atd_read_string)(x['ci']) if 'ci' in x else _atd_missing_json_field('Environment', 'ci'),
                 rulesHash=Sha256.from_json(x['rulesHash']) if 'rulesHash' in x else None,
+                isDiffScan=_atd_read_bool(x['isDiffScan']) if 'isDiffScan' in x else False,
                 integrationName=_atd_read_string(x['integrationName']) if 'integrationName' in x else None,
                 isAuthenticated=_atd_read_bool(x['isAuthenticated']) if 'isAuthenticated' in x else False,
             )
@@ -650,6 +685,7 @@ class Environment:
         res['ci'] = _atd_write_nullable(_atd_write_string)(self.ci)
         if self.rulesHash is not None:
             res['rulesHash'] = (lambda x: x.to_json())(self.rulesHash)
+        res['isDiffScan'] = _atd_write_bool(self.isDiffScan)
         if self.integrationName is not None:
             res['integrationName'] = _atd_write_string(self.integrationName)
         res['isAuthenticated'] = _atd_write_bool(self.isAuthenticated)
