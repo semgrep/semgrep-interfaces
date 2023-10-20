@@ -507,7 +507,7 @@ class Misc:
     """Original type: misc = { ... }"""
 
     features: List[str]
-    proFeatures: Optional[ProFeatures]
+    proFeatures: Optional[ProFeatures] = None
     numFindings: Optional[int] = None
     numIgnored: Optional[int] = None
     ruleHashesWithFindings: Optional[List[Tuple[str, int]]] = None
@@ -518,7 +518,7 @@ class Misc:
         if isinstance(x, dict):
             return cls(
                 features=_atd_read_list(_atd_read_string)(x['features']) if 'features' in x else _atd_missing_json_field('Misc', 'features'),
-                proFeatures=_atd_read_option(ProFeatures.from_json)(x['proFeatures']) if 'proFeatures' in x else _atd_missing_json_field('Misc', 'proFeatures'),
+                proFeatures=ProFeatures.from_json(x['proFeatures']) if 'proFeatures' in x else None,
                 numFindings=_atd_read_int(x['numFindings']) if 'numFindings' in x else None,
                 numIgnored=_atd_read_int(x['numIgnored']) if 'numIgnored' in x else None,
                 ruleHashesWithFindings=_atd_read_assoc_object_into_list(_atd_read_int)(x['ruleHashesWithFindings']) if 'ruleHashesWithFindings' in x else None,
@@ -530,7 +530,8 @@ class Misc:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['features'] = _atd_write_list(_atd_write_string)(self.features)
-        res['proFeatures'] = _atd_write_option((lambda x: x.to_json()))(self.proFeatures)
+        if self.proFeatures is not None:
+            res['proFeatures'] = (lambda x: x.to_json())(self.proFeatures)
         if self.numFindings is not None:
             res['numFindings'] = _atd_write_int(self.numFindings)
         if self.numIgnored is not None:
