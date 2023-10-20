@@ -60,10 +60,10 @@ type environment = {
     ?rulesHash <ocaml mutable>: sha256 option;
     (* TODO: should be just boolean *)
     ci <ocaml mutable>: string nullable;
-    (* SHA-256 hash of the commit ID specified via `--baseline_commit` option.
-       If `baseline_commit` option is set, it implies that the scan is operating
+    (* indicates whether `--baseline-commit` option has been specified. When
+       `baseline_commit` option is set, it implies that the scan is operating
        in differential scan mode. Since semgrep 1.46 *)
-    ?baselineCommitHash <ocaml mutable> : sha256 option;
+    ~isDiffScan <python default="False"> <ocaml mutable> : bool;
     ?integrationName <ocaml mutable>: string option;
     ~isAuthenticated <python default="False"> <ocaml mutable>: bool;
   }
@@ -142,7 +142,7 @@ type pro_features = {
 type misc = {
     (* coupling: features is commented a lot in semgrep/PRIVACY.md *)
     features <ocaml mutable>: string list;
-    proFeatures <ocaml mutable>: pro_features;
+    proFeatures <ocaml mutable>: pro_features option;
     ?numFindings <ocaml mutable>: int option;
     ?numIgnored <ocaml mutable>: int option;
     ?ruleHashesWithFindings <ocaml mutable>: (string * int) list <json repr="object"> option;
