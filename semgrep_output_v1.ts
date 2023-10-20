@@ -16,6 +16,8 @@
 
 export type RawJson = any
 
+export type Fpath = string
+
 export type Uri = string
 
 export type Sha1 = string
@@ -31,8 +33,6 @@ export type Position = {
   col: number /*int*/;
   offset: number /*int*/;
 }
-
-export type Fpath = string
 
 export type Location = {
   path: Fpath;
@@ -428,23 +428,25 @@ export type ScanConfig = {
 
 export type ProjectMetadata = {
   semgrep_version: Version;
+  scan_environment: string;
   repository: string;
   repo_url: (Uri | null);
+  repo_id?: string;
+  org_id?: string;
   branch: (string | null);
-  ci_job_url: (Uri | null);
   commit: (Sha1 | null);
+  commit_title: (string | null);
+  commit_timestamp?: string;
   commit_author_email: (string | null);
   commit_author_name: (string | null);
   commit_author_username: (string | null);
   commit_author_image_url: (Uri | null);
-  commit_title: (string | null);
-  commit_timestamp?: string;
+  ci_job_url: (Uri | null);
   on: string;
   pull_request_author_username: (string | null);
   pull_request_author_image_url: (Uri | null);
   pull_request_id: (string | null);
   pull_request_title: (string | null);
-  scan_environment: string;
   base_sha?: Sha1;
   start_sha?: Sha1;
   is_full_scan: boolean;
@@ -555,6 +557,14 @@ export function readRawJson(x: any, context: any = x): RawJson {
   return ((x: any, context): any => x)(x, context);
 }
 
+export function writeFpath(x: Fpath, context: any = x): any {
+  return _atd_write_string(x, context);
+}
+
+export function readFpath(x: any, context: any = x): Fpath {
+  return _atd_read_string(x, context);
+}
+
 export function writeUri(x: Uri, context: any = x): any {
   return _atd_write_string(x, context);
 }
@@ -609,14 +619,6 @@ export function readPosition(x: any, context: any = x): Position {
     col: _atd_read_required_field('Position', 'col', _atd_read_int, x['col'], x),
     offset: _atd_read_field_with_default(_atd_read_int, 0, x['offset'], x),
   };
-}
-
-export function writeFpath(x: Fpath, context: any = x): any {
-  return _atd_write_string(x, context);
-}
-
-export function readFpath(x: any, context: any = x): Fpath {
-  return _atd_read_string(x, context);
 }
 
 export function writeLocation(x: Location, context: any = x): any {
@@ -1873,23 +1875,25 @@ export function readScanConfig(x: any, context: any = x): ScanConfig {
 export function writeProjectMetadata(x: ProjectMetadata, context: any = x): any {
   return {
     'semgrep_version': _atd_write_required_field('ProjectMetadata', 'semgrep_version', writeVersion, x.semgrep_version, x),
+    'scan_environment': _atd_write_required_field('ProjectMetadata', 'scan_environment', _atd_write_string, x.scan_environment, x),
     'repository': _atd_write_required_field('ProjectMetadata', 'repository', _atd_write_string, x.repository, x),
     'repo_url': _atd_write_required_field('ProjectMetadata', 'repo_url', _atd_write_nullable(writeUri), x.repo_url, x),
+    'repo_id': _atd_write_optional_field(_atd_write_string, x.repo_id, x),
+    'org_id': _atd_write_optional_field(_atd_write_string, x.org_id, x),
     'branch': _atd_write_required_field('ProjectMetadata', 'branch', _atd_write_nullable(_atd_write_string), x.branch, x),
-    'ci_job_url': _atd_write_required_field('ProjectMetadata', 'ci_job_url', _atd_write_nullable(writeUri), x.ci_job_url, x),
     'commit': _atd_write_required_field('ProjectMetadata', 'commit', _atd_write_nullable(writeSha1), x.commit, x),
+    'commit_title': _atd_write_required_field('ProjectMetadata', 'commit_title', _atd_write_nullable(_atd_write_string), x.commit_title, x),
+    'commit_timestamp': _atd_write_optional_field(_atd_write_string, x.commit_timestamp, x),
     'commit_author_email': _atd_write_required_field('ProjectMetadata', 'commit_author_email', _atd_write_nullable(_atd_write_string), x.commit_author_email, x),
     'commit_author_name': _atd_write_required_field('ProjectMetadata', 'commit_author_name', _atd_write_nullable(_atd_write_string), x.commit_author_name, x),
     'commit_author_username': _atd_write_required_field('ProjectMetadata', 'commit_author_username', _atd_write_nullable(_atd_write_string), x.commit_author_username, x),
     'commit_author_image_url': _atd_write_required_field('ProjectMetadata', 'commit_author_image_url', _atd_write_nullable(writeUri), x.commit_author_image_url, x),
-    'commit_title': _atd_write_required_field('ProjectMetadata', 'commit_title', _atd_write_nullable(_atd_write_string), x.commit_title, x),
-    'commit_timestamp': _atd_write_optional_field(_atd_write_string, x.commit_timestamp, x),
+    'ci_job_url': _atd_write_required_field('ProjectMetadata', 'ci_job_url', _atd_write_nullable(writeUri), x.ci_job_url, x),
     'on': _atd_write_required_field('ProjectMetadata', 'on', _atd_write_string, x.on, x),
     'pull_request_author_username': _atd_write_required_field('ProjectMetadata', 'pull_request_author_username', _atd_write_nullable(_atd_write_string), x.pull_request_author_username, x),
     'pull_request_author_image_url': _atd_write_required_field('ProjectMetadata', 'pull_request_author_image_url', _atd_write_nullable(writeUri), x.pull_request_author_image_url, x),
     'pull_request_id': _atd_write_required_field('ProjectMetadata', 'pull_request_id', _atd_write_nullable(_atd_write_string), x.pull_request_id, x),
     'pull_request_title': _atd_write_required_field('ProjectMetadata', 'pull_request_title', _atd_write_nullable(_atd_write_string), x.pull_request_title, x),
-    'scan_environment': _atd_write_required_field('ProjectMetadata', 'scan_environment', _atd_write_string, x.scan_environment, x),
     'base_sha': _atd_write_optional_field(writeSha1, x.base_sha, x),
     'start_sha': _atd_write_optional_field(writeSha1, x.start_sha, x),
     'is_full_scan': _atd_write_required_field('ProjectMetadata', 'is_full_scan', _atd_write_bool, x.is_full_scan, x),
@@ -1902,23 +1906,25 @@ export function writeProjectMetadata(x: ProjectMetadata, context: any = x): any 
 export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
   return {
     semgrep_version: _atd_read_required_field('ProjectMetadata', 'semgrep_version', readVersion, x['semgrep_version'], x),
+    scan_environment: _atd_read_required_field('ProjectMetadata', 'scan_environment', _atd_read_string, x['scan_environment'], x),
     repository: _atd_read_required_field('ProjectMetadata', 'repository', _atd_read_string, x['repository'], x),
     repo_url: _atd_read_required_field('ProjectMetadata', 'repo_url', _atd_read_nullable(readUri), x['repo_url'], x),
+    repo_id: _atd_read_optional_field(_atd_read_string, x['repo_id'], x),
+    org_id: _atd_read_optional_field(_atd_read_string, x['org_id'], x),
     branch: _atd_read_required_field('ProjectMetadata', 'branch', _atd_read_nullable(_atd_read_string), x['branch'], x),
-    ci_job_url: _atd_read_required_field('ProjectMetadata', 'ci_job_url', _atd_read_nullable(readUri), x['ci_job_url'], x),
     commit: _atd_read_required_field('ProjectMetadata', 'commit', _atd_read_nullable(readSha1), x['commit'], x),
+    commit_title: _atd_read_required_field('ProjectMetadata', 'commit_title', _atd_read_nullable(_atd_read_string), x['commit_title'], x),
+    commit_timestamp: _atd_read_optional_field(_atd_read_string, x['commit_timestamp'], x),
     commit_author_email: _atd_read_required_field('ProjectMetadata', 'commit_author_email', _atd_read_nullable(_atd_read_string), x['commit_author_email'], x),
     commit_author_name: _atd_read_required_field('ProjectMetadata', 'commit_author_name', _atd_read_nullable(_atd_read_string), x['commit_author_name'], x),
     commit_author_username: _atd_read_required_field('ProjectMetadata', 'commit_author_username', _atd_read_nullable(_atd_read_string), x['commit_author_username'], x),
     commit_author_image_url: _atd_read_required_field('ProjectMetadata', 'commit_author_image_url', _atd_read_nullable(readUri), x['commit_author_image_url'], x),
-    commit_title: _atd_read_required_field('ProjectMetadata', 'commit_title', _atd_read_nullable(_atd_read_string), x['commit_title'], x),
-    commit_timestamp: _atd_read_optional_field(_atd_read_string, x['commit_timestamp'], x),
+    ci_job_url: _atd_read_required_field('ProjectMetadata', 'ci_job_url', _atd_read_nullable(readUri), x['ci_job_url'], x),
     on: _atd_read_required_field('ProjectMetadata', 'on', _atd_read_string, x['on'], x),
     pull_request_author_username: _atd_read_required_field('ProjectMetadata', 'pull_request_author_username', _atd_read_nullable(_atd_read_string), x['pull_request_author_username'], x),
     pull_request_author_image_url: _atd_read_required_field('ProjectMetadata', 'pull_request_author_image_url', _atd_read_nullable(readUri), x['pull_request_author_image_url'], x),
     pull_request_id: _atd_read_required_field('ProjectMetadata', 'pull_request_id', _atd_read_nullable(_atd_read_string), x['pull_request_id'], x),
     pull_request_title: _atd_read_required_field('ProjectMetadata', 'pull_request_title', _atd_read_nullable(_atd_read_string), x['pull_request_title'], x),
-    scan_environment: _atd_read_required_field('ProjectMetadata', 'scan_environment', _atd_read_string, x['scan_environment'], x),
     base_sha: _atd_read_optional_field(readSha1, x['base_sha'], x),
     start_sha: _atd_read_optional_field(readSha1, x['start_sha'], x),
     is_full_scan: _atd_read_required_field('ProjectMetadata', 'is_full_scan', _atd_read_bool, x['is_full_scan'], x),

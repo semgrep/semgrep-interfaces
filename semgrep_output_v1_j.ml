@@ -167,23 +167,25 @@ type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
 
 type project_metadata = Semgrep_output_v1_t.project_metadata = {
   semgrep_version: version;
+  scan_environment: string;
   repository: string;
   repo_url: uri option;
+  repo_id: string option;
+  org_id: string option;
   branch: string option;
-  ci_job_url: uri option;
   commit: sha1 option;
+  commit_title: string option;
+  commit_timestamp: string option;
   commit_author_email: string option;
   commit_author_name: string option;
   commit_author_username: string option;
   commit_author_image_url: uri option;
-  commit_title: string option;
-  commit_timestamp: string option;
+  ci_job_url: uri option;
   on: string;
   pull_request_author_username: string option;
   pull_request_author_image_url: uri option;
   pull_request_id: string option;
   pull_request_title: string option;
-  scan_environment: string;
   base_sha: sha1 option;
   start_sha: sha1 option;
   is_full_scan: bool;
@@ -6044,6 +6046,15 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
+      Buffer.add_string ob "\"scan_environment\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.scan_environment;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
       Buffer.add_string ob "\"repository\":";
     (
       Yojson.Safe.write_string
@@ -6058,6 +6069,28 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       write__uri_nullable
     )
       ob x.repo_url;
+    (match x.repo_id with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"repo_id\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
+    (match x.org_id with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"org_id\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
     if !is_first then
       is_first := false
     else
@@ -6071,20 +6104,31 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"ci_job_url\":";
-    (
-      write__uri_nullable
-    )
-      ob x.ci_job_url;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit\":";
     (
       write__sha1_nullable
     )
       ob x.commit;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"commit_title\":";
+    (
+      write__string_nullable
+    )
+      ob x.commit_title;
+    (match x.commit_timestamp with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"commit_timestamp\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
     if !is_first then
       is_first := false
     else
@@ -6125,22 +6169,11 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"commit_title\":";
+      Buffer.add_string ob "\"ci_job_url\":";
     (
-      write__string_nullable
+      write__uri_nullable
     )
-      ob x.commit_title;
-    (match x.commit_timestamp with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"commit_timestamp\":";
-      (
-        Yojson.Safe.write_string
-      )
-        ob x;
-    );
+      ob x.ci_job_url;
     if !is_first then
       is_first := false
     else
@@ -6186,15 +6219,6 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       write__string_nullable
     )
       ob x.pull_request_title;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"scan_environment\":";
-    (
-      Yojson.Safe.write_string
-    )
-      ob x.scan_environment;
     (match x.base_sha with None -> () | Some x ->
       if !is_first then
         is_first := false
@@ -6270,23 +6294,25 @@ let read_project_metadata = (
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
     let field_semgrep_version = ref (None) in
+    let field_scan_environment = ref (None) in
     let field_repository = ref (None) in
     let field_repo_url = ref (None) in
+    let field_repo_id = ref (None) in
+    let field_org_id = ref (None) in
     let field_branch = ref (None) in
-    let field_ci_job_url = ref (None) in
     let field_commit = ref (None) in
+    let field_commit_title = ref (None) in
+    let field_commit_timestamp = ref (None) in
     let field_commit_author_email = ref (None) in
     let field_commit_author_name = ref (None) in
     let field_commit_author_username = ref (None) in
     let field_commit_author_image_url = ref (None) in
-    let field_commit_title = ref (None) in
-    let field_commit_timestamp = ref (None) in
+    let field_ci_job_url = ref (None) in
     let field_on = ref (None) in
     let field_pull_request_author_username = ref (None) in
     let field_pull_request_author_image_url = ref (None) in
     let field_pull_request_id = ref (None) in
     let field_pull_request_title = ref (None) in
-    let field_scan_environment = ref (None) in
     let field_base_sha = ref (None) in
     let field_start_sha = ref (None) in
     let field_is_full_scan = ref (None) in
@@ -6304,7 +6330,7 @@ let read_project_metadata = (
           match len with
             | 2 -> (
                 if String.unsafe_get s pos = 'o' && String.unsafe_get s (pos+1) = 'n' then (
-                  12
+                  15
                 )
                 else (
                   -1
@@ -6314,7 +6340,7 @@ let read_project_metadata = (
                 match String.unsafe_get s pos with
                   | 'b' -> (
                       if String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'h' then (
-                        3
+                        6
                       )
                       else (
                         -1
@@ -6322,6 +6348,14 @@ let read_project_metadata = (
                     )
                   | 'c' -> (
                       if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' then (
+                        7
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 'o' -> (
+                      if String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'd' then (
                         5
                       )
                       else (
@@ -6332,11 +6366,19 @@ let read_project_metadata = (
                       -1
                     )
               )
+            | 7 -> (
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
+                  4
+                )
+                else (
+                  -1
+                )
+              )
             | 8 -> (
                 match String.unsafe_get s pos with
                   | 'b' -> (
                       if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 'h' && String.unsafe_get s (pos+7) = 'a' then (
-                        18
+                        20
                       )
                       else (
                         -1
@@ -6344,7 +6386,7 @@ let read_project_metadata = (
                     )
                   | 'r' -> (
                       if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'u' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'l' then (
-                        2
+                        3
                       )
                       else (
                         -1
@@ -6356,7 +6398,7 @@ let read_project_metadata = (
               )
             | 9 -> (
                 if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 'h' && String.unsafe_get s (pos+8) = 'a' then (
-                  19
+                  21
                 )
                 else (
                   -1
@@ -6366,7 +6408,7 @@ let read_project_metadata = (
                 match String.unsafe_get s pos with
                   | 'c' -> (
                       if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'j' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'b' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'l' then (
-                        4
+                        14
                       )
                       else (
                         -1
@@ -6374,7 +6416,7 @@ let read_project_metadata = (
                     )
                   | 'r' -> (
                       if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'y' then (
-                        1
+                        2
                       )
                       else (
                         -1
@@ -6386,7 +6428,7 @@ let read_project_metadata = (
               )
             | 11 -> (
                 if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'n' then (
-                  21
+                  23
                 )
                 else (
                   -1
@@ -6396,7 +6438,7 @@ let read_project_metadata = (
                 match String.unsafe_get s pos with
                   | 'c' -> (
                       if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' then (
-                        10
+                        8
                       )
                       else (
                         -1
@@ -6407,7 +6449,7 @@ let read_project_metadata = (
                         match String.unsafe_get s (pos+3) with
                           | 'c' -> (
                               if String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 'c' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'n' then (
-                                22
+                                24
                               )
                               else (
                                 -1
@@ -6415,7 +6457,7 @@ let read_project_metadata = (
                             )
                           | 'f' -> (
                               if String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 'c' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'n' then (
-                                20
+                                22
                               )
                               else (
                                 -1
@@ -6437,7 +6479,7 @@ let read_project_metadata = (
                 match String.unsafe_get s pos with
                   | 'i' -> (
                       if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'n' then (
-                        23
+                        25
                       )
                       else (
                         -1
@@ -6445,7 +6487,7 @@ let read_project_metadata = (
                     )
                   | 'p' -> (
                       if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'q' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'd' then (
-                        15
+                        18
                       )
                       else (
                         -1
@@ -6467,7 +6509,7 @@ let read_project_metadata = (
                 match String.unsafe_get s pos with
                   | 'c' -> (
                       if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'm' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'm' && String.unsafe_get s (pos+15) = 'p' then (
-                        11
+                        9
                       )
                       else (
                         -1
@@ -6475,7 +6517,7 @@ let read_project_metadata = (
                     )
                   | 's' -> (
                       if String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'v' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 'm' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 't' then (
-                        17
+                        1
                       )
                       else (
                         -1
@@ -6489,7 +6531,7 @@ let read_project_metadata = (
                 match String.unsafe_get s pos with
                   | 'c' -> (
                       if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 'a' && String.unsafe_get s (pos+16) = 'm' && String.unsafe_get s (pos+17) = 'e' then (
-                        7
+                        11
                       )
                       else (
                         -1
@@ -6497,7 +6539,7 @@ let read_project_metadata = (
                     )
                   | 'p' -> (
                       if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'q' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 't' && String.unsafe_get s (pos+16) = 'l' && String.unsafe_get s (pos+17) = 'e' then (
-                        16
+                        19
                       )
                       else (
                         -1
@@ -6509,7 +6551,7 @@ let read_project_metadata = (
               )
             | 19 -> (
                 if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'm' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 'l' then (
-                  6
+                  10
                 )
                 else (
                   -1
@@ -6517,7 +6559,7 @@ let read_project_metadata = (
               )
             | 22 -> (
                 if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 's' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 'r' && String.unsafe_get s (pos+18) = 'n' && String.unsafe_get s (pos+19) = 'a' && String.unsafe_get s (pos+20) = 'm' && String.unsafe_get s (pos+21) = 'e' then (
-                  8
+                  12
                 )
                 else (
                   -1
@@ -6525,7 +6567,7 @@ let read_project_metadata = (
               )
             | 23 -> (
                 if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 'm' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 'g' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 'u' && String.unsafe_get s (pos+21) = 'r' && String.unsafe_get s (pos+22) = 'l' then (
-                  9
+                  13
                 )
                 else (
                   -1
@@ -6533,7 +6575,7 @@ let read_project_metadata = (
               )
             | 28 -> (
                 if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'q' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 't' && String.unsafe_get s (pos+16) = 'h' && String.unsafe_get s (pos+17) = 'o' && String.unsafe_get s (pos+18) = 'r' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 'u' && String.unsafe_get s (pos+21) = 's' && String.unsafe_get s (pos+22) = 'e' && String.unsafe_get s (pos+23) = 'r' && String.unsafe_get s (pos+24) = 'n' && String.unsafe_get s (pos+25) = 'a' && String.unsafe_get s (pos+26) = 'm' && String.unsafe_get s (pos+27) = 'e' then (
-                  13
+                  16
                 )
                 else (
                   -1
@@ -6541,7 +6583,7 @@ let read_project_metadata = (
               )
             | 29 -> (
                 if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'q' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 't' && String.unsafe_get s (pos+16) = 'h' && String.unsafe_get s (pos+17) = 'o' && String.unsafe_get s (pos+18) = 'r' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 'i' && String.unsafe_get s (pos+21) = 'm' && String.unsafe_get s (pos+22) = 'a' && String.unsafe_get s (pos+23) = 'g' && String.unsafe_get s (pos+24) = 'e' && String.unsafe_get s (pos+25) = '_' && String.unsafe_get s (pos+26) = 'u' && String.unsafe_get s (pos+27) = 'r' && String.unsafe_get s (pos+28) = 'l' then (
-                  14
+                  17
                 )
                 else (
                   -1
@@ -6564,7 +6606,7 @@ let read_project_metadata = (
               )
             );
           | 1 ->
-            field_repository := (
+            field_scan_environment := (
               Some (
                 (
                   Atdgen_runtime.Oj_run.read_string
@@ -6572,6 +6614,14 @@ let read_project_metadata = (
               )
             );
           | 2 ->
+            field_repository := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | 3 ->
             field_repo_url := (
               Some (
                 (
@@ -6579,7 +6629,27 @@ let read_project_metadata = (
                 ) p lb
               )
             );
-          | 3 ->
+          | 4 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_repo_id := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
+          | 5 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_org_id := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
+          | 6 ->
             field_branch := (
               Some (
                 (
@@ -6587,15 +6657,7 @@ let read_project_metadata = (
                 ) p lb
               )
             );
-          | 4 ->
-            field_ci_job_url := (
-              Some (
-                (
-                  read__uri_nullable
-                ) p lb
-              )
-            );
-          | 5 ->
+          | 7 ->
             field_commit := (
               Some (
                 (
@@ -6603,39 +6665,7 @@ let read_project_metadata = (
                 ) p lb
               )
             );
-          | 6 ->
-            field_commit_author_email := (
-              Some (
-                (
-                  read__string_nullable
-                ) p lb
-              )
-            );
-          | 7 ->
-            field_commit_author_name := (
-              Some (
-                (
-                  read__string_nullable
-                ) p lb
-              )
-            );
           | 8 ->
-            field_commit_author_username := (
-              Some (
-                (
-                  read__string_nullable
-                ) p lb
-              )
-            );
-          | 9 ->
-            field_commit_author_image_url := (
-              Some (
-                (
-                  read__uri_nullable
-                ) p lb
-              )
-            );
-          | 10 ->
             field_commit_title := (
               Some (
                 (
@@ -6643,7 +6673,7 @@ let read_project_metadata = (
                 ) p lb
               )
             );
-          | 11 ->
+          | 9 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_commit_timestamp := (
                 Some (
@@ -6653,24 +6683,40 @@ let read_project_metadata = (
                 )
               );
             )
-          | 12 ->
-            field_on := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              )
-            );
-          | 13 ->
-            field_pull_request_author_username := (
+          | 10 ->
+            field_commit_author_email := (
               Some (
                 (
                   read__string_nullable
                 ) p lb
               )
             );
+          | 11 ->
+            field_commit_author_name := (
+              Some (
+                (
+                  read__string_nullable
+                ) p lb
+              )
+            );
+          | 12 ->
+            field_commit_author_username := (
+              Some (
+                (
+                  read__string_nullable
+                ) p lb
+              )
+            );
+          | 13 ->
+            field_commit_author_image_url := (
+              Some (
+                (
+                  read__uri_nullable
+                ) p lb
+              )
+            );
           | 14 ->
-            field_pull_request_author_image_url := (
+            field_ci_job_url := (
               Some (
                 (
                   read__uri_nullable
@@ -6678,15 +6724,15 @@ let read_project_metadata = (
               )
             );
           | 15 ->
-            field_pull_request_id := (
+            field_on := (
               Some (
                 (
-                  read__string_nullable
+                  Atdgen_runtime.Oj_run.read_string
                 ) p lb
               )
             );
           | 16 ->
-            field_pull_request_title := (
+            field_pull_request_author_username := (
               Some (
                 (
                   read__string_nullable
@@ -6694,14 +6740,30 @@ let read_project_metadata = (
               )
             );
           | 17 ->
-            field_scan_environment := (
+            field_pull_request_author_image_url := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read__uri_nullable
                 ) p lb
               )
             );
           | 18 ->
+            field_pull_request_id := (
+              Some (
+                (
+                  read__string_nullable
+                ) p lb
+              )
+            );
+          | 19 ->
+            field_pull_request_title := (
+              Some (
+                (
+                  read__string_nullable
+                ) p lb
+              )
+            );
+          | 20 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_base_sha := (
                 Some (
@@ -6711,7 +6773,7 @@ let read_project_metadata = (
                 )
               );
             )
-          | 19 ->
+          | 21 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_start_sha := (
                 Some (
@@ -6721,7 +6783,7 @@ let read_project_metadata = (
                 )
               );
             )
-          | 20 ->
+          | 22 ->
             field_is_full_scan := (
               Some (
                 (
@@ -6729,7 +6791,7 @@ let read_project_metadata = (
                 ) p lb
               )
             );
-          | 21 ->
+          | 23 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_is_sca_scan := (
                 Some (
@@ -6739,7 +6801,7 @@ let read_project_metadata = (
                 )
               );
             )
-          | 22 ->
+          | 24 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_is_code_scan := (
                 Some (
@@ -6749,7 +6811,7 @@ let read_project_metadata = (
                 )
               );
             )
-          | 23 ->
+          | 25 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_is_secrets_scan := (
                 Some (
@@ -6774,7 +6836,7 @@ let read_project_metadata = (
             match len with
               | 2 -> (
                   if String.unsafe_get s pos = 'o' && String.unsafe_get s (pos+1) = 'n' then (
-                    12
+                    15
                   )
                   else (
                     -1
@@ -6784,7 +6846,7 @@ let read_project_metadata = (
                   match String.unsafe_get s pos with
                     | 'b' -> (
                         if String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'h' then (
-                          3
+                          6
                         )
                         else (
                           -1
@@ -6792,6 +6854,14 @@ let read_project_metadata = (
                       )
                     | 'c' -> (
                         if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' then (
+                          7
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'o' -> (
+                        if String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'd' then (
                           5
                         )
                         else (
@@ -6802,11 +6872,19 @@ let read_project_metadata = (
                         -1
                       )
                 )
+              | 7 -> (
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
+                    4
+                  )
+                  else (
+                    -1
+                  )
+                )
               | 8 -> (
                   match String.unsafe_get s pos with
                     | 'b' -> (
                         if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 'h' && String.unsafe_get s (pos+7) = 'a' then (
-                          18
+                          20
                         )
                         else (
                           -1
@@ -6814,7 +6892,7 @@ let read_project_metadata = (
                       )
                     | 'r' -> (
                         if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'u' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'l' then (
-                          2
+                          3
                         )
                         else (
                           -1
@@ -6826,7 +6904,7 @@ let read_project_metadata = (
                 )
               | 9 -> (
                   if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 'h' && String.unsafe_get s (pos+8) = 'a' then (
-                    19
+                    21
                   )
                   else (
                     -1
@@ -6836,7 +6914,7 @@ let read_project_metadata = (
                   match String.unsafe_get s pos with
                     | 'c' -> (
                         if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'j' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'b' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'l' then (
-                          4
+                          14
                         )
                         else (
                           -1
@@ -6844,7 +6922,7 @@ let read_project_metadata = (
                       )
                     | 'r' -> (
                         if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'y' then (
-                          1
+                          2
                         )
                         else (
                           -1
@@ -6856,7 +6934,7 @@ let read_project_metadata = (
                 )
               | 11 -> (
                   if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'n' then (
-                    21
+                    23
                   )
                   else (
                     -1
@@ -6866,7 +6944,7 @@ let read_project_metadata = (
                   match String.unsafe_get s pos with
                     | 'c' -> (
                         if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' then (
-                          10
+                          8
                         )
                         else (
                           -1
@@ -6877,7 +6955,7 @@ let read_project_metadata = (
                           match String.unsafe_get s (pos+3) with
                             | 'c' -> (
                                 if String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 'c' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'n' then (
-                                  22
+                                  24
                                 )
                                 else (
                                   -1
@@ -6885,7 +6963,7 @@ let read_project_metadata = (
                               )
                             | 'f' -> (
                                 if String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 'c' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'n' then (
-                                  20
+                                  22
                                 )
                                 else (
                                   -1
@@ -6907,7 +6985,7 @@ let read_project_metadata = (
                   match String.unsafe_get s pos with
                     | 'i' -> (
                         if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'n' then (
-                          23
+                          25
                         )
                         else (
                           -1
@@ -6915,7 +6993,7 @@ let read_project_metadata = (
                       )
                     | 'p' -> (
                         if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'q' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'd' then (
-                          15
+                          18
                         )
                         else (
                           -1
@@ -6937,7 +7015,7 @@ let read_project_metadata = (
                   match String.unsafe_get s pos with
                     | 'c' -> (
                         if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'm' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'm' && String.unsafe_get s (pos+15) = 'p' then (
-                          11
+                          9
                         )
                         else (
                           -1
@@ -6945,7 +7023,7 @@ let read_project_metadata = (
                       )
                     | 's' -> (
                         if String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'v' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 'm' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 't' then (
-                          17
+                          1
                         )
                         else (
                           -1
@@ -6959,7 +7037,7 @@ let read_project_metadata = (
                   match String.unsafe_get s pos with
                     | 'c' -> (
                         if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 'a' && String.unsafe_get s (pos+16) = 'm' && String.unsafe_get s (pos+17) = 'e' then (
-                          7
+                          11
                         )
                         else (
                           -1
@@ -6967,7 +7045,7 @@ let read_project_metadata = (
                       )
                     | 'p' -> (
                         if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'q' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 't' && String.unsafe_get s (pos+16) = 'l' && String.unsafe_get s (pos+17) = 'e' then (
-                          16
+                          19
                         )
                         else (
                           -1
@@ -6979,7 +7057,7 @@ let read_project_metadata = (
                 )
               | 19 -> (
                   if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'm' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 'l' then (
-                    6
+                    10
                   )
                   else (
                     -1
@@ -6987,7 +7065,7 @@ let read_project_metadata = (
                 )
               | 22 -> (
                   if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 's' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 'r' && String.unsafe_get s (pos+18) = 'n' && String.unsafe_get s (pos+19) = 'a' && String.unsafe_get s (pos+20) = 'm' && String.unsafe_get s (pos+21) = 'e' then (
-                    8
+                    12
                   )
                   else (
                     -1
@@ -6995,7 +7073,7 @@ let read_project_metadata = (
                 )
               | 23 -> (
                   if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 'm' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 'g' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 'u' && String.unsafe_get s (pos+21) = 'r' && String.unsafe_get s (pos+22) = 'l' then (
-                    9
+                    13
                   )
                   else (
                     -1
@@ -7003,7 +7081,7 @@ let read_project_metadata = (
                 )
               | 28 -> (
                   if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'q' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 't' && String.unsafe_get s (pos+16) = 'h' && String.unsafe_get s (pos+17) = 'o' && String.unsafe_get s (pos+18) = 'r' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 'u' && String.unsafe_get s (pos+21) = 's' && String.unsafe_get s (pos+22) = 'e' && String.unsafe_get s (pos+23) = 'r' && String.unsafe_get s (pos+24) = 'n' && String.unsafe_get s (pos+25) = 'a' && String.unsafe_get s (pos+26) = 'm' && String.unsafe_get s (pos+27) = 'e' then (
-                    13
+                    16
                   )
                   else (
                     -1
@@ -7011,7 +7089,7 @@ let read_project_metadata = (
                 )
               | 29 -> (
                   if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'q' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 't' && String.unsafe_get s (pos+16) = 'h' && String.unsafe_get s (pos+17) = 'o' && String.unsafe_get s (pos+18) = 'r' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 'i' && String.unsafe_get s (pos+21) = 'm' && String.unsafe_get s (pos+22) = 'a' && String.unsafe_get s (pos+23) = 'g' && String.unsafe_get s (pos+24) = 'e' && String.unsafe_get s (pos+25) = '_' && String.unsafe_get s (pos+26) = 'u' && String.unsafe_get s (pos+27) = 'r' && String.unsafe_get s (pos+28) = 'l' then (
-                    14
+                    17
                   )
                   else (
                     -1
@@ -7034,7 +7112,7 @@ let read_project_metadata = (
                 )
               );
             | 1 ->
-              field_repository := (
+              field_scan_environment := (
                 Some (
                   (
                     Atdgen_runtime.Oj_run.read_string
@@ -7042,6 +7120,14 @@ let read_project_metadata = (
                 )
               );
             | 2 ->
+              field_repository := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | 3 ->
               field_repo_url := (
                 Some (
                   (
@@ -7049,7 +7135,27 @@ let read_project_metadata = (
                   ) p lb
                 )
               );
-            | 3 ->
+            | 4 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_repo_id := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
+            | 5 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_org_id := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
+            | 6 ->
               field_branch := (
                 Some (
                   (
@@ -7057,15 +7163,7 @@ let read_project_metadata = (
                   ) p lb
                 )
               );
-            | 4 ->
-              field_ci_job_url := (
-                Some (
-                  (
-                    read__uri_nullable
-                  ) p lb
-                )
-              );
-            | 5 ->
+            | 7 ->
               field_commit := (
                 Some (
                   (
@@ -7073,39 +7171,7 @@ let read_project_metadata = (
                   ) p lb
                 )
               );
-            | 6 ->
-              field_commit_author_email := (
-                Some (
-                  (
-                    read__string_nullable
-                  ) p lb
-                )
-              );
-            | 7 ->
-              field_commit_author_name := (
-                Some (
-                  (
-                    read__string_nullable
-                  ) p lb
-                )
-              );
             | 8 ->
-              field_commit_author_username := (
-                Some (
-                  (
-                    read__string_nullable
-                  ) p lb
-                )
-              );
-            | 9 ->
-              field_commit_author_image_url := (
-                Some (
-                  (
-                    read__uri_nullable
-                  ) p lb
-                )
-              );
-            | 10 ->
               field_commit_title := (
                 Some (
                   (
@@ -7113,7 +7179,7 @@ let read_project_metadata = (
                   ) p lb
                 )
               );
-            | 11 ->
+            | 9 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_commit_timestamp := (
                   Some (
@@ -7123,24 +7189,40 @@ let read_project_metadata = (
                   )
                 );
               )
-            | 12 ->
-              field_on := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            | 13 ->
-              field_pull_request_author_username := (
+            | 10 ->
+              field_commit_author_email := (
                 Some (
                   (
                     read__string_nullable
                   ) p lb
                 )
               );
+            | 11 ->
+              field_commit_author_name := (
+                Some (
+                  (
+                    read__string_nullable
+                  ) p lb
+                )
+              );
+            | 12 ->
+              field_commit_author_username := (
+                Some (
+                  (
+                    read__string_nullable
+                  ) p lb
+                )
+              );
+            | 13 ->
+              field_commit_author_image_url := (
+                Some (
+                  (
+                    read__uri_nullable
+                  ) p lb
+                )
+              );
             | 14 ->
-              field_pull_request_author_image_url := (
+              field_ci_job_url := (
                 Some (
                   (
                     read__uri_nullable
@@ -7148,15 +7230,15 @@ let read_project_metadata = (
                 )
               );
             | 15 ->
-              field_pull_request_id := (
+              field_on := (
                 Some (
                   (
-                    read__string_nullable
+                    Atdgen_runtime.Oj_run.read_string
                   ) p lb
                 )
               );
             | 16 ->
-              field_pull_request_title := (
+              field_pull_request_author_username := (
                 Some (
                   (
                     read__string_nullable
@@ -7164,14 +7246,30 @@ let read_project_metadata = (
                 )
               );
             | 17 ->
-              field_scan_environment := (
+              field_pull_request_author_image_url := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read__uri_nullable
                   ) p lb
                 )
               );
             | 18 ->
+              field_pull_request_id := (
+                Some (
+                  (
+                    read__string_nullable
+                  ) p lb
+                )
+              );
+            | 19 ->
+              field_pull_request_title := (
+                Some (
+                  (
+                    read__string_nullable
+                  ) p lb
+                )
+              );
+            | 20 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_base_sha := (
                   Some (
@@ -7181,7 +7279,7 @@ let read_project_metadata = (
                   )
                 );
               )
-            | 19 ->
+            | 21 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_start_sha := (
                   Some (
@@ -7191,7 +7289,7 @@ let read_project_metadata = (
                   )
                 );
               )
-            | 20 ->
+            | 22 ->
               field_is_full_scan := (
                 Some (
                   (
@@ -7199,7 +7297,7 @@ let read_project_metadata = (
                   ) p lb
                 )
               );
-            | 21 ->
+            | 23 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_is_sca_scan := (
                   Some (
@@ -7209,7 +7307,7 @@ let read_project_metadata = (
                   )
                 );
               )
-            | 22 ->
+            | 24 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_is_code_scan := (
                   Some (
@@ -7219,7 +7317,7 @@ let read_project_metadata = (
                   )
                 );
               )
-            | 23 ->
+            | 25 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_is_secrets_scan := (
                   Some (
@@ -7239,23 +7337,25 @@ let read_project_metadata = (
         (
           {
             semgrep_version = (match !field_semgrep_version with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "semgrep_version");
+            scan_environment = (match !field_scan_environment with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "scan_environment");
             repository = (match !field_repository with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "repository");
             repo_url = (match !field_repo_url with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "repo_url");
+            repo_id = !field_repo_id;
+            org_id = !field_org_id;
             branch = (match !field_branch with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "branch");
-            ci_job_url = (match !field_ci_job_url with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "ci_job_url");
             commit = (match !field_commit with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit");
+            commit_title = (match !field_commit_title with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_title");
+            commit_timestamp = !field_commit_timestamp;
             commit_author_email = (match !field_commit_author_email with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_author_email");
             commit_author_name = (match !field_commit_author_name with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_author_name");
             commit_author_username = (match !field_commit_author_username with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_author_username");
             commit_author_image_url = (match !field_commit_author_image_url with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_author_image_url");
-            commit_title = (match !field_commit_title with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_title");
-            commit_timestamp = !field_commit_timestamp;
+            ci_job_url = (match !field_ci_job_url with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "ci_job_url");
             on = (match !field_on with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "on");
             pull_request_author_username = (match !field_pull_request_author_username with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "pull_request_author_username");
             pull_request_author_image_url = (match !field_pull_request_author_image_url with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "pull_request_author_image_url");
             pull_request_id = (match !field_pull_request_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "pull_request_id");
             pull_request_title = (match !field_pull_request_title with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "pull_request_title");
-            scan_environment = (match !field_scan_environment with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "scan_environment");
             base_sha = !field_base_sha;
             start_sha = !field_start_sha;
             is_full_scan = (match !field_is_full_scan with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "is_full_scan");

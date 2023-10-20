@@ -167,23 +167,25 @@ type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
 
 type project_metadata = Semgrep_output_v1_t.project_metadata = {
   semgrep_version: version;
+  scan_environment: string;
   repository: string;
   repo_url: uri option;
+  repo_id: string option;
+  org_id: string option;
   branch: string option;
-  ci_job_url: uri option;
   commit: sha1 option;
+  commit_title: string option;
+  commit_timestamp: string option;
   commit_author_email: string option;
   commit_author_name: string option;
   commit_author_username: string option;
   commit_author_image_url: uri option;
-  commit_title: string option;
-  commit_timestamp: string option;
+  ci_job_url: uri option;
   on: string;
   pull_request_author_username: string option;
   pull_request_author_image_url: uri option;
   pull_request_id: string option;
   pull_request_title: string option;
-  scan_environment: string;
   base_sha: sha1 option;
   start_sha: sha1 option;
   is_full_scan: bool;
