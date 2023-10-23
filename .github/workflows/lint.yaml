@@ -27,7 +27,7 @@ jobs:
           dune-cache: true
 
       - run: |
-            opam install atdgen
+            opam install atd
             opam env >> $GITHUB_ENV
 
       - name: test
