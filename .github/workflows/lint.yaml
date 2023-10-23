@@ -24,6 +24,10 @@ jobs:
 
       - name: test
         run: |
+            set -e
             minimum="v$(curl -s https://semgrep.dev/api/check-version | jq -r '.versions.minimum')"
             tags=$(git log --simplify-by-decoration --pretty=format:%D ${minimum}~..main | grep -o 'tag: [^,)]\+' | sed 's/^tag: //' | sort -n)
-            echo $tags
+            for tag in $tags; do
+                echo "Checking backward compatibility of semgrep_output_v1.atd against past version $tag"
+                git difftool -x 'atddiff --backward' -y --trust-exit-code "$tag" semgrep_output_v1.atd
+            done
