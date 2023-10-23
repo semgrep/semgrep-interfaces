@@ -26,15 +26,12 @@ jobs:
           opam-depext: false
           dune-cache: true
 
-      - run: |
-            opam install atd
-            opam env >> $GITHUB_ENV
+      - run: opam install atd
 
       - name: test
         run: |
-            # set -e
-            ls -l /home/runner/work/semgrep-interfaces/semgrep-interfaces/_opam/bin
-            which atddiff
+            set -e
+            eval $(opam env)
 
             # fetch minimum version and enumerate tags for supported releases
             minimum="v$(curl -s https://semgrep.dev/api/check-version | jq -r '.versions.minimum')"
