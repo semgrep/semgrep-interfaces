@@ -21,3 +21,9 @@ jobs:
           ocaml-compiler: 5.1
 
       - run: opam install atdgen
+
+      - name: test
+        run: |
+            minimum="v$(curl -s https://semgrep.dev/api/check-version | jq -r '.versions.minimum')"
+            tags=$(git log --simplify-by-decoration --pretty=format:%D ${minimum}~..main | grep -o 'tag: [^,)]\+' | sed 's/^tag: //' | sort -n)
+            echo $tags
