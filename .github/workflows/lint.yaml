@@ -1,0 +1,23 @@
+name: Linting
+
+on:
+  pull_request: {}
+  push:
+    branches:
+        - main
+
+permissions: read-all
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tree
+        uses: actions/checkout@v4
+
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: 5.1
+
+      - run: opam install atdgen
