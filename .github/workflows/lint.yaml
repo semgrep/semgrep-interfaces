@@ -23,6 +23,7 @@ jobs:
           ocaml-compiler: 5.1
           opam-pin: false
           opam-depext: false
+          dune-cache: true
 
       - run: opam install atdgen
 
