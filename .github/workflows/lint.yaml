@@ -15,6 +15,7 @@ jobs:
       - name: Checkout tree
         uses: actions/checkout@v4
         with:
+            checkout-depth: 0
             fetch-tags: true
 
       - name: Set-up OCaml
