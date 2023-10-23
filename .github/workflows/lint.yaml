@@ -14,11 +14,15 @@ jobs:
     steps:
       - name: Checkout tree
         uses: actions/checkout@v4
+        with:
+            fetch-depth: 0 # get all tags
 
       - name: Set-up OCaml
         uses: ocaml/setup-ocaml@v2
         with:
           ocaml-compiler: 5.1
+          opam-pin: false
+          opam-depext: false
 
       - run: opam install atdgen
 
