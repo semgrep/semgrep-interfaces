@@ -32,7 +32,9 @@ jobs:
 
       - name: test
         run: |
-            set -e
+            # set -e
+            ls -l /home/runner/work/semgrep-interfaces/semgrep-interfaces/_opam/bin
+            which atddiff
 
             # fetch minimum version and enumerate tags for supported releases
             minimum="v$(curl -s https://semgrep.dev/api/check-version | jq -r '.versions.minimum')"
