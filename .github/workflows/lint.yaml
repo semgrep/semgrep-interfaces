@@ -26,14 +26,19 @@ jobs:
           opam-depext: false
           dune-cache: true
 
-      - run: opam install atdgen
+      - run: |
+            opam install atdgen
+            opam env >> $GITHUB_ENV
 
       - name: test
         run: |
             set -e
-            git tag -l
+
+            # fetch minimum version and enumerate tags for supported releases
             minimum="v$(curl -s https://semgrep.dev/api/check-version | jq -r '.versions.minimum')"
             tags=$(git log --simplify-by-decoration --pretty=format:%D "${minimum}^!" origin/main | grep -o 'tag: [^,)]\+' | sed 's/^tag: //' | sort -n)
+
+            # check tags
             for tag in $tags; do
                 echo "Checking backward compatibility of semgrep_output_v1.atd against past version $tag"
                 git difftool -x 'atddiff --backward' -y --trust-exit-code "$tag" semgrep_output_v1.atd
