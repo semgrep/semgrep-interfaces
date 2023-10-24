@@ -1015,6 +1015,8 @@ type scan_metadata = {
   cli_version: version;
   unique_id: uuid; (* client generated uuid for the scan *)
   requested_products: product list;
+  foo: string;
+  ~bar: string option;
 }
 
 (* Sent by the CLI to the POST /scans endpoint when a scan is created.
