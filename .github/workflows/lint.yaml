@@ -9,7 +9,7 @@ on:
 permissions: read-all
 
 jobs:
-  check-backwards-compatability:
+  backwards_compatability:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout tree
