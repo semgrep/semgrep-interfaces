@@ -35,9 +35,9 @@ jobs:
       shell: bash
       run: |
         eval $(opam env)
-        echo 'Backwards compatability summary:\n```' > summary.txt
+        echo -e 'Backwards compatability summary:\n\n```' > summary.txt
         ./scripts/check-backwards-compatability.sh | tee -a summary.txt
-        echo '```' >> summary.txt
+        echo -e '```' >> summary.txt
 
     - uses: marocchino/sticky-pull-request-comment@v2
       with:
