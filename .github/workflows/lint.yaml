@@ -9,28 +9,28 @@ on:
 permissions: read-all
 
 jobs:
-  compatability:
+  compatibility:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout tree
-        uses: actions/checkout@v4
-        with:
-            fetch-depth: 0
-            fetch-tags: true
+    - name: Checkout tree
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        fetch-tags: true
 
-      - name: Set-up OCaml
-        uses: ocaml/setup-ocaml@v2
-        with:
-          ocaml-compiler: 5.1
-          opam-pin: false
-          opam-depext: false
-          dune-cache: true
+    - name: Set-up OCaml
+      uses: ocaml/setup-ocaml@v2
+      with:
+        ocaml-compiler: 5.1
+        opam-pin: false
+        opam-depext: false
+        dune-cache: true
 
-      - name: install atddiff
-        run: opam install atd
+    - name: install atddiff
+      run: opam install atd
 
-      - name: atddiff all supported tags
-        shell: bash
-        run: |
-            eval $(opam env)
-            ./scripts/check-backwards-compatability.sh
+    - name: atddiff all supported tags
+      shell: bash
+      run: |
+        eval $(opam env)
+          ./scripts/check-backwards-compatability.sh
