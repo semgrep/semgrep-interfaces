@@ -9,7 +9,7 @@ on:
 permissions: read-all
 
 jobs:
-  build:
+  check-backwards-compatability:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout tree
@@ -28,7 +28,7 @@ jobs:
 
       - run: opam install atd
 
-      - name: test
+      - name: atddiff all supported tags
         run: |
             set -e
             eval $(opam env)
