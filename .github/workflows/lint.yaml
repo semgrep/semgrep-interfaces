@@ -41,7 +41,7 @@ jobs:
         eval $(opam env)
         echo -e 'Backwards compatability summary:\n\n```' > summary.txt
         ./scripts/check-backwards-compatability.sh | tee -a summary.txt
-        echo -e '```' >> summary.txt
+        echo -e '```\n\n' >> summary.txt
 
     - uses: marocchino/sticky-pull-request-comment@v2
       if: ${{ !cancelled() }}
