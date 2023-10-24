@@ -39,7 +39,7 @@ jobs:
             tags=$(git log --simplify-by-decoration --pretty=format:%D "${minimum}^!" origin/main | grep -o 'tag: [^,)]\+' | sed 's/^tag: //' | sort -n)
 
             # check tags
-            set +xo pipefail # take care of error handling ourselves from here
+            set +eo pipefail # take care of error handling ourselves from here
             checked=()
             errors=0
             for tag in $tags; do
