@@ -33,4 +33,4 @@ jobs:
       shell: bash
       run: |
         eval $(opam env)
-          ./scripts/check-backwards-compatability.sh
+        ./scripts/check-backwards-compatability.sh
