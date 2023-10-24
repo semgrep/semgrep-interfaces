@@ -1,0 +1,49 @@
+name: Linting
+
+on:
+  pull_request: {}
+  push:
+    branches:
+        - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write # for comments
+
+jobs:
+  compatibility:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout tree
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - name: Set-up OCaml
+      uses: ocaml/setup-ocaml@v2
+      with:
+        ocaml-compiler: 5.1
+        opam-pin: false
+        opam-depext: false
+        dune-cache: true
+
+    - name: install atddiff
+      run: opam install atd
+
+    - name: atddiff all supported tags
+      id: diff
+      shell: bash
+      run: |
+        eval $(opam env)
+        echo -e 'Backwards compatability summary:\n\n```' > summary.txt
+        ./scripts/check-backwards-compatability.sh | tee -a summary.txt
+        echo -e '```' >> summary.txt
+
+    - uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        header: diff-summary
+        path: summary.txt
