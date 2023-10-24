@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 # This script is used in CI to ensure that we don't introduce breaking changes to the semgrep_output_v1.atd file.
 # We need this since the backend uses the latest ATD's to validate/parse JSON from all supported client versions.
 # Adding fields as required breaks the backend when an older client doesn't send this field.
@@ -11,6 +10,8 @@
 #    - Diff against origin/main to establish a baseline
 #    - Diff against HEAD
 #    - Diff the two diffs to see if new issues were introduced
+
+set -u # no "-eo pipefail" because we do our own error handling
 
 minimum="v$(curl -s https://semgrep.dev/api/check-version | jq -r '.versions.minimum')"
 tags=$(git log --simplify-by-decoration --pretty=format:%D "${minimum}^!" origin/main | grep -o 'tag: [^,)]\+' | sed 's/^tag: //' | sort -n)
