@@ -39,12 +39,12 @@ jobs:
       shell: bash
       run: |
         eval $(opam env)
-        echo -e 'Backwards compatability summary:\n\n```' > summary.txt
-        ./scripts/check-backwards-compatability.sh | tee -a summary.txt
-        echo -e '```\n\n' >> summary.txt
+        echo -e 'Backwards compatability summary:\n\n```' > summary-00-header.txt
+        echo -e '```' >> summary-20-footer.txt
+        ./scripts/check-backwards-compatability.sh | tee summary-10-body.txt
 
     - uses: marocchino/sticky-pull-request-comment@v2
       if: ${{ !cancelled() }}
       with:
         header: diff-summary
-        path: summary.txt
+        path: summary-*.txt
