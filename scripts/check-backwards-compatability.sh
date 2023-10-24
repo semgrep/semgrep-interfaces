@@ -33,12 +33,12 @@ for tag in $tags; do
     # neccesary because filenames have temp paths and line numbers can change without causing issues
     expr='s|File "/.*/\(.*.atd\)", line .*$|File "\1", line <removed for diff>|g'
     diff -u <(sed "$expr" before.txt) <(sed "$expr" after.txt)
-    if [ $? -ne 0 ]; then
+    if [ "$?" -ne 0 ]; then
         echo "ERROR: semgrep_output_v1.atd is not backward compatible with $tag"
         errors=$((errors + 1))
     fi
 done
 
-if [ $errors -ne 0 ]; then
+if [ "$errors" -ne 0 ]; then
     exit 1
 fi
