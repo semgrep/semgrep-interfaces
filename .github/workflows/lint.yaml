@@ -30,7 +30,15 @@ jobs:
       run: opam install atd
 
     - name: atddiff all supported tags
+      id: diff
       shell: bash
       run: |
         eval $(opam env)
-        ./scripts/check-backwards-compatability.sh
+        echo 'Backwards compatability summary:\n```' > summary.txt
+        ./scripts/check-backwards-compatability.sh | tee -a summary.txt
+        echo '```' >> summary.txt
+
+    - uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        header: diff-summary
+        path: summary.txt
