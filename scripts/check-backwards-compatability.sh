@@ -23,7 +23,6 @@ for tag in $tags; do
     diff -u <(sed "$expr" before.txt) <(sed "$expr" after.txt)
     if [ $? -ne 0 ]; then
         echo "ERROR: semgrep_output_v1.atd is not backward compatible with $tag"
-        cat after.txt
         errors=$((errors + 1))
     fi
 done
