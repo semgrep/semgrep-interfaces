@@ -44,6 +44,7 @@ jobs:
         echo -e '```' >> summary.txt
 
     - uses: marocchino/sticky-pull-request-comment@v2
+      if: ${{ !cancelled() }}
       with:
         header: diff-summary
         path: summary.txt
