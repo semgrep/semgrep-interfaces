@@ -1023,7 +1023,7 @@ type scan_metadata = {
   cli_version: version;
   unique_id: uuid; (* client generated uuid for the scan *)
   requested_products: product list;
-  }
+}
 
 (* Sent by the CLI to the POST /scans endpoint when a scan is created.
  * See also server/semgrep_app/cloud_platform/scan/models/scan.py in
