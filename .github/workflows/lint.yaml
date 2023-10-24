@@ -6,7 +6,8 @@ on:
     branches:
         - main
 
-permissions: read-all
+permissions:
+  pull-requests: write # for comments
 
 jobs:
   compatibility:
