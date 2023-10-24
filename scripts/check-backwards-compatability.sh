@@ -16,8 +16,10 @@ for tag in $tags; do
     checked+=($commit)
 
     echo "Checking backward compatibility of semgrep_output_v1.atd against past version $tag"
-    git difftool -x 'atddiff --backward' -y --trust-exit-code "$tag" semgrep_output_v1.atd
+    git difftool -x 'atddiff --backward' -y "$tag" "origin/main" semgrep_output_v1.atd | sed 's|File "/.*/\(.*.atd\)"|File "\1"|g' > before.txt
+    git difftool -x 'atddiff --backward' -y "$tag" "HEAD" semgrep_output_v1.atd | sed 's|File "/.*/\(.*.atd\)"|File "\1"|g' > after.txt
 
+    diff -u before.txt after.txt
     if [ $? -ne 0 ]; then
         echo "ERROR: semgrep_output_v1.atd is not backward compatible with $tag"
         errors=$((errors + 1))
