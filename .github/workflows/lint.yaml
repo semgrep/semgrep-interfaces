@@ -28,6 +28,7 @@ jobs:
       id: diff
       shell: bash
       run: |
+        eval $(opam env)
         apk add jq
         echo -ne 'Backwards compatability summary:\n\n```' > summary-00-header.txt
         echo '```' >> summary-20-footer.txt
