@@ -58,5 +58,6 @@ jobs:
     - name: Run mypy on semgrep_output_v1.py
       run: |
         pip install mypy
+        ls -al
         rm __init__.py # because dir has a - in it
         mypy semgrep_output_v1.py
