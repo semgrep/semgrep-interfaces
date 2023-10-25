@@ -1820,14 +1820,14 @@ export function readDependencyParserError(x: any, context: any = x): DependencyP
 
 export function writeCiConfigFromRepo(x: CiConfigFromRepo, context: any = x): any {
   return {
-    'version': _atd_write_required_field('CiConfigFromRepo', 'version', writeVersion, x.version, x),
+    'version': _atd_write_field_with_default(writeVersion, 'v1', x.version, x),
     'tags': _atd_write_optional_field(_atd_write_array(writeTag), x.tags, x),
   };
 }
 
 export function readCiConfigFromRepo(x: any, context: any = x): CiConfigFromRepo {
   return {
-    version: _atd_read_required_field('CiConfigFromRepo', 'version', readVersion, x['version'], x),
+    version: _atd_read_field_with_default(readVersion, 'v1', x['version'], x),
     tags: _atd_read_optional_field(_atd_read_array(readTag), x['tags'], x),
   };
 }

@@ -670,7 +670,7 @@
     },
     "ci_config_from_repo": {
       "type": "object",
-      "required": [ "version" ],
+      "required": [],
       "properties": {
         "version": { "$ref": "#/definitions/version" },
         "tags": { "type": "array", "items": { "$ref": "#/definitions/tag" } }
