@@ -52,6 +52,9 @@ jobs:
   mypy:
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout tree
+      uses: actions/checkout@v4
+
     - name: Run mypy on semgrep_output_v1.py
       run: |
         pip install mypy
