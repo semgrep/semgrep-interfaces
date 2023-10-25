@@ -28,10 +28,11 @@ jobs:
       id: diff
       shell: bash
       run: |
-        env
-        pwd
-        eval $(opam env)
+        # github actions sets HOME=/home/github where we don't have an opam env
+        eval $(HOME=/root opam env)
         apk add jq
+
+        # run the checks
         echo -ne 'Backwards compatability summary:\n\n```' > summary-00-header.txt
         echo '```' >> summary-20-footer.txt
         ./scripts/check-backwards-compatability.sh | tee summary-10-body.txt
