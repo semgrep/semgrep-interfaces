@@ -16,23 +16,13 @@ permissions:
 jobs:
   compatibility:
     runs-on: ubuntu-latest
+    container: returntocorp/ocaml:alpine
     steps:
     - name: Checkout tree
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
         fetch-tags: true
-
-    - name: Set-up OCaml
-      uses: ocaml/setup-ocaml@v2
-      with:
-        ocaml-compiler: 5.1
-        opam-pin: false
-        opam-depext: false
-        dune-cache: true
-
-    - name: install atddiff
-      run: opam install atd
 
     - name: atddiff all supported tags
       id: diff
