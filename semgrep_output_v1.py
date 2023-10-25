@@ -2206,14 +2206,14 @@ class ProjectMetadata:
 class CiConfigFromRepo:
     """Original type: ci_config_from_repo = { ... }"""
 
-    version: Version
+    version: Version = field(default_factory=lambda: 'v1')
     tags: Optional[List[Tag]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiConfigFromRepo':
         if isinstance(x, dict):
             return cls(
-                version=Version.from_json(x['version']) if 'version' in x else _atd_missing_json_field('CiConfigFromRepo', 'version'),
+                version=Version.from_json(x['version']) if 'version' in x else 'v1',
                 tags=_atd_read_list(Tag.from_json)(x['tags']) if 'tags' in x else None,
             )
         else:

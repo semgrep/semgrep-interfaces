@@ -901,7 +901,7 @@ type dependency_parser_error = {
 (* content of the .semgrepconfig.yml in the repository *)
 type ci_config_from_repo = {
     (* version of the .semgrepconfig.yml format. "V1" right now (useful?) *)
-    version: version;
+    ~version <python default="'v1'"> <ts default="'v1'">: version;
     ?tags: tag list option;
 }
 (* ?? ex? *)

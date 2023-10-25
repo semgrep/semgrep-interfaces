@@ -7375,7 +7375,7 @@ let read_ci_config_from_repo = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
-    let field_version = ref (None) in
+    let field_version = ref ("") in
     let field_tags = ref (None) in
     try
       Yojson.Safe.read_space p lb;
@@ -7411,13 +7411,13 @@ let read_ci_config_from_repo = (
       (
         match i with
           | 0 ->
-            field_version := (
-              Some (
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_version := (
                 (
                   read_version
                 ) p lb
-              )
-            );
+              );
+            )
           | 1 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_tags := (
@@ -7466,13 +7466,13 @@ let read_ci_config_from_repo = (
         (
           match i with
             | 0 ->
-              field_version := (
-                Some (
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_version := (
                   (
                     read_version
                   ) p lb
-                )
-              );
+                );
+              )
             | 1 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_tags := (
@@ -7492,7 +7492,7 @@ let read_ci_config_from_repo = (
     with Yojson.End_of_object -> (
         (
           {
-            version = (match !field_version with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "version");
+            version = !field_version;
             tags = !field_tags;
           }
          : ci_config_from_repo)
