@@ -32,6 +32,7 @@
   },
   "definitions": {
     "raw_json": {},
+    "fpath": { "type": "string" },
     "uri": { "type": "string" },
     "sha1": { "type": "string" },
     "uuid": { "type": "string" },
@@ -46,7 +47,6 @@
         "offset": { "type": "integer" }
       }
     },
-    "fpath": { "type": "string" },
     "location": {
       "type": "object",
       "required": [ "path", "start", "end" ],
@@ -708,32 +708,34 @@
     "project_metadata": {
       "type": "object",
       "required": [
-        "semgrep_version", "repository", "repo_url", "branch", "ci_job_url",
-        "commit", "commit_author_email", "commit_author_name",
-        "commit_author_username", "commit_author_image_url", "commit_title",
-        "on", "pull_request_author_username",
-        "pull_request_author_image_url", "pull_request_id",
-        "pull_request_title", "scan_environment", "is_full_scan"
+        "semgrep_version", "scan_environment", "repository", "repo_url",
+        "branch", "commit", "commit_title", "commit_author_email",
+        "commit_author_name", "commit_author_username",
+        "commit_author_image_url", "ci_job_url", "on",
+        "pull_request_author_username", "pull_request_author_image_url",
+        "pull_request_id", "pull_request_title", "is_full_scan"
       ],
       "properties": {
         "semgrep_version": { "$ref": "#/definitions/version" },
+        "scan_environment": { "type": "string" },
         "repository": { "type": "string" },
         "repo_url": { "$ref": "#/definitions/uri" },
+        "repo_id": { "type": "string" },
+        "org_id": { "type": "string" },
         "branch": { "type": [ "string", "null" ] },
-        "ci_job_url": { "$ref": "#/definitions/uri" },
         "commit": { "$ref": "#/definitions/sha1" },
+        "commit_title": { "type": [ "string", "null" ] },
+        "commit_timestamp": { "type": "string" },
         "commit_author_email": { "type": [ "string", "null" ] },
         "commit_author_name": { "type": [ "string", "null" ] },
         "commit_author_username": { "type": [ "string", "null" ] },
         "commit_author_image_url": { "$ref": "#/definitions/uri" },
-        "commit_title": { "type": [ "string", "null" ] },
-        "commit_timestamp": { "type": "string" },
+        "ci_job_url": { "$ref": "#/definitions/uri" },
         "on": { "type": "string" },
         "pull_request_author_username": { "type": [ "string", "null" ] },
         "pull_request_author_image_url": { "$ref": "#/definitions/uri" },
         "pull_request_id": { "type": [ "string", "null" ] },
         "pull_request_title": { "type": [ "string", "null" ] },
-        "scan_environment": { "type": "string" },
         "base_sha": { "$ref": "#/definitions/sha1" },
         "start_sha": { "$ref": "#/definitions/sha1" },
         "is_full_scan": { "type": "boolean" },
