@@ -10,13 +10,12 @@
 #    - Diff against origin/main to establish a baseline
 #    - Diff against HEAD
 #    - Diff the two diffs to see if new issues were introduced
-
-set -u # no "-eo pipefail" because we do our own error handling
+set -euo pipefail
 
 minimum="v$(curl -s https://semgrep.dev/api/check-version | jq -r '.versions.minimum')"
 tags=$(git log --simplify-by-decoration --pretty=format:%D "${minimum}^!" origin/main | grep -o 'tag: [^,)]\+' | sed 's/^tag: //' | sort -n)
 
-checked=()
+checked=("dummy")
 errors=0
 for tag in $tags; do
     commit=$(git rev-list -n 1 "$tag")
@@ -31,12 +30,14 @@ for tag in $tags; do
     git difftool -x 'atddiff --backward' -y "$tag" "HEAD" semgrep_output_v1.atd > after.txt
 
     # neccesary because filenames have temp paths and line numbers can change without causing issues
+    set +e
     expr='s|File "/.*/\(.*.atd\)", line .*$|File "\1", line <removed for diff>|g'
     diff -u <(sed "$expr" before.txt) <(sed "$expr" after.txt)
     if [ "$?" -ne 0 ]; then
         echo "ERROR: semgrep_output_v1.atd is not backward compatible with $tag"
         errors=$((errors + 1))
     fi
+    set -e
 done
 
 if [ "$errors" -ne 0 ]; then
