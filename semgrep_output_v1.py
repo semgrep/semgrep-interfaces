@@ -1980,6 +1980,40 @@ class ScannedAndSkipped:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class ScanInfo:
+    """Original type: scan_info = { ... }"""
+
+    id: str
+    deployment_id: int
+    deployment_name: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScanInfo':
+        if isinstance(x, dict):
+            return cls(
+                id=_atd_read_string(x['id']) if 'id' in x else _atd_missing_json_field('ScanInfo', 'id'),
+                deployment_id=_atd_read_int(x['deployment_id']) if 'deployment_id' in x else _atd_missing_json_field('ScanInfo', 'deployment_id'),
+                deployment_name=_atd_read_string(x['deployment_name']) if 'deployment_name' in x else _atd_missing_json_field('ScanInfo', 'deployment_name'),
+            )
+        else:
+            _atd_bad_json('ScanInfo', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['id'] = _atd_write_string(self.id)
+        res['deployment_id'] = _atd_write_int(self.deployment_id)
+        res['deployment_name'] = _atd_write_string(self.deployment_name)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScanInfo':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class SAST:
     """Original type: product = [ ... | SAST | ... ]"""
@@ -2066,36 +2100,39 @@ class Product:
 
 
 @dataclass
-class ScanInfo:
-    """Original type: scan_info = { ... }"""
+class ScanConfiguration:
+    """Original type: scan_configuration = { ... }"""
 
-    id: str
-    deployment_id: int
-    deployment_name: str
     enabled_products: List[Product]
+    rules: RawJson
+    ignored_files: List[str] = field(default_factory=lambda: [])
+    triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
+    triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
 
     @classmethod
-    def from_json(cls, x: Any) -> 'ScanInfo':
+    def from_json(cls, x: Any) -> 'ScanConfiguration':
         if isinstance(x, dict):
             return cls(
-                id=_atd_read_string(x['id']) if 'id' in x else _atd_missing_json_field('ScanInfo', 'id'),
-                deployment_id=_atd_read_int(x['deployment_id']) if 'deployment_id' in x else _atd_missing_json_field('ScanInfo', 'deployment_id'),
-                deployment_name=_atd_read_string(x['deployment_name']) if 'deployment_name' in x else _atd_missing_json_field('ScanInfo', 'deployment_name'),
-                enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else _atd_missing_json_field('ScanInfo', 'enabled_products'),
+                enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else _atd_missing_json_field('ScanConfiguration', 'enabled_products'),
+                rules=RawJson.from_json(x['rules']) if 'rules' in x else _atd_missing_json_field('ScanConfiguration', 'rules'),
+                ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
+                triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
+                triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
             )
         else:
-            _atd_bad_json('ScanInfo', x)
+            _atd_bad_json('ScanConfiguration', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['id'] = _atd_write_string(self.id)
-        res['deployment_id'] = _atd_write_int(self.deployment_id)
-        res['deployment_name'] = _atd_write_string(self.deployment_name)
         res['enabled_products'] = _atd_write_list((lambda x: x.to_json()))(self.enabled_products)
+        res['rules'] = (lambda x: x.to_json())(self.rules)
+        res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
+        res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
+        res['triage_ignored_match_based_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_match_based_ids)
         return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'ScanInfo':
+    def from_json_string(cls, x: str) -> 'ScanConfiguration':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -2103,58 +2140,36 @@ class ScanInfo:
 
 
 @dataclass
-class ScanConfig:
-    """Original type: scan_config = { ... }"""
+class CliConfiguration:
+    """Original type: cli_configuration = { ... }"""
 
-    deployment_id: int
-    deployment_name: str
-    policy_names: List[str]
-    rule_config: str
     autofix: bool = field(default_factory=lambda: False)
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
-    triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
-    triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
-    ignored_files: List[str] = field(default_factory=lambda: [])
-    enabled_products: Optional[List[Product]] = None
+    generic_slow_rollout: bool = field(default_factory=lambda: False)
 
     @classmethod
-    def from_json(cls, x: Any) -> 'ScanConfig':
+    def from_json(cls, x: Any) -> 'CliConfiguration':
         if isinstance(x, dict):
             return cls(
-                deployment_id=_atd_read_int(x['deployment_id']) if 'deployment_id' in x else _atd_missing_json_field('ScanConfig', 'deployment_id'),
-                deployment_name=_atd_read_string(x['deployment_name']) if 'deployment_name' in x else _atd_missing_json_field('ScanConfig', 'deployment_name'),
-                policy_names=_atd_read_list(_atd_read_string)(x['policy_names']) if 'policy_names' in x else _atd_missing_json_field('ScanConfig', 'policy_names'),
-                rule_config=_atd_read_string(x['rule_config']) if 'rule_config' in x else _atd_missing_json_field('ScanConfig', 'rule_config'),
                 autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
-                triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
-                triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
-                ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
-                enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else None,
+                generic_slow_rollout=_atd_read_bool(x['generic_slow_rollout']) if 'generic_slow_rollout' in x else False,
             )
         else:
-            _atd_bad_json('ScanConfig', x)
+            _atd_bad_json('CliConfiguration', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['deployment_id'] = _atd_write_int(self.deployment_id)
-        res['deployment_name'] = _atd_write_string(self.deployment_name)
-        res['policy_names'] = _atd_write_list(_atd_write_string)(self.policy_names)
-        res['rule_config'] = _atd_write_string(self.rule_config)
         res['autofix'] = _atd_write_bool(self.autofix)
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
-        res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
-        res['triage_ignored_match_based_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_match_based_ids)
-        res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
-        if self.enabled_products is not None:
-            res['enabled_products'] = _atd_write_list((lambda x: x.to_json()))(self.enabled_products)
+        res['generic_slow_rollout'] = _atd_write_bool(self.generic_slow_rollout)
         return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'ScanConfig':
+    def from_json_string(cls, x: str) -> 'CliConfiguration':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -2166,14 +2181,16 @@ class ScanResponse:
     """Original type: scan_response = { ... }"""
 
     scan: ScanInfo
-    config: ScanConfig
+    scan_config: ScanConfiguration
+    cli_config: CliConfiguration
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanResponse':
         if isinstance(x, dict):
             return cls(
                 scan=ScanInfo.from_json(x['scan']) if 'scan' in x else _atd_missing_json_field('ScanResponse', 'scan'),
-                config=ScanConfig.from_json(x['config']) if 'config' in x else _atd_missing_json_field('ScanResponse', 'config'),
+                scan_config=ScanConfiguration.from_json(x['scan_config']) if 'scan_config' in x else _atd_missing_json_field('ScanResponse', 'scan_config'),
+                cli_config=CliConfiguration.from_json(x['cli_config']) if 'cli_config' in x else _atd_missing_json_field('ScanResponse', 'cli_config'),
             )
         else:
             _atd_bad_json('ScanResponse', x)
@@ -2181,7 +2198,8 @@ class ScanResponse:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['scan'] = (lambda x: x.to_json())(self.scan)
-        res['config'] = (lambda x: x.to_json())(self.config)
+        res['scan_config'] = (lambda x: x.to_json())(self.scan_config)
+        res['cli_config'] = (lambda x: x.to_json())(self.cli_config)
         return res
 
     @classmethod
@@ -2406,6 +2424,65 @@ class ScanRequest:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ScanRequest':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScanConfig:
+    """Original type: scan_config = { ... }"""
+
+    deployment_id: int
+    deployment_name: str
+    policy_names: List[str]
+    rule_config: str
+    autofix: bool = field(default_factory=lambda: False)
+    deepsemgrep: bool = field(default_factory=lambda: False)
+    dependency_query: bool = field(default_factory=lambda: False)
+    triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
+    triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
+    ignored_files: List[str] = field(default_factory=lambda: [])
+    enabled_products: Optional[List[Product]] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScanConfig':
+        if isinstance(x, dict):
+            return cls(
+                deployment_id=_atd_read_int(x['deployment_id']) if 'deployment_id' in x else _atd_missing_json_field('ScanConfig', 'deployment_id'),
+                deployment_name=_atd_read_string(x['deployment_name']) if 'deployment_name' in x else _atd_missing_json_field('ScanConfig', 'deployment_name'),
+                policy_names=_atd_read_list(_atd_read_string)(x['policy_names']) if 'policy_names' in x else _atd_missing_json_field('ScanConfig', 'policy_names'),
+                rule_config=_atd_read_string(x['rule_config']) if 'rule_config' in x else _atd_missing_json_field('ScanConfig', 'rule_config'),
+                autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
+                deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
+                dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
+                triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
+                triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
+                ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
+                enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else None,
+            )
+        else:
+            _atd_bad_json('ScanConfig', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['deployment_id'] = _atd_write_int(self.deployment_id)
+        res['deployment_name'] = _atd_write_string(self.deployment_name)
+        res['policy_names'] = _atd_write_list(_atd_write_string)(self.policy_names)
+        res['rule_config'] = _atd_write_string(self.rule_config)
+        res['autofix'] = _atd_write_bool(self.autofix)
+        res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
+        res['dependency_query'] = _atd_write_bool(self.dependency_query)
+        res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
+        res['triage_ignored_match_based_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_match_based_ids)
+        res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
+        if self.enabled_products is not None:
+            res['enabled_products'] = _atd_write_list((lambda x: x.to_json()))(self.enabled_products)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScanConfig':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

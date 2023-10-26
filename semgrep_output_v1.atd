@@ -1042,14 +1042,32 @@ type scan_request = {
 (* Response by the backend to the CLI to the POST /scans *)
 type scan_response = {
     scan: scan_info;
-    config: scan_config;
+    scan_config: scan_configuration;
+    cli_config: cli_configuration;
 }
+
+(* meta info about the scan *)
 type scan_info = {
-    (* the scan id *)
-    id: string;
+    id: string; (* the scan id *)
     deployment_id: int;
     deployment_name: string;
+}
+
+(* config specific to the scan, eg *)
+type scan_configuration = {
     enabled_products: product list;
+    rules: raw_json; (* can we type this better *)
+    ~ignored_files: string list;
+    ~triage_ignored_syntactic_ids: string list;
+    ~triage_ignored_match_based_ids: string list;
+}
+
+(* settings for the cli *)
+type cli_configuration = {
+    ~autofix: bool;
+    ~deepsemgrep: bool;
+    ~dependency_query: bool;
+    ~generic_slow_rollout: bool; (* for features we only want to turn on for select customers *)
 }
 
 (* TODO? seems used only for dry_run and passed urlencoded to /scans/config?xxx

@@ -157,32 +157,33 @@ type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
   skipped: skipped_target list option
 }
 
-type product = Semgrep_output_v1_t.product [@@deriving show]
-
 type scan_info = Semgrep_output_v1_t.scan_info = {
   id: string;
   deployment_id: int;
-  deployment_name: string;
-  enabled_products: product list
+  deployment_name: string
 }
 
-type scan_config = Semgrep_output_v1_t.scan_config = {
-  deployment_id: int;
-  deployment_name: string;
-  policy_names: string list;
-  rule_config: string;
+type product = Semgrep_output_v1_t.product [@@deriving show]
+
+type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
+  enabled_products: product list;
+  rules: raw_json;
+  ignored_files: string list;
+  triage_ignored_syntactic_ids: string list;
+  triage_ignored_match_based_ids: string list
+}
+
+type cli_configuration = Semgrep_output_v1_t.cli_configuration = {
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
-  triage_ignored_syntactic_ids: string list;
-  triage_ignored_match_based_ids: string list;
-  ignored_files: string list;
-  enabled_products: product list option
+  generic_slow_rollout: bool
 }
 
 type scan_response = Semgrep_output_v1_t.scan_response = {
   scan: scan_info;
-  config: scan_config
+  scan_config: scan_configuration;
+  cli_config: cli_configuration
 }
 
 type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
@@ -231,6 +232,20 @@ type scan_request = Semgrep_output_v1_t.scan_request = {
   project_metadata: project_metadata option;
   project_config: ci_config_from_repo option;
   scan_metadata: scan_metadata option
+}
+
+type scan_config = Semgrep_output_v1_t.scan_config = {
+  deployment_id: int;
+  deployment_name: string;
+  policy_names: string list;
+  rule_config: string;
+  autofix: bool;
+  deepsemgrep: bool;
+  dependency_query: bool;
+  triage_ignored_syntactic_ids: string list;
+  triage_ignored_match_based_ids: string list;
+  ignored_files: string list;
+  enabled_products: product list option
 }
 
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
@@ -1092,26 +1107,6 @@ val scanned_and_skipped_of_string :
   string -> scanned_and_skipped
   (** Deserialize JSON data of type {!type:scanned_and_skipped}. *)
 
-val write_product :
-  Buffer.t -> product -> unit
-  (** Output a JSON value of type {!type:product}. *)
-
-val string_of_product :
-  ?len:int -> product -> string
-  (** Serialize a value of type {!type:product}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_product :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> product
-  (** Input JSON data of type {!type:product}. *)
-
-val product_of_string :
-  string -> product
-  (** Deserialize JSON data of type {!type:product}. *)
-
 val write_scan_info :
   Buffer.t -> scan_info -> unit
   (** Output a JSON value of type {!type:scan_info}. *)
@@ -1132,25 +1127,65 @@ val scan_info_of_string :
   string -> scan_info
   (** Deserialize JSON data of type {!type:scan_info}. *)
 
-val write_scan_config :
-  Buffer.t -> scan_config -> unit
-  (** Output a JSON value of type {!type:scan_config}. *)
+val write_product :
+  Buffer.t -> product -> unit
+  (** Output a JSON value of type {!type:product}. *)
 
-val string_of_scan_config :
-  ?len:int -> scan_config -> string
-  (** Serialize a value of type {!type:scan_config}
+val string_of_product :
+  ?len:int -> product -> string
+  (** Serialize a value of type {!type:product}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_scan_config :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scan_config
-  (** Input JSON data of type {!type:scan_config}. *)
+val read_product :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> product
+  (** Input JSON data of type {!type:product}. *)
 
-val scan_config_of_string :
-  string -> scan_config
-  (** Deserialize JSON data of type {!type:scan_config}. *)
+val product_of_string :
+  string -> product
+  (** Deserialize JSON data of type {!type:product}. *)
+
+val write_scan_configuration :
+  Buffer.t -> scan_configuration -> unit
+  (** Output a JSON value of type {!type:scan_configuration}. *)
+
+val string_of_scan_configuration :
+  ?len:int -> scan_configuration -> string
+  (** Serialize a value of type {!type:scan_configuration}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_scan_configuration :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scan_configuration
+  (** Input JSON data of type {!type:scan_configuration}. *)
+
+val scan_configuration_of_string :
+  string -> scan_configuration
+  (** Deserialize JSON data of type {!type:scan_configuration}. *)
+
+val write_cli_configuration :
+  Buffer.t -> cli_configuration -> unit
+  (** Output a JSON value of type {!type:cli_configuration}. *)
+
+val string_of_cli_configuration :
+  ?len:int -> cli_configuration -> string
+  (** Serialize a value of type {!type:cli_configuration}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_cli_configuration :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_configuration
+  (** Input JSON data of type {!type:cli_configuration}. *)
+
+val cli_configuration_of_string :
+  string -> cli_configuration
+  (** Deserialize JSON data of type {!type:cli_configuration}. *)
 
 val write_scan_response :
   Buffer.t -> scan_response -> unit
@@ -1251,6 +1286,26 @@ val read_scan_request :
 val scan_request_of_string :
   string -> scan_request
   (** Deserialize JSON data of type {!type:scan_request}. *)
+
+val write_scan_config :
+  Buffer.t -> scan_config -> unit
+  (** Output a JSON value of type {!type:scan_config}. *)
+
+val string_of_scan_config :
+  ?len:int -> scan_config -> string
+  (** Serialize a value of type {!type:scan_config}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_scan_config :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scan_config
+  (** Input JSON data of type {!type:scan_config}. *)
+
+val scan_config_of_string :
+  string -> scan_config
+  (** Deserialize JSON data of type {!type:scan_config}. *)
 
 val write_sca_parser_name :
   Buffer.t -> sca_parser_name -> unit

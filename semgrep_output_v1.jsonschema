@@ -769,25 +769,50 @@
     },
     "scan_response": {
       "type": "object",
-      "required": [ "scan", "config" ],
+      "required": [ "scan", "scan_config", "cli_config" ],
       "properties": {
         "scan": { "$ref": "#/definitions/scan_info" },
-        "config": { "$ref": "#/definitions/scan_config" }
+        "scan_config": { "$ref": "#/definitions/scan_configuration" },
+        "cli_config": { "$ref": "#/definitions/cli_configuration" }
       }
     },
     "scan_info": {
       "type": "object",
-      "required": [
-        "id", "deployment_id", "deployment_name", "enabled_products"
-      ],
+      "required": [ "id", "deployment_id", "deployment_name" ],
       "properties": {
         "id": { "type": "string" },
         "deployment_id": { "type": "integer" },
-        "deployment_name": { "type": "string" },
+        "deployment_name": { "type": "string" }
+      }
+    },
+    "scan_configuration": {
+      "type": "object",
+      "required": [ "enabled_products", "rules" ],
+      "properties": {
         "enabled_products": {
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
+        },
+        "rules": { "$ref": "#/definitions/raw_json" },
+        "ignored_files": { "type": "array", "items": { "type": "string" } },
+        "triage_ignored_syntactic_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "triage_ignored_match_based_ids": {
+          "type": "array",
+          "items": { "type": "string" }
         }
+      }
+    },
+    "cli_configuration": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "autofix": { "type": "boolean" },
+        "deepsemgrep": { "type": "boolean" },
+        "dependency_query": { "type": "boolean" },
+        "generic_slow_rollout": { "type": "boolean" }
       }
     },
     "finding": {
