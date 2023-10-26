@@ -767,6 +767,29 @@
         "scan_metadata": { "$ref": "#/definitions/scan_metadata" }
       }
     },
+    "scan_response": {
+      "type": "object",
+      "required": [ "scan", "config" ],
+      "properties": {
+        "scan": { "$ref": "#/definitions/scan_info" },
+        "config": { "$ref": "#/definitions/scan_config" }
+      }
+    },
+    "scan_info": {
+      "type": "object",
+      "required": [
+        "id", "deployment_id", "deployment_name", "enabled_products"
+      ],
+      "properties": {
+        "id": { "type": "string" },
+        "deployment_id": { "type": "integer" },
+        "deployment_name": { "type": "string" },
+        "enabled_products": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/product" }
+        }
+      }
+    },
     "finding": {
       "type": "object",
       "required": [

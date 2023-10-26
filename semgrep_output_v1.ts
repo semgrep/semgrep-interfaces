@@ -469,6 +469,18 @@ export type ScanRequest = {
   scan_metadata?: ScanMetadata;
 }
 
+export type ScanResponse = {
+  scan: ScanInfo;
+  config: ScanConfig;
+}
+
+export type ScanInfo = {
+  id: string;
+  deployment_id: number /*int*/;
+  deployment_name: string;
+  enabled_products: Product[];
+}
+
 export type Finding = {
   check_id: RuleId;
   path: Fpath;
@@ -1968,6 +1980,38 @@ export function readScanRequest(x: any, context: any = x): ScanRequest {
     project_metadata: _atd_read_optional_field(readProjectMetadata, x['project_metadata'], x),
     project_config: _atd_read_optional_field(readCiConfigFromRepo, x['project_config'], x),
     scan_metadata: _atd_read_optional_field(readScanMetadata, x['scan_metadata'], x),
+  };
+}
+
+export function writeScanResponse(x: ScanResponse, context: any = x): any {
+  return {
+    'scan': _atd_write_required_field('ScanResponse', 'scan', writeScanInfo, x.scan, x),
+    'config': _atd_write_required_field('ScanResponse', 'config', writeScanConfig, x.config, x),
+  };
+}
+
+export function readScanResponse(x: any, context: any = x): ScanResponse {
+  return {
+    scan: _atd_read_required_field('ScanResponse', 'scan', readScanInfo, x['scan'], x),
+    config: _atd_read_required_field('ScanResponse', 'config', readScanConfig, x['config'], x),
+  };
+}
+
+export function writeScanInfo(x: ScanInfo, context: any = x): any {
+  return {
+    'id': _atd_write_required_field('ScanInfo', 'id', _atd_write_string, x.id, x),
+    'deployment_id': _atd_write_required_field('ScanInfo', 'deployment_id', _atd_write_int, x.deployment_id, x),
+    'deployment_name': _atd_write_required_field('ScanInfo', 'deployment_name', _atd_write_string, x.deployment_name, x),
+    'enabled_products': _atd_write_required_field('ScanInfo', 'enabled_products', _atd_write_array(writeProduct), x.enabled_products, x),
+  };
+}
+
+export function readScanInfo(x: any, context: any = x): ScanInfo {
+  return {
+    id: _atd_read_required_field('ScanInfo', 'id', _atd_read_string, x['id'], x),
+    deployment_id: _atd_read_required_field('ScanInfo', 'deployment_id', _atd_read_int, x['deployment_id'], x),
+    deployment_name: _atd_read_required_field('ScanInfo', 'deployment_name', _atd_read_string, x['deployment_name'], x),
+    enabled_products: _atd_read_required_field('ScanInfo', 'enabled_products', _atd_read_array(readProduct), x['enabled_products'], x),
   };
 }
 

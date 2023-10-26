@@ -1023,7 +1023,7 @@ type scan_metadata = {
   cli_version: version;
   unique_id: uuid; (* client generated uuid for the scan *)
   requested_products: product list;
-  ~dry_run: bool;
+  ~dry_run: bool; (* from 1.47.0 *)
 }
 
 (* Sent by the CLI to the POST /scans endpoint when a scan is created.
@@ -1040,18 +1040,17 @@ type scan_request = {
 }
 
 (* Response by the backend to the CLI to the POST /scans *)
-(* TODO
 type scan_response = {
-    scan: scan_response_bis;
-    ?config: scan_config option;
+    scan: scan_info;
+    config: scan_config;
 }
-type scan_response_bis = {
+type scan_info = {
     (* the scan id *)
     id: string;
-    (* since 1.37.0 *)
-    ?enabled_products: product list;
+    deployment_id: int;
+    deployment_name: string;
+    enabled_products: product list;
 }
-*)
 
 (* TODO? seems used only for dry_run and passed urlencoded to /scans/config?xxx
 type scan_config_request = {
