@@ -459,6 +459,7 @@ export type ScanMetadata = {
   cli_version: Version;
   unique_id: Uuid;
   requested_products: Product[];
+  dry_run: boolean;
 }
 
 export type ScanRequest = {
@@ -1939,6 +1940,7 @@ export function writeScanMetadata(x: ScanMetadata, context: any = x): any {
     'cli_version': _atd_write_required_field('ScanMetadata', 'cli_version', writeVersion, x.cli_version, x),
     'unique_id': _atd_write_required_field('ScanMetadata', 'unique_id', writeUuid, x.unique_id, x),
     'requested_products': _atd_write_required_field('ScanMetadata', 'requested_products', _atd_write_array(writeProduct), x.requested_products, x),
+    'dry_run': _atd_write_field_with_default(_atd_write_bool, false, x.dry_run, x),
   };
 }
 
@@ -1947,6 +1949,7 @@ export function readScanMetadata(x: any, context: any = x): ScanMetadata {
     cli_version: _atd_read_required_field('ScanMetadata', 'cli_version', readVersion, x['cli_version'], x),
     unique_id: _atd_read_required_field('ScanMetadata', 'unique_id', readUuid, x['unique_id'], x),
     requested_products: _atd_read_required_field('ScanMetadata', 'requested_products', _atd_read_array(readProduct), x['requested_products'], x),
+    dry_run: _atd_read_field_with_default(_atd_read_bool, false, x['dry_run'], x),
   };
 }
 

@@ -162,7 +162,8 @@ type product = Semgrep_output_v1_t.product [@@deriving show]
 type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
   cli_version: version;
   unique_id: uuid;
-  requested_products: product list
+  requested_products: product list;
+  dry_run: bool
 }
 
 type project_metadata = Semgrep_output_v1_t.project_metadata = {
@@ -5693,6 +5694,15 @@ let write_scan_metadata : _ -> scan_metadata -> _ = (
       write__product_list
     )
       ob x.requested_products;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"dry_run\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.dry_run;
     Buffer.add_char ob '}';
 )
 let string_of_scan_metadata ?(len = 1024) x =
@@ -5706,6 +5716,7 @@ let read_scan_metadata = (
     let field_cli_version = ref (None) in
     let field_unique_id = ref (None) in
     let field_requested_products = ref (None) in
+    let field_dry_run = ref (false) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -5715,6 +5726,14 @@ let read_scan_metadata = (
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
+            | 7 -> (
+                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'y' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'u' && String.unsafe_get s (pos+6) = 'n' then (
+                  3
+                )
+                else (
+                  -1
+                )
+              )
             | 9 -> (
                 if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'q' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'd' then (
                   1
@@ -5771,6 +5790,14 @@ let read_scan_metadata = (
                 ) p lb
               )
             );
+          | 3 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_dry_run := (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -5784,6 +5811,14 @@ let read_scan_metadata = (
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
+              | 7 -> (
+                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'y' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'u' && String.unsafe_get s (pos+6) = 'n' then (
+                    3
+                  )
+                  else (
+                    -1
+                  )
+                )
               | 9 -> (
                   if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'q' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'd' then (
                     1
@@ -5840,6 +5875,14 @@ let read_scan_metadata = (
                   ) p lb
                 )
               );
+            | 3 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_dry_run := (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -5852,6 +5895,7 @@ let read_scan_metadata = (
             cli_version = (match !field_cli_version with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "cli_version");
             unique_id = (match !field_unique_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "unique_id");
             requested_products = (match !field_requested_products with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "requested_products");
+            dry_run = !field_dry_run;
           }
          : scan_metadata)
       )

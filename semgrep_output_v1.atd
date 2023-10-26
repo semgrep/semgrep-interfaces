@@ -1023,6 +1023,7 @@ type scan_metadata = {
   cli_version: version;
   unique_id: uuid; (* client generated uuid for the scan *)
   requested_products: product list;
+  ~dry_run: bool;
 }
 
 (* Sent by the CLI to the POST /scans endpoint when a scan is created.
@@ -1042,6 +1043,7 @@ type scan_request = {
 (* TODO
 type scan_response = {
     scan: scan_response_bis;
+    ?config: scan_config option;
 }
 type scan_response_bis = {
     (* the scan id *)

@@ -2072,6 +2072,7 @@ class ScanMetadata:
     cli_version: Version
     unique_id: Uuid
     requested_products: List[Product]
+    dry_run: bool = field(default_factory=lambda: False)
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanMetadata':
@@ -2080,6 +2081,7 @@ class ScanMetadata:
                 cli_version=Version.from_json(x['cli_version']) if 'cli_version' in x else _atd_missing_json_field('ScanMetadata', 'cli_version'),
                 unique_id=Uuid.from_json(x['unique_id']) if 'unique_id' in x else _atd_missing_json_field('ScanMetadata', 'unique_id'),
                 requested_products=_atd_read_list(Product.from_json)(x['requested_products']) if 'requested_products' in x else _atd_missing_json_field('ScanMetadata', 'requested_products'),
+                dry_run=_atd_read_bool(x['dry_run']) if 'dry_run' in x else False,
             )
         else:
             _atd_bad_json('ScanMetadata', x)
@@ -2089,6 +2091,7 @@ class ScanMetadata:
         res['cli_version'] = (lambda x: x.to_json())(self.cli_version)
         res['unique_id'] = (lambda x: x.to_json())(self.unique_id)
         res['requested_products'] = _atd_write_list((lambda x: x.to_json()))(self.requested_products)
+        res['dry_run'] = _atd_write_bool(self.dry_run)
         return res
 
     @classmethod
