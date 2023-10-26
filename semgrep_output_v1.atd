@@ -909,8 +909,8 @@ type tag = string
 
 (* Response by the backend to the CLI to the POST /scans/<scan_id>/config *)
 type scan_config = {
+    (* TODO: remove deployment_id + deployment_name from here, instead this will be in scan_response *)
     deployment_id: int;
-    (* the org name *)
     deployment_name: string;
     (* ex: "audit", "comment", "block" TODO use enum? *)
     policy_names: string list;
