@@ -412,11 +412,27 @@ export type CiConfigFromRepo = {
 
 export type Tag = string
 
+export type CiConfigFromCloud = {
+  repo_config: CiConfig;
+  org_config?: CiConfig;
+  dirs_config?: [Fpath, CiConfig][];
+}
+
+export type CiConfig = {
+  env: CiEnv;
+  enabled_products: Product[];
+  ignored_files: string[];
+  autofix: boolean;
+}
+
+export type CiEnv = Map<string, string>
+
 export type ScanConfig = {
   deployment_id: number /*int*/;
   deployment_name: string;
   policy_names: string[];
   rule_config: string;
+  ci_config_from_cloud?: CiConfigFromCloud;
   autofix: boolean;
   deepsemgrep: boolean;
   dependency_query: boolean;
@@ -1840,12 +1856,55 @@ export function readTag(x: any, context: any = x): Tag {
   return _atd_read_string(x, context);
 }
 
+export function writeCiConfigFromCloud(x: CiConfigFromCloud, context: any = x): any {
+  return {
+    'repo_config': _atd_write_required_field('CiConfigFromCloud', 'repo_config', writeCiConfig, x.repo_config, x),
+    'org_config': _atd_write_optional_field(writeCiConfig, x.org_config, x),
+    'dirs_config': _atd_write_optional_field(_atd_write_array(((x, context) => [writeFpath(x[0], x), writeCiConfig(x[1], x)])), x.dirs_config, x),
+  };
+}
+
+export function readCiConfigFromCloud(x: any, context: any = x): CiConfigFromCloud {
+  return {
+    repo_config: _atd_read_required_field('CiConfigFromCloud', 'repo_config', readCiConfig, x['repo_config'], x),
+    org_config: _atd_read_optional_field(readCiConfig, x['org_config'], x),
+    dirs_config: _atd_read_optional_field(_atd_read_array(((x, context): [Fpath, CiConfig] => { _atd_check_json_tuple(2, x, context); return [readFpath(x[0], x), readCiConfig(x[1], x)] })), x['dirs_config'], x),
+  };
+}
+
+export function writeCiConfig(x: CiConfig, context: any = x): any {
+  return {
+    'env': _atd_write_required_field('CiConfig', 'env', writeCiEnv, x.env, x),
+    'enabled_products': _atd_write_required_field('CiConfig', 'enabled_products', _atd_write_array(writeProduct), x.enabled_products, x),
+    'ignored_files': _atd_write_required_field('CiConfig', 'ignored_files', _atd_write_array(_atd_write_string), x.ignored_files, x),
+    'autofix': _atd_write_required_field('CiConfig', 'autofix', _atd_write_bool, x.autofix, x),
+  };
+}
+
+export function readCiConfig(x: any, context: any = x): CiConfig {
+  return {
+    env: _atd_read_required_field('CiConfig', 'env', readCiEnv, x['env'], x),
+    enabled_products: _atd_read_required_field('CiConfig', 'enabled_products', _atd_read_array(readProduct), x['enabled_products'], x),
+    ignored_files: _atd_read_required_field('CiConfig', 'ignored_files', _atd_read_array(_atd_read_string), x['ignored_files'], x),
+    autofix: _atd_read_required_field('CiConfig', 'autofix', _atd_read_bool, x['autofix'], x),
+  };
+}
+
+export function writeCiEnv(x: CiEnv, context: any = x): any {
+  return _atd_write_assoc_map_to_object(_atd_write_string)(x, context);
+}
+
+export function readCiEnv(x: any, context: any = x): CiEnv {
+  return _atd_read_assoc_object_into_map(_atd_read_string)(x, context);
+}
+
 export function writeScanConfig(x: ScanConfig, context: any = x): any {
   return {
     'deployment_id': _atd_write_required_field('ScanConfig', 'deployment_id', _atd_write_int, x.deployment_id, x),
     'deployment_name': _atd_write_required_field('ScanConfig', 'deployment_name', _atd_write_string, x.deployment_name, x),
     'policy_names': _atd_write_required_field('ScanConfig', 'policy_names', _atd_write_array(_atd_write_string), x.policy_names, x),
     'rule_config': _atd_write_required_field('ScanConfig', 'rule_config', _atd_write_string, x.rule_config, x),
+    'ci_config_from_cloud': _atd_write_optional_field(writeCiConfigFromCloud, x.ci_config_from_cloud, x),
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
@@ -1862,6 +1921,7 @@ export function readScanConfig(x: any, context: any = x): ScanConfig {
     deployment_name: _atd_read_required_field('ScanConfig', 'deployment_name', _atd_read_string, x['deployment_name'], x),
     policy_names: _atd_read_required_field('ScanConfig', 'policy_names', _atd_read_array(_atd_read_string), x['policy_names'], x),
     rule_config: _atd_read_required_field('ScanConfig', 'rule_config', _atd_read_string, x['rule_config'], x),
+    ci_config_from_cloud: _atd_read_optional_field(readCiConfigFromCloud, x['ci_config_from_cloud'], x),
     autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),

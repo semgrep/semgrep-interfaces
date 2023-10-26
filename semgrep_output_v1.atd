@@ -898,7 +898,13 @@ type dependency_parser_error = {
 (* CI Configuration *)
 (* ----------------------------- *)
 
-(* content of the .semgrepconfig.yml in the repository *)
+(* Content of the .semgrepconfig.yml in the repository.
+ *
+ * This config allows to configure Semgrep per repo, e.g., to store
+ * a category/tag like "webapp" in a repo so that the Semgrep WebApp can
+ * return a set of relevant rules automatically for this repo in scan_config
+ * later when given this ci_config_from_repo in the scan_request.
+ *)
 type ci_config_from_repo = {
     (* version of the .semgrepconfig.yml format. "V1" right now (useful?) *)
     ~version <python default="Version('v1')"> <ts default="'v1'">: version;
@@ -907,16 +913,62 @@ type ci_config_from_repo = {
 (* ?? ex? *)
 type tag = string
 
+(* Semgrep config from the WebApp *)
+type ci_config_from_cloud = {
+    repo_config: ci_config;
+    ?org_config: ci_config option;
+    (* for monorepos, to be "monorepo-friendly" like they say in Ruff *)
+    ?dirs_config: (fpath * ci_config) list option;
+}
+
+(* Note that we should use very simple types below for the configuration
+ * of Semgrep: booleans or small enums. No int, as people often don't
+ * understand how to set values. For example even if we documented
+ * very well the --timeout option in Semgrep, people still didn't
+ * know which value to use.
+ *
+ * LATER: the type below could be used for the automatic generation of UI code
+ * in the WebApp for user to setup the CI config with UI widgets. We would need
+ * probably ATD extension to express validators, docstring, etc (Jonas's idea).
+ *
+ *)
+type ci_config = {
+   (* to override environment variables, as lots of the configuration of
+    * 'semgrep ci' comes from environment variables (e.g., SEMGREP_REPO_URL)
+    *)
+    env: ci_env;
+    enabled_products: product list;
+    (* glob patterns *)
+    ignored_files: string list;
+    (* other features *)
+    autofix: bool;
+    (* TODO?
+     *  - feature_rollout (hidden from users)
+     *  - feature_opt_in (set by users)
+     *  - deepsemgrep? but should we use product instead?
+     *  - dependency_query??
+     *  - triage_xxx?
+     *)
+}
+
+type ci_env = (string * string) list
+  <json repr="object">
+  <python repr="dict">
+  <ts repr="map">
+
 (* Response by the backend to the CLI to the POST /scans/<scan_id>/config *)
 type scan_config = {
     deployment_id: int;
     (* the org name *)
     deployment_name: string;
-    (* ex: "audit", "comment", "block" TODO use enum? *)
+    (* ex: "audit", "comment", "block" TODO use enum? TODO: seems dead *)
     policy_names: string list;
-    (* rules raw content in JSON format *)
+    (* rules raw content in JSON format (but still sent as a string) *)
     rule_config: string;
-    (* TODO: move all of that in a ci_config_from_cloud *)
+    (* since 1.47.0 *)
+    ?ci_config_from_cloud: ci_config_from_cloud option;
+
+    (* Deprecated: should rely on ci_config_from_cloud instead *)
     ~autofix: bool;
     ~deepsemgrep: bool;
     ~dependency_query: bool;
@@ -927,10 +979,6 @@ type scan_config = {
     (* since 1.37.0 *)
     ?enabled_products: product list option;
   }
-
-(* TODO: add a ci_config_from_cloud this time returned by backend?
- * similar to ci_config_from_repo but in the other direction.
- *)
 
 (* ----------------------------- *)
 (* Scan request *)

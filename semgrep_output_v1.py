@@ -2283,6 +2283,100 @@ class ScanRequest:
 
 
 @dataclass
+class CiEnv:
+    """Original type: ci_env"""
+
+    value: Dict[str, str]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiEnv':
+        return cls(_atd_read_assoc_object_into_dict(_atd_read_string)(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_assoc_dict_to_object(_atd_write_string)(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiEnv':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CiConfig:
+    """Original type: ci_config = { ... }"""
+
+    env: CiEnv
+    enabled_products: List[Product]
+    ignored_files: List[str]
+    autofix: bool
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiConfig':
+        if isinstance(x, dict):
+            return cls(
+                env=CiEnv.from_json(x['env']) if 'env' in x else _atd_missing_json_field('CiConfig', 'env'),
+                enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else _atd_missing_json_field('CiConfig', 'enabled_products'),
+                ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else _atd_missing_json_field('CiConfig', 'ignored_files'),
+                autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else _atd_missing_json_field('CiConfig', 'autofix'),
+            )
+        else:
+            _atd_bad_json('CiConfig', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['env'] = (lambda x: x.to_json())(self.env)
+        res['enabled_products'] = _atd_write_list((lambda x: x.to_json()))(self.enabled_products)
+        res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
+        res['autofix'] = _atd_write_bool(self.autofix)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiConfig':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CiConfigFromCloud:
+    """Original type: ci_config_from_cloud = { ... }"""
+
+    repo_config: CiConfig
+    org_config: Optional[CiConfig] = None
+    dirs_config: Optional[List[Tuple[Fpath, CiConfig]]] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiConfigFromCloud':
+        if isinstance(x, dict):
+            return cls(
+                repo_config=CiConfig.from_json(x['repo_config']) if 'repo_config' in x else _atd_missing_json_field('CiConfigFromCloud', 'repo_config'),
+                org_config=CiConfig.from_json(x['org_config']) if 'org_config' in x else None,
+                dirs_config=_atd_read_list((lambda x: (Fpath.from_json(x[0]), CiConfig.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['dirs_config']) if 'dirs_config' in x else None,
+            )
+        else:
+            _atd_bad_json('CiConfigFromCloud', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['repo_config'] = (lambda x: x.to_json())(self.repo_config)
+        if self.org_config is not None:
+            res['org_config'] = (lambda x: x.to_json())(self.org_config)
+        if self.dirs_config is not None:
+            res['dirs_config'] = _atd_write_list((lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.dirs_config)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiConfigFromCloud':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class ScanConfig:
     """Original type: scan_config = { ... }"""
 
@@ -2290,6 +2384,7 @@ class ScanConfig:
     deployment_name: str
     policy_names: List[str]
     rule_config: str
+    ci_config_from_cloud: Optional[CiConfigFromCloud] = None
     autofix: bool = field(default_factory=lambda: False)
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
@@ -2306,6 +2401,7 @@ class ScanConfig:
                 deployment_name=_atd_read_string(x['deployment_name']) if 'deployment_name' in x else _atd_missing_json_field('ScanConfig', 'deployment_name'),
                 policy_names=_atd_read_list(_atd_read_string)(x['policy_names']) if 'policy_names' in x else _atd_missing_json_field('ScanConfig', 'policy_names'),
                 rule_config=_atd_read_string(x['rule_config']) if 'rule_config' in x else _atd_missing_json_field('ScanConfig', 'rule_config'),
+                ci_config_from_cloud=CiConfigFromCloud.from_json(x['ci_config_from_cloud']) if 'ci_config_from_cloud' in x else None,
                 autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
@@ -2323,6 +2419,8 @@ class ScanConfig:
         res['deployment_name'] = _atd_write_string(self.deployment_name)
         res['policy_names'] = _atd_write_list(_atd_write_string)(self.policy_names)
         res['rule_config'] = _atd_write_string(self.rule_config)
+        if self.ci_config_from_cloud is not None:
+            res['ci_config_from_cloud'] = (lambda x: x.to_json())(self.ci_config_from_cloud)
         res['autofix'] = _atd_write_bool(self.autofix)
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
