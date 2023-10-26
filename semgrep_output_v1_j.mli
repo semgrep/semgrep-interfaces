@@ -173,7 +173,7 @@ type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
   triage_ignored_match_based_ids: string list
 }
 
-type cli_configuration = Semgrep_output_v1_t.cli_configuration = {
+type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
@@ -183,7 +183,7 @@ type cli_configuration = Semgrep_output_v1_t.cli_configuration = {
 type scan_response = Semgrep_output_v1_t.scan_response = {
   scan: scan_info;
   scan_config: scan_configuration;
-  cli_config: cli_configuration
+  engine_config: engine_configuration
 }
 
 type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
@@ -1167,25 +1167,25 @@ val scan_configuration_of_string :
   string -> scan_configuration
   (** Deserialize JSON data of type {!type:scan_configuration}. *)
 
-val write_cli_configuration :
-  Buffer.t -> cli_configuration -> unit
-  (** Output a JSON value of type {!type:cli_configuration}. *)
+val write_engine_configuration :
+  Buffer.t -> engine_configuration -> unit
+  (** Output a JSON value of type {!type:engine_configuration}. *)
 
-val string_of_cli_configuration :
-  ?len:int -> cli_configuration -> string
-  (** Serialize a value of type {!type:cli_configuration}
+val string_of_engine_configuration :
+  ?len:int -> engine_configuration -> string
+  (** Serialize a value of type {!type:engine_configuration}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_cli_configuration :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_configuration
-  (** Input JSON data of type {!type:cli_configuration}. *)
+val read_engine_configuration :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> engine_configuration
+  (** Input JSON data of type {!type:engine_configuration}. *)
 
-val cli_configuration_of_string :
-  string -> cli_configuration
-  (** Deserialize JSON data of type {!type:cli_configuration}. *)
+val engine_configuration_of_string :
+  string -> engine_configuration
+  (** Deserialize JSON data of type {!type:engine_configuration}. *)
 
 val write_scan_response :
   Buffer.t -> scan_response -> unit

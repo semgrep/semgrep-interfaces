@@ -2140,8 +2140,8 @@ class ScanConfiguration:
 
 
 @dataclass
-class CliConfiguration:
-    """Original type: cli_configuration = { ... }"""
+class EngineConfiguration:
+    """Original type: engine_configuration = { ... }"""
 
     autofix: bool = field(default_factory=lambda: False)
     deepsemgrep: bool = field(default_factory=lambda: False)
@@ -2149,7 +2149,7 @@ class CliConfiguration:
     generic_slow_rollout: bool = field(default_factory=lambda: False)
 
     @classmethod
-    def from_json(cls, x: Any) -> 'CliConfiguration':
+    def from_json(cls, x: Any) -> 'EngineConfiguration':
         if isinstance(x, dict):
             return cls(
                 autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
@@ -2158,7 +2158,7 @@ class CliConfiguration:
                 generic_slow_rollout=_atd_read_bool(x['generic_slow_rollout']) if 'generic_slow_rollout' in x else False,
             )
         else:
-            _atd_bad_json('CliConfiguration', x)
+            _atd_bad_json('EngineConfiguration', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
@@ -2169,7 +2169,7 @@ class CliConfiguration:
         return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'CliConfiguration':
+    def from_json_string(cls, x: str) -> 'EngineConfiguration':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -2182,7 +2182,7 @@ class ScanResponse:
 
     scan: ScanInfo
     scan_config: ScanConfiguration
-    cli_config: CliConfiguration
+    engine_config: EngineConfiguration
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanResponse':
@@ -2190,7 +2190,7 @@ class ScanResponse:
             return cls(
                 scan=ScanInfo.from_json(x['scan']) if 'scan' in x else _atd_missing_json_field('ScanResponse', 'scan'),
                 scan_config=ScanConfiguration.from_json(x['scan_config']) if 'scan_config' in x else _atd_missing_json_field('ScanResponse', 'scan_config'),
-                cli_config=CliConfiguration.from_json(x['cli_config']) if 'cli_config' in x else _atd_missing_json_field('ScanResponse', 'cli_config'),
+                engine_config=EngineConfiguration.from_json(x['engine_config']) if 'engine_config' in x else _atd_missing_json_field('ScanResponse', 'engine_config'),
             )
         else:
             _atd_bad_json('ScanResponse', x)
@@ -2199,7 +2199,7 @@ class ScanResponse:
         res: Dict[str, Any] = {}
         res['scan'] = (lambda x: x.to_json())(self.scan)
         res['scan_config'] = (lambda x: x.to_json())(self.scan_config)
-        res['cli_config'] = (lambda x: x.to_json())(self.cli_config)
+        res['engine_config'] = (lambda x: x.to_json())(self.engine_config)
         return res
 
     @classmethod

@@ -173,7 +173,7 @@ type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
   triage_ignored_match_based_ids: string list
 }
 
-type cli_configuration = Semgrep_output_v1_t.cli_configuration = {
+type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
@@ -183,7 +183,7 @@ type cli_configuration = Semgrep_output_v1_t.cli_configuration = {
 type scan_response = Semgrep_output_v1_t.scan_response = {
   scan: scan_info;
   scan_config: scan_configuration;
-  cli_config: cli_configuration
+  engine_config: engine_configuration
 }
 
 type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
@@ -6184,8 +6184,8 @@ let read_scan_configuration = (
 )
 let scan_configuration_of_string s =
   read_scan_configuration (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_cli_configuration : _ -> cli_configuration -> _ = (
-  fun ob (x : cli_configuration) ->
+let write_engine_configuration : _ -> engine_configuration -> _ = (
+  fun ob (x : engine_configuration) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
     if !is_first then
@@ -6226,11 +6226,11 @@ let write_cli_configuration : _ -> cli_configuration -> _ = (
       ob x.generic_slow_rollout;
     Buffer.add_char ob '}';
 )
-let string_of_cli_configuration ?(len = 1024) x =
+let string_of_engine_configuration ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_cli_configuration ob x;
+  write_engine_configuration ob x;
   Buffer.contents ob
-let read_cli_configuration = (
+let read_engine_configuration = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
@@ -6418,11 +6418,11 @@ let read_cli_configuration = (
             dependency_query = !field_dependency_query;
             generic_slow_rollout = !field_generic_slow_rollout;
           }
-         : cli_configuration)
+         : engine_configuration)
       )
 )
-let cli_configuration_of_string s =
-  read_cli_configuration (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let engine_configuration_of_string s =
+  read_engine_configuration (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_scan_response : _ -> scan_response -> _ = (
   fun ob (x : scan_response) ->
     Buffer.add_char ob '{';
@@ -6449,11 +6449,11 @@ let write_scan_response : _ -> scan_response -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"cli_config\":";
+      Buffer.add_string ob "\"engine_config\":";
     (
-      write_cli_configuration
+      write_engine_configuration
     )
-      ob x.cli_config;
+      ob x.engine_config;
     Buffer.add_char ob '}';
 )
 let string_of_scan_response ?(len = 1024) x =
@@ -6466,7 +6466,7 @@ let read_scan_response = (
     Yojson.Safe.read_lcurl p lb;
     let field_scan = ref (None) in
     let field_scan_config = ref (None) in
-    let field_cli_config = ref (None) in
+    let field_engine_config = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -6484,17 +6484,17 @@ let read_scan_response = (
                   -1
                 )
               )
-            | 10 -> (
-                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'f' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'g' then (
-                  2
+            | 11 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'g' then (
+                  1
                 )
                 else (
                   -1
                 )
               )
-            | 11 -> (
-                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'g' then (
-                  1
+            | 13 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'f' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'g' then (
+                  2
                 )
                 else (
                   -1
@@ -6525,10 +6525,10 @@ let read_scan_response = (
               )
             );
           | 2 ->
-            field_cli_config := (
+            field_engine_config := (
               Some (
                 (
-                  read_cli_configuration
+                  read_engine_configuration
                 ) p lb
               )
             );
@@ -6553,17 +6553,17 @@ let read_scan_response = (
                     -1
                   )
                 )
-              | 10 -> (
-                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'f' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'g' then (
-                    2
+              | 11 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'g' then (
+                    1
                   )
                   else (
                     -1
                   )
                 )
-              | 11 -> (
-                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'g' then (
-                    1
+              | 13 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'f' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'g' then (
+                    2
                   )
                   else (
                     -1
@@ -6594,10 +6594,10 @@ let read_scan_response = (
                 )
               );
             | 2 ->
-              field_cli_config := (
+              field_engine_config := (
                 Some (
                   (
-                    read_cli_configuration
+                    read_engine_configuration
                   ) p lb
                 )
               );
@@ -6612,7 +6612,7 @@ let read_scan_response = (
           {
             scan = (match !field_scan with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "scan");
             scan_config = (match !field_scan_config with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "scan_config");
-            cli_config = (match !field_cli_config with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "cli_config");
+            engine_config = (match !field_engine_config with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "engine_config");
           }
          : scan_response)
       )

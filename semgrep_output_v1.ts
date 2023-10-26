@@ -472,7 +472,7 @@ export type ScanRequest = {
 export type ScanResponse = {
   scan: ScanInfo;
   scan_config: ScanConfiguration;
-  cli_config: CliConfiguration;
+  engine_config: EngineConfiguration;
 }
 
 export type ScanInfo = {
@@ -489,7 +489,7 @@ export type ScanConfiguration = {
   triage_ignored_match_based_ids: string[];
 }
 
-export type CliConfiguration = {
+export type EngineConfiguration = {
   autofix: boolean;
   deepsemgrep: boolean;
   dependency_query: boolean;
@@ -2002,7 +2002,7 @@ export function writeScanResponse(x: ScanResponse, context: any = x): any {
   return {
     'scan': _atd_write_required_field('ScanResponse', 'scan', writeScanInfo, x.scan, x),
     'scan_config': _atd_write_required_field('ScanResponse', 'scan_config', writeScanConfiguration, x.scan_config, x),
-    'cli_config': _atd_write_required_field('ScanResponse', 'cli_config', writeCliConfiguration, x.cli_config, x),
+    'engine_config': _atd_write_required_field('ScanResponse', 'engine_config', writeEngineConfiguration, x.engine_config, x),
   };
 }
 
@@ -2010,7 +2010,7 @@ export function readScanResponse(x: any, context: any = x): ScanResponse {
   return {
     scan: _atd_read_required_field('ScanResponse', 'scan', readScanInfo, x['scan'], x),
     scan_config: _atd_read_required_field('ScanResponse', 'scan_config', readScanConfiguration, x['scan_config'], x),
-    cli_config: _atd_read_required_field('ScanResponse', 'cli_config', readCliConfiguration, x['cli_config'], x),
+    engine_config: _atd_read_required_field('ScanResponse', 'engine_config', readEngineConfiguration, x['engine_config'], x),
   };
 }
 
@@ -2050,7 +2050,7 @@ export function readScanConfiguration(x: any, context: any = x): ScanConfigurati
   };
 }
 
-export function writeCliConfiguration(x: CliConfiguration, context: any = x): any {
+export function writeEngineConfiguration(x: EngineConfiguration, context: any = x): any {
   return {
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
@@ -2059,7 +2059,7 @@ export function writeCliConfiguration(x: CliConfiguration, context: any = x): an
   };
 }
 
-export function readCliConfiguration(x: any, context: any = x): CliConfiguration {
+export function readEngineConfiguration(x: any, context: any = x): EngineConfiguration {
   return {
     autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),

@@ -1043,7 +1043,7 @@ type scan_request = {
 type scan_response = {
     scan: scan_info;
     scan_config: scan_configuration;
-    cli_config: cli_configuration;
+    engine_config: engine_configuration;
 }
 
 (* meta info about the scan *)
@@ -1063,7 +1063,7 @@ type scan_configuration = {
 }
 
 (* settings for the cli *)
-type cli_configuration = {
+type engine_configuration = {
     ~autofix: bool;
     ~deepsemgrep: bool;
     ~dependency_query: bool;

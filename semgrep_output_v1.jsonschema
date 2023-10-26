@@ -769,11 +769,11 @@
     },
     "scan_response": {
       "type": "object",
-      "required": [ "scan", "scan_config", "cli_config" ],
+      "required": [ "scan", "scan_config", "engine_config" ],
       "properties": {
         "scan": { "$ref": "#/definitions/scan_info" },
         "scan_config": { "$ref": "#/definitions/scan_configuration" },
-        "cli_config": { "$ref": "#/definitions/cli_configuration" }
+        "engine_config": { "$ref": "#/definitions/engine_configuration" }
       }
     },
     "scan_info": {
@@ -805,7 +805,7 @@
         }
       }
     },
-    "cli_configuration": {
+    "engine_configuration": {
       "type": "object",
       "required": [],
       "properties": {
