@@ -1070,18 +1070,6 @@ type engine_configuration = {
     ~generic_slow_rollout: bool; (* for features we only want to turn on for select customers *)
 }
 
-(* TODO? seems used only for dry_run and passed urlencoded to /scans/config?xxx
-type scan_config_request = {
-    dry_run: bool;
-    (* project_metadata.repository *)
-    repo_name: string;
-    (* TODO: deprecate, prefer scan_request.scan_metadata.requested_products *)
-    sca: bool;
-    full_scan: bool;
-    semgrep_version : version;
-}
- *)
-
 (* ----------------------------- *)
 (* Findings *)
 (* ----------------------------- *)
