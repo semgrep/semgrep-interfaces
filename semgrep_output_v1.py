@@ -4093,6 +4093,95 @@ class ErrorSeverity:
 
 
 @dataclass
+class DeploymentConfig:
+    """Original type: deployment_config = { ... }"""
+
+    id: int
+    name: str
+    organization_id: int = field(default_factory=lambda: 0)
+    display_name: str = field(default_factory=lambda: "")
+    scm_name: str = field(default_factory=lambda: "")
+    slug: str = field(default_factory=lambda: "")
+    source_type: str = field(default_factory=lambda: "")
+    has_autofix: bool = field(default_factory=lambda: False)
+    has_deepsemgrep: bool = field(default_factory=lambda: False)
+    has_triage_via_comment: bool = field(default_factory=lambda: False)
+    has_dependency_query: bool = field(default_factory=lambda: False)
+    default_user_role: str = field(default_factory=lambda: "")
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DeploymentConfig':
+        if isinstance(x, dict):
+            return cls(
+                id=_atd_read_int(x['id']) if 'id' in x else _atd_missing_json_field('DeploymentConfig', 'id'),
+                name=_atd_read_string(x['name']) if 'name' in x else _atd_missing_json_field('DeploymentConfig', 'name'),
+                organization_id=_atd_read_int(x['organization_id']) if 'organization_id' in x else 0,
+                display_name=_atd_read_string(x['display_name']) if 'display_name' in x else "",
+                scm_name=_atd_read_string(x['scm_name']) if 'scm_name' in x else "",
+                slug=_atd_read_string(x['slug']) if 'slug' in x else "",
+                source_type=_atd_read_string(x['source_type']) if 'source_type' in x else "",
+                has_autofix=_atd_read_bool(x['has_autofix']) if 'has_autofix' in x else False,
+                has_deepsemgrep=_atd_read_bool(x['has_deepsemgrep']) if 'has_deepsemgrep' in x else False,
+                has_triage_via_comment=_atd_read_bool(x['has_triage_via_comment']) if 'has_triage_via_comment' in x else False,
+                has_dependency_query=_atd_read_bool(x['has_dependency_query']) if 'has_dependency_query' in x else False,
+                default_user_role=_atd_read_string(x['default_user_role']) if 'default_user_role' in x else "",
+            )
+        else:
+            _atd_bad_json('DeploymentConfig', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['id'] = _atd_write_int(self.id)
+        res['name'] = _atd_write_string(self.name)
+        res['organization_id'] = _atd_write_int(self.organization_id)
+        res['display_name'] = _atd_write_string(self.display_name)
+        res['scm_name'] = _atd_write_string(self.scm_name)
+        res['slug'] = _atd_write_string(self.slug)
+        res['source_type'] = _atd_write_string(self.source_type)
+        res['has_autofix'] = _atd_write_bool(self.has_autofix)
+        res['has_deepsemgrep'] = _atd_write_bool(self.has_deepsemgrep)
+        res['has_triage_via_comment'] = _atd_write_bool(self.has_triage_via_comment)
+        res['has_dependency_query'] = _atd_write_bool(self.has_dependency_query)
+        res['default_user_role'] = _atd_write_string(self.default_user_role)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DeploymentConfig':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DeploymentResponse:
+    """Original type: deployment_response = { ... }"""
+
+    deployment: DeploymentConfig
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DeploymentResponse':
+        if isinstance(x, dict):
+            return cls(
+                deployment=DeploymentConfig.from_json(x['deployment']) if 'deployment' in x else _atd_missing_json_field('DeploymentResponse', 'deployment'),
+            )
+        else:
+            _atd_bad_json('DeploymentResponse', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['deployment'] = (lambda x: x.to_json())(self.deployment)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DeploymentResponse':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class DependencyParserError:
     """Original type: dependency_parser_error = { ... }"""
 

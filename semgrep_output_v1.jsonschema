@@ -668,6 +668,24 @@
         "text": { "type": "string" }
       }
     },
+    "deployment_config": {
+      "type": "object",
+      "required": [ "id", "name" ],
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "organization_id": { "type": "integer" },
+        "display_name": { "type": "string" },
+        "scm_name": { "type": "string" },
+        "slug": { "type": "string" },
+        "source_type": { "type": "string" },
+        "has_autofix": { "type": "boolean" },
+        "has_deepsemgrep": { "type": "boolean" },
+        "has_triage_via_comment": { "type": "boolean" },
+        "has_dependency_query": { "type": "boolean" },
+        "default_user_role": { "type": "string" }
+      }
+    },
     "ci_config_from_repo": {
       "type": "object",
       "required": [],
@@ -743,6 +761,13 @@
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
         }
+      }
+    },
+    "deployment_response": {
+      "type": "object",
+      "required": [ "deployment" ],
+      "properties": {
+        "deployment": { "$ref": "#/definitions/deployment_config" }
       }
     },
     "project_metadata": {

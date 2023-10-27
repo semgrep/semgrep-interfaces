@@ -378,6 +378,26 @@ type error_span = Semgrep_output_v1_t.error_span = {
 type error_severity = Semgrep_output_v1_t.error_severity
   [@@deriving show, eq]
 
+type deployment_config = Semgrep_output_v1_t.deployment_config = {
+  id: int;
+  name: string;
+  organization_id: int;
+  display_name: string;
+  scm_name: string;
+  slug: string;
+  source_type: string;
+  has_autofix: bool;
+  has_deepsemgrep: bool;
+  has_triage_via_comment: bool;
+  has_dependency_query: bool;
+  default_user_role: string
+}
+  [@@deriving show]
+
+type deployment_response = Semgrep_output_v1_t.deployment_response = {
+  deployment: deployment_config
+}
+
 type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
   path: string;
   parser: sca_parser_name;
@@ -1614,6 +1634,46 @@ val read_error_severity :
 val error_severity_of_string :
   string -> error_severity
   (** Deserialize JSON data of type {!type:error_severity}. *)
+
+val write_deployment_config :
+  Buffer.t -> deployment_config -> unit
+  (** Output a JSON value of type {!type:deployment_config}. *)
+
+val string_of_deployment_config :
+  ?len:int -> deployment_config -> string
+  (** Serialize a value of type {!type:deployment_config}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_deployment_config :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> deployment_config
+  (** Input JSON data of type {!type:deployment_config}. *)
+
+val deployment_config_of_string :
+  string -> deployment_config
+  (** Deserialize JSON data of type {!type:deployment_config}. *)
+
+val write_deployment_response :
+  Buffer.t -> deployment_response -> unit
+  (** Output a JSON value of type {!type:deployment_response}. *)
+
+val string_of_deployment_response :
+  ?len:int -> deployment_response -> string
+  (** Serialize a value of type {!type:deployment_response}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_deployment_response :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> deployment_response
+  (** Input JSON data of type {!type:deployment_response}. *)
+
+val deployment_response_of_string :
+  string -> deployment_response
+  (** Deserialize JSON data of type {!type:deployment_response}. *)
 
 val write_dependency_parser_error :
   Buffer.t -> dependency_parser_error -> unit

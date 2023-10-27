@@ -876,7 +876,7 @@ type dependency_parser_error = {
  *
  * The sequence of HTTP requests is mostly:
  *  - /deployments/current with token
- *    and response with deployment name
+ *    and response with deployment name in a deployment config
  *  - /deployments/scans when starting a scan, with information about the project
  *    and response with scan_id
  *  - /scans/<scan_id>/config to request the scan config
@@ -886,10 +886,6 @@ type dependency_parser_error = {
  *  - /complete when done, with the exit code and a few more information
  *    and response with app_block_override and reason
  *
- * TODO:
- *  - see semgrep/app/scans.py, need to port to ATD not just what we send, but
- *    also the responses from the backend
- *
  * alt: we could move all of this in a separate semgrep_posts_v1.atd file
  * or semgrep_webapp_v1.atd
 *)
@@ -897,6 +893,29 @@ type dependency_parser_error = {
 (* ----------------------------- *)
 (* CI Configuration *)
 (* ----------------------------- *)
+
+(* Response by the backend to the CLI to the POST deployments/current *)
+type deployment_config <ocaml attr="deriving show"> = {
+  id : int;
+  (* the important piece, the deployment name (e.g., "returntocorp" *)
+  name : string;
+  ~organization_id : int;
+  (* All three below seem similar to 'name' mostly (e.g., "returntocorp") *)
+  ~display_name : string;
+  ~scm_name : string;
+  ~slug : string;
+  (* ex: "github" *)
+  ~source_type : string;
+  (* Yet another feature lists
+   * TODO? factorize in ci_config_from_cloud instead of here and scan_config?
+   *)
+  ~has_autofix : bool;
+  ~has_deepsemgrep : bool;
+  ~has_triage_via_comment : bool;
+  ~has_dependency_query : bool;
+  (* ex: "member" *)
+  ~default_user_role : string;
+}
 
 (* Content of the .semgrepconfig.yml in the repository.
  *
@@ -913,7 +932,9 @@ type ci_config_from_repo = {
 (* ?? ex? *)
 type tag = string
 
-(* Semgrep config from the WebApp *)
+(* Semgrep config from the WebApp
+ * TODO: not created yet by backend, and not used yet in the CLI
+ *)
 type ci_config_from_cloud = {
     repo_config: ci_config;
     ?org_config: ci_config option;
@@ -981,11 +1002,15 @@ type scan_config = {
   }
 
 (* ----------------------------- *)
-(* Scan request *)
+(* CI Deployment response *)
 (* ----------------------------- *)
+type deployment_response = {
+    deployment: deployment_config;
+}
 
-(* TODO: deployment_config? from POST to deployments/current *)
-
+(* ----------------------------- *)
+(* CI Scan request *)
+(* ----------------------------- *)
 
 (* Collect information about a project from the environment, filesystem,
  * git repo, etc.
@@ -1231,7 +1256,7 @@ type ci_scan_dependencies = (string * found_dependency list) list
     <ts repr="map">
 
 (* ----------------------------- *)
-(* CI scan complete response *)
+(* CI scan complete *)
 (* ----------------------------- *)
 
 (* Sent by the CLI to /complete *)
