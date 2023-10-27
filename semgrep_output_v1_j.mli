@@ -503,6 +503,19 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   skipped_rules: skipped_rule list
 }
 
+type ci_scan_results_response_error =
+  Semgrep_output_v1_t.ci_scan_results_response_error = {
+  message: string
+}
+  [@@deriving show]
+
+type ci_scan_results_response =
+  Semgrep_output_v1_t.ci_scan_results_response = {
+  errors: ci_scan_results_response_error list;
+  task_id: string option
+}
+  [@@deriving show]
+
 type ci_scan_dependencies = Semgrep_output_v1_t.ci_scan_dependencies
 
 type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
@@ -525,6 +538,14 @@ type ci_scan_complete_stats = Semgrep_output_v1_t.ci_scan_complete_stats = {
   parse_rate: (string * parsing_stats) list;
   engine_requested: string option
 }
+
+type ci_scan_complete_response =
+  Semgrep_output_v1_t.ci_scan_complete_response = {
+  success: bool;
+  app_block_override: bool;
+  app_block_reason: string
+}
+  [@@deriving show]
 
 type ci_scan_complete = Semgrep_output_v1_t.ci_scan_complete = {
   exit_code: int;
@@ -1915,6 +1936,46 @@ val cli_output_of_string :
   string -> cli_output
   (** Deserialize JSON data of type {!type:cli_output}. *)
 
+val write_ci_scan_results_response_error :
+  Buffer.t -> ci_scan_results_response_error -> unit
+  (** Output a JSON value of type {!type:ci_scan_results_response_error}. *)
+
+val string_of_ci_scan_results_response_error :
+  ?len:int -> ci_scan_results_response_error -> string
+  (** Serialize a value of type {!type:ci_scan_results_response_error}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_ci_scan_results_response_error :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_scan_results_response_error
+  (** Input JSON data of type {!type:ci_scan_results_response_error}. *)
+
+val ci_scan_results_response_error_of_string :
+  string -> ci_scan_results_response_error
+  (** Deserialize JSON data of type {!type:ci_scan_results_response_error}. *)
+
+val write_ci_scan_results_response :
+  Buffer.t -> ci_scan_results_response -> unit
+  (** Output a JSON value of type {!type:ci_scan_results_response}. *)
+
+val string_of_ci_scan_results_response :
+  ?len:int -> ci_scan_results_response -> string
+  (** Serialize a value of type {!type:ci_scan_results_response}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_ci_scan_results_response :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_scan_results_response
+  (** Input JSON data of type {!type:ci_scan_results_response}. *)
+
+val ci_scan_results_response_of_string :
+  string -> ci_scan_results_response
+  (** Deserialize JSON data of type {!type:ci_scan_results_response}. *)
+
 val write_ci_scan_dependencies :
   Buffer.t -> ci_scan_dependencies -> unit
   (** Output a JSON value of type {!type:ci_scan_dependencies}. *)
@@ -1974,6 +2035,26 @@ val read_ci_scan_complete_stats :
 val ci_scan_complete_stats_of_string :
   string -> ci_scan_complete_stats
   (** Deserialize JSON data of type {!type:ci_scan_complete_stats}. *)
+
+val write_ci_scan_complete_response :
+  Buffer.t -> ci_scan_complete_response -> unit
+  (** Output a JSON value of type {!type:ci_scan_complete_response}. *)
+
+val string_of_ci_scan_complete_response :
+  ?len:int -> ci_scan_complete_response -> string
+  (** Serialize a value of type {!type:ci_scan_complete_response}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_ci_scan_complete_response :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_scan_complete_response
+  (** Input JSON data of type {!type:ci_scan_complete_response}. *)
+
+val ci_scan_complete_response_of_string :
+  string -> ci_scan_complete_response
+  (** Deserialize JSON data of type {!type:ci_scan_complete_response}. *)
 
 val write_ci_scan_complete :
   Buffer.t -> ci_scan_complete -> unit

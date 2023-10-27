@@ -1224,12 +1224,6 @@ type ci_scan_results = {
    ?dependencies: ci_scan_dependencies option;
 }
 
-(* TODO: response to /results is {
-  errors: {message: string} list;
-  ?task_id: string option;
-}
- *)
-
 (* See https://semgrep.dev/docs/usage-limits
  * coupling: this must match Git_wrapper.git_log_json_format
  *)
@@ -1255,6 +1249,19 @@ type ci_scan_dependencies = (string * found_dependency list) list
     <python repr="dict">
     <ts repr="map">
 
+
+
+
+(* Response by the backend to the CLI to the POST /results *)
+type ci_scan_results_response <ocaml attr="deriving show"> = {
+  errors: ci_scan_results_response_error list;
+  ?task_id: string option;
+}
+
+type ci_scan_results_response_error <ocaml attr="deriving show"> = {
+    message: string;
+}
+                 
 (* ----------------------------- *)
 (* CI scan complete *)
 (* ----------------------------- *)
@@ -1269,13 +1276,6 @@ type ci_scan_complete = {
   ?task_id: string option;
   ?final_attempt: bool option; (* always optional *)
   }
-
-(* TODO: response to /complete is {
-   success: bool;
-   app_block_override: bool;
-   app_block_reason: string;
-}
- *)
 
 type ci_scan_complete_stats = {
   findings: int;
@@ -1305,6 +1305,14 @@ type parsing_stats = {
   num_targets: int;
   bytes_parsed: int;
   num_bytes: int;
+}
+
+(* Response by the backend to the CLI to the POST /complete *)
+type ci_scan_complete_response <ocaml attr="deriving show"> = {
+   success: bool;
+   ~app_block_override: bool;
+   (* only when app_block_override is true *)
+   ~app_block_reason: string;
 }
 
 (* ----------------------------- *)

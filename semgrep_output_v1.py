@@ -4723,6 +4723,66 @@ class CliOutput:
 
 
 @dataclass
+class CiScanResultsResponseError:
+    """Original type: ci_scan_results_response_error = { ... }"""
+
+    message: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiScanResultsResponseError':
+        if isinstance(x, dict):
+            return cls(
+                message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('CiScanResultsResponseError', 'message'),
+            )
+        else:
+            _atd_bad_json('CiScanResultsResponseError', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['message'] = _atd_write_string(self.message)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiScanResultsResponseError':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CiScanResultsResponse:
+    """Original type: ci_scan_results_response = { ... }"""
+
+    errors: List[CiScanResultsResponseError]
+    task_id: Optional[str] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiScanResultsResponse':
+        if isinstance(x, dict):
+            return cls(
+                errors=_atd_read_list(CiScanResultsResponseError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CiScanResultsResponse', 'errors'),
+                task_id=_atd_read_string(x['task_id']) if 'task_id' in x else None,
+            )
+        else:
+            _atd_bad_json('CiScanResultsResponse', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
+        if self.task_id is not None:
+            res['task_id'] = _atd_write_string(self.task_id)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiScanResultsResponse':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class CiScanDependencies:
     """Original type: ci_scan_dependencies"""
 
@@ -4835,6 +4895,40 @@ class CiScanCompleteStats:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'CiScanCompleteStats':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CiScanCompleteResponse:
+    """Original type: ci_scan_complete_response = { ... }"""
+
+    success: bool
+    app_block_override: bool = field(default_factory=lambda: False)
+    app_block_reason: str = field(default_factory=lambda: "")
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiScanCompleteResponse':
+        if isinstance(x, dict):
+            return cls(
+                success=_atd_read_bool(x['success']) if 'success' in x else _atd_missing_json_field('CiScanCompleteResponse', 'success'),
+                app_block_override=_atd_read_bool(x['app_block_override']) if 'app_block_override' in x else False,
+                app_block_reason=_atd_read_string(x['app_block_reason']) if 'app_block_reason' in x else "",
+            )
+        else:
+            _atd_bad_json('CiScanCompleteResponse', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['success'] = _atd_write_bool(self.success)
+        res['app_block_override'] = _atd_write_bool(self.app_block_override)
+        res['app_block_reason'] = _atd_write_string(self.app_block_reason)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiScanCompleteResponse':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

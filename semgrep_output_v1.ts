@@ -558,6 +558,15 @@ export type Contributions = Contribution[]
 
 export type CiScanDependencies = Map<string, FoundDependency[]>
 
+export type CiScanResultsResponse = {
+  errors: CiScanResultsResponseError[];
+  task_id?: string;
+}
+
+export type CiScanResultsResponseError = {
+  message: string;
+}
+
 export type CiScanComplete = {
   exit_code: number /*int*/;
   stats: CiScanCompleteStats;
@@ -582,6 +591,12 @@ export type ParsingStats = {
   num_targets: number /*int*/;
   bytes_parsed: number /*int*/;
   num_bytes: number /*int*/;
+}
+
+export type CiScanCompleteResponse = {
+  success: boolean;
+  app_block_override: boolean;
+  app_block_reason: string;
 }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
@@ -2231,6 +2246,32 @@ export function readCiScanDependencies(x: any, context: any = x): CiScanDependen
   return _atd_read_assoc_object_into_map(_atd_read_array(readFoundDependency))(x, context);
 }
 
+export function writeCiScanResultsResponse(x: CiScanResultsResponse, context: any = x): any {
+  return {
+    'errors': _atd_write_required_field('CiScanResultsResponse', 'errors', _atd_write_array(writeCiScanResultsResponseError), x.errors, x),
+    'task_id': _atd_write_optional_field(_atd_write_string, x.task_id, x),
+  };
+}
+
+export function readCiScanResultsResponse(x: any, context: any = x): CiScanResultsResponse {
+  return {
+    errors: _atd_read_required_field('CiScanResultsResponse', 'errors', _atd_read_array(readCiScanResultsResponseError), x['errors'], x),
+    task_id: _atd_read_optional_field(_atd_read_string, x['task_id'], x),
+  };
+}
+
+export function writeCiScanResultsResponseError(x: CiScanResultsResponseError, context: any = x): any {
+  return {
+    'message': _atd_write_required_field('CiScanResultsResponseError', 'message', _atd_write_string, x.message, x),
+  };
+}
+
+export function readCiScanResultsResponseError(x: any, context: any = x): CiScanResultsResponseError {
+  return {
+    message: _atd_read_required_field('CiScanResultsResponseError', 'message', _atd_read_string, x['message'], x),
+  };
+}
+
 export function writeCiScanComplete(x: CiScanComplete, context: any = x): any {
   return {
     'exit_code': _atd_write_required_field('CiScanComplete', 'exit_code', _atd_write_int, x.exit_code, x),
@@ -2292,6 +2333,22 @@ export function readParsingStats(x: any, context: any = x): ParsingStats {
     num_targets: _atd_read_required_field('ParsingStats', 'num_targets', _atd_read_int, x['num_targets'], x),
     bytes_parsed: _atd_read_required_field('ParsingStats', 'bytes_parsed', _atd_read_int, x['bytes_parsed'], x),
     num_bytes: _atd_read_required_field('ParsingStats', 'num_bytes', _atd_read_int, x['num_bytes'], x),
+  };
+}
+
+export function writeCiScanCompleteResponse(x: CiScanCompleteResponse, context: any = x): any {
+  return {
+    'success': _atd_write_required_field('CiScanCompleteResponse', 'success', _atd_write_bool, x.success, x),
+    'app_block_override': _atd_write_field_with_default(_atd_write_bool, false, x.app_block_override, x),
+    'app_block_reason': _atd_write_field_with_default(_atd_write_string, "", x.app_block_reason, x),
+  };
+}
+
+export function readCiScanCompleteResponse(x: any, context: any = x): CiScanCompleteResponse {
+  return {
+    success: _atd_read_required_field('CiScanCompleteResponse', 'success', _atd_read_bool, x['success'], x),
+    app_block_override: _atd_read_field_with_default(_atd_read_bool, false, x['app_block_override'], x),
+    app_block_reason: _atd_read_field_with_default(_atd_read_string, "", x['app_block_reason'], x),
   };
 }
 

@@ -932,6 +932,22 @@
         "items": { "$ref": "#/definitions/found_dependency" }
       }
     },
+    "ci_scan_results_response": {
+      "type": "object",
+      "required": [ "errors" ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ci_scan_results_response_error" }
+        },
+        "task_id": { "type": "string" }
+      }
+    },
+    "ci_scan_results_response_error": {
+      "type": "object",
+      "required": [ "message" ],
+      "properties": { "message": { "type": "string" } }
+    },
     "ci_scan_complete": {
       "type": "object",
       "required": [ "exit_code", "stats" ],
@@ -985,6 +1001,15 @@
         "num_targets": { "type": "integer" },
         "bytes_parsed": { "type": "integer" },
         "num_bytes": { "type": "integer" }
+      }
+    },
+    "ci_scan_complete_response": {
+      "type": "object",
+      "required": [ "success" ],
+      "properties": {
+        "success": { "type": "boolean" },
+        "app_block_override": { "type": "boolean" },
+        "app_block_reason": { "type": "string" }
       }
     }
   }
