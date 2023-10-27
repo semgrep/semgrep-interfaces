@@ -1011,6 +1011,14 @@
         "app_block_override": { "type": "boolean" },
         "app_block_reason": { "type": "string" }
       }
+    },
+    "ci_scan_failure": {
+      "type": "object",
+      "required": [ "exit_code", "stderr" ],
+      "properties": {
+        "exit_code": { "type": "integer" },
+        "stderr": { "type": "string" }
+      }
     }
   }
 }

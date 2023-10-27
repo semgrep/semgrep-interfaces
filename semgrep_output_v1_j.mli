@@ -529,6 +529,11 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   dependencies: ci_scan_dependencies option
 }
 
+type ci_scan_failure = Semgrep_output_v1_t.ci_scan_failure = {
+  exit_code: int;
+  stderr: string
+}
+
 type ci_scan_complete_stats = Semgrep_output_v1_t.ci_scan_complete_stats = {
   findings: int;
   errors: cli_error list;
@@ -2015,6 +2020,26 @@ val read_ci_scan_results :
 val ci_scan_results_of_string :
   string -> ci_scan_results
   (** Deserialize JSON data of type {!type:ci_scan_results}. *)
+
+val write_ci_scan_failure :
+  Buffer.t -> ci_scan_failure -> unit
+  (** Output a JSON value of type {!type:ci_scan_failure}. *)
+
+val string_of_ci_scan_failure :
+  ?len:int -> ci_scan_failure -> string
+  (** Serialize a value of type {!type:ci_scan_failure}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_ci_scan_failure :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_scan_failure
+  (** Input JSON data of type {!type:ci_scan_failure}. *)
+
+val ci_scan_failure_of_string :
+  string -> ci_scan_failure
+  (** Deserialize JSON data of type {!type:ci_scan_failure}. *)
 
 val write_ci_scan_complete_stats :
   Buffer.t -> ci_scan_complete_stats -> unit

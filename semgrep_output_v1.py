@@ -4855,6 +4855,37 @@ class CiScanResults:
 
 
 @dataclass
+class CiScanFailure:
+    """Original type: ci_scan_failure = { ... }"""
+
+    exit_code: int
+    stderr: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiScanFailure':
+        if isinstance(x, dict):
+            return cls(
+                exit_code=_atd_read_int(x['exit_code']) if 'exit_code' in x else _atd_missing_json_field('CiScanFailure', 'exit_code'),
+                stderr=_atd_read_string(x['stderr']) if 'stderr' in x else _atd_missing_json_field('CiScanFailure', 'stderr'),
+            )
+        else:
+            _atd_bad_json('CiScanFailure', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['exit_code'] = _atd_write_int(self.exit_code)
+        res['stderr'] = _atd_write_string(self.stderr)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiScanFailure':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class CiScanCompleteStats:
     """Original type: ci_scan_complete_stats = { ... }"""
 

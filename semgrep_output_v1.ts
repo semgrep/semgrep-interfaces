@@ -599,6 +599,11 @@ export type CiScanCompleteResponse = {
   app_block_reason: string;
 }
 
+export type CiScanFailure = {
+  exit_code: number /*int*/;
+  stderr: string;
+}
+
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
 }
@@ -2349,6 +2354,20 @@ export function readCiScanCompleteResponse(x: any, context: any = x): CiScanComp
     success: _atd_read_required_field('CiScanCompleteResponse', 'success', _atd_read_bool, x['success'], x),
     app_block_override: _atd_read_field_with_default(_atd_read_bool, false, x['app_block_override'], x),
     app_block_reason: _atd_read_field_with_default(_atd_read_string, "", x['app_block_reason'], x),
+  };
+}
+
+export function writeCiScanFailure(x: CiScanFailure, context: any = x): any {
+  return {
+    'exit_code': _atd_write_required_field('CiScanFailure', 'exit_code', _atd_write_int, x.exit_code, x),
+    'stderr': _atd_write_required_field('CiScanFailure', 'stderr', _atd_write_string, x.stderr, x),
+  };
+}
+
+export function readCiScanFailure(x: any, context: any = x): CiScanFailure {
+  return {
+    exit_code: _atd_read_required_field('CiScanFailure', 'exit_code', _atd_read_int, x['exit_code'], x),
+    stderr: _atd_read_required_field('CiScanFailure', 'stderr', _atd_read_string, x['stderr'], x),
   };
 }
 

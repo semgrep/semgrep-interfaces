@@ -1319,9 +1319,9 @@ type ci_scan_complete_response <ocaml attr="deriving show"> = {
 (* CI scan failure *)
 (* ----------------------------- *)
 
-(* TODO: Sent by the CLI to /scans/<scan_id>/error
-  type scan_failure = {
-     exit_code: int;
-     stderr: string;
-  }
- *)
+(* Sent by the CLI to /scans/<scan_id>/error *)
+type ci_scan_failure = {
+    exit_code: int;
+    stderr: string;
+}
+
