@@ -206,11 +206,27 @@ type scan_request = Semgrep_output_v1_t.scan_request = {
   scan_metadata: scan_metadata option
 }
 
+type ci_env = Semgrep_output_v1_t.ci_env
+
+type ci_config = Semgrep_output_v1_t.ci_config = {
+  env: ci_env;
+  enabled_products: product list;
+  ignored_files: string list;
+  autofix: bool
+}
+
+type ci_config_from_cloud = Semgrep_output_v1_t.ci_config_from_cloud = {
+  repo_config: ci_config;
+  org_config: ci_config option;
+  dirs_config: (fpath * ci_config) list option
+}
+
 type scan_config = Semgrep_output_v1_t.scan_config = {
   deployment_id: int;
   deployment_name: string;
   policy_names: string list;
   rule_config: string;
+  ci_config_from_cloud: ci_config_from_cloud option;
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
@@ -1178,6 +1194,66 @@ val read_scan_request :
 val scan_request_of_string :
   string -> scan_request
   (** Deserialize JSON data of type {!type:scan_request}. *)
+
+val write_ci_env :
+  Buffer.t -> ci_env -> unit
+  (** Output a JSON value of type {!type:ci_env}. *)
+
+val string_of_ci_env :
+  ?len:int -> ci_env -> string
+  (** Serialize a value of type {!type:ci_env}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_ci_env :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_env
+  (** Input JSON data of type {!type:ci_env}. *)
+
+val ci_env_of_string :
+  string -> ci_env
+  (** Deserialize JSON data of type {!type:ci_env}. *)
+
+val write_ci_config :
+  Buffer.t -> ci_config -> unit
+  (** Output a JSON value of type {!type:ci_config}. *)
+
+val string_of_ci_config :
+  ?len:int -> ci_config -> string
+  (** Serialize a value of type {!type:ci_config}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_ci_config :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_config
+  (** Input JSON data of type {!type:ci_config}. *)
+
+val ci_config_of_string :
+  string -> ci_config
+  (** Deserialize JSON data of type {!type:ci_config}. *)
+
+val write_ci_config_from_cloud :
+  Buffer.t -> ci_config_from_cloud -> unit
+  (** Output a JSON value of type {!type:ci_config_from_cloud}. *)
+
+val string_of_ci_config_from_cloud :
+  ?len:int -> ci_config_from_cloud -> string
+  (** Serialize a value of type {!type:ci_config_from_cloud}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_ci_config_from_cloud :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_config_from_cloud
+  (** Input JSON data of type {!type:ci_config_from_cloud}. *)
+
+val ci_config_from_cloud_of_string :
+  string -> ci_config_from_cloud
+  (** Deserialize JSON data of type {!type:ci_config_from_cloud}. *)
 
 val write_scan_config :
   Buffer.t -> scan_config -> unit
