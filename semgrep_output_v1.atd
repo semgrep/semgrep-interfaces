@@ -177,6 +177,7 @@ type engine_kind
 type rule_id_and_engine_kind <python decorator="dataclass(frozen=True)"> =
   (rule_id * engine_kind)
 
+(* Need to maintain pairity between this and Inputs_to_core.product. *)
 type product
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = [
