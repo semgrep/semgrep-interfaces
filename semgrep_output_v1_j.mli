@@ -157,7 +157,7 @@ type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
   skipped: skipped_target list option
 }
 
-type product = Semgrep_output_v1_t.product [@@deriving show]
+type product = Semgrep_output_v1_t.product [@@deriving show, eq]
 
 type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
   cli_version: version;
