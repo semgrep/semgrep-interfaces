@@ -668,6 +668,24 @@
         "text": { "type": "string" }
       }
     },
+    "deployment_config": {
+      "type": "object",
+      "required": [ "id", "name" ],
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "organization_id": { "type": "integer" },
+        "display_name": { "type": "string" },
+        "scm_name": { "type": "string" },
+        "slug": { "type": "string" },
+        "source_type": { "type": "string" },
+        "has_autofix": { "type": "boolean" },
+        "has_deepsemgrep": { "type": "boolean" },
+        "has_triage_via_comment": { "type": "boolean" },
+        "has_dependency_query": { "type": "boolean" },
+        "default_user_role": { "type": "string" }
+      }
+    },
     "ci_config_from_repo": {
       "type": "object",
       "required": [],
@@ -743,6 +761,13 @@
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
         }
+      }
+    },
+    "deployment_response": {
+      "type": "object",
+      "required": [ "deployment" ],
+      "properties": {
+        "deployment": { "$ref": "#/definitions/deployment_config" }
       }
     },
     "project_metadata": {
@@ -907,6 +932,22 @@
         "items": { "$ref": "#/definitions/found_dependency" }
       }
     },
+    "ci_scan_results_response": {
+      "type": "object",
+      "required": [ "errors" ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ci_scan_results_response_error" }
+        },
+        "task_id": { "type": "string" }
+      }
+    },
+    "ci_scan_results_response_error": {
+      "type": "object",
+      "required": [ "message" ],
+      "properties": { "message": { "type": "string" } }
+    },
     "ci_scan_complete": {
       "type": "object",
       "required": [ "exit_code", "stats" ],
@@ -960,6 +1001,23 @@
         "num_targets": { "type": "integer" },
         "bytes_parsed": { "type": "integer" },
         "num_bytes": { "type": "integer" }
+      }
+    },
+    "ci_scan_complete_response": {
+      "type": "object",
+      "required": [ "success" ],
+      "properties": {
+        "success": { "type": "boolean" },
+        "app_block_override": { "type": "boolean" },
+        "app_block_reason": { "type": "string" }
+      }
+    },
+    "ci_scan_failure": {
+      "type": "object",
+      "required": [ "exit_code", "stderr" ],
+      "properties": {
+        "exit_code": { "type": "integer" },
+        "stderr": { "type": "string" }
       }
     }
   }
