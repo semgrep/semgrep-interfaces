@@ -980,7 +980,7 @@ type ci_env = (string * string) list
 
 (* Response by the backend to the CLI to the POST /scans/<scan_id>/config *)
 type scan_config = {
-    (* TODO: remove deployment_id + deployment_name from here, instead this will be in scan_response *)
+    (* TODO: remove deployment_id + deployment_name from here, instead this will be in scan_response.scan_info *)
     deployment_id: int;
     deployment_name: string;
     (* ex: "audit", "comment", "block" TODO use enum? TODO: seems dead *)
@@ -1269,7 +1269,7 @@ type ci_scan_results_response <ocaml attr="deriving show"> = {
 type ci_scan_results_response_error <ocaml attr="deriving show"> = {
     message: string;
 }
-                 
+
 (* ----------------------------- *)
 (* CI scan complete *)
 (* ----------------------------- *)
