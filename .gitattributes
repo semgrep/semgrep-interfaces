@@ -1,0 +1,3 @@
+*.atd linguist-generated=false
+semgrep_output_v1.* linguist-generated=true
+
