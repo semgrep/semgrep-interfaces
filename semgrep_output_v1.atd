@@ -1048,7 +1048,7 @@ type scan_response = {
 
 (* meta info about the scan *)
 type scan_info = {
-    id: string; (* the scan id *)
+    id: int; (* the scan id *)
     deployment_id: int;
     deployment_name: string;
 }

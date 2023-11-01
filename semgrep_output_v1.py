@@ -1984,7 +1984,7 @@ class ScannedAndSkipped:
 class ScanInfo:
     """Original type: scan_info = { ... }"""
 
-    id: str
+    id: int
     deployment_id: int
     deployment_name: str
 
@@ -1992,7 +1992,7 @@ class ScanInfo:
     def from_json(cls, x: Any) -> 'ScanInfo':
         if isinstance(x, dict):
             return cls(
-                id=_atd_read_string(x['id']) if 'id' in x else _atd_missing_json_field('ScanInfo', 'id'),
+                id=_atd_read_int(x['id']) if 'id' in x else _atd_missing_json_field('ScanInfo', 'id'),
                 deployment_id=_atd_read_int(x['deployment_id']) if 'deployment_id' in x else _atd_missing_json_field('ScanInfo', 'deployment_id'),
                 deployment_name=_atd_read_string(x['deployment_name']) if 'deployment_name' in x else _atd_missing_json_field('ScanInfo', 'deployment_name'),
             )
@@ -2001,7 +2001,7 @@ class ScanInfo:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['id'] = _atd_write_string(self.id)
+        res['id'] = _atd_write_int(self.id)
         res['deployment_id'] = _atd_write_int(self.deployment_id)
         res['deployment_name'] = _atd_write_string(self.deployment_name)
         return res

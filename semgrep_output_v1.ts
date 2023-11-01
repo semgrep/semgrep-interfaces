@@ -476,7 +476,7 @@ export type ScanResponse = {
 }
 
 export type ScanInfo = {
-  id: string;
+  id: number /*int*/;
   deployment_id: number /*int*/;
   deployment_name: string;
 }
@@ -2016,7 +2016,7 @@ export function readScanResponse(x: any, context: any = x): ScanResponse {
 
 export function writeScanInfo(x: ScanInfo, context: any = x): any {
   return {
-    'id': _atd_write_required_field('ScanInfo', 'id', _atd_write_string, x.id, x),
+    'id': _atd_write_required_field('ScanInfo', 'id', _atd_write_int, x.id, x),
     'deployment_id': _atd_write_required_field('ScanInfo', 'deployment_id', _atd_write_int, x.deployment_id, x),
     'deployment_name': _atd_write_required_field('ScanInfo', 'deployment_name', _atd_write_string, x.deployment_name, x),
   };
@@ -2024,7 +2024,7 @@ export function writeScanInfo(x: ScanInfo, context: any = x): any {
 
 export function readScanInfo(x: any, context: any = x): ScanInfo {
   return {
-    id: _atd_read_required_field('ScanInfo', 'id', _atd_read_string, x['id'], x),
+    id: _atd_read_required_field('ScanInfo', 'id', _atd_read_int, x['id'], x),
     deployment_id: _atd_read_required_field('ScanInfo', 'deployment_id', _atd_read_int, x['deployment_id'], x),
     deployment_name: _atd_read_required_field('ScanInfo', 'deployment_name', _atd_read_string, x['deployment_name'], x),
   };

@@ -158,7 +158,7 @@ type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
 }
 
 type scan_info = Semgrep_output_v1_t.scan_info = {
-  id: string;
+  id: int;
   deployment_id: int;
   deployment_name: string
 }
@@ -5633,7 +5633,7 @@ let write_scan_info : _ -> scan_info -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"id\":";
     (
-      Yojson.Safe.write_string
+      Yojson.Safe.write_int
     )
       ob x.id;
     if !is_first then
@@ -5712,7 +5712,7 @@ let read_scan_info = (
             field_id := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  Atdgen_runtime.Oj_run.read_int
                 ) p lb
               )
             );
@@ -5781,7 +5781,7 @@ let read_scan_info = (
               field_id := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    Atdgen_runtime.Oj_run.read_int
                   ) p lb
                 )
               );

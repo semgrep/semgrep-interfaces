@@ -158,7 +158,7 @@ type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
 }
 
 type scan_info = Semgrep_output_v1_t.scan_info = {
-  id: string;
+  id: int;
   deployment_id: int;
   deployment_name: string
 }
