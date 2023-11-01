@@ -65,7 +65,7 @@ $defs:
         properties:
           # TODO(cooper): re-use languages sub-enum?
           language:
-            type: string 
+            type: string
         $ref: "#/$defs/general-pattern-content"
   # EXPERIMENTAL
   new-source-pattern:
@@ -570,7 +570,7 @@ $defs:
     properties:
       metavariable-comparison:
         type: object
-        title: Compare metavariables with other metavariables or literals using constant propogation
+        title: Compare metavariables with other metavariables or literals using constant propagation
         properties:
           metavariable:
             type: string
