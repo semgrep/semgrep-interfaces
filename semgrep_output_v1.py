@@ -2182,7 +2182,7 @@ class ScanResponse:
 
     info: ScanInfo
     config: ScanConfiguration
-    parameters: EngineConfiguration
+    engine_params: EngineConfiguration
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanResponse':
@@ -2190,7 +2190,7 @@ class ScanResponse:
             return cls(
                 info=ScanInfo.from_json(x['info']) if 'info' in x else _atd_missing_json_field('ScanResponse', 'info'),
                 config=ScanConfiguration.from_json(x['config']) if 'config' in x else _atd_missing_json_field('ScanResponse', 'config'),
-                parameters=EngineConfiguration.from_json(x['parameters']) if 'parameters' in x else _atd_missing_json_field('ScanResponse', 'parameters'),
+                engine_params=EngineConfiguration.from_json(x['engine_params']) if 'engine_params' in x else _atd_missing_json_field('ScanResponse', 'engine_params'),
             )
         else:
             _atd_bad_json('ScanResponse', x)
@@ -2199,7 +2199,7 @@ class ScanResponse:
         res: Dict[str, Any] = {}
         res['info'] = (lambda x: x.to_json())(self.info)
         res['config'] = (lambda x: x.to_json())(self.config)
-        res['parameters'] = (lambda x: x.to_json())(self.parameters)
+        res['engine_params'] = (lambda x: x.to_json())(self.engine_params)
         return res
 
     @classmethod

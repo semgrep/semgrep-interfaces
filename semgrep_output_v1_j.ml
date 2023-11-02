@@ -183,7 +183,7 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
 type scan_response = Semgrep_output_v1_t.scan_response = {
   info: scan_info;
   config: scan_configuration;
-  parameters: engine_configuration
+  engine_params: engine_configuration
 }
 
 type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
@@ -6511,11 +6511,11 @@ let write_scan_response : _ -> scan_response -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"parameters\":";
+      Buffer.add_string ob "\"engine_params\":";
     (
       write_engine_configuration
     )
-      ob x.parameters;
+      ob x.engine_params;
     Buffer.add_char ob '}';
 )
 let string_of_scan_response ?(len = 1024) x =
@@ -6528,7 +6528,7 @@ let read_scan_response = (
     Yojson.Safe.read_lcurl p lb;
     let field_info = ref (None) in
     let field_config = ref (None) in
-    let field_parameters = ref (None) in
+    let field_engine_params = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -6554,8 +6554,8 @@ let read_scan_response = (
                   -1
                 )
               )
-            | 10 -> (
-                if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 's' then (
+            | 13 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'm' && String.unsafe_get s (pos+12) = 's' then (
                   2
                 )
                 else (
@@ -6587,7 +6587,7 @@ let read_scan_response = (
               )
             );
           | 2 ->
-            field_parameters := (
+            field_engine_params := (
               Some (
                 (
                   read_engine_configuration
@@ -6623,8 +6623,8 @@ let read_scan_response = (
                     -1
                   )
                 )
-              | 10 -> (
-                  if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 's' then (
+              | 13 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'm' && String.unsafe_get s (pos+12) = 's' then (
                     2
                   )
                   else (
@@ -6656,7 +6656,7 @@ let read_scan_response = (
                 )
               );
             | 2 ->
-              field_parameters := (
+              field_engine_params := (
                 Some (
                   (
                     read_engine_configuration
@@ -6674,7 +6674,7 @@ let read_scan_response = (
           {
             info = (match !field_info with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "info");
             config = (match !field_config with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "config");
-            parameters = (match !field_parameters with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "parameters");
+            engine_params = (match !field_engine_params with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "engine_params");
           }
          : scan_response)
       )

@@ -507,7 +507,7 @@ export type ScanRequest = {
 export type ScanResponse = {
   info: ScanInfo;
   config: ScanConfiguration;
-  parameters: EngineConfiguration;
+  engine_params: EngineConfiguration;
 }
 
 export type ScanInfo = {
@@ -2147,7 +2147,7 @@ export function writeScanResponse(x: ScanResponse, context: any = x): any {
   return {
     'info': _atd_write_required_field('ScanResponse', 'info', writeScanInfo, x.info, x),
     'config': _atd_write_required_field('ScanResponse', 'config', writeScanConfiguration, x.config, x),
-    'parameters': _atd_write_required_field('ScanResponse', 'parameters', writeEngineConfiguration, x.parameters, x),
+    'engine_params': _atd_write_required_field('ScanResponse', 'engine_params', writeEngineConfiguration, x.engine_params, x),
   };
 }
 
@@ -2155,7 +2155,7 @@ export function readScanResponse(x: any, context: any = x): ScanResponse {
   return {
     info: _atd_read_required_field('ScanResponse', 'info', readScanInfo, x['info'], x),
     config: _atd_read_required_field('ScanResponse', 'config', readScanConfiguration, x['config'], x),
-    parameters: _atd_read_required_field('ScanResponse', 'parameters', readEngineConfiguration, x['parameters'], x),
+    engine_params: _atd_read_required_field('ScanResponse', 'engine_params', readEngineConfiguration, x['engine_params'], x),
   };
 }
 
