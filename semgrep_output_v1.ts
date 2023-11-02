@@ -512,20 +512,20 @@ export type ScanResponse = {
 
 export type ScanInfo = {
   id: number /*int*/;
+  enabled_products: Product[];
   deployment_id: number /*int*/;
   deployment_name: string;
 }
 
 export type ScanConfiguration = {
-  enabled_products: Product[];
   rules: RawJson;
-  ignored_files: string[];
   triage_ignored_syntactic_ids: string[];
   triage_ignored_match_based_ids: string[];
 }
 
 export type EngineConfiguration = {
   autofix: boolean;
+  ignored_files: string[];
   deepsemgrep: boolean;
   dependency_query: boolean;
   generic_slow_rollout: boolean;
@@ -2162,6 +2162,7 @@ export function readScanResponse(x: any, context: any = x): ScanResponse {
 export function writeScanInfo(x: ScanInfo, context: any = x): any {
   return {
     'id': _atd_write_required_field('ScanInfo', 'id', _atd_write_int, x.id, x),
+    'enabled_products': _atd_write_required_field('ScanInfo', 'enabled_products', _atd_write_array(writeProduct), x.enabled_products, x),
     'deployment_id': _atd_write_required_field('ScanInfo', 'deployment_id', _atd_write_int, x.deployment_id, x),
     'deployment_name': _atd_write_required_field('ScanInfo', 'deployment_name', _atd_write_string, x.deployment_name, x),
   };
@@ -2170,6 +2171,7 @@ export function writeScanInfo(x: ScanInfo, context: any = x): any {
 export function readScanInfo(x: any, context: any = x): ScanInfo {
   return {
     id: _atd_read_required_field('ScanInfo', 'id', _atd_read_int, x['id'], x),
+    enabled_products: _atd_read_required_field('ScanInfo', 'enabled_products', _atd_read_array(readProduct), x['enabled_products'], x),
     deployment_id: _atd_read_required_field('ScanInfo', 'deployment_id', _atd_read_int, x['deployment_id'], x),
     deployment_name: _atd_read_required_field('ScanInfo', 'deployment_name', _atd_read_string, x['deployment_name'], x),
   };
@@ -2177,9 +2179,7 @@ export function readScanInfo(x: any, context: any = x): ScanInfo {
 
 export function writeScanConfiguration(x: ScanConfiguration, context: any = x): any {
   return {
-    'enabled_products': _atd_write_required_field('ScanConfiguration', 'enabled_products', _atd_write_array(writeProduct), x.enabled_products, x),
     'rules': _atd_write_required_field('ScanConfiguration', 'rules', writeRawJson, x.rules, x),
-    'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
     'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
     'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
   };
@@ -2187,9 +2187,7 @@ export function writeScanConfiguration(x: ScanConfiguration, context: any = x): 
 
 export function readScanConfiguration(x: any, context: any = x): ScanConfiguration {
   return {
-    enabled_products: _atd_read_required_field('ScanConfiguration', 'enabled_products', _atd_read_array(readProduct), x['enabled_products'], x),
     rules: _atd_read_required_field('ScanConfiguration', 'rules', readRawJson, x['rules'], x),
-    ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
     triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),
     triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
   };
@@ -2198,6 +2196,7 @@ export function readScanConfiguration(x: any, context: any = x): ScanConfigurati
 export function writeEngineConfiguration(x: EngineConfiguration, context: any = x): any {
   return {
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
+    'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
     'generic_slow_rollout': _atd_write_field_with_default(_atd_write_bool, false, x.generic_slow_rollout, x),
@@ -2207,6 +2206,7 @@ export function writeEngineConfiguration(x: EngineConfiguration, context: any = 
 export function readEngineConfiguration(x: any, context: any = x): EngineConfiguration {
   return {
     autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
+    ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
     generic_slow_rollout: _atd_read_field_with_default(_atd_read_bool, false, x['generic_slow_rollout'], x),

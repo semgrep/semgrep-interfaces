@@ -843,23 +843,24 @@
     },
     "scan_info": {
       "type": "object",
-      "required": [ "id", "deployment_id", "deployment_name" ],
+      "required": [
+        "id", "enabled_products", "deployment_id", "deployment_name"
+      ],
       "properties": {
         "id": { "type": "integer" },
+        "enabled_products": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/product" }
+        },
         "deployment_id": { "type": "integer" },
         "deployment_name": { "type": "string" }
       }
     },
     "scan_configuration": {
       "type": "object",
-      "required": [ "enabled_products", "rules" ],
+      "required": [ "rules" ],
       "properties": {
-        "enabled_products": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/product" }
-        },
         "rules": { "$ref": "#/definitions/raw_json" },
-        "ignored_files": { "type": "array", "items": { "type": "string" } },
         "triage_ignored_syntactic_ids": {
           "type": "array",
           "items": { "type": "string" }
@@ -875,6 +876,7 @@
       "required": [],
       "properties": {
         "autofix": { "type": "boolean" },
+        "ignored_files": { "type": "array", "items": { "type": "string" } },
         "deepsemgrep": { "type": "boolean" },
         "dependency_query": { "type": "boolean" },
         "generic_slow_rollout": { "type": "boolean" }

@@ -1120,15 +1120,14 @@ type scan_response = {
 (* meta info about the scan *)
 type scan_info = {
     id: int; (* the scan id *)
+    enabled_products: product list;
     deployment_id: int;
     deployment_name: string;
 }
 
 (* config specific to the scan, eg *)
 type scan_configuration = {
-    enabled_products: product list;
     rules: raw_json; (* can we type this better *)
-    ~ignored_files: string list;
     ~triage_ignored_syntactic_ids: string list;
     ~triage_ignored_match_based_ids: string list;
 }
@@ -1136,6 +1135,7 @@ type scan_configuration = {
 (* settings for the cli *)
 type engine_configuration = {
     ~autofix: bool;
+    ~ignored_files: string list;
     ~deepsemgrep: bool;
     ~dependency_query: bool;
     ~generic_slow_rollout: bool; (* for features we only want to turn on for select customers *)
