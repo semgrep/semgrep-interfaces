@@ -181,9 +181,9 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
 }
 
 type scan_response = Semgrep_output_v1_t.scan_response = {
-  scan: scan_info;
-  scan_config: scan_configuration;
-  engine_config: engine_configuration
+  info: scan_info;
+  config: scan_configuration;
+  parameters: engine_configuration
 }
 
 type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
@@ -6493,29 +6493,29 @@ let write_scan_response : _ -> scan_response -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"scan\":";
+      Buffer.add_string ob "\"info\":";
     (
       write_scan_info
     )
-      ob x.scan;
+      ob x.info;
     if !is_first then
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"scan_config\":";
+      Buffer.add_string ob "\"config\":";
     (
       write_scan_configuration
     )
-      ob x.scan_config;
+      ob x.config;
     if !is_first then
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"engine_config\":";
+      Buffer.add_string ob "\"parameters\":";
     (
       write_engine_configuration
     )
-      ob x.engine_config;
+      ob x.parameters;
     Buffer.add_char ob '}';
 )
 let string_of_scan_response ?(len = 1024) x =
@@ -6526,9 +6526,9 @@ let read_scan_response = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
-    let field_scan = ref (None) in
-    let field_scan_config = ref (None) in
-    let field_engine_config = ref (None) in
+    let field_info = ref (None) in
+    let field_config = ref (None) in
+    let field_parameters = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -6539,23 +6539,23 @@ let read_scan_response = (
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
             | 4 -> (
-                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' then (
+                if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'f' && String.unsafe_get s (pos+3) = 'o' then (
                   0
                 )
                 else (
                   -1
                 )
               )
-            | 11 -> (
-                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'g' then (
+            | 6 -> (
+                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' then (
                   1
                 )
                 else (
                   -1
                 )
               )
-            | 13 -> (
-                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'f' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'g' then (
+            | 10 -> (
+                if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 's' then (
                   2
                 )
                 else (
@@ -6571,7 +6571,7 @@ let read_scan_response = (
       (
         match i with
           | 0 ->
-            field_scan := (
+            field_info := (
               Some (
                 (
                   read_scan_info
@@ -6579,7 +6579,7 @@ let read_scan_response = (
               )
             );
           | 1 ->
-            field_scan_config := (
+            field_config := (
               Some (
                 (
                   read_scan_configuration
@@ -6587,7 +6587,7 @@ let read_scan_response = (
               )
             );
           | 2 ->
-            field_engine_config := (
+            field_parameters := (
               Some (
                 (
                   read_engine_configuration
@@ -6608,23 +6608,23 @@ let read_scan_response = (
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
               | 4 -> (
-                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' then (
+                  if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'f' && String.unsafe_get s (pos+3) = 'o' then (
                     0
                   )
                   else (
                     -1
                   )
                 )
-              | 11 -> (
-                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'g' then (
+              | 6 -> (
+                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' then (
                     1
                   )
                   else (
                     -1
                   )
                 )
-              | 13 -> (
-                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'f' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'g' then (
+              | 10 -> (
+                  if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 's' then (
                     2
                   )
                   else (
@@ -6640,7 +6640,7 @@ let read_scan_response = (
         (
           match i with
             | 0 ->
-              field_scan := (
+              field_info := (
                 Some (
                   (
                     read_scan_info
@@ -6648,7 +6648,7 @@ let read_scan_response = (
                 )
               );
             | 1 ->
-              field_scan_config := (
+              field_config := (
                 Some (
                   (
                     read_scan_configuration
@@ -6656,7 +6656,7 @@ let read_scan_response = (
                 )
               );
             | 2 ->
-              field_engine_config := (
+              field_parameters := (
                 Some (
                   (
                     read_engine_configuration
@@ -6672,9 +6672,9 @@ let read_scan_response = (
     with Yojson.End_of_object -> (
         (
           {
-            scan = (match !field_scan with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "scan");
-            scan_config = (match !field_scan_config with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "scan_config");
-            engine_config = (match !field_engine_config with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "engine_config");
+            info = (match !field_info with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "info");
+            config = (match !field_config with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "config");
+            parameters = (match !field_parameters with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "parameters");
           }
          : scan_response)
       )

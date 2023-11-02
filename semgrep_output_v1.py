@@ -2180,26 +2180,26 @@ class EngineConfiguration:
 class ScanResponse:
     """Original type: scan_response = { ... }"""
 
-    scan: ScanInfo
-    scan_config: ScanConfiguration
-    engine_config: EngineConfiguration
+    info: ScanInfo
+    config: ScanConfiguration
+    parameters: EngineConfiguration
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanResponse':
         if isinstance(x, dict):
             return cls(
-                scan=ScanInfo.from_json(x['scan']) if 'scan' in x else _atd_missing_json_field('ScanResponse', 'scan'),
-                scan_config=ScanConfiguration.from_json(x['scan_config']) if 'scan_config' in x else _atd_missing_json_field('ScanResponse', 'scan_config'),
-                engine_config=EngineConfiguration.from_json(x['engine_config']) if 'engine_config' in x else _atd_missing_json_field('ScanResponse', 'engine_config'),
+                info=ScanInfo.from_json(x['info']) if 'info' in x else _atd_missing_json_field('ScanResponse', 'info'),
+                config=ScanConfiguration.from_json(x['config']) if 'config' in x else _atd_missing_json_field('ScanResponse', 'config'),
+                parameters=EngineConfiguration.from_json(x['parameters']) if 'parameters' in x else _atd_missing_json_field('ScanResponse', 'parameters'),
             )
         else:
             _atd_bad_json('ScanResponse', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['scan'] = (lambda x: x.to_json())(self.scan)
-        res['scan_config'] = (lambda x: x.to_json())(self.scan_config)
-        res['engine_config'] = (lambda x: x.to_json())(self.engine_config)
+        res['info'] = (lambda x: x.to_json())(self.info)
+        res['config'] = (lambda x: x.to_json())(self.config)
+        res['parameters'] = (lambda x: x.to_json())(self.parameters)
         return res
 
     @classmethod

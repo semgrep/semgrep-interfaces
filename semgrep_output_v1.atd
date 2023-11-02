@@ -1100,10 +1100,7 @@ type scan_metadata = {
   ~dry_run: bool; (* from 1.47.0 *)
 }
 
-(* Sent by the CLI to the POST /scans endpoint when a scan is created.
- * See also server/semgrep_app/cloud_platform/scan/models/scan.py in
- * the backend.
-*)
+(* Sent by the CLI to the POST /api/cli/scans to create a scan. *)
 type scan_request = {
     (* until 1.43ish, was 'meta: project_metadata;' before *)
     meta: raw_json;
@@ -1113,11 +1110,11 @@ type scan_request = {
     ?scan_metadata: scan_metadata option;
 }
 
-(* Response by the backend to the CLI to the POST /scans *)
+(* Response from the backend to the CLI to the POST /api/cli/scans *)
 type scan_response = {
-    scan: scan_info;
-    scan_config: scan_configuration;
-    engine_config: engine_configuration;
+    info: scan_info;
+    config: scan_configuration;
+    parameters: engine_configuration;
 }
 
 (* meta info about the scan *)

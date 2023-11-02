@@ -834,11 +834,11 @@
     },
     "scan_response": {
       "type": "object",
-      "required": [ "scan", "scan_config", "engine_config" ],
+      "required": [ "info", "config", "parameters" ],
       "properties": {
-        "scan": { "$ref": "#/definitions/scan_info" },
-        "scan_config": { "$ref": "#/definitions/scan_configuration" },
-        "engine_config": { "$ref": "#/definitions/engine_configuration" }
+        "info": { "$ref": "#/definitions/scan_info" },
+        "config": { "$ref": "#/definitions/scan_configuration" },
+        "parameters": { "$ref": "#/definitions/engine_configuration" }
       }
     },
     "scan_info": {

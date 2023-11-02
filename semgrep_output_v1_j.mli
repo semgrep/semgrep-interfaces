@@ -181,9 +181,9 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
 }
 
 type scan_response = Semgrep_output_v1_t.scan_response = {
-  scan: scan_info;
-  scan_config: scan_configuration;
-  engine_config: engine_configuration
+  info: scan_info;
+  config: scan_configuration;
+  parameters: engine_configuration
 }
 
 type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
