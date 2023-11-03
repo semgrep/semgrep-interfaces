@@ -159,10 +159,38 @@ type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
 
 type product = Semgrep_output_v1_t.product [@@deriving show, eq]
 
+type scan_info = Semgrep_output_v1_t.scan_info = {
+  id: int;
+  enabled_products: product list;
+  deployment_id: int;
+  deployment_name: string
+}
+
+type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
+  rules: raw_json;
+  triage_ignored_syntactic_ids: string list;
+  triage_ignored_match_based_ids: string list
+}
+
+type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
+  autofix: bool;
+  ignored_files: string list;
+  deepsemgrep: bool;
+  dependency_query: bool;
+  generic_slow_rollout: bool
+}
+
+type scan_response = Semgrep_output_v1_t.scan_response = {
+  info: scan_info;
+  config: scan_configuration;
+  engine_params: engine_configuration
+}
+
 type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
   cli_version: version;
   unique_id: uuid;
-  requested_products: product list
+  requested_products: product list;
+  dry_run: bool
 }
 
 type project_metadata = Semgrep_output_v1_t.project_metadata = {
@@ -1160,6 +1188,86 @@ val read_product :
 val product_of_string :
   string -> product
   (** Deserialize JSON data of type {!type:product}. *)
+
+val write_scan_info :
+  Buffer.t -> scan_info -> unit
+  (** Output a JSON value of type {!type:scan_info}. *)
+
+val string_of_scan_info :
+  ?len:int -> scan_info -> string
+  (** Serialize a value of type {!type:scan_info}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_scan_info :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scan_info
+  (** Input JSON data of type {!type:scan_info}. *)
+
+val scan_info_of_string :
+  string -> scan_info
+  (** Deserialize JSON data of type {!type:scan_info}. *)
+
+val write_scan_configuration :
+  Buffer.t -> scan_configuration -> unit
+  (** Output a JSON value of type {!type:scan_configuration}. *)
+
+val string_of_scan_configuration :
+  ?len:int -> scan_configuration -> string
+  (** Serialize a value of type {!type:scan_configuration}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_scan_configuration :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scan_configuration
+  (** Input JSON data of type {!type:scan_configuration}. *)
+
+val scan_configuration_of_string :
+  string -> scan_configuration
+  (** Deserialize JSON data of type {!type:scan_configuration}. *)
+
+val write_engine_configuration :
+  Buffer.t -> engine_configuration -> unit
+  (** Output a JSON value of type {!type:engine_configuration}. *)
+
+val string_of_engine_configuration :
+  ?len:int -> engine_configuration -> string
+  (** Serialize a value of type {!type:engine_configuration}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_engine_configuration :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> engine_configuration
+  (** Input JSON data of type {!type:engine_configuration}. *)
+
+val engine_configuration_of_string :
+  string -> engine_configuration
+  (** Deserialize JSON data of type {!type:engine_configuration}. *)
+
+val write_scan_response :
+  Buffer.t -> scan_response -> unit
+  (** Output a JSON value of type {!type:scan_response}. *)
+
+val string_of_scan_response :
+  ?len:int -> scan_response -> string
+  (** Serialize a value of type {!type:scan_response}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_scan_response :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scan_response
+  (** Input JSON data of type {!type:scan_response}. *)
+
+val scan_response_of_string :
+  string -> scan_response
+  (** Deserialize JSON data of type {!type:scan_response}. *)
 
 val write_scan_metadata :
   Buffer.t -> scan_metadata -> unit

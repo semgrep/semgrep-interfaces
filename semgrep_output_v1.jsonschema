@@ -818,7 +818,8 @@
         "requested_products": {
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
-        }
+        },
+        "dry_run": { "type": "boolean" }
       }
     },
     "scan_request": {
@@ -829,6 +830,56 @@
         "project_metadata": { "$ref": "#/definitions/project_metadata" },
         "project_config": { "$ref": "#/definitions/ci_config_from_repo" },
         "scan_metadata": { "$ref": "#/definitions/scan_metadata" }
+      }
+    },
+    "scan_response": {
+      "type": "object",
+      "required": [ "info", "config", "engine_params" ],
+      "properties": {
+        "info": { "$ref": "#/definitions/scan_info" },
+        "config": { "$ref": "#/definitions/scan_configuration" },
+        "engine_params": { "$ref": "#/definitions/engine_configuration" }
+      }
+    },
+    "scan_info": {
+      "type": "object",
+      "required": [
+        "id", "enabled_products", "deployment_id", "deployment_name"
+      ],
+      "properties": {
+        "id": { "type": "integer" },
+        "enabled_products": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/product" }
+        },
+        "deployment_id": { "type": "integer" },
+        "deployment_name": { "type": "string" }
+      }
+    },
+    "scan_configuration": {
+      "type": "object",
+      "required": [ "rules" ],
+      "properties": {
+        "rules": { "$ref": "#/definitions/raw_json" },
+        "triage_ignored_syntactic_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "triage_ignored_match_based_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "engine_configuration": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "autofix": { "type": "boolean" },
+        "ignored_files": { "type": "array", "items": { "type": "string" } },
+        "deepsemgrep": { "type": "boolean" },
+        "dependency_query": { "type": "boolean" },
+        "generic_slow_rollout": { "type": "boolean" }
       }
     },
     "finding": {

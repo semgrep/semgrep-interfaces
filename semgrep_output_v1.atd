@@ -980,8 +980,8 @@ type ci_env = (string * string) list
 
 (* Response by the backend to the CLI to the POST /scans/<scan_id>/config *)
 type scan_config = {
+    (* TODO: remove deployment_id + deployment_name from here, instead this will be in scan_response.scan_info *)
     deployment_id: int;
-    (* the org name *)
     deployment_name: string;
     (* ex: "audit", "comment", "block" TODO use enum? TODO: seems dead *)
     policy_names: string list;
@@ -1097,12 +1097,10 @@ type scan_metadata = {
   cli_version: version;
   unique_id: uuid; (* client generated uuid for the scan *)
   requested_products: product list;
+  ~dry_run: bool; (* from 1.47.0 *)
 }
 
-(* Sent by the CLI to the POST /scans endpoint when a scan is created.
- * See also server/semgrep_app/cloud_platform/scan/models/scan.py in
- * the backend.
-*)
+(* Sent by the CLI to the POST /api/cli/scans to create a scan. *)
 type scan_request = {
     (* until 1.43ish, was 'meta: project_metadata;' before *)
     meta: raw_json;
@@ -1112,30 +1110,36 @@ type scan_request = {
     ?scan_metadata: scan_metadata option;
 }
 
-(* Response by the backend to the CLI to the POST /scans *)
-(* TODO
+(* Response from the backend to the CLI to the POST /api/cli/scans *)
 type scan_response = {
-    scan: scan_response_bis;
+    info: scan_info;
+    config: scan_configuration;
+    engine_params: engine_configuration;
 }
-type scan_response_bis = {
-    (* the scan id *)
-    id: string;
-    (* since 1.37.0 *)
-    ?enabled_products: product list;
-}
-*)
 
-(* TODO? seems used only for dry_run and passed urlencoded to /scans/config?xxx
-type scan_config_request = {
-    dry_run: bool;
-    (* project_metadata.repository *)
-    repo_name: string;
-    (* TODO: deprecate, prefer scan_request.scan_metadata.requested_products *)
-    sca: bool;
-    full_scan: bool;
-    semgrep_version : version;
+(* meta info about the scan *)
+type scan_info = {
+    id: int; (* the scan id *)
+    enabled_products: product list;
+    deployment_id: int;
+    deployment_name: string;
 }
- *)
+
+(* config specific to the scan, eg *)
+type scan_configuration = {
+    rules: raw_json; (* can we type this better *)
+    ~triage_ignored_syntactic_ids: string list;
+    ~triage_ignored_match_based_ids: string list;
+}
+
+(* settings for the cli *)
+type engine_configuration = {
+    ~autofix: bool;
+    ~ignored_files: string list;
+    ~deepsemgrep: bool;
+    ~dependency_query: bool;
+    ~generic_slow_rollout: bool; (* for features we only want to turn on for select customers *)
+}
 
 (* ----------------------------- *)
 (* Findings *)
@@ -1262,7 +1266,7 @@ type ci_scan_results_response <ocaml attr="deriving show"> = {
 type ci_scan_results_response_error <ocaml attr="deriving show"> = {
     message: string;
 }
-                 
+
 (* ----------------------------- *)
 (* CI scan complete *)
 (* ----------------------------- *)
