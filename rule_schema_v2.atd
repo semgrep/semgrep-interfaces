@@ -29,7 +29,7 @@ type rule = {
      (* TODO: selector vs analyzer *)
      languages: language list;
 
-     ?match: formula option;
+     ?match_ <json name="match">: formula option;
      ?taint: taint_spec option;
      ?extract: extract option;
      (* TODO: join, steps, secrets, sca *)
@@ -56,7 +56,7 @@ type rule = {
 type rule_id = string wrap <ocaml module="ATDStringWrap.Ruleid">
 
 (* Version_info.t *)
-type version = string wrap <ocaml module="ATDStringWrap.Version">
+type version = string (* TODO  wrap <ocaml module="ATDStringWrap.Version"> *)
 
 type mode = [
   | Search <json name="search">
@@ -137,7 +137,7 @@ type language = [
 ]
 
 type paths = {
-  ~include: glob list;
+  ~include_ <json name="include">: glob list;
   ~exclude: glob list;
 }
 
@@ -174,15 +174,15 @@ type options <ocaml from="Rule_options" t="t"> = abstract
 *)
 type formula = [
   (* either directly a string or pattern: string in the JSON *)
-  | Pattern of string
-  | Regex of regex
+  | Pattern <json name="pattern"> of string
+  | Regex <json name="regex"> of regex
   (* 'All of conjunction' in Rule.ml *)
-  | All of (formula list * where list)
-  | Any of formula list
-  | Not of formula
-  | Inside of formula
+  | All <json name="all"> of (formula list * where list)
+  | Any <json name="any"> of formula list
+  | Not <json name="not"> of formula
+  | Inside <json name="inside"> of formula
   (* TODO? Taint of taint_spec *)
-] <json adapter.ocaml="Rule_schema_json_adapter.Formula">
+] <json adapter.ocaml="Rule_schema_v2_adapter.Formula">
 
 type where = [
   (* either a single string or an array in JSON *)
