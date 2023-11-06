@@ -16,3 +16,15 @@ module Formula = struct
     (* not needed for now; we care just about parsing *)
     failwith "Rule_schema_v2_adapter.Formula.restore not implemented"
 end
+
+module Where = struct
+
+  (** Convert from original json to ATD-compatible json *)
+  let normalize (_orig : Yojson.Safe.t ) : Yojson.Safe.t =
+    failwith "TODO: Where.normalize"
+
+  (** Convert from ATD-compatible json to original json *)
+  let restore  (_atd : Yojson.Safe.t) : Yojson.Safe.t =
+    (* not needed for now; we care just about parsing *)
+    failwith "Rule_schema_v2_adapter.Where.restore not implemented"
+end

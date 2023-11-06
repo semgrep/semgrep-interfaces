@@ -1,10 +1,18 @@
 (* New Semgrep syntax (hence the v2) specified using ATD instead of jsonschema.
  *
- * Jsonschema is very powerful but also arguably very complicated and so
- * I prefer to use ATD to specify the schema of a rule.
- * This file could be used for rule validation (semgrep --validate).
+ * Note that even if most Semgrep users use YAML to write a rule, and not JSON,
+ * we still use a JSON tool (here ATD, but also jsonschema) to specify
+ * the rule schema because YAML is a superset of JSON and can be
+ * mechanically translated into JSON.
  *
- * Note that this does not replace Parse_rule.ml nor Rule.ml. We still
+ * Jsonschema is powerful but also arguably complicated and so it
+ * might be simpler for many Semgrep developers (and also some Semgrep
+ * users) to use ATD to specify and understand the schema of a rule.
+ * It could provide a better basis to think about future syntax extensions.
+ * This file is now also used for some rule validation in
+ * `semgrep --validate --develop`.
+ *
+ * Note that this file does not replace Parse_rule.ml nor Rule.ml. We still
  * want to accept the old syntax in Parse_rule.ml and also parse with
  * position information and error recovery which ATD does not provide.
  *
@@ -154,13 +162,21 @@ type fix_regex = {
 type options <ocaml from="Rule_options" t="t"> = abstract
 
 (*****************************************************************************)
-(* Search mode (default) *)
+(* Search mode (default) and formula *)
 (*****************************************************************************)
 
-(* This type is handled by an adapter.ocaml because there is no easy
- * way to encode using ATD the way we chose to represent formulas in YAML/JSON.
- * Yaml/JSON do not support Algebraic data types (ADTs), so we used a
- * weird encoding abusing objects to represent formulas, e.g., 
+(* 'formula' below is handled by a <json adapter.ocaml=...> because there is no
+ * way to encode directly using ATD the way we chose to represent formulas
+ * in YAML/JSON. Indeed, because Yaml/JSON does not support Algebraic data
+ * types (ADTs), we used a weird encoding abusing objects to represent
+ * formulas, e.g.,
+ *
+ *   any:
+ *    - and:
+ *      - "foo"
+ *      - pattern: "bar"
+ *
+ *  which when turned into JSON gives:
  * 
  *   { any: [ 
  *     { and: [ 
@@ -169,7 +185,20 @@ type options <ocaml from="Rule_options" t="t"> = abstract
  *      ] } 
  *     ] }
  *
- * This type was called new-pattern in rule_schema_v1.yaml but formula in
+ * The ATD way would be to encode a formula as
+ *
+ *  ["Any", [
+ *     ["And", [
+ *       ["Pattern", "foo"],
+ *       ["Pattern", "bar"],
+ *     ]]
+ *  ]]
+ *
+ * So we need rule_schema_v2_adapter.ml used below to transform the first JSON
+ * in the second dynamically at parsing time, so then ATD can parse it
+ * using the formula type specified below.
+ *
+ * old: this type was called new-pattern in rule_schema_v1.yaml but formula in
  * Rule.ml 
 *)
 type formula = [
@@ -184,12 +213,23 @@ type formula = [
   (* TODO? Taint of taint_spec *)
 ] <json adapter.ocaml="Rule_schema_v2_adapter.Formula">
 
+(* In rule_schema_v1.yaml the 'where:' can be attached to all:
+ * as in:
+ *    { all: ..., where: ...,}
+ * but also
+ *    { pattern: ...,where: ..., }
+ *
+ * Internally though, the second one is translated into an And.
+ *)
 type where = [
-  (* either a single string or an array in JSON *)
+  (* either a single string or an array in JSON, that is
+   * {focus: "$FOO"}, but also {focus: ["$FOO", "$BAR"]}
+   *)
   | Focus of mvar list
   | Comparison of comparison
   | Metavariable of (mvar * metavariable_cond)
   ]
+<json adapter.ocaml="Rule_schema_v2_adapter.Where">
 
 type mvar = string
 
@@ -221,6 +261,7 @@ type extract = raw_json
 (*****************************************************************************)
 (* Toplevel *)
 (*****************************************************************************)
+
 type rules = {
   rules: rule list;
 }
