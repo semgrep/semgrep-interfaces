@@ -156,7 +156,7 @@ export type MatchIntermediateVar = {
 export type ErrorType =
 | { kind: 'LexicalError' /* JSON: "Lexical error" */ }
 | { kind: 'ParseError' /* JSON: "Syntax error" */ }
-| { kind: 'SpecifiedParseError' /* JSON: "Other syntax error" */ }
+| { kind: 'OtherParseError' /* JSON: "Other syntax error" */ }
 | { kind: 'AstBuilderError' /* JSON: "AST builder error" */ }
 | { kind: 'RuleParseError' /* JSON: "Rule parse error" */ }
 | { kind: 'SemgrepError' }
@@ -1093,7 +1093,7 @@ export function writeErrorType(x: ErrorType, context: any = x): any {
       return 'Lexical error'
     case 'ParseError':
       return 'Syntax error'
-    case 'SpecifiedParseError':
+    case 'OtherParseError':
       return 'Other syntax error'
     case 'AstBuilderError':
       return 'AST builder error'
@@ -1146,7 +1146,7 @@ export function readErrorType(x: any, context: any = x): ErrorType {
       case 'Syntax error':
         return { kind: 'ParseError' }
       case 'Other syntax error':
-        return { kind: 'SpecifiedParseError' }
+        return { kind: 'OtherParseError' }
       case 'AST builder error':
         return { kind: 'AstBuilderError' }
       case 'Rule parse error':

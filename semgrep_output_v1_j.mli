@@ -367,7 +367,7 @@ type finding = Semgrep_output_v1_t.finding = {
 type error_type = Semgrep_output_v1_t.error_type = 
     LexicalError
   | ParseError
-  | SpecifiedParseError
+  | OtherParseError
   | AstBuilderError
   | RuleParseError
   | SemgrepError

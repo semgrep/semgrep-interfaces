@@ -367,7 +367,7 @@ type finding = Semgrep_output_v1_t.finding = {
 type error_type = Semgrep_output_v1_t.error_type = 
     LexicalError
   | ParseError
-  | SpecifiedParseError
+  | OtherParseError
   | AstBuilderError
   | RuleParseError
   | SemgrepError
@@ -646,44 +646,44 @@ let read__string_option = (
 )
 let _string_option_of_string s =
   read__string_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__x_b7c1b6a = (
+let write__x_45497b3 = (
   fun ob x -> (
-    let x = ( ATDStringWrap.Fpath.unwrap ) x in (
+    let x = ( ATD_string_wrap.Fpath.unwrap ) x in (
       Yojson.Safe.write_string
     ) ob x)
 )
-let string_of__x_b7c1b6a ?(len = 1024) x =
+let string_of__x_45497b3 ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__x_b7c1b6a ob x;
+  write__x_45497b3 ob x;
   Buffer.contents ob
-let read__x_b7c1b6a = (
+let read__x_45497b3 = (
   fun p lb ->
     let x = (
       Atdgen_runtime.Oj_run.read_string
     ) p lb in
-    ( ATDStringWrap.Fpath.wrap ) x
+    ( ATD_string_wrap.Fpath.wrap ) x
 )
-let _x_b7c1b6a_of_string s =
-  read__x_b7c1b6a (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__x_ba914e0 = (
+let _x_45497b3_of_string s =
+  read__x_45497b3 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_93e0d04 = (
   fun ob x -> (
-    let x = ( ATDStringWrap.Ruleid.unwrap ) x in (
+    let x = ( Rule_ID.unwrap ) x in (
       Yojson.Safe.write_string
     ) ob x)
 )
-let string_of__x_ba914e0 ?(len = 1024) x =
+let string_of__x_93e0d04 ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__x_ba914e0 ob x;
+  write__x_93e0d04 ob x;
   Buffer.contents ob
-let read__x_ba914e0 = (
+let read__x_93e0d04 = (
   fun p lb ->
     let x = (
       Atdgen_runtime.Oj_run.read_string
     ) p lb in
-    ( ATDStringWrap.Ruleid.wrap ) x
+    ( Rule_ID.wrap ) x
 )
-let _x_ba914e0_of_string s =
-  read__x_ba914e0 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _x_93e0d04_of_string s =
+  read__x_93e0d04 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_engine_kind = (
   fun ob x ->
     match x with
@@ -729,14 +729,14 @@ let read_engine_kind = (
 let engine_kind_of_string s =
   read_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_fpath = (
-  write__x_b7c1b6a
+  write__x_45497b3
 )
 let string_of_fpath ?(len = 1024) x =
   let ob = Buffer.create len in
   write_fpath ob x;
   Buffer.contents ob
 let read_fpath = (
-  read__x_b7c1b6a
+  read__x_45497b3
 )
 let fpath_of_string s =
   read_fpath (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
@@ -1759,14 +1759,14 @@ let read__raw_json_option = (
 let _raw_json_option_of_string s =
   read__raw_json_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_rule_id = (
-  write__x_ba914e0
+  write__x_93e0d04
 )
 let string_of_rule_id ?(len = 1024) x =
   let ob = Buffer.create len in
   write_rule_id ob x;
   Buffer.contents ob
 let read_rule_id = (
-  read__x_ba914e0
+  read__x_93e0d04
 )
 let rule_id_of_string s =
   read_rule_id (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
@@ -4291,65 +4291,65 @@ let read_version = (
 )
 let version_of_string s =
   read_version (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__x_3606e07 = (
+let write__x_cb4d315 = (
   fun ob x -> (
-    let x = ( ATDStringWrap.Uuidm.unwrap ) x in (
+    let x = ( ATD_string_wrap.Uuidm.unwrap ) x in (
       Yojson.Safe.write_string
     ) ob x)
 )
-let string_of__x_3606e07 ?(len = 1024) x =
+let string_of__x_cb4d315 ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__x_3606e07 ob x;
+  write__x_cb4d315 ob x;
   Buffer.contents ob
-let read__x_3606e07 = (
+let read__x_cb4d315 = (
   fun p lb ->
     let x = (
       Atdgen_runtime.Oj_run.read_string
     ) p lb in
-    ( ATDStringWrap.Uuidm.wrap ) x
+    ( ATD_string_wrap.Uuidm.wrap ) x
 )
-let _x_3606e07_of_string s =
-  read__x_3606e07 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _x_cb4d315_of_string s =
+  read__x_cb4d315 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_uuid = (
-  write__x_3606e07
+  write__x_cb4d315
 )
 let string_of_uuid ?(len = 1024) x =
   let ob = Buffer.create len in
   write_uuid ob x;
   Buffer.contents ob
 let read_uuid = (
-  read__x_3606e07
+  read__x_cb4d315
 )
 let uuid_of_string s =
   read_uuid (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__x_71ae52d = (
+let write__x_6b0f513 = (
   fun ob x -> (
-    let x = ( ATDStringWrap.Uri.unwrap ) x in (
+    let x = ( ATD_string_wrap.Uri.unwrap ) x in (
       Yojson.Safe.write_string
     ) ob x)
 )
-let string_of__x_71ae52d ?(len = 1024) x =
+let string_of__x_6b0f513 ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__x_71ae52d ob x;
+  write__x_6b0f513 ob x;
   Buffer.contents ob
-let read__x_71ae52d = (
+let read__x_6b0f513 = (
   fun p lb ->
     let x = (
       Atdgen_runtime.Oj_run.read_string
     ) p lb in
-    ( ATDStringWrap.Uri.wrap ) x
+    ( ATD_string_wrap.Uri.wrap ) x
 )
-let _x_71ae52d_of_string s =
-  read__x_71ae52d (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _x_6b0f513_of_string s =
+  read__x_6b0f513 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_uri = (
-  write__x_71ae52d
+  write__x_6b0f513
 )
 let string_of_uri ?(len = 1024) x =
   let ob = Buffer.create len in
   write_uri ob x;
   Buffer.contents ob
 let read_uri = (
-  read__x_71ae52d
+  read__x_6b0f513
 )
 let uri_of_string s =
   read_uri (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
@@ -5396,34 +5396,34 @@ let read_skipped_rule = (
 )
 let skipped_rule_of_string s =
   read_skipped_rule (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__x_7b58b4a = (
+let write__x_f9d958d = (
   fun ob x -> (
-    let x = ( ATDStringWrap.Sha1.unwrap ) x in (
+    let x = ( ATD_string_wrap.Sha1.unwrap ) x in (
       Yojson.Safe.write_string
     ) ob x)
 )
-let string_of__x_7b58b4a ?(len = 1024) x =
+let string_of__x_f9d958d ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__x_7b58b4a ob x;
+  write__x_f9d958d ob x;
   Buffer.contents ob
-let read__x_7b58b4a = (
+let read__x_f9d958d = (
   fun p lb ->
     let x = (
       Atdgen_runtime.Oj_run.read_string
     ) p lb in
-    ( ATDStringWrap.Sha1.wrap ) x
+    ( ATD_string_wrap.Sha1.wrap ) x
 )
-let _x_7b58b4a_of_string s =
-  read__x_7b58b4a (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _x_f9d958d_of_string s =
+  read__x_f9d958d (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_sha1 = (
-  write__x_7b58b4a
+  write__x_f9d958d
 )
 let string_of_sha1 ?(len = 1024) x =
   let ob = Buffer.create len in
   write_sha1 ob x;
   Buffer.contents ob
 let read_sha1 = (
-  read__x_7b58b4a
+  read__x_f9d958d
 )
 let sha1_of_string s =
   read_sha1 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
@@ -14822,7 +14822,7 @@ let write_error_type : _ -> error_type -> _ = (
     match x with
       | LexicalError -> Buffer.add_string ob "\"Lexical error\""
       | ParseError -> Buffer.add_string ob "\"Syntax error\""
-      | SpecifiedParseError -> Buffer.add_string ob "\"Other syntax error\""
+      | OtherParseError -> Buffer.add_string ob "\"Other syntax error\""
       | AstBuilderError -> Buffer.add_string ob "\"AST builder error\""
       | RuleParseError -> Buffer.add_string ob "\"Rule parse error\""
       | SemgrepError -> Buffer.add_string ob "\"SemgrepError\""
@@ -14880,7 +14880,7 @@ let read_error_type = (
             | "Other syntax error" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              (SpecifiedParseError : error_type)
+              (OtherParseError : error_type)
             | "AST builder error" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -14986,7 +14986,7 @@ let read_error_type = (
             | "Syntax error" ->
               (ParseError : error_type)
             | "Other syntax error" ->
-              (SpecifiedParseError : error_type)
+              (OtherParseError : error_type)
             | "AST builder error" ->
               (AstBuilderError : error_type)
             | "Rule parse error" ->

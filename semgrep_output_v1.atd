@@ -394,7 +394,7 @@ type error_type
   *)
   | LexicalError <json name="Lexical error">
   | ParseError (* a.k.a SyntaxError *) <json name="Syntax error">
-  | SpecifiedParseError <json name="Other syntax error">
+  | OtherParseError <json name="Other syntax error">
   | AstBuilderError <json name="AST builder error">
   (* Pattern parsing related errors.
    * There are more precise info about the error in
