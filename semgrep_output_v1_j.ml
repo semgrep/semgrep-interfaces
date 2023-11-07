@@ -160,7 +160,7 @@ type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
 type product = Semgrep_output_v1_t.product [@@deriving show, eq]
 
 type scan_info = Semgrep_output_v1_t.scan_info = {
-  id: int;
+  id: int option;
   enabled_products: product list;
   deployment_id: int;
   deployment_name: string
@@ -5752,19 +5752,78 @@ let read__product_list = (
 )
 let _product_list_of_string s =
   read__product_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__int_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    Yojson.Safe.write_int
+  )
+)
+let string_of__int_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__int_option ob x;
+  Buffer.contents ob
+let read__int_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_int
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_int
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _int_option_of_string s =
+  read__int_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_scan_info : _ -> scan_info -> _ = (
   fun ob (x : scan_info) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"id\":";
-    (
-      Yojson.Safe.write_int
-    )
-      ob x.id;
+    (match x.id with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"id\":";
+      (
+        Yojson.Safe.write_int
+      )
+        ob x;
+    );
     if !is_first then
       is_first := false
     else
@@ -5856,13 +5915,15 @@ let read_scan_info = (
       (
         match i with
           | 0 ->
-            field_id := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_int
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_id := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_int
+                  ) p lb
+                )
+              );
+            )
           | 1 ->
             field_enabled_products := (
               Some (
@@ -5941,13 +6002,15 @@ let read_scan_info = (
         (
           match i with
             | 0 ->
-              field_id := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_int
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_id := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_int
+                    ) p lb
+                  )
+                );
+              )
             | 1 ->
               field_enabled_products := (
                 Some (
@@ -5981,7 +6044,7 @@ let read_scan_info = (
     with Yojson.End_of_object -> (
         (
           {
-            id = (match !field_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "id");
+            id = !field_id;
             enabled_products = (match !field_enabled_products with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "enabled_products");
             deployment_id = (match !field_deployment_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "deployment_id");
             deployment_name = (match !field_deployment_name with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "deployment_name");
@@ -10935,63 +10998,6 @@ let read__x_b85b97f = (
 )
 let _x_b85b97f_of_string s =
   read__x_b85b97f (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__int_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    Yojson.Safe.write_int
-  )
-)
-let string_of__int_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__int_option ob x;
-  Buffer.contents ob
-let read__int_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_int
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_int
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _int_option_of_string s =
-  read__int_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__dependency_child_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_dependency_child

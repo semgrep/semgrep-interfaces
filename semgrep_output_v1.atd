@@ -1119,7 +1119,7 @@ type scan_response = {
 
 (* meta info about the scan *)
 type scan_info = {
-    id: int; (* the scan id *)
+    ?id: int option; (* the scan id, null for dry-runs *)
     enabled_products: product list;
     deployment_id: int;
     deployment_name: string;
