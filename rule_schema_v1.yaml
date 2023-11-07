@@ -185,6 +185,14 @@ $defs:
                     type: string
                   type:
                     type: string
+              - required: [ metavariable, types ]
+                properties:
+                  metavariable:
+                    type: string
+                  types:
+                    type: array
+                    items:
+                      type: string
               - required: [ metavariable, analyzer ]
                 properties:
                   metavariable:
@@ -557,10 +565,18 @@ $defs:
           type:
             title: Type expression
             type: string
+          types:
+            title: Type expressions
+            type: array
+            items:
+              type: string
           language:
             type: string
-        required:
-          - type
+        oneOf:
+          - required:
+              - type
+          - required:
+              - types
         additionalProperties: false
     required:
       - metavariable-type
