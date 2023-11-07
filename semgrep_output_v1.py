@@ -3662,13 +3662,13 @@ class ParseError:
 
 
 @dataclass(frozen=True, order=True)
-class SpecifiedParseError:
-    """Original type: error_type = [ ... | SpecifiedParseError | ... ]"""
+class OtherParseError:
+    """Original type: error_type = [ ... | OtherParseError | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'SpecifiedParseError'
+        return 'OtherParseError'
 
     @staticmethod
     def to_json() -> Any:
@@ -4025,7 +4025,7 @@ class IncompatibleRule0:
 class ErrorType:
     """Original type: error_type = [ ... ]"""
 
-    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0]
+    value: Union[LexicalError, ParseError, OtherParseError, AstBuilderError, RuleParseError, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0]
 
     @property
     def kind(self) -> str:
@@ -4040,7 +4040,7 @@ class ErrorType:
             if x == 'Syntax error':
                 return cls(ParseError())
             if x == 'Other syntax error':
-                return cls(SpecifiedParseError())
+                return cls(OtherParseError())
             if x == 'AST builder error':
                 return cls(AstBuilderError())
             if x == 'Rule parse error':
