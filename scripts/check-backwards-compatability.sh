@@ -29,12 +29,12 @@ for tag in $tags; do
     echo "Checking backward compatibility of semgrep_output_v1.atd against past version $tag"
     git difftool --trust-exit-code -x 'atddiff --backward' -y "$tag" "origin/main" semgrep_output_v1.atd | tee before.txt
     if [ "$?" -ge 1 ] && [ "$?" -le 2 ]; then
-        echo "ERROR: atddiff had an error"
+        echo "ERROR: atddiff had an error: $?"
         exit 1
     fi
     git difftool --trust-exit-code -x 'atddiff --backward' -y "$tag" "HEAD" semgrep_output_v1.atd | tee after.txt
     if [ "$?" -ge 1 ] && [ "$?" -le 2 ]; then
-        echo "ERROR: atddiff had an error"
+        echo "ERROR: atddiff had an error: $?"
         exit 1
     fi
 
