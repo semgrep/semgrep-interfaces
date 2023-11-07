@@ -16,6 +16,7 @@ permissions:
 jobs:
   compatibility:
     runs-on: ubuntu-latest
+    container: returntocorp/ocaml:alpine
     steps:
     - name: Checkout tree
       uses: actions/checkout@v4
@@ -23,22 +24,22 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Set-up OCaml
-      uses: ocaml/setup-ocaml@v2
-      with:
-        ocaml-compiler: 5.1
-        opam-pin: false
-        opam-depext: false
-        dune-cache: true
-
-    - name: install atddiff
-      run: opam install atd
-
     - name: atddiff all supported tags
       id: diff
       shell: bash
       run: |
-        eval $(opam env)
+        set -x
+
+        git config --global --add safe.directory "$(pwd)"
+        
+        # github actions sets HOME=/home/github where we don't have an opam env
+        eval $(HOME=/root opam env)
+        apk add jq
+
+        # check / print version of atddiff
+        atddiff --version
+
+        # run the checks
         echo -ne 'Backwards compatability summary:\n\n```' > summary-00-header.txt
         echo '```' >> summary-20-footer.txt
         ./scripts/check-backwards-compatability.sh | tee summary-10-body.txt
