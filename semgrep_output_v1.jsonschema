@@ -32,6 +32,7 @@
   },
   "definitions": {
     "raw_json": {},
+    "fpath": { "type": "string" },
     "uri": { "type": "string" },
     "sha1": { "type": "string" },
     "uuid": { "type": "string" },
@@ -46,7 +47,6 @@
         "offset": { "type": "integer" }
       }
     },
-    "fpath": { "type": "string" },
     "location": {
       "type": "object",
       "required": [ "path", "start", "end" ],
@@ -668,15 +668,70 @@
         "text": { "type": "string" }
       }
     },
+    "deployment_config": {
+      "type": "object",
+      "required": [ "id", "name" ],
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "organization_id": { "type": "integer" },
+        "display_name": { "type": "string" },
+        "scm_name": { "type": "string" },
+        "slug": { "type": "string" },
+        "source_type": { "type": "string" },
+        "has_autofix": { "type": "boolean" },
+        "has_deepsemgrep": { "type": "boolean" },
+        "has_triage_via_comment": { "type": "boolean" },
+        "has_dependency_query": { "type": "boolean" },
+        "default_user_role": { "type": "string" }
+      }
+    },
     "ci_config_from_repo": {
       "type": "object",
-      "required": [ "version" ],
+      "required": [],
       "properties": {
         "version": { "$ref": "#/definitions/version" },
         "tags": { "type": "array", "items": { "$ref": "#/definitions/tag" } }
       }
     },
     "tag": { "type": "string" },
+    "ci_config_from_cloud": {
+      "type": "object",
+      "required": [ "repo_config" ],
+      "properties": {
+        "repo_config": { "$ref": "#/definitions/ci_config" },
+        "org_config": { "$ref": "#/definitions/ci_config" },
+        "dirs_config": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "items": false,
+            "prefixItems": [
+              { "$ref": "#/definitions/fpath" },
+              { "$ref": "#/definitions/ci_config" }
+            ]
+          }
+        }
+      }
+    },
+    "ci_config": {
+      "type": "object",
+      "required": [ "env", "enabled_products", "ignored_files", "autofix" ],
+      "properties": {
+        "env": { "$ref": "#/definitions/ci_env" },
+        "enabled_products": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/product" }
+        },
+        "ignored_files": { "type": "array", "items": { "type": "string" } },
+        "autofix": { "type": "boolean" }
+      }
+    },
+    "ci_env": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
     "scan_config": {
       "type": "object",
       "required": [
@@ -687,6 +742,9 @@
         "deployment_name": { "type": "string" },
         "policy_names": { "type": "array", "items": { "type": "string" } },
         "rule_config": { "type": "string" },
+        "ci_config_from_cloud": {
+          "$ref": "#/definitions/ci_config_from_cloud"
+        },
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
         "dependency_query": { "type": "boolean" },
@@ -705,35 +763,44 @@
         }
       }
     },
+    "deployment_response": {
+      "type": "object",
+      "required": [ "deployment" ],
+      "properties": {
+        "deployment": { "$ref": "#/definitions/deployment_config" }
+      }
+    },
     "project_metadata": {
       "type": "object",
       "required": [
-        "semgrep_version", "repository", "repo_url", "branch", "ci_job_url",
-        "commit", "commit_author_email", "commit_author_name",
-        "commit_author_username", "commit_author_image_url", "commit_title",
-        "on", "pull_request_author_username",
-        "pull_request_author_image_url", "pull_request_id",
-        "pull_request_title", "scan_environment", "is_full_scan"
+        "semgrep_version", "scan_environment", "repository", "repo_url",
+        "branch", "commit", "commit_title", "commit_author_email",
+        "commit_author_name", "commit_author_username",
+        "commit_author_image_url", "ci_job_url", "on",
+        "pull_request_author_username", "pull_request_author_image_url",
+        "pull_request_id", "pull_request_title", "is_full_scan"
       ],
       "properties": {
         "semgrep_version": { "$ref": "#/definitions/version" },
+        "scan_environment": { "type": "string" },
         "repository": { "type": "string" },
         "repo_url": { "$ref": "#/definitions/uri" },
+        "repo_id": { "type": "string" },
+        "org_id": { "type": "string" },
         "branch": { "type": [ "string", "null" ] },
-        "ci_job_url": { "$ref": "#/definitions/uri" },
         "commit": { "$ref": "#/definitions/sha1" },
+        "commit_title": { "type": [ "string", "null" ] },
+        "commit_timestamp": { "type": "string" },
         "commit_author_email": { "type": [ "string", "null" ] },
         "commit_author_name": { "type": [ "string", "null" ] },
         "commit_author_username": { "type": [ "string", "null" ] },
         "commit_author_image_url": { "$ref": "#/definitions/uri" },
-        "commit_title": { "type": [ "string", "null" ] },
-        "commit_timestamp": { "type": "string" },
+        "ci_job_url": { "$ref": "#/definitions/uri" },
         "on": { "type": "string" },
         "pull_request_author_username": { "type": [ "string", "null" ] },
         "pull_request_author_image_url": { "$ref": "#/definitions/uri" },
         "pull_request_id": { "type": [ "string", "null" ] },
         "pull_request_title": { "type": [ "string", "null" ] },
-        "scan_environment": { "type": "string" },
         "base_sha": { "$ref": "#/definitions/sha1" },
         "start_sha": { "$ref": "#/definitions/sha1" },
         "is_full_scan": { "type": "boolean" },
@@ -751,7 +818,8 @@
         "requested_products": {
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
-        }
+        },
+        "dry_run": { "type": "boolean" }
       }
     },
     "scan_request": {
@@ -762,6 +830,54 @@
         "project_metadata": { "$ref": "#/definitions/project_metadata" },
         "project_config": { "$ref": "#/definitions/ci_config_from_repo" },
         "scan_metadata": { "$ref": "#/definitions/scan_metadata" }
+      }
+    },
+    "scan_response": {
+      "type": "object",
+      "required": [ "info", "config", "engine_params" ],
+      "properties": {
+        "info": { "$ref": "#/definitions/scan_info" },
+        "config": { "$ref": "#/definitions/scan_configuration" },
+        "engine_params": { "$ref": "#/definitions/engine_configuration" }
+      }
+    },
+    "scan_info": {
+      "type": "object",
+      "required": [ "enabled_products", "deployment_id", "deployment_name" ],
+      "properties": {
+        "id": { "type": "integer" },
+        "enabled_products": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/product" }
+        },
+        "deployment_id": { "type": "integer" },
+        "deployment_name": { "type": "string" }
+      }
+    },
+    "scan_configuration": {
+      "type": "object",
+      "required": [ "rules" ],
+      "properties": {
+        "rules": { "$ref": "#/definitions/raw_json" },
+        "triage_ignored_syntactic_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "triage_ignored_match_based_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "engine_configuration": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "autofix": { "type": "boolean" },
+        "ignored_files": { "type": "array", "items": { "type": "string" } },
+        "deepsemgrep": { "type": "boolean" },
+        "dependency_query": { "type": "boolean" },
+        "generic_slow_rollout": { "type": "boolean" }
       }
     },
     "finding": {
@@ -865,6 +981,22 @@
         "items": { "$ref": "#/definitions/found_dependency" }
       }
     },
+    "ci_scan_results_response": {
+      "type": "object",
+      "required": [ "errors" ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ci_scan_results_response_error" }
+        },
+        "task_id": { "type": "string" }
+      }
+    },
+    "ci_scan_results_response_error": {
+      "type": "object",
+      "required": [ "message" ],
+      "properties": { "message": { "type": "string" } }
+    },
     "ci_scan_complete": {
       "type": "object",
       "required": [ "exit_code", "stats" ],
@@ -918,6 +1050,23 @@
         "num_targets": { "type": "integer" },
         "bytes_parsed": { "type": "integer" },
         "num_bytes": { "type": "integer" }
+      }
+    },
+    "ci_scan_complete_response": {
+      "type": "object",
+      "required": [ "success" ],
+      "properties": {
+        "success": { "type": "boolean" },
+        "app_block_override": { "type": "boolean" },
+        "app_block_reason": { "type": "string" }
+      }
+    },
+    "ci_scan_failure": {
+      "type": "object",
+      "required": [ "exit_code", "stderr" ],
+      "properties": {
+        "exit_code": { "type": "integer" },
+        "stderr": { "type": "string" }
       }
     }
   }

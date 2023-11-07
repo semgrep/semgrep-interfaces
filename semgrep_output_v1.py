@@ -2066,12 +2066,159 @@ class Product:
 
 
 @dataclass
+class ScanInfo:
+    """Original type: scan_info = { ... }"""
+
+    enabled_products: List[Product]
+    deployment_id: int
+    deployment_name: str
+    id: Optional[int] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScanInfo':
+        if isinstance(x, dict):
+            return cls(
+                enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else _atd_missing_json_field('ScanInfo', 'enabled_products'),
+                deployment_id=_atd_read_int(x['deployment_id']) if 'deployment_id' in x else _atd_missing_json_field('ScanInfo', 'deployment_id'),
+                deployment_name=_atd_read_string(x['deployment_name']) if 'deployment_name' in x else _atd_missing_json_field('ScanInfo', 'deployment_name'),
+                id=_atd_read_int(x['id']) if 'id' in x else None,
+            )
+        else:
+            _atd_bad_json('ScanInfo', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['enabled_products'] = _atd_write_list((lambda x: x.to_json()))(self.enabled_products)
+        res['deployment_id'] = _atd_write_int(self.deployment_id)
+        res['deployment_name'] = _atd_write_string(self.deployment_name)
+        if self.id is not None:
+            res['id'] = _atd_write_int(self.id)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScanInfo':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScanConfiguration:
+    """Original type: scan_configuration = { ... }"""
+
+    rules: RawJson
+    triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
+    triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScanConfiguration':
+        if isinstance(x, dict):
+            return cls(
+                rules=RawJson.from_json(x['rules']) if 'rules' in x else _atd_missing_json_field('ScanConfiguration', 'rules'),
+                triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
+                triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
+            )
+        else:
+            _atd_bad_json('ScanConfiguration', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['rules'] = (lambda x: x.to_json())(self.rules)
+        res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
+        res['triage_ignored_match_based_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_match_based_ids)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScanConfiguration':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class EngineConfiguration:
+    """Original type: engine_configuration = { ... }"""
+
+    autofix: bool = field(default_factory=lambda: False)
+    ignored_files: List[str] = field(default_factory=lambda: [])
+    deepsemgrep: bool = field(default_factory=lambda: False)
+    dependency_query: bool = field(default_factory=lambda: False)
+    generic_slow_rollout: bool = field(default_factory=lambda: False)
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'EngineConfiguration':
+        if isinstance(x, dict):
+            return cls(
+                autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
+                ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
+                deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
+                dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
+                generic_slow_rollout=_atd_read_bool(x['generic_slow_rollout']) if 'generic_slow_rollout' in x else False,
+            )
+        else:
+            _atd_bad_json('EngineConfiguration', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['autofix'] = _atd_write_bool(self.autofix)
+        res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
+        res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
+        res['dependency_query'] = _atd_write_bool(self.dependency_query)
+        res['generic_slow_rollout'] = _atd_write_bool(self.generic_slow_rollout)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'EngineConfiguration':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScanResponse:
+    """Original type: scan_response = { ... }"""
+
+    info: ScanInfo
+    config: ScanConfiguration
+    engine_params: EngineConfiguration
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScanResponse':
+        if isinstance(x, dict):
+            return cls(
+                info=ScanInfo.from_json(x['info']) if 'info' in x else _atd_missing_json_field('ScanResponse', 'info'),
+                config=ScanConfiguration.from_json(x['config']) if 'config' in x else _atd_missing_json_field('ScanResponse', 'config'),
+                engine_params=EngineConfiguration.from_json(x['engine_params']) if 'engine_params' in x else _atd_missing_json_field('ScanResponse', 'engine_params'),
+            )
+        else:
+            _atd_bad_json('ScanResponse', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['info'] = (lambda x: x.to_json())(self.info)
+        res['config'] = (lambda x: x.to_json())(self.config)
+        res['engine_params'] = (lambda x: x.to_json())(self.engine_params)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScanResponse':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class ScanMetadata:
     """Original type: scan_metadata = { ... }"""
 
     cli_version: Version
     unique_id: Uuid
     requested_products: List[Product]
+    dry_run: bool = field(default_factory=lambda: False)
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanMetadata':
@@ -2080,6 +2227,7 @@ class ScanMetadata:
                 cli_version=Version.from_json(x['cli_version']) if 'cli_version' in x else _atd_missing_json_field('ScanMetadata', 'cli_version'),
                 unique_id=Uuid.from_json(x['unique_id']) if 'unique_id' in x else _atd_missing_json_field('ScanMetadata', 'unique_id'),
                 requested_products=_atd_read_list(Product.from_json)(x['requested_products']) if 'requested_products' in x else _atd_missing_json_field('ScanMetadata', 'requested_products'),
+                dry_run=_atd_read_bool(x['dry_run']) if 'dry_run' in x else False,
             )
         else:
             _atd_bad_json('ScanMetadata', x)
@@ -2089,6 +2237,7 @@ class ScanMetadata:
         res['cli_version'] = (lambda x: x.to_json())(self.cli_version)
         res['unique_id'] = (lambda x: x.to_json())(self.unique_id)
         res['requested_products'] = _atd_write_list((lambda x: x.to_json()))(self.requested_products)
+        res['dry_run'] = _atd_write_bool(self.dry_run)
         return res
 
     @classmethod
@@ -2104,23 +2253,25 @@ class ProjectMetadata:
     """Original type: project_metadata = { ... }"""
 
     semgrep_version: Version
+    scan_environment: str
     repository: str
     repo_url: Optional[Uri]
     branch: Optional[str]
-    ci_job_url: Optional[Uri]
     commit: Optional[Sha1]
+    commit_title: Optional[str]
     commit_author_email: Optional[str]
     commit_author_name: Optional[str]
     commit_author_username: Optional[str]
     commit_author_image_url: Optional[Uri]
-    commit_title: Optional[str]
+    ci_job_url: Optional[Uri]
     on: str
     pull_request_author_username: Optional[str]
     pull_request_author_image_url: Optional[Uri]
     pull_request_id: Optional[str]
     pull_request_title: Optional[str]
-    scan_environment: str
     is_full_scan: bool
+    repo_id: Optional[str] = None
+    org_id: Optional[str] = None
     commit_timestamp: Optional[str] = None
     base_sha: Optional[Sha1] = None
     start_sha: Optional[Sha1] = None
@@ -2133,23 +2284,25 @@ class ProjectMetadata:
         if isinstance(x, dict):
             return cls(
                 semgrep_version=Version.from_json(x['semgrep_version']) if 'semgrep_version' in x else _atd_missing_json_field('ProjectMetadata', 'semgrep_version'),
+                scan_environment=_atd_read_string(x['scan_environment']) if 'scan_environment' in x else _atd_missing_json_field('ProjectMetadata', 'scan_environment'),
                 repository=_atd_read_string(x['repository']) if 'repository' in x else _atd_missing_json_field('ProjectMetadata', 'repository'),
                 repo_url=_atd_read_nullable(Uri.from_json)(x['repo_url']) if 'repo_url' in x else _atd_missing_json_field('ProjectMetadata', 'repo_url'),
                 branch=_atd_read_nullable(_atd_read_string)(x['branch']) if 'branch' in x else _atd_missing_json_field('ProjectMetadata', 'branch'),
-                ci_job_url=_atd_read_nullable(Uri.from_json)(x['ci_job_url']) if 'ci_job_url' in x else _atd_missing_json_field('ProjectMetadata', 'ci_job_url'),
                 commit=_atd_read_nullable(Sha1.from_json)(x['commit']) if 'commit' in x else _atd_missing_json_field('ProjectMetadata', 'commit'),
+                commit_title=_atd_read_nullable(_atd_read_string)(x['commit_title']) if 'commit_title' in x else _atd_missing_json_field('ProjectMetadata', 'commit_title'),
                 commit_author_email=_atd_read_nullable(_atd_read_string)(x['commit_author_email']) if 'commit_author_email' in x else _atd_missing_json_field('ProjectMetadata', 'commit_author_email'),
                 commit_author_name=_atd_read_nullable(_atd_read_string)(x['commit_author_name']) if 'commit_author_name' in x else _atd_missing_json_field('ProjectMetadata', 'commit_author_name'),
                 commit_author_username=_atd_read_nullable(_atd_read_string)(x['commit_author_username']) if 'commit_author_username' in x else _atd_missing_json_field('ProjectMetadata', 'commit_author_username'),
                 commit_author_image_url=_atd_read_nullable(Uri.from_json)(x['commit_author_image_url']) if 'commit_author_image_url' in x else _atd_missing_json_field('ProjectMetadata', 'commit_author_image_url'),
-                commit_title=_atd_read_nullable(_atd_read_string)(x['commit_title']) if 'commit_title' in x else _atd_missing_json_field('ProjectMetadata', 'commit_title'),
+                ci_job_url=_atd_read_nullable(Uri.from_json)(x['ci_job_url']) if 'ci_job_url' in x else _atd_missing_json_field('ProjectMetadata', 'ci_job_url'),
                 on=_atd_read_string(x['on']) if 'on' in x else _atd_missing_json_field('ProjectMetadata', 'on'),
                 pull_request_author_username=_atd_read_nullable(_atd_read_string)(x['pull_request_author_username']) if 'pull_request_author_username' in x else _atd_missing_json_field('ProjectMetadata', 'pull_request_author_username'),
                 pull_request_author_image_url=_atd_read_nullable(Uri.from_json)(x['pull_request_author_image_url']) if 'pull_request_author_image_url' in x else _atd_missing_json_field('ProjectMetadata', 'pull_request_author_image_url'),
                 pull_request_id=_atd_read_nullable(_atd_read_string)(x['pull_request_id']) if 'pull_request_id' in x else _atd_missing_json_field('ProjectMetadata', 'pull_request_id'),
                 pull_request_title=_atd_read_nullable(_atd_read_string)(x['pull_request_title']) if 'pull_request_title' in x else _atd_missing_json_field('ProjectMetadata', 'pull_request_title'),
-                scan_environment=_atd_read_string(x['scan_environment']) if 'scan_environment' in x else _atd_missing_json_field('ProjectMetadata', 'scan_environment'),
                 is_full_scan=_atd_read_bool(x['is_full_scan']) if 'is_full_scan' in x else _atd_missing_json_field('ProjectMetadata', 'is_full_scan'),
+                repo_id=_atd_read_string(x['repo_id']) if 'repo_id' in x else None,
+                org_id=_atd_read_string(x['org_id']) if 'org_id' in x else None,
                 commit_timestamp=_atd_read_string(x['commit_timestamp']) if 'commit_timestamp' in x else None,
                 base_sha=Sha1.from_json(x['base_sha']) if 'base_sha' in x else None,
                 start_sha=Sha1.from_json(x['start_sha']) if 'start_sha' in x else None,
@@ -2163,23 +2316,27 @@ class ProjectMetadata:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['semgrep_version'] = (lambda x: x.to_json())(self.semgrep_version)
+        res['scan_environment'] = _atd_write_string(self.scan_environment)
         res['repository'] = _atd_write_string(self.repository)
         res['repo_url'] = _atd_write_nullable((lambda x: x.to_json()))(self.repo_url)
         res['branch'] = _atd_write_nullable(_atd_write_string)(self.branch)
-        res['ci_job_url'] = _atd_write_nullable((lambda x: x.to_json()))(self.ci_job_url)
         res['commit'] = _atd_write_nullable((lambda x: x.to_json()))(self.commit)
+        res['commit_title'] = _atd_write_nullable(_atd_write_string)(self.commit_title)
         res['commit_author_email'] = _atd_write_nullable(_atd_write_string)(self.commit_author_email)
         res['commit_author_name'] = _atd_write_nullable(_atd_write_string)(self.commit_author_name)
         res['commit_author_username'] = _atd_write_nullable(_atd_write_string)(self.commit_author_username)
         res['commit_author_image_url'] = _atd_write_nullable((lambda x: x.to_json()))(self.commit_author_image_url)
-        res['commit_title'] = _atd_write_nullable(_atd_write_string)(self.commit_title)
+        res['ci_job_url'] = _atd_write_nullable((lambda x: x.to_json()))(self.ci_job_url)
         res['on'] = _atd_write_string(self.on)
         res['pull_request_author_username'] = _atd_write_nullable(_atd_write_string)(self.pull_request_author_username)
         res['pull_request_author_image_url'] = _atd_write_nullable((lambda x: x.to_json()))(self.pull_request_author_image_url)
         res['pull_request_id'] = _atd_write_nullable(_atd_write_string)(self.pull_request_id)
         res['pull_request_title'] = _atd_write_nullable(_atd_write_string)(self.pull_request_title)
-        res['scan_environment'] = _atd_write_string(self.scan_environment)
         res['is_full_scan'] = _atd_write_bool(self.is_full_scan)
+        if self.repo_id is not None:
+            res['repo_id'] = _atd_write_string(self.repo_id)
+        if self.org_id is not None:
+            res['org_id'] = _atd_write_string(self.org_id)
         if self.commit_timestamp is not None:
             res['commit_timestamp'] = _atd_write_string(self.commit_timestamp)
         if self.base_sha is not None:
@@ -2206,14 +2363,14 @@ class ProjectMetadata:
 class CiConfigFromRepo:
     """Original type: ci_config_from_repo = { ... }"""
 
-    version: Version
+    version: Version = field(default_factory=lambda: Version('v1'))
     tags: Optional[List[Tag]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiConfigFromRepo':
         if isinstance(x, dict):
             return cls(
-                version=Version.from_json(x['version']) if 'version' in x else _atd_missing_json_field('CiConfigFromRepo', 'version'),
+                version=Version.from_json(x['version']) if 'version' in x else Version('v1'),
                 tags=_atd_read_list(Tag.from_json)(x['tags']) if 'tags' in x else None,
             )
         else:
@@ -2275,6 +2432,100 @@ class ScanRequest:
 
 
 @dataclass
+class CiEnv:
+    """Original type: ci_env"""
+
+    value: Dict[str, str]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiEnv':
+        return cls(_atd_read_assoc_object_into_dict(_atd_read_string)(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_assoc_dict_to_object(_atd_write_string)(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiEnv':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CiConfig:
+    """Original type: ci_config = { ... }"""
+
+    env: CiEnv
+    enabled_products: List[Product]
+    ignored_files: List[str]
+    autofix: bool
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiConfig':
+        if isinstance(x, dict):
+            return cls(
+                env=CiEnv.from_json(x['env']) if 'env' in x else _atd_missing_json_field('CiConfig', 'env'),
+                enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else _atd_missing_json_field('CiConfig', 'enabled_products'),
+                ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else _atd_missing_json_field('CiConfig', 'ignored_files'),
+                autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else _atd_missing_json_field('CiConfig', 'autofix'),
+            )
+        else:
+            _atd_bad_json('CiConfig', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['env'] = (lambda x: x.to_json())(self.env)
+        res['enabled_products'] = _atd_write_list((lambda x: x.to_json()))(self.enabled_products)
+        res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
+        res['autofix'] = _atd_write_bool(self.autofix)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiConfig':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CiConfigFromCloud:
+    """Original type: ci_config_from_cloud = { ... }"""
+
+    repo_config: CiConfig
+    org_config: Optional[CiConfig] = None
+    dirs_config: Optional[List[Tuple[Fpath, CiConfig]]] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiConfigFromCloud':
+        if isinstance(x, dict):
+            return cls(
+                repo_config=CiConfig.from_json(x['repo_config']) if 'repo_config' in x else _atd_missing_json_field('CiConfigFromCloud', 'repo_config'),
+                org_config=CiConfig.from_json(x['org_config']) if 'org_config' in x else None,
+                dirs_config=_atd_read_list((lambda x: (Fpath.from_json(x[0]), CiConfig.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['dirs_config']) if 'dirs_config' in x else None,
+            )
+        else:
+            _atd_bad_json('CiConfigFromCloud', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['repo_config'] = (lambda x: x.to_json())(self.repo_config)
+        if self.org_config is not None:
+            res['org_config'] = (lambda x: x.to_json())(self.org_config)
+        if self.dirs_config is not None:
+            res['dirs_config'] = _atd_write_list((lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.dirs_config)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiConfigFromCloud':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class ScanConfig:
     """Original type: scan_config = { ... }"""
 
@@ -2282,6 +2533,7 @@ class ScanConfig:
     deployment_name: str
     policy_names: List[str]
     rule_config: str
+    ci_config_from_cloud: Optional[CiConfigFromCloud] = None
     autofix: bool = field(default_factory=lambda: False)
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
@@ -2298,6 +2550,7 @@ class ScanConfig:
                 deployment_name=_atd_read_string(x['deployment_name']) if 'deployment_name' in x else _atd_missing_json_field('ScanConfig', 'deployment_name'),
                 policy_names=_atd_read_list(_atd_read_string)(x['policy_names']) if 'policy_names' in x else _atd_missing_json_field('ScanConfig', 'policy_names'),
                 rule_config=_atd_read_string(x['rule_config']) if 'rule_config' in x else _atd_missing_json_field('ScanConfig', 'rule_config'),
+                ci_config_from_cloud=CiConfigFromCloud.from_json(x['ci_config_from_cloud']) if 'ci_config_from_cloud' in x else None,
                 autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
@@ -2315,6 +2568,8 @@ class ScanConfig:
         res['deployment_name'] = _atd_write_string(self.deployment_name)
         res['policy_names'] = _atd_write_list(_atd_write_string)(self.policy_names)
         res['rule_config'] = _atd_write_string(self.rule_config)
+        if self.ci_config_from_cloud is not None:
+            res['ci_config_from_cloud'] = (lambda x: x.to_json())(self.ci_config_from_cloud)
         res['autofix'] = _atd_write_bool(self.autofix)
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
@@ -3407,13 +3662,13 @@ class ParseError:
 
 
 @dataclass(frozen=True, order=True)
-class SpecifiedParseError:
-    """Original type: error_type = [ ... | SpecifiedParseError | ... ]"""
+class OtherParseError:
+    """Original type: error_type = [ ... | OtherParseError | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'SpecifiedParseError'
+        return 'OtherParseError'
 
     @staticmethod
     def to_json() -> Any:
@@ -3770,7 +4025,7 @@ class IncompatibleRule0:
 class ErrorType:
     """Original type: error_type = [ ... ]"""
 
-    value: Union[LexicalError, ParseError, SpecifiedParseError, AstBuilderError, RuleParseError, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0]
+    value: Union[LexicalError, ParseError, OtherParseError, AstBuilderError, RuleParseError, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0]
 
     @property
     def kind(self) -> str:
@@ -3785,7 +4040,7 @@ class ErrorType:
             if x == 'Syntax error':
                 return cls(ParseError())
             if x == 'Other syntax error':
-                return cls(SpecifiedParseError())
+                return cls(OtherParseError())
             if x == 'AST builder error':
                 return cls(AstBuilderError())
             if x == 'Rule parse error':
@@ -3980,6 +4235,95 @@ class ErrorSeverity:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ErrorSeverity':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DeploymentConfig:
+    """Original type: deployment_config = { ... }"""
+
+    id: int
+    name: str
+    organization_id: int = field(default_factory=lambda: 0)
+    display_name: str = field(default_factory=lambda: "")
+    scm_name: str = field(default_factory=lambda: "")
+    slug: str = field(default_factory=lambda: "")
+    source_type: str = field(default_factory=lambda: "")
+    has_autofix: bool = field(default_factory=lambda: False)
+    has_deepsemgrep: bool = field(default_factory=lambda: False)
+    has_triage_via_comment: bool = field(default_factory=lambda: False)
+    has_dependency_query: bool = field(default_factory=lambda: False)
+    default_user_role: str = field(default_factory=lambda: "")
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DeploymentConfig':
+        if isinstance(x, dict):
+            return cls(
+                id=_atd_read_int(x['id']) if 'id' in x else _atd_missing_json_field('DeploymentConfig', 'id'),
+                name=_atd_read_string(x['name']) if 'name' in x else _atd_missing_json_field('DeploymentConfig', 'name'),
+                organization_id=_atd_read_int(x['organization_id']) if 'organization_id' in x else 0,
+                display_name=_atd_read_string(x['display_name']) if 'display_name' in x else "",
+                scm_name=_atd_read_string(x['scm_name']) if 'scm_name' in x else "",
+                slug=_atd_read_string(x['slug']) if 'slug' in x else "",
+                source_type=_atd_read_string(x['source_type']) if 'source_type' in x else "",
+                has_autofix=_atd_read_bool(x['has_autofix']) if 'has_autofix' in x else False,
+                has_deepsemgrep=_atd_read_bool(x['has_deepsemgrep']) if 'has_deepsemgrep' in x else False,
+                has_triage_via_comment=_atd_read_bool(x['has_triage_via_comment']) if 'has_triage_via_comment' in x else False,
+                has_dependency_query=_atd_read_bool(x['has_dependency_query']) if 'has_dependency_query' in x else False,
+                default_user_role=_atd_read_string(x['default_user_role']) if 'default_user_role' in x else "",
+            )
+        else:
+            _atd_bad_json('DeploymentConfig', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['id'] = _atd_write_int(self.id)
+        res['name'] = _atd_write_string(self.name)
+        res['organization_id'] = _atd_write_int(self.organization_id)
+        res['display_name'] = _atd_write_string(self.display_name)
+        res['scm_name'] = _atd_write_string(self.scm_name)
+        res['slug'] = _atd_write_string(self.slug)
+        res['source_type'] = _atd_write_string(self.source_type)
+        res['has_autofix'] = _atd_write_bool(self.has_autofix)
+        res['has_deepsemgrep'] = _atd_write_bool(self.has_deepsemgrep)
+        res['has_triage_via_comment'] = _atd_write_bool(self.has_triage_via_comment)
+        res['has_dependency_query'] = _atd_write_bool(self.has_dependency_query)
+        res['default_user_role'] = _atd_write_string(self.default_user_role)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DeploymentConfig':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DeploymentResponse:
+    """Original type: deployment_response = { ... }"""
+
+    deployment: DeploymentConfig
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DeploymentResponse':
+        if isinstance(x, dict):
+            return cls(
+                deployment=DeploymentConfig.from_json(x['deployment']) if 'deployment' in x else _atd_missing_json_field('DeploymentResponse', 'deployment'),
+            )
+        else:
+            _atd_bad_json('DeploymentResponse', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['deployment'] = (lambda x: x.to_json())(self.deployment)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DeploymentResponse':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -4528,6 +4872,66 @@ class CliOutput:
 
 
 @dataclass
+class CiScanResultsResponseError:
+    """Original type: ci_scan_results_response_error = { ... }"""
+
+    message: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiScanResultsResponseError':
+        if isinstance(x, dict):
+            return cls(
+                message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('CiScanResultsResponseError', 'message'),
+            )
+        else:
+            _atd_bad_json('CiScanResultsResponseError', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['message'] = _atd_write_string(self.message)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiScanResultsResponseError':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CiScanResultsResponse:
+    """Original type: ci_scan_results_response = { ... }"""
+
+    errors: List[CiScanResultsResponseError]
+    task_id: Optional[str] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiScanResultsResponse':
+        if isinstance(x, dict):
+            return cls(
+                errors=_atd_read_list(CiScanResultsResponseError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CiScanResultsResponse', 'errors'),
+                task_id=_atd_read_string(x['task_id']) if 'task_id' in x else None,
+            )
+        else:
+            _atd_bad_json('CiScanResultsResponse', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
+        if self.task_id is not None:
+            res['task_id'] = _atd_write_string(self.task_id)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiScanResultsResponse':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class CiScanDependencies:
     """Original type: ci_scan_dependencies"""
 
@@ -4600,6 +5004,37 @@ class CiScanResults:
 
 
 @dataclass
+class CiScanFailure:
+    """Original type: ci_scan_failure = { ... }"""
+
+    exit_code: int
+    stderr: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiScanFailure':
+        if isinstance(x, dict):
+            return cls(
+                exit_code=_atd_read_int(x['exit_code']) if 'exit_code' in x else _atd_missing_json_field('CiScanFailure', 'exit_code'),
+                stderr=_atd_read_string(x['stderr']) if 'stderr' in x else _atd_missing_json_field('CiScanFailure', 'stderr'),
+            )
+        else:
+            _atd_bad_json('CiScanFailure', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['exit_code'] = _atd_write_int(self.exit_code)
+        res['stderr'] = _atd_write_string(self.stderr)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiScanFailure':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class CiScanCompleteStats:
     """Original type: ci_scan_complete_stats = { ... }"""
 
@@ -4640,6 +5075,40 @@ class CiScanCompleteStats:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'CiScanCompleteStats':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CiScanCompleteResponse:
+    """Original type: ci_scan_complete_response = { ... }"""
+
+    success: bool
+    app_block_override: bool = field(default_factory=lambda: False)
+    app_block_reason: str = field(default_factory=lambda: "")
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiScanCompleteResponse':
+        if isinstance(x, dict):
+            return cls(
+                success=_atd_read_bool(x['success']) if 'success' in x else _atd_missing_json_field('CiScanCompleteResponse', 'success'),
+                app_block_override=_atd_read_bool(x['app_block_override']) if 'app_block_override' in x else False,
+                app_block_reason=_atd_read_string(x['app_block_reason']) if 'app_block_reason' in x else "",
+            )
+        else:
+            _atd_bad_json('CiScanCompleteResponse', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['success'] = _atd_write_bool(self.success)
+        res['app_block_override'] = _atd_write_bool(self.app_block_override)
+        res['app_block_reason'] = _atd_write_string(self.app_block_reason)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiScanCompleteResponse':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
