@@ -27,21 +27,21 @@ for tag in $tags; do
 
     set +e # do our own error handling for a bit
     echo "Checking backward compatibility of semgrep_output_v1.atd against past version $tag"
-    git difftool --trust-exit-code -x 'atddiff --no-locations --backward' -y "$tag" "origin/main" semgrep_output_v1.atd | tee before.txt
+    git difftool --trust-exit-code -x 'atddiff --no-locations --backward' -y "$tag" "origin/main" semgrep_output_v1.atd > before.txt
     ret=$?
     if [ "$ret" -ge 1 ] && [ "$ret" -le 2 ]; then
         echo "ERROR: atddiff had an error: $?"
+        cat before.txt
         exit 1
     fi
-    git difftool --trust-exit-code -x 'atddiff --no-locations --backward' -y "$tag" "HEAD" semgrep_output_v1.atd | tee after.txt
+    git difftool --trust-exit-code -x 'atddiff --no-locations --backward' -y "$tag" "HEAD" semgrep_output_v1.atd > after.txt
     ret=$?
     if [ "$ret" -ge 1 ] && [ "$ret" -le 2 ]; then
         echo "ERROR: atddiff had an error: $?"
+        cat after.txt
         exit 1
     fi
 
-    # neccesary because filenames have temp paths and line numbers can change without causing issues
-    #expr='s|File "/.*/\(.*.atd\)", line .*$|File "\1", line <removed for diff>|g'
     diff -u <(cat before.txt) <(cat after.txt)
     if [ "$?" -ne 0 ]; then
         echo "ERROR: semgrep_output_v1.atd is not backward compatible with $tag"
