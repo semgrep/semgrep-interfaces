@@ -23,7 +23,7 @@ jobs:
       with:
         fetch-depth: 0
         fetch-tags: true
-        set-safe-directory: '*'
+        set-safe-directory: true
 
     - name: atddiff all supported tags
       id: diff
