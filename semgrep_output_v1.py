@@ -2069,29 +2069,30 @@ class Product:
 class ScanInfo:
     """Original type: scan_info = { ... }"""
 
-    id: int
     enabled_products: List[Product]
     deployment_id: int
     deployment_name: str
+    id: Optional[int] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanInfo':
         if isinstance(x, dict):
             return cls(
-                id=_atd_read_int(x['id']) if 'id' in x else _atd_missing_json_field('ScanInfo', 'id'),
                 enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else _atd_missing_json_field('ScanInfo', 'enabled_products'),
                 deployment_id=_atd_read_int(x['deployment_id']) if 'deployment_id' in x else _atd_missing_json_field('ScanInfo', 'deployment_id'),
                 deployment_name=_atd_read_string(x['deployment_name']) if 'deployment_name' in x else _atd_missing_json_field('ScanInfo', 'deployment_name'),
+                id=_atd_read_int(x['id']) if 'id' in x else None,
             )
         else:
             _atd_bad_json('ScanInfo', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['id'] = _atd_write_int(self.id)
         res['enabled_products'] = _atd_write_list((lambda x: x.to_json()))(self.enabled_products)
         res['deployment_id'] = _atd_write_int(self.deployment_id)
         res['deployment_name'] = _atd_write_string(self.deployment_name)
+        if self.id is not None:
+            res['id'] = _atd_write_int(self.id)
         return res
 
     @classmethod

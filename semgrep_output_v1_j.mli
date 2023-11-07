@@ -160,7 +160,7 @@ type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
 type product = Semgrep_output_v1_t.product [@@deriving show, eq]
 
 type scan_info = Semgrep_output_v1_t.scan_info = {
-  id: int;
+  id: int option;
   enabled_products: product list;
   deployment_id: int;
   deployment_name: string

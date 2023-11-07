@@ -843,9 +843,7 @@
     },
     "scan_info": {
       "type": "object",
-      "required": [
-        "id", "enabled_products", "deployment_id", "deployment_name"
-      ],
+      "required": [ "enabled_products", "deployment_id", "deployment_name" ],
       "properties": {
         "id": { "type": "integer" },
         "enabled_products": {
