@@ -71,16 +71,15 @@ type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
 (*****************************************************************************)
 
 (* File path. less: could convert directly to Path class of pathlib library for Python *)
-type fpath <ocaml attr="deriving show"> =
-  string wrap <ocaml module="ATDStringWrap.Fpath">
+type fpath <ocaml attr="deriving show"> = string wrap <ocaml module="ATD_string_wrap.Fpath">
 
-type uri = string wrap <ocaml module="ATDStringWrap.Uri">
+type uri = string wrap <ocaml module="ATD_string_wrap.Uri">
 
-type sha1 = string wrap <ocaml module="ATDStringWrap.Sha1">
+type sha1 = string wrap <ocaml module="ATD_string_wrap.Sha1">
 
-type uuid = string wrap <ocaml module="ATDStringWrap.Uuidm">
+type uuid = string wrap <ocaml module="ATD_string_wrap.Uuidm">
 
-(* GMT time (in osemgrep at least), in isoformat, TODO ATDStringWrap.Datetime *)
+(* GMT time (in osemgrep at least), in isoformat, TODO ATD_string_wrap.Datetime *)
 type datetime = string
 
 (*****************************************************************************)
@@ -124,7 +123,7 @@ type location
 type rule_id
      <ocaml attr="deriving show">
      <python decorator="dataclass(frozen=True)"> =
-  string wrap <ocaml module="ATDStringWrap.Ruleid">
+  string wrap <ocaml module="Rule_ID">
 
 (*
    Error = something wrong that must be fixed
@@ -1329,4 +1328,3 @@ type ci_scan_failure = {
     exit_code: int;
     stderr: string;
 }
-

@@ -61,7 +61,7 @@ type rule = {
 }
 
 (* Rule_ID.t, "^[a-zA-Z0-9._-]*$" *)
-type rule_id = string wrap <ocaml module="ATDStringWrap.Ruleid">
+type rule_id = string wrap <ocaml module="Rule_ID">
 
 (* Version_info.t *)
 type version = string (* TODO  wrap <ocaml module="ATDStringWrap.Version"> *)
