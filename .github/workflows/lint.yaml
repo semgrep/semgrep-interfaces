@@ -28,9 +28,14 @@ jobs:
       id: diff
       shell: bash
       run: |
+        set -x
+        
         # github actions sets HOME=/home/github where we don't have an opam env
         eval $(HOME=/root opam env)
         apk add jq
+
+        # check / print version of atddiff
+        atddiff --version
 
         # run the checks
         echo -ne 'Backwards compatability summary:\n\n```' > summary-00-header.txt
