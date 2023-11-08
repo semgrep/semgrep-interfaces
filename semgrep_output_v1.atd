@@ -685,6 +685,7 @@ type matching_operation <ocaml attr="deriving show { with_path = false}"> = [
   | And
   | Or
   | Inside
+  | Anywhere
   (* XPat for eXtended pattern. Can be a spacegrep pattern, a
    * regexp pattern, or a proper semgrep pattern.
    * see semgrep-core/src/core/XPattern.ml

@@ -12,6 +12,7 @@ type matching_operation = Semgrep_output_v1_t.matching_operation =
     And
   | Or
   | Inside
+  | Anywhere
   | XPat of string
   | Negation
   | Filter of string
@@ -868,6 +869,7 @@ let write_matching_operation : _ -> matching_operation -> _ = (
       | And -> Buffer.add_string ob "\"And\""
       | Or -> Buffer.add_string ob "\"Or\""
       | Inside -> Buffer.add_string ob "\"Inside\""
+      | Anywhere -> Buffer.add_string ob "\"Anywhere\""
       | XPat x ->
         Buffer.add_string ob "[\"XPat\",";
         (
@@ -910,6 +912,10 @@ let read_matching_operation = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (Inside : matching_operation)
+            | "Anywhere" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Anywhere : matching_operation)
             | "XPat" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -967,6 +973,8 @@ let read_matching_operation = (
               (Or : matching_operation)
             | "Inside" ->
               (Inside : matching_operation)
+            | "Anywhere" ->
+              (Anywhere : matching_operation)
             | "Negation" ->
               (Negation : matching_operation)
             | "Taint" ->
