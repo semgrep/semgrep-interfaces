@@ -132,6 +132,7 @@ $defs:
         - required: [ any ]
         - required: [ not ]
         - required: [ inside ]
+        - required: [ anywhere ]
         - required: [ taint ]
       properties:
         pattern:
@@ -151,6 +152,8 @@ $defs:
         not:
           $ref: "#/$defs/new-pattern"
         inside:
+          $ref: "#/$defs/new-pattern"
+        anywhere:
           $ref: "#/$defs/new-pattern"
         where:
           type: array
@@ -217,10 +220,10 @@ $defs:
           - required: [ pattern ]
           - required: [ pattern-regex ]
           - required: [ patterns ]
-          - required: [ semgrep-internal-patterns-allow-disjoint ]
           - required: [ pattern-either ]
           - required: [ pattern-not ]
           - required: [ pattern-inside ]
+          - required: [ semgrep-internal-pattern-anywhere ]
           - required: [ pattern-not-inside ]
         properties:
           pattern:
@@ -229,13 +232,13 @@ $defs:
             type: string
           patterns:
             $ref: "#/$defs/patterns-content"
-          semgrep-internal-patterns-allow-disjoint:
-            $ref: "#/$defs/patterns-content"
           pattern-either:
             $ref: "#/$defs/pattern-either-content"
           pattern-not:
             $ref: "#/$defs/general-pattern-content"
           pattern-inside:
+            $ref: "#/$defs/general-pattern-content"
+          semgrep-internal-pattern-anywhere:
             $ref: "#/$defs/general-pattern-content"
           pattern-not-inside:
             $ref: "#/$defs/general-pattern-content"
@@ -247,10 +250,10 @@ $defs:
     items:
       anyOf:
         - $ref: "#/$defs/patterns"
-        - $ref: "#/$defs/semgrep-internal-patterns-allow-disjoint"
         - $ref: "#/$defs/pattern-either"
         - $ref: "#/$defs/focus-metavariable"
         - $ref: "#/$defs/pattern-inside"
+        - $ref: "#/$defs/semgrep-internal-pattern-anywhere"
         - $ref: "#/$defs/pattern-not-inside"
         - $ref: "#/$defs/pattern-not"
         - $ref: "#/$defs/pattern"
@@ -268,9 +271,9 @@ $defs:
     items:
       anyOf:
         - $ref: "#/$defs/patterns"
-        - $ref: "#/$defs/semgrep-internal-patterns-allow-disjoint"
         - $ref: "#/$defs/pattern-either"
         - $ref: "#/$defs/pattern-inside"
+        - $ref: "#/$defs/semgrep-internal-pattern-anywhere"
         - $ref: "#/$defs/pattern"
         - $ref: "#/$defs/pattern-regex"
   taint-content:
@@ -508,8 +511,6 @@ $defs:
             type: string
           patterns:
             $ref: "#/$defs/patterns-content"
-          semgrep-internal-patterns-allow-disjoint:
-            $ref: "#/$defs/patterns-content"
           pattern-either:
             $ref: "#/$defs/pattern-either-content"
         required:
@@ -522,8 +523,6 @@ $defs:
                 - required:
                     - patterns
                 - required:
-                    - semgrep-internal-patterns-allow-disjoint
-                - required:
                     - pattern-either
                 - required:
                     - pattern-regex
@@ -533,20 +532,6 @@ $defs:
               anyOf:
                 - required:
                     - pattern
-                - required:
-                    - semgrep-internal-patterns-allow-disjoint
-                - required:
-                    - pattern-either
-                - required:
-                    - pattern-regex
-          - required:
-              - semgrep-internal-patterns-allow-disjoint
-            not:
-              anyOf:
-                - required:
-                    - pattern
-                - required:
-                    - patterns
                 - required:
                     - pattern-either
                 - required:
@@ -560,8 +545,6 @@ $defs:
                 - required:
                     - patterns
                 - required:
-                    - semgrep-internal-patterns-allow-disjoint
-                - required:
                     - pattern-regex
           - required:
               - pattern-regex
@@ -571,8 +554,6 @@ $defs:
                     - pattern
                 - required:
                     - patterns
-                - required:
-                    - semgrep-internal-patterns-allow-disjoint
                 - required:
                     - pattern-either
         additionalProperties: false
@@ -667,18 +648,6 @@ $defs:
     required:
       - patterns
     additionalProperties: false
-  # EXPERIMENTAL
-  semgrep-internal-patterns-allow-disjoint:
-    type: object
-    properties:
-      semgrep-internal-patterns-allow-disjoint:
-        title: >-
-          Return finding where all of the nested conditions are true, without
-          respect to position of subpatterns. 
-        $ref: "#/$defs/patterns-content"
-    required:
-      - semgrep-internal-patterns-allow-disjoint
-    additionalProperties: false
   pattern-either:
     type: object
     properties:
@@ -708,6 +677,21 @@ $defs:
         $ref: "#/$defs/general-pattern-content"
     required:
       - pattern-inside
+    additionalProperties: false
+  # EXPERIMENTAL
+  semgrep-internal-pattern-anywhere:
+    type: object
+    properties:
+      semgrep-internal-pattern-anywhere:
+        title: >-
+          Marks this subpattern such that at a containing `patterns` or other
+          form of conjunction the range is not considered; subpattern matches
+          are instead combined solely on the basis of metavariables, without
+          respect to range, and the range of the matching subpattern is
+          discarded wholly.
+        $ref: "#/$defs/general-pattern-content"
+    required:
+      - semgrep-internal-pattern-anywhere
     additionalProperties: false
   pattern-not-inside:
     type: object
@@ -910,8 +894,6 @@ properties:
           type: string
         patterns:
           $ref: "#/$defs/patterns-content"
-        semgrep-internal-patterns-allow-disjoint:
-          $ref: "#/$defs/patterns-content"
         pattern-either:
           $ref: "#/$defs/pattern-either-content"
         # EXPERIMENTAL
@@ -1083,8 +1065,6 @@ properties:
                 - required:
                     - patterns
                 - required:
-                    - semgrep-internal-patterns-allow-disjoint
-                - required:
                     - pattern-either
                 - required:
                     - pattern-regex
@@ -1094,8 +1074,6 @@ properties:
                     - pattern
                 - required:
                     - patterns
-                - required:
-                    - semgrep-internal-patterns-allow-disjoint
                 - required:
                     - pattern-either
                 - required:
