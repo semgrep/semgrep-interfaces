@@ -43,17 +43,12 @@ module Condition = struct
        `List [`String "M";
             `Assoc [("metavariable", mvar); 
               ("c", `List [`String "types"; tys])]]
-    | `Assoc [("metavariable", _mvar); ("pattern", _p)] ->
-          Common.pr2_gen orig;
-          failwith "TODO"
-(*
+    | `Assoc [("metavariable", mvar); ("pattern", p)] ->
        `List [`String "M";
             `Assoc [("metavariable", mvar); 
               ("c", `List [`String "F"; `Assoc [("pattern", p)]])]]
-*)
     | x -> 
-          Common.pr2_gen x;
-          failwith "TODO2"
+          x
 
 
   (** Convert from ATD-compatible json to original json *)
