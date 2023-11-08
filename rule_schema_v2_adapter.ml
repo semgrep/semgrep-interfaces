@@ -8,7 +8,13 @@ module Formula = struct
   let normalize (orig : Yojson.Safe.t ) : Yojson.Safe.t =
     match orig with
     | `String str ->
-        `List [`String "pattern"; `String str]
+        `Assoc ["f", `List [`String "pattern"; `String str]]
+    | `Assoc [(key , elt)] ->
+        `Assoc ["f", `List [`String key; elt]]
+    | `Assoc [(key , elt); ("where", stuff)] ->
+        `Assoc [
+            ("f", `List [`String key; elt]);
+            ("where", stuff)]
     | x -> x
 
   (** Convert from ATD-compatible json to original json *)

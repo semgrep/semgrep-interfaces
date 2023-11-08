@@ -1,14 +1,25 @@
 (* New Semgrep syntax (hence the v2) specified using ATD instead of jsonschema.
  *
+ * For more information on the new syntax, see:
+ *  - TODO: official blog post announcing the new syntax!
+ *  - TODO slides Brandon
+ *  - https://www.youtube.com/watch?v=dZUPjFvknnI by Pieter
+ *  - https://parsiya.net/blog/2023-10-28-semgreps-experimental-rule-syntax/
+ *
  * Note that even if most Semgrep users use YAML to write a rule, and not JSON,
  * we still use a JSON tool (here ATD, but also jsonschema) to specify
  * the rule schema because YAML is a superset of JSON and can be
- * mechanically translated into JSON.
+ * mechanically translated into JSON; there is no yamlschema
+ * (see https://json-schema-everywhere.github.io/yaml). To add even more
+ * confusion, a jsonschema can actually be specified using YAML (like in
+ * rule_shema_v1.yml), and so one can use YAML syntax to specify the
+ * JSON schema of files actually written in YAML (hmmm).
  *
  * Jsonschema is powerful but also arguably complicated and so it
  * might be simpler for many Semgrep developers (and also some Semgrep
  * users) to use ATD to specify and understand the schema of a rule.
  * It could provide a better basis to think about future syntax extensions.
+ *
  * This file is now also used for some rule validation in
  * `semgrep --validate --develop`.
  *
@@ -23,8 +34,19 @@
  *  - steps (and join?)
  *)
 
+(*****************************************************************************)
+(* Basic types and string aliases *)
+(*****************************************************************************)
+
 (* escape hatch *)
 type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
+
+(* ex: "*.c" *)
+type glob = string
+
+(* ex: "[a-zA-Z_]*\\.c" *)
+type regex = string
+
 
 (*****************************************************************************)
 (* The rule *)
@@ -32,20 +54,25 @@ type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
 
 type rule = {
      id: rule_id;
+
      message: string;
      severity: severity;
+
      (* TODO: selector vs analyzer *)
      languages: language list;
 
+     (* at least one of those must be set *)
      ?match_ <json name="match">: formula option;
      ?taint: taint_spec option;
      ?extract: extract option;
      (* TODO: join, steps, secrets, sca *)
+
      ~mode <ocaml default="`Search">: mode;
      (* TODO: product: product *)
 
      (* TODO? could be replaced by a pattern-filename: *)
      ?paths: paths option;
+
      ?fix: string option;
      ?fix_regex: fix_regex option;
      
@@ -53,7 +80,6 @@ type rule = {
      ?options: options option;
 
      ?version: version option;
-     (* since ?? *)
      ?min_version: version option;
      ?max_version: version option;
 
@@ -76,7 +102,7 @@ type mode = [
 ]
 
 (*****************************************************************************)
-(* Extra fields *)
+(* Types of rule fields *)
 (*****************************************************************************)
 
 (* coupling: semgrep_output_v1.atd with match_severity *)
@@ -84,12 +110,14 @@ type severity = [
   | Error <json name="ERROR">
   | Warning <json name="WARNING">
   | Info <json name="INFO">
+  (* should not be used *)
   | Experiment <json name="EXPERIMENT">
   | Inventory <json name="INVENTORY">
 ]
 
 (* coupling: language.ml *)
 type language = [
+  (* programming (and configuration) languages *)
   | Apex <json name="apex">
   | Bash <json name="bash">
   | Sh <json name="sh">
@@ -126,8 +154,6 @@ type language = [
   | Py <json name="py">
   | Python <json name="python">
   | R <json name="r">
-  | Regex <json name="regex">
-  | None <json name="none">
   | Ruby <json name="ruby">
   | Rust <json name="rust">
   | Scala <json name="scala">
@@ -142,16 +168,16 @@ type language = [
   | Typescript <json name="typescript">
   | Vue <json name="vue">
   | Yaml <json name="yaml">
+
+  (* not regular programming languages *)
+  | Regex <json name="regex">
+  | None <json name="none">
 ]
 
 type paths = {
   ~include_ <json name="include">: glob list;
   ~exclude: glob list;
 }
-
-type glob = string
-
-type regex = string
 
 type fix_regex = {
   regex: regex;
@@ -175,53 +201,72 @@ type options <ocaml from="Rule_options" t="t"> = abstract
  *    - and:
  *      - "foo"
  *      - pattern: "bar"
+ *      where: 
+ *       - bla
  *
  *  which when turned into JSON gives:
  * 
  *   { any: [ 
  *     { and: [ 
- *       "foo", 
- *       {pattern: "bar" }
- *      ] } 
- *     ] }
+ *         "foo", 
+ *         {pattern: "bar" }
+ *       ],
+ *       where: [ bla ],
+ *     } 
+ *    ] 
+ *   }
  *
  * The ATD way would be to encode a formula as
  *
- *  ["Any", [
- *     ["And", [
- *       ["Pattern", "foo"],
- *       ["Pattern", "bar"],
+ *  {f: ["Any", [
+ *       {f: ["And", [
+ *             {f: ["Pattern", "foo"]},
+ *             {f: ["Pattern", "bar"]},
+ *             ]],
+ *        where: [bla]
+ *       }
  *     ]]
- *  ]]
+ *  }
  *
  * So we need rule_schema_v2_adapter.ml used below to transform the first JSON
  * in the second dynamically at parsing time, so then ATD can parse it
  * using the formula type specified below.
- *
- * old: this type was called new-pattern in rule_schema_v1.yaml but formula in
- * Rule.ml 
 *)
-type formula = [
+
+type formula = {
+  f: formula_bis;
+  (* alt: we could instead do 'All of formula list * condition list' below
+   * but syntactically we also allow 'where' with pattern:, regex:, etc.
+   * as in
+   *    { pattern: ..., where: ..., }
+   * Even though internally in Rule.ml a { pattern: X, where: Y}
+   * is transformed in an All [pattern: X, Y], in the syntax
+   * we allow it in more places.
+   *)
+  ~where: condition list;
+}
+<json adapter.ocaml="Rule_schema_v2_adapter.Formula">
+
+(* old: this type was called new-pattern in rule_schema_v1.yaml but formula in
+ * Rule.ml
+ *)
+type formula_bis = [
   (* either directly a string or pattern: string in the JSON *)
   | Pattern <json name="pattern"> of string
   | Regex <json name="regex"> of regex
-  (* 'All of conjunction' in Rule.ml *)
-  | All <json name="all"> of (formula list * where list)
+  (* 'And of conjunction' in Rule.ml *)
+  | All <json name="all"> of formula list
   | Any <json name="any"> of formula list
+  (* Not and Inside can appear only inside an All *)
   | Not <json name="not"> of formula
   | Inside <json name="inside"> of formula
   (* TODO? Taint of taint_spec *)
-] <json adapter.ocaml="Rule_schema_v2_adapter.Formula">
+]
 
-(* In rule_schema_v1.yaml the 'where:' can be attached to all:
- * as in:
- *    { all: ..., where: ...,}
- * but also
- *    { pattern: ...,where: ..., }
- *
- * Internally though, the second one is translated into an And.
- *)
-type where = [
+(* TODO *)
+type condition = raw_json
+
+type condition_TODO = [
   (* either a single string or an array in JSON, that is
    * {focus: "$FOO"}, but also {focus: ["$FOO", "$BAR"]}
    *)
@@ -264,4 +309,10 @@ type extract = raw_json
 
 type rules = {
   rules: rule list;
+
+  (* Missed count of pro rules when not logged-in.
+   * Sent by the registry to the CLI since 1.48.
+   * See https://github.com/semgrep/semgrep-app/pull/11142
+   *)
+  ?missed: int option;
 }
