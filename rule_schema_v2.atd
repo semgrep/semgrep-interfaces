@@ -1,10 +1,14 @@
 (* New Semgrep syntax (hence the v2) specified using ATD instead of jsonschema.
  *
  * For more information on the new syntax, see:
- *  - TODO: official blog post announcing the new syntax!
- *  - TODO slides Brandon
- *  - https://www.youtube.com/watch?v=dZUPjFvknnI by Pieter
- *  - https://parsiya.net/blog/2023-10-28-semgreps-experimental-rule-syntax/
+ *  - Brandon's community Slack post announcing the new syntax
+ *    https://semgrep.slack.com/archives/C018NJRRCJ0/p1698430726062769?thread_ts=1698350734.415849&cid=C018NJRRCJ0
+ *  - Brandon's slides
+ *    https://docs.google.com/presentation/d/1zzmyFbfNlJqweyzuuFlo4zpSs3Gqhfi6FiNRONSEQ0E/edit#slide=id.g1eee710cdbf_0_26
+ *  - Pieter's video
+ *    https://www.youtube.com/watch?v=dZUPjFvknnI
+ *  - Parsia's blog post
+ *    https://parsiya.net/blog/2023-10-28-semgreps-experimental-rule-syntax/
  *
  * Note that even if most Semgrep users use YAML to write a rule, and not JSON,
  * we still use a JSON tool (here ATD, but also jsonschema) to specify
@@ -234,7 +238,9 @@ type options <ocaml from="Rule_options" t="t"> = abstract
 *)
 
 type formula = {
-  (* alt: have ?all: ... ?any: ... ?regex: ... ?pattern: ... with only one *)
+  (* alt: have ?all: ... ?any: ... ?regex: ... ?pattern: ... with a check
+   * at parsing time that only one of those fields is given.
+   *)
   f: formula_bis;
   (* alt: we could instead do 'All of formula list * condition list' below
    * but syntactically we also allow 'where' with pattern:, regex:, etc.
@@ -273,22 +279,29 @@ type formula_bis = [
  *
  * which when turned into JSON gives:
  *
- *   XXX
+ *  { where: [
+ *     { metavariable: $X,
+ *       regex: $Z
+ *     }
+ *   ] }
  * 
  * which we must transform in an ATD-compliant:
  *
- *   YYY
+ *  [ ["M", [{ metavariable: $X,
+ *             c: ["regex", $Z]
+ *           }]
+ *    ]]
  *)
 type condition = [
-  (* either a single string or an array in JSON, that is
-   * {focus: "$FOO"}, but also {focus: ["$FOO", "$BAR"]}
-   *)
   | Focus <json name="F"> of focus
   | Comparison <json name="C"> of comparison
   | Metavariable <json name="M"> of metavariable_cond
   ]
 <json adapter.ocaml="Rule_schema_v2_adapter.Condition">
 
+(* either a single string or an array in JSON, that is
+ * {focus: "$FOO"}, but also {focus: ["$FOO", "$BAR"]}
+ *)
 type focus = {
   focus: mvar list;
 }
@@ -314,8 +327,14 @@ type metavariable_cond_bis = [
    * TODO: for metavariable-regex, can also enable constant_propagation 
    *)
   | Regex <json name="regex"> of regex
+  (* TODO: accept also language: string *)
   | Formula <json name="F"> of formula
-  | Analyzer <json name="analyzer"> of string
+  | Analyzer <json name="analyzer"> of analyzer
+]
+
+type analyzer = [
+  | Entropy <json name="entropy">
+  | Redos <json name="redos">
 ]
 
 (*****************************************************************************)
