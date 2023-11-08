@@ -234,6 +234,7 @@ type options <ocaml from="Rule_options" t="t"> = abstract
 *)
 
 type formula = {
+  (* alt: have ?all: ... ?any: ... ?regex: ... ?pattern: ... with only one *)
   f: formula_bis;
   (* alt: we could instead do 'All of formula list * condition list' below
    * but syntactically we also allow 'where' with pattern:, regex:, etc.
@@ -263,18 +264,34 @@ type formula_bis = [
   (* TODO? Taint of taint_spec *)
 ]
 
-(* TODO *)
-type condition = raw_json
-
-type condition_TODO = [
+(* Just like for formula, we're using an adapter to transform
+ * conditions in YAML like:
+ *
+ *  where:
+ *   - metavariable: $X
+ *     regex: $Z
+ *
+ * which when turned into JSON gives:
+ *
+ *   XXX
+ * 
+ * which we must transform in an ATD-compliant:
+ *
+ *   YYY
+ *)
+type condition = [
   (* either a single string or an array in JSON, that is
    * {focus: "$FOO"}, but also {focus: ["$FOO", "$BAR"]}
    *)
-  | Focus of mvar list
-  | Comparison of comparison
-  | Metavariable of (mvar * metavariable_cond)
+  | Focus <json name="F"> of focus
+  | Comparison <json name="C"> of comparison
+  | Metavariable <json name="M"> of metavariable_cond
   ]
-<json adapter.ocaml="Rule_schema_v2_adapter.Where">
+<json adapter.ocaml="Rule_schema_v2_adapter.Condition">
+
+type focus = {
+  focus: mvar list;
+}
 
 type mvar = string
 
@@ -284,11 +301,21 @@ type comparison = {
     ~strip: bool;
   }
 
-type metavariable_cond = [
-  | Type of string
-  (* TODO: for metavariable-regex, can also enable constant_propagation *)
-  | Formula of formula
-  | Analyzer of string
+type metavariable_cond = {
+  metavariable: mvar;
+  (* alt: have ?type: ... ?types:... ?regex: ... *)
+  c: metavariable_cond_bis;  
+}  
+
+type metavariable_cond_bis = [
+  | Type <json name="type"> of string
+  | Types <json name="types"> of string list
+  (* alt: we could remove Regex as Formula itself as a Regex
+   * TODO: for metavariable-regex, can also enable constant_propagation 
+   *)
+  | Regex <json name="regex"> of regex
+  | Formula <json name="F"> of formula
+  | Analyzer <json name="analyzer"> of string
 ]
 
 (*****************************************************************************)
