@@ -522,6 +522,23 @@ class Inside:
 
 
 @dataclass
+class Anywhere:
+    """Original type: matching_operation = [ ... | Anywhere | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Anywhere'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Anywhere'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class XPat:
     """Original type: matching_operation = [ ... | XPat of ... | ... ]"""
 
@@ -680,7 +697,7 @@ class ClassHeaderAndElems:
 class MatchingOperation:
     """Original type: matching_operation = [ ... ]"""
 
-    value: Union[And, Or, Inside, XPat, Negation, Filter, Taint, TaintSource, TaintSink, TaintSanitizer, EllipsisAndStmts, ClassHeaderAndElems]
+    value: Union[And, Or, Inside, Anywhere, XPat, Negation, Filter, Taint, TaintSource, TaintSink, TaintSanitizer, EllipsisAndStmts, ClassHeaderAndElems]
 
     @property
     def kind(self) -> str:
@@ -696,6 +713,8 @@ class MatchingOperation:
                 return cls(Or())
             if x == 'Inside':
                 return cls(Inside())
+            if x == 'Anywhere':
+                return cls(Anywhere())
             if x == 'Negation':
                 return cls(Negation())
             if x == 'Taint':
