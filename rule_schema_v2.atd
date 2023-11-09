@@ -14,10 +14,7 @@
  * we still use a JSON tool (here ATD, but also jsonschema) to specify
  * the rule schema because YAML is a superset of JSON and can be
  * mechanically translated into JSON; there is no yamlschema
- * (see https://json-schema-everywhere.github.io/yaml). To add even more
- * confusion, a jsonschema can actually be specified using YAML (like in
- * rule_shema_v1.yml), and so one can use YAML syntax to specify the
- * JSON schema of files actually written in YAML (hmmm).
+ * (see https://json-schema-everywhere.github.io/yaml).
  *
  * Jsonschema is powerful but also arguably complicated and so it
  * might be simpler for many Semgrep developers (and also some Semgrep
@@ -30,12 +27,18 @@
  * Note that this file does not replace Parse_rule.ml nor Rule.ml. We still
  * want to accept the old syntax in Parse_rule.ml and also parse with
  * position information and error recovery which ATD does not provide.
+ * This files does not replace either (yet) rule_schema_v1.yml which is
+ * more complete.
  *
  * TODO:
+ *  - taint
+ *  - extract
  *  - r2c-internal-project-depends-on-content
  *  - secrets
- *  - generalized taint
  *  - steps (and join?)
+ *  - generalized taint
+ *  - new metavariable types
+ *  - new 'anywhere:'
  *)
 
 (*****************************************************************************)
@@ -51,7 +54,6 @@ type glob = string
 (* ex: "[a-zA-Z_]*\\.c" *)
 type regex = string
 
-
 (*****************************************************************************)
 (* The rule *)
 (*****************************************************************************)
@@ -65,14 +67,13 @@ type rule = {
      (* TODO: selector vs analyzer *)
      languages: language list;
 
-     (* at least one of those must be set *)
+     (* CHECK: exactly one of those fields must be set *)
      ?match_ <json name="match">: formula option;
      ?taint: taint_spec option;
      ?extract: extract option;
      (* TODO: join, steps, secrets, sca *)
 
-     ~mode <ocaml default="`Search">: mode;
-     (* TODO: product: product *)
+     (* TODO? product: product; *)
 
      (* TODO? could be replaced by a pattern-filename: *)
      ?paths: paths option;
@@ -81,7 +82,7 @@ type rule = {
      ?fix_regex: fix_regex option;
      
      ?metadata: raw_json option;
-     ?options: options option;
+     ?options: rule_options option;
 
      ?version: version option;
      ?min_version: version option;
@@ -95,15 +96,6 @@ type rule_id = string wrap <ocaml module="Rule_ID">
 
 (* Version_info.t *)
 type version = string (* TODO  wrap <ocaml module="ATDStringWrap.Version"> *)
-
-type mode = [
-  | Search <json name="search">
-  | Taint <json name="taint">
-  | Join <json name="join">
-  | Extract <json name="extract">
-  | SemgrepInternalPostprocessor <json name="semgrep_internal_postprocessor">
-  (* TODO: Steps, SCA? *)
-]
 
 (*****************************************************************************)
 (* Types of rule fields *)
@@ -189,86 +181,48 @@ type fix_regex = {
   ?count: int option;
 }
 
-type options <ocaml from="Rule_options" t="t"> = abstract
+type rule_options <ocaml from="Rule_options" t="t"> = abstract
 
 (*****************************************************************************)
-(* Search mode (default) and formula *)
+(* Formula *)
 (*****************************************************************************)
 
 (* 'formula' below is handled by a <json adapter.ocaml=...> because there is no
  * way to encode directly using ATD the way we chose to represent formulas
- * in YAML/JSON. Indeed, because Yaml/JSON does not support Algebraic data
- * types (ADTs), we used a weird encoding abusing objects to represent
- * formulas, e.g.,
+ * in YAML/JSON.
  *
- *   any:
- *    - and:
- *      - "foo"
- *      - pattern: "bar"
- *      where: 
- *       - bla
+ * alt: instead of using those ?all, ?regex, and CHECK:, we could use a
+ * proper variant, but that would require a more complex adapter and the
+ * distance between the spec and the actual syntax would be even longer.
  *
- *  which when turned into JSON gives:
- * 
- *   { any: [ 
- *     { and: [ 
- *         "foo", 
- *         {pattern: "bar" }
- *       ],
- *       where: [ bla ],
- *     } 
- *    ] 
- *   }
- *
- * The ATD way would be to encode a formula as
- *
- *  {f: ["Any", [
- *       {f: ["And", [
- *             {f: ["Pattern", "foo"]},
- *             {f: ["Pattern", "bar"]},
- *             ]],
- *        where: [bla]
- *       }
- *     ]]
- *  }
- *
- * So we need rule_schema_v2_adapter.ml used below to transform the first JSON
- * in the second dynamically at parsing time, so then ATD can parse it
- * using the formula type specified below.
-*)
-
+ * old: this type was called new-pattern in rule_schema_v1.yaml
+ *)
 type formula = {
-  (* alt: have ?all: ... ?any: ... ?regex: ... ?pattern: ... with a check
-   * at parsing time that only one of those fields is given.
-   *)
-  f: formula_bis;
-  (* alt: we could instead do 'All of formula list * condition list' below
-   * but syntactically we also allow 'where' with pattern:, regex:, etc.
-   * as in
-   *    { pattern: ..., where: ..., }
-   * Even though internally in Rule.ml a { pattern: X, where: Y}
-   * is transformed in an All [pattern: X, Y], in the syntax
-   * we allow it in more places.
+  (* CHECK: exactly one of those fields must be set *)
+  (* either directly a string or pattern: string in the JSON *)
+  ?pattern: string option;
+  ?regex: regex option;
+  ?all: formula list option;
+  ?any: formula list option;
+  (* CHECK: not/inside/anywhere can appear only inside an all: *)
+  ?not: formula option;
+  ?inside: formula option;
+  ?anywhere: formula option;
+  (* TODO? ?taint: taint_spec *)
+
+  (* alt: we could instead do '?all: formula list option * condition list'
+   * above, but syntactically we also allow 'where' with pattern:, regex:,
+   * etc. as in:
+   *
+   *     - pattern: "foo($X)"
+   *       where: ...
+   *
+   * In fact that's the main reason we sometimes have to use pattern: string
+   * instead of a string because where: could not be attached to a string.
    *)
   ~where: condition list;
 }
 <json adapter.ocaml="Rule_schema_v2_adapter.Formula">
-
-(* old: this type was called new-pattern in rule_schema_v1.yaml but formula in
- * Rule.ml
- *)
-type formula_bis = [
-  (* either directly a string or pattern: string in the JSON *)
-  | Pattern <json name="pattern"> of string
-  | Regex <json name="regex"> of regex
-  (* 'And of conjunction' in Rule.ml *)
-  | All <json name="all"> of formula list
-  | Any <json name="any"> of formula list
-  (* Not and Inside can appear only inside an All *)
-  | Not <json name="not"> of formula
-  | Inside <json name="inside"> of formula
-  (* TODO? Taint of taint_spec *)
-]
 
 (* Just like for formula, we're using an adapter to transform
  * conditions in YAML like:
@@ -288,7 +242,7 @@ type formula_bis = [
  * which we must transform in an ATD-compliant:
  *
  *  [ ["M", [{ metavariable: $X,
- *             c: ["regex", $Z]
+ *             regex: $Z
  *           }]
  *    ]]
  *)
@@ -299,10 +253,10 @@ type condition = [
   ]
 <json adapter.ocaml="Rule_schema_v2_adapter.Condition">
 
-(* either a single string or an array in JSON, that is
- * {focus: "$FOO"}, but also {focus: ["$FOO", "$BAR"]}
- *)
 type focus = {
+  (* either a single string or an array in JSON, that is
+   * {focus: "$FOO"}, but also {focus: ["$FOO", "$BAR"]}
+   *)
   focus: mvar list;
 }
 
@@ -316,21 +270,17 @@ type comparison = {
 
 type metavariable_cond = {
   metavariable: mvar;
-  (* alt: have ?type: ... ?types:... ?regex: ... *)
-  c: metavariable_cond_bis;  
-}  
 
-type metavariable_cond_bis = [
-  | Type <json name="type"> of string
-  | Types <json name="types"> of string list
-  (* alt: we could remove Regex as Formula itself as a Regex
+  (* CHECK: exactly one of those fields must be set *)
+  ?type_ <json name="type">: string option;
+  ?types: string list option;
+  (* this covers regex:, pattern:, but also any formula.
    * TODO: for metavariable-regex, can also enable constant_propagation 
+   * TOOD: we should accept also language: string
    *)
-  | Regex <json name="regex"> of regex
-  (* TODO: accept also language: string *)
-  | Formula <json name="F"> of formula
-  | Analyzer <json name="analyzer"> of analyzer
-]
+  inherit formula;
+  ?analyzer: analyzer option;
+}  
 
 type analyzer = [
   | Entropy <json name="entropy">
@@ -338,16 +288,24 @@ type analyzer = [
 ]
 
 (*****************************************************************************)
-(* Taint mode *)
+(* TODO: Tainting *)
 (*****************************************************************************)
 
 type taint_spec = raw_json
 
 (*****************************************************************************)
-(* Extract mode *)
+(* TODO: SSC *)
+(*****************************************************************************)
+
+(*****************************************************************************)
+(* TODO: Extract mode *)
 (*****************************************************************************)
 
 type extract = raw_json
+
+(*****************************************************************************)
+(* TODO: Secrets *)
+(*****************************************************************************)
 
 (*****************************************************************************)
 (* Toplevel *)
@@ -357,7 +315,7 @@ type rules = {
   rules: rule list;
 
   (* Missed count of pro rules when not logged-in.
-   * Sent by the registry to the CLI since 1.48.
+   * Sent by the registry to the CLI since 1.49.
    * See https://github.com/semgrep/semgrep-app/pull/11142
    *)
   ?missed: int option;
