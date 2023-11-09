@@ -1,10 +1,18 @@
-# Specification of the Semgrep rule YAML syntax, using JSON schema to specify the syntax.
+# Specification of the Semgrep rule YAML syntax using JSON schema.
+#
+# Note that even if most Semgrep users use YAML to write a rule, and not JSON,
+# we still use a JSON tool (jsonschema) to specify the rule schema because
+# YAML is a superset of JSON and can be mechanically translated into JSON;
+# there is no yamlschema (see https://json-schema-everywhere.github.io/yaml).
+# To add even more confusion, a jsonschema can actually be specified using
+# YAML (like in in this file), and so one can use YAML syntax to specify the
+# JSON schema of files actually written in YAML (hmmm).
+
 $id: https://raw.githubusercontent.com/returntocorp/semgrep-interfaces/main/rule_schema_v1.yaml
 $schema: http://json-schema.org/draft-07/schema#
-#!!If you modify this file, you need to update the submodule in returntocorp/semgrep
-#  and returntocorp/semgrep-app!!
-#!!If you add new syntax to this file, you probably need to add some EXPERIMENTAL
-#  comment before!!
+#!!If you modify this file, update the submodules in semgrep and semgrep-app!!
+#!!If you add new syntax to this file, you probably need to add some
+#  EXPERIMENTAL comment before!!
 $defs:
   # EXPERIMENTAL
   validator:
