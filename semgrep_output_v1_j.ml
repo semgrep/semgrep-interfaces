@@ -456,7 +456,8 @@ type core_output = Semgrep_output_v1_t.core_output = {
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option;
-  skipped_rules: skipped_rule list
+  skipped_rules: skipped_rule list;
+  requested_interfile_languages: string list option
 }
 
 type contributor = Semgrep_output_v1_t.contributor = {
@@ -478,7 +479,8 @@ type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option;
-  skipped_rules: skipped_rule list
+  skipped_rules: skipped_rule list;
+  requested_interfile_languages: string list option
 }
 
 type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
@@ -529,7 +531,8 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option;
-  skipped_rules: skipped_rule list
+  skipped_rules: skipped_rule list;
+  requested_interfile_languages: string list option
 }
 
 type ci_scan_results_response_error =
@@ -17628,6 +17631,17 @@ let write_core_output : _ -> core_output -> _ = (
       write__skipped_rule_list
     )
       ob x.skipped_rules;
+    (match x.requested_interfile_languages with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"requested_interfile_languages\":";
+      (
+        write__string_list
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_core_output ?(len = 1024) x =
@@ -17647,6 +17661,7 @@ let read_core_output = (
     let field_rules_by_engine = ref (None) in
     let field_engine_requested = ref (None) in
     let field_skipped_rules = ref ([]) in
+    let field_requested_interfile_languages = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -17729,6 +17744,14 @@ let read_core_output = (
             | 16 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
                   7
+                )
+                else (
+                  -1
+                )
+              )
+            | 29 -> (
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'q' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'f' && String.unsafe_get s (pos+16) = 'i' && String.unsafe_get s (pos+17) = 'l' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 'l' && String.unsafe_get s (pos+21) = 'a' && String.unsafe_get s (pos+22) = 'n' && String.unsafe_get s (pos+23) = 'g' && String.unsafe_get s (pos+24) = 'u' && String.unsafe_get s (pos+25) = 'a' && String.unsafe_get s (pos+26) = 'g' && String.unsafe_get s (pos+27) = 'e' && String.unsafe_get s (pos+28) = 's' then (
+                  9
                 )
                 else (
                   -1
@@ -17824,6 +17847,16 @@ let read_core_output = (
                 ) p lb
               );
             )
+          | 9 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_requested_interfile_languages := (
+                Some (
+                  (
+                    read__string_list
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -17910,6 +17943,14 @@ let read_core_output = (
               | 16 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
                     7
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 29 -> (
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'q' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'f' && String.unsafe_get s (pos+16) = 'i' && String.unsafe_get s (pos+17) = 'l' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 'l' && String.unsafe_get s (pos+21) = 'a' && String.unsafe_get s (pos+22) = 'n' && String.unsafe_get s (pos+23) = 'g' && String.unsafe_get s (pos+24) = 'u' && String.unsafe_get s (pos+25) = 'a' && String.unsafe_get s (pos+26) = 'g' && String.unsafe_get s (pos+27) = 'e' && String.unsafe_get s (pos+28) = 's' then (
+                    9
                   )
                   else (
                     -1
@@ -18005,6 +18046,16 @@ let read_core_output = (
                   ) p lb
                 );
               )
+            | 9 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_requested_interfile_languages := (
+                  Some (
+                    (
+                      read__string_list
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -18023,6 +18074,7 @@ let read_core_output = (
             rules_by_engine = !field_rules_by_engine;
             engine_requested = !field_engine_requested;
             skipped_rules = !field_skipped_rules;
+            requested_interfile_languages = !field_requested_interfile_languages;
           }
          : core_output)
       )
@@ -18494,6 +18546,17 @@ let write_cli_output_extra : _ -> cli_output_extra -> _ = (
       write__skipped_rule_list
     )
       ob x.skipped_rules;
+    (match x.requested_interfile_languages with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"requested_interfile_languages\":";
+      (
+        write__string_list
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_cli_output_extra ?(len = 1024) x =
@@ -18510,6 +18573,7 @@ let read_cli_output_extra = (
     let field_rules_by_engine = ref (None) in
     let field_engine_requested = ref (None) in
     let field_skipped_rules = ref ([]) in
+    let field_requested_interfile_languages = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -18562,6 +18626,14 @@ let read_cli_output_extra = (
             | 16 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
                   4
+                )
+                else (
+                  -1
+                )
+              )
+            | 29 -> (
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'q' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'f' && String.unsafe_get s (pos+16) = 'i' && String.unsafe_get s (pos+17) = 'l' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 'l' && String.unsafe_get s (pos+21) = 'a' && String.unsafe_get s (pos+22) = 'n' && String.unsafe_get s (pos+23) = 'g' && String.unsafe_get s (pos+24) = 'u' && String.unsafe_get s (pos+25) = 'a' && String.unsafe_get s (pos+26) = 'g' && String.unsafe_get s (pos+27) = 'e' && String.unsafe_get s (pos+28) = 's' then (
+                  6
                 )
                 else (
                   -1
@@ -18631,6 +18703,16 @@ let read_cli_output_extra = (
                 ) p lb
               );
             )
+          | 6 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_requested_interfile_languages := (
+                Some (
+                  (
+                    read__string_list
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -18687,6 +18769,14 @@ let read_cli_output_extra = (
               | 16 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
                     4
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 29 -> (
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'q' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'f' && String.unsafe_get s (pos+16) = 'i' && String.unsafe_get s (pos+17) = 'l' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 'l' && String.unsafe_get s (pos+21) = 'a' && String.unsafe_get s (pos+22) = 'n' && String.unsafe_get s (pos+23) = 'g' && String.unsafe_get s (pos+24) = 'u' && String.unsafe_get s (pos+25) = 'a' && String.unsafe_get s (pos+26) = 'g' && String.unsafe_get s (pos+27) = 'e' && String.unsafe_get s (pos+28) = 's' then (
+                    6
                   )
                   else (
                     -1
@@ -18756,6 +18846,16 @@ let read_cli_output_extra = (
                   ) p lb
                 );
               )
+            | 6 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_requested_interfile_languages := (
+                  Some (
+                    (
+                      read__string_list
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -18771,6 +18871,7 @@ let read_cli_output_extra = (
             rules_by_engine = !field_rules_by_engine;
             engine_requested = !field_engine_requested;
             skipped_rules = !field_skipped_rules;
+            requested_interfile_languages = !field_requested_interfile_languages;
           }
          : cli_output_extra)
       )
@@ -20881,6 +20982,17 @@ let write_cli_output : _ -> cli_output -> _ = (
       write__skipped_rule_list
     )
       ob x.skipped_rules;
+    (match x.requested_interfile_languages with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"requested_interfile_languages\":";
+      (
+        write__string_list
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_cli_output ?(len = 1024) x =
@@ -20900,6 +21012,7 @@ let read_cli_output = (
     let field_rules_by_engine = ref (None) in
     let field_engine_requested = ref (None) in
     let field_skipped_rules = ref ([]) in
+    let field_requested_interfile_languages = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -20982,6 +21095,14 @@ let read_cli_output = (
             | 16 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
                   7
+                )
+                else (
+                  -1
+                )
+              )
+            | 29 -> (
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'q' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'f' && String.unsafe_get s (pos+16) = 'i' && String.unsafe_get s (pos+17) = 'l' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 'l' && String.unsafe_get s (pos+21) = 'a' && String.unsafe_get s (pos+22) = 'n' && String.unsafe_get s (pos+23) = 'g' && String.unsafe_get s (pos+24) = 'u' && String.unsafe_get s (pos+25) = 'a' && String.unsafe_get s (pos+26) = 'g' && String.unsafe_get s (pos+27) = 'e' && String.unsafe_get s (pos+28) = 's' then (
+                  9
                 )
                 else (
                   -1
@@ -21077,6 +21198,16 @@ let read_cli_output = (
                 ) p lb
               );
             )
+          | 9 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_requested_interfile_languages := (
+                Some (
+                  (
+                    read__string_list
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -21163,6 +21294,14 @@ let read_cli_output = (
               | 16 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
                     7
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 29 -> (
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'q' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'f' && String.unsafe_get s (pos+16) = 'i' && String.unsafe_get s (pos+17) = 'l' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 'l' && String.unsafe_get s (pos+21) = 'a' && String.unsafe_get s (pos+22) = 'n' && String.unsafe_get s (pos+23) = 'g' && String.unsafe_get s (pos+24) = 'u' && String.unsafe_get s (pos+25) = 'a' && String.unsafe_get s (pos+26) = 'g' && String.unsafe_get s (pos+27) = 'e' && String.unsafe_get s (pos+28) = 's' then (
+                    9
                   )
                   else (
                     -1
@@ -21258,6 +21397,16 @@ let read_cli_output = (
                   ) p lb
                 );
               )
+            | 9 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_requested_interfile_languages := (
+                  Some (
+                    (
+                      read__string_list
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -21276,6 +21425,7 @@ let read_cli_output = (
             rules_by_engine = !field_rules_by_engine;
             engine_requested = !field_engine_requested;
             skipped_rules = !field_skipped_rules;
+            requested_interfile_languages = !field_requested_interfile_languages;
           }
          : cli_output)
       )

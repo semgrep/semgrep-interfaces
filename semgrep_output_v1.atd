@@ -764,6 +764,12 @@ type cli_output_extra = {
 
     (* EXPERIMENTAL: since: 1.37.0 *)
     ~skipped_rules: skipped_rule list;
+
+    (* Reporting just the requested engine isn't granular enough. We want to know
+       what languages had rules that invoked interfile. This is particularly important 
+       for tracking the performance impact of new interfile languages *)
+    (* EXPERIMENTAL: since 1.49.0 *)
+    ?requested_interfile_languages: string list option; 
 }
 
 (*****************************************************************************)

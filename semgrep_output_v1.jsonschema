@@ -28,6 +28,10 @@
     "skipped_rules": {
       "type": "array",
       "items": { "$ref": "#/definitions/skipped_rule" }
+    },
+    "requested_interfile_languages": {
+      "type": "array",
+      "items": { "type": "string" }
     }
   },
   "definitions": {
@@ -528,6 +532,10 @@
         "skipped_rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
+        },
+        "requested_interfile_languages": {
+          "type": "array",
+          "items": { "type": "string" }
         }
       }
     },
@@ -549,6 +557,10 @@
         "skipped_rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
+        },
+        "requested_interfile_languages": {
+          "type": "array",
+          "items": { "type": "string" }
         }
       }
     },

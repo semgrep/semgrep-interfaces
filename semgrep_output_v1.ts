@@ -304,6 +304,7 @@ export type CoreOutput = {
   rules_by_engine?: RuleIdAndEngineKind[];
   engine_requested?: EngineKind;
   skipped_rules: SkippedRule[];
+  requested_interfile_languages?: string[];
 }
 
 export type CliOutput = {
@@ -316,6 +317,7 @@ export type CliOutput = {
   rules_by_engine?: RuleIdAndEngineKind[];
   engine_requested?: EngineKind;
   skipped_rules: SkippedRule[];
+  requested_interfile_languages?: string[];
 }
 
 export type CliOutputExtra = {
@@ -325,6 +327,7 @@ export type CliOutputExtra = {
   rules_by_engine?: RuleIdAndEngineKind[];
   engine_requested?: EngineKind;
   skipped_rules: SkippedRule[];
+  requested_interfile_languages?: string[];
 }
 
 export type ScaInfo = {
@@ -1572,6 +1575,7 @@ export function writeCoreOutput(x: CoreOutput, context: any = x): any {
     'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
+    'requested_interfile_languages': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.requested_interfile_languages, x),
   };
 }
 
@@ -1586,6 +1590,7 @@ export function readCoreOutput(x: any, context: any = x): CoreOutput {
     rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
+    requested_interfile_languages: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['requested_interfile_languages'], x),
   };
 }
 
@@ -1600,6 +1605,7 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
     'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
+    'requested_interfile_languages': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.requested_interfile_languages, x),
   };
 }
 
@@ -1614,6 +1620,7 @@ export function readCliOutput(x: any, context: any = x): CliOutput {
     rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
+    requested_interfile_languages: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['requested_interfile_languages'], x),
   };
 }
 
@@ -1625,6 +1632,7 @@ export function writeCliOutputExtra(x: CliOutputExtra, context: any = x): any {
     'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
+    'requested_interfile_languages': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.requested_interfile_languages, x),
   };
 }
 
@@ -1636,6 +1644,7 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
     rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
+    requested_interfile_languages: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['requested_interfile_languages'], x),
   };
 }
 
