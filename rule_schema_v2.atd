@@ -27,18 +27,21 @@
  * Note that this file does not replace Parse_rule.ml nor Rule.ml. We still
  * want to accept the old syntax in Parse_rule.ml and also parse with
  * position information and error recovery which ATD does not provide.
- * This files does not replace either (yet) rule_schema_v1.yml which is
- * more complete.
+ * This files does not replace either (yet) rule_schema_v1.yml which covers
+ * also the old syntax.
  *
  * TODO:
- *  - taint
  *  - extract
  *  - r2c-internal-project-depends-on-content
  *  - secrets
- *  - steps (and join?)
- *  - generalized taint
+ *  - steps (but not join)
  *  - new metavariable types
- *  - new 'anywhere:'
+ *  - generalized taint?
+ *
+ * related documents:
+ *  - rule_schema_v1.yaml (actually less complete for the new syntax now)
+ *  - Parse_rule.ml (the final source of truth, except for stuff currently
+ *    handled only in pysemgrep such as join-mode or ssc)
  *)
 
 (*****************************************************************************)
@@ -69,13 +72,12 @@ type rule = {
 
      (* CHECK: exactly one of those fields must be set *)
      ?match_ <json name="match">: formula option;
-     ?taint: taint_spec option;
+     ?taint: taint option;
      ?extract: extract option;
-     (* TODO: join, steps, secrets, sca *)
-
+     (* TODO: steps, secrets, sca *)
      (* TODO? product: product; *)
 
-     (* TODO? could be replaced by a pattern-filename: *)
+     (* alt: later: could be replaced by a pattern-filename: *)
      ?paths: paths option;
 
      ?fix: string option;
@@ -95,20 +97,19 @@ type rule = {
 type rule_id = string wrap <ocaml module="Rule_ID">
 
 (* Version_info.t *)
-type version = string (* TODO  wrap <ocaml module="ATDStringWrap.Version"> *)
+type version = string
 
 (*****************************************************************************)
 (* Types of rule fields *)
 (*****************************************************************************)
 
-(* coupling: semgrep_output_v1.atd with match_severity *)
+(* coupling: semgrep_output_v1.atd with match_severity 
+ * I've removed EXPERIMENT and INVENTORY which should not be used.
+*)
 type severity = [
   | Error <json name="ERROR">
   | Warning <json name="WARNING">
   | Info <json name="INFO">
-  (* should not be used *)
-  | Experiment <json name="EXPERIMENT">
-  | Inventory <json name="INVENTORY">
 ]
 
 (* coupling: language.ml *)
@@ -171,8 +172,9 @@ type language = [
 ]
 
 type paths = {
-  ~include_ <json name="include">: glob list;
-  ~exclude: glob list;
+  (* CHECK: at least one of this field is set *)
+  ?include_ <json name="include">: glob list option;
+  ?exclude_ <json name="exclude">: glob list option;
 }
 
 type fix_regex = {
@@ -195,34 +197,45 @@ type rule_options <ocaml from="Rule_options" t="t"> = abstract
  * proper variant, but that would require a more complex adapter and the
  * distance between the spec and the actual syntax would be even longer.
  *
+ * alt: we could instead do '?all: formula list option * condition list'
+ * below, but syntactically we also allow 'where' with pattern:, regex:,
+ * etc. as in:
+ *     - pattern: "foo($X)"
+ *       where: ...
+ * In fact that's the main reason we sometimes have to use pattern: string
+ * instead of a string because where: could not be attached to a string.
+ *
  * old: this type was called new-pattern in rule_schema_v1.yaml
- *)
+ *
+ * CHECK: exactly one of pattern/regex/all/any/not/inside/anywhere field
+ * must be set
+ * CHECK: not/inside/anywhere can appear only inside an all:
+*)
 type formula = {
-  (* CHECK: exactly one of those fields must be set *)
   (* either directly a string or pattern: string in the JSON *)
-  ?pattern: string option;
+  ?pattern: pattern option;
+  (* regex can also be entered with pattern: xxx when languages: [regex] *)
   ?regex: regex option;
+
+  (* Boolean opeators. alt: we could have chosen and: and or: *)
   ?all: formula list option;
   ?any: formula list option;
-  (* CHECK: not/inside/anywhere can appear only inside an all: *)
   ?not: formula option;
-  ?inside: formula option;
-  ?anywhere: formula option;
-  (* TODO? ?taint: taint_spec *)
 
-  (* alt: we could instead do '?all: formula list option * condition list'
-   * above, but syntactically we also allow 'where' with pattern:, regex:,
-   * etc. as in:
-   *
-   *     - pattern: "foo($X)"
-   *       where: ...
-   *
-   * In fact that's the main reason we sometimes have to use pattern: string
-   * instead of a string because where: could not be attached to a string.
-   *)
-  ~where: condition list;
+  (* later: we should remove with a better range logic *)
+  ?inside: formula option;
+  (* NEW: since 1.49 *)
+  ?anywhere: formula option;
+  (* TODO? ?taint: taint *)
+
+  ?where: condition list option;
 }
 <json adapter.ocaml="Rule_schema_v2_adapter.Formula">
+
+(* This string must be a valid Semgrep pattern for the first language
+ * specified in the languages: list in the rule.
+ *)
+type pattern = string
 
 (* Just like for formula, we're using an adapter to transform
  * conditions in YAML like:
@@ -262,10 +275,15 @@ type focus = {
 
 type mvar = string
 
+(* comparison expression with metavariables (currently using a Python-like
+ * syntax), ex: $X > 100
+ *)
+type comparison_expr = string
+
 type comparison = {
-    comparison: string; (* expr *)
+    comparison: comparison_expr;
     ?base: int option;
-    ~strip: bool;
+    ?strip: bool option;
   }
 
 type metavariable_cond = {
@@ -288,10 +306,98 @@ type analyzer = [
 ]
 
 (*****************************************************************************)
-(* TODO: Tainting *)
+(* Tainting *)
 (*****************************************************************************)
 
-type taint_spec = raw_json
+(* STRICTER: actually rule_schema_v1.yaml has very loose definitions for
+ * tainting stuff. Even requires: label: are not defined for the
+ * old syntax, and for the new syntax many fields are still missing
+ * in rule_schema_v1.yaml
+ *)
+type taint = {
+  sources: source list;
+  sinks: sink list;
+  ?sanitizers: sanitizer list option;
+  ?propagators: propagator list option;
+}
+
+(* --------------------------- *)
+(* Some taint options *)
+(* --------------------------- *)
+
+type label_options = {
+  ?label: label option;
+  ?requires: requires_expr option;
+}
+
+type label = string
+
+(* a boolean expression with labels, ex: "A and B" *)
+type requires_expr = string
+
+(* STRICTER: not even specified in rule_schema_v1.yaml *)
+type taint_options = {
+  ?by_side_effect <json name="by-side-effect">: by_side_effect option;
+  ?exact: bool option;
+}
+
+(* we need an adapter here because we allow boolean or "only" string *)
+type by_side_effect = [
+  | True <json name="true">
+  | False <json name="false">
+  | Only <json name="only">
+]
+<json adapter.ocaml="Rule_schema_v2_adapter.BySideEffect">
+
+
+(* --------------------------- *)
+(* Source *)
+(* --------------------------- *)
+
+(* need to repeat the adapter below for the str -> pattern: str adaptation *)
+type source = {
+  inherit formula;
+  inherit label_options;
+  inherit taint_options;
+  ?control: bool option;
+}
+<json adapter.ocaml="Rule_schema_v2_adapter.Formula">
+
+(* --------------------------- *)
+(* Sink *)
+(* --------------------------- *)
+type sink = {
+  inherit formula;
+  (* just requires: here, no label: *)
+  ?requires: string option; (* expr with labels? *)
+}
+<json adapter.ocaml="Rule_schema_v2_adapter.Formula">
+
+(* --------------------------- *)
+(* Sanitizer *)
+(* --------------------------- *)
+
+type sanitizer = {
+  inherit formula;
+  inherit taint_options;
+  (* TODO: not-conflicting: *)
+}
+<json adapter.ocaml="Rule_schema_v2_adapter.Formula">
+
+(* --------------------------- *)
+(* Propagator *)
+(* --------------------------- *)
+
+type propagator = {
+  inherit formula;
+  from_ <json name="from">: mvar;
+  to_   <json name="to">: mvar;
+  inherit label_options;
+  (* no exact: here, just by-side-effect: *)
+  ?by_side_effect <json name="by-side-effect">: by_side_effect option;
+  (* TODO? replace-labels? *)
+}
+<json adapter.ocaml="Rule_schema_v2_adapter.Formula">
 
 (*****************************************************************************)
 (* TODO: SSC *)

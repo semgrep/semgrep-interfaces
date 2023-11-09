@@ -43,3 +43,18 @@ module Condition = struct
     (* not needed for now; we care just about parsing *)
     failwith "Rule_schema_v2_adapter.Condition.restore not implemented"
 end
+
+module BySideEffect = struct
+
+  (** Convert from original json to ATD-compatible json *)
+  let normalize (orig : Yojson.Safe.t ) : Yojson.Safe.t =
+    match orig with
+    | `Bool true -> `String "true"
+    | `Bool false -> `String "false"
+    | x -> x
+
+  (** Convert from ATD-compatible json to original json *)
+  let restore  (_atd : Yojson.Safe.t) : Yojson.Safe.t =
+    (* not needed for now; we care just about parsing *)
+    failwith "Rule_schema_v2_adapter.BySideEffect.restore not implemented"
+end
