@@ -32,7 +32,6 @@
  *
  * TODO:
  *  - extract
- *  - r2c-internal-project-depends-on-content
  *  - secrets
  *  - steps (but not join)
  *  - new metavariable types
@@ -74,15 +73,20 @@ type rule = {
      ?match_ <json name="match">: formula option;
      ?taint: taint option;
      ?extract: extract option;
-     (* TODO: steps, secrets, sca *)
+     (* TODO: steps, secrets *)
      (* TODO? product: product; *)
+
+     (* can work with match/taint/..., maybe not extract *)
+     ?project_depends_on <json name="r2c-internal-project-depends-on">:
+        project_depends_on option;
 
      (* alt: later: could be replaced by a pattern-filename: *)
      ?paths: paths option;
 
      ?fix: string option;
      ?fix_regex: fix_regex option;
-     
+
+     (* TODO? impose more constraints on metadata? standard fields? *)
      ?metadata: raw_json option;
      ?options: rule_options option;
 
@@ -112,7 +116,7 @@ type severity = [
   | Info <json name="INFO">
 ]
 
-(* coupling: language.ml *)
+(* coupling: Language.ml *)
 type language = [
   (* programming (and configuration) languages *)
   | Apex <json name="apex">
@@ -183,7 +187,63 @@ type fix_regex = {
   ?count: int option;
 }
 
-type rule_options <ocaml from="Rule_options" t="t"> = abstract
+(* coupling: Rule_options.atd
+ * alt: <ocaml from="Rule_options" t="t"> but I prefer to repeat
+ * its content here so one can fully see the syntax for a rule in one file.
+ *)
+type rule_options = {
+  ?constant_propagation: bool option;
+  ?symbolic_propagation: bool option;
+  ?taint_unify_mvars: bool option;
+  ?taint_assume_safe_functions: bool option;
+  ?taint_assume_safe_indexes: bool option;
+  ?taint_assume_safe_comparisons: bool option;
+  ?taint_assume_safe_booleans: bool option;
+  ?taint_assume_safe_numbers: bool option;
+  ?taint_only_propagate_through_assignments: bool option;
+  ?ac_matching: bool option;
+  ?commutative_boolop: bool option;
+  ?commutative_compop: bool option;
+  ?vardef_assign: bool option;
+  ?flddef_assign: bool option;
+  ?attr_expr: bool option;
+  ?arrow_is_function:  bool option;
+  ?let_is_var:  bool option;
+  ?go_deeper_expr: bool option;
+  ?go_deeper_stmt: bool option;
+  ?implicit_deep_exprstmt: bool option;
+  ?implicit_ellipsis: bool option;
+  ?xml_singleton_loose_matching: bool option;
+  ?xml_attrs_implicit_ellipsis: bool option;
+  ?xml_children_ordered: bool option;
+  ?generic_engine:  generic_engine option;
+  ?cpp_parsing_pref: cpp_parsing_opt option;
+  ?generic_multiline: bool option;
+  ?generic_braces: (string * string) list option;
+  ~generic_extra_braces: (string * string) list;
+  ~generic_extra_word_characters: string list;
+  ~generic_caseless: bool;
+  ?generic_ellipsis_max_span: int option;
+  ?generic_comment_style: generic_comment_style option;
+  ?interfile: bool option;
+}
+
+type cpp_parsing_opt = [
+  | AsFunDef <json name="as_fundef">
+  | AsVarDefWithCtor <json name="as_vardef_with_ctor">
+]
+
+type generic_engine = [
+  | Aliengrep <json name="aliengrep">
+  | Spacegrep <json name="spacegrep">
+]
+
+type generic_comment_style = [
+  | C <json name="c">
+  | Cpp <json name="cpp">
+  | Shell <json name="shell">
+]
+
 
 (*****************************************************************************)
 (* Formula *)
@@ -400,8 +460,42 @@ type propagator = {
 <json adapter.ocaml="Rule_schema_v2_adapter.Formula">
 
 (*****************************************************************************)
-(* TODO: SSC *)
+(* Supply chain *)
 (*****************************************************************************)
+
+(* need an adapter there too *)
+type project_depends_on = [
+  | DependsBasic <json name="B"> of project_depends_on_basic
+  | DependsEither <json name="E"> of project_depends_on_either
+]
+<json adapter.ocaml="Rule_schema_v2_adapter.ProjectDependsOn">
+
+type project_depends_on_basic = {
+  namespace: namespace;
+  package: string;
+  version: semver_range;
+}
+
+type project_depends_on_either = {
+  depends_on_either <json name="depends-on-either">:
+    project_depends_on_basic list;
+}
+
+(* coupling: semgrep_output_v1.ecosystem (better name than namespace) *)
+type namespace = [
+  | Npm <json name="npm">
+  | Pypi  <json name="pypi">
+  | Gem <json name="gem">
+  | Gomod <json name="gomod">
+  | Cargo <json name="cargo">
+  | Maven <json name="maven">
+  | Composer <json name="composer">
+  | Nuget <json name="nuget">
+  | Pub <json name="pub">
+]
+
+(* ex: < 0.0.8 *)
+type semver_range = string
 
 (*****************************************************************************)
 (* TODO: Extract mode *)
