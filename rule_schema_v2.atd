@@ -100,8 +100,8 @@ type rule = {
       *)
      ?metadata: raw_json option;
 
-     ?min_version: version option;
-     ?max_version: version option;
+     ?min_version <json name="min-version">: version option;
+     ?max_version <json name="max-version">: version option;
 }
 
 (* Rule_ID.t, "^[a-zA-Z0-9._-]*$" *)
@@ -356,19 +356,25 @@ type comparison = {
 type metavariable_cond = {
   metavariable: mvar;
 
-  (* CHECK: exactly one of those fields must be set *)
+  (* CHECK: exactly one of type/types/analyzer/formula(all/any/...) *)
+
   ?type_ <json name="type">: string option;
   ?types: string list option;
-  (* this covers regex:, pattern:, but also any formula.
-   * TODO: for metavariable-regex, can also enable constant_propagation 
-   * TOOD: we should accept also language: string
+
+  (* this covers regex:/pattern:, but also all:/any: with optional where:
+   * CHECK: language is valid only when combined with a formula
+   * CHECK: constant_propagation: is valid only when combined with regex:
    *)
   inherit formula;
+  ?language: language option;
+  ?constant_propagation <json name="constant-propagation">: bool option;
+
   ?analyzer: analyzer option;
 }  
 
 type analyzer = [
   | Entropy <json name="entropy">
+  | EntropyV2 <json name="entropy_v2">
   | Redos <json name="redos">
 ]
 
