@@ -614,14 +614,14 @@ type content = {
 
 (* STRICTER: note that we are more complete than rule_schema_v1.yml here *)
 type result = {
-  validity: validaty;
+  validity: validity;
   (* overriding the rule fields *)
   ?severity: severity option;
   ?metadata: raw_json option;
   ?message: string option;
 }
 
-type validaty = [
+type validity = [
   | Valid <json name="valid">
   | Invalid <json name="invalid">
 ]
