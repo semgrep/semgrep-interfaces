@@ -291,7 +291,7 @@ type formula = {
 
   (* later: we should remove with a better range logic *)
   ?inside: formula option;
-  (* NEW: since 1.49 *)
+  (* NEW: since 1.49. alt: in condition instead as in 'where: - also: ...' *)
   ?anywhere: formula option;
   (* TODO? ?taint: taint *)
 
