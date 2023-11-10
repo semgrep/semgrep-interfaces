@@ -74,8 +74,12 @@ type rule = {
      ?match_ <json name="match">: formula option;
      ?taint: taint option;
      ?extract: extract option;
-     (* TODO: steps, secrets, sca *)
+     (* TODO: steps, secrets *)
      (* TODO? product: product; *)
+
+     (* can work with match/taint/..., maybe not extract *)
+     ?project_depends_on <json name="r2c-internal-project-depends-on">:
+        project_depends_on option;
 
      (* alt: later: could be replaced by a pattern-filename: *)
      ?paths: paths option;
@@ -400,8 +404,42 @@ type propagator = {
 <json adapter.ocaml="Rule_schema_v2_adapter.Formula">
 
 (*****************************************************************************)
-(* TODO: SSC *)
+(* Supply chain *)
 (*****************************************************************************)
+
+(* need an adapter there too *)
+type project_depends_on = [
+  | DependsBasic <json name="B"> of project_depends_on_basic
+  | DependsEither <json name="E"> of project_depends_on_either
+]
+<json adapter.ocaml="Rule_schema_v2_adapter.ProjectDependsOn">
+
+type project_depends_on_basic = {
+  namespace: namespace;
+  package: string;
+  version: semver_range;
+}
+
+type project_depends_on_either = {
+  depends_on_either <json name="depends-on-either">:
+    project_depends_on_basic list;
+}
+
+(* coupling: semgrep_output_v1.ecosystem (better name than namespace) *)
+type namespace = [
+  | Npm <json name="npm">
+  | Pypi  <json name="pypi">
+  | Gem <json name="gem">
+  | Gomod <json name="gomod">
+  | Cargo <json name="cargo">
+  | Maven <json name="maven">
+  | Composer <json name="composer">
+  | Nuget <json name="nuget">
+  | Pub <json name="pub">
+]
+
+(* ex: < 0.0.8 *)
+type semver_range = string
 
 (*****************************************************************************)
 (* TODO: Extract mode *)
