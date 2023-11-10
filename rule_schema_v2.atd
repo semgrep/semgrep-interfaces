@@ -1,18 +1,8 @@
 (* New Semgrep syntax (hence the v2) specified using ATD instead of jsonschema.
  *
- * For more information on the new syntax, see:
- *  - Brandon's community Slack post announcing the new syntax
- *    https://semgrep.slack.com/archives/C018NJRRCJ0/p1698430726062769?thread_ts=1698350734.415849&cid=C018NJRRCJ0
- *  - Brandon's slides
- *    https://docs.google.com/presentation/d/1zzmyFbfNlJqweyzuuFlo4zpSs3Gqhfi6FiNRONSEQ0E/edit#slide=id.g1eee710cdbf_0_26
- *  - Pieter's video
- *    https://www.youtube.com/watch?v=dZUPjFvknnI
- *  - Parsia's blog post
- *    https://parsiya.net/blog/2023-10-28-semgreps-experimental-rule-syntax/
- *
- * Note that even if most Semgrep users use YAML to write a rule, and not JSON,
+ * Note that even if most Semgrep users use YAML to write rules, and not JSON,
  * we still use a JSON tool (here ATD, but also jsonschema) to specify
- * the rule schema because YAML is a superset of JSON and can be
+ * the rule schema because YAML is a superset of JSON that can be
  * mechanically translated into JSON; there is no yamlschema
  * (see https://json-schema-everywhere.github.io/yaml).
  *
@@ -31,9 +21,7 @@
  * also the old syntax.
  *
  * TODO:
- *  - secrets
  *  - steps (but not join)
- *  - new metavariable types
  *  - generalized taint?
  *
  * related documents:
@@ -55,6 +43,9 @@ type glob = string
 (* ex: "[a-zA-Z_]*\\.c" *)
 type regex = string
 
+(* ex: https://www.google.com *)
+type url = string
+
 (*****************************************************************************)
 (* The rule *)
 (*****************************************************************************)
@@ -65,26 +56,28 @@ type rule = {
      message: string;
      severity: severity;
 
-     (* later: selector vs analyzer of Martin *)
+     (* later: selectors vs analyzer of Martin *)
      languages: language list;
 
      (* CHECK: exactly one of those fields must be set *)
      ?match_ <json name="match">: formula option;
      ?taint: taint option;
-     (* TODO: steps:, secrets: *)
+     (* TODO: steps: *)
 
-     (* work with match: (and in theory also with taint: ) *)
+     (* CHECK: those fields work with match: (in theory also with taint: ) *)
+     (* supply chain rules *)
      ?project_depends_on <json name="r2c-internal-project-depends-on">:
         project_depends_on option;
-     (* work with match: (and in theory also with taint: )
-      *
+     (* extract rules, a.k.a. preprocessor rules
       * alt: message:/severity: could be made optional when extract: is set,
       * but it's annoying to change those types just for extract. Moreover,
-      * users can easily put severity: INFO and a fake message:,
+      * users can easily put 'severity: INFO' and a fake message:,
       * and at least they can easily test the matching part of the rule
       * by removing the extract and run it like a regular rule.
       *)
      ?extract: extract option;
+     (* secrets, a.k.a. postprocessor rules *)
+     ?validators: validator list option;
 
      (* alt: later: could be replaced by a 'filename:' in formula *)
      ?paths: paths option;
@@ -96,7 +89,7 @@ type rule = {
      ?options: rule_options option;
 
      (* TODO? impose more constraints on metadata? standard fields?
-      * TODO? add also a product: product; ?
+      * confidence? product? 
       *)
      ?metadata: raw_json option;
 
@@ -111,7 +104,7 @@ type rule_id = string wrap <ocaml module="Rule_ID">
 type version = string
 
 (*****************************************************************************)
-(* Types of rule fields *)
+(* Severity, language, paths, fix_regex, rule_options *)
 (*****************************************************************************)
 
 (* coupling: semgrep_output_v1.atd with match_severity 
@@ -183,7 +176,7 @@ type language = [
 ]
 
 type paths = {
-  (* CHECK: at least one of this field is set *)
+  (* CHECK: at least one of those fields must be set *)
   ?include_ <json name="include">: glob list option;
   ?exclude_ <json name="exclude">: glob list option;
 }
@@ -196,7 +189,7 @@ type fix_regex = {
 
 (* coupling: Rule_options.atd
  * alt: <ocaml from="Rule_options" t="t"> but I prefer to repeat
- * its content here so one can fully see the syntax for a rule in one file.
+ * its content here so one can fully see the syntax of a rule in one file.
  *)
 type rule_options = {
   ?constant_propagation: bool option;
@@ -256,7 +249,19 @@ type generic_comment_style = [
 (* Formula *)
 (*****************************************************************************)
 
-(* 'formula' below is handled by a <json adapter.ocaml=...> because there is no
+(* For more information on the new syntax for patterns, see:
+ *  - Brandon's community Slack post announcing the new syntax
+ *    https://semgrep.slack.com/archives/C018NJRRCJ0/p1698430726062769?thread_ts=1698350734.415849&cid=C018NJRRCJ0
+ *    https://www.notion.so/semgrep/New-Rule-Syntax-Summary-f0bc252585f944a7b430294a88ae83a2
+ *    https://www.notion.so/semgrep/Rule-Syntax-2-0-cf8fdaf20992472881b64b6db188a78b
+ *  - Brandon's slides
+ *    https://docs.google.com/presentation/d/1zzmyFbfNlJqweyzuuFlo4zpSs3Gqhfi6FiNRONSEQ0E/edit#slide=id.g1eee710cdbf_0_26
+ *  - Pieter's video
+ *    https://www.youtube.com/watch?v=dZUPjFvknnI
+ *  - Parsia's blog post
+ *    https://parsiya.net/blog/2023-10-28-semgreps-experimental-rule-syntax/
+ *
+ * 'formula' below is handled by a <json adapter.ocaml=...> because there is no
  * way to encode directly using ATD the way we chose to represent formulas
  * in YAML/JSON.
  *
@@ -279,52 +284,42 @@ type generic_comment_style = [
  * CHECK: not/inside/anywhere can appear only inside an all:
 *)
 type formula = {
-  (* either directly a string or pattern: string in the JSON *)
+  (* either directly a string or 'pattern: string' in the JSON *)
   ?pattern: pattern option;
-  (* regex can also be entered with pattern: xxx when languages: [regex] *)
+  (* regex can also be entered with 'pattern: xxx' when languages: [regex] *)
   ?regex: regex option;
 
-  (* Boolean opeators. alt: we could have chosen and: and or: *)
+  (* Boolean opeators. alt: we could have chosen and/or instead of all/any *)
   ?all: formula list option;
   ?any: formula list option;
   ?not: formula option;
 
   (* later: we should remove with a better range logic *)
   ?inside: formula option;
-  (* NEW: since 1.49. alt: in condition instead as in 'where: - also: ...' *)
+  (* NEW: since 1.49. alt: in condition instead like 'where: - also: ...' *)
   ?anywhere: formula option;
-  (* TODO? ?taint: taint *)
+  (* TODO? ?taint: taint option; and ?steps: ? *)
 
   ?where: condition list option;
 }
 <json adapter.ocaml="Rule_schema_v2_adapter.Formula">
 
 (* This string must be a valid Semgrep pattern for the first language
- * specified in the languages: list in the rule.
+ * specified in the 'languages:' list in the rule.
  *)
 type pattern = string
 
 (* Just like for formula, we're using an adapter to transform
  * conditions in YAML like:
- *
  *  where:
  *   - metavariable: $X
  *     regex: $Z
- *
  * which when turned into JSON gives:
- *
- *  { where: [
- *     { metavariable: $X,
- *       regex: $Z
- *     }
- *   ] }
- * 
+ *  { where: 
+ *     [ { metavariable: $X, regex: $Z } ]
+ *   }
  * which we must transform in an ATD-compliant:
- *
- *  [ ["M", [{ metavariable: $X,
- *             regex: $Z
- *           }]
- *    ]]
+ *  ["M", [{ metavariable: $X, regex: $Z }]]
  *)
 type condition = [
   | Focus <json name="F"> of focus
@@ -333,25 +328,35 @@ type condition = [
   ]
 <json adapter.ocaml="Rule_schema_v2_adapter.Condition">
 
+(* --------------------------- *)
+(* Focus condition *)
+(* --------------------------- *)
+
 type focus = {
-  (* either a single string or an array in JSON, that is
-   * {focus: "$FOO"}, but also {focus: ["$FOO", "$BAR"]}
-   *)
+  (* either directly a string or a list of strings in the JSON *)
   focus: mvar list;
 }
 
 type mvar = string
 
-(* comparison expression with metavariables (currently using a Python-like
- * syntax), ex: $X > 100
- *)
-type comparison_expr = string
+(* --------------------------- *)
+(* Comparison condition *)
+(* --------------------------- *)
 
 type comparison = {
     comparison: comparison_expr;
     ?base: int option;
     ?strip: bool option;
   }
+
+(* comparison expression with metavariables, ex: $X > 100 
+ * (currently using a Python-like syntax)
+ *)
+type comparison_expr = string
+
+(* --------------------------- *)
+(* Metavariable condition *)
+(* --------------------------- *)
 
 type metavariable_cond = {
   metavariable: mvar;
@@ -421,7 +426,6 @@ type by_side_effect = [
   | Only <json name="only">
 ]
 <json adapter.ocaml="Rule_schema_v2_adapter.BySideEffect">
-
 
 (* --------------------------- *)
 (* Source *)
@@ -514,8 +518,10 @@ type semver_range = string
 (* Extract *)
 (*****************************************************************************)
 
+(* TODO: this syntax is actually not even supported yet in Parse_rule.ml *)
 type extract = {
   metavariable: mvar;
+
   ?dest_language <json name="dest-language">: language option;
   ?dest_rules <json name="dest-rules">: dest_rules option;
   (* map-reduce! *)
@@ -524,7 +530,7 @@ type extract = {
 }
 
 type dest_rules = {
-  (* CHECK: at least one of those options is set *)
+  (* CHECK: at least one of those options must be set *)
   ?exclude_ <json name="exclude">: rule_id list option;
   ?include_ <json name="include">: rule_id list option;
 }
@@ -540,8 +546,90 @@ type extract_transform = [
   | ConcatJsonStringArray <json name="concat_json_string_array">
 ]
 (*****************************************************************************)
-(* TODO: Secrets *)
+(* Secrets *)
 (*****************************************************************************)
+
+(* See https://www.notion.so/semgrep/Postprocessor-Syntax-v1-0-b1481ce32ab8454a8066a1e767cd870a *)
+type validator = {
+   http: http_validator;
+   (* LATER: ?ftp:, ?imap:, ... *)
+}
+
+type http_validator = {
+  request: http_request;
+  response: http_response_matcher list;
+}
+
+type headers = (string * header_pattern) list
+  <json repr="object">
+
+(* can contain metavariables, ex: 'Bearer $X' *)
+type header_pattern = string
+
+(* --------------------------- *)
+(* Request *)
+(* --------------------------- *)
+
+type http_request = {
+  url: url;
+  method_ <json name="method">: http_method;
+  headers: headers;
+  ?auth: auth option;
+  ?body: string option;
+}
+
+type http_method = [
+  | GET
+  | POST
+  | DELETE
+  | HEAD
+  | PUT
+]
+
+(* TODO? type_ <json name="type">: auth_kind; *)
+type auth = raw_json
+
+(* --------------------------- *)
+(* Response *)
+(* --------------------------- *)
+
+(* alt: could have shortcuts like: 'Valid(status=[200, 403])', like we do
+ * in our jsonnet secret rules, instead of the currently more verbose
+ * { match: [{ status_code: 200}, {status_code: 403}], result: valid }
+ * but how we get a valid JSON syntax for 'Valid(status=[200, 403])'?
+ *)
+type http_response_matcher = {
+  match_ <json name="match">: match_ list;
+  result: result;
+}
+
+type match_ = {
+  (* CHECK at least one of status-code:/headers:/content: must be set *)
+  ?status_code <json name="status-code">: int option;
+  (* note that this time it's a list of headers! *)
+  ?headers: headers list option;
+  ?content: content option;
+}
+
+type content = {
+  inherit formula;
+  ?language: language option;
+}
+<json adapter.ocaml="Rule_schema_v2_adapter.Formula">
+
+(* STRICTER: note that we are more complete than rule_schema_v1.yml here *)
+type result = {
+  validity: validity;
+  (* overriding the rule fields *)
+  ?severity: severity option;
+  ?metadata: raw_json option;
+  ?message: string option;
+}
+
+type validity = [
+  | Valid <json name="valid">
+  | Invalid <json name="invalid">
+]
 
 (*****************************************************************************)
 (* Toplevel *)
