@@ -31,7 +31,6 @@
  * also the old syntax.
  *
  * TODO:
- *  - extract
  *  - secrets
  *  - steps (but not join)
  *  - new metavariable types
@@ -66,35 +65,43 @@ type rule = {
      message: string;
      severity: severity;
 
-     (* TODO: selector vs analyzer *)
+     (* later: selector vs analyzer of Martin *)
      languages: language list;
 
      (* CHECK: exactly one of those fields must be set *)
      ?match_ <json name="match">: formula option;
      ?taint: taint option;
-     ?extract: extract option;
-     (* TODO: steps, secrets *)
-     (* TODO? product: product; *)
+     (* TODO: steps:, secrets: *)
 
-     (* can work with match/taint/..., maybe not extract *)
+     (* work with match: (and in theory also with taint: ) *)
      ?project_depends_on <json name="r2c-internal-project-depends-on">:
         project_depends_on option;
+     (* work with match: (and in theory also with taint: )
+      *
+      * alt: message:/severity: could be made optional when extract: is set,
+      * but it's annoying to change those types just for extract. Moreover,
+      * users can easily put severity: INFO and a fake message:,
+      * and at least they can easily test the matching part of the rule
+      * by removing the extract and run it like a regular rule.
+      *)
+     ?extract: extract option;
 
-     (* alt: later: could be replaced by a pattern-filename: *)
+     (* alt: later: could be replaced by a 'filename:' in formula *)
      ?paths: paths option;
 
      ?fix: string option;
      ?fix_regex: fix_regex option;
 
-     (* TODO? impose more constraints on metadata? standard fields? *)
-     ?metadata: raw_json option;
+     (* later: equivalences: ... *)
      ?options: rule_options option;
 
-     ?version: version option;
+     (* TODO? impose more constraints on metadata? standard fields?
+      * TODO? add also a product: product; ?
+      *)
+     ?metadata: raw_json option;
+
      ?min_version: version option;
      ?max_version: version option;
-
-     (* later: equivalences: ... *)
 }
 
 (* Rule_ID.t, "^[a-zA-Z0-9._-]*$" *)
@@ -284,7 +291,7 @@ type formula = {
 
   (* later: we should remove with a better range logic *)
   ?inside: formula option;
-  (* NEW: since 1.49 *)
+  (* NEW: since 1.49. alt: in condition instead as in 'where: - also: ...' *)
   ?anywhere: formula option;
   (* TODO? ?taint: taint *)
 
@@ -498,11 +505,34 @@ type namespace = [
 type semver_range = string
 
 (*****************************************************************************)
-(* TODO: Extract mode *)
+(* Extract *)
 (*****************************************************************************)
 
-type extract = raw_json
+type extract = {
+  metavariable: mvar;
+  ?dest_language <json name="dest-language">: language option;
+  ?dest_rules <json name="dest-rules">: dest_rules option;
+  (* map-reduce! *)
+  ?reduce: extract_reduce option;
+  ?transform: extract_transform option;
+}
 
+type dest_rules = {
+  (* CHECK: at least one of those options is set *)
+  ?exclude_ <json name="exclude">: rule_id list option;
+  ?include_ <json name="include">: rule_id list option;
+}
+
+type extract_reduce = [
+  | Concat <json name="concat">
+  | Separate <json name="separate">
+]
+
+type extract_transform = [
+  | NoTransform <json name="no_transform">
+  | UnquoteString <json name="unquote_string">
+  | ConcatJsonStringArray <json name="concat_json_string_array">
+]
 (*****************************************************************************)
 (* TODO: Secrets *)
 (*****************************************************************************)
