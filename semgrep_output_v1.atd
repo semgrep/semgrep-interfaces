@@ -234,6 +234,8 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
 
   ?dataflow_trace: match_dataflow_trace option;
   engine_kind: engine_kind;
+  (* for nosemgrep *)
+  is_ignored: bool;
   (* If present indicates the status of postprocessor validation. This field
    * not being present should be equivalent to No_validator.
    * Added in semgrep 1.37.0 *)
