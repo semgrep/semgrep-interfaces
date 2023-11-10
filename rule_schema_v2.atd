@@ -593,6 +593,11 @@ type auth = raw_json
 (* Response *)
 (* --------------------------- *)
 
+(* alt: could have shortcuts like: 'Valid(status=[200, 403])', like we do
+ * in our jsonnet secret rules, instead of the currently more verbose
+ * { match: [{ status_code: 200}, {status_code: 403}], result: valid }
+ * but how we get a valid JSON syntax for 'Valid(status=[200, 403])'?
+ *)
 type http_response_matcher = {
   match_ <json name="match">: match_ list;
   result: result;
