@@ -25,7 +25,7 @@
       "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
     },
     "engine_requested": { "$ref": "#/definitions/engine_kind" },
-    "effective_interfile_languages": {
+    "interfile_languages_used": {
       "type": "array",
       "items": { "type": "string" }
     },
@@ -529,7 +529,7 @@
           "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
         },
         "engine_requested": { "$ref": "#/definitions/engine_kind" },
-        "effective_interfile_languages": {
+        "interfile_languages_used": {
           "type": "array",
           "items": { "type": "string" }
         },
@@ -554,7 +554,7 @@
           "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
         },
         "engine_requested": { "$ref": "#/definitions/engine_kind" },
-        "effective_interfile_languages": {
+        "interfile_languages_used": {
           "type": "array",
           "items": { "type": "string" }
         },

@@ -167,5 +167,5 @@ type misc = {
     (* TODO: should be OSS | Pro, see semgrep_output_v1.atd engine_kind type *)
     ~engineRequested <python default="'OSS'"> <ocaml mutable>: string;
     (* Since Semgrep 1.49.0 *)
-    ?effectiveInterfileLanguages: string list option;
+    ?interfileLanguagesUsed: string list option;
   }

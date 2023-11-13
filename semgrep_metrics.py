@@ -512,7 +512,7 @@ class Misc:
     numIgnored: Optional[int] = None
     ruleHashesWithFindings: Optional[List[Tuple[str, int]]] = None
     engineRequested: str = field(default_factory=lambda: 'OSS')
-    effectiveInterfileLanguages: Optional[List[str]] = None
+    interfileLanguagesUsed: Optional[List[str]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Misc':
@@ -524,7 +524,7 @@ class Misc:
                 numIgnored=_atd_read_int(x['numIgnored']) if 'numIgnored' in x else None,
                 ruleHashesWithFindings=_atd_read_assoc_object_into_list(_atd_read_int)(x['ruleHashesWithFindings']) if 'ruleHashesWithFindings' in x else None,
                 engineRequested=_atd_read_string(x['engineRequested']) if 'engineRequested' in x else 'OSS',
-                effectiveInterfileLanguages=_atd_read_list(_atd_read_string)(x['effectiveInterfileLanguages']) if 'effectiveInterfileLanguages' in x else None,
+                interfileLanguagesUsed=_atd_read_list(_atd_read_string)(x['interfileLanguagesUsed']) if 'interfileLanguagesUsed' in x else None,
             )
         else:
             _atd_bad_json('Misc', x)
@@ -541,8 +541,8 @@ class Misc:
         if self.ruleHashesWithFindings is not None:
             res['ruleHashesWithFindings'] = _atd_write_assoc_list_to_object(_atd_write_int)(self.ruleHashesWithFindings)
         res['engineRequested'] = _atd_write_string(self.engineRequested)
-        if self.effectiveInterfileLanguages is not None:
-            res['effectiveInterfileLanguages'] = _atd_write_list(_atd_write_string)(self.effectiveInterfileLanguages)
+        if self.interfileLanguagesUsed is not None:
+            res['interfileLanguagesUsed'] = _atd_write_list(_atd_write_string)(self.interfileLanguagesUsed)
         return res
 
     @classmethod

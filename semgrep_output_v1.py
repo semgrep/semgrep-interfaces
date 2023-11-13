@@ -4473,7 +4473,7 @@ class CoreOutput:
     explanations: Optional[List[MatchingExplanation]] = None
     rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
     engine_requested: Optional[EngineKind] = None
-    effective_interfile_languages: Optional[List[str]] = None
+    interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
 
     @classmethod
@@ -4488,7 +4488,7 @@ class CoreOutput:
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
-                effective_interfile_languages=_atd_read_list(_atd_read_string)(x['effective_interfile_languages']) if 'effective_interfile_languages' in x else None,
+                interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
             )
         else:
@@ -4509,8 +4509,8 @@ class CoreOutput:
             res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
         if self.engine_requested is not None:
             res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
-        if self.effective_interfile_languages is not None:
-            res['effective_interfile_languages'] = _atd_write_list(_atd_write_string)(self.effective_interfile_languages)
+        if self.interfile_languages_used is not None:
+            res['interfile_languages_used'] = _atd_write_list(_atd_write_string)(self.interfile_languages_used)
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         return res
 
@@ -4617,7 +4617,7 @@ class CliOutputExtra:
     explanations: Optional[List[MatchingExplanation]] = None
     rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
     engine_requested: Optional[EngineKind] = None
-    effective_interfile_languages: Optional[List[str]] = None
+    interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
 
     @classmethod
@@ -4629,7 +4629,7 @@ class CliOutputExtra:
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
-                effective_interfile_languages=_atd_read_list(_atd_read_string)(x['effective_interfile_languages']) if 'effective_interfile_languages' in x else None,
+                interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
             )
         else:
@@ -4646,8 +4646,8 @@ class CliOutputExtra:
             res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
         if self.engine_requested is not None:
             res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
-        if self.effective_interfile_languages is not None:
-            res['effective_interfile_languages'] = _atd_write_list(_atd_write_string)(self.effective_interfile_languages)
+        if self.interfile_languages_used is not None:
+            res['interfile_languages_used'] = _atd_write_list(_atd_write_string)(self.interfile_languages_used)
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         return res
 
@@ -4853,7 +4853,7 @@ class CliOutput:
     explanations: Optional[List[MatchingExplanation]] = None
     rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
     engine_requested: Optional[EngineKind] = None
-    effective_interfile_languages: Optional[List[str]] = None
+    interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
 
     @classmethod
@@ -4868,7 +4868,7 @@ class CliOutput:
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
-                effective_interfile_languages=_atd_read_list(_atd_read_string)(x['effective_interfile_languages']) if 'effective_interfile_languages' in x else None,
+                interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
             )
         else:
@@ -4889,8 +4889,8 @@ class CliOutput:
             res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
         if self.engine_requested is not None:
             res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
-        if self.effective_interfile_languages is not None:
-            res['effective_interfile_languages'] = _atd_write_list(_atd_write_string)(self.effective_interfile_languages)
+        if self.interfile_languages_used is not None:
+            res['interfile_languages_used'] = _atd_write_list(_atd_write_string)(self.interfile_languages_used)
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         return res
 

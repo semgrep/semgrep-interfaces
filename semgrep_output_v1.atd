@@ -766,7 +766,7 @@ type cli_output_extra = {
        what languages had rules that invoked interfile. This is particularly important 
        for tracking the performance impact of new interfile languages *)
     (* EXPERIMENTAL: since 1.49.0 *)
-    ?effective_interfile_languages: string list option; 
+    ?interfile_languages_used: string list option; 
 
     (* EXPERIMENTAL: since: 1.37.0 *)
     ~skipped_rules: skipped_rule list;
