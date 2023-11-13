@@ -7,7 +7,7 @@
  * This file specifies the JSON format of the 'semgrep scan --json' command,
  * as well as the JSON format of messages sent to the Semgrep backend by the
  * 'semgrep ci' command.
- * For the definitions of the Semgrep input, see rule_schema_v1.yaml.
+ * For the definitions of the Semgrep input, see rule_schema_v2.atd
  *
  * This file has the _v1 suffix to explicitely represent the
  * version of this JSON format. If you need to extend this file, please

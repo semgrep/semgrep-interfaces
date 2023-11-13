@@ -1,4 +1,8 @@
-(* New Semgrep syntax (hence the v2) specified using ATD instead of jsonschema.
+(*****************************************************************************)
+(* Prelude *)
+(*****************************************************************************)
+(* Specification of the new Semgrep rule syntax (hence the v2) using ATD.
+ * (see https://atd.readthedocs.io/en/latest/ for more information on ATD).
  *
  * Note that even if most Semgrep users use YAML to write rules, and not JSON,
  * we still use a JSON tool (here ATD, but also jsonschema) to specify
@@ -6,28 +10,20 @@
  * mechanically translated into JSON; there is no yamlschema
  * (see https://json-schema-everywhere.github.io/yaml).
  *
- * Jsonschema is powerful but also arguably complicated and so it
- * might be simpler for many Semgrep developers (and also some Semgrep
- * users) to use ATD to specify and understand the schema of a rule.
- * It could provide a better basis to think about future syntax extensions.
+ * Jsonschema, used in rule_schema_v1.yml, is powerful but also arguably
+ * complicated and so it might be simpler for many Semgrep developers 
+ * (and also some Semgrep users) to use ATD to specify and understand the
+ * schema of a rule. It could provide a better basis to think about future
+ * syntax extensions.
  *
  * This file is now also used for some rule validation in
  * `semgrep --validate --develop`.
  *
  * Note that this file does not replace Parse_rule.ml nor Rule.ml. We still
  * want to accept the old syntax in Parse_rule.ml and also parse with
- * position information and error recovery which ATD does not provide.
+ * position information and complex error recovery which ATD does not provide.
  * This files does not replace either (yet) rule_schema_v1.yml which covers
  * also the old syntax.
- *
- * TODO:
- *  - steps (but not join)
- *  - generalized taint?
- *
- * related documents:
- *  - rule_schema_v1.yaml (actually less complete for the new syntax now)
- *  - Parse_rule.ml (the final source of truth, except for stuff currently
- *    handled only in pysemgrep such as join-mode or ssc)
  *)
 
 (*****************************************************************************)
@@ -40,11 +36,14 @@ type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
 (* ex: "*.c" *)
 type glob = string
 
-(* ex: "[a-zA-Z_]*\\.c" *)
+(* ex: "[a-zA-Z0-9_]*\\.c" *)
 type regex = string
 
-(* ex: https://www.google.com *)
+(* ex: "https://www.google.com" *)
 type url = string
+
+(* ex: "1.49.0" (see also Version_info.t) *)
+type version = string
 
 (*****************************************************************************)
 (* The rule *)
@@ -53,43 +52,58 @@ type url = string
 type rule = {
      id: rule_id;
 
-     message: string;
      severity: severity;
+     (* The message can contain metavariables, as in "invalid $X == $X",
+      * and metavariable are interpolated when reporting the finding.
+      *)
+     message: string;
 
-     (* later: selectors vs analyzer of Martin *)
-     languages: language list;
+     (* CHECK: must be set except for 'steps:' if all steps define a language,
+      * or when using just regex patterns (TODO? 'language: None' use case?)
+      *)
+     ?language: language option;
+     (* TODO: deprecate in v2 (and make language: above mandatory?) *)
+     ?languages: language list option;
 
-     (* CHECK: exactly one of those fields must be set *)
+     (* CHECK: exactly one of those fields must be set, except for
+      * supply chain "parity" rules where all are unset.
+     *)
      ?match_ <json name="match">: formula option;
      ?taint: taint option;
-     (* TODO: steps: *)
+     ?steps: step list option;
 
-     (* CHECK: those fields work with match: (in theory also with taint: ) *)
-     (* supply chain rules *)
-     ?project_depends_on <json name="r2c-internal-project-depends-on">:
-        project_depends_on option;
-     (* extract rules, a.k.a. preprocessor rules
-      * alt: message:/severity: could be made optional when extract: is set,
-      * but it's annoying to change those types just for extract. Moreover,
-      * users can easily put 'severity: INFO' and a fake message:,
-      * and at least they can easily test the matching part of the rule
-      * by removing the extract and run it like a regular rule.
-      *)
-     ?extract: extract option;
-     (* secrets, a.k.a. postprocessor rules *)
-     ?validators: validator list option;
-
-     (* alt: later: could be replaced by a 'filename:' in formula *)
+     (* TODO: when 'language:' not enough, for more flexible file selection *)
+     ?select: file_selector list option;
+     (* TODO? deprecate and replace by a 'filename:' in formula and select: *)
      ?paths: paths option;
 
      ?fix: string option;
      ?fix_regex: fix_regex option;
 
+     (* Supply chain rules.
+      * CHECK: work with match:, but also without for "parity" rules
+      *)
+     ?project_depends_on <json name="r2c-internal-project-depends-on">:
+        project_depends_on option;
+     (* Extract rules (a.k.a. preprocessor rules)
+      * CHECK: work with match: (in theory also with taint:/steps: )
+      * alt: message:/severity: could be made optional when extract: is set,
+      * but it's annoying to change those types just for extract. Moreover,
+      * users can easily put 'severity: INFO' and a fake 'message:',
+      * and at least they can easily test the matching part of the rule
+      * by removing the 'extract:' and run it like a regular rule.
+      *)
+     ?extract: extract option;
+     (* Secrets rules (a.k.a. postprocessor rules)
+      * CHECK: work with match: (in theory also with taint:/steps: )
+      *)
+     ?validators: validator list option;
+
      (* later: equivalences: ... *)
      ?options: rule_options option;
 
      (* TODO? impose more constraints on metadata? standard fields?
-      * confidence? product? 
+      * add a 'confidence:'? 'product:'? 
       *)
      ?metadata: raw_json option;
 
@@ -97,83 +111,90 @@ type rule = {
      ?max_version <json name="max-version">: version option;
 }
 
-(* Rule_ID.t, "^[a-zA-Z0-9._-]*$" *)
+(* ex: "myrule" (see also Rule_ID.t; spec: "^[a-zA-Z0-9._-]*$" *)
 type rule_id = string wrap <ocaml module="Rule_ID">
 
-(* Version_info.t *)
-type version = string
-
 (*****************************************************************************)
-(* Severity, language, paths, fix_regex, rule_options *)
+(* Severity, language, selector, paths, fix_regex *)
 (*****************************************************************************)
 
 (* coupling: semgrep_output_v1.atd with match_severity 
  * I've removed EXPERIMENT and INVENTORY which should not be used.
 *)
 type severity = [
-  | Error <json name="ERROR">
-  | Warning <json name="WARNING">
-  | Info <json name="INFO">
+  | ERROR
+  | WARNING
+  | INFO
 ]
 
 (* coupling: Language.ml *)
 type language = [
   (* programming (and configuration) languages *)
-  | Apex <json name="apex">
-  | Bash <json name="bash">
-  | Sh <json name="sh">
-  | C <json name="c">
-  | Clojure <json name="clojure">
-  | Cpp <json name="cpp">
-  | CppSymbol <json name="c++">
-  | Csharp <json name="csharp">
+  | Apex         <json name="apex">
+  | Bash         <json name="bash">
+  | Sh           <json name="sh">
+  | C            <json name="c">
+  | Clojure      <json name="clojure">
+  | Cpp          <json name="cpp">
+  | CppSymbol    <json name="c++">
+  | Csharp       <json name="csharp">
   | CsharpSymbol <json name="c#">
-  | Dart <json name="dart">
-  | Dockerfile <json name="dockerfile">
-  | Docker <json name="docker">
-  | Ex <json name="ex">
-  | Elixir <json name="elixir">
-  | Generic <json name="generic">
-  | Go <json name="go">
-  | Golang <json name="golang">
-  | Hack <json name="hack">
-  | Html <json name="html">
-  | Java <json name="java">
-  | Js <json name="js">
-  | Javascript <json name="javascript">
-  | Json <json name="json">
-  | Jsonnet <json name="jsonnet">
-  | Julia <json name="julia">
-  | Kt <json name="kt">
-  | Kotlin <json name="kotlin">
-  | Lisp <json name="lisp">
-  | Lua <json name="lua">
-  | Ocaml <json name="ocaml">
-  | Php <json name="php">
-  | Python2 <json name="python2">
-  | Python3 <json name="python3">
-  | Py <json name="py">
-  | Python <json name="python">
-  | R <json name="r">
-  | Ruby <json name="ruby">
-  | Rust <json name="rust">
-  | Scala <json name="scala">
-  | Scheme <json name="scheme">
-  | Solidity <json name="solidity">
-  | Sol <json name="sol">
-  | Swift <json name="swift">
-  | Tf <json name="tf">
-  | Hcl <json name="hcl">
-  | Terraform <json name="terraform">
-  | Ts <json name="ts">
-  | Typescript <json name="typescript">
-  | Vue <json name="vue">
-  | Yaml <json name="yaml">
+  | Dart         <json name="dart">
+  | Dockerfile   <json name="dockerfile">
+  | Docker       <json name="docker">
+  | Ex           <json name="ex">
+  | Elixir       <json name="elixir">
+  | Go           <json name="go">
+  | Golang       <json name="golang">
+  | Hack         <json name="hack">
+  | Html         <json name="html">
+  | Java         <json name="java">
+  | Js           <json name="js">
+  | Javascript   <json name="javascript">
+  | Json         <json name="json">
+  | Jsonnet      <json name="jsonnet">
+  | Julia        <json name="julia">
+  | Kt           <json name="kt">
+  | Kotlin       <json name="kotlin">
+  | Lisp         <json name="lisp">
+  | Lua          <json name="lua">
+  | Ocaml        <json name="ocaml">
+  | Php          <json name="php">
+  | Python2      <json name="python2">
+  | Python3      <json name="python3">
+  | Py           <json name="py">
+  | Python       <json name="python">
+  | R            <json name="r">
+  | Ruby         <json name="ruby">
+  | Rust         <json name="rust">
+  | Scala        <json name="scala">
+  | Scheme       <json name="scheme">
+  | Solidity     <json name="solidity">
+  | Sol          <json name="sol">
+  | Swift        <json name="swift">
+  | Tf           <json name="tf">
+  | Hcl          <json name="hcl">
+  | Terraform    <json name="terraform">
+  | Ts           <json name="ts">
+  | Typescript   <json name="typescript">
+  | Vue          <json name="vue">
+  | Yaml         <json name="yaml">
 
-  (* not regular programming languages *)
-  | Regex <json name="regex">
-  | None <json name="none">
+  (* a.k.a., spacegrep and aliengrep 
+   * TODO? remove and replace with 'generic:' in formula? 
+   *)
+  | Generic      <json name="generic">
+  (* TODO remove? redundant with 'regex:' in formula? *)
+  | Regex        <json name="regex">
+  (* TODO remove? *)
+  | None         <json name="none">
 ]
+
+(* See https://www.notion.so/semgrep/Add-select-field-to-Semgrep-rules-d5078296b8884396bf78ef4cefdff66d
+ * TODO: language | "text" | "script" | ...
+ * TODO? support boolean? "text and not python"?
+ *)
+type file_selector = string
 
 type paths = {
   (* CHECK: at least one of those fields must be set *)
@@ -187,6 +208,10 @@ type fix_regex = {
   ?count: int option;
 }
 
+(*****************************************************************************)
+(* Rule (engine) options *)
+(*****************************************************************************)
+
 (* coupling: Rule_options.atd
  * alt: <ocaml from="Rule_options" t="t"> but I prefer to repeat
  * its content here so one can fully see the syntax of a rule in one file.
@@ -194,6 +219,7 @@ type fix_regex = {
 type rule_options = {
   ?constant_propagation: bool option;
   ?symbolic_propagation: bool option;
+
   ?taint_unify_mvars: bool option;
   ?taint_assume_safe_functions: bool option;
   ?taint_assume_safe_indexes: bool option;
@@ -201,37 +227,41 @@ type rule_options = {
   ?taint_assume_safe_booleans: bool option;
   ?taint_assume_safe_numbers: bool option;
   ?taint_only_propagate_through_assignments: bool option;
+
   ?ac_matching: bool option;
   ?commutative_boolop: bool option;
   ?commutative_compop: bool option;
+
   ?vardef_assign: bool option;
   ?flddef_assign: bool option;
+
   ?attr_expr: bool option;
   ?arrow_is_function:  bool option;
   ?let_is_var:  bool option;
+
   ?go_deeper_expr: bool option;
   ?go_deeper_stmt: bool option;
+
   ?implicit_deep_exprstmt: bool option;
   ?implicit_ellipsis: bool option;
+
   ?xml_singleton_loose_matching: bool option;
   ?xml_attrs_implicit_ellipsis: bool option;
   ?xml_children_ordered: bool option;
-  ?generic_engine:  generic_engine option;
+
   ?cpp_parsing_pref: cpp_parsing_opt option;
+
+  ?generic_engine:  generic_engine option;
   ?generic_multiline: bool option;
   ?generic_braces: (string * string) list option;
-  ~generic_extra_braces: (string * string) list;
-  ~generic_extra_word_characters: string list;
-  ~generic_caseless: bool;
+  ?generic_extra_braces: (string * string) list option;
+  ?generic_extra_word_characters: string list option;
+  ?generic_caseless: bool option;
   ?generic_ellipsis_max_span: int option;
   ?generic_comment_style: generic_comment_style option;
+
   ?interfile: bool option;
 }
-
-type cpp_parsing_opt = [
-  | AsFunDef <json name="as_fundef">
-  | AsVarDefWithCtor <json name="as_vardef_with_ctor">
-]
 
 type generic_engine = [
   | Aliengrep <json name="aliengrep">
@@ -244,6 +274,10 @@ type generic_comment_style = [
   | Shell <json name="shell">
 ]
 
+type cpp_parsing_opt = [
+  | AsFunDef <json name="as_fundef">
+  | AsVarDefWithCtor <json name="as_vardef_with_ctor">
+]
 
 (*****************************************************************************)
 (* Formula *)
@@ -258,17 +292,13 @@ type generic_comment_style = [
  *    https://docs.google.com/presentation/d/1zzmyFbfNlJqweyzuuFlo4zpSs3Gqhfi6FiNRONSEQ0E/edit#slide=id.g1eee710cdbf_0_26
  *  - Pieter's video
  *    https://www.youtube.com/watch?v=dZUPjFvknnI
- *  - Parsia's blog post
- *    https://parsiya.net/blog/2023-10-28-semgreps-experimental-rule-syntax/
  *
  * 'formula' below is handled by a <json adapter.ocaml=...> because there is no
  * way to encode directly using ATD the way we chose to represent formulas
- * in YAML/JSON.
- *
+ * in YAML/JSON
  * alt: instead of using those ?all, ?regex, and CHECK:, we could use a
  * proper variant, but that would require a more complex adapter and the
  * distance between the spec and the actual syntax would be even longer.
- *
  * alt: we could instead do '?all: formula list option * condition list'
  * below, but syntactically we also allow 'where' with pattern:, regex:,
  * etc. as in:
@@ -288,6 +318,8 @@ type formula = {
   ?pattern: pattern option;
   (* regex can also be entered with 'pattern: xxx' when languages: [regex] *)
   ?regex: regex option;
+  (* TODO? ?generic: generic_pattern option *)
+  (* TODO? ?filename: glob_pattern option *)
 
   (* Boolean opeators. alt: we could have chosen and/or instead of all/any *)
   ?all: formula list option;
@@ -322,22 +354,12 @@ type pattern = string
  *  ["M", [{ metavariable: $X, regex: $Z }]]
  *)
 type condition = [
-  | Focus <json name="F"> of focus
-  | Comparison <json name="C"> of comparison
+  | Comparison   <json name="C"> of comparison
   | Metavariable <json name="M"> of metavariable_cond
+  | Focus        <json name="F"> of focus
+  (* TODO? 'Also <json name="A"> of also_formula' (alt: to 'anywhere:') *)
   ]
 <json adapter.ocaml="Rule_schema_v2_adapter.Condition">
-
-(* --------------------------- *)
-(* Focus condition *)
-(* --------------------------- *)
-
-type focus = {
-  (* either directly a string or a list of strings in the JSON *)
-  focus: mvar list;
-}
-
-type mvar = string
 
 (* --------------------------- *)
 (* Comparison condition *)
@@ -361,7 +383,7 @@ type comparison_expr = string
 type metavariable_cond = {
   metavariable: mvar;
 
-  (* CHECK: exactly one of type/types/analyzer/formula(all/any/...) *)
+  (* CHECK: exactly one of type/types/analyzer/formula(all/any/...) must be set*)
 
   ?type_ <json name="type">: string option;
   ?types: string list option;
@@ -371,11 +393,14 @@ type metavariable_cond = {
    * CHECK: constant_propagation: is valid only when combined with regex:
    *)
   inherit formula;
+  (* if not specified, use the rule 'language:' *)
   ?language: language option;
   ?constant_propagation <json name="constant-propagation">: bool option;
 
   ?analyzer: analyzer option;
 }  
+
+type mvar = string
 
 type analyzer = [
   | Entropy <json name="entropy">
@@ -383,12 +408,21 @@ type analyzer = [
   | Redos <json name="redos">
 ]
 
+(* --------------------------- *)
+(* Focus condition *)
+(* --------------------------- *)
+
+type focus = {
+  (* either directly a string or a list of strings in the JSON *)
+  focus: mvar list;
+}
+
 (*****************************************************************************)
 (* Tainting *)
 (*****************************************************************************)
 
 (* STRICTER: actually rule_schema_v1.yaml has very loose definitions for
- * tainting stuff. Even requires: label: are not defined for the
+ * tainting stuff. Even 'requires:' and 'label:' are not defined for the
  * old syntax, and for the new syntax many fields are still missing
  * in rule_schema_v1.yaml
  *)
@@ -421,9 +455,9 @@ type taint_options = {
 
 (* we need an adapter here because we allow boolean or "only" string *)
 type by_side_effect = [
-  | True <json name="true">
+  | True  <json name="true">
   | False <json name="false">
-  | Only <json name="only">
+  | Only  <json name="only">
 ]
 <json adapter.ocaml="Rule_schema_v2_adapter.BySideEffect">
 
@@ -431,7 +465,7 @@ type by_side_effect = [
 (* Source *)
 (* --------------------------- *)
 
-(* need to repeat the adapter below for the str -> pattern: str adaptation *)
+(* we need to repeat the adapter below for the str -> pattern: str adaptation *)
 type source = {
   inherit formula;
   inherit label_options;
@@ -443,10 +477,11 @@ type source = {
 (* --------------------------- *)
 (* Sink *)
 (* --------------------------- *)
+
 type sink = {
   inherit formula;
   (* just requires: here, no label: *)
-  ?requires: string option; (* expr with labels? *)
+  ?requires: requires_expr option;
 }
 <json adapter.ocaml="Rule_schema_v2_adapter.Formula">
 
@@ -469,6 +504,7 @@ type propagator = {
   inherit formula;
   from_ <json name="from">: mvar;
   to_   <json name="to">: mvar;
+
   inherit label_options;
   (* no exact: here, just by-side-effect: *)
   ?by_side_effect <json name="by-side-effect">: by_side_effect option;
@@ -480,7 +516,7 @@ type propagator = {
 (* Supply chain *)
 (*****************************************************************************)
 
-(* need an adapter there too *)
+(* we need an adapter below too *)
 type project_depends_on = [
   | DependsBasic <json name="B"> of project_depends_on_basic
   | DependsEither <json name="E"> of project_depends_on_either
@@ -500,18 +536,18 @@ type project_depends_on_either = {
 
 (* coupling: semgrep_output_v1.ecosystem (better name than namespace) *)
 type namespace = [
-  | Npm <json name="npm">
-  | Pypi  <json name="pypi">
-  | Gem <json name="gem">
-  | Gomod <json name="gomod">
-  | Cargo <json name="cargo">
-  | Maven <json name="maven">
+  | Npm      <json name="npm">
+  | Pypi     <json name="pypi">
+  | Gem      <json name="gem">
+  | Gomod    <json name="gomod">
+  | Cargo    <json name="cargo">
+  | Maven    <json name="maven">
   | Composer <json name="composer">
-  | Nuget <json name="nuget">
-  | Pub <json name="pub">
+  | Nuget    <json name="nuget">
+  | Pub      <json name="pub">
 ]
 
-(* ex: < 0.0.8 *)
+(* ex: "< 0.0.8" *)
 type semver_range = string
 
 (*****************************************************************************)
@@ -525,8 +561,8 @@ type extract = {
   ?dest_language <json name="dest-language">: language option;
   ?dest_rules <json name="dest-rules">: dest_rules option;
   (* map-reduce! *)
-  ?reduce: extract_reduce option;
   ?transform: extract_transform option;
+  ?reduce: extract_reduce option;
 }
 
 type dest_rules = {
@@ -536,13 +572,13 @@ type dest_rules = {
 }
 
 type extract_reduce = [
-  | Concat <json name="concat">
+  | Concat   <json name="concat">
   | Separate <json name="separate">
 ]
 
 type extract_transform = [
-  | NoTransform <json name="no_transform">
-  | UnquoteString <json name="unquote_string">
+  | NoTransform           <json name="no_transform">
+  | UnquoteString         <json name="unquote_string">
   | ConcatJsonStringArray <json name="concat_json_string_array">
 ]
 (*****************************************************************************)
@@ -552,7 +588,11 @@ type extract_transform = [
 (* See https://www.notion.so/semgrep/Postprocessor-Syntax-v1-0-b1481ce32ab8454a8066a1e767cd870a *)
 type validator = {
    http: http_validator;
-   (* LATER: ?ftp:, ?imap:, ... *)
+   (* LATER:
+    * ?ftp: ...;
+    * ?imap: ...;
+    * ...
+    *)
 }
 
 type http_validator = {
@@ -560,8 +600,7 @@ type http_validator = {
   response: http_response_matcher list;
 }
 
-type headers = (string * header_pattern) list
-  <json repr="object">
+type headers = (string * header_pattern) list <json repr="object">
 
 (* can contain metavariables, ex: 'Bearer $X' *)
 type header_pattern = string
@@ -613,6 +652,7 @@ type match_ = {
 
 type content = {
   inherit formula;
+  (* if not specified, assume to be 'generic' *)
   ?language: language option;
 }
 <json adapter.ocaml="Rule_schema_v2_adapter.Formula">
@@ -627,9 +667,23 @@ type result = {
 }
 
 type validity = [
-  | Valid <json name="valid">
+  | Valid   <json name="valid">
   | Invalid <json name="invalid">
 ]
+
+(*****************************************************************************)
+(* Steps *)
+(*****************************************************************************)
+type step = {
+  (* CHECK: exactly one of those fields must be set *)
+  ?match_ <json name="match">: formula option;
+  ?taint: taint option;
+
+  (* if not specified, use the rule 'language:' *)
+  ?language: language option;
+  ?select: file_selector list option;
+  ?paths: paths option;
+}
 
 (*****************************************************************************)
 (* Toplevel *)
