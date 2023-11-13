@@ -25,13 +25,13 @@
       "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
     },
     "engine_requested": { "$ref": "#/definitions/engine_kind" },
+    "effective_interfile_languages": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
     "skipped_rules": {
       "type": "array",
       "items": { "$ref": "#/definitions/skipped_rule" }
-    },
-    "requested_interfile_languages": {
-      "type": "array",
-      "items": { "type": "string" }
     }
   },
   "definitions": {
@@ -529,13 +529,13 @@
           "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
         },
         "engine_requested": { "$ref": "#/definitions/engine_kind" },
+        "effective_interfile_languages": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
         "skipped_rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
-        },
-        "requested_interfile_languages": {
-          "type": "array",
-          "items": { "type": "string" }
         }
       }
     },
@@ -554,13 +554,13 @@
           "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
         },
         "engine_requested": { "$ref": "#/definitions/engine_kind" },
+        "effective_interfile_languages": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
         "skipped_rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
-        },
-        "requested_interfile_languages": {
-          "type": "array",
-          "items": { "type": "string" }
         }
       }
     },

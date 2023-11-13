@@ -303,8 +303,8 @@ export type CoreOutput = {
   explanations?: MatchingExplanation[];
   rules_by_engine?: RuleIdAndEngineKind[];
   engine_requested?: EngineKind;
+  effective_interfile_languages?: string[];
   skipped_rules: SkippedRule[];
-  requested_interfile_languages?: string[];
 }
 
 export type CliOutput = {
@@ -316,8 +316,8 @@ export type CliOutput = {
   explanations?: MatchingExplanation[];
   rules_by_engine?: RuleIdAndEngineKind[];
   engine_requested?: EngineKind;
+  effective_interfile_languages?: string[];
   skipped_rules: SkippedRule[];
-  requested_interfile_languages?: string[];
 }
 
 export type CliOutputExtra = {
@@ -326,8 +326,8 @@ export type CliOutputExtra = {
   explanations?: MatchingExplanation[];
   rules_by_engine?: RuleIdAndEngineKind[];
   engine_requested?: EngineKind;
+  effective_interfile_languages?: string[];
   skipped_rules: SkippedRule[];
-  requested_interfile_languages?: string[];
 }
 
 export type ScaInfo = {
@@ -1574,8 +1574,8 @@ export function writeCoreOutput(x: CoreOutput, context: any = x): any {
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
+    'effective_interfile_languages': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.effective_interfile_languages, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
-    'requested_interfile_languages': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.requested_interfile_languages, x),
   };
 }
 
@@ -1589,8 +1589,8 @@ export function readCoreOutput(x: any, context: any = x): CoreOutput {
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
+    effective_interfile_languages: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['effective_interfile_languages'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
-    requested_interfile_languages: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['requested_interfile_languages'], x),
   };
 }
 
@@ -1604,8 +1604,8 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
+    'effective_interfile_languages': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.effective_interfile_languages, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
-    'requested_interfile_languages': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.requested_interfile_languages, x),
   };
 }
 
@@ -1619,8 +1619,8 @@ export function readCliOutput(x: any, context: any = x): CliOutput {
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
+    effective_interfile_languages: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['effective_interfile_languages'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
-    requested_interfile_languages: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['requested_interfile_languages'], x),
   };
 }
 
@@ -1631,8 +1631,8 @@ export function writeCliOutputExtra(x: CliOutputExtra, context: any = x): any {
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
     'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
+    'effective_interfile_languages': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.effective_interfile_languages, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
-    'requested_interfile_languages': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.requested_interfile_languages, x),
   };
 }
 
@@ -1643,8 +1643,8 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
     rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
+    effective_interfile_languages: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['effective_interfile_languages'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
-    requested_interfile_languages: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['requested_interfile_languages'], x),
   };
 }
 

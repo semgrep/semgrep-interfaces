@@ -4473,8 +4473,8 @@ class CoreOutput:
     explanations: Optional[List[MatchingExplanation]] = None
     rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
     engine_requested: Optional[EngineKind] = None
+    effective_interfile_languages: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
-    requested_interfile_languages: Optional[List[str]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreOutput':
@@ -4488,8 +4488,8 @@ class CoreOutput:
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
+                effective_interfile_languages=_atd_read_list(_atd_read_string)(x['effective_interfile_languages']) if 'effective_interfile_languages' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
-                requested_interfile_languages=_atd_read_list(_atd_read_string)(x['requested_interfile_languages']) if 'requested_interfile_languages' in x else None,
             )
         else:
             _atd_bad_json('CoreOutput', x)
@@ -4509,9 +4509,9 @@ class CoreOutput:
             res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
         if self.engine_requested is not None:
             res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
+        if self.effective_interfile_languages is not None:
+            res['effective_interfile_languages'] = _atd_write_list(_atd_write_string)(self.effective_interfile_languages)
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
-        if self.requested_interfile_languages is not None:
-            res['requested_interfile_languages'] = _atd_write_list(_atd_write_string)(self.requested_interfile_languages)
         return res
 
     @classmethod
@@ -4617,8 +4617,8 @@ class CliOutputExtra:
     explanations: Optional[List[MatchingExplanation]] = None
     rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
     engine_requested: Optional[EngineKind] = None
+    effective_interfile_languages: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
-    requested_interfile_languages: Optional[List[str]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutputExtra':
@@ -4629,8 +4629,8 @@ class CliOutputExtra:
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
+                effective_interfile_languages=_atd_read_list(_atd_read_string)(x['effective_interfile_languages']) if 'effective_interfile_languages' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
-                requested_interfile_languages=_atd_read_list(_atd_read_string)(x['requested_interfile_languages']) if 'requested_interfile_languages' in x else None,
             )
         else:
             _atd_bad_json('CliOutputExtra', x)
@@ -4646,9 +4646,9 @@ class CliOutputExtra:
             res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
         if self.engine_requested is not None:
             res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
+        if self.effective_interfile_languages is not None:
+            res['effective_interfile_languages'] = _atd_write_list(_atd_write_string)(self.effective_interfile_languages)
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
-        if self.requested_interfile_languages is not None:
-            res['requested_interfile_languages'] = _atd_write_list(_atd_write_string)(self.requested_interfile_languages)
         return res
 
     @classmethod
@@ -4853,8 +4853,8 @@ class CliOutput:
     explanations: Optional[List[MatchingExplanation]] = None
     rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
     engine_requested: Optional[EngineKind] = None
+    effective_interfile_languages: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
-    requested_interfile_languages: Optional[List[str]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutput':
@@ -4868,8 +4868,8 @@ class CliOutput:
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
+                effective_interfile_languages=_atd_read_list(_atd_read_string)(x['effective_interfile_languages']) if 'effective_interfile_languages' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
-                requested_interfile_languages=_atd_read_list(_atd_read_string)(x['requested_interfile_languages']) if 'requested_interfile_languages' in x else None,
             )
         else:
             _atd_bad_json('CliOutput', x)
@@ -4889,9 +4889,9 @@ class CliOutput:
             res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
         if self.engine_requested is not None:
             res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
+        if self.effective_interfile_languages is not None:
+            res['effective_interfile_languages'] = _atd_write_list(_atd_write_string)(self.effective_interfile_languages)
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
-        if self.requested_interfile_languages is not None:
-            res['requested_interfile_languages'] = _atd_write_list(_atd_write_string)(self.requested_interfile_languages)
         return res
 
     @classmethod
