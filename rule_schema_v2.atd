@@ -11,9 +11,10 @@
  * (see https://json-schema-everywhere.github.io/yaml).
  *
  * Jsonschema, used in rule_schema_v1.yml, is powerful but also arguably
- * complicated and so it might be simpler for many Semgrep developers (and also
- * some Semgrep users) to use ATD to specify and understand the schema of a rule.
- * It could provide a better basis to think about future syntax extensions.
+ * complicated and so it might be simpler for many Semgrep developers 
+ * (and also some Semgrep users) to use ATD to specify and understand the
+ * schema of a rule. It could provide a better basis to think about future
+ * syntax extensions.
  *
  * This file is now also used for some rule validation in
  * `semgrep --validate --develop`.
@@ -62,7 +63,9 @@ type rule = {
      message: string;
      severity: severity;
 
-     (* later: selectors vs analyzer of Martin, and maybe a single language:? *)
+     (* TODO: accept also ?selectors: for more complex cases (and parser:?) *)
+     ?language: language option;
+     (* TODO: deprecate in v2 and make language: above mandatory *)
      languages: language list;
 
      (* CHECK: exactly one of those fields must be set *)
@@ -89,7 +92,7 @@ type rule = {
       *)
      ?validators: validator list option;
 
-     (* alt: later: could be replaced by a 'filename:' in formula *)
+     (* alt: later: replace by a 'filename:' in formula and selectors: *)
      ?paths: paths option;
 
      ?fix: string option;
@@ -518,15 +521,15 @@ type project_depends_on_either = {
 
 (* coupling: semgrep_output_v1.ecosystem (better name than namespace) *)
 type namespace = [
-  | Npm <json name="npm">
-  | Pypi  <json name="pypi">
-  | Gem <json name="gem">
-  | Gomod <json name="gomod">
-  | Cargo <json name="cargo">
-  | Maven <json name="maven">
+  | Npm      <json name="npm">
+  | Pypi     <json name="pypi">
+  | Gem      <json name="gem">
+  | Gomod    <json name="gomod">
+  | Cargo    <json name="cargo">
+  | Maven    <json name="maven">
   | Composer <json name="composer">
-  | Nuget <json name="nuget">
-  | Pub <json name="pub">
+  | Nuget    <json name="nuget">
+  | Pub      <json name="pub">
 ]
 
 (* ex: "< 0.0.8" *)
@@ -655,8 +658,15 @@ type validity = [
 (*****************************************************************************)
 (* Steps *)
 (*****************************************************************************)
-(* TODO *)
-type step = raw_json
+type step = {
+  (* CHECK: exactly one of those fields must be set *)
+  ?match_ <json name="match">: formula option;
+  ?taint: taint option;
+
+  (* TODO: accept also selectors/parser of martin for more complex cases *)
+  ?language: language option;
+  ?paths: paths option;
+}
 
 (*****************************************************************************)
 (* Toplevel *)
