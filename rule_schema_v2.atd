@@ -52,49 +52,58 @@ type version = string
 type rule = {
      id: rule_id;
 
-     message: string;
      severity: severity;
+     (* The message can contain metavariables, as in "invalid $X == $X",
+      * and metavariable are interpolated when reporting the finding.
+      *)
+     message: string;
 
-     (* TODO: accept also ?selectors: for more complex cases (and parser:?) *)
+     (* CHECK: must be set except for 'steps:' if all steps define a language,
+      * or when using just regex patterns (TODO? 'language: None' use case?)
+      *)
      ?language: language option;
-     (* TODO: deprecate in v2 and make language: above mandatory *)
-     languages: language list;
+     (* TODO: deprecate in v2 (and make language: above mandatory?) *)
+     ?languages: language list option;
 
-     (* CHECK: exactly one of those fields must be set *)
+     (* CHECK: exactly one of those fields must be set, except for
+      * supply chain "parity" rules where all are unset.
+     *)
      ?match_ <json name="match">: formula option;
      ?taint: taint option;
      ?steps: step list option;
 
-     (* supply chain rules.
-      * CHECK: work with match:, but also without for "parity" rules
-      *)
-     ?project_depends_on <json name="r2c-internal-project-depends-on">:
-        project_depends_on option;
-     (* extract rules, a.k.a. preprocessor rules
-      * alt: message:/severity: could be made optional when extract: is set,
-      * but it's annoying to change those types just for extract. Moreover,
-      * users can easily put 'severity: INFO' and a fake message:,
-      * and at least they can easily test the matching part of the rule
-      * by removing the extract and run it like a regular rule.
-      * CHECK: work with match: (in theory also with taint: )
-      *)
-     ?extract: extract option;
-     (* secrets, a.k.a. postprocessor rules
-      * CHECK: work with match: (in theory also with taint: )
-      *)
-     ?validators: validator list option;
-
-     (* alt: later: replace by a 'filename:' in formula and selectors: *)
+     (* TODO: when 'language:' not enough, for more flexible file selection *)
+     ?select: file_selector list option;
+     (* TODO? deprecate and replace by a 'filename:' in formula and select: *)
      ?paths: paths option;
 
      ?fix: string option;
      ?fix_regex: fix_regex option;
 
+     (* Supply chain rules.
+      * CHECK: work with match:, but also without for "parity" rules
+      *)
+     ?project_depends_on <json name="r2c-internal-project-depends-on">:
+        project_depends_on option;
+     (* Extract rules (a.k.a. preprocessor rules)
+      * CHECK: work with match: (in theory also with taint:/steps: )
+      * alt: message:/severity: could be made optional when extract: is set,
+      * but it's annoying to change those types just for extract. Moreover,
+      * users can easily put 'severity: INFO' and a fake 'message:',
+      * and at least they can easily test the matching part of the rule
+      * by removing the 'extract:' and run it like a regular rule.
+      *)
+     ?extract: extract option;
+     (* Secrets rules (a.k.a. postprocessor rules)
+      * CHECK: work with match: (in theory also with taint:/steps: )
+      *)
+     ?validators: validator list option;
+
      (* later: equivalences: ... *)
      ?options: rule_options option;
 
      (* TODO? impose more constraints on metadata? standard fields?
-      * confidence? product? 
+      * add a 'confidence:'? 'product:'? 
       *)
      ?metadata: raw_json option;
 
@@ -106,7 +115,7 @@ type rule = {
 type rule_id = string wrap <ocaml module="Rule_ID">
 
 (*****************************************************************************)
-(* Severity, language, paths, fix_regex *)
+(* Severity, language, selector, paths, fix_regex *)
 (*****************************************************************************)
 
 (* coupling: semgrep_output_v1.atd with match_severity 
@@ -171,13 +180,21 @@ type language = [
   | Vue          <json name="vue">
   | Yaml         <json name="yaml">
 
-  (* not regular programming languages *)
-  | Regex        <json name="regex">
-  (* a.k.a., spacegrep and aliengrep *)
+  (* a.k.a., spacegrep and aliengrep 
+   * TODO? remove and replace with 'generic:' in formula? 
+   *)
   | Generic      <json name="generic">
-  (* TODO? remove? *)
+  (* TODO remove? redundant with 'regex:' in formula? *)
+  | Regex        <json name="regex">
+  (* TODO remove? *)
   | None         <json name="none">
 ]
+
+(* See https://www.notion.so/semgrep/Add-select-field-to-Semgrep-rules-d5078296b8884396bf78ef4cefdff66d
+ * TODO: language | "text" | "script" | ...
+ * TODO? support boolean? "text and not python"?
+ *)
+type file_selector = string
 
 type paths = {
   (* CHECK: at least one of those fields must be set *)
@@ -301,6 +318,8 @@ type formula = {
   ?pattern: pattern option;
   (* regex can also be entered with 'pattern: xxx' when languages: [regex] *)
   ?regex: regex option;
+  (* TODO? ?generic: generic_pattern option *)
+  (* TODO? ?filename: glob_pattern option *)
 
   (* Boolean opeators. alt: we could have chosen and/or instead of all/any *)
   ?all: formula list option;
@@ -338,6 +357,7 @@ type condition = [
   | Comparison   <json name="C"> of comparison
   | Metavariable <json name="M"> of metavariable_cond
   | Focus        <json name="F"> of focus
+  (* TODO? 'Also <json name="A"> of also_formula' (alt: to 'anywhere:') *)
   ]
 <json adapter.ocaml="Rule_schema_v2_adapter.Condition">
 
@@ -373,6 +393,7 @@ type metavariable_cond = {
    * CHECK: constant_propagation: is valid only when combined with regex:
    *)
   inherit formula;
+  (* if not specified, use the rule 'language:' *)
   ?language: language option;
   ?constant_propagation <json name="constant-propagation">: bool option;
 
@@ -631,6 +652,7 @@ type match_ = {
 
 type content = {
   inherit formula;
+  (* if not specified, assume to be 'generic' *)
   ?language: language option;
 }
 <json adapter.ocaml="Rule_schema_v2_adapter.Formula">
@@ -657,8 +679,9 @@ type step = {
   ?match_ <json name="match">: formula option;
   ?taint: taint option;
 
-  (* TODO: accept also selectors/parser of martin for more complex cases *)
+  (* if not specified, use the rule 'language:' *)
   ?language: language option;
+  ?select: file_selector list option;
   ?paths: paths option;
 }
 
