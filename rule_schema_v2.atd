@@ -24,14 +24,6 @@
  * position information and complex error recovery which ATD does not provide.
  * This files does not replace either (yet) rule_schema_v1.yml which covers
  * also the old syntax.
- *
- * TODO:
- *  - generalized taint?
- *
- * related documents:
- *  - rule_schema_v1.yaml (actually less complete for the new syntax)
- *  - Parse_rule.ml (the final source of truth, except for stuff currently
- *    handled only in pysemgrep such as join-mode or ssc)
  *)
 
 (*****************************************************************************)
@@ -143,7 +135,6 @@ type language = [
   | Docker       <json name="docker">
   | Ex           <json name="ex">
   | Elixir       <json name="elixir">
-  | Generic      <json name="generic">
   | Go           <json name="go">
   | Golang       <json name="golang">
   | Hack         <json name="hack">
@@ -181,8 +172,11 @@ type language = [
   | Yaml         <json name="yaml">
 
   (* not regular programming languages *)
-  | Regex <json name="regex">
-  | None  <json name="none">
+  | Regex        <json name="regex">
+  (* a.k.a., spacegrep and aliengrep *)
+  | Generic      <json name="generic">
+  (* TODO? remove? *)
+  | None         <json name="none">
 ]
 
 type paths = {
