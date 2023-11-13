@@ -12,6 +12,7 @@ type matching_operation = Semgrep_output_v1_t.matching_operation =
     And
   | Or
   | Inside
+  | Anywhere
   | XPat of string
   | Negation
   | Filter of string

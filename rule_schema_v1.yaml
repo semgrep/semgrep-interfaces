@@ -1,10 +1,18 @@
-# Specification of the Semgrep rule YAML syntax, using JSON schema to specify the syntax.
+# Specification of the Semgrep rule YAML syntax using JSON schema.
+#
+# Note that even if most Semgrep users use YAML to write a rule, and not JSON,
+# we still use a JSON tool (jsonschema) to specify the rule schema because
+# YAML is a superset of JSON and can be mechanically translated into JSON;
+# there is no yamlschema (see https://json-schema-everywhere.github.io/yaml).
+# To add even more confusion, a jsonschema can actually be specified using
+# YAML (like in in this file), and so one can use YAML syntax to specify the
+# JSON schema of files actually written in YAML (hmmm).
+
 $id: https://raw.githubusercontent.com/returntocorp/semgrep-interfaces/main/rule_schema_v1.yaml
 $schema: http://json-schema.org/draft-07/schema#
-#!!If you modify this file, you need to update the submodule in returntocorp/semgrep
-#  and returntocorp/semgrep-app!!
-#!!If you add new syntax to this file, you probably need to add some EXPERIMENTAL
-#  comment before!!
+#!!If you modify this file, update the submodules in semgrep and semgrep-app!!
+#!!If you add new syntax to this file, you probably need to add some
+#  EXPERIMENTAL comment before!!
 $defs:
   # EXPERIMENTAL
   validator:
@@ -132,6 +140,7 @@ $defs:
         - required: [ any ]
         - required: [ not ]
         - required: [ inside ]
+        - required: [ anywhere ]
         - required: [ taint ]
       properties:
         pattern:
@@ -151,6 +160,8 @@ $defs:
         not:
           $ref: "#/$defs/new-pattern"
         inside:
+          $ref: "#/$defs/new-pattern"
+        anywhere:
           $ref: "#/$defs/new-pattern"
         where:
           type: array
@@ -220,6 +231,7 @@ $defs:
           - required: [ pattern-either ]
           - required: [ pattern-not ]
           - required: [ pattern-inside ]
+          - required: [ semgrep-internal-pattern-anywhere ]
           - required: [ pattern-not-inside ]
         properties:
           pattern:
@@ -234,6 +246,8 @@ $defs:
             $ref: "#/$defs/general-pattern-content"
           pattern-inside:
             $ref: "#/$defs/general-pattern-content"
+          semgrep-internal-pattern-anywhere:
+            $ref: "#/$defs/general-pattern-content"
           pattern-not-inside:
             $ref: "#/$defs/general-pattern-content"
       else:
@@ -247,6 +261,7 @@ $defs:
         - $ref: "#/$defs/pattern-either"
         - $ref: "#/$defs/focus-metavariable"
         - $ref: "#/$defs/pattern-inside"
+        - $ref: "#/$defs/semgrep-internal-pattern-anywhere"
         - $ref: "#/$defs/pattern-not-inside"
         - $ref: "#/$defs/pattern-not"
         - $ref: "#/$defs/pattern"
@@ -266,6 +281,7 @@ $defs:
         - $ref: "#/$defs/patterns"
         - $ref: "#/$defs/pattern-either"
         - $ref: "#/$defs/pattern-inside"
+        - $ref: "#/$defs/semgrep-internal-pattern-anywhere"
         - $ref: "#/$defs/pattern"
         - $ref: "#/$defs/pattern-regex"
   taint-content:
@@ -669,6 +685,21 @@ $defs:
         $ref: "#/$defs/general-pattern-content"
     required:
       - pattern-inside
+    additionalProperties: false
+  # EXPERIMENTAL
+  semgrep-internal-pattern-anywhere:
+    type: object
+    properties:
+      semgrep-internal-pattern-anywhere:
+        title: >-
+          Marks this subpattern such that at a containing `patterns` or other
+          form of conjunction the range is not considered; subpattern matches
+          are instead combined solely on the basis of metavariables, without
+          respect to range, and the range of the matching subpattern is
+          discarded wholly.
+        $ref: "#/$defs/general-pattern-content"
+    required:
+      - semgrep-internal-pattern-anywhere
     additionalProperties: false
   pattern-not-inside:
     type: object

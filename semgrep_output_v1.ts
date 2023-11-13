@@ -283,6 +283,7 @@ export type MatchingOperation =
 | { kind: 'And' }
 | { kind: 'Or' }
 | { kind: 'Inside' }
+| { kind: 'Anywhere' }
 | { kind: 'XPat'; value: string }
 | { kind: 'Negation' }
 | { kind: 'Filter'; value: string }
@@ -1493,6 +1494,8 @@ export function writeMatchingOperation(x: MatchingOperation, context: any = x): 
       return 'Or'
     case 'Inside':
       return 'Inside'
+    case 'Anywhere':
+      return 'Anywhere'
     case 'XPat':
       return ['XPat', _atd_write_string(x.value, x)]
     case 'Negation':
@@ -1523,6 +1526,8 @@ export function readMatchingOperation(x: any, context: any = x): MatchingOperati
         return { kind: 'Or' }
       case 'Inside':
         return { kind: 'Inside' }
+      case 'Anywhere':
+        return { kind: 'Anywhere' }
       case 'Negation':
         return { kind: 'Negation' }
       case 'Taint':

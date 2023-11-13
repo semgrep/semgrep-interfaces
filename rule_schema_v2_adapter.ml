@@ -8,13 +8,8 @@ module Formula = struct
   let normalize (orig : Yojson.Safe.t ) : Yojson.Safe.t =
     match orig with
     | `String str ->
-        `Assoc ["f", `List [`String "pattern"; `String str]]
-    | `Assoc [(key , elt)] ->
-        `Assoc ["f", `List [`String key; elt]]
-    | `Assoc [(key , elt); ("where", stuff)] ->
-        `Assoc [
-            ("f", `List [`String key; elt]);
-            ("where", stuff)]
+        `Assoc ["pattern", `String str]
+    (* TODO: check at least one of any/all/... is specified *)
     | x -> x
 
   (** Convert from ATD-compatible json to original json *)
@@ -25,34 +20,52 @@ end
 
 module Condition = struct
 
-  (** Convert from original json to ATD-compatible json *)
   let normalize (orig : Yojson.Safe.t ) : Yojson.Safe.t =
     match orig with
     | `Assoc (("comparison", cmp)::rest) ->
        `List [`String "C";
             `Assoc (("comparison", cmp)::rest)]
-    | `Assoc [("metavariable", mvar); ("regex", reg)] ->
+    | `Assoc (("metavariable", mvar)::rest) ->
+       (* TODO: check at least one of type/types/... is specified *)
        `List [`String "M";
-            `Assoc [("metavariable", mvar); 
-              ("c", `List [`String "regex"; reg])]]
-    | `Assoc [("metavariable", mvar); ("type", ty)] ->
-       `List [`String "M";
-            `Assoc [("metavariable", mvar); 
-              ("c", `List [`String "type"; ty])]]
-    | `Assoc [("metavariable", mvar); ("types", tys)] ->
-       `List [`String "M";
-            `Assoc [("metavariable", mvar); 
-              ("c", `List [`String "types"; tys])]]
-    | `Assoc [("metavariable", mvar); ("pattern", p)] ->
-       `List [`String "M";
-            `Assoc [("metavariable", mvar); 
-              ("c", `List [`String "F"; `Assoc [("pattern", p)]])]]
-    | x -> 
-          x
+            `Assoc (("metavariable", mvar)::rest)]
+    (* alt: we could do the String vs List in a separate adapter *) 
+    | `Assoc [("focus", `String x)] ->
+       `List [`String "F";
+            `Assoc [("focus", `List [`String x])]]
+    | `Assoc [("focus", `List x)] ->
+       `List [`String "F";
+            `Assoc [("focus", `List x)]]
+    | x -> x
 
-
-  (** Convert from ATD-compatible json to original json *)
   let restore  (_atd : Yojson.Safe.t) : Yojson.Safe.t =
-    (* not needed for now; we care just about parsing *)
     failwith "Rule_schema_v2_adapter.Condition.restore not implemented"
+end
+
+module BySideEffect = struct
+
+  let normalize (orig : Yojson.Safe.t ) : Yojson.Safe.t =
+    match orig with
+    | `Bool true -> `String "true"
+    | `Bool false -> `String "false"
+    | x -> x
+
+  let restore  (_atd : Yojson.Safe.t) : Yojson.Safe.t =
+    failwith "Rule_schema_v2_adapter.BySideEffect.restore not implemented"
+end
+
+module ProjectDependsOn = struct
+
+  let normalize (orig : Yojson.Safe.t ) : Yojson.Safe.t =
+    match orig with
+    | `Assoc [("depends-on-either", arr)] ->
+       `List [`String "E";
+            `Assoc [("depends-on-either", arr)]]
+    | `Assoc (xs) ->
+       `List [`String "B";
+            `Assoc xs]
+    | x -> x
+
+  let restore  (_atd : Yojson.Safe.t) : Yojson.Safe.t =
+    failwith "Rule_schema_v2_adapter.ProjectDependsOn.restore not implemented"
 end
