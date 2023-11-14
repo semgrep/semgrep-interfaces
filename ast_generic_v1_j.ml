@@ -254,25 +254,25 @@ let read__float_nullable = (
 )
 let _float_nullable_of_string s =
   read__float_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__int_nullable = (
+let write__x_71cb4bf = (
   Atdgen_runtime.Oj_run.write_nullable (
-    Yojson.Safe.write_int
+    Atdgen_runtime.Oj_run.write_int64
   )
 )
-let string_of__int_nullable ?(len = 1024) x =
+let string_of__x_71cb4bf ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__int_nullable ob x;
+  write__x_71cb4bf ob x;
   Buffer.contents ob
-let read__int_nullable = (
+let read__x_71cb4bf = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     (if Yojson.Safe.read_null_if_possible p lb then None
     else Some ((
-      Atdgen_runtime.Oj_run.read_int
+      Atdgen_runtime.Oj_run.read_int64
     ) p lb) : _ option)
 )
-let _int_nullable_of_string s =
-  read__int_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _x_71cb4bf_of_string s =
+  read__x_71cb4bf (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_class_kind = (
   fun ob x ->
     match x with
@@ -2321,72 +2321,6 @@ let read__function_kind_wrap = (
 )
 let _function_kind_wrap_of_string s =
   read__function_kind_wrap (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__int_nullable_wrap = (
-  fun ob x ->
-    Buffer.add_char ob '[';
-    (let x, _ = x in
-    (
-      write__int_nullable
-    ) ob x
-    );
-    Buffer.add_char ob ',';
-    (let _, x = x in
-    (
-      write_tok
-    ) ob x
-    );
-    Buffer.add_char ob ']';
-)
-let string_of__int_nullable_wrap ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__int_nullable_wrap ob x;
-  Buffer.contents ob
-let read__int_nullable_wrap = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-    let len = ref 0 in
-    let end_of_tuple = ref false in
-    (try
-      let x0 =
-        let x =
-          (
-            read__int_nullable
-          ) p lb
-        in
-        incr len;
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-        x
-      in
-      let x1 =
-        let x =
-          (
-            read_tok
-          ) p lb
-        in
-        incr len;
-        (try
-          Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-        with Yojson.End_of_tuple -> end_of_tuple := true);
-        x
-      in
-      if not !end_of_tuple then (
-        try
-          while true do
-            Yojson.Safe.skip_json p lb;
-            Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          done
-        with Yojson.End_of_tuple -> ()
-      );
-      (x0, x1)
-    with Yojson.End_of_tuple ->
-      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
-)
-let _int_nullable_wrap_of_string s =
-  read__int_nullable_wrap (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__int_wrap = (
   fun ob x ->
     Buffer.add_char ob '[';
@@ -2876,6 +2810,72 @@ let read__tok_option = (
 )
 let _tok_option_of_string s =
   read__tok_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_b40703a = (
+  fun ob x ->
+    Buffer.add_char ob '[';
+    (let x, _ = x in
+    (
+      write__x_71cb4bf
+    ) ob x
+    );
+    Buffer.add_char ob ',';
+    (let _, x = x in
+    (
+      write_tok
+    ) ob x
+    );
+    Buffer.add_char ob ']';
+)
+let string_of__x_b40703a ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__x_b40703a ob x;
+  Buffer.contents ob
+let read__x_b40703a = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+    let len = ref 0 in
+    let end_of_tuple = ref false in
+    (try
+      let x0 =
+        let x =
+          (
+            read__x_71cb4bf
+          ) p lb
+        in
+        incr len;
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+        x
+      in
+      let x1 =
+        let x =
+          (
+            read_tok
+          ) p lb
+        in
+        incr len;
+        (try
+          Yojson.Safe.read_space p lb;
+          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+        with Yojson.End_of_tuple -> end_of_tuple := true);
+        x
+      in
+      if not !end_of_tuple then (
+        try
+          while true do
+            Yojson.Safe.skip_json p lb;
+            Yojson.Safe.read_space p lb;
+            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+          done
+        with Yojson.End_of_tuple -> ()
+      );
+      (x0, x1)
+    with Yojson.End_of_tuple ->
+      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+)
+let _x_b40703a_of_string s =
+  read__x_b40703a (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_ident = (
   write__string_wrap
 )
@@ -2978,7 +2978,7 @@ let write_literal = (
       | `Int x ->
         Buffer.add_string ob "[\"Int\",";
         (
-          write__int_nullable_wrap
+          write__x_b40703a
         ) ob x;
         Buffer.add_char ob ']'
       | `Float x ->
@@ -3090,7 +3090,7 @@ let read_literal = (
             | "Int" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read__int_nullable_wrap
+                  read__x_b40703a
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -3294,7 +3294,7 @@ let read_literal = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read__int_nullable_wrap
+                  read__x_b40703a
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
