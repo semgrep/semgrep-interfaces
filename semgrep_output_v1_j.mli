@@ -456,6 +456,7 @@ type core_output = Semgrep_output_v1_t.core_output = {
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option;
+  interfile_languages_used: string list option;
   skipped_rules: skipped_rule list
 }
 
@@ -478,6 +479,7 @@ type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option;
+  interfile_languages_used: string list option;
   skipped_rules: skipped_rule list
 }
 
@@ -529,6 +531,7 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   explanations: matching_explanation list option;
   rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option;
+  interfile_languages_used: string list option;
   skipped_rules: skipped_rule list
 }
 
