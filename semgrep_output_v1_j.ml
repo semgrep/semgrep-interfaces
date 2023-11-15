@@ -372,6 +372,7 @@ type error_type = Semgrep_output_v1_t.error_type =
   | OtherParseError
   | AstBuilderError
   | RuleParseError
+  | SemgrepWarning
   | SemgrepError
   | InvalidRuleSchemaError
   | UnknownLanguageError
@@ -14877,6 +14878,7 @@ let write_error_type : _ -> error_type -> _ = (
       | OtherParseError -> Buffer.add_string ob "\"Other syntax error\""
       | AstBuilderError -> Buffer.add_string ob "\"AST builder error\""
       | RuleParseError -> Buffer.add_string ob "\"Rule parse error\""
+      | SemgrepWarning -> Buffer.add_string ob "\"SemgrepWarning\""
       | SemgrepError -> Buffer.add_string ob "\"SemgrepError\""
       | InvalidRuleSchemaError -> Buffer.add_string ob "\"InvalidRuleSchemaError\""
       | UnknownLanguageError -> Buffer.add_string ob "\"UnknownLanguageError\""
@@ -14941,6 +14943,10 @@ let read_error_type = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (RuleParseError : error_type)
+            | "SemgrepWarning" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (SemgrepWarning : error_type)
             | "SemgrepError" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -15043,6 +15049,8 @@ let read_error_type = (
               (AstBuilderError : error_type)
             | "Rule parse error" ->
               (RuleParseError : error_type)
+            | "SemgrepWarning" ->
+              (SemgrepWarning : error_type)
             | "SemgrepError" ->
               (SemgrepError : error_type)
             | "InvalidRuleSchemaError" ->

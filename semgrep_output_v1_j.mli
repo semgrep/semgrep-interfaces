@@ -372,6 +372,7 @@ type error_type = Semgrep_output_v1_t.error_type =
   | OtherParseError
   | AstBuilderError
   | RuleParseError
+  | SemgrepWarning
   | SemgrepError
   | InvalidRuleSchemaError
   | UnknownLanguageError

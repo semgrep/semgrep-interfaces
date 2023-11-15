@@ -160,6 +160,7 @@ export type ErrorType =
 | { kind: 'OtherParseError' /* JSON: "Other syntax error" */ }
 | { kind: 'AstBuilderError' /* JSON: "AST builder error" */ }
 | { kind: 'RuleParseError' /* JSON: "Rule parse error" */ }
+| { kind: 'SemgrepWarning' }
 | { kind: 'SemgrepError' }
 | { kind: 'InvalidRuleSchemaError' }
 | { kind: 'UnknownLanguageError' }
@@ -1103,6 +1104,8 @@ export function writeErrorType(x: ErrorType, context: any = x): any {
       return 'AST builder error'
     case 'RuleParseError':
       return 'Rule parse error'
+    case 'SemgrepWarning':
+      return 'SemgrepWarning'
     case 'SemgrepError':
       return 'SemgrepError'
     case 'InvalidRuleSchemaError':
@@ -1155,6 +1158,8 @@ export function readErrorType(x: any, context: any = x): ErrorType {
         return { kind: 'AstBuilderError' }
       case 'Rule parse error':
         return { kind: 'RuleParseError' }
+      case 'SemgrepWarning':
+        return { kind: 'SemgrepWarning' }
       case 'SemgrepError':
         return { kind: 'SemgrepError' }
       case 'InvalidRuleSchemaError':

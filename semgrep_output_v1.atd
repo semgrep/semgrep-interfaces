@@ -403,6 +403,7 @@ type error_type
    * TODO? should we move invalid_rule_error_kind here?
    *)
   | RuleParseError <json name="Rule parse error">
+  | SemgrepWarning <json name="SemgrepWarning">
   (* generated in pysemgrep only. TODO: some should take error_span in parameter *)
   | SemgrepError <json name="SemgrepError">
   | InvalidRuleSchemaError <json name="InvalidRuleSchemaError">

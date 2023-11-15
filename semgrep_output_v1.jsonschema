@@ -263,6 +263,7 @@
         { "const": "Other syntax error" },
         { "const": "AST builder error" },
         { "const": "Rule parse error" },
+        { "const": "SemgrepWarning" },
         { "const": "SemgrepError" },
         { "const": "InvalidRuleSchemaError" },
         { "const": "UnknownLanguageError" },

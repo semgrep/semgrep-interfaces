@@ -3735,6 +3735,23 @@ class RuleParseError:
 
 
 @dataclass(frozen=True, order=True)
+class SemgrepWarning:
+    """Original type: error_type = [ ... | SemgrepWarning | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SemgrepWarning'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'SemgrepWarning'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
 class SemgrepError:
     """Original type: error_type = [ ... | SemgrepError | ... ]"""
 
@@ -4047,7 +4064,7 @@ class IncompatibleRule0:
 class ErrorType:
     """Original type: error_type = [ ... ]"""
 
-    value: Union[LexicalError, ParseError, OtherParseError, AstBuilderError, RuleParseError, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0]
+    value: Union[LexicalError, ParseError, OtherParseError, AstBuilderError, RuleParseError, SemgrepWarning, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0]
 
     @property
     def kind(self) -> str:
@@ -4067,6 +4084,8 @@ class ErrorType:
                 return cls(AstBuilderError())
             if x == 'Rule parse error':
                 return cls(RuleParseError())
+            if x == 'SemgrepWarning':
+                return cls(SemgrepWarning())
             if x == 'SemgrepError':
                 return cls(SemgrepError())
             if x == 'InvalidRuleSchemaError':
