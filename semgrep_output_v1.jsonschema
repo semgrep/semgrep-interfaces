@@ -25,6 +25,10 @@
       "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
     },
     "engine_requested": { "$ref": "#/definitions/engine_kind" },
+    "interfile_languages_used": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
     "skipped_rules": {
       "type": "array",
       "items": { "$ref": "#/definitions/skipped_rule" }
@@ -525,6 +529,10 @@
           "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
         },
         "engine_requested": { "$ref": "#/definitions/engine_kind" },
+        "interfile_languages_used": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
         "skipped_rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
@@ -546,6 +554,10 @@
           "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
         },
         "engine_requested": { "$ref": "#/definitions/engine_kind" },
+        "interfile_languages_used": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
         "skipped_rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
