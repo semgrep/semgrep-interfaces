@@ -109,7 +109,7 @@ type resolved_name = (resolved_name_kind * sid)
 (* EXPERIMENTAL *)
 type resolved_name_kind = [
   | Global
-  | Local 
+  | Local
   | Param
   | ImportedEntity of dotted_ident
   | ImportedModule of module_name
@@ -231,7 +231,7 @@ type expr = [
   | Ellipsis of tok
 
   | ParenExpr of expr bracket
-  (* Dual of ExprStmt. OCaml/Ruby/Scala/... have just expressions, 
+  (* Dual of ExprStmt. OCaml/Ruby/Scala/... have just expressions,
    * not separate statements *)
   | StmtExpr of stmt
 
@@ -243,7 +243,7 @@ type literal = [
   (* the numbers are an option because OCaml numbers (e.g., 63bits int)
    * may not be able to represent all numbers.
   *)
-  | Int of int nullable wrap_ | Float of float nullable wrap_
+  | Int of int <ocaml repr="int64"> nullable wrap_ | Float of float nullable wrap_
   | Char of string wrap_ | String of string wrap_
   | Regexp of (string wrap_ bracket (* // *)
                * string wrap_ nullable (* modifiers *))
@@ -353,7 +353,7 @@ type operator = [
   | In (* in: checks that value belongs to a collection *) | NotIn (* !in *)
   | Is (* is: checks value has type *) | NotIs (* !is: *)
   (* Shell & and | *)
-  | Background 
+  | Background
   | Pipe
   ]
 
@@ -378,7 +378,7 @@ type concat_string_kind = [
   *)
   | FString of string(* Python *)
   (* Javascript uses a special syntax called tagged template literals, e.g.,
-   * foo`template string = ${id}`. 
+   * foo`template string = ${id}`.
    *)
   | TaggedTemplateLiteral
   ]
@@ -538,7 +538,7 @@ type multi_for_each = [
 (* Pattern *)
 (*****************************************************************************)
 (* This is quite similar to expr. A few constructs in expr have
- * equivalent here prefixed with Pat (e.g., PaLiteral, PatId). 
+ * equivalent here prefixed with Pat (e.g., PaLiteral, PatId).
 *)
 
 type pattern = [
@@ -778,7 +778,7 @@ type function_kind = [
   | Method
   | LambdaKind
   (* a.k.a short lambdas *)
-  | Arrow 
+  | Arrow
   (* for Scala *)
   | BlockCases
   ]
