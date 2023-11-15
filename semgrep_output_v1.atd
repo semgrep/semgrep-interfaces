@@ -234,6 +234,7 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
    * inserted in place of the text in the matched range in order to fix the
    * finding. *)
   ?rendered_fix: string option;
+  is_ignored : bool;
   engine_kind: engine_kind;
   (* If present indicates the status of postprocessor validation. This field
    * not being present should be equivalent to No_validator.
