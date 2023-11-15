@@ -107,7 +107,7 @@
     },
     "core_match_extra": {
       "type": "object",
-      "required": [ "metavars", "engine_kind" ],
+      "required": [ "metavars", "is_ignored", "engine_kind" ],
       "properties": {
         "message": { "type": "string" },
         "metadata": { "$ref": "#/definitions/raw_json" },
@@ -115,6 +115,7 @@
         "metavars": { "$ref": "#/definitions/metavars" },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
         "rendered_fix": { "type": "string" },
+        "is_ignored": { "type": "boolean" },
         "engine_kind": { "$ref": "#/definitions/engine_kind" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
         "extra_extra": { "$ref": "#/definitions/raw_json" }

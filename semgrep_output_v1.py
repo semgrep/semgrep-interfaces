@@ -1201,6 +1201,7 @@ class CoreMatchExtra:
     """Original type: core_match_extra = { ... }"""
 
     metavars: Metavars
+    is_ignored: bool
     engine_kind: EngineKind
     message: Optional[str] = None
     metadata: Optional[RawJson] = None
@@ -1215,6 +1216,7 @@ class CoreMatchExtra:
         if isinstance(x, dict):
             return cls(
                 metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else _atd_missing_json_field('CoreMatchExtra', 'metavars'),
+                is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else _atd_missing_json_field('CoreMatchExtra', 'is_ignored'),
                 engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else _atd_missing_json_field('CoreMatchExtra', 'engine_kind'),
                 message=_atd_read_string(x['message']) if 'message' in x else None,
                 metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else None,
@@ -1230,6 +1232,7 @@ class CoreMatchExtra:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['metavars'] = (lambda x: x.to_json())(self.metavars)
+        res['is_ignored'] = _atd_write_bool(self.is_ignored)
         res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
         if self.message is not None:
             res['message'] = _atd_write_string(self.message)

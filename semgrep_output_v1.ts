@@ -86,6 +86,7 @@ export type CoreMatchExtra = {
   metavars: Metavars;
   dataflow_trace?: MatchDataflowTrace;
   rendered_fix?: string;
+  is_ignored: boolean;
   engine_kind: EngineKind;
   validation_state?: ValidationState;
   extra_extra?: RawJson;
@@ -898,6 +899,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
     'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
     'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
     'rendered_fix': _atd_write_optional_field(_atd_write_string, x.rendered_fix, x),
+    'is_ignored': _atd_write_required_field('CoreMatchExtra', 'is_ignored', _atd_write_bool, x.is_ignored, x),
     'engine_kind': _atd_write_required_field('CoreMatchExtra', 'engine_kind', writeEngineKind, x.engine_kind, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
@@ -912,6 +914,7 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
     rendered_fix: _atd_read_optional_field(_atd_read_string, x['rendered_fix'], x),
+    is_ignored: _atd_read_required_field('CoreMatchExtra', 'is_ignored', _atd_read_bool, x['is_ignored'], x),
     engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineKind, x['engine_kind'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),

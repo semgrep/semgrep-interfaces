@@ -89,6 +89,7 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   metavars: metavars;
   dataflow_trace: match_dataflow_trace option;
   rendered_fix: string option;
+  is_ignored: bool;
   engine_kind: engine_kind;
   validation_state: validation_state option;
   extra_extra: raw_json option
