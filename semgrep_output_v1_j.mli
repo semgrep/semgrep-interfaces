@@ -87,8 +87,8 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   metadata: raw_json option;
   severity: match_severity option;
   metavars: metavars;
+  fix: string option;
   dataflow_trace: match_dataflow_trace option;
-  rendered_fix: string option;
   engine_kind: engine_kind;
   validation_state: validation_state option;
   extra_extra: raw_json option
@@ -330,12 +330,6 @@ type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
 }
   [@@deriving show]
 
-type fix_regex = Semgrep_output_v1_t.fix_regex = {
-  regex: string;
-  replacement: string;
-  count: int option
-}
-
 type finding_hashes = Semgrep_output_v1_t.finding_hashes = {
   start_line_hash: string;
   end_line_hash: string;
@@ -485,16 +479,15 @@ type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
 
 type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   metavars: metavars option;
-  fingerprint: string;
-  lines: string;
   message: string;
+  fix: string option;
+  fixed_lines: string list option;
   metadata: raw_json;
   severity: match_severity;
-  fix: string option;
-  fix_regex: fix_regex option;
+  fingerprint: string;
+  lines: string;
   is_ignored: bool option;
   sca_info: sca_info option;
-  fixed_lines: string list option;
   dataflow_trace: match_dataflow_trace option;
   engine_kind: engine_kind option;
   validation_state: validation_state option;
@@ -1652,26 +1645,6 @@ val read_incompatible_rule :
 val incompatible_rule_of_string :
   string -> incompatible_rule
   (** Deserialize JSON data of type {!type:incompatible_rule}. *)
-
-val write_fix_regex :
-  Buffer.t -> fix_regex -> unit
-  (** Output a JSON value of type {!type:fix_regex}. *)
-
-val string_of_fix_regex :
-  ?len:int -> fix_regex -> string
-  (** Serialize a value of type {!type:fix_regex}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_fix_regex :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> fix_regex
-  (** Input JSON data of type {!type:fix_regex}. *)
-
-val fix_regex_of_string :
-  string -> fix_regex
-  (** Deserialize JSON data of type {!type:fix_regex}. *)
 
 val write_finding_hashes :
   Buffer.t -> finding_hashes -> unit

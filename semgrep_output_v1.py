@@ -1205,8 +1205,8 @@ class CoreMatchExtra:
     message: Optional[str] = None
     metadata: Optional[RawJson] = None
     severity: Optional[MatchSeverity] = None
+    fix: Optional[str] = None
     dataflow_trace: Optional[MatchDataflowTrace] = None
-    rendered_fix: Optional[str] = None
     validation_state: Optional[ValidationState] = None
     extra_extra: Optional[RawJson] = None
 
@@ -1219,8 +1219,8 @@ class CoreMatchExtra:
                 message=_atd_read_string(x['message']) if 'message' in x else None,
                 metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else None,
                 severity=MatchSeverity.from_json(x['severity']) if 'severity' in x else None,
+                fix=_atd_read_string(x['fix']) if 'fix' in x else None,
                 dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
-                rendered_fix=_atd_read_string(x['rendered_fix']) if 'rendered_fix' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
                 extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
             )
@@ -1237,10 +1237,10 @@ class CoreMatchExtra:
             res['metadata'] = (lambda x: x.to_json())(self.metadata)
         if self.severity is not None:
             res['severity'] = (lambda x: x.to_json())(self.severity)
+        if self.fix is not None:
+            res['fix'] = _atd_write_string(self.fix)
         if self.dataflow_trace is not None:
             res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
-        if self.rendered_fix is not None:
-            res['rendered_fix'] = _atd_write_string(self.rendered_fix)
         if self.validation_state is not None:
             res['validation_state'] = (lambda x: x.to_json())(self.validation_state)
         if self.extra_extra is not None:
@@ -3487,41 +3487,6 @@ class IncompatibleRule:
 
 
 @dataclass
-class FixRegex:
-    """Original type: fix_regex = { ... }"""
-
-    regex: str
-    replacement: str
-    count: Optional[int] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'FixRegex':
-        if isinstance(x, dict):
-            return cls(
-                regex=_atd_read_string(x['regex']) if 'regex' in x else _atd_missing_json_field('FixRegex', 'regex'),
-                replacement=_atd_read_string(x['replacement']) if 'replacement' in x else _atd_missing_json_field('FixRegex', 'replacement'),
-                count=_atd_read_int(x['count']) if 'count' in x else None,
-            )
-        else:
-            _atd_bad_json('FixRegex', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['regex'] = _atd_write_string(self.regex)
-        res['replacement'] = _atd_write_string(self.replacement)
-        if self.count is not None:
-            res['count'] = _atd_write_int(self.count)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'FixRegex':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class FindingHashes:
     """Original type: finding_hashes = { ... }"""
 
@@ -4663,17 +4628,16 @@ class CliOutputExtra:
 class CliMatchExtra:
     """Original type: cli_match_extra = { ... }"""
 
-    fingerprint: str
-    lines: str
     message: str
     metadata: RawJson
     severity: MatchSeverity
+    fingerprint: str
+    lines: str
     metavars: Optional[Metavars] = None
     fix: Optional[str] = None
-    fix_regex: Optional[FixRegex] = None
+    fixed_lines: Optional[List[str]] = None
     is_ignored: Optional[bool] = None
     sca_info: Optional[ScaInfo] = None
-    fixed_lines: Optional[List[str]] = None
     dataflow_trace: Optional[MatchDataflowTrace] = None
     engine_kind: Optional[EngineKind] = None
     validation_state: Optional[ValidationState] = None
@@ -4683,17 +4647,16 @@ class CliMatchExtra:
     def from_json(cls, x: Any) -> 'CliMatchExtra':
         if isinstance(x, dict):
             return cls(
-                fingerprint=_atd_read_string(x['fingerprint']) if 'fingerprint' in x else _atd_missing_json_field('CliMatchExtra', 'fingerprint'),
-                lines=_atd_read_string(x['lines']) if 'lines' in x else _atd_missing_json_field('CliMatchExtra', 'lines'),
                 message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('CliMatchExtra', 'message'),
                 metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else _atd_missing_json_field('CliMatchExtra', 'metadata'),
                 severity=MatchSeverity.from_json(x['severity']) if 'severity' in x else _atd_missing_json_field('CliMatchExtra', 'severity'),
+                fingerprint=_atd_read_string(x['fingerprint']) if 'fingerprint' in x else _atd_missing_json_field('CliMatchExtra', 'fingerprint'),
+                lines=_atd_read_string(x['lines']) if 'lines' in x else _atd_missing_json_field('CliMatchExtra', 'lines'),
                 metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else None,
                 fix=_atd_read_string(x['fix']) if 'fix' in x else None,
-                fix_regex=FixRegex.from_json(x['fix_regex']) if 'fix_regex' in x else None,
+                fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
                 is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else None,
                 sca_info=ScaInfo.from_json(x['sca_info']) if 'sca_info' in x else None,
-                fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
                 dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
@@ -4704,23 +4667,21 @@ class CliMatchExtra:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['fingerprint'] = _atd_write_string(self.fingerprint)
-        res['lines'] = _atd_write_string(self.lines)
         res['message'] = _atd_write_string(self.message)
         res['metadata'] = (lambda x: x.to_json())(self.metadata)
         res['severity'] = (lambda x: x.to_json())(self.severity)
+        res['fingerprint'] = _atd_write_string(self.fingerprint)
+        res['lines'] = _atd_write_string(self.lines)
         if self.metavars is not None:
             res['metavars'] = (lambda x: x.to_json())(self.metavars)
         if self.fix is not None:
             res['fix'] = _atd_write_string(self.fix)
-        if self.fix_regex is not None:
-            res['fix_regex'] = (lambda x: x.to_json())(self.fix_regex)
+        if self.fixed_lines is not None:
+            res['fixed_lines'] = _atd_write_list(_atd_write_string)(self.fixed_lines)
         if self.is_ignored is not None:
             res['is_ignored'] = _atd_write_bool(self.is_ignored)
         if self.sca_info is not None:
             res['sca_info'] = (lambda x: x.to_json())(self.sca_info)
-        if self.fixed_lines is not None:
-            res['fixed_lines'] = _atd_write_list(_atd_write_string)(self.fixed_lines)
         if self.dataflow_trace is not None:
             res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
         if self.engine_kind is not None:

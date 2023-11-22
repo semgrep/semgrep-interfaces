@@ -84,8 +84,8 @@ export type CoreMatchExtra = {
   metadata?: RawJson;
   severity?: MatchSeverity;
   metavars: Metavars;
+  fix?: string;
   dataflow_trace?: MatchDataflowTrace;
-  rendered_fix?: string;
   engine_kind: EngineKind;
   validation_state?: ValidationState;
   extra_extra?: RawJson;
@@ -101,26 +101,19 @@ export type CliMatch = {
 
 export type CliMatchExtra = {
   metavars?: Metavars;
-  fingerprint: string;
-  lines: string;
   message: string;
+  fix?: string;
+  fixed_lines?: string[];
   metadata: RawJson;
   severity: MatchSeverity;
-  fix?: string;
-  fix_regex?: FixRegex;
+  fingerprint: string;
+  lines: string;
   is_ignored?: boolean;
   sca_info?: ScaInfo;
-  fixed_lines?: string[];
   dataflow_trace?: MatchDataflowTrace;
   engine_kind?: EngineKind;
   validation_state?: ValidationState;
   extra_extra?: RawJson;
-}
-
-export type FixRegex = {
-  regex: string;
-  replacement: string;
-  count?: number /*int*/;
 }
 
 export type Metavars = Map<string, MetavarValue>
@@ -899,8 +892,8 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
     'metadata': _atd_write_optional_field(writeRawJson, x.metadata, x),
     'severity': _atd_write_optional_field(writeMatchSeverity, x.severity, x),
     'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
+    'fix': _atd_write_optional_field(_atd_write_string, x.fix, x),
     'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
-    'rendered_fix': _atd_write_optional_field(_atd_write_string, x.rendered_fix, x),
     'engine_kind': _atd_write_required_field('CoreMatchExtra', 'engine_kind', writeEngineKind, x.engine_kind, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
@@ -913,8 +906,8 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     metadata: _atd_read_optional_field(readRawJson, x['metadata'], x),
     severity: _atd_read_optional_field(readMatchSeverity, x['severity'], x),
     metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
+    fix: _atd_read_optional_field(_atd_read_string, x['fix'], x),
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
-    rendered_fix: _atd_read_optional_field(_atd_read_string, x['rendered_fix'], x),
     engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineKind, x['engine_kind'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
@@ -944,16 +937,15 @@ export function readCliMatch(x: any, context: any = x): CliMatch {
 export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
   return {
     'metavars': _atd_write_optional_field(writeMetavars, x.metavars, x),
-    'fingerprint': _atd_write_required_field('CliMatchExtra', 'fingerprint', _atd_write_string, x.fingerprint, x),
-    'lines': _atd_write_required_field('CliMatchExtra', 'lines', _atd_write_string, x.lines, x),
     'message': _atd_write_required_field('CliMatchExtra', 'message', _atd_write_string, x.message, x),
+    'fix': _atd_write_optional_field(_atd_write_string, x.fix, x),
+    'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
     'metadata': _atd_write_required_field('CliMatchExtra', 'metadata', writeRawJson, x.metadata, x),
     'severity': _atd_write_required_field('CliMatchExtra', 'severity', writeMatchSeverity, x.severity, x),
-    'fix': _atd_write_optional_field(_atd_write_string, x.fix, x),
-    'fix_regex': _atd_write_optional_field(writeFixRegex, x.fix_regex, x),
+    'fingerprint': _atd_write_required_field('CliMatchExtra', 'fingerprint', _atd_write_string, x.fingerprint, x),
+    'lines': _atd_write_required_field('CliMatchExtra', 'lines', _atd_write_string, x.lines, x),
     'is_ignored': _atd_write_optional_field(_atd_write_bool, x.is_ignored, x),
     'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
-    'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
     'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
     'engine_kind': _atd_write_optional_field(writeEngineKind, x.engine_kind, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
@@ -964,36 +956,19 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
 export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
   return {
     metavars: _atd_read_optional_field(readMetavars, x['metavars'], x),
-    fingerprint: _atd_read_required_field('CliMatchExtra', 'fingerprint', _atd_read_string, x['fingerprint'], x),
-    lines: _atd_read_required_field('CliMatchExtra', 'lines', _atd_read_string, x['lines'], x),
     message: _atd_read_required_field('CliMatchExtra', 'message', _atd_read_string, x['message'], x),
+    fix: _atd_read_optional_field(_atd_read_string, x['fix'], x),
+    fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
     metadata: _atd_read_required_field('CliMatchExtra', 'metadata', readRawJson, x['metadata'], x),
     severity: _atd_read_required_field('CliMatchExtra', 'severity', readMatchSeverity, x['severity'], x),
-    fix: _atd_read_optional_field(_atd_read_string, x['fix'], x),
-    fix_regex: _atd_read_optional_field(readFixRegex, x['fix_regex'], x),
+    fingerprint: _atd_read_required_field('CliMatchExtra', 'fingerprint', _atd_read_string, x['fingerprint'], x),
+    lines: _atd_read_required_field('CliMatchExtra', 'lines', _atd_read_string, x['lines'], x),
     is_ignored: _atd_read_optional_field(_atd_read_bool, x['is_ignored'], x),
     sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
-    fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
     engine_kind: _atd_read_optional_field(readEngineKind, x['engine_kind'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
-  };
-}
-
-export function writeFixRegex(x: FixRegex, context: any = x): any {
-  return {
-    'regex': _atd_write_required_field('FixRegex', 'regex', _atd_write_string, x.regex, x),
-    'replacement': _atd_write_required_field('FixRegex', 'replacement', _atd_write_string, x.replacement, x),
-    'count': _atd_write_optional_field(_atd_write_int, x.count, x),
-  };
-}
-
-export function readFixRegex(x: any, context: any = x): FixRegex {
-  return {
-    regex: _atd_read_required_field('FixRegex', 'regex', _atd_read_string, x['regex'], x),
-    replacement: _atd_read_required_field('FixRegex', 'replacement', _atd_read_string, x['replacement'], x),
-    count: _atd_read_optional_field(_atd_read_int, x['count'], x),
   };
 }
 
