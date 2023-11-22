@@ -1202,6 +1202,7 @@ class CoreMatchExtra:
 
     metavars: Metavars
     engine_kind: EngineKind
+    is_ignored: bool
     message: Optional[str] = None
     metadata: Optional[RawJson] = None
     severity: Optional[MatchSeverity] = None
@@ -1216,6 +1217,7 @@ class CoreMatchExtra:
             return cls(
                 metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else _atd_missing_json_field('CoreMatchExtra', 'metavars'),
                 engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else _atd_missing_json_field('CoreMatchExtra', 'engine_kind'),
+                is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else _atd_missing_json_field('CoreMatchExtra', 'is_ignored'),
                 message=_atd_read_string(x['message']) if 'message' in x else None,
                 metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else None,
                 severity=MatchSeverity.from_json(x['severity']) if 'severity' in x else None,
@@ -1231,6 +1233,7 @@ class CoreMatchExtra:
         res: Dict[str, Any] = {}
         res['metavars'] = (lambda x: x.to_json())(self.metavars)
         res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
+        res['is_ignored'] = _atd_write_bool(self.is_ignored)
         if self.message is not None:
             res['message'] = _atd_write_string(self.message)
         if self.metadata is not None:
@@ -3697,6 +3700,23 @@ class RuleParseError:
 
 
 @dataclass(frozen=True, order=True)
+class SemgrepWarning:
+    """Original type: error_type = [ ... | SemgrepWarning | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SemgrepWarning'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'SemgrepWarning'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
 class SemgrepError:
     """Original type: error_type = [ ... | SemgrepError | ... ]"""
 
@@ -4009,7 +4029,7 @@ class IncompatibleRule0:
 class ErrorType:
     """Original type: error_type = [ ... ]"""
 
-    value: Union[LexicalError, ParseError, OtherParseError, AstBuilderError, RuleParseError, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0]
+    value: Union[LexicalError, ParseError, OtherParseError, AstBuilderError, RuleParseError, SemgrepWarning, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0]
 
     @property
     def kind(self) -> str:
@@ -4029,6 +4049,8 @@ class ErrorType:
                 return cls(AstBuilderError())
             if x == 'Rule parse error':
                 return cls(RuleParseError())
+            if x == 'SemgrepWarning':
+                return cls(SemgrepWarning())
             if x == 'SemgrepError':
                 return cls(SemgrepError())
             if x == 'InvalidRuleSchemaError':

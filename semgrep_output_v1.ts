@@ -87,6 +87,7 @@ export type CoreMatchExtra = {
   fix?: string;
   dataflow_trace?: MatchDataflowTrace;
   engine_kind: EngineKind;
+  is_ignored: boolean;
   validation_state?: ValidationState;
   extra_extra?: RawJson;
 }
@@ -152,6 +153,7 @@ export type ErrorType =
 | { kind: 'OtherParseError' /* JSON: "Other syntax error" */ }
 | { kind: 'AstBuilderError' /* JSON: "AST builder error" */ }
 | { kind: 'RuleParseError' /* JSON: "Rule parse error" */ }
+| { kind: 'SemgrepWarning' }
 | { kind: 'SemgrepError' }
 | { kind: 'InvalidRuleSchemaError' }
 | { kind: 'UnknownLanguageError' }
@@ -895,6 +897,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
     'fix': _atd_write_optional_field(_atd_write_string, x.fix, x),
     'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
     'engine_kind': _atd_write_required_field('CoreMatchExtra', 'engine_kind', writeEngineKind, x.engine_kind, x),
+    'is_ignored': _atd_write_required_field('CoreMatchExtra', 'is_ignored', _atd_write_bool, x.is_ignored, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
   };
@@ -909,6 +912,7 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     fix: _atd_read_optional_field(_atd_read_string, x['fix'], x),
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
     engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineKind, x['engine_kind'], x),
+    is_ignored: _atd_read_required_field('CoreMatchExtra', 'is_ignored', _atd_read_bool, x['is_ignored'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
   };
@@ -1078,6 +1082,8 @@ export function writeErrorType(x: ErrorType, context: any = x): any {
       return 'AST builder error'
     case 'RuleParseError':
       return 'Rule parse error'
+    case 'SemgrepWarning':
+      return 'SemgrepWarning'
     case 'SemgrepError':
       return 'SemgrepError'
     case 'InvalidRuleSchemaError':
@@ -1130,6 +1136,8 @@ export function readErrorType(x: any, context: any = x): ErrorType {
         return { kind: 'AstBuilderError' }
       case 'Rule parse error':
         return { kind: 'RuleParseError' }
+      case 'SemgrepWarning':
+        return { kind: 'SemgrepWarning' }
       case 'SemgrepError':
         return { kind: 'SemgrepError' }
       case 'InvalidRuleSchemaError':

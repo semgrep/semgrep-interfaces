@@ -90,6 +90,7 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   fix: string option;
   dataflow_trace: match_dataflow_trace option;
   engine_kind: engine_kind;
+  is_ignored: bool;
   validation_state: validation_state option;
   extra_extra: raw_json option
 }
@@ -365,6 +366,7 @@ type error_type = Semgrep_output_v1_t.error_type =
   | OtherParseError
   | AstBuilderError
   | RuleParseError
+  | SemgrepWarning
   | SemgrepError
   | InvalidRuleSchemaError
   | UnknownLanguageError
@@ -3243,6 +3245,15 @@ let write_core_match_extra : _ -> core_match_extra -> _ = (
       write_engine_kind
     )
       ob x.engine_kind;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"is_ignored\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.is_ignored;
     (match x.validation_state with None -> () | Some x ->
       if !is_first then
         is_first := false
@@ -3282,6 +3293,7 @@ let read_core_match_extra = (
     let field_fix = ref (None) in
     let field_dataflow_trace = ref (None) in
     let field_engine_kind = ref (None) in
+    let field_is_ignored = ref (None) in
     let field_validation_state = ref (None) in
     let field_extra_extra = ref (None) in
     try
@@ -3350,6 +3362,14 @@ let read_core_match_extra = (
                       -1
                     )
               )
+            | 10 -> (
+                if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'd' then (
+                  7
+                )
+                else (
+                  -1
+                )
+              )
             | 11 -> (
                 if String.unsafe_get s pos = 'e' then (
                   match String.unsafe_get s (pos+1) with
@@ -3363,7 +3383,7 @@ let read_core_match_extra = (
                       )
                     | 'x' -> (
                         if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'x' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' then (
-                          8
+                          9
                         )
                         else (
                           -1
@@ -3387,7 +3407,7 @@ let read_core_match_extra = (
               )
             | 16 -> (
                 if String.unsafe_get s pos = 'v' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'e' then (
-                  7
+                  8
                 )
                 else (
                   -1
@@ -3468,6 +3488,14 @@ let read_core_match_extra = (
               )
             );
           | 7 ->
+            field_is_ignored := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              )
+            );
+          | 8 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_validation_state := (
                 Some (
@@ -3477,7 +3505,7 @@ let read_core_match_extra = (
                 )
               );
             )
-          | 8 ->
+          | 9 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_extra_extra := (
                 Some (
@@ -3557,6 +3585,14 @@ let read_core_match_extra = (
                         -1
                       )
                 )
+              | 10 -> (
+                  if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'd' then (
+                    7
+                  )
+                  else (
+                    -1
+                  )
+                )
               | 11 -> (
                   if String.unsafe_get s pos = 'e' then (
                     match String.unsafe_get s (pos+1) with
@@ -3570,7 +3606,7 @@ let read_core_match_extra = (
                         )
                       | 'x' -> (
                           if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'x' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' then (
-                            8
+                            9
                           )
                           else (
                             -1
@@ -3594,7 +3630,7 @@ let read_core_match_extra = (
                 )
               | 16 -> (
                   if String.unsafe_get s pos = 'v' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'e' then (
-                    7
+                    8
                   )
                   else (
                     -1
@@ -3675,6 +3711,14 @@ let read_core_match_extra = (
                 )
               );
             | 7 ->
+              field_is_ignored := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            | 8 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_validation_state := (
                   Some (
@@ -3684,7 +3728,7 @@ let read_core_match_extra = (
                   )
                 );
               )
-            | 8 ->
+            | 9 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_extra_extra := (
                   Some (
@@ -3710,6 +3754,7 @@ let read_core_match_extra = (
             fix = !field_fix;
             dataflow_trace = !field_dataflow_trace;
             engine_kind = (match !field_engine_kind with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "engine_kind");
+            is_ignored = (match !field_is_ignored with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "is_ignored");
             validation_state = !field_validation_state;
             extra_extra = !field_extra_extra;
           }
@@ -14615,6 +14660,7 @@ let write_error_type : _ -> error_type -> _ = (
       | OtherParseError -> Buffer.add_string ob "\"Other syntax error\""
       | AstBuilderError -> Buffer.add_string ob "\"AST builder error\""
       | RuleParseError -> Buffer.add_string ob "\"Rule parse error\""
+      | SemgrepWarning -> Buffer.add_string ob "\"SemgrepWarning\""
       | SemgrepError -> Buffer.add_string ob "\"SemgrepError\""
       | InvalidRuleSchemaError -> Buffer.add_string ob "\"InvalidRuleSchemaError\""
       | UnknownLanguageError -> Buffer.add_string ob "\"UnknownLanguageError\""
@@ -14679,6 +14725,10 @@ let read_error_type = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (RuleParseError : error_type)
+            | "SemgrepWarning" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (SemgrepWarning : error_type)
             | "SemgrepError" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -14781,6 +14831,8 @@ let read_error_type = (
               (AstBuilderError : error_type)
             | "Rule parse error" ->
               (RuleParseError : error_type)
+            | "SemgrepWarning" ->
+              (SemgrepWarning : error_type)
             | "SemgrepError" ->
               (SemgrepError : error_type)
             | "InvalidRuleSchemaError" ->
