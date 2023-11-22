@@ -7,7 +7,7 @@
  * This file specifies the JSON format of the 'semgrep scan --json' command,
  * as well as the JSON format of messages sent to the Semgrep backend by the
  * 'semgrep ci' command.
- * For the definitions of the Semgrep input, see rule_schema_v2.atd
+ * For the definition of the Semgrep input, see rule_schema_v2.atd
  *
  * This file has the _v1 suffix to explicitely represent the
  * version of this JSON format. If you need to extend this file, please
@@ -229,11 +229,10 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
   ?severity: match_severity option;
 
   metavars: metavars;
+  (* old: was called rendered_fix *)
+  ?fix: string option;
+
   ?dataflow_trace: match_dataflow_trace option;
-  (* If present, semgrep-core was able to compute a string that should be
-   * inserted in place of the text in the matched range in order to fix the
-   * finding. *)
-  ?rendered_fix: string option;
   engine_kind: engine_kind;
   (* If present indicates the status of postprocessor validation. This field
    * not being present should be equivalent to No_validator.
@@ -260,28 +259,35 @@ type cli_match_extra = {
   (* TODO: inherit match_extra; but need ?metavars because of dependency_aware code *)
   ?metavars: metavars option;
 
-  (* added by the CLI (see formatter/json.py) *)
-  fingerprint: string;
-  lines: string;
-
-  (* fields coming from the rule *)
+  (* Those fields are derived from the rule but the metavariables
+   * they contain have been expanded to their concrete value.
+   *)
   message: string;
-  metadata: raw_json;
-  severity: match_severity;
-
-  (* fields derived from the rule *)
+  (* If present, semgrep was able to compute a string that should be
+   * inserted in place of the text in the matched range in order to fix the
+   * finding.
+   * Note that this is the result of applying both the fix: or fix_regex:
+   * in a rule.
+   *)
   ?fix: string option;
-  ?fix_regex: fix_regex option;
-
-  (* extra fields *)
-  ?is_ignored: bool option;
-  (* EXPERIMENTAL: added by dependency_aware code *)
-  ?sca_info: sca_info option;
 
   (* TODO: done with monkey patching right now in the Python code,
    * and seems to be used only when sending findings to the backend.
    *)
   ?fixed_lines: string list option;
+
+  (* fields coming from the rule *)
+  metadata: raw_json;
+  severity: match_severity;
+
+  (* added by the CLI (see formatter/json.py) *)
+  fingerprint: string;
+  lines: string;
+
+  (* extra fields *)
+  ?is_ignored: bool option;
+  (* EXPERIMENTAL: added by dependency_aware code *)
+  ?sca_info: sca_info option;
 
   (* EXPERIMENTAL: For now, present only for taint findings. May be extended to others
    * later on. *)
@@ -296,12 +302,6 @@ type cli_match_extra = {
 
   (* EXPERIMENTAL: see core_match_extra.extra_extra *)
   ?extra_extra: raw_json option;
-}
-
-type fix_regex = {
-  regex: string;
-  replacement: string;
-  ?count: int option;
 }
 
 (*****************************************************************************)

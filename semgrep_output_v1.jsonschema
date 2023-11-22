@@ -117,8 +117,8 @@
         "metadata": { "$ref": "#/definitions/raw_json" },
         "severity": { "$ref": "#/definitions/match_severity" },
         "metavars": { "$ref": "#/definitions/metavars" },
+        "fix": { "type": "string" },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
-        "rendered_fix": { "type": "string" },
         "engine_kind": { "$ref": "#/definitions/engine_kind" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
         "extra_extra": { "$ref": "#/definitions/raw_json" }
@@ -138,33 +138,23 @@
     "cli_match_extra": {
       "type": "object",
       "required": [
-        "fingerprint", "lines", "message", "metadata", "severity"
+        "message", "metadata", "severity", "fingerprint", "lines"
       ],
       "properties": {
         "metavars": { "$ref": "#/definitions/metavars" },
-        "fingerprint": { "type": "string" },
-        "lines": { "type": "string" },
         "message": { "type": "string" },
+        "fix": { "type": "string" },
+        "fixed_lines": { "type": "array", "items": { "type": "string" } },
         "metadata": { "$ref": "#/definitions/raw_json" },
         "severity": { "$ref": "#/definitions/match_severity" },
-        "fix": { "type": "string" },
-        "fix_regex": { "$ref": "#/definitions/fix_regex" },
+        "fingerprint": { "type": "string" },
+        "lines": { "type": "string" },
         "is_ignored": { "type": "boolean" },
         "sca_info": { "$ref": "#/definitions/sca_info" },
-        "fixed_lines": { "type": "array", "items": { "type": "string" } },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
         "engine_kind": { "$ref": "#/definitions/engine_kind" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
         "extra_extra": { "$ref": "#/definitions/raw_json" }
-      }
-    },
-    "fix_regex": {
-      "type": "object",
-      "required": [ "regex", "replacement" ],
-      "properties": {
-        "regex": { "type": "string" },
-        "replacement": { "type": "string" },
-        "count": { "type": "integer" }
       }
     },
     "metavars": {
