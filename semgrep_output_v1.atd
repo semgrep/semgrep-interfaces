@@ -234,6 +234,8 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
 
   ?dataflow_trace: match_dataflow_trace option;
   engine_kind: engine_kind;
+  (* for nosemgrep *)
+  is_ignored: bool;
   (* If present indicates the status of postprocessor validation. This field
    * not being present should be equivalent to No_validator.
    * Added in semgrep 1.37.0 *)
@@ -403,6 +405,7 @@ type error_type
    *)
   | RuleParseError <json name="Rule parse error">
   (* generated in pysemgrep only. TODO: some should take error_span in parameter *)
+  | SemgrepWarning <json name="SemgrepWarning">
   | SemgrepError <json name="SemgrepError">
   | InvalidRuleSchemaError <json name="InvalidRuleSchemaError">
   | UnknownLanguageError <json name="UnknownLanguageError">
@@ -763,10 +766,10 @@ type cli_output_extra = {
     ?engine_requested: engine_kind option;
 
     (* Reporting just the requested engine isn't granular enough. We want to know
-       what languages had rules that invoked interfile. This is particularly important 
+       what languages had rules that invoked interfile. This is particularly important
        for tracking the performance impact of new interfile languages *)
     (* EXPERIMENTAL: since 1.49.0 *)
-    ?interfile_languages_used: string list option; 
+    ?interfile_languages_used: string list option;
 
     (* EXPERIMENTAL: since: 1.37.0 *)
     ~skipped_rules: skipped_rule list;

@@ -111,7 +111,7 @@
     },
     "core_match_extra": {
       "type": "object",
-      "required": [ "metavars", "engine_kind" ],
+      "required": [ "metavars", "engine_kind", "is_ignored" ],
       "properties": {
         "message": { "type": "string" },
         "metadata": { "$ref": "#/definitions/raw_json" },
@@ -120,6 +120,7 @@
         "fix": { "type": "string" },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
         "engine_kind": { "$ref": "#/definitions/engine_kind" },
+        "is_ignored": { "type": "boolean" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
         "extra_extra": { "$ref": "#/definitions/raw_json" }
       }
@@ -256,6 +257,7 @@
         { "const": "Other syntax error" },
         { "const": "AST builder error" },
         { "const": "Rule parse error" },
+        { "const": "SemgrepWarning" },
         { "const": "SemgrepError" },
         { "const": "InvalidRuleSchemaError" },
         { "const": "UnknownLanguageError" },

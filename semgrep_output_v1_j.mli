@@ -90,6 +90,7 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   fix: string option;
   dataflow_trace: match_dataflow_trace option;
   engine_kind: engine_kind;
+  is_ignored: bool;
   validation_state: validation_state option;
   extra_extra: raw_json option
 }
@@ -365,6 +366,7 @@ type error_type = Semgrep_output_v1_t.error_type =
   | OtherParseError
   | AstBuilderError
   | RuleParseError
+  | SemgrepWarning
   | SemgrepError
   | InvalidRuleSchemaError
   | UnknownLanguageError
