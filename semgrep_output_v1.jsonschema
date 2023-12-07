@@ -556,6 +556,67 @@
         }
       }
     },
+    "tests_result": {
+      "type": "object",
+      "required": [
+        "results", "config_missing_tests", "config_missing_fixtests",
+        "config_with_errors"
+      ],
+      "properties": {
+        "results": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/checks" }
+        },
+        "config_missing_tests": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/todo" }
+        },
+        "config_missing_fixtests": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/todo" }
+        },
+        "config_with_errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/todo" }
+        }
+      }
+    },
+    "checks": {
+      "type": "object",
+      "required": [ "checks" ],
+      "properties": {
+        "checks": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/rule_result" }
+        }
+      }
+    },
+    "rule_result": {
+      "type": "object",
+      "required": [ "passed", "matches", "errors" ],
+      "properties": {
+        "passed": { "type": "boolean" },
+        "matches": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/expected_reported"
+          }
+        },
+        "errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/todo" }
+        }
+      }
+    },
+    "expected_reported": {
+      "type": "object",
+      "required": [ "expected_lines", "reported_lines" ],
+      "properties": {
+        "expected_lines": { "type": "array", "items": { "type": "integer" } },
+        "reported_lines": { "type": "array", "items": { "type": "integer" } }
+      }
+    },
+    "todo": { "type": "integer" },
     "sca_info": {
       "type": "object",
       "required": [

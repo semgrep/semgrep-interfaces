@@ -325,6 +325,30 @@ export type CliOutputExtra = {
   skipped_rules: SkippedRule[];
 }
 
+export type TestsResult = {
+  results: [string, Checks][];
+  config_missing_tests: Todo[];
+  config_missing_fixtests: Todo[];
+  config_with_errors: Todo[];
+}
+
+export type Checks = {
+  checks: [string, RuleResult][];
+}
+
+export type RuleResult = {
+  passed: boolean;
+  matches: [string, ExpectedReported][];
+  errors: Todo[];
+}
+
+export type ExpectedReported = {
+  expected_lines: number /*int*/[];
+  reported_lines: number /*int*/[];
+}
+
+export type Todo = number /*int*/
+
 export type ScaInfo = {
   reachable: boolean;
   reachability_rule: boolean;
@@ -1629,6 +1653,74 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
     interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
   };
+}
+
+export function writeTestsResult(x: TestsResult, context: any = x): any {
+  return {
+    'results': _atd_write_required_field('TestsResult', 'results', _atd_write_assoc_array_to_object(writeChecks), x.results, x),
+    'config_missing_tests': _atd_write_required_field('TestsResult', 'config_missing_tests', _atd_write_array(writeTodo), x.config_missing_tests, x),
+    'config_missing_fixtests': _atd_write_required_field('TestsResult', 'config_missing_fixtests', _atd_write_array(writeTodo), x.config_missing_fixtests, x),
+    'config_with_errors': _atd_write_required_field('TestsResult', 'config_with_errors', _atd_write_array(writeTodo), x.config_with_errors, x),
+  };
+}
+
+export function readTestsResult(x: any, context: any = x): TestsResult {
+  return {
+    results: _atd_read_required_field('TestsResult', 'results', _atd_read_assoc_object_into_array(readChecks), x['results'], x),
+    config_missing_tests: _atd_read_required_field('TestsResult', 'config_missing_tests', _atd_read_array(readTodo), x['config_missing_tests'], x),
+    config_missing_fixtests: _atd_read_required_field('TestsResult', 'config_missing_fixtests', _atd_read_array(readTodo), x['config_missing_fixtests'], x),
+    config_with_errors: _atd_read_required_field('TestsResult', 'config_with_errors', _atd_read_array(readTodo), x['config_with_errors'], x),
+  };
+}
+
+export function writeChecks(x: Checks, context: any = x): any {
+  return {
+    'checks': _atd_write_required_field('Checks', 'checks', _atd_write_assoc_array_to_object(writeRuleResult), x.checks, x),
+  };
+}
+
+export function readChecks(x: any, context: any = x): Checks {
+  return {
+    checks: _atd_read_required_field('Checks', 'checks', _atd_read_assoc_object_into_array(readRuleResult), x['checks'], x),
+  };
+}
+
+export function writeRuleResult(x: RuleResult, context: any = x): any {
+  return {
+    'passed': _atd_write_required_field('RuleResult', 'passed', _atd_write_bool, x.passed, x),
+    'matches': _atd_write_required_field('RuleResult', 'matches', _atd_write_assoc_array_to_object(writeExpectedReported), x.matches, x),
+    'errors': _atd_write_required_field('RuleResult', 'errors', _atd_write_array(writeTodo), x.errors, x),
+  };
+}
+
+export function readRuleResult(x: any, context: any = x): RuleResult {
+  return {
+    passed: _atd_read_required_field('RuleResult', 'passed', _atd_read_bool, x['passed'], x),
+    matches: _atd_read_required_field('RuleResult', 'matches', _atd_read_assoc_object_into_array(readExpectedReported), x['matches'], x),
+    errors: _atd_read_required_field('RuleResult', 'errors', _atd_read_array(readTodo), x['errors'], x),
+  };
+}
+
+export function writeExpectedReported(x: ExpectedReported, context: any = x): any {
+  return {
+    'expected_lines': _atd_write_required_field('ExpectedReported', 'expected_lines', _atd_write_array(_atd_write_int), x.expected_lines, x),
+    'reported_lines': _atd_write_required_field('ExpectedReported', 'reported_lines', _atd_write_array(_atd_write_int), x.reported_lines, x),
+  };
+}
+
+export function readExpectedReported(x: any, context: any = x): ExpectedReported {
+  return {
+    expected_lines: _atd_read_required_field('ExpectedReported', 'expected_lines', _atd_read_array(_atd_read_int), x['expected_lines'], x),
+    reported_lines: _atd_read_required_field('ExpectedReported', 'reported_lines', _atd_read_array(_atd_read_int), x['reported_lines'], x),
+  };
+}
+
+export function writeTodo(x: Todo, context: any = x): any {
+  return _atd_write_int(x, context);
+}
+
+export function readTodo(x: any, context: any = x): Todo {
+  return _atd_read_int(x, context);
 }
 
 export function writeScaInfo(x: ScaInfo, context: any = x): any {
