@@ -118,6 +118,30 @@ type uri = Semgrep_output_v1_t.uri
 
 type transitivity = Semgrep_output_v1_t.transitivity
 
+type todo = Semgrep_output_v1_t.todo
+
+type expected_reported = Semgrep_output_v1_t.expected_reported = {
+  expected_lines: int list;
+  reported_lines: int list
+}
+
+type rule_result = Semgrep_output_v1_t.rule_result = {
+  passed: bool;
+  matches: (string * expected_reported) list;
+  errors: todo list
+}
+
+type checks = Semgrep_output_v1_t.checks = {
+  checks: (string * rule_result) list
+}
+
+type tests_result = Semgrep_output_v1_t.tests_result = {
+  results: (string * checks) list;
+  config_missing_tests: todo list;
+  config_missing_fixtests: todo list;
+  config_with_errors: todo list
+}
+
 type target_times = Semgrep_output_v1_t.target_times = {
   path: fpath;
   num_bytes: int;
@@ -1027,6 +1051,106 @@ val read_transitivity :
 val transitivity_of_string :
   string -> transitivity
   (** Deserialize JSON data of type {!type:transitivity}. *)
+
+val write_todo :
+  Buffer.t -> todo -> unit
+  (** Output a JSON value of type {!type:todo}. *)
+
+val string_of_todo :
+  ?len:int -> todo -> string
+  (** Serialize a value of type {!type:todo}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_todo :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> todo
+  (** Input JSON data of type {!type:todo}. *)
+
+val todo_of_string :
+  string -> todo
+  (** Deserialize JSON data of type {!type:todo}. *)
+
+val write_expected_reported :
+  Buffer.t -> expected_reported -> unit
+  (** Output a JSON value of type {!type:expected_reported}. *)
+
+val string_of_expected_reported :
+  ?len:int -> expected_reported -> string
+  (** Serialize a value of type {!type:expected_reported}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_expected_reported :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> expected_reported
+  (** Input JSON data of type {!type:expected_reported}. *)
+
+val expected_reported_of_string :
+  string -> expected_reported
+  (** Deserialize JSON data of type {!type:expected_reported}. *)
+
+val write_rule_result :
+  Buffer.t -> rule_result -> unit
+  (** Output a JSON value of type {!type:rule_result}. *)
+
+val string_of_rule_result :
+  ?len:int -> rule_result -> string
+  (** Serialize a value of type {!type:rule_result}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_rule_result :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> rule_result
+  (** Input JSON data of type {!type:rule_result}. *)
+
+val rule_result_of_string :
+  string -> rule_result
+  (** Deserialize JSON data of type {!type:rule_result}. *)
+
+val write_checks :
+  Buffer.t -> checks -> unit
+  (** Output a JSON value of type {!type:checks}. *)
+
+val string_of_checks :
+  ?len:int -> checks -> string
+  (** Serialize a value of type {!type:checks}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_checks :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> checks
+  (** Input JSON data of type {!type:checks}. *)
+
+val checks_of_string :
+  string -> checks
+  (** Deserialize JSON data of type {!type:checks}. *)
+
+val write_tests_result :
+  Buffer.t -> tests_result -> unit
+  (** Output a JSON value of type {!type:tests_result}. *)
+
+val string_of_tests_result :
+  ?len:int -> tests_result -> string
+  (** Serialize a value of type {!type:tests_result}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_tests_result :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> tests_result
+  (** Input JSON data of type {!type:tests_result}. *)
+
+val tests_result_of_string :
+  string -> tests_result
+  (** Deserialize JSON data of type {!type:tests_result}. *)
 
 val write_target_times :
   Buffer.t -> target_times -> unit

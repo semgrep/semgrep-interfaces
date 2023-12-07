@@ -6,7 +6,7 @@
  *
  * This file specifies the JSON format of the 'semgrep scan --json' command,
  * as well as the JSON format of messages sent to the Semgrep backend by the
- * 'semgrep ci' command.
+ * 'semgrep ci' command, and the format of 'semgrep test --json'.
  * For the definition of the Semgrep input, see rule_schema_v2.atd
  *
  * This file has the _v1 suffix to explicitely represent the
@@ -774,6 +774,38 @@ type cli_output_extra = {
     (* EXPERIMENTAL: since: 1.37.0 *)
     ~skipped_rules: skipped_rule list;
 }
+
+(*****************************************************************************)
+(* 'semgrep test' output *)
+(*****************************************************************************)
+
+type tests_result = {
+  (* would like to use rule_id here but then can't use json repr *)
+   results: (string (* rule file *) * checks) list <json repr="object">;
+   config_missing_tests: todo list;
+   config_missing_fixtests: todo list;
+   config_with_errors: todo list;
+}
+
+type checks = {
+  (* would like to use fpath *)
+  checks: (string (* rule_id *) * rule_result) list <json repr="object">;
+}
+
+type rule_result = {
+  passed: bool;
+  (* would like to use fpath *)
+  matches: (string (* target filename *) * expected_reported) list
+    <json repr="object">;
+  errors: todo list;
+}
+
+type expected_reported = {
+  expected_lines: int list;
+  reported_lines: int list;
+}
+
+type todo = int
 
 (*****************************************************************************)
 (* Semgrep Supply Chain (SSC) *)

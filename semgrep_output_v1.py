@@ -1484,6 +1484,157 @@ class Transitivity:
 
 
 @dataclass
+class Todo:
+    """Original type: todo"""
+
+    value: int
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Todo':
+        return cls(_atd_read_int(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_int(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Todo':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ExpectedReported:
+    """Original type: expected_reported = { ... }"""
+
+    expected_lines: List[int]
+    reported_lines: List[int]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ExpectedReported':
+        if isinstance(x, dict):
+            return cls(
+                expected_lines=_atd_read_list(_atd_read_int)(x['expected_lines']) if 'expected_lines' in x else _atd_missing_json_field('ExpectedReported', 'expected_lines'),
+                reported_lines=_atd_read_list(_atd_read_int)(x['reported_lines']) if 'reported_lines' in x else _atd_missing_json_field('ExpectedReported', 'reported_lines'),
+            )
+        else:
+            _atd_bad_json('ExpectedReported', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['expected_lines'] = _atd_write_list(_atd_write_int)(self.expected_lines)
+        res['reported_lines'] = _atd_write_list(_atd_write_int)(self.reported_lines)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ExpectedReported':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class RuleResult:
+    """Original type: rule_result = { ... }"""
+
+    passed: bool
+    matches: List[Tuple[str, ExpectedReported]]
+    errors: List[Todo]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'RuleResult':
+        if isinstance(x, dict):
+            return cls(
+                passed=_atd_read_bool(x['passed']) if 'passed' in x else _atd_missing_json_field('RuleResult', 'passed'),
+                matches=_atd_read_assoc_object_into_list(ExpectedReported.from_json)(x['matches']) if 'matches' in x else _atd_missing_json_field('RuleResult', 'matches'),
+                errors=_atd_read_list(Todo.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('RuleResult', 'errors'),
+            )
+        else:
+            _atd_bad_json('RuleResult', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['passed'] = _atd_write_bool(self.passed)
+        res['matches'] = _atd_write_assoc_list_to_object((lambda x: x.to_json()))(self.matches)
+        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'RuleResult':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Checks:
+    """Original type: checks = { ... }"""
+
+    checks: List[Tuple[str, RuleResult]]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Checks':
+        if isinstance(x, dict):
+            return cls(
+                checks=_atd_read_assoc_object_into_list(RuleResult.from_json)(x['checks']) if 'checks' in x else _atd_missing_json_field('Checks', 'checks'),
+            )
+        else:
+            _atd_bad_json('Checks', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['checks'] = _atd_write_assoc_list_to_object((lambda x: x.to_json()))(self.checks)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Checks':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TestsResult:
+    """Original type: tests_result = { ... }"""
+
+    results: List[Tuple[str, Checks]]
+    config_missing_tests: List[Todo]
+    config_missing_fixtests: List[Todo]
+    config_with_errors: List[Todo]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TestsResult':
+        if isinstance(x, dict):
+            return cls(
+                results=_atd_read_assoc_object_into_list(Checks.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('TestsResult', 'results'),
+                config_missing_tests=_atd_read_list(Todo.from_json)(x['config_missing_tests']) if 'config_missing_tests' in x else _atd_missing_json_field('TestsResult', 'config_missing_tests'),
+                config_missing_fixtests=_atd_read_list(Todo.from_json)(x['config_missing_fixtests']) if 'config_missing_fixtests' in x else _atd_missing_json_field('TestsResult', 'config_missing_fixtests'),
+                config_with_errors=_atd_read_list(Todo.from_json)(x['config_with_errors']) if 'config_with_errors' in x else _atd_missing_json_field('TestsResult', 'config_with_errors'),
+            )
+        else:
+            _atd_bad_json('TestsResult', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['results'] = _atd_write_assoc_list_to_object((lambda x: x.to_json()))(self.results)
+        res['config_missing_tests'] = _atd_write_list((lambda x: x.to_json()))(self.config_missing_tests)
+        res['config_missing_fixtests'] = _atd_write_list((lambda x: x.to_json()))(self.config_missing_fixtests)
+        res['config_with_errors'] = _atd_write_list((lambda x: x.to_json()))(self.config_with_errors)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TestsResult':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class TargetTimes:
     """Original type: target_times = { ... }"""
 
