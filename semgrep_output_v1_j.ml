@@ -131,14 +131,17 @@ type rule_result = Semgrep_output_v1_t.rule_result = {
   errors: todo list
 }
 
+type fixtest_result = Semgrep_output_v1_t.fixtest_result = { passed: bool }
+
 type checks = Semgrep_output_v1_t.checks = {
   checks: (string * rule_result) list
 }
 
 type tests_result = Semgrep_output_v1_t.tests_result = {
   results: (string * checks) list;
-  config_missing_tests: todo list;
-  config_missing_fixtests: todo list;
+  fixtest_results: (string * fixtest_result) list;
+  config_missing_tests: fpath list;
+  config_missing_fixtests: fpath list;
   config_with_errors: todo list
 }
 
@@ -4912,6 +4915,104 @@ let read_rule_result = (
 )
 let rule_result_of_string s =
   read_rule_result (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_fixtest_result : _ -> fixtest_result -> _ = (
+  fun ob (x : fixtest_result) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"passed\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.passed;
+    Buffer.add_char ob '}';
+)
+let string_of_fixtest_result ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_fixtest_result ob x;
+  Buffer.contents ob
+let read_fixtest_result = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_passed = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          if len = 6 && String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'd' then (
+            0
+          )
+          else (
+            -1
+          )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_passed := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            if len = 6 && String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'd' then (
+              0
+            )
+            else (
+              -1
+            )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_passed := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            passed = (match !field_passed with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "passed");
+          }
+         : fixtest_result)
+      )
+)
+let fixtest_result_of_string s =
+  read_fixtest_result (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__x_e141b07 = (
   Atdgen_runtime.Oj_run.write_assoc_list (
     Yojson.Safe.write_string
@@ -5030,6 +5131,26 @@ let read_checks = (
 )
 let checks_of_string s =
   read_checks (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_fc09e7b = (
+  Atdgen_runtime.Oj_run.write_assoc_list (
+    Yojson.Safe.write_string
+  ) (
+    write_fixtest_result
+  )
+)
+let string_of__x_fc09e7b ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__x_fc09e7b ob x;
+  Buffer.contents ob
+let read__x_fc09e7b = (
+  Atdgen_runtime.Oj_run.read_assoc_list (
+    Atdgen_runtime.Oj_run.read_string
+  ) (
+    read_fixtest_result
+  )
+)
+let _x_fc09e7b_of_string s =
+  read__x_fc09e7b (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__x_e1142f7 = (
   Atdgen_runtime.Oj_run.write_assoc_list (
     Yojson.Safe.write_string
@@ -5050,6 +5171,22 @@ let read__x_e1142f7 = (
 )
 let _x_e1142f7_of_string s =
   read__x_e1142f7 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__fpath_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_fpath
+  )
+)
+let string_of__fpath_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__fpath_list ob x;
+  Buffer.contents ob
+let read__fpath_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_fpath
+  )
+)
+let _fpath_list_of_string s =
+  read__fpath_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_tests_result : _ -> tests_result -> _ = (
   fun ob (x : tests_result) ->
     Buffer.add_char ob '{';
@@ -5067,9 +5204,18 @@ let write_tests_result : _ -> tests_result -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
+      Buffer.add_string ob "\"fixtest_results\":";
+    (
+      write__x_fc09e7b
+    )
+      ob x.fixtest_results;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
       Buffer.add_string ob "\"config_missing_tests\":";
     (
-      write__todo_list
+      write__fpath_list
     )
       ob x.config_missing_tests;
     if !is_first then
@@ -5078,7 +5224,7 @@ let write_tests_result : _ -> tests_result -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"config_missing_fixtests\":";
     (
-      write__todo_list
+      write__fpath_list
     )
       ob x.config_missing_fixtests;
     if !is_first then
@@ -5101,6 +5247,7 @@ let read_tests_result = (
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
     let field_results = ref (None) in
+    let field_fixtest_results = ref (None) in
     let field_config_missing_tests = ref (None) in
     let field_config_missing_fixtests = ref (None) in
     let field_config_with_errors = ref (None) in
@@ -5121,9 +5268,17 @@ let read_tests_result = (
                   -1
                 )
               )
+            | 15 -> (
+                if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'u' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 's' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
             | 18 -> (
                 if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'o' && String.unsafe_get s (pos+16) = 'r' && String.unsafe_get s (pos+17) = 's' then (
-                  3
+                  4
                 )
                 else (
                   -1
@@ -5131,7 +5286,7 @@ let read_tests_result = (
               )
             | 20 -> (
                 if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 'g' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 't' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 's' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 's' then (
-                  1
+                  2
                 )
                 else (
                   -1
@@ -5139,7 +5294,7 @@ let read_tests_result = (
               )
             | 23 -> (
                 if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 'g' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'f' && String.unsafe_get s (pos+16) = 'i' && String.unsafe_get s (pos+17) = 'x' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 'e' && String.unsafe_get s (pos+20) = 's' && String.unsafe_get s (pos+21) = 't' && String.unsafe_get s (pos+22) = 's' then (
-                  2
+                  3
                 )
                 else (
                   -1
@@ -5162,22 +5317,30 @@ let read_tests_result = (
               )
             );
           | 1 ->
-            field_config_missing_tests := (
+            field_fixtest_results := (
               Some (
                 (
-                  read__todo_list
+                  read__x_fc09e7b
                 ) p lb
               )
             );
           | 2 ->
-            field_config_missing_fixtests := (
+            field_config_missing_tests := (
               Some (
                 (
-                  read__todo_list
+                  read__fpath_list
                 ) p lb
               )
             );
           | 3 ->
+            field_config_missing_fixtests := (
+              Some (
+                (
+                  read__fpath_list
+                ) p lb
+              )
+            );
+          | 4 ->
             field_config_with_errors := (
               Some (
                 (
@@ -5206,9 +5369,17 @@ let read_tests_result = (
                     -1
                   )
                 )
+              | 15 -> (
+                  if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'u' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 's' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
               | 18 -> (
                   if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'o' && String.unsafe_get s (pos+16) = 'r' && String.unsafe_get s (pos+17) = 's' then (
-                    3
+                    4
                   )
                   else (
                     -1
@@ -5216,7 +5387,7 @@ let read_tests_result = (
                 )
               | 20 -> (
                   if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 'g' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 't' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 's' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 's' then (
-                    1
+                    2
                   )
                   else (
                     -1
@@ -5224,7 +5395,7 @@ let read_tests_result = (
                 )
               | 23 -> (
                   if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 'g' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'f' && String.unsafe_get s (pos+16) = 'i' && String.unsafe_get s (pos+17) = 'x' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 'e' && String.unsafe_get s (pos+20) = 's' && String.unsafe_get s (pos+21) = 't' && String.unsafe_get s (pos+22) = 's' then (
-                    2
+                    3
                   )
                   else (
                     -1
@@ -5247,22 +5418,30 @@ let read_tests_result = (
                 )
               );
             | 1 ->
-              field_config_missing_tests := (
+              field_fixtest_results := (
                 Some (
                   (
-                    read__todo_list
+                    read__x_fc09e7b
                   ) p lb
                 )
               );
             | 2 ->
-              field_config_missing_fixtests := (
+              field_config_missing_tests := (
                 Some (
                   (
-                    read__todo_list
+                    read__fpath_list
                   ) p lb
                 )
               );
             | 3 ->
+              field_config_missing_fixtests := (
+                Some (
+                  (
+                    read__fpath_list
+                  ) p lb
+                )
+              );
+            | 4 ->
               field_config_with_errors := (
                 Some (
                   (
@@ -5280,6 +5459,7 @@ let read_tests_result = (
         (
           {
             results = (match !field_results with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "results");
+            fixtest_results = (match !field_fixtest_results with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "fixtest_results");
             config_missing_tests = (match !field_config_missing_tests with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "config_missing_tests");
             config_missing_fixtests = (match !field_config_missing_fixtests with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "config_missing_fixtests");
             config_with_errors = (match !field_config_with_errors with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "config_with_errors");
@@ -6385,22 +6565,6 @@ let read__skipped_target_list_option = (
 )
 let _skipped_target_list_option_of_string s =
   read__skipped_target_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__fpath_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_fpath
-  )
-)
-let string_of__fpath_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__fpath_list ob x;
-  Buffer.contents ob
-let read__fpath_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_fpath
-  )
-)
-let _fpath_list_of_string s =
-  read__fpath_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_scanned_and_skipped : _ -> scanned_and_skipped -> _ = (
   fun ob (x : scanned_and_skipped) ->
     Buffer.add_char ob '{';
