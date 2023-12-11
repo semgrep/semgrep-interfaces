@@ -327,8 +327,9 @@ export type CliOutputExtra = {
 
 export type TestsResult = {
   results: [string, Checks][];
-  config_missing_tests: Todo[];
-  config_missing_fixtests: Todo[];
+  fixtest_results: [string, FixtestResult][];
+  config_missing_tests: Fpath[];
+  config_missing_fixtests: Fpath[];
   config_with_errors: Todo[];
 }
 
@@ -345,6 +346,10 @@ export type RuleResult = {
 export type ExpectedReported = {
   expected_lines: number /*int*/[];
   reported_lines: number /*int*/[];
+}
+
+export type FixtestResult = {
+  passed: boolean;
 }
 
 export type Todo = number /*int*/
@@ -1658,8 +1663,9 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
 export function writeTestsResult(x: TestsResult, context: any = x): any {
   return {
     'results': _atd_write_required_field('TestsResult', 'results', _atd_write_assoc_array_to_object(writeChecks), x.results, x),
-    'config_missing_tests': _atd_write_required_field('TestsResult', 'config_missing_tests', _atd_write_array(writeTodo), x.config_missing_tests, x),
-    'config_missing_fixtests': _atd_write_required_field('TestsResult', 'config_missing_fixtests', _atd_write_array(writeTodo), x.config_missing_fixtests, x),
+    'fixtest_results': _atd_write_required_field('TestsResult', 'fixtest_results', _atd_write_assoc_array_to_object(writeFixtestResult), x.fixtest_results, x),
+    'config_missing_tests': _atd_write_required_field('TestsResult', 'config_missing_tests', _atd_write_array(writeFpath), x.config_missing_tests, x),
+    'config_missing_fixtests': _atd_write_required_field('TestsResult', 'config_missing_fixtests', _atd_write_array(writeFpath), x.config_missing_fixtests, x),
     'config_with_errors': _atd_write_required_field('TestsResult', 'config_with_errors', _atd_write_array(writeTodo), x.config_with_errors, x),
   };
 }
@@ -1667,8 +1673,9 @@ export function writeTestsResult(x: TestsResult, context: any = x): any {
 export function readTestsResult(x: any, context: any = x): TestsResult {
   return {
     results: _atd_read_required_field('TestsResult', 'results', _atd_read_assoc_object_into_array(readChecks), x['results'], x),
-    config_missing_tests: _atd_read_required_field('TestsResult', 'config_missing_tests', _atd_read_array(readTodo), x['config_missing_tests'], x),
-    config_missing_fixtests: _atd_read_required_field('TestsResult', 'config_missing_fixtests', _atd_read_array(readTodo), x['config_missing_fixtests'], x),
+    fixtest_results: _atd_read_required_field('TestsResult', 'fixtest_results', _atd_read_assoc_object_into_array(readFixtestResult), x['fixtest_results'], x),
+    config_missing_tests: _atd_read_required_field('TestsResult', 'config_missing_tests', _atd_read_array(readFpath), x['config_missing_tests'], x),
+    config_missing_fixtests: _atd_read_required_field('TestsResult', 'config_missing_fixtests', _atd_read_array(readFpath), x['config_missing_fixtests'], x),
     config_with_errors: _atd_read_required_field('TestsResult', 'config_with_errors', _atd_read_array(readTodo), x['config_with_errors'], x),
   };
 }
@@ -1712,6 +1719,18 @@ export function readExpectedReported(x: any, context: any = x): ExpectedReported
   return {
     expected_lines: _atd_read_required_field('ExpectedReported', 'expected_lines', _atd_read_array(_atd_read_int), x['expected_lines'], x),
     reported_lines: _atd_read_required_field('ExpectedReported', 'reported_lines', _atd_read_array(_atd_read_int), x['reported_lines'], x),
+  };
+}
+
+export function writeFixtestResult(x: FixtestResult, context: any = x): any {
+  return {
+    'passed': _atd_write_required_field('FixtestResult', 'passed', _atd_write_bool, x.passed, x),
+  };
+}
+
+export function readFixtestResult(x: any, context: any = x): FixtestResult {
+  return {
+    passed: _atd_read_required_field('FixtestResult', 'passed', _atd_read_bool, x['passed'], x),
   };
 }
 

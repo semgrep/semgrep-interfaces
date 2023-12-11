@@ -559,21 +559,25 @@
     "tests_result": {
       "type": "object",
       "required": [
-        "results", "config_missing_tests", "config_missing_fixtests",
-        "config_with_errors"
+        "results", "fixtest_results", "config_missing_tests",
+        "config_missing_fixtests", "config_with_errors"
       ],
       "properties": {
         "results": {
           "type": "object",
           "additionalProperties": { "$ref": "#/definitions/checks" }
         },
+        "fixtest_results": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/fixtest_result" }
+        },
         "config_missing_tests": {
           "type": "array",
-          "items": { "$ref": "#/definitions/todo" }
+          "items": { "$ref": "#/definitions/fpath" }
         },
         "config_missing_fixtests": {
           "type": "array",
-          "items": { "$ref": "#/definitions/todo" }
+          "items": { "$ref": "#/definitions/fpath" }
         },
         "config_with_errors": {
           "type": "array",
@@ -615,6 +619,11 @@
         "expected_lines": { "type": "array", "items": { "type": "integer" } },
         "reported_lines": { "type": "array", "items": { "type": "integer" } }
       }
+    },
+    "fixtest_result": {
+      "type": "object",
+      "required": [ "passed" ],
+      "properties": { "passed": { "type": "boolean" } }
     },
     "todo": { "type": "integer" },
     "sca_info": {

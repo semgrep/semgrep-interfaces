@@ -131,14 +131,17 @@ type rule_result = Semgrep_output_v1_t.rule_result = {
   errors: todo list
 }
 
+type fixtest_result = Semgrep_output_v1_t.fixtest_result = { passed: bool }
+
 type checks = Semgrep_output_v1_t.checks = {
   checks: (string * rule_result) list
 }
 
 type tests_result = Semgrep_output_v1_t.tests_result = {
   results: (string * checks) list;
-  config_missing_tests: todo list;
-  config_missing_fixtests: todo list;
+  fixtest_results: (string * fixtest_result) list;
+  config_missing_tests: fpath list;
+  config_missing_fixtests: fpath list;
   config_with_errors: todo list
 }
 
@@ -1111,6 +1114,26 @@ val read_rule_result :
 val rule_result_of_string :
   string -> rule_result
   (** Deserialize JSON data of type {!type:rule_result}. *)
+
+val write_fixtest_result :
+  Buffer.t -> fixtest_result -> unit
+  (** Output a JSON value of type {!type:fixtest_result}. *)
+
+val string_of_fixtest_result :
+  ?len:int -> fixtest_result -> string
+  (** Serialize a value of type {!type:fixtest_result}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_fixtest_result :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> fixtest_result
+  (** Input JSON data of type {!type:fixtest_result}. *)
+
+val fixtest_result_of_string :
+  string -> fixtest_result
+  (** Deserialize JSON data of type {!type:fixtest_result}. *)
 
 val write_checks :
   Buffer.t -> checks -> unit

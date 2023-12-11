@@ -782,8 +782,9 @@ type cli_output_extra = {
 type tests_result = {
   (* would like to use rule_id here but then can't use json repr *)
    results: (string (* rule file *) * checks) list <json repr="object">;
-   config_missing_tests: todo list;
-   config_missing_fixtests: todo list;
+   fixtest_results: (string (* target file *) * fixtest_result) list <json repr="object">;
+   config_missing_tests: fpath list;
+   config_missing_fixtests: fpath list;
    config_with_errors: todo list;
 }
 
@@ -803,6 +804,10 @@ type rule_result = {
 type expected_reported = {
   expected_lines: int list;
   reported_lines: int list;
+  }
+
+type fixtest_result = {
+    passed: bool;
 }
 
 type todo = int
