@@ -156,6 +156,33 @@ type pro_features = {
     ?diffDepth <ocaml mutable>: int option;
 }
 
+type analysis_type <ocaml attr="deriving show"> = [ 
+    | Intraprocedural 
+    | Interprocedural 
+    | Interfile
+]
+
+type secrets_config 
+     <ocaml attr="deriving show"> = {
+  permitted_origins: string;
+}
+
+type pro_config 
+     <ocaml attr="deriving show"> = {
+  analysis_type: analysis_type;
+  ?secrets_config: secrets_config option;
+  pro_langs: bool;
+}
+
+(* Since v1.54.0 *)
+type engine_config
+     <ocaml attr="deriving show">
+     <python decorator="dataclass(frozen=True)"> = [
+  | OSS
+  | PRO of pro_config
+]
+
+
 type misc = {
     (* coupling: features is commented a lot in semgrep/PRIVACY.md *)
     features <ocaml mutable>: string list;
@@ -165,7 +192,10 @@ type misc = {
     ?numIgnored <ocaml mutable>: int option;
     ?ruleHashesWithFindings <ocaml mutable>: (string * int) list <json repr="object"> option;
     (* TODO: should be OSS | Pro, see semgrep_output_v1.atd engine_kind type *)
+    (* Still needed with engineConfig? *)
     ~engineRequested <python default="'OSS'"> <ocaml mutable>: string;
+    (* Since Semgrep 1.54.0 *)
+    ?engineConfig <ocaml mutable>: engine_config option;
     (* Since Semgrep 1.49.0 *)
     ?interfileLanguagesUsed: string list option;
   }
