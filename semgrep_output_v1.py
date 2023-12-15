@@ -3297,10 +3297,27 @@ class Pub:
 
 
 @dataclass(frozen=True)
+class SwiftPM:
+    """Original type: ecosystem = [ ... | SwiftPM | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SwiftPM'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'swiftpm'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class Ecosystem:
     """Original type: ecosystem = [ ... ]"""
 
-    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub]
+    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub, SwiftPM]
 
     @property
     def kind(self) -> str:
@@ -3328,6 +3345,8 @@ class Ecosystem:
                 return cls(Nuget())
             if x == 'pub':
                 return cls(Pub())
+            if x == 'swiftpm':
+                return cls(SwiftPM())
             _atd_bad_json('Ecosystem', x)
         _atd_bad_json('Ecosystem', x)
 

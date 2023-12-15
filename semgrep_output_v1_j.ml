@@ -11783,6 +11783,7 @@ let write_ecosystem = (
       | `Composer -> Buffer.add_string ob "\"composer\""
       | `Nuget -> Buffer.add_string ob "\"nuget\""
       | `Pub -> Buffer.add_string ob "\"pub\""
+      | `SwiftPM -> Buffer.add_string ob "\"swiftpm\""
 )
 let string_of_ecosystem ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -11830,6 +11831,10 @@ let read_ecosystem = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Pub
+            | "swiftpm" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `SwiftPM
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -11853,6 +11858,8 @@ let read_ecosystem = (
               `Nuget
             | "pub" ->
               `Pub
+            | "swiftpm" ->
+              `SwiftPM
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
