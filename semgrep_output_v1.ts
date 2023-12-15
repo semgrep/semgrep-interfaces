@@ -377,6 +377,7 @@ export type Ecosystem =
 | { kind: 'Composer' /* JSON: "composer" */ }
 | { kind: 'Nuget' /* JSON: "nuget" */ }
 | { kind: 'Pub' /* JSON: "pub" */ }
+| { kind: 'SwiftPM' /* JSON: "swiftpm" */ }
 
 export type Transitivity =
 | { kind: 'Direct' /* JSON: "direct" */ }
@@ -1796,6 +1797,8 @@ export function writeEcosystem(x: Ecosystem, context: any = x): any {
       return 'nuget'
     case 'Pub':
       return 'pub'
+    case 'SwiftPM':
+      return 'swiftpm'
   }
 }
 
@@ -1819,6 +1822,8 @@ export function readEcosystem(x: any, context: any = x): Ecosystem {
       return { kind: 'Nuget' }
     case 'pub':
       return { kind: 'Pub' }
+    case 'swiftpm':
+      return { kind: 'SwiftPM' }
     default:
       _atd_bad_json('Ecosystem', x, context)
       throw new Error('impossible')

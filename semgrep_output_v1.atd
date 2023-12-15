@@ -845,6 +845,7 @@ type ecosystem <python decorator="dataclass(frozen=True)"> = [
   | Composer <json name="composer">
   | Nuget <json name="nuget">
   | Pub <json name="pub">
+  | SwiftPM <json name="swiftpm">
 ]
 
 type transitivity <python decorator="dataclass(frozen=True)"> = [
