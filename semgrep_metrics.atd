@@ -162,26 +162,28 @@ type analysis_type <ocaml attr="deriving show"> = [
     | Interfile
 ]
 
+type code_config <ocaml attr="deriving show"> = unit
+
+type secrets_origin <ocaml attr="deriving show"> = [ Any | Semgrep ]
 type secrets_config 
      <ocaml attr="deriving show"> = {
-  permitted_origins: string;
+  permitted_origins: secrets_origin;
 }
 
-type pro_config 
-     <ocaml attr="deriving show"> = {
-  analysis_type: analysis_type;
-  ?secrets_config: secrets_config option;
-  pro_langs: bool;
-}
+type supply_chain_config <ocaml attr="deriving show"> = unit
 
 (* Since v1.54.0 *)
 type engine_config
-     <ocaml attr="deriving show">
-     <python decorator="dataclass(frozen=True)"> = [
-  | OSS
-  | PRO of pro_config
-]
-
+     <ocaml attr="deriving show"> = {
+  analysis_type: analysis_type;
+  pro_langs: bool;
+  (* `Some c` where `c` is the config if the product was run.
+   * `None` if it was not run.
+   *)
+  ?code_config: code_config option;
+  ?secrets_config: secrets_config option;
+  ?supply_chain_config: supply_chain_config option;
+}
 
 type misc = {
     (* coupling: features is commented a lot in semgrep/PRIVACY.md *)
@@ -192,7 +194,6 @@ type misc = {
     ?numIgnored <ocaml mutable>: int option;
     ?ruleHashesWithFindings <ocaml mutable>: (string * int) list <json repr="object"> option;
     (* TODO: should be OSS | Pro, see semgrep_output_v1.atd engine_kind type *)
-    (* Still needed with engineConfig? *)
     ~engineRequested <python default="'OSS'"> <ocaml mutable>: string;
     (* Since Semgrep 1.54.0 *)
     ?engineConfig <ocaml mutable>: engine_config option;
