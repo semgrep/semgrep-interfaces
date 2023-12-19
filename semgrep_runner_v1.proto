@@ -13,7 +13,7 @@ package semgrep_runner_v1;
 
 option go_package = "semgrep_runner.v1";
 
-import "protos/semgrep_output_v1.proto";
+import "semgrep_output_v1.proto";
 
 enum RuleFormat {
     RULE_FORMAT_UNSPECIFIED = 0;
