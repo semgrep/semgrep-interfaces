@@ -30,7 +30,18 @@ message ScanResult {
     semgrep_output_v1.CliMatch cli_match = 2;
 }
 
+message ResyncTargetsRequest {
+    repeated string repository_names = 1;
+}
+
+message ResyncTargetsResponse {
+    // TODO
+}
+
 service ScanService {
     // we provide a streaming interface here! to return results as soon as they arrive!
     rpc Scan(ScanRequest) returns (stream ScanResult) {};
+
+    // tell semgrep-server to re-sync the list of targets (files to scan)
+    rpc ResyncTargets(ResyncTargetsRequest) returns (ResyncTargetsResponse) {};
 }
