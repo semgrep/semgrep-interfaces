@@ -285,6 +285,35 @@ class Uuid:
 
 
 @dataclass
+class SupplyChainConfig:
+    """Original type: supply_chain_config = { ... }"""
+
+    _rfu: Optional[int] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SupplyChainConfig':
+        if isinstance(x, dict):
+            return cls(
+                _rfu=_atd_read_int(x['_rfu']) if '_rfu' in x else None,
+            )
+        else:
+            _atd_bad_json('SupplyChainConfig', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        if self._rfu is not None:
+            res['_rfu'] = _atd_write_int(self._rfu)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SupplyChainConfig':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Sha256:
     """Original type: sha256"""
 
@@ -597,6 +626,35 @@ class ParseStat:
 
 
 @dataclass
+class CodeConfig:
+    """Original type: code_config = { ... }"""
+
+    _rfu: Optional[int] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CodeConfig':
+        if isinstance(x, dict):
+            return cls(
+                _rfu=_atd_read_int(x['_rfu']) if '_rfu' in x else None,
+            )
+        else:
+            _atd_bad_json('CodeConfig', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        if self._rfu is not None:
+            res['_rfu'] = _atd_write_int(self._rfu)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CodeConfig':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Intraprocedural:
     """Original type: analysis_type = [ ... | Intraprocedural | ... ]"""
 
@@ -687,9 +745,9 @@ class EngineConfig:
 
     analysis_type: AnalysisType
     pro_langs: bool
-    code_config: Optional[bool] = None
+    code_config: Optional[CodeConfig] = None
     secrets_config: Optional[SecretsConfig] = None
-    supply_chain_config: Optional[bool] = None
+    supply_chain_config: Optional[SupplyChainConfig] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'EngineConfig':
@@ -697,9 +755,9 @@ class EngineConfig:
             return cls(
                 analysis_type=AnalysisType.from_json(x['analysis_type']) if 'analysis_type' in x else _atd_missing_json_field('EngineConfig', 'analysis_type'),
                 pro_langs=_atd_read_bool(x['pro_langs']) if 'pro_langs' in x else _atd_missing_json_field('EngineConfig', 'pro_langs'),
-                code_config=_atd_read_bool(x['code_config']) if 'code_config' in x else None,
+                code_config=CodeConfig.from_json(x['code_config']) if 'code_config' in x else None,
                 secrets_config=SecretsConfig.from_json(x['secrets_config']) if 'secrets_config' in x else None,
-                supply_chain_config=_atd_read_bool(x['supply_chain_config']) if 'supply_chain_config' in x else None,
+                supply_chain_config=SupplyChainConfig.from_json(x['supply_chain_config']) if 'supply_chain_config' in x else None,
             )
         else:
             _atd_bad_json('EngineConfig', x)
@@ -709,11 +767,11 @@ class EngineConfig:
         res['analysis_type'] = (lambda x: x.to_json())(self.analysis_type)
         res['pro_langs'] = _atd_write_bool(self.pro_langs)
         if self.code_config is not None:
-            res['code_config'] = _atd_write_bool(self.code_config)
+            res['code_config'] = (lambda x: x.to_json())(self.code_config)
         if self.secrets_config is not None:
             res['secrets_config'] = (lambda x: x.to_json())(self.secrets_config)
         if self.supply_chain_config is not None:
-            res['supply_chain_config'] = _atd_write_bool(self.supply_chain_config)
+            res['supply_chain_config'] = (lambda x: x.to_json())(self.supply_chain_config)
         return res
 
     @classmethod

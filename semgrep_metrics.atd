@@ -162,11 +162,24 @@ type analysis_type <ocaml attr="deriving show"> = [
     | Interfile
 ]
 
+(* Ideally this and supply_chain_config would be unit or empty records,  but
+ * atd doesn't generate correct code for python when unit is aliased
+ * (to_json/from_json are wrong and try to call methods on a fake Unit class).
+ * In the alternative, {} doesn't work either since atd just passes it through
+ * instead of converting to unit and it is not valid OCaml syntax.
+ *
+ * So we have a "reserved for future use" (RFU) field just to act as a
+ * placeholder.
+ *)
+type code_config  <ocaml attr="deriving show"> = { ?_rfu: int option; }
+
 type secrets_origin <ocaml attr="deriving show"> = [ Any | Semgrep ]
 type secrets_config 
      <ocaml attr="deriving show"> = {
   permitted_origins: secrets_origin;
 }
+
+type supply_chain_config  <ocaml attr="deriving show"> = { ?_rfu: int option; }
 
 (* Since v1.55.0 *)
 type engine_config
@@ -176,19 +189,9 @@ type engine_config
   (* `Some c` where `c` is the config if the product was run.
    * `None` if it was not run.
    *)
-  (* Ideally these would be <config type> options, and just have those config
-   * types be aliased to unit for now, but atd doesn't generate correct code
-   * for python when unit is alised (to_json/from_json are wrong and try to
-   * call methods on a fake Unit class). In the alternative, {} doesn't work
-   * either since it is not valid OCaml syntax (in my dreams equivalent to
-   * unit) as empty records are not permitted.
-   *
-   * As an alternative, they could be bools for now, but we want these fields
-   * to be optional for compability reasons.
-   *)
-  ?code_config: bool option;
+  ?code_config: code_config option;
   ?secrets_config: secrets_config option;
-  ?supply_chain_config: bool option;
+  ?supply_chain_config: supply_chain_config option;
 }
 
 type misc = {
