@@ -162,17 +162,13 @@ type analysis_type <ocaml attr="deriving show"> = [
     | Interfile
 ]
 
-type code_config <ocaml attr="deriving show"> = unit
-
 type secrets_origin <ocaml attr="deriving show"> = [ Any | Semgrep ]
 type secrets_config 
      <ocaml attr="deriving show"> = {
   permitted_origins: secrets_origin;
 }
 
-type supply_chain_config <ocaml attr="deriving show"> = unit
-
-(* Since v1.54.0 *)
+(* Since v1.55.0 *)
 type engine_config
      <ocaml attr="deriving show"> = {
   analysis_type: analysis_type;
@@ -180,9 +176,19 @@ type engine_config
   (* `Some c` where `c` is the config if the product was run.
    * `None` if it was not run.
    *)
-  ?code_config: code_config option;
+  (* Ideally these would be <config type> options, and just have those config
+   * types be aliased to unit for now, but atd doesn't generate correct code
+   * for python when unit is alised (to_json/from_json are wrong and try to
+   * call methods on a fake Unit class). In the alternative, {} doesn't work
+   * either since it is not valid OCaml syntax (in my dreams equivalent to
+   * unit) as empty records are not permitted.
+   *
+   * As an alternative, they could be bools for now, but we want these fields
+   * to be optional for compability reasons.
+   *)
+  ?code_config: bool option;
   ?secrets_config: secrets_config option;
-  ?supply_chain_config: supply_chain_config option;
+  ?supply_chain_config: bool option;
 }
 
 type misc = {
