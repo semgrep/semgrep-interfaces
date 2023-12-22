@@ -162,7 +162,16 @@ type analysis_type <ocaml attr="deriving show"> = [
     | Interfile
 ]
 
-type code_config <ocaml attr="deriving show"> = unit
+(* Ideally this and supply_chain_config would be unit or empty records,  but
+ * atd doesn't generate correct code for python when unit is aliased
+ * (to_json/from_json are wrong and try to call methods on a fake Unit class).
+ * In the alternative, {} doesn't work either since atd just passes it through
+ * instead of converting to unit and it is not valid OCaml syntax.
+ *
+ * So we have a "reserved for future use" (RFU) field just to act as a
+ * placeholder.
+ *)
+type code_config  <ocaml attr="deriving show"> = { ?_rfu: int option; }
 
 type secrets_origin <ocaml attr="deriving show"> = [ Any | Semgrep ]
 type secrets_config 
@@ -170,9 +179,9 @@ type secrets_config
   permitted_origins: secrets_origin;
 }
 
-type supply_chain_config <ocaml attr="deriving show"> = unit
+type supply_chain_config  <ocaml attr="deriving show"> = { ?_rfu: int option; }
 
-(* Since v1.54.0 *)
+(* Since v1.55.0 *)
 type engine_config
      <ocaml attr="deriving show"> = {
   analysis_type: analysis_type;

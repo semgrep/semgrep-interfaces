@@ -288,16 +288,21 @@ class Uuid:
 class SupplyChainConfig:
     """Original type: supply_chain_config = { ... }"""
 
+    _rfu: Optional[int] = None
+
     @classmethod
     def from_json(cls, x: Any) -> 'SupplyChainConfig':
         if isinstance(x, dict):
             return cls(
+                _rfu=_atd_read_int(x['_rfu']) if '_rfu' in x else None,
             )
         else:
             _atd_bad_json('SupplyChainConfig', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
+        if self._rfu is not None:
+            res['_rfu'] = _atd_write_int(self._rfu)
         return res
 
     @classmethod
@@ -624,16 +629,21 @@ class ParseStat:
 class CodeConfig:
     """Original type: code_config = { ... }"""
 
+    _rfu: Optional[int] = None
+
     @classmethod
     def from_json(cls, x: Any) -> 'CodeConfig':
         if isinstance(x, dict):
             return cls(
+                _rfu=_atd_read_int(x['_rfu']) if '_rfu' in x else None,
             )
         else:
             _atd_bad_json('CodeConfig', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
+        if self._rfu is not None:
+            res['_rfu'] = _atd_write_int(self._rfu)
         return res
 
     @classmethod
