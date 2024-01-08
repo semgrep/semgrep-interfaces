@@ -31,7 +31,7 @@ jobs:
         set -x
 
         git config --global --add safe.directory "$(pwd)"
-        
+
         # github actions sets HOME=/home/github where we don't have an opam env
         eval $(HOME=/root opam env)
         apk add jq
@@ -40,9 +40,12 @@ jobs:
         atddiff --version
 
         # run the checks
-        echo -ne 'Backwards compatability summary:\n\n```' > summary-00-header.txt
+        echo -ne 'Backwards compatibility summary:\n\n```' > summary-00-header.txt
         echo '```' >> summary-20-footer.txt
-        ./scripts/check-backwards-compatability.sh | tee summary-10-body.txt
+
+        # fail if check command fails
+        set -o pipefail
+        ./scripts/check-backwards-compatibility | tee summary-10-body.txt
 
     - uses: marocchino/sticky-pull-request-comment@v2
       if: ${{ !cancelled() }}
