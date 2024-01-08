@@ -12,7 +12,14 @@
 #    - Diff the two diffs to see if new issues were introduced
 set -euo pipefail
 
-minimum="v$(curl -s https://semgrep.dev/api/check-version | jq -r '.versions.minimum')"
+version_url="https://semgrep.dev/api/check-version"
+min_version=$(curl -s "$version_url" | jq -r '.versions.minimum')
+if [[ -z "$min_version" ]]; then
+  echo "Failed to obtain minimum supported version from $version_url" >&2
+  exit 1
+fi
+
+minimum="v${min_version}"
 tags=$(git log --simplify-by-decoration --pretty=format:%D "${minimum}^!" origin/main | grep -o 'tag: [^,)]\+' | sed 's/^tag: //' | sort -n)
 
 checked=("dummy")
@@ -27,22 +34,27 @@ for tag in $tags; do
 
     set +e # do our own error handling for a bit
     echo "Checking backward compatibility of semgrep_output_v1.atd against past version $tag"
-    git difftool --trust-exit-code -x 'atddiff --no-locations --backward' -y "$tag" "origin/main" semgrep_output_v1.atd > before.txt
+    # I'm getting an exit code 128 when atddiff returns 3 (as of git 2.43.0),
+    # contrary to what 'git difftool --help' promises for '--trust-exit-code'.
+    # I'd report the bug if it was easier. -- Martin
+    git difftool --trust-exit-code -x 'atddiff --no-locations --backward' -y \
+        "$tag" "origin/main" -- semgrep_output_v1.atd > before.txt
     ret=$?
     if [ "$ret" -ge 1 ] && [ "$ret" -le 2 ]; then
-        echo "ERROR: atddiff had an error: $?"
+        echo "ERROR: atddiff had an error: $ret"
         cat before.txt
         exit 1
     fi
-    git difftool --trust-exit-code -x 'atddiff --no-locations --backward' -y "$tag" "HEAD" semgrep_output_v1.atd > after.txt
+    git difftool --trust-exit-code -x 'atddiff --no-locations --backward' -y \
+        "$tag" "HEAD" -- semgrep_output_v1.atd > after.txt
     ret=$?
     if [ "$ret" -ge 1 ] && [ "$ret" -le 2 ]; then
-        echo "ERROR: atddiff had an error: $?"
+        echo "ERROR: atddiff had an error: $ret"
         cat after.txt
         exit 1
     fi
 
-    diff -u <(cat before.txt) <(cat after.txt)
+    diff -u before.txt after.txt
     if [ "$?" -ne 0 ]; then
         echo "ERROR: semgrep_output_v1.atd is not backward compatible with $tag"
         errors=$((errors + 1))
