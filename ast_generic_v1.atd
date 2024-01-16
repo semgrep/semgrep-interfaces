@@ -557,7 +557,7 @@ type pattern = [
   | PatKeyVal of (pattern * pattern) (* a kind of PatTuple *)
 
   (* special case of PatId *)
-  | PatUnderscore of tok
+  | PatWildcard of tok
 
   (* OCaml *)
   | PatDisj  of (pattern * pattern) (* also abused for catch in Java *)
