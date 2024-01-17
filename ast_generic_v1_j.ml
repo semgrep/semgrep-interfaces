@@ -7477,8 +7477,8 @@ and write_pattern = (
             Buffer.add_char ob ']';
         ) ob x;
         Buffer.add_char ob ']'
-      | `PatUnderscore x ->
-        Buffer.add_string ob "[\"PatUnderscore\",";
+      | `PatWildcard x ->
+        Buffer.add_string ob "[\"PatWildcard\",";
         (
           write_tok
         ) ob x;
@@ -19842,7 +19842,7 @@ and read_pattern = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `PatKeyVal x
-            | "PatUnderscore" ->
+            | "PatWildcard" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
                   read_tok
@@ -19850,7 +19850,7 @@ and read_pattern = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `PatUnderscore x
+              `PatWildcard x
             | "PatDisj" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -20361,7 +20361,7 @@ and read_pattern = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `PatKeyVal x
-            | "PatUnderscore" ->
+            | "PatWildcard" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
@@ -20371,7 +20371,7 @@ and read_pattern = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
-              `PatUnderscore x
+              `PatWildcard x
             | "PatDisj" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
