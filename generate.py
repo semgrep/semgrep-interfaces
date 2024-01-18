@@ -292,7 +292,8 @@ not ambiguous is welcome here.
         keys=["ex", "elixir"],
         exts=[".ex", ".exs"],
         maturity=Maturity.ALPHA,
-        shebangs=[]
+        shebangs=[],
+        tags=["is_proprietary"]
     ),
     Language(
         comment="",

@@ -208,7 +208,7 @@ let list = [
   excluded_exts = [];
   reverse_exts = None;
   shebangs = [];
-  tags = [];
+  tags = [{|is_proprietary|}];
 };
 {
   id = Go;
