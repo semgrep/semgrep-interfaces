@@ -198,7 +198,9 @@
     "reverse_exts": null,
     "shebangs": [],
     "is_target_language": true,
-    "tags": []
+    "tags": [
+      "is_proprietary"
+    ]
   },
   {
     "id": "go",
