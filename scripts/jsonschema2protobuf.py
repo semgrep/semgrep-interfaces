@@ -183,6 +183,7 @@ def convert(contents, prefix=None, package=None):
 
     if package:
         lines.append(f"package {package};\n")
+        lines.append(f"option go_package = \"{package}\";\n")
 
     json_contents = json.loads(contents)
     definitions = json_contents.get("definitions", {})

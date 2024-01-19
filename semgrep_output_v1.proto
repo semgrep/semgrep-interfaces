@@ -8,6 +8,8 @@ import "google/protobuf/any.proto";
 
 package semgrep_output_v1;
 
+option go_package = "semgrep_output_v1";
+
 message CliOutput {
   string version = 508888787;
   repeated CliError errors = 179828283;
