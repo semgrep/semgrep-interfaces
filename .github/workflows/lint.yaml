@@ -14,6 +14,24 @@ permissions:
   pull-requests: write # for comments
 
 jobs:
+  generate:
+    runs-on: ubuntu-latest
+    container: returntocorp/ocaml:alpine
+    steps:
+    - name: Checkout tree
+      uses: actions/checkout@v4
+    - name: Ensure generated code is up-to-date
+      id: generate
+      shell: bash
+      run: |
+        # Install deps
+        make setup
+
+        # Generate code
+        make
+
+        # Fail if there is a diff
+        git diff --exit-code
   compatibility:
     runs-on: ubuntu-latest
     container: returntocorp/ocaml:alpine
