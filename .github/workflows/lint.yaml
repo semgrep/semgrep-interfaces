@@ -24,6 +24,8 @@ jobs:
       id: generate
       shell: bash
       run: |
+        eval "$(opam env)"
+
         # Install deps
         make setup
 
