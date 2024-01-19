@@ -22,7 +22,6 @@ jobs:
       uses: actions/checkout@v4
     - name: Ensure generated code is up-to-date
       id: generate
-      shell: bash
       run: |
         eval "$(opam env)"
 
