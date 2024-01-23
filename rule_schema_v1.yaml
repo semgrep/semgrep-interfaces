@@ -827,8 +827,6 @@ properties:
             # EXPERIMENTAL
             - join
             - extract
-            # EXPERIMENTAL
-            - semgrep_internal_postprocessor
         languages:
           $ref: "#/$defs/languages"
         paths:
