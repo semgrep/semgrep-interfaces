@@ -729,7 +729,8 @@
         { "const": "pomtree" },
         { "const": "cargo" },
         { "const": "composer_lock" },
-        { "const": "pubspec_lock" }
+        { "const": "pubspec_lock" },
+        { "const": "package_swift" }
       ]
     },
     "dependency_parser_error": {
