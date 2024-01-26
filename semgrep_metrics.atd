@@ -66,6 +66,10 @@ type payload = {
 type environment = {
     (* semgrep version *)
     version <ocaml mutable>: string;
+    (* Since Semgrep 1.59 *)
+    os: string; (* e.g. linux *)
+    (* Since Semgrep 1.59 *)
+    isTranspiledJS <ocaml mutable>: bool;
     projectHash <ocaml mutable>: sha256 nullable;
     configNamesHash <python default="Sha256hash('')"> <ocaml mutable>: sha256;
     ?rulesHash <ocaml mutable>: sha256 option;
