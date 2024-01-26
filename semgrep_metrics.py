@@ -946,7 +946,7 @@ class Environment:
 
     version: str
     os: str
-    isJS: bool
+    isTranspiledJS: bool
     projectHash: Optional[Sha256]
     configNamesHash: Sha256
     ci: Optional[str]
@@ -961,7 +961,7 @@ class Environment:
             return cls(
                 version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('Environment', 'version'),
                 os=_atd_read_string(x['os']) if 'os' in x else _atd_missing_json_field('Environment', 'os'),
-                isJS=_atd_read_bool(x['isJS']) if 'isJS' in x else _atd_missing_json_field('Environment', 'isJS'),
+                isTranspiledJS=_atd_read_bool(x['isTranspiledJS']) if 'isTranspiledJS' in x else _atd_missing_json_field('Environment', 'isTranspiledJS'),
                 projectHash=_atd_read_nullable(Sha256.from_json)(x['projectHash']) if 'projectHash' in x else _atd_missing_json_field('Environment', 'projectHash'),
                 configNamesHash=Sha256.from_json(x['configNamesHash']) if 'configNamesHash' in x else _atd_missing_json_field('Environment', 'configNamesHash'),
                 ci=_atd_read_nullable(_atd_read_string)(x['ci']) if 'ci' in x else _atd_missing_json_field('Environment', 'ci'),
@@ -977,7 +977,7 @@ class Environment:
         res: Dict[str, Any] = {}
         res['version'] = _atd_write_string(self.version)
         res['os'] = _atd_write_string(self.os)
-        res['isJS'] = _atd_write_bool(self.isJS)
+        res['isTranspiledJS'] = _atd_write_bool(self.isTranspiledJS)
         res['projectHash'] = _atd_write_nullable((lambda x: x.to_json()))(self.projectHash)
         res['configNamesHash'] = (lambda x: x.to_json())(self.configNamesHash)
         res['ci'] = _atd_write_nullable(_atd_write_string)(self.ci)
