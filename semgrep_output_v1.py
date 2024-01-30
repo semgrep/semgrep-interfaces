@@ -5279,6 +5279,7 @@ class CiScanCompleteStats:
     lockfile_scan_info: Dict[str, int]
     parse_rate: Dict[str, ParsingStats]
     engine_requested: Optional[str] = None
+    findings_by_product: Optional[Dict[str, int]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanCompleteStats':
@@ -5291,6 +5292,7 @@ class CiScanCompleteStats:
                 lockfile_scan_info=_atd_read_assoc_object_into_dict(_atd_read_int)(x['lockfile_scan_info']) if 'lockfile_scan_info' in x else _atd_missing_json_field('CiScanCompleteStats', 'lockfile_scan_info'),
                 parse_rate=_atd_read_assoc_object_into_dict(ParsingStats.from_json)(x['parse_rate']) if 'parse_rate' in x else _atd_missing_json_field('CiScanCompleteStats', 'parse_rate'),
                 engine_requested=_atd_read_string(x['engine_requested']) if 'engine_requested' in x else None,
+                findings_by_product=_atd_read_assoc_object_into_dict(_atd_read_int)(x['findings_by_product']) if 'findings_by_product' in x else None,
             )
         else:
             _atd_bad_json('CiScanCompleteStats', x)
@@ -5305,6 +5307,8 @@ class CiScanCompleteStats:
         res['parse_rate'] = _atd_write_assoc_dict_to_object((lambda x: x.to_json()))(self.parse_rate)
         if self.engine_requested is not None:
             res['engine_requested'] = _atd_write_string(self.engine_requested)
+        if self.findings_by_product is not None:
+            res['findings_by_product'] = _atd_write_assoc_dict_to_object(_atd_write_int)(self.findings_by_product)
         return res
 
     @classmethod

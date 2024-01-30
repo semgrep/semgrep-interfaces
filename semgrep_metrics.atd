@@ -204,6 +204,7 @@ type misc = {
     (* Since semgrep 1.46 *)
     ?proFeatures <ocaml mutable>: pro_features option;
     ?numFindings <ocaml mutable>: int option;
+    (* Since Semgrep 1.56.0, see PA-3312 *)
     ?numFindingsByProduct <ocaml mutable>: (string * int) list <json repr="object"> option;
     ?numIgnored <ocaml mutable>: int option;
     ?ruleHashesWithFindings <ocaml mutable>: (string * int) list <json repr="object"> option;

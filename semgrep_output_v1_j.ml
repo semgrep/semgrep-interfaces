@@ -595,7 +595,8 @@ type ci_scan_complete_stats = Semgrep_output_v1_t.ci_scan_complete_stats = {
   unsupported_exts: (string * int) list;
   lockfile_scan_info: (string * int) list;
   parse_rate: (string * parsing_stats) list;
-  engine_requested: string option
+  engine_requested: string option;
+  findings_by_product: (string * int) list option
 }
 
 type ci_scan_complete_response =
@@ -23262,6 +23263,63 @@ let read__x_852c7ec = (
 )
 let _x_852c7ec_of_string s =
   read__x_852c7ec (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_122e274 = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write__x_852c7ec
+  )
+)
+let string_of__x_122e274 ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__x_122e274 ob x;
+  Buffer.contents ob
+let read__x_122e274 = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__x_852c7ec
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__x_852c7ec
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _x_122e274_of_string s =
+  read__x_122e274 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_ci_scan_complete_stats : _ -> ci_scan_complete_stats -> _ = (
   fun ob (x : ci_scan_complete_stats) ->
     Buffer.add_char ob '{';
@@ -23331,6 +23389,17 @@ let write_ci_scan_complete_stats : _ -> ci_scan_complete_stats -> _ = (
       )
         ob x;
     );
+    (match x.findings_by_product with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"findings_by_product\":";
+      (
+        write__x_852c7ec
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_ci_scan_complete_stats ?(len = 1024) x =
@@ -23348,6 +23417,7 @@ let read_ci_scan_complete_stats = (
     let field_lockfile_scan_info = ref (None) in
     let field_parse_rate = ref (None) in
     let field_engine_requested = ref (None) in
+    let field_findings_by_product = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -23425,6 +23495,14 @@ let read_ci_scan_complete_stats = (
                   -1
                 )
               )
+            | 19 -> (
+                if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'b' && String.unsafe_get s (pos+10) = 'y' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'p' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'o' && String.unsafe_get s (pos+15) = 'd' && String.unsafe_get s (pos+16) = 'u' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 't' then (
+                  7
+                )
+                else (
+                  -1
+                )
+              )
             | _ -> (
                 -1
               )
@@ -23487,6 +23565,16 @@ let read_ci_scan_complete_stats = (
                 Some (
                   (
                     Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
+          | 7 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_findings_by_product := (
+                Some (
+                  (
+                    read__x_852c7ec
                   ) p lb
                 )
               );
@@ -23572,6 +23660,14 @@ let read_ci_scan_complete_stats = (
                     -1
                   )
                 )
+              | 19 -> (
+                  if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'b' && String.unsafe_get s (pos+10) = 'y' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'p' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'o' && String.unsafe_get s (pos+15) = 'd' && String.unsafe_get s (pos+16) = 'u' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 't' then (
+                    7
+                  )
+                  else (
+                    -1
+                  )
+                )
               | _ -> (
                   -1
                 )
@@ -23638,6 +23734,16 @@ let read_ci_scan_complete_stats = (
                   )
                 );
               )
+            | 7 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_findings_by_product := (
+                  Some (
+                    (
+                      read__x_852c7ec
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -23654,6 +23760,7 @@ let read_ci_scan_complete_stats = (
             lockfile_scan_info = (match !field_lockfile_scan_info with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "lockfile_scan_info");
             parse_rate = (match !field_parse_rate with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "parse_rate");
             engine_requested = !field_engine_requested;
+            findings_by_product = !field_findings_by_product;
           }
          : ci_scan_complete_stats)
       )
