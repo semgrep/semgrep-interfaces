@@ -1351,6 +1351,18 @@ type ci_scan_complete_stats = {
    * used in this file.
    *)
   ?engine_requested: string option;
+  (* Mirrors numFindingsByProduct in metrics.py
+   * See PA-3312 and GROW-104.
+   *
+   * NOTE: As of 1.56.0 the string used as the mapping key is
+   *  currently a human-readable product name (i.e. code)
+   *  vs our typed product enum representation (i.e. sast).
+  *)
+  ?findings_by_product: (string * int) list
+    <json repr="object">
+    <python repr="dict">
+    <ts repr="map">
+    option;
 }
 
 type parsing_stats = {

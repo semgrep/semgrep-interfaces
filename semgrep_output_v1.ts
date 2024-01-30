@@ -642,6 +642,7 @@ export type CiScanCompleteStats = {
   lockfile_scan_info: Map<string, number /*int*/>;
   parse_rate: Map<string, ParsingStats>;
   engine_requested?: string;
+  findings_by_product?: Map<string, number /*int*/>;
 }
 
 export type ParsingStats = {
@@ -2526,6 +2527,7 @@ export function writeCiScanCompleteStats(x: CiScanCompleteStats, context: any = 
     'lockfile_scan_info': _atd_write_required_field('CiScanCompleteStats', 'lockfile_scan_info', _atd_write_assoc_map_to_object(_atd_write_int), x.lockfile_scan_info, x),
     'parse_rate': _atd_write_required_field('CiScanCompleteStats', 'parse_rate', _atd_write_assoc_map_to_object(writeParsingStats), x.parse_rate, x),
     'engine_requested': _atd_write_optional_field(_atd_write_string, x.engine_requested, x),
+    'findings_by_product': _atd_write_optional_field(_atd_write_assoc_map_to_object(_atd_write_int), x.findings_by_product, x),
   };
 }
 
@@ -2538,6 +2540,7 @@ export function readCiScanCompleteStats(x: any, context: any = x): CiScanComplet
     lockfile_scan_info: _atd_read_required_field('CiScanCompleteStats', 'lockfile_scan_info', _atd_read_assoc_object_into_map(_atd_read_int), x['lockfile_scan_info'], x),
     parse_rate: _atd_read_required_field('CiScanCompleteStats', 'parse_rate', _atd_read_assoc_object_into_map(readParsingStats), x['parse_rate'], x),
     engine_requested: _atd_read_optional_field(_atd_read_string, x['engine_requested'], x),
+    findings_by_product: _atd_read_optional_field(_atd_read_assoc_object_into_map(_atd_read_int), x['findings_by_product'], x),
   };
 }
 

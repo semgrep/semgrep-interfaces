@@ -1114,7 +1114,11 @@
           "type": "object",
           "additionalProperties": { "$ref": "#/definitions/parsing_stats" }
         },
-        "engine_requested": { "type": "string" }
+        "engine_requested": { "type": "string" },
+        "findings_by_product": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        }
       }
     },
     "parsing_stats": {
