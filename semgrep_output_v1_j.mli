@@ -48,6 +48,13 @@ type raw_json = Yojson.Basic.t
 
 type rule_id = Semgrep_output_v1_t.rule_id [@@deriving show]
 
+type sha1 = Semgrep_output_v1_t.sha1
+
+type historical_info = Semgrep_output_v1_t.historical_info = {
+  git_commit: sha1;
+  git_commit_timestamp: string
+}
+
 type svalue_value = Semgrep_output_v1_t.svalue_value = {
   svalue_start: position option;
   svalue_end: position option;
@@ -92,6 +99,7 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   engine_kind: engine_kind;
   is_ignored: bool;
   validation_state: validation_state option;
+  historical_info: historical_info option;
   extra_extra: raw_json option
 }
 
@@ -178,8 +186,6 @@ type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
   details: string;
   position: position
 }
-
-type sha1 = Semgrep_output_v1_t.sha1
 
 type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
   scanned: fpath list;
@@ -520,6 +526,7 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   dataflow_trace: match_dataflow_trace option;
   engine_kind: engine_kind option;
   validation_state: validation_state option;
+  historical_info: historical_info option;
   extra_extra: raw_json option
 }
 
@@ -795,6 +802,46 @@ val read_rule_id :
 val rule_id_of_string :
   string -> rule_id
   (** Deserialize JSON data of type {!type:rule_id}. *)
+
+val write_sha1 :
+  Buffer.t -> sha1 -> unit
+  (** Output a JSON value of type {!type:sha1}. *)
+
+val string_of_sha1 :
+  ?len:int -> sha1 -> string
+  (** Serialize a value of type {!type:sha1}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sha1 :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sha1
+  (** Input JSON data of type {!type:sha1}. *)
+
+val sha1_of_string :
+  string -> sha1
+  (** Deserialize JSON data of type {!type:sha1}. *)
+
+val write_historical_info :
+  Buffer.t -> historical_info -> unit
+  (** Output a JSON value of type {!type:historical_info}. *)
+
+val string_of_historical_info :
+  ?len:int -> historical_info -> string
+  (** Serialize a value of type {!type:historical_info}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_historical_info :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> historical_info
+  (** Input JSON data of type {!type:historical_info}. *)
+
+val historical_info_of_string :
+  string -> historical_info
+  (** Deserialize JSON data of type {!type:historical_info}. *)
 
 val write_svalue_value :
   Buffer.t -> svalue_value -> unit
@@ -1275,26 +1322,6 @@ val read_skipped_rule :
 val skipped_rule_of_string :
   string -> skipped_rule
   (** Deserialize JSON data of type {!type:skipped_rule}. *)
-
-val write_sha1 :
-  Buffer.t -> sha1 -> unit
-  (** Output a JSON value of type {!type:sha1}. *)
-
-val string_of_sha1 :
-  ?len:int -> sha1 -> string
-  (** Serialize a value of type {!type:sha1}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_sha1 :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sha1
-  (** Input JSON data of type {!type:sha1}. *)
-
-val sha1_of_string :
-  string -> sha1
-  (** Deserialize JSON data of type {!type:sha1}. *)
 
 val write_scanned_and_skipped :
   Buffer.t -> scanned_and_skipped -> unit

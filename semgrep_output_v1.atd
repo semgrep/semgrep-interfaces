@@ -240,6 +240,9 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
    * not being present should be equivalent to No_validator.
    * Added in semgrep 1.37.0 *)
   ?validation_state : validation_state option;
+  (* EXPERIMENTAL: added by secrets post-processing & historical scanning code.
+   * Since 1.60.0. *)
+  ?historical_info: historical_info option;
   (* Escape hatch to pass untyped info from semgrep-core to the semgrep output.
    * Useful for quick experiments, especially when combined with semgrep
    * --core-opts flag.
@@ -301,6 +304,9 @@ type cli_match_extra = {
    * field not being present should be equivalent to No_validator.
    * Added in semgrep 1.37.0 *)
   ?validation_state: validation_state option;
+  (* EXPERIMENTAL: added by secrets post-processing & historical scanning code
+   * Since 1.60.0. *)
+  ?historical_info: historical_info option;
 
   (* EXPERIMENTAL: see core_match_extra.extra_extra *)
   ?extra_extra: raw_json option;
@@ -914,6 +920,14 @@ type dependency_parser_error = {
   ?text: string option;
 }
 
+(*****************************************************************************)
+(* Semgrep Secrets *)
+(*****************************************************************************)
+
+type historical_info = {
+  git_commit: sha1;
+  git_commit_timestamp: (* ISO 8601 datetime *) string;
+}
 
 (*****************************************************************************)
 (* Communications with the Semgrep backend *)

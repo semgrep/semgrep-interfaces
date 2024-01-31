@@ -122,6 +122,7 @@
         "engine_kind": { "$ref": "#/definitions/engine_kind" },
         "is_ignored": { "type": "boolean" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
+        "historical_info": { "$ref": "#/definitions/historical_info" },
         "extra_extra": { "$ref": "#/definitions/raw_json" }
       }
     },
@@ -155,6 +156,7 @@
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
         "engine_kind": { "$ref": "#/definitions/engine_kind" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
+        "historical_info": { "$ref": "#/definitions/historical_info" },
         "extra_extra": { "$ref": "#/definitions/raw_json" }
       }
     },
@@ -743,6 +745,14 @@
         "line": { "type": "integer" },
         "col": { "type": "integer" },
         "text": { "type": "string" }
+      }
+    },
+    "historical_info": {
+      "type": "object",
+      "required": [ "git_commit", "git_commit_timestamp" ],
+      "properties": {
+        "git_commit": { "$ref": "#/definitions/sha1" },
+        "git_commit_timestamp": { "type": "string" }
       }
     },
     "deployment_config": {

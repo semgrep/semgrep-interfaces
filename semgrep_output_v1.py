@@ -891,6 +891,58 @@ class RuleId:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class Sha1:
+    """Original type: sha1"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Sha1':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Sha1':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class HistoricalInfo:
+    """Original type: historical_info = { ... }"""
+
+    git_commit: Sha1
+    git_commit_timestamp: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'HistoricalInfo':
+        if isinstance(x, dict):
+            return cls(
+                git_commit=Sha1.from_json(x['git_commit']) if 'git_commit' in x else _atd_missing_json_field('HistoricalInfo', 'git_commit'),
+                git_commit_timestamp=_atd_read_string(x['git_commit_timestamp']) if 'git_commit_timestamp' in x else _atd_missing_json_field('HistoricalInfo', 'git_commit_timestamp'),
+            )
+        else:
+            _atd_bad_json('HistoricalInfo', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['git_commit'] = (lambda x: x.to_json())(self.git_commit)
+        res['git_commit_timestamp'] = _atd_write_string(self.git_commit_timestamp)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'HistoricalInfo':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class SvalueValue:
     """Original type: svalue_value = { ... }"""
@@ -1209,6 +1261,7 @@ class CoreMatchExtra:
     fix: Optional[str] = None
     dataflow_trace: Optional[MatchDataflowTrace] = None
     validation_state: Optional[ValidationState] = None
+    historical_info: Optional[HistoricalInfo] = None
     extra_extra: Optional[RawJson] = None
 
     @classmethod
@@ -1224,6 +1277,7 @@ class CoreMatchExtra:
                 fix=_atd_read_string(x['fix']) if 'fix' in x else None,
                 dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
+                historical_info=HistoricalInfo.from_json(x['historical_info']) if 'historical_info' in x else None,
                 extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
             )
         else:
@@ -1246,6 +1300,8 @@ class CoreMatchExtra:
             res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
         if self.validation_state is not None:
             res['validation_state'] = (lambda x: x.to_json())(self.validation_state)
+        if self.historical_info is not None:
+            res['historical_info'] = (lambda x: x.to_json())(self.historical_info)
         if self.extra_extra is not None:
             res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
         return res
@@ -2125,27 +2181,6 @@ class SkippedRule:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'SkippedRule':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Sha1:
-    """Original type: sha1"""
-
-    value: str
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Sha1':
-        return cls(_atd_read_string(x))
-
-    def to_json(self) -> Any:
-        return _atd_write_string(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Sha1':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -4883,6 +4918,7 @@ class CliMatchExtra:
     dataflow_trace: Optional[MatchDataflowTrace] = None
     engine_kind: Optional[EngineKind] = None
     validation_state: Optional[ValidationState] = None
+    historical_info: Optional[HistoricalInfo] = None
     extra_extra: Optional[RawJson] = None
 
     @classmethod
@@ -4902,6 +4938,7 @@ class CliMatchExtra:
                 dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
+                historical_info=HistoricalInfo.from_json(x['historical_info']) if 'historical_info' in x else None,
                 extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
             )
         else:
@@ -4930,6 +4967,8 @@ class CliMatchExtra:
             res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
         if self.validation_state is not None:
             res['validation_state'] = (lambda x: x.to_json())(self.validation_state)
+        if self.historical_info is not None:
+            res['historical_info'] = (lambda x: x.to_json())(self.historical_info)
         if self.extra_extra is not None:
             res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
         return res

@@ -89,6 +89,7 @@ export type CoreMatchExtra = {
   engine_kind: EngineKind;
   is_ignored: boolean;
   validation_state?: ValidationState;
+  historical_info?: HistoricalInfo;
   extra_extra?: RawJson;
 }
 
@@ -114,6 +115,7 @@ export type CliMatchExtra = {
   dataflow_trace?: MatchDataflowTrace;
   engine_kind?: EngineKind;
   validation_state?: ValidationState;
+  historical_info?: HistoricalInfo;
   extra_extra?: RawJson;
 }
 
@@ -433,6 +435,11 @@ export type DependencyParserError = {
   line?: number /*int*/;
   col?: number /*int*/;
   text?: string;
+}
+
+export type HistoricalInfo = {
+  git_commit: Sha1;
+  git_commit_timestamp: string;
 }
 
 export type DeploymentConfig = {
@@ -931,6 +938,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
     'engine_kind': _atd_write_required_field('CoreMatchExtra', 'engine_kind', writeEngineKind, x.engine_kind, x),
     'is_ignored': _atd_write_required_field('CoreMatchExtra', 'is_ignored', _atd_write_bool, x.is_ignored, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
+    'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
     'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
   };
 }
@@ -946,6 +954,7 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineKind, x['engine_kind'], x),
     is_ignored: _atd_read_required_field('CoreMatchExtra', 'is_ignored', _atd_read_bool, x['is_ignored'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
+    historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
   };
 }
@@ -985,6 +994,7 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
     'engine_kind': _atd_write_optional_field(writeEngineKind, x.engine_kind, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
+    'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
     'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
   };
 }
@@ -1004,6 +1014,7 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
     engine_kind: _atd_read_optional_field(readEngineKind, x['engine_kind'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
+    historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
   };
 }
@@ -2017,6 +2028,20 @@ export function readDependencyParserError(x: any, context: any = x): DependencyP
     line: _atd_read_optional_field(_atd_read_int, x['line'], x),
     col: _atd_read_optional_field(_atd_read_int, x['col'], x),
     text: _atd_read_optional_field(_atd_read_string, x['text'], x),
+  };
+}
+
+export function writeHistoricalInfo(x: HistoricalInfo, context: any = x): any {
+  return {
+    'git_commit': _atd_write_required_field('HistoricalInfo', 'git_commit', writeSha1, x.git_commit, x),
+    'git_commit_timestamp': _atd_write_required_field('HistoricalInfo', 'git_commit_timestamp', _atd_write_string, x.git_commit_timestamp, x),
+  };
+}
+
+export function readHistoricalInfo(x: any, context: any = x): HistoricalInfo {
+  return {
+    git_commit: _atd_read_required_field('HistoricalInfo', 'git_commit', readSha1, x['git_commit'], x),
+    git_commit_timestamp: _atd_read_required_field('HistoricalInfo', 'git_commit_timestamp', _atd_read_string, x['git_commit_timestamp'], x),
   };
 }
 
