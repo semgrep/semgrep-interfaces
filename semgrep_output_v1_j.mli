@@ -1,6 +1,8 @@
 (* Auto-generated from "semgrep_output_v1.atd" *)
 [@@@ocaml.warning "-27-32-33-35-39"]
 
+type datetime = Semgrep_output_v1_t.datetime
+
 type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
 type fpath = Semgrep_output_v1_t.fpath [@@deriving show]
@@ -52,7 +54,7 @@ type sha1 = Semgrep_output_v1_t.sha1
 
 type historical_info = Semgrep_output_v1_t.historical_info = {
   git_commit: sha1;
-  git_commit_timestamp: string
+  git_commit_timestamp: datetime
 }
 
 type svalue_value = Semgrep_output_v1_t.svalue_value = {
@@ -238,7 +240,7 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   branch: string option;
   commit: sha1 option;
   commit_title: string option;
-  commit_timestamp: string option;
+  commit_timestamp: datetime option;
   commit_author_email: string option;
   commit_author_name: string option;
   commit_author_username: string option;
@@ -465,8 +467,6 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
   text: string option
 }
 
-type datetime = Semgrep_output_v1_t.datetime
-
 type core_error = Semgrep_output_v1_t.core_error = {
   rule_id: rule_id option;
   error_type: error_type;
@@ -496,7 +496,7 @@ type contributor = Semgrep_output_v1_t.contributor = {
 
 type contribution = Semgrep_output_v1_t.contribution = {
   commit_hash: string;
-  commit_timestamp: string;
+  commit_timestamp: datetime;
   contributor: contributor
 }
 
@@ -622,6 +622,26 @@ type ci_scan_complete = Semgrep_output_v1_t.ci_scan_complete = {
   task_id: string option;
   final_attempt: bool option
 }
+
+val write_datetime :
+  Buffer.t -> datetime -> unit
+  (** Output a JSON value of type {!type:datetime}. *)
+
+val string_of_datetime :
+  ?len:int -> datetime -> string
+  (** Serialize a value of type {!type:datetime}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_datetime :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> datetime
+  (** Input JSON data of type {!type:datetime}. *)
+
+val datetime_of_string :
+  string -> datetime
+  (** Deserialize JSON data of type {!type:datetime}. *)
 
 val write_engine_kind :
   Buffer.t -> engine_kind -> unit
@@ -1982,26 +2002,6 @@ val read_dependency_parser_error :
 val dependency_parser_error_of_string :
   string -> dependency_parser_error
   (** Deserialize JSON data of type {!type:dependency_parser_error}. *)
-
-val write_datetime :
-  Buffer.t -> datetime -> unit
-  (** Output a JSON value of type {!type:datetime}. *)
-
-val string_of_datetime :
-  ?len:int -> datetime -> string
-  (** Serialize a value of type {!type:datetime}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_datetime :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> datetime
-  (** Input JSON data of type {!type:datetime}. *)
-
-val datetime_of_string :
-  string -> datetime
-  (** Deserialize JSON data of type {!type:datetime}. *)
 
 val write_core_error :
   Buffer.t -> core_error -> unit

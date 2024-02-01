@@ -439,7 +439,7 @@ export type DependencyParserError = {
 
 export type HistoricalInfo = {
   git_commit: Sha1;
-  git_commit_timestamp: string;
+  git_commit_timestamp: Datetime;
 }
 
 export type DeploymentConfig = {
@@ -508,7 +508,7 @@ export type ProjectMetadata = {
   branch: (string | null);
   commit: (Sha1 | null);
   commit_title: (string | null);
-  commit_timestamp?: string;
+  commit_timestamp?: Datetime;
   commit_author_email: (string | null);
   commit_author_name: (string | null);
   commit_author_username: (string | null);
@@ -615,7 +615,7 @@ export type Contributor = {
 
 export type Contribution = {
   commit_hash: string;
-  commit_timestamp: string;
+  commit_timestamp: Datetime;
   contributor: Contributor;
 }
 
@@ -2034,14 +2034,14 @@ export function readDependencyParserError(x: any, context: any = x): DependencyP
 export function writeHistoricalInfo(x: HistoricalInfo, context: any = x): any {
   return {
     'git_commit': _atd_write_required_field('HistoricalInfo', 'git_commit', writeSha1, x.git_commit, x),
-    'git_commit_timestamp': _atd_write_required_field('HistoricalInfo', 'git_commit_timestamp', _atd_write_string, x.git_commit_timestamp, x),
+    'git_commit_timestamp': _atd_write_required_field('HistoricalInfo', 'git_commit_timestamp', writeDatetime, x.git_commit_timestamp, x),
   };
 }
 
 export function readHistoricalInfo(x: any, context: any = x): HistoricalInfo {
   return {
     git_commit: _atd_read_required_field('HistoricalInfo', 'git_commit', readSha1, x['git_commit'], x),
-    git_commit_timestamp: _atd_read_required_field('HistoricalInfo', 'git_commit_timestamp', _atd_read_string, x['git_commit_timestamp'], x),
+    git_commit_timestamp: _atd_read_required_field('HistoricalInfo', 'git_commit_timestamp', readDatetime, x['git_commit_timestamp'], x),
   };
 }
 
@@ -2200,7 +2200,7 @@ export function writeProjectMetadata(x: ProjectMetadata, context: any = x): any 
     'branch': _atd_write_required_field('ProjectMetadata', 'branch', _atd_write_nullable(_atd_write_string), x.branch, x),
     'commit': _atd_write_required_field('ProjectMetadata', 'commit', _atd_write_nullable(writeSha1), x.commit, x),
     'commit_title': _atd_write_required_field('ProjectMetadata', 'commit_title', _atd_write_nullable(_atd_write_string), x.commit_title, x),
-    'commit_timestamp': _atd_write_optional_field(_atd_write_string, x.commit_timestamp, x),
+    'commit_timestamp': _atd_write_optional_field(writeDatetime, x.commit_timestamp, x),
     'commit_author_email': _atd_write_required_field('ProjectMetadata', 'commit_author_email', _atd_write_nullable(_atd_write_string), x.commit_author_email, x),
     'commit_author_name': _atd_write_required_field('ProjectMetadata', 'commit_author_name', _atd_write_nullable(_atd_write_string), x.commit_author_name, x),
     'commit_author_username': _atd_write_required_field('ProjectMetadata', 'commit_author_username', _atd_write_nullable(_atd_write_string), x.commit_author_username, x),
@@ -2231,7 +2231,7 @@ export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
     branch: _atd_read_required_field('ProjectMetadata', 'branch', _atd_read_nullable(_atd_read_string), x['branch'], x),
     commit: _atd_read_required_field('ProjectMetadata', 'commit', _atd_read_nullable(readSha1), x['commit'], x),
     commit_title: _atd_read_required_field('ProjectMetadata', 'commit_title', _atd_read_nullable(_atd_read_string), x['commit_title'], x),
-    commit_timestamp: _atd_read_optional_field(_atd_read_string, x['commit_timestamp'], x),
+    commit_timestamp: _atd_read_optional_field(readDatetime, x['commit_timestamp'], x),
     commit_author_email: _atd_read_required_field('ProjectMetadata', 'commit_author_email', _atd_read_nullable(_atd_read_string), x['commit_author_email'], x),
     commit_author_name: _atd_read_required_field('ProjectMetadata', 'commit_author_name', _atd_read_nullable(_atd_read_string), x['commit_author_name'], x),
     commit_author_username: _atd_read_required_field('ProjectMetadata', 'commit_author_username', _atd_read_nullable(_atd_read_string), x['commit_author_username'], x),
@@ -2466,7 +2466,7 @@ export function readContributor(x: any, context: any = x): Contributor {
 export function writeContribution(x: Contribution, context: any = x): any {
   return {
     'commit_hash': _atd_write_required_field('Contribution', 'commit_hash', _atd_write_string, x.commit_hash, x),
-    'commit_timestamp': _atd_write_required_field('Contribution', 'commit_timestamp', _atd_write_string, x.commit_timestamp, x),
+    'commit_timestamp': _atd_write_required_field('Contribution', 'commit_timestamp', writeDatetime, x.commit_timestamp, x),
     'contributor': _atd_write_required_field('Contribution', 'contributor', writeContributor, x.contributor, x),
   };
 }
@@ -2474,7 +2474,7 @@ export function writeContribution(x: Contribution, context: any = x): any {
 export function readContribution(x: any, context: any = x): Contribution {
   return {
     commit_hash: _atd_read_required_field('Contribution', 'commit_hash', _atd_read_string, x['commit_hash'], x),
-    commit_timestamp: _atd_read_required_field('Contribution', 'commit_timestamp', _atd_read_string, x['commit_timestamp'], x),
+    commit_timestamp: _atd_read_required_field('Contribution', 'commit_timestamp', readDatetime, x['commit_timestamp'], x),
     contributor: _atd_read_required_field('Contribution', 'contributor', readContributor, x['contributor'], x),
   };
 }

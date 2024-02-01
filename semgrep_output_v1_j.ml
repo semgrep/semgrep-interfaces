@@ -1,6 +1,8 @@
 (* Auto-generated from "semgrep_output_v1.atd" *)
 [@@@ocaml.warning "-27-32-33-35-39"]
 
+type datetime = Semgrep_output_v1_t.datetime
+
 type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
 type fpath = Semgrep_output_v1_t.fpath [@@deriving show]
@@ -52,7 +54,7 @@ type sha1 = Semgrep_output_v1_t.sha1
 
 type historical_info = Semgrep_output_v1_t.historical_info = {
   git_commit: sha1;
-  git_commit_timestamp: string
+  git_commit_timestamp: datetime
 }
 
 type svalue_value = Semgrep_output_v1_t.svalue_value = {
@@ -238,7 +240,7 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   branch: string option;
   commit: sha1 option;
   commit_title: string option;
-  commit_timestamp: string option;
+  commit_timestamp: datetime option;
   commit_author_email: string option;
   commit_author_name: string option;
   commit_author_username: string option;
@@ -465,8 +467,6 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
   text: string option
 }
 
-type datetime = Semgrep_output_v1_t.datetime
-
 type core_error = Semgrep_output_v1_t.core_error = {
   rule_id: rule_id option;
   error_type: error_type;
@@ -496,7 +496,7 @@ type contributor = Semgrep_output_v1_t.contributor = {
 
 type contribution = Semgrep_output_v1_t.contribution = {
   commit_hash: string;
-  commit_timestamp: string;
+  commit_timestamp: datetime;
   contributor: contributor
 }
 
@@ -699,6 +699,25 @@ let read__x_45497b3 = (
 )
 let _x_45497b3_of_string s =
   read__x_45497b3 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_5a61d5f = (
+  fun ob x -> (
+    let x = ( ATD_string_wrap.Datetime.unwrap ) x in (
+      Yojson.Safe.write_string
+    ) ob x)
+)
+let string_of__x_5a61d5f ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__x_5a61d5f ob x;
+  Buffer.contents ob
+let read__x_5a61d5f = (
+  fun p lb ->
+    let x = (
+      Atdgen_runtime.Oj_run.read_string
+    ) p lb in
+    ( ATD_string_wrap.Datetime.wrap ) x
+)
+let _x_5a61d5f_of_string s =
+  read__x_5a61d5f (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__x_93e0d04 = (
   fun ob x -> (
     let x = ( Rule_ID.unwrap ) x in (
@@ -737,6 +756,18 @@ let read__x_f9d958d = (
 )
 let _x_f9d958d_of_string s =
   read__x_f9d958d (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_datetime = (
+  write__x_5a61d5f
+)
+let string_of_datetime ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_datetime ob x;
+  Buffer.contents ob
+let read_datetime = (
+  read__x_5a61d5f
+)
+let datetime_of_string s =
+  read_datetime (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_engine_kind = (
   fun ob x ->
     match x with
@@ -1861,7 +1892,7 @@ let write_historical_info : _ -> historical_info -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"git_commit_timestamp\":";
     (
-      Yojson.Safe.write_string
+      write_datetime
     )
       ob x.git_commit_timestamp;
     Buffer.add_char ob '}';
@@ -1921,7 +1952,7 @@ let read_historical_info = (
             field_git_commit_timestamp := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_datetime
                 ) p lb
               )
             );
@@ -1974,7 +2005,7 @@ let read_historical_info = (
               field_git_commit_timestamp := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_datetime
                   ) p lb
                 )
               );
@@ -8413,6 +8444,63 @@ let read__sha1_nullable = (
 )
 let _sha1_nullable_of_string s =
   read__sha1_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__datetime_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_datetime
+  )
+)
+let string_of__datetime_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__datetime_option ob x;
+  Buffer.contents ob
+let read__datetime_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_datetime
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_datetime
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _datetime_option_of_string s =
+  read__datetime_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__bool_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     Yojson.Safe.write_bool
@@ -8566,7 +8654,7 @@ let write_project_metadata : _ -> project_metadata -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"commit_timestamp\":";
       (
-        Yojson.Safe.write_string
+        write_datetime
       )
         ob x;
     );
@@ -9119,7 +9207,7 @@ let read_project_metadata = (
               field_commit_timestamp := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_datetime
                   ) p lb
                 )
               );
@@ -9625,7 +9713,7 @@ let read_project_metadata = (
                 field_commit_timestamp := (
                   Some (
                     (
-                      Atdgen_runtime.Oj_run.read_string
+                      read_datetime
                     ) p lb
                   )
                 );
@@ -17999,18 +18087,6 @@ let read_dependency_parser_error = (
 )
 let dependency_parser_error_of_string s =
   read_dependency_parser_error (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_datetime = (
-  Yojson.Safe.write_string
-)
-let string_of_datetime ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_datetime ob x;
-  Buffer.contents ob
-let read_datetime = (
-  Atdgen_runtime.Oj_run.read_string
-)
-let datetime_of_string s =
-  read_datetime (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_error : _ -> core_error -> _ = (
   fun ob (x : core_error) ->
     Buffer.add_char ob '{';
@@ -19365,7 +19441,7 @@ let write_contribution : _ -> contribution -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"commit_timestamp\":";
     (
-      Yojson.Safe.write_string
+      write_datetime
     )
       ob x.commit_timestamp;
     if !is_first then
@@ -19454,7 +19530,7 @@ let read_contribution = (
             field_commit_timestamp := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_datetime
                 ) p lb
               )
             );
@@ -19534,7 +19610,7 @@ let read_contribution = (
               field_commit_timestamp := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_datetime
                   ) p lb
                 )
               );
