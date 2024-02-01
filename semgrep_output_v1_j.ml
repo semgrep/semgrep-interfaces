@@ -116,7 +116,7 @@ type uuid = Semgrep_output_v1_t.uuid
 
 type uri = Semgrep_output_v1_t.uri
 
-type transitivity = Semgrep_output_v1_t.transitivity
+type transitivity = Semgrep_output_v1_t.transitivity [@@deriving show,eq]
 
 type todo = Semgrep_output_v1_t.todo
 
@@ -295,7 +295,7 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
 
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
 
-type ecosystem = Semgrep_output_v1_t.ecosystem
+type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show,eq]
 
 type dependency_child = Semgrep_output_v1_t.dependency_child = {
   package: string;
