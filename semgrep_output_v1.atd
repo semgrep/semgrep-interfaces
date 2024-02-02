@@ -841,7 +841,7 @@ type dependency_match = {
  * classes can be hashed and put in sets (see calls to reachable_deps.add()
  * in semgrep SCA code)
  *)
-type ecosystem <python decorator="dataclass(frozen=True)"> = [
+type ecosystem <python decorator="dataclass(frozen=True)"> <ocaml attr="deriving show,eq"> = [
   | Npm <json name="npm">
   | Pypi  <json name="pypi">
   | Gem <json name="gem">
@@ -854,7 +854,7 @@ type ecosystem <python decorator="dataclass(frozen=True)"> = [
   | SwiftPM <json name="swiftpm">
 ]
 
-type transitivity <python decorator="dataclass(frozen=True)"> = [
+type transitivity <python decorator="dataclass(frozen=True)"> <ocaml attr="deriving show,eq"> = [
   | Direct <json name="direct">
   | Transitive <json name="transitive">
   | Unknown <json name="unknown">
