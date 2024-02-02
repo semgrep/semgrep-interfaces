@@ -122,6 +122,7 @@
         "engine_kind": { "$ref": "#/definitions/engine_kind" },
         "is_ignored": { "type": "boolean" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
+        "historical_info": { "$ref": "#/definitions/historical_info" },
         "extra_extra": { "$ref": "#/definitions/raw_json" }
       }
     },
@@ -155,6 +156,7 @@
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
         "engine_kind": { "$ref": "#/definitions/engine_kind" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
+        "historical_info": { "$ref": "#/definitions/historical_info" },
         "extra_extra": { "$ref": "#/definitions/raw_json" }
       }
     },
@@ -745,6 +747,14 @@
         "text": { "type": "string" }
       }
     },
+    "historical_info": {
+      "type": "object",
+      "required": [ "git_commit", "git_commit_timestamp" ],
+      "properties": {
+        "git_commit": { "$ref": "#/definitions/sha1" },
+        "git_commit_timestamp": { "$ref": "#/definitions/datetime" }
+      }
+    },
     "deployment_config": {
       "type": "object",
       "required": [ "id", "name" ],
@@ -867,7 +877,7 @@
         "branch": { "type": [ "string", "null" ] },
         "commit": { "$ref": "#/definitions/sha1" },
         "commit_title": { "type": [ "string", "null" ] },
-        "commit_timestamp": { "type": "string" },
+        "commit_timestamp": { "$ref": "#/definitions/datetime" },
         "commit_author_email": { "type": [ "string", "null" ] },
         "commit_author_name": { "type": [ "string", "null" ] },
         "commit_author_username": { "type": [ "string", "null" ] },
@@ -1043,7 +1053,7 @@
       "required": [ "commit_hash", "commit_timestamp", "contributor" ],
       "properties": {
         "commit_hash": { "type": "string" },
-        "commit_timestamp": { "type": "string" },
+        "commit_timestamp": { "$ref": "#/definitions/datetime" },
         "contributor": { "$ref": "#/definitions/contributor" }
       }
     },

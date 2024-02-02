@@ -79,8 +79,8 @@ type sha1 = string wrap <ocaml module="ATD_string_wrap.Sha1">
 
 type uuid = string wrap <ocaml module="ATD_string_wrap.Uuidm">
 
-(* GMT time (in osemgrep at least), in isoformat, TODO ATD_string_wrap.Datetime *)
-type datetime = string
+(* RFC 3339 format *)
+type datetime = string wrap <ocaml module="ATD_string_wrap.Datetime">
 
 (*****************************************************************************)
 (* Versioning *)
@@ -240,6 +240,9 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
    * not being present should be equivalent to No_validator.
    * Added in semgrep 1.37.0 *)
   ?validation_state : validation_state option;
+  (* EXPERIMENTAL: added by secrets post-processing & historical scanning code.
+   * Since 1.60.0. *)
+  ?historical_info: historical_info option;
   (* Escape hatch to pass untyped info from semgrep-core to the semgrep output.
    * Useful for quick experiments, especially when combined with semgrep
    * --core-opts flag.
@@ -301,6 +304,9 @@ type cli_match_extra = {
    * field not being present should be equivalent to No_validator.
    * Added in semgrep 1.37.0 *)
   ?validation_state: validation_state option;
+  (* EXPERIMENTAL: added by secrets post-processing & historical scanning code
+   * Since 1.60.0. *)
+  ?historical_info: historical_info option;
 
   (* EXPERIMENTAL: see core_match_extra.extra_extra *)
   ?extra_extra: raw_json option;
@@ -914,6 +920,18 @@ type dependency_parser_error = {
   ?text: string option;
 }
 
+(*****************************************************************************)
+(* Semgrep Secrets *)
+(*****************************************************************************)
+
+type historical_info = {
+  (* Git commit at which the finding is present. Used by "historical" scans,
+   * which scan non-HEAD commits in the git history. Relevant for finding, e.g.,
+   * secrets which are buried in the git history which we wouldn't find at HEAD
+   *)
+  git_commit: sha1;
+  git_commit_timestamp: datetime;
+}
 
 (*****************************************************************************)
 (* Communications with the Semgrep backend *)
@@ -1100,7 +1118,7 @@ type project_metadata = {
     commit: sha1 nullable;
     commit_title: string nullable;
     (* since 1.38.0 *)
-    ?commit_timestamp: (*datetime*) string option;
+    ?commit_timestamp: datetime option;
 
     (* TODO? inherit contributor instead? *)
     (* TODO? Emile.mailbox in OCaml *)
@@ -1287,8 +1305,7 @@ type contributor = {
 
 type contribution = {
     commit_hash: string;
-    (* TODO: datatime instead? *)
-    commit_timestamp: string;
+    commit_timestamp: datetime;
     contributor: contributor;
 }
 

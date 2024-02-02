@@ -24,7 +24,7 @@ type uuid = string wrap <ocaml module="ATD_string_wrap.Uuidm">
 
 type sha256 = string wrap <ocaml module="ATD_string_wrap.Sha256">
 
-(* GMT time (in osemgrep at least), in isoformat *)
+(* RFC 3339 formatted datetime *)
 type datetime = string wrap <ocaml module="ATD_string_wrap.Datetime">
 
 type lang = string

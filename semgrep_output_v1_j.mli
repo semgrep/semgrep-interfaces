@@ -1,6 +1,8 @@
 (* Auto-generated from "semgrep_output_v1.atd" *)
 [@@@ocaml.warning "-27-32-33-35-39"]
 
+type datetime = Semgrep_output_v1_t.datetime
+
 type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
 type fpath = Semgrep_output_v1_t.fpath [@@deriving show]
@@ -48,6 +50,13 @@ type raw_json = Yojson.Basic.t
 
 type rule_id = Semgrep_output_v1_t.rule_id [@@deriving show]
 
+type sha1 = Semgrep_output_v1_t.sha1
+
+type historical_info = Semgrep_output_v1_t.historical_info = {
+  git_commit: sha1;
+  git_commit_timestamp: datetime
+}
+
 type svalue_value = Semgrep_output_v1_t.svalue_value = {
   svalue_start: position option;
   svalue_end: position option;
@@ -92,6 +101,7 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   engine_kind: engine_kind;
   is_ignored: bool;
   validation_state: validation_state option;
+  historical_info: historical_info option;
   extra_extra: raw_json option
 }
 
@@ -179,8 +189,6 @@ type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
   position: position
 }
 
-type sha1 = Semgrep_output_v1_t.sha1
-
 type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
   scanned: fpath list;
   skipped: skipped_target list option
@@ -232,7 +240,7 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   branch: string option;
   commit: sha1 option;
   commit_title: string option;
-  commit_timestamp: string option;
+  commit_timestamp: datetime option;
   commit_author_email: string option;
   commit_author_name: string option;
   commit_author_username: string option;
@@ -459,8 +467,6 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
   text: string option
 }
 
-type datetime = Semgrep_output_v1_t.datetime
-
 type core_error = Semgrep_output_v1_t.core_error = {
   rule_id: rule_id option;
   error_type: error_type;
@@ -490,7 +496,7 @@ type contributor = Semgrep_output_v1_t.contributor = {
 
 type contribution = Semgrep_output_v1_t.contribution = {
   commit_hash: string;
-  commit_timestamp: string;
+  commit_timestamp: datetime;
   contributor: contributor
 }
 
@@ -520,6 +526,7 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   dataflow_trace: match_dataflow_trace option;
   engine_kind: engine_kind option;
   validation_state: validation_state option;
+  historical_info: historical_info option;
   extra_extra: raw_json option
 }
 
@@ -615,6 +622,26 @@ type ci_scan_complete = Semgrep_output_v1_t.ci_scan_complete = {
   task_id: string option;
   final_attempt: bool option
 }
+
+val write_datetime :
+  Buffer.t -> datetime -> unit
+  (** Output a JSON value of type {!type:datetime}. *)
+
+val string_of_datetime :
+  ?len:int -> datetime -> string
+  (** Serialize a value of type {!type:datetime}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_datetime :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> datetime
+  (** Input JSON data of type {!type:datetime}. *)
+
+val datetime_of_string :
+  string -> datetime
+  (** Deserialize JSON data of type {!type:datetime}. *)
 
 val write_engine_kind :
   Buffer.t -> engine_kind -> unit
@@ -795,6 +822,46 @@ val read_rule_id :
 val rule_id_of_string :
   string -> rule_id
   (** Deserialize JSON data of type {!type:rule_id}. *)
+
+val write_sha1 :
+  Buffer.t -> sha1 -> unit
+  (** Output a JSON value of type {!type:sha1}. *)
+
+val string_of_sha1 :
+  ?len:int -> sha1 -> string
+  (** Serialize a value of type {!type:sha1}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sha1 :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sha1
+  (** Input JSON data of type {!type:sha1}. *)
+
+val sha1_of_string :
+  string -> sha1
+  (** Deserialize JSON data of type {!type:sha1}. *)
+
+val write_historical_info :
+  Buffer.t -> historical_info -> unit
+  (** Output a JSON value of type {!type:historical_info}. *)
+
+val string_of_historical_info :
+  ?len:int -> historical_info -> string
+  (** Serialize a value of type {!type:historical_info}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_historical_info :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> historical_info
+  (** Input JSON data of type {!type:historical_info}. *)
+
+val historical_info_of_string :
+  string -> historical_info
+  (** Deserialize JSON data of type {!type:historical_info}. *)
 
 val write_svalue_value :
   Buffer.t -> svalue_value -> unit
@@ -1275,26 +1342,6 @@ val read_skipped_rule :
 val skipped_rule_of_string :
   string -> skipped_rule
   (** Deserialize JSON data of type {!type:skipped_rule}. *)
-
-val write_sha1 :
-  Buffer.t -> sha1 -> unit
-  (** Output a JSON value of type {!type:sha1}. *)
-
-val string_of_sha1 :
-  ?len:int -> sha1 -> string
-  (** Serialize a value of type {!type:sha1}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_sha1 :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sha1
-  (** Input JSON data of type {!type:sha1}. *)
-
-val sha1_of_string :
-  string -> sha1
-  (** Deserialize JSON data of type {!type:sha1}. *)
 
 val write_scanned_and_skipped :
   Buffer.t -> scanned_and_skipped -> unit
@@ -1955,26 +2002,6 @@ val read_dependency_parser_error :
 val dependency_parser_error_of_string :
   string -> dependency_parser_error
   (** Deserialize JSON data of type {!type:dependency_parser_error}. *)
-
-val write_datetime :
-  Buffer.t -> datetime -> unit
-  (** Output a JSON value of type {!type:datetime}. *)
-
-val string_of_datetime :
-  ?len:int -> datetime -> string
-  (** Serialize a value of type {!type:datetime}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_datetime :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> datetime
-  (** Input JSON data of type {!type:datetime}. *)
-
-val datetime_of_string :
-  string -> datetime
-  (** Deserialize JSON data of type {!type:datetime}. *)
 
 val write_core_error :
   Buffer.t -> core_error -> unit

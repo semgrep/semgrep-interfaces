@@ -260,6 +260,27 @@ def _atd_write_option(write_elt: Callable[[Any], Any]) \
 ############################################################################
 
 
+@dataclass
+class Datetime:
+    """Original type: datetime"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Datetime':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Datetime':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class OSS:
     """Original type: engine_kind = [ ... | OSS | ... ]"""
@@ -891,6 +912,58 @@ class RuleId:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class Sha1:
+    """Original type: sha1"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Sha1':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Sha1':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class HistoricalInfo:
+    """Original type: historical_info = { ... }"""
+
+    git_commit: Sha1
+    git_commit_timestamp: Datetime
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'HistoricalInfo':
+        if isinstance(x, dict):
+            return cls(
+                git_commit=Sha1.from_json(x['git_commit']) if 'git_commit' in x else _atd_missing_json_field('HistoricalInfo', 'git_commit'),
+                git_commit_timestamp=Datetime.from_json(x['git_commit_timestamp']) if 'git_commit_timestamp' in x else _atd_missing_json_field('HistoricalInfo', 'git_commit_timestamp'),
+            )
+        else:
+            _atd_bad_json('HistoricalInfo', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['git_commit'] = (lambda x: x.to_json())(self.git_commit)
+        res['git_commit_timestamp'] = (lambda x: x.to_json())(self.git_commit_timestamp)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'HistoricalInfo':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class SvalueValue:
     """Original type: svalue_value = { ... }"""
@@ -1209,6 +1282,7 @@ class CoreMatchExtra:
     fix: Optional[str] = None
     dataflow_trace: Optional[MatchDataflowTrace] = None
     validation_state: Optional[ValidationState] = None
+    historical_info: Optional[HistoricalInfo] = None
     extra_extra: Optional[RawJson] = None
 
     @classmethod
@@ -1224,6 +1298,7 @@ class CoreMatchExtra:
                 fix=_atd_read_string(x['fix']) if 'fix' in x else None,
                 dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
+                historical_info=HistoricalInfo.from_json(x['historical_info']) if 'historical_info' in x else None,
                 extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
             )
         else:
@@ -1246,6 +1321,8 @@ class CoreMatchExtra:
             res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
         if self.validation_state is not None:
             res['validation_state'] = (lambda x: x.to_json())(self.validation_state)
+        if self.historical_info is not None:
+            res['historical_info'] = (lambda x: x.to_json())(self.historical_info)
         if self.extra_extra is not None:
             res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
         return res
@@ -2132,27 +2209,6 @@ class SkippedRule:
 
 
 @dataclass
-class Sha1:
-    """Original type: sha1"""
-
-    value: str
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Sha1':
-        return cls(_atd_read_string(x))
-
-    def to_json(self) -> Any:
-        return _atd_write_string(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Sha1':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class ScannedAndSkipped:
     """Original type: scanned_and_skipped = { ... }"""
 
@@ -2476,7 +2532,7 @@ class ProjectMetadata:
     is_full_scan: bool
     repo_id: Optional[str] = None
     org_id: Optional[str] = None
-    commit_timestamp: Optional[str] = None
+    commit_timestamp: Optional[Datetime] = None
     base_sha: Optional[Sha1] = None
     start_sha: Optional[Sha1] = None
     is_sca_scan: Optional[bool] = None
@@ -2507,7 +2563,7 @@ class ProjectMetadata:
                 is_full_scan=_atd_read_bool(x['is_full_scan']) if 'is_full_scan' in x else _atd_missing_json_field('ProjectMetadata', 'is_full_scan'),
                 repo_id=_atd_read_string(x['repo_id']) if 'repo_id' in x else None,
                 org_id=_atd_read_string(x['org_id']) if 'org_id' in x else None,
-                commit_timestamp=_atd_read_string(x['commit_timestamp']) if 'commit_timestamp' in x else None,
+                commit_timestamp=Datetime.from_json(x['commit_timestamp']) if 'commit_timestamp' in x else None,
                 base_sha=Sha1.from_json(x['base_sha']) if 'base_sha' in x else None,
                 start_sha=Sha1.from_json(x['start_sha']) if 'start_sha' in x else None,
                 is_sca_scan=_atd_read_bool(x['is_sca_scan']) if 'is_sca_scan' in x else None,
@@ -2542,7 +2598,7 @@ class ProjectMetadata:
         if self.org_id is not None:
             res['org_id'] = _atd_write_string(self.org_id)
         if self.commit_timestamp is not None:
-            res['commit_timestamp'] = _atd_write_string(self.commit_timestamp)
+            res['commit_timestamp'] = (lambda x: x.to_json())(self.commit_timestamp)
         if self.base_sha is not None:
             res['base_sha'] = (lambda x: x.to_json())(self.base_sha)
         if self.start_sha is not None:
@@ -4602,27 +4658,6 @@ class DependencyParserError:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
-class Datetime:
-    """Original type: datetime"""
-
-    value: str
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Datetime':
-        return cls(_atd_read_string(x))
-
-    def to_json(self) -> Any:
-        return _atd_write_string(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Datetime':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass(frozen=True)
 class CoreError:
     """Original type: core_error = { ... }"""
@@ -4765,7 +4800,7 @@ class Contribution:
     """Original type: contribution = { ... }"""
 
     commit_hash: str
-    commit_timestamp: str
+    commit_timestamp: Datetime
     contributor: Contributor
 
     @classmethod
@@ -4773,7 +4808,7 @@ class Contribution:
         if isinstance(x, dict):
             return cls(
                 commit_hash=_atd_read_string(x['commit_hash']) if 'commit_hash' in x else _atd_missing_json_field('Contribution', 'commit_hash'),
-                commit_timestamp=_atd_read_string(x['commit_timestamp']) if 'commit_timestamp' in x else _atd_missing_json_field('Contribution', 'commit_timestamp'),
+                commit_timestamp=Datetime.from_json(x['commit_timestamp']) if 'commit_timestamp' in x else _atd_missing_json_field('Contribution', 'commit_timestamp'),
                 contributor=Contributor.from_json(x['contributor']) if 'contributor' in x else _atd_missing_json_field('Contribution', 'contributor'),
             )
         else:
@@ -4782,7 +4817,7 @@ class Contribution:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['commit_hash'] = _atd_write_string(self.commit_hash)
-        res['commit_timestamp'] = _atd_write_string(self.commit_timestamp)
+        res['commit_timestamp'] = (lambda x: x.to_json())(self.commit_timestamp)
         res['contributor'] = (lambda x: x.to_json())(self.contributor)
         return res
 
@@ -4883,6 +4918,7 @@ class CliMatchExtra:
     dataflow_trace: Optional[MatchDataflowTrace] = None
     engine_kind: Optional[EngineKind] = None
     validation_state: Optional[ValidationState] = None
+    historical_info: Optional[HistoricalInfo] = None
     extra_extra: Optional[RawJson] = None
 
     @classmethod
@@ -4902,6 +4938,7 @@ class CliMatchExtra:
                 dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
+                historical_info=HistoricalInfo.from_json(x['historical_info']) if 'historical_info' in x else None,
                 extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
             )
         else:
@@ -4930,6 +4967,8 @@ class CliMatchExtra:
             res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
         if self.validation_state is not None:
             res['validation_state'] = (lambda x: x.to_json())(self.validation_state)
+        if self.historical_info is not None:
+            res['historical_info'] = (lambda x: x.to_json())(self.historical_info)
         if self.extra_extra is not None:
             res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
         return res
