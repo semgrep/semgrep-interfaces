@@ -1110,6 +1110,10 @@ type project_metadata = {
     ?repo_id: string option;
     (* a.k.a repository owner id *)
     ?org_id: string option;
+    
+    (* Users can set a different name for display and for PR comments.
+       This allows monorepos to be scanned as separate projects. *)
+    repo_display_name;
 
     (* TODO: the branch should use a standard format? like refs/... ? or it can
      * be a basic branch name like 'foobar'?
