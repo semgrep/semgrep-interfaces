@@ -241,7 +241,7 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
    * Added in semgrep 1.37.0 *)
   ?validation_state : validation_state option;
   (* EXPERIMENTAL: added by secrets post-processing & historical scanning code.
-   * Since 1.60.0. *)
+   * Since 1.62.0. *)
   ?historical_info: historical_info option;
   (* Escape hatch to pass untyped info from semgrep-core to the semgrep output.
    * Useful for quick experiments, especially when combined with semgrep
