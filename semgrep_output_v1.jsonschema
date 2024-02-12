@@ -874,6 +874,7 @@
         "repo_url": { "$ref": "#/definitions/uri" },
         "repo_id": { "type": "string" },
         "org_id": { "type": "string" },
+        "repo_display_name": { "type": "string" },
         "branch": { "type": [ "string", "null" ] },
         "commit": { "$ref": "#/definitions/sha1" },
         "commit_title": { "type": [ "string", "null" ] },

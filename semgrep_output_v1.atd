@@ -1113,7 +1113,7 @@ type project_metadata = {
     
     (* Users can set a different name for display and for PR comments.
        This allows monorepos to be scanned as separate projects. *)
-    repo_display_name;
+    ?repo_display_name: string option;
 
     (* TODO: the branch should use a standard format? like refs/... ? or it can
      * be a basic branch name like 'foobar'?
