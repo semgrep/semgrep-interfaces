@@ -3193,10 +3193,27 @@ class PackageSwift:
 
 
 @dataclass
+class PackageResolved:
+    """Original type: sca_parser_name = [ ... | Package_resolved | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PackageResolved'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'package_resolved'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class ScaParserName:
     """Original type: sca_parser_name = [ ... ]"""
 
-    value: Union[GemfileLock, GoMod, GoSum, GradleLockfile, GradleBuild, Jsondoc, Pipfile, PnpmLock, PoetryLock, PyprojectToml, Requirements, Yarn1, Yarn2, Pomtree, CargoParser, ComposerLock, PubspecLock, PackageSwift]
+    value: Union[GemfileLock, GoMod, GoSum, GradleLockfile, GradleBuild, Jsondoc, Pipfile, PnpmLock, PoetryLock, PyprojectToml, Requirements, Yarn1, Yarn2, Pomtree, CargoParser, ComposerLock, PubspecLock, PackageSwift, PackageResolved]
 
     @property
     def kind(self) -> str:
@@ -3242,6 +3259,8 @@ class ScaParserName:
                 return cls(PubspecLock())
             if x == 'package_swift':
                 return cls(PackageSwift())
+            if x == 'package_resolved':
+                return cls(PackageResolved())
             _atd_bad_json('ScaParserName', x)
         _atd_bad_json('ScaParserName', x)
 

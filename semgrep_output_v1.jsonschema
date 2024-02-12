@@ -732,7 +732,8 @@
         { "const": "cargo" },
         { "const": "composer_lock" },
         { "const": "pubspec_lock" },
-        { "const": "package_swift" }
+        { "const": "package_swift" },
+        { "const": "package_resolved" }
       ]
     },
     "dependency_parser_error": {

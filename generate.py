@@ -248,7 +248,8 @@ LANGUAGES : List[Language] = [
         keys=["cpp", "c++"],
         # Extensions are taken directly from tokei's language JSON file:
         #   https://github.com/XAMPPRocky/tokei/blob/master/languages.json
-        exts=[".cc", ".cpp", ".cxx", ".c++", ".pcc", ".tpp", ".h", ".hh", ".hpp", ".hxx", ".inl", ".ipp"],
+        # The .C was added for LSEG
+        exts=[".cc", ".cpp", ".cxx", ".c++", ".pcc", ".tpp", ".C", ".h", ".hh", ".hpp", ".hxx", ".inl", ".ipp"],
         example_ext=".cpp",
         maturity=Maturity.ALPHA,
         shebangs=[]
