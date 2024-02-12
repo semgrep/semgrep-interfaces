@@ -938,6 +938,7 @@ class HistoricalInfo:
     """Original type: historical_info = { ... }"""
 
     git_commit: Sha1
+    git_blob: Sha1
     git_commit_timestamp: Datetime
 
     @classmethod
@@ -945,6 +946,7 @@ class HistoricalInfo:
         if isinstance(x, dict):
             return cls(
                 git_commit=Sha1.from_json(x['git_commit']) if 'git_commit' in x else _atd_missing_json_field('HistoricalInfo', 'git_commit'),
+                git_blob=Sha1.from_json(x['git_blob']) if 'git_blob' in x else _atd_missing_json_field('HistoricalInfo', 'git_blob'),
                 git_commit_timestamp=Datetime.from_json(x['git_commit_timestamp']) if 'git_commit_timestamp' in x else _atd_missing_json_field('HistoricalInfo', 'git_commit_timestamp'),
             )
         else:
@@ -953,6 +955,7 @@ class HistoricalInfo:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['git_commit'] = (lambda x: x.to_json())(self.git_commit)
+        res['git_blob'] = (lambda x: x.to_json())(self.git_blob)
         res['git_commit_timestamp'] = (lambda x: x.to_json())(self.git_commit_timestamp)
         return res
 
@@ -2398,9 +2401,42 @@ class ScanConfiguration:
 
 
 @dataclass
+class HistoricalConfiguration:
+    """Original type: historical_configuration = { ... }"""
+
+    enabled: bool
+    lookback_days: Optional[int] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'HistoricalConfiguration':
+        if isinstance(x, dict):
+            return cls(
+                enabled=_atd_read_bool(x['enabled']) if 'enabled' in x else _atd_missing_json_field('HistoricalConfiguration', 'enabled'),
+                lookback_days=_atd_read_int(x['lookback_days']) if 'lookback_days' in x else None,
+            )
+        else:
+            _atd_bad_json('HistoricalConfiguration', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['enabled'] = _atd_write_bool(self.enabled)
+        if self.lookback_days is not None:
+            res['lookback_days'] = _atd_write_int(self.lookback_days)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'HistoricalConfiguration':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class EngineConfiguration:
     """Original type: engine_configuration = { ... }"""
 
+    historical_config: HistoricalConfiguration
     autofix: bool = field(default_factory=lambda: False)
     ignored_files: List[str] = field(default_factory=lambda: [])
     deepsemgrep: bool = field(default_factory=lambda: False)
@@ -2411,6 +2447,7 @@ class EngineConfiguration:
     def from_json(cls, x: Any) -> 'EngineConfiguration':
         if isinstance(x, dict):
             return cls(
+                historical_config=HistoricalConfiguration.from_json(x['historical_config']) if 'historical_config' in x else _atd_missing_json_field('EngineConfiguration', 'historical_config'),
                 autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
                 ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
@@ -2422,6 +2459,7 @@ class EngineConfiguration:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
+        res['historical_config'] = (lambda x: x.to_json())(self.historical_config)
         res['autofix'] = _atd_write_bool(self.autofix)
         res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
