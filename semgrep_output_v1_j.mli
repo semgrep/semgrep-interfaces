@@ -222,7 +222,7 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   deepsemgrep: bool;
   dependency_query: bool;
   generic_slow_rollout: bool;
-  historical_config: historical_configuration
+  historical_config: historical_configuration option
 }
 
 type scan_response = Semgrep_output_v1_t.scan_response = {

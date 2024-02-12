@@ -222,7 +222,7 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   deepsemgrep: bool;
   dependency_query: bool;
   generic_slow_rollout: bool;
-  historical_config: historical_configuration
+  historical_config: historical_configuration option
 }
 
 type scan_response = Semgrep_output_v1_t.scan_response = {
@@ -7823,6 +7823,63 @@ let read_historical_configuration = (
 )
 let historical_configuration_of_string s =
   read_historical_configuration (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__historical_configuration_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_historical_configuration
+  )
+)
+let string_of__historical_configuration_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__historical_configuration_option ob x;
+  Buffer.contents ob
+let read__historical_configuration_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_historical_configuration
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_historical_configuration
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _historical_configuration_option_of_string s =
+  read__historical_configuration_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_engine_configuration : _ -> engine_configuration -> _ = (
   fun ob (x : engine_configuration) ->
     Buffer.add_char ob '{';
@@ -7872,15 +7929,17 @@ let write_engine_configuration : _ -> engine_configuration -> _ = (
       Yojson.Safe.write_bool
     )
       ob x.generic_slow_rollout;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"historical_config\":";
-    (
-      write_historical_configuration
-    )
-      ob x.historical_config;
+    (match x.historical_config with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"historical_config\":";
+      (
+        write_historical_configuration
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_engine_configuration ?(len = 1024) x =
@@ -8003,13 +8062,15 @@ let read_engine_configuration = (
               );
             )
           | 5 ->
-            field_historical_config := (
-              Some (
-                (
-                  read_historical_configuration
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_historical_config := (
+                Some (
+                  (
+                    read_historical_configuration
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -8120,13 +8181,15 @@ let read_engine_configuration = (
                 );
               )
             | 5 ->
-              field_historical_config := (
-                Some (
-                  (
-                    read_historical_configuration
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_historical_config := (
+                  Some (
+                    (
+                      read_historical_configuration
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -8141,7 +8204,7 @@ let read_engine_configuration = (
             deepsemgrep = !field_deepsemgrep;
             dependency_query = !field_dependency_query;
             generic_slow_rollout = !field_generic_slow_rollout;
-            historical_config = (match !field_historical_config with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "historical_config");
+            historical_config = !field_historical_config;
           }
          : engine_configuration)
       )

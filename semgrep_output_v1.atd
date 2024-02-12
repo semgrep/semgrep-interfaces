@@ -1219,7 +1219,7 @@ type engine_configuration = {
     ~dependency_query: bool;
     ~generic_slow_rollout: bool; (* for features we only want to turn on for select customers *)
     (* from 1.62.0 *)
-    historical_config: historical_configuration;
+    ?historical_config: historical_configuration option;
 }
 
 (* ----------------------------- *)

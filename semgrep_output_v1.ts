@@ -573,7 +573,7 @@ export type EngineConfiguration = {
   deepsemgrep: boolean;
   dependency_query: boolean;
   generic_slow_rollout: boolean;
-  historical_config: HistoricalConfiguration;
+  historical_config?: HistoricalConfiguration;
 }
 
 export type Finding = {
@@ -2372,7 +2372,7 @@ export function writeEngineConfiguration(x: EngineConfiguration, context: any = 
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
     'generic_slow_rollout': _atd_write_field_with_default(_atd_write_bool, false, x.generic_slow_rollout, x),
-    'historical_config': _atd_write_required_field('EngineConfiguration', 'historical_config', writeHistoricalConfiguration, x.historical_config, x),
+    'historical_config': _atd_write_optional_field(writeHistoricalConfiguration, x.historical_config, x),
   };
 }
 
@@ -2383,7 +2383,7 @@ export function readEngineConfiguration(x: any, context: any = x): EngineConfigu
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
     generic_slow_rollout: _atd_read_field_with_default(_atd_read_bool, false, x['generic_slow_rollout'], x),
-    historical_config: _atd_read_required_field('EngineConfiguration', 'historical_config', readHistoricalConfiguration, x['historical_config'], x),
+    historical_config: _atd_read_optional_field(readHistoricalConfiguration, x['historical_config'], x),
   };
 }
 

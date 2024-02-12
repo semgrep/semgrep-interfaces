@@ -2436,35 +2436,36 @@ class HistoricalConfiguration:
 class EngineConfiguration:
     """Original type: engine_configuration = { ... }"""
 
-    historical_config: HistoricalConfiguration
     autofix: bool = field(default_factory=lambda: False)
     ignored_files: List[str] = field(default_factory=lambda: [])
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
     generic_slow_rollout: bool = field(default_factory=lambda: False)
+    historical_config: Optional[HistoricalConfiguration] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'EngineConfiguration':
         if isinstance(x, dict):
             return cls(
-                historical_config=HistoricalConfiguration.from_json(x['historical_config']) if 'historical_config' in x else _atd_missing_json_field('EngineConfiguration', 'historical_config'),
                 autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
                 ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
                 generic_slow_rollout=_atd_read_bool(x['generic_slow_rollout']) if 'generic_slow_rollout' in x else False,
+                historical_config=HistoricalConfiguration.from_json(x['historical_config']) if 'historical_config' in x else None,
             )
         else:
             _atd_bad_json('EngineConfiguration', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['historical_config'] = (lambda x: x.to_json())(self.historical_config)
         res['autofix'] = _atd_write_bool(self.autofix)
         res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
         res['generic_slow_rollout'] = _atd_write_bool(self.generic_slow_rollout)
+        if self.historical_config is not None:
+            res['historical_config'] = (lambda x: x.to_json())(self.historical_config)
         return res
 
     @classmethod
