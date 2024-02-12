@@ -427,6 +427,7 @@ export type ScaParserName =
 | { kind: 'Composer_lock' /* JSON: "composer_lock" */ }
 | { kind: 'Pubspec_lock' /* JSON: "pubspec_lock" */ }
 | { kind: 'Package_swift' /* JSON: "package_swift" */ }
+| { kind: 'Package_resolved' /* JSON: "package_resolved" */ }
 
 export type DependencyParserError = {
   path: string;
@@ -1962,6 +1963,8 @@ export function writeScaParserName(x: ScaParserName, context: any = x): any {
       return 'pubspec_lock'
     case 'Package_swift':
       return 'package_swift'
+    case 'Package_resolved':
+      return 'package_resolved'
   }
 }
 
@@ -2003,6 +2006,8 @@ export function readScaParserName(x: any, context: any = x): ScaParserName {
       return { kind: 'Pubspec_lock' }
     case 'package_swift':
       return { kind: 'Package_swift' }
+    case 'package_resolved':
+      return { kind: 'Package_resolved' }
     default:
       _atd_bad_json('ScaParserName', x, context)
       throw new Error('impossible')
