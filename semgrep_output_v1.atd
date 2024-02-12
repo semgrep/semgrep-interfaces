@@ -906,6 +906,7 @@ type sca_parser_name = [
   | Composer_lock <json name="composer_lock">
   | Pubspec_lock <json name="pubspec_lock">
   | Package_swift <json name="package_swift">
+  | Package_resolved <json name="package_resolved">
 ]
 
 type dependency_parser_error = {
