@@ -12048,6 +12048,7 @@ let write_sca_parser_name = (
       | `Composer_lock -> Buffer.add_string ob "\"composer_lock\""
       | `Pubspec_lock -> Buffer.add_string ob "\"pubspec_lock\""
       | `Package_swift -> Buffer.add_string ob "\"package_swift\""
+      | `Package_resolved -> Buffer.add_string ob "\"package_resolved\""
 )
 let string_of_sca_parser_name ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -12131,6 +12132,10 @@ let read_sca_parser_name = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Package_swift
+            | "package_resolved" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Package_resolved
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -12172,6 +12177,8 @@ let read_sca_parser_name = (
               `Pubspec_lock
             | "package_swift" ->
               `Package_swift
+            | "package_resolved" ->
+              `Package_resolved
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
