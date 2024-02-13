@@ -506,6 +506,7 @@ export type ProjectMetadata = {
   repo_url: (Uri | null);
   repo_id?: string;
   org_id?: string;
+  repo_display_name?: string;
   branch: (string | null);
   commit: (Sha1 | null);
   commit_title: (string | null);
@@ -2202,6 +2203,7 @@ export function writeProjectMetadata(x: ProjectMetadata, context: any = x): any 
     'repo_url': _atd_write_required_field('ProjectMetadata', 'repo_url', _atd_write_nullable(writeUri), x.repo_url, x),
     'repo_id': _atd_write_optional_field(_atd_write_string, x.repo_id, x),
     'org_id': _atd_write_optional_field(_atd_write_string, x.org_id, x),
+    'repo_display_name': _atd_write_optional_field(_atd_write_string, x.repo_display_name, x),
     'branch': _atd_write_required_field('ProjectMetadata', 'branch', _atd_write_nullable(_atd_write_string), x.branch, x),
     'commit': _atd_write_required_field('ProjectMetadata', 'commit', _atd_write_nullable(writeSha1), x.commit, x),
     'commit_title': _atd_write_required_field('ProjectMetadata', 'commit_title', _atd_write_nullable(_atd_write_string), x.commit_title, x),
@@ -2233,6 +2235,7 @@ export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
     repo_url: _atd_read_required_field('ProjectMetadata', 'repo_url', _atd_read_nullable(readUri), x['repo_url'], x),
     repo_id: _atd_read_optional_field(_atd_read_string, x['repo_id'], x),
     org_id: _atd_read_optional_field(_atd_read_string, x['org_id'], x),
+    repo_display_name: _atd_read_optional_field(_atd_read_string, x['repo_display_name'], x),
     branch: _atd_read_required_field('ProjectMetadata', 'branch', _atd_read_nullable(_atd_read_string), x['branch'], x),
     commit: _atd_read_required_field('ProjectMetadata', 'commit', _atd_read_nullable(readSha1), x['commit'], x),
     commit_title: _atd_read_required_field('ProjectMetadata', 'commit_title', _atd_read_nullable(_atd_read_string), x['commit_title'], x),
