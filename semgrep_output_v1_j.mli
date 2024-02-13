@@ -54,7 +54,7 @@ type sha1 = Semgrep_output_v1_t.sha1
 
 type historical_info = Semgrep_output_v1_t.historical_info = {
   git_commit: sha1;
-  git_blob: sha1;
+  git_blob: sha1 option;
   git_commit_timestamp: datetime
 }
 

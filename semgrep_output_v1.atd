@@ -934,7 +934,7 @@ type historical_info = {
   (* Git blob at which the finding is present. Sent in addition to the commit
    * since some SCMs have permalinks which use the blob sha, so this information
    * is useful when generating links back to the SCM. *)
-  git_blob: sha1;
+  ?git_blob: sha1 option;
   git_commit_timestamp: datetime;
 }
 

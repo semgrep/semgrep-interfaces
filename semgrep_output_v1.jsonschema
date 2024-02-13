@@ -750,7 +750,7 @@
     },
     "historical_info": {
       "type": "object",
-      "required": [ "git_commit", "git_blob", "git_commit_timestamp" ],
+      "required": [ "git_commit", "git_commit_timestamp" ],
       "properties": {
         "git_commit": { "$ref": "#/definitions/sha1" },
         "git_blob": { "$ref": "#/definitions/sha1" },

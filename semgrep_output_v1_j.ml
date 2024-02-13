@@ -54,7 +54,7 @@ type sha1 = Semgrep_output_v1_t.sha1
 
 type historical_info = Semgrep_output_v1_t.historical_info = {
   git_commit: sha1;
-  git_blob: sha1;
+  git_blob: sha1 option;
   git_commit_timestamp: datetime
 }
 
@@ -1881,6 +1881,63 @@ let read_sha1 = (
 )
 let sha1_of_string s =
   read_sha1 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__sha1_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_sha1
+  )
+)
+let string_of__sha1_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__sha1_option ob x;
+  Buffer.contents ob
+let read__sha1_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_sha1
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_sha1
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _sha1_option_of_string s =
+  read__sha1_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_historical_info : _ -> historical_info -> _ = (
   fun ob (x : historical_info) ->
     Buffer.add_char ob '{';
@@ -1894,15 +1951,17 @@ let write_historical_info : _ -> historical_info -> _ = (
       write_sha1
     )
       ob x.git_commit;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"git_blob\":";
-    (
-      write_sha1
-    )
-      ob x.git_blob;
+    (match x.git_blob with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"git_blob\":";
+      (
+        write_sha1
+      )
+        ob x;
+    );
     if !is_first then
       is_first := false
     else
@@ -1975,13 +2034,15 @@ let read_historical_info = (
               )
             );
           | 1 ->
-            field_git_blob := (
-              Some (
-                (
-                  read_sha1
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_git_blob := (
+                Some (
+                  (
+                    read_sha1
+                  ) p lb
+                )
+              );
+            )
           | 2 ->
             field_git_commit_timestamp := (
               Some (
@@ -2044,13 +2105,15 @@ let read_historical_info = (
                 )
               );
             | 1 ->
-              field_git_blob := (
-                Some (
-                  (
-                    read_sha1
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_git_blob := (
+                  Some (
+                    (
+                      read_sha1
+                    ) p lb
+                  )
+                );
+              )
             | 2 ->
               field_git_commit_timestamp := (
                 Some (
@@ -2069,7 +2132,7 @@ let read_historical_info = (
         (
           {
             git_commit = (match !field_git_commit with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "git_commit");
-            git_blob = (match !field_git_blob with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "git_blob");
+            git_blob = !field_git_blob;
             git_commit_timestamp = (match !field_git_commit_timestamp with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "git_commit_timestamp");
           }
          : historical_info)
@@ -8684,63 +8747,6 @@ let read__string_nullable = (
 )
 let _string_nullable_of_string s =
   read__string_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__sha1_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_sha1
-  )
-)
-let string_of__sha1_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__sha1_option ob x;
-  Buffer.contents ob
-let read__sha1_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_sha1
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_sha1
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _sha1_option_of_string s =
-  read__sha1_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__sha1_nullable = (
   Atdgen_runtime.Oj_run.write_nullable (
     write_sha1

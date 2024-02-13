@@ -440,7 +440,7 @@ export type DependencyParserError = {
 
 export type HistoricalInfo = {
   git_commit: Sha1;
-  git_blob: Sha1;
+  git_blob?: Sha1;
   git_commit_timestamp: Datetime;
 }
 
@@ -2046,7 +2046,7 @@ export function readDependencyParserError(x: any, context: any = x): DependencyP
 export function writeHistoricalInfo(x: HistoricalInfo, context: any = x): any {
   return {
     'git_commit': _atd_write_required_field('HistoricalInfo', 'git_commit', writeSha1, x.git_commit, x),
-    'git_blob': _atd_write_required_field('HistoricalInfo', 'git_blob', writeSha1, x.git_blob, x),
+    'git_blob': _atd_write_optional_field(writeSha1, x.git_blob, x),
     'git_commit_timestamp': _atd_write_required_field('HistoricalInfo', 'git_commit_timestamp', writeDatetime, x.git_commit_timestamp, x),
   };
 }
@@ -2054,7 +2054,7 @@ export function writeHistoricalInfo(x: HistoricalInfo, context: any = x): any {
 export function readHistoricalInfo(x: any, context: any = x): HistoricalInfo {
   return {
     git_commit: _atd_read_required_field('HistoricalInfo', 'git_commit', readSha1, x['git_commit'], x),
-    git_blob: _atd_read_required_field('HistoricalInfo', 'git_blob', readSha1, x['git_blob'], x),
+    git_blob: _atd_read_optional_field(readSha1, x['git_blob'], x),
     git_commit_timestamp: _atd_read_required_field('HistoricalInfo', 'git_commit_timestamp', readDatetime, x['git_commit_timestamp'], x),
   };
 }

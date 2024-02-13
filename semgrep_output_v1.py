@@ -938,16 +938,16 @@ class HistoricalInfo:
     """Original type: historical_info = { ... }"""
 
     git_commit: Sha1
-    git_blob: Sha1
     git_commit_timestamp: Datetime
+    git_blob: Optional[Sha1] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'HistoricalInfo':
         if isinstance(x, dict):
             return cls(
                 git_commit=Sha1.from_json(x['git_commit']) if 'git_commit' in x else _atd_missing_json_field('HistoricalInfo', 'git_commit'),
-                git_blob=Sha1.from_json(x['git_blob']) if 'git_blob' in x else _atd_missing_json_field('HistoricalInfo', 'git_blob'),
                 git_commit_timestamp=Datetime.from_json(x['git_commit_timestamp']) if 'git_commit_timestamp' in x else _atd_missing_json_field('HistoricalInfo', 'git_commit_timestamp'),
+                git_blob=Sha1.from_json(x['git_blob']) if 'git_blob' in x else None,
             )
         else:
             _atd_bad_json('HistoricalInfo', x)
@@ -955,8 +955,9 @@ class HistoricalInfo:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['git_commit'] = (lambda x: x.to_json())(self.git_commit)
-        res['git_blob'] = (lambda x: x.to_json())(self.git_blob)
         res['git_commit_timestamp'] = (lambda x: x.to_json())(self.git_commit_timestamp)
+        if self.git_blob is not None:
+            res['git_blob'] = (lambda x: x.to_json())(self.git_blob)
         return res
 
     @classmethod
