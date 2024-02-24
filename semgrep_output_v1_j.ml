@@ -3,7 +3,7 @@
 
 type datetime = Semgrep_output_v1_t.datetime
 
-type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
+type engine_flavor = Semgrep_output_v1_t.engine_flavor [@@deriving show]
 
 type fpath = Semgrep_output_v1_t.fpath [@@deriving show]
 
@@ -98,7 +98,7 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   metavars: metavars;
   fix: string option;
   dataflow_trace: match_dataflow_trace option;
-  engine_kind: engine_kind;
+  engine_kind: engine_flavor;
   is_ignored: bool;
   validation_state: validation_state option;
   historical_info: historical_info option;
@@ -340,6 +340,8 @@ type sca_info = Semgrep_output_v1_t.sca_info = {
   sca_finding_schema: int;
   dependency_match: dependency_match
 }
+
+type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
 
@@ -769,17 +771,20 @@ let read_datetime = (
 )
 let datetime_of_string s =
   read_datetime (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_engine_kind = (
+let write_engine_flavor = (
   fun ob x ->
     match x with
       | `OSS -> Buffer.add_string ob "\"OSS\""
       | `PRO -> Buffer.add_string ob "\"PRO\""
+      | `PRO_SPECIFIC -> Buffer.add_string ob "\"PRO_SPECIFIC\""
+      | `PRO_SPECIFIC_INTRAFILE_TAINT -> Buffer.add_string ob "\"PRO_SPECIFIC_INTRAFILE_TAINT\""
+      | `PRO_SPECIFIC_INTERFILE_TAINT -> Buffer.add_string ob "\"PRO_SPECIFIC_INTERFILE_TAINT\""
 )
-let string_of_engine_kind ?(len = 1024) x =
+let string_of_engine_flavor ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_engine_kind ob x;
+  write_engine_flavor ob x;
   Buffer.contents ob
-let read_engine_kind = (
+let read_engine_flavor = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     match Yojson.Safe.start_any_variant p lb with
@@ -793,6 +798,18 @@ let read_engine_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `PRO
+            | "PRO_SPECIFIC" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `PRO_SPECIFIC
+            | "PRO_SPECIFIC_INTRAFILE_TAINT" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `PRO_SPECIFIC_INTRAFILE_TAINT
+            | "PRO_SPECIFIC_INTERFILE_TAINT" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `PRO_SPECIFIC_INTERFILE_TAINT
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -802,6 +819,12 @@ let read_engine_kind = (
               `OSS
             | "PRO" ->
               `PRO
+            | "PRO_SPECIFIC" ->
+              `PRO_SPECIFIC
+            | "PRO_SPECIFIC_INTRAFILE_TAINT" ->
+              `PRO_SPECIFIC_INTRAFILE_TAINT
+            | "PRO_SPECIFIC_INTERFILE_TAINT" ->
+              `PRO_SPECIFIC_INTERFILE_TAINT
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -811,8 +834,8 @@ let read_engine_kind = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-let engine_kind_of_string s =
-  read_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let engine_flavor_of_string s =
+  read_engine_flavor (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_fpath = (
   write__x_45497b3
 )
@@ -3550,7 +3573,7 @@ let write_core_match_extra : _ -> core_match_extra -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"engine_kind\":";
     (
-      write_engine_kind
+      write_engine_flavor
     )
       ob x.engine_kind;
     if !is_first then
@@ -3811,7 +3834,7 @@ let read_core_match_extra = (
             field_engine_kind := (
               Some (
                 (
-                  read_engine_kind
+                  read_engine_flavor
                 ) p lb
               )
             );
@@ -4052,7 +4075,7 @@ let read_core_match_extra = (
               field_engine_kind := (
                 Some (
                   (
-                    read_engine_kind
+                    read_engine_flavor
                   ) p lb
                 )
               );
@@ -13630,6 +13653,50 @@ let read_sca_info = (
 )
 let sca_info_of_string s =
   read_sca_info (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_engine_kind = (
+  fun ob x ->
+    match x with
+      | `OSS -> Buffer.add_string ob "\"OSS\""
+      | `PRO -> Buffer.add_string ob "\"PRO\""
+)
+let string_of_engine_kind ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_engine_kind ob x;
+  Buffer.contents ob
+let read_engine_kind = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "OSS" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `OSS
+            | "PRO" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `PRO
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "OSS" ->
+              `OSS
+            | "PRO" ->
+              `PRO
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let engine_kind_of_string s =
+  read_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_rule_id_and_engine_kind = (
   fun ob x ->
     Buffer.add_char ob '[';

@@ -165,7 +165,25 @@ type error_severity
   | Info <json name="info">
 ]
 
-(* TODO? PRO can actually have "flavors" (see Engine_type.ml) *)
+(* What each flavor means:
+   - OSS = ran with OSS
+   - PRO = ran with PRO, but we didn't infer that OSS couldn't have found this
+   - PRO_SPECIFIC = ran with PRO and requires non-taint PRO features 
+   - PRO_SPECIFIC_INTRAFILE_TAINT = ran with PRO and requires intrafile taint
+   - PRO_SPECIFIC_INTERFILE_TAINT = ran with PRO and requires interfile taint
+   
+   OSS and PRO could have clearer names, but for backwards compatibility
+   we're leaving them as is *)
+type engine_flavor
+     <ocaml attr="deriving show">
+     <python decorator="dataclass(frozen=True)"> = [
+  | OSS
+  | PRO
+  | PRO_SPECIFIC
+  | PRO_SPECIFIC_INTRAFILE_TAINT
+  | PRO_SPECIFIC_INTERFILE_TAINT
+]
+
 type engine_kind
      <ocaml attr="deriving show">
      <python decorator="dataclass(frozen=True)"> = [
@@ -233,7 +251,7 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
   ?fix: string option;
 
   ?dataflow_trace: match_dataflow_trace option;
-  engine_kind: engine_kind;
+  engine_kind: engine_flavor;
   (* for nosemgrep *)
   is_ignored: bool;
   (* If present indicates the status of postprocessor validation. This field
@@ -298,7 +316,7 @@ type cli_match_extra = {
    * later on. *)
   ?dataflow_trace: match_dataflow_trace option;
 
-  ?engine_kind: engine_kind option;
+  ?engine_kind: engine_flavor option;
 
   (* EXPERIMENTAL: If present indicates the status of postprocessor validation. This
    * field not being present should be equivalent to No_validator.

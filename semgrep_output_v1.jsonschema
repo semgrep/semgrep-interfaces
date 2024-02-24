@@ -75,6 +75,15 @@
         { "const": "error" }, { "const": "warn" }, { "const": "info" }
       ]
     },
+    "engine_flavor": {
+      "oneOf": [
+        { "const": "OSS" },
+        { "const": "PRO" },
+        { "const": "PRO_SPECIFIC" },
+        { "const": "PRO_SPECIFIC_INTRAFILE_TAINT" },
+        { "const": "PRO_SPECIFIC_INTERFILE_TAINT" }
+      ]
+    },
     "engine_kind": { "oneOf": [ { "const": "OSS" }, { "const": "PRO" } ] },
     "rule_id_and_engine_kind": {
       "type": "array",
@@ -119,7 +128,7 @@
         "metavars": { "$ref": "#/definitions/metavars" },
         "fix": { "type": "string" },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
-        "engine_kind": { "$ref": "#/definitions/engine_kind" },
+        "engine_kind": { "$ref": "#/definitions/engine_flavor" },
         "is_ignored": { "type": "boolean" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
         "historical_info": { "$ref": "#/definitions/historical_info" },

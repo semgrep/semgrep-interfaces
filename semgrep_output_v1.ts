@@ -54,6 +54,13 @@ export type ErrorSeverity =
 | { kind: 'Warning' /* JSON: "warn" */ }
 | { kind: 'Info' /* JSON: "info" */ }
 
+export type EngineFlavor =
+| { kind: 'OSS' }
+| { kind: 'PRO' }
+| { kind: 'PRO_SPECIFIC' }
+| { kind: 'PRO_SPECIFIC_INTRAFILE_TAINT' }
+| { kind: 'PRO_SPECIFIC_INTERFILE_TAINT' }
+
 export type EngineKind =
 | { kind: 'OSS' }
 | { kind: 'PRO' }
@@ -86,7 +93,7 @@ export type CoreMatchExtra = {
   metavars: Metavars;
   fix?: string;
   dataflow_trace?: MatchDataflowTrace;
-  engine_kind: EngineKind;
+  engine_kind: EngineFlavor;
   is_ignored: boolean;
   validation_state?: ValidationState;
   historical_info?: HistoricalInfo;
@@ -826,6 +833,39 @@ export function readErrorSeverity(x: any, context: any = x): ErrorSeverity {
   }
 }
 
+export function writeEngineFlavor(x: EngineFlavor, context: any = x): any {
+  switch (x.kind) {
+    case 'OSS':
+      return 'OSS'
+    case 'PRO':
+      return 'PRO'
+    case 'PRO_SPECIFIC':
+      return 'PRO_SPECIFIC'
+    case 'PRO_SPECIFIC_INTRAFILE_TAINT':
+      return 'PRO_SPECIFIC_INTRAFILE_TAINT'
+    case 'PRO_SPECIFIC_INTERFILE_TAINT':
+      return 'PRO_SPECIFIC_INTERFILE_TAINT'
+  }
+}
+
+export function readEngineFlavor(x: any, context: any = x): EngineFlavor {
+  switch (x) {
+    case 'OSS':
+      return { kind: 'OSS' }
+    case 'PRO':
+      return { kind: 'PRO' }
+    case 'PRO_SPECIFIC':
+      return { kind: 'PRO_SPECIFIC' }
+    case 'PRO_SPECIFIC_INTRAFILE_TAINT':
+      return { kind: 'PRO_SPECIFIC_INTRAFILE_TAINT' }
+    case 'PRO_SPECIFIC_INTERFILE_TAINT':
+      return { kind: 'PRO_SPECIFIC_INTERFILE_TAINT' }
+    default:
+      _atd_bad_json('EngineFlavor', x, context)
+      throw new Error('impossible')
+  }
+}
+
 export function writeEngineKind(x: EngineKind, context: any = x): any {
   switch (x.kind) {
     case 'OSS':
@@ -937,7 +977,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
     'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
     'fix': _atd_write_optional_field(_atd_write_string, x.fix, x),
     'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
-    'engine_kind': _atd_write_required_field('CoreMatchExtra', 'engine_kind', writeEngineKind, x.engine_kind, x),
+    'engine_kind': _atd_write_required_field('CoreMatchExtra', 'engine_kind', writeEngineFlavor, x.engine_kind, x),
     'is_ignored': _atd_write_required_field('CoreMatchExtra', 'is_ignored', _atd_write_bool, x.is_ignored, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
@@ -953,7 +993,7 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
     fix: _atd_read_optional_field(_atd_read_string, x['fix'], x),
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
-    engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineKind, x['engine_kind'], x),
+    engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineFlavor, x['engine_kind'], x),
     is_ignored: _atd_read_required_field('CoreMatchExtra', 'is_ignored', _atd_read_bool, x['is_ignored'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),

@@ -3,7 +3,7 @@
 
 type datetime = Semgrep_output_v1_t.datetime
 
-type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
+type engine_flavor = Semgrep_output_v1_t.engine_flavor [@@deriving show]
 
 type fpath = Semgrep_output_v1_t.fpath [@@deriving show]
 
@@ -98,7 +98,7 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   metavars: metavars;
   fix: string option;
   dataflow_trace: match_dataflow_trace option;
-  engine_kind: engine_kind;
+  engine_kind: engine_flavor;
   is_ignored: bool;
   validation_state: validation_state option;
   historical_info: historical_info option;
@@ -340,6 +340,8 @@ type sca_info = Semgrep_output_v1_t.sca_info = {
   sca_finding_schema: int;
   dependency_match: dependency_match
 }
+
+type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
 
@@ -644,25 +646,25 @@ val datetime_of_string :
   string -> datetime
   (** Deserialize JSON data of type {!type:datetime}. *)
 
-val write_engine_kind :
-  Buffer.t -> engine_kind -> unit
-  (** Output a JSON value of type {!type:engine_kind}. *)
+val write_engine_flavor :
+  Buffer.t -> engine_flavor -> unit
+  (** Output a JSON value of type {!type:engine_flavor}. *)
 
-val string_of_engine_kind :
-  ?len:int -> engine_kind -> string
-  (** Serialize a value of type {!type:engine_kind}
+val string_of_engine_flavor :
+  ?len:int -> engine_flavor -> string
+  (** Serialize a value of type {!type:engine_flavor}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_engine_kind :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> engine_kind
-  (** Input JSON data of type {!type:engine_kind}. *)
+val read_engine_flavor :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> engine_flavor
+  (** Input JSON data of type {!type:engine_flavor}. *)
 
-val engine_kind_of_string :
-  string -> engine_kind
-  (** Deserialize JSON data of type {!type:engine_kind}. *)
+val engine_flavor_of_string :
+  string -> engine_flavor
+  (** Deserialize JSON data of type {!type:engine_flavor}. *)
 
 val write_fpath :
   Buffer.t -> fpath -> unit
@@ -1763,6 +1765,26 @@ val read_sca_info :
 val sca_info_of_string :
   string -> sca_info
   (** Deserialize JSON data of type {!type:sca_info}. *)
+
+val write_engine_kind :
+  Buffer.t -> engine_kind -> unit
+  (** Output a JSON value of type {!type:engine_kind}. *)
+
+val string_of_engine_kind :
+  ?len:int -> engine_kind -> string
+  (** Serialize a value of type {!type:engine_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_engine_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> engine_kind
+  (** Input JSON data of type {!type:engine_kind}. *)
+
+val engine_kind_of_string :
+  string -> engine_kind
+  (** Deserialize JSON data of type {!type:engine_kind}. *)
 
 val write_rule_id_and_engine_kind :
   Buffer.t -> rule_id_and_engine_kind -> unit

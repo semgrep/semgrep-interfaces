@@ -283,7 +283,7 @@ class Datetime:
 
 @dataclass(frozen=True)
 class OSS:
-    """Original type: engine_kind = [ ... | OSS | ... ]"""
+    """Original type: engine_flavor = [ ... | OSS | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -300,7 +300,7 @@ class OSS:
 
 @dataclass(frozen=True)
 class PRO:
-    """Original type: engine_kind = [ ... | PRO | ... ]"""
+    """Original type: engine_flavor = [ ... | PRO | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -316,10 +316,61 @@ class PRO:
 
 
 @dataclass(frozen=True)
-class EngineKind:
-    """Original type: engine_kind = [ ... ]"""
+class PROSPECIFIC:
+    """Original type: engine_flavor = [ ... | PRO_SPECIFIC | ... ]"""
 
-    value: Union[OSS, PRO]
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PROSPECIFIC'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PRO_SPECIFIC'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PROSPECIFICINTRAFILETAINT:
+    """Original type: engine_flavor = [ ... | PRO_SPECIFIC_INTRAFILE_TAINT | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PROSPECIFICINTRAFILETAINT'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PRO_SPECIFIC_INTRAFILE_TAINT'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PROSPECIFICINTERFILETAINT:
+    """Original type: engine_flavor = [ ... | PRO_SPECIFIC_INTERFILE_TAINT | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PROSPECIFICINTERFILETAINT'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PRO_SPECIFIC_INTERFILE_TAINT'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class EngineFlavor:
+    """Original type: engine_flavor = [ ... ]"""
+
+    value: Union[OSS, PRO, PROSPECIFIC, PROSPECIFICINTRAFILETAINT, PROSPECIFICINTERFILETAINT]
 
     @property
     def kind(self) -> str:
@@ -327,20 +378,26 @@ class EngineKind:
         return self.value.kind
 
     @classmethod
-    def from_json(cls, x: Any) -> 'EngineKind':
+    def from_json(cls, x: Any) -> 'EngineFlavor':
         if isinstance(x, str):
             if x == 'OSS':
                 return cls(OSS())
             if x == 'PRO':
                 return cls(PRO())
-            _atd_bad_json('EngineKind', x)
-        _atd_bad_json('EngineKind', x)
+            if x == 'PRO_SPECIFIC':
+                return cls(PROSPECIFIC())
+            if x == 'PRO_SPECIFIC_INTRAFILE_TAINT':
+                return cls(PROSPECIFICINTRAFILETAINT())
+            if x == 'PRO_SPECIFIC_INTERFILE_TAINT':
+                return cls(PROSPECIFICINTERFILETAINT())
+            _atd_bad_json('EngineFlavor', x)
+        _atd_bad_json('EngineFlavor', x)
 
     def to_json(self) -> Any:
         return self.value.to_json()
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'EngineKind':
+    def from_json_string(cls, x: str) -> 'EngineFlavor':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1274,7 +1331,7 @@ class CoreMatchExtra:
     """Original type: core_match_extra = { ... }"""
 
     metavars: Metavars
-    engine_kind: EngineKind
+    engine_kind: EngineFlavor
     is_ignored: bool
     message: Optional[str] = None
     metadata: Optional[RawJson] = None
@@ -1290,7 +1347,7 @@ class CoreMatchExtra:
         if isinstance(x, dict):
             return cls(
                 metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else _atd_missing_json_field('CoreMatchExtra', 'metavars'),
-                engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else _atd_missing_json_field('CoreMatchExtra', 'engine_kind'),
+                engine_kind=EngineFlavor.from_json(x['engine_kind']) if 'engine_kind' in x else _atd_missing_json_field('CoreMatchExtra', 'engine_kind'),
                 is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else _atd_missing_json_field('CoreMatchExtra', 'is_ignored'),
                 message=_atd_read_string(x['message']) if 'message' in x else None,
                 metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else None,
@@ -3641,6 +3698,72 @@ class ScaInfo:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ScaInfo':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class OSS_:
+    """Original type: engine_kind = [ ... | OSS | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'OSS_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'OSS'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PRO_:
+    """Original type: engine_kind = [ ... | PRO | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PRO_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PRO'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class EngineKind:
+    """Original type: engine_kind = [ ... ]"""
+
+    value: Union[OSS_, PRO_]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'EngineKind':
+        if isinstance(x, str):
+            if x == 'OSS':
+                return cls(OSS_())
+            if x == 'PRO':
+                return cls(PRO_())
+            _atd_bad_json('EngineKind', x)
+        _atd_bad_json('EngineKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'EngineKind':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
