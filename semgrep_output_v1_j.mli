@@ -245,6 +245,7 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   repo_url: uri option;
   repo_id: string option;
   org_id: string option;
+  repo_display_name: string option;
   branch: string option;
   commit: sha1 option;
   commit_title: string option;

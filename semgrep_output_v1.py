@@ -2572,6 +2572,7 @@ class ProjectMetadata:
     is_full_scan: bool
     repo_id: Optional[str] = None
     org_id: Optional[str] = None
+    repo_display_name: Optional[str] = None
     commit_timestamp: Optional[Datetime] = None
     base_sha: Optional[Sha1] = None
     start_sha: Optional[Sha1] = None
@@ -2603,6 +2604,7 @@ class ProjectMetadata:
                 is_full_scan=_atd_read_bool(x['is_full_scan']) if 'is_full_scan' in x else _atd_missing_json_field('ProjectMetadata', 'is_full_scan'),
                 repo_id=_atd_read_string(x['repo_id']) if 'repo_id' in x else None,
                 org_id=_atd_read_string(x['org_id']) if 'org_id' in x else None,
+                repo_display_name=_atd_read_string(x['repo_display_name']) if 'repo_display_name' in x else None,
                 commit_timestamp=Datetime.from_json(x['commit_timestamp']) if 'commit_timestamp' in x else None,
                 base_sha=Sha1.from_json(x['base_sha']) if 'base_sha' in x else None,
                 start_sha=Sha1.from_json(x['start_sha']) if 'start_sha' in x else None,
@@ -2637,6 +2639,8 @@ class ProjectMetadata:
             res['repo_id'] = _atd_write_string(self.repo_id)
         if self.org_id is not None:
             res['org_id'] = _atd_write_string(self.org_id)
+        if self.repo_display_name is not None:
+            res['repo_display_name'] = _atd_write_string(self.repo_display_name)
         if self.commit_timestamp is not None:
             res['commit_timestamp'] = (lambda x: x.to_json())(self.commit_timestamp)
         if self.base_sha is not None:

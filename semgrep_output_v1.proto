@@ -347,6 +347,7 @@ message ProjectMetadata {
   string repo_url = 245057343;
   string repo_id = 42655347;
   string org_id = 278463023;
+  string repo_display_name = 340226562;
   string branch = 387879587;
   string commit = 200081263;
   string commit_title = 23517072;
