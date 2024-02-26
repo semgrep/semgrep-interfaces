@@ -1806,8 +1806,8 @@ let write_engine_of_finding = (
     match x with
       | `OSS -> Buffer.add_string ob "\"OSS\""
       | `PRO -> Buffer.add_string ob "\"PRO\""
-      | `PRO_SPECIFIC x ->
-        Buffer.add_string ob "[\"PRO_SPECIFIC\",";
+      | `PRO_REQUIRED x ->
+        Buffer.add_string ob "[\"PRO_REQUIRED\",";
         (
           write_pro_feature
         ) ob x;
@@ -1831,7 +1831,7 @@ let read_engine_of_finding = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `PRO
-            | "PRO_SPECIFIC" ->
+            | "PRO_REQUIRED" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
                   read_pro_feature
@@ -1839,7 +1839,7 @@ let read_engine_of_finding = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `PRO_SPECIFIC x
+              `PRO_REQUIRED x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -1854,7 +1854,7 @@ let read_engine_of_finding = (
         )
       | `Square_bracket -> (
           match Atdgen_runtime.Oj_run.read_string p lb with
-            | "PRO_SPECIFIC" ->
+            | "PRO_REQUIRED" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
@@ -1864,7 +1864,7 @@ let read_engine_of_finding = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
-              `PRO_SPECIFIC x
+              `PRO_REQUIRED x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

@@ -190,7 +190,7 @@ type engine_of_finding
      <python decorator="dataclass(frozen=True)"> = [
   | OSS 
   | PRO
-  | PRO_SPECIFIC of pro_feature
+  | PRO_REQUIRED of pro_feature
 ]
 
 type engine_kind

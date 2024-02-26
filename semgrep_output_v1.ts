@@ -62,7 +62,7 @@ export type ProFeature =
 export type EngineOfFinding =
 | { kind: 'OSS' }
 | { kind: 'PRO' }
-| { kind: 'PRO_SPECIFIC'; value: ProFeature }
+| { kind: 'PRO_REQUIRED'; value: ProFeature }
 
 export type EngineKind =
 | { kind: 'OSS' }
@@ -874,8 +874,8 @@ export function writeEngineOfFinding(x: EngineOfFinding, context: any = x): any 
       return 'OSS'
     case 'PRO':
       return 'PRO'
-    case 'PRO_SPECIFIC':
-      return ['PRO_SPECIFIC', writeProFeature(x.value, x)]
+    case 'PRO_REQUIRED':
+      return ['PRO_REQUIRED', writeProFeature(x.value, x)]
   }
 }
 
@@ -894,8 +894,8 @@ export function readEngineOfFinding(x: any, context: any = x): EngineOfFinding {
   else {
     _atd_check_json_tuple(2, x, context)
     switch (x[0]) {
-      case 'PRO_SPECIFIC':
-        return { kind: 'PRO_SPECIFIC', value: readProFeature(x[1], x) }
+      case 'PRO_REQUIRED':
+        return { kind: 'PRO_REQUIRED', value: readProFeature(x[1], x) }
       default:
         _atd_bad_json('EngineOfFinding', x, context)
         throw new Error('impossible')
