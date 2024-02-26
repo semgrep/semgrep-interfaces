@@ -165,29 +165,38 @@ type error_severity
   | Info <json name="info">
 ]
 
-(* What each flavor means:
-   - OSS = ran with OSS
-   - PRO = ran with PRO, but we didn't infer that OSS couldn't have found this
-   - PRO_SPECIFIC = ran with PRO and requires non-taint PRO features 
-   - PRO_SPECIFIC_INTRAFILE_TAINT = ran with PRO and requires intrafile taint
-   - PRO_SPECIFIC_INTERFILE_TAINT = ran with PRO and requires interfile taint
+(* Used for a best-effort report to users about what findings they get with
+   the pro engine that they couldn't with the oss engine.
+
+   Intrafile_taint = requires intrafile taint
+   Interfile_taint = requires interfile taint
+   Other_pro_feature = requires some non-taint pro feature *)
+type pro_feature
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = [
+  | Intrafile_taint
+  | Interfile_taint
+  | Other_pro_feature
+]
+
+(* OSS = ran with OSS
+   PRO = ran with PRO, but we didn't infer that OSS couldn't have found this finding
+   PRO_ONLY = ran with PRO and requires a PRO feature (see pro_feature_used)
    
-   OSS and PRO could have clearer names, but for backwards compatibility
+   Note: OSS and PRO could have clearer names, but for backwards compatibility
    we're leaving them as is *)
-type engine_flavor
+type engine_of_finding
      <ocaml attr="deriving show">
      <python decorator="dataclass(frozen=True)"> = [
-  | OSS
+  | OSS 
   | PRO
-  | PRO_SPECIFIC
-  | PRO_SPECIFIC_INTRAFILE_TAINT
-  | PRO_SPECIFIC_INTERFILE_TAINT
+  | PRO_ONLY of pro_feature
 ]
 
 type engine_kind
      <ocaml attr="deriving show">
      <python decorator="dataclass(frozen=True)"> = [
-  | OSS
+  | OSS 
   | PRO
 ]
 
@@ -251,7 +260,7 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
   ?fix: string option;
 
   ?dataflow_trace: match_dataflow_trace option;
-  engine_kind: engine_flavor;
+  engine_kind: engine_of_finding;
   (* for nosemgrep *)
   is_ignored: bool;
   (* If present indicates the status of postprocessor validation. This field
@@ -316,7 +325,7 @@ type cli_match_extra = {
    * later on. *)
   ?dataflow_trace: match_dataflow_trace option;
 
-  ?engine_kind: engine_flavor option;
+  ?engine_kind: engine_of_finding option;
 
   (* EXPERIMENTAL: If present indicates the status of postprocessor validation. This
    * field not being present should be equivalent to No_validator.

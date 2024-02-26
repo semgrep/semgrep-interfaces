@@ -3,8 +3,6 @@
 
 type datetime = Semgrep_output_v1_t.datetime
 
-type engine_flavor = Semgrep_output_v1_t.engine_flavor [@@deriving show]
-
 type fpath = Semgrep_output_v1_t.fpath [@@deriving show]
 
 type match_severity = Semgrep_output_v1_t.match_severity
@@ -45,6 +43,11 @@ type match_intermediate_var = Semgrep_output_v1_t.match_intermediate_var = {
   location: location;
   content: string
 }
+
+type pro_feature = Semgrep_output_v1_t.pro_feature [@@deriving show]
+
+type engine_of_finding = Semgrep_output_v1_t.engine_of_finding
+  [@@deriving show]
 
 type raw_json = Yojson.Basic.t
 
@@ -98,7 +101,7 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   metavars: metavars;
   fix: string option;
   dataflow_trace: match_dataflow_trace option;
-  engine_kind: engine_flavor;
+  engine_kind: engine_of_finding;
   is_ignored: bool;
   validation_state: validation_state option;
   historical_info: historical_info option;
@@ -527,7 +530,7 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   is_ignored: bool option;
   sca_info: sca_info option;
   dataflow_trace: match_dataflow_trace option;
-  engine_kind: engine_kind option;
+  engine_kind: engine_of_finding option;
   validation_state: validation_state option;
   historical_info: historical_info option;
   extra_extra: raw_json option
@@ -645,26 +648,6 @@ val read_datetime :
 val datetime_of_string :
   string -> datetime
   (** Deserialize JSON data of type {!type:datetime}. *)
-
-val write_engine_flavor :
-  Buffer.t -> engine_flavor -> unit
-  (** Output a JSON value of type {!type:engine_flavor}. *)
-
-val string_of_engine_flavor :
-  ?len:int -> engine_flavor -> string
-  (** Serialize a value of type {!type:engine_flavor}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_engine_flavor :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> engine_flavor
-  (** Input JSON data of type {!type:engine_flavor}. *)
-
-val engine_flavor_of_string :
-  string -> engine_flavor
-  (** Deserialize JSON data of type {!type:engine_flavor}. *)
 
 val write_fpath :
   Buffer.t -> fpath -> unit
@@ -785,6 +768,46 @@ val read_match_intermediate_var :
 val match_intermediate_var_of_string :
   string -> match_intermediate_var
   (** Deserialize JSON data of type {!type:match_intermediate_var}. *)
+
+val write_pro_feature :
+  Buffer.t -> pro_feature -> unit
+  (** Output a JSON value of type {!type:pro_feature}. *)
+
+val string_of_pro_feature :
+  ?len:int -> pro_feature -> string
+  (** Serialize a value of type {!type:pro_feature}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_pro_feature :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> pro_feature
+  (** Input JSON data of type {!type:pro_feature}. *)
+
+val pro_feature_of_string :
+  string -> pro_feature
+  (** Deserialize JSON data of type {!type:pro_feature}. *)
+
+val write_engine_of_finding :
+  Buffer.t -> engine_of_finding -> unit
+  (** Output a JSON value of type {!type:engine_of_finding}. *)
+
+val string_of_engine_of_finding :
+  ?len:int -> engine_of_finding -> string
+  (** Serialize a value of type {!type:engine_of_finding}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_engine_of_finding :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> engine_of_finding
+  (** Input JSON data of type {!type:engine_of_finding}. *)
+
+val engine_of_finding_of_string :
+  string -> engine_of_finding
+  (** Deserialize JSON data of type {!type:engine_of_finding}. *)
 
 val write_raw_json :
   Buffer.t -> raw_json -> unit

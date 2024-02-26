@@ -75,13 +75,25 @@
         { "const": "error" }, { "const": "warn" }, { "const": "info" }
       ]
     },
-    "engine_flavor": {
+    "pro_feature": {
+      "oneOf": [
+        { "const": "Intrafile_taint" },
+        { "const": "Interfile_taint" },
+        { "const": "Other_pro_feature" }
+      ]
+    },
+    "engine_of_finding": {
       "oneOf": [
         { "const": "OSS" },
         { "const": "PRO" },
-        { "const": "PRO_SPECIFIC" },
-        { "const": "PRO_SPECIFIC_INTRAFILE_TAINT" },
-        { "const": "PRO_SPECIFIC_INTERFILE_TAINT" }
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "PRO_ONLY" }, { "$ref": "#/definitions/pro_feature" }
+          ]
+        }
       ]
     },
     "engine_kind": { "oneOf": [ { "const": "OSS" }, { "const": "PRO" } ] },
@@ -128,7 +140,7 @@
         "metavars": { "$ref": "#/definitions/metavars" },
         "fix": { "type": "string" },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
-        "engine_kind": { "$ref": "#/definitions/engine_flavor" },
+        "engine_kind": { "$ref": "#/definitions/engine_of_finding" },
         "is_ignored": { "type": "boolean" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
         "historical_info": { "$ref": "#/definitions/historical_info" },
@@ -163,7 +175,7 @@
         "is_ignored": { "type": "boolean" },
         "sca_info": { "$ref": "#/definitions/sca_info" },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
-        "engine_kind": { "$ref": "#/definitions/engine_kind" },
+        "engine_kind": { "$ref": "#/definitions/engine_of_finding" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
         "historical_info": { "$ref": "#/definitions/historical_info" },
         "extra_extra": { "$ref": "#/definitions/raw_json" }

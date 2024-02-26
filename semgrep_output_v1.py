@@ -281,129 +281,6 @@ class Datetime:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
-class OSS:
-    """Original type: engine_flavor = [ ... | OSS | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'OSS'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'OSS'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PRO:
-    """Original type: engine_flavor = [ ... | PRO | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PRO'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PRO'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PROSPECIFIC:
-    """Original type: engine_flavor = [ ... | PRO_SPECIFIC | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PROSPECIFIC'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PRO_SPECIFIC'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PROSPECIFICINTRAFILETAINT:
-    """Original type: engine_flavor = [ ... | PRO_SPECIFIC_INTRAFILE_TAINT | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PROSPECIFICINTRAFILETAINT'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PRO_SPECIFIC_INTRAFILE_TAINT'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PROSPECIFICINTERFILETAINT:
-    """Original type: engine_flavor = [ ... | PRO_SPECIFIC_INTERFILE_TAINT | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PROSPECIFICINTERFILETAINT'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PRO_SPECIFIC_INTERFILE_TAINT'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class EngineFlavor:
-    """Original type: engine_flavor = [ ... ]"""
-
-    value: Union[OSS, PRO, PROSPECIFIC, PROSPECIFICINTRAFILETAINT, PROSPECIFICINTERFILETAINT]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'EngineFlavor':
-        if isinstance(x, str):
-            if x == 'OSS':
-                return cls(OSS())
-            if x == 'PRO':
-                return cls(PRO())
-            if x == 'PRO_SPECIFIC':
-                return cls(PROSPECIFIC())
-            if x == 'PRO_SPECIFIC_INTRAFILE_TAINT':
-                return cls(PROSPECIFICINTRAFILETAINT())
-            if x == 'PRO_SPECIFIC_INTERFILE_TAINT':
-                return cls(PROSPECIFICINTERFILETAINT())
-            _atd_bad_json('EngineFlavor', x)
-        _atd_bad_json('EngineFlavor', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'EngineFlavor':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass
 class Fpath:
     """Original type: fpath"""
@@ -927,6 +804,180 @@ class MatchIntermediateVar:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class IntrafileTaint:
+    """Original type: pro_feature = [ ... | Intrafile_taint | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'IntrafileTaint'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Intrafile_taint'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class InterfileTaint:
+    """Original type: pro_feature = [ ... | Interfile_taint | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'InterfileTaint'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Interfile_taint'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class OtherProFeature:
+    """Original type: pro_feature = [ ... | Other_pro_feature | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'OtherProFeature'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Other_pro_feature'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ProFeature:
+    """Original type: pro_feature = [ ... ]"""
+
+    value: Union[IntrafileTaint, InterfileTaint, OtherProFeature]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ProFeature':
+        if isinstance(x, str):
+            if x == 'Intrafile_taint':
+                return cls(IntrafileTaint())
+            if x == 'Interfile_taint':
+                return cls(InterfileTaint())
+            if x == 'Other_pro_feature':
+                return cls(OtherProFeature())
+            _atd_bad_json('ProFeature', x)
+        _atd_bad_json('ProFeature', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ProFeature':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class OSS:
+    """Original type: engine_of_finding = [ ... | OSS | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'OSS'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'OSS'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PRO:
+    """Original type: engine_of_finding = [ ... | PRO | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PRO'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PRO'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PROONLY:
+    """Original type: engine_of_finding = [ ... | PRO_ONLY of ... | ... ]"""
+
+    value: ProFeature
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PROONLY'
+
+    def to_json(self) -> Any:
+        return ['PRO_ONLY', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class EngineOfFinding:
+    """Original type: engine_of_finding = [ ... ]"""
+
+    value: Union[OSS, PRO, PROONLY]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'EngineOfFinding':
+        if isinstance(x, str):
+            if x == 'OSS':
+                return cls(OSS())
+            if x == 'PRO':
+                return cls(PRO())
+            _atd_bad_json('EngineOfFinding', x)
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'PRO_ONLY':
+                return cls(PROONLY(ProFeature.from_json(x[1])))
+            _atd_bad_json('EngineOfFinding', x)
+        _atd_bad_json('EngineOfFinding', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'EngineOfFinding':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class RawJson:
     """Original type: raw_json"""
@@ -1331,7 +1382,7 @@ class CoreMatchExtra:
     """Original type: core_match_extra = { ... }"""
 
     metavars: Metavars
-    engine_kind: EngineFlavor
+    engine_kind: EngineOfFinding
     is_ignored: bool
     message: Optional[str] = None
     metadata: Optional[RawJson] = None
@@ -1347,7 +1398,7 @@ class CoreMatchExtra:
         if isinstance(x, dict):
             return cls(
                 metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else _atd_missing_json_field('CoreMatchExtra', 'metavars'),
-                engine_kind=EngineFlavor.from_json(x['engine_kind']) if 'engine_kind' in x else _atd_missing_json_field('CoreMatchExtra', 'engine_kind'),
+                engine_kind=EngineOfFinding.from_json(x['engine_kind']) if 'engine_kind' in x else _atd_missing_json_field('CoreMatchExtra', 'engine_kind'),
                 is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else _atd_missing_json_field('CoreMatchExtra', 'is_ignored'),
                 message=_atd_read_string(x['message']) if 'message' in x else None,
                 metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else None,
@@ -5062,7 +5113,7 @@ class CliMatchExtra:
     is_ignored: Optional[bool] = None
     sca_info: Optional[ScaInfo] = None
     dataflow_trace: Optional[MatchDataflowTrace] = None
-    engine_kind: Optional[EngineKind] = None
+    engine_kind: Optional[EngineOfFinding] = None
     validation_state: Optional[ValidationState] = None
     historical_info: Optional[HistoricalInfo] = None
     extra_extra: Optional[RawJson] = None
@@ -5082,7 +5133,7 @@ class CliMatchExtra:
                 is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else None,
                 sca_info=ScaInfo.from_json(x['sca_info']) if 'sca_info' in x else None,
                 dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
-                engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else None,
+                engine_kind=EngineOfFinding.from_json(x['engine_kind']) if 'engine_kind' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
                 historical_info=HistoricalInfo.from_json(x['historical_info']) if 'historical_info' in x else None,
                 extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,

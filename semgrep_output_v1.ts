@@ -54,12 +54,15 @@ export type ErrorSeverity =
 | { kind: 'Warning' /* JSON: "warn" */ }
 | { kind: 'Info' /* JSON: "info" */ }
 
-export type EngineFlavor =
+export type ProFeature =
+| { kind: 'Intrafile_taint' }
+| { kind: 'Interfile_taint' }
+| { kind: 'Other_pro_feature' }
+
+export type EngineOfFinding =
 | { kind: 'OSS' }
 | { kind: 'PRO' }
-| { kind: 'PRO_SPECIFIC' }
-| { kind: 'PRO_SPECIFIC_INTRAFILE_TAINT' }
-| { kind: 'PRO_SPECIFIC_INTERFILE_TAINT' }
+| { kind: 'PRO_ONLY'; value: ProFeature }
 
 export type EngineKind =
 | { kind: 'OSS' }
@@ -93,7 +96,7 @@ export type CoreMatchExtra = {
   metavars: Metavars;
   fix?: string;
   dataflow_trace?: MatchDataflowTrace;
-  engine_kind: EngineFlavor;
+  engine_kind: EngineOfFinding;
   is_ignored: boolean;
   validation_state?: ValidationState;
   historical_info?: HistoricalInfo;
@@ -120,7 +123,7 @@ export type CliMatchExtra = {
   is_ignored?: boolean;
   sca_info?: ScaInfo;
   dataflow_trace?: MatchDataflowTrace;
-  engine_kind?: EngineKind;
+  engine_kind?: EngineOfFinding;
   validation_state?: ValidationState;
   historical_info?: HistoricalInfo;
   extra_extra?: RawJson;
@@ -833,36 +836,63 @@ export function readErrorSeverity(x: any, context: any = x): ErrorSeverity {
   }
 }
 
-export function writeEngineFlavor(x: EngineFlavor, context: any = x): any {
+export function writeProFeature(x: ProFeature, context: any = x): any {
+  switch (x.kind) {
+    case 'Intrafile_taint':
+      return 'Intrafile_taint'
+    case 'Interfile_taint':
+      return 'Interfile_taint'
+    case 'Other_pro_feature':
+      return 'Other_pro_feature'
+  }
+}
+
+export function readProFeature(x: any, context: any = x): ProFeature {
+  switch (x) {
+    case 'Intrafile_taint':
+      return { kind: 'Intrafile_taint' }
+    case 'Interfile_taint':
+      return { kind: 'Interfile_taint' }
+    case 'Other_pro_feature':
+      return { kind: 'Other_pro_feature' }
+    default:
+      _atd_bad_json('ProFeature', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeEngineOfFinding(x: EngineOfFinding, context: any = x): any {
   switch (x.kind) {
     case 'OSS':
       return 'OSS'
     case 'PRO':
       return 'PRO'
-    case 'PRO_SPECIFIC':
-      return 'PRO_SPECIFIC'
-    case 'PRO_SPECIFIC_INTRAFILE_TAINT':
-      return 'PRO_SPECIFIC_INTRAFILE_TAINT'
-    case 'PRO_SPECIFIC_INTERFILE_TAINT':
-      return 'PRO_SPECIFIC_INTERFILE_TAINT'
+    case 'PRO_ONLY':
+      return ['PRO_ONLY', writeProFeature(x.value, x)]
   }
 }
 
-export function readEngineFlavor(x: any, context: any = x): EngineFlavor {
-  switch (x) {
-    case 'OSS':
-      return { kind: 'OSS' }
-    case 'PRO':
-      return { kind: 'PRO' }
-    case 'PRO_SPECIFIC':
-      return { kind: 'PRO_SPECIFIC' }
-    case 'PRO_SPECIFIC_INTRAFILE_TAINT':
-      return { kind: 'PRO_SPECIFIC_INTRAFILE_TAINT' }
-    case 'PRO_SPECIFIC_INTERFILE_TAINT':
-      return { kind: 'PRO_SPECIFIC_INTERFILE_TAINT' }
-    default:
-      _atd_bad_json('EngineFlavor', x, context)
-      throw new Error('impossible')
+export function readEngineOfFinding(x: any, context: any = x): EngineOfFinding {
+  if (typeof x === 'string') {
+    switch (x) {
+      case 'OSS':
+        return { kind: 'OSS' }
+      case 'PRO':
+        return { kind: 'PRO' }
+      default:
+        _atd_bad_json('EngineOfFinding', x, context)
+        throw new Error('impossible')
+    }
+  }
+  else {
+    _atd_check_json_tuple(2, x, context)
+    switch (x[0]) {
+      case 'PRO_ONLY':
+        return { kind: 'PRO_ONLY', value: readProFeature(x[1], x) }
+      default:
+        _atd_bad_json('EngineOfFinding', x, context)
+        throw new Error('impossible')
+    }
   }
 }
 
@@ -977,7 +1007,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
     'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
     'fix': _atd_write_optional_field(_atd_write_string, x.fix, x),
     'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
-    'engine_kind': _atd_write_required_field('CoreMatchExtra', 'engine_kind', writeEngineFlavor, x.engine_kind, x),
+    'engine_kind': _atd_write_required_field('CoreMatchExtra', 'engine_kind', writeEngineOfFinding, x.engine_kind, x),
     'is_ignored': _atd_write_required_field('CoreMatchExtra', 'is_ignored', _atd_write_bool, x.is_ignored, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
@@ -993,7 +1023,7 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
     fix: _atd_read_optional_field(_atd_read_string, x['fix'], x),
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
-    engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineFlavor, x['engine_kind'], x),
+    engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineOfFinding, x['engine_kind'], x),
     is_ignored: _atd_read_required_field('CoreMatchExtra', 'is_ignored', _atd_read_bool, x['is_ignored'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),
@@ -1034,7 +1064,7 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'is_ignored': _atd_write_optional_field(_atd_write_bool, x.is_ignored, x),
     'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
     'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
-    'engine_kind': _atd_write_optional_field(writeEngineKind, x.engine_kind, x),
+    'engine_kind': _atd_write_optional_field(writeEngineOfFinding, x.engine_kind, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
     'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
@@ -1054,7 +1084,7 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     is_ignored: _atd_read_optional_field(_atd_read_bool, x['is_ignored'], x),
     sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
-    engine_kind: _atd_read_optional_field(readEngineKind, x['engine_kind'], x),
+    engine_kind: _atd_read_optional_field(readEngineOfFinding, x['engine_kind'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
