@@ -85,13 +85,26 @@
     "engine_of_finding": {
       "oneOf": [
         { "const": "OSS" },
-        { "const": "PRO" },
         {
           "type": "array",
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "PRO_ONLY" }, { "$ref": "#/definitions/pro_feature" }
+            { "const": "PRO" },
+            {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": false,
+                  "prefixItems": [
+                    { "const": "Some" },
+                    { "$ref": "#/definitions/pro_feature" }
+                  ]
+                },
+                { "const": "None" }
+              ]
+            }
           ]
         }
       ]
@@ -774,6 +787,7 @@
       "required": [ "git_commit", "git_commit_timestamp" ],
       "properties": {
         "git_commit": { "$ref": "#/definitions/sha1" },
+        "git_blob": { "$ref": "#/definitions/sha1" },
         "git_commit_timestamp": { "$ref": "#/definitions/datetime" }
       }
     },
@@ -979,6 +993,14 @@
         }
       }
     },
+    "historical_configuration": {
+      "type": "object",
+      "required": [ "enabled" ],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "lookback_days": { "type": "integer" }
+      }
+    },
     "engine_configuration": {
       "type": "object",
       "required": [],
@@ -987,7 +1009,10 @@
         "ignored_files": { "type": "array", "items": { "type": "string" } },
         "deepsemgrep": { "type": "boolean" },
         "dependency_query": { "type": "boolean" },
-        "generic_slow_rollout": { "type": "boolean" }
+        "generic_slow_rollout": { "type": "boolean" },
+        "historical_config": {
+          "$ref": "#/definitions/historical_configuration"
+        }
       }
     },
     "finding": {
