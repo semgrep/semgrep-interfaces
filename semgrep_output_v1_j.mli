@@ -54,6 +54,7 @@ type sha1 = Semgrep_output_v1_t.sha1
 
 type historical_info = Semgrep_output_v1_t.historical_info = {
   git_commit: sha1;
+  git_blob: sha1 option;
   git_commit_timestamp: datetime
 }
 
@@ -209,12 +210,19 @@ type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
   triage_ignored_match_based_ids: string list
 }
 
+type historical_configuration =
+  Semgrep_output_v1_t.historical_configuration = {
+  enabled: bool;
+  lookback_days: int option
+}
+
 type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   autofix: bool;
   ignored_files: string list;
   deepsemgrep: bool;
   dependency_query: bool;
-  generic_slow_rollout: bool
+  generic_slow_rollout: bool;
+  historical_config: historical_configuration option
 }
 
 type scan_response = Semgrep_output_v1_t.scan_response = {
@@ -1423,6 +1431,26 @@ val read_scan_configuration :
 val scan_configuration_of_string :
   string -> scan_configuration
   (** Deserialize JSON data of type {!type:scan_configuration}. *)
+
+val write_historical_configuration :
+  Buffer.t -> historical_configuration -> unit
+  (** Output a JSON value of type {!type:historical_configuration}. *)
+
+val string_of_historical_configuration :
+  ?len:int -> historical_configuration -> string
+  (** Serialize a value of type {!type:historical_configuration}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_historical_configuration :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> historical_configuration
+  (** Input JSON data of type {!type:historical_configuration}. *)
+
+val historical_configuration_of_string :
+  string -> historical_configuration
+  (** Deserialize JSON data of type {!type:historical_configuration}. *)
 
 val write_engine_configuration :
   Buffer.t -> engine_configuration -> unit

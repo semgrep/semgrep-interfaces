@@ -939,6 +939,7 @@ class HistoricalInfo:
 
     git_commit: Sha1
     git_commit_timestamp: Datetime
+    git_blob: Optional[Sha1] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'HistoricalInfo':
@@ -946,6 +947,7 @@ class HistoricalInfo:
             return cls(
                 git_commit=Sha1.from_json(x['git_commit']) if 'git_commit' in x else _atd_missing_json_field('HistoricalInfo', 'git_commit'),
                 git_commit_timestamp=Datetime.from_json(x['git_commit_timestamp']) if 'git_commit_timestamp' in x else _atd_missing_json_field('HistoricalInfo', 'git_commit_timestamp'),
+                git_blob=Sha1.from_json(x['git_blob']) if 'git_blob' in x else None,
             )
         else:
             _atd_bad_json('HistoricalInfo', x)
@@ -954,6 +956,8 @@ class HistoricalInfo:
         res: Dict[str, Any] = {}
         res['git_commit'] = (lambda x: x.to_json())(self.git_commit)
         res['git_commit_timestamp'] = (lambda x: x.to_json())(self.git_commit_timestamp)
+        if self.git_blob is not None:
+            res['git_blob'] = (lambda x: x.to_json())(self.git_blob)
         return res
 
     @classmethod
@@ -2398,6 +2402,38 @@ class ScanConfiguration:
 
 
 @dataclass
+class HistoricalConfiguration:
+    """Original type: historical_configuration = { ... }"""
+
+    enabled: bool
+    lookback_days: Optional[int] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'HistoricalConfiguration':
+        if isinstance(x, dict):
+            return cls(
+                enabled=_atd_read_bool(x['enabled']) if 'enabled' in x else _atd_missing_json_field('HistoricalConfiguration', 'enabled'),
+                lookback_days=_atd_read_int(x['lookback_days']) if 'lookback_days' in x else None,
+            )
+        else:
+            _atd_bad_json('HistoricalConfiguration', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['enabled'] = _atd_write_bool(self.enabled)
+        if self.lookback_days is not None:
+            res['lookback_days'] = _atd_write_int(self.lookback_days)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'HistoricalConfiguration':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class EngineConfiguration:
     """Original type: engine_configuration = { ... }"""
 
@@ -2406,6 +2442,7 @@ class EngineConfiguration:
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
     generic_slow_rollout: bool = field(default_factory=lambda: False)
+    historical_config: Optional[HistoricalConfiguration] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'EngineConfiguration':
@@ -2416,6 +2453,7 @@ class EngineConfiguration:
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
                 generic_slow_rollout=_atd_read_bool(x['generic_slow_rollout']) if 'generic_slow_rollout' in x else False,
+                historical_config=HistoricalConfiguration.from_json(x['historical_config']) if 'historical_config' in x else None,
             )
         else:
             _atd_bad_json('EngineConfiguration', x)
@@ -2427,6 +2465,8 @@ class EngineConfiguration:
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
         res['generic_slow_rollout'] = _atd_write_bool(self.generic_slow_rollout)
+        if self.historical_config is not None:
+            res['historical_config'] = (lambda x: x.to_json())(self.historical_config)
         return res
 
     @classmethod

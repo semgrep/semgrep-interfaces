@@ -440,6 +440,7 @@ export type DependencyParserError = {
 
 export type HistoricalInfo = {
   git_commit: Sha1;
+  git_blob?: Sha1;
   git_commit_timestamp: Datetime;
 }
 
@@ -562,12 +563,18 @@ export type ScanConfiguration = {
   triage_ignored_match_based_ids: string[];
 }
 
+export type HistoricalConfiguration = {
+  enabled: boolean;
+  lookback_days?: number /*int*/;
+}
+
 export type EngineConfiguration = {
   autofix: boolean;
   ignored_files: string[];
   deepsemgrep: boolean;
   dependency_query: boolean;
   generic_slow_rollout: boolean;
+  historical_config?: HistoricalConfiguration;
 }
 
 export type Finding = {
@@ -2040,6 +2047,7 @@ export function readDependencyParserError(x: any, context: any = x): DependencyP
 export function writeHistoricalInfo(x: HistoricalInfo, context: any = x): any {
   return {
     'git_commit': _atd_write_required_field('HistoricalInfo', 'git_commit', writeSha1, x.git_commit, x),
+    'git_blob': _atd_write_optional_field(writeSha1, x.git_blob, x),
     'git_commit_timestamp': _atd_write_required_field('HistoricalInfo', 'git_commit_timestamp', writeDatetime, x.git_commit_timestamp, x),
   };
 }
@@ -2047,6 +2055,7 @@ export function writeHistoricalInfo(x: HistoricalInfo, context: any = x): any {
 export function readHistoricalInfo(x: any, context: any = x): HistoricalInfo {
   return {
     git_commit: _atd_read_required_field('HistoricalInfo', 'git_commit', readSha1, x['git_commit'], x),
+    git_blob: _atd_read_optional_field(readSha1, x['git_blob'], x),
     git_commit_timestamp: _atd_read_required_field('HistoricalInfo', 'git_commit_timestamp', readDatetime, x['git_commit_timestamp'], x),
   };
 }
@@ -2345,6 +2354,20 @@ export function readScanConfiguration(x: any, context: any = x): ScanConfigurati
   };
 }
 
+export function writeHistoricalConfiguration(x: HistoricalConfiguration, context: any = x): any {
+  return {
+    'enabled': _atd_write_required_field('HistoricalConfiguration', 'enabled', _atd_write_bool, x.enabled, x),
+    'lookback_days': _atd_write_optional_field(_atd_write_int, x.lookback_days, x),
+  };
+}
+
+export function readHistoricalConfiguration(x: any, context: any = x): HistoricalConfiguration {
+  return {
+    enabled: _atd_read_required_field('HistoricalConfiguration', 'enabled', _atd_read_bool, x['enabled'], x),
+    lookback_days: _atd_read_optional_field(_atd_read_int, x['lookback_days'], x),
+  };
+}
+
 export function writeEngineConfiguration(x: EngineConfiguration, context: any = x): any {
   return {
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
@@ -2352,6 +2375,7 @@ export function writeEngineConfiguration(x: EngineConfiguration, context: any = 
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
     'generic_slow_rollout': _atd_write_field_with_default(_atd_write_bool, false, x.generic_slow_rollout, x),
+    'historical_config': _atd_write_optional_field(writeHistoricalConfiguration, x.historical_config, x),
   };
 }
 
@@ -2362,6 +2386,7 @@ export function readEngineConfiguration(x: any, context: any = x): EngineConfigu
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
     generic_slow_rollout: _atd_read_field_with_default(_atd_read_bool, false, x['generic_slow_rollout'], x),
+    historical_config: _atd_read_optional_field(readHistoricalConfiguration, x['historical_config'], x),
   };
 }
 

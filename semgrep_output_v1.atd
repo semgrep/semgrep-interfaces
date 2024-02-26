@@ -241,7 +241,7 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
    * Added in semgrep 1.37.0 *)
   ?validation_state : validation_state option;
   (* EXPERIMENTAL: added by secrets post-processing & historical scanning code.
-   * Since 1.60.0. *)
+   * Since 1.63.0. *)
   ?historical_info: historical_info option;
   (* Escape hatch to pass untyped info from semgrep-core to the semgrep output.
    * Useful for quick experiments, especially when combined with semgrep
@@ -931,6 +931,10 @@ type historical_info = {
    * secrets which are buried in the git history which we wouldn't find at HEAD
    *)
   git_commit: sha1;
+  (* Git blob at which the finding is present. Sent in addition to the commit
+   * since some SCMs have permalinks which use the blob sha, so this information
+   * is useful when generating links back to the SCM. *)
+  ?git_blob: sha1 option;
   git_commit_timestamp: datetime;
 }
 
@@ -1203,6 +1207,14 @@ type scan_configuration = {
     ~triage_ignored_match_based_ids: string list;
 }
 
+(* configuration for scanning version control history,
+ * e.g., looking back at past git commits for committed credentials which may
+ * have been removed *)
+type historical_configuration = {
+    enabled: bool;
+    ?lookback_days: int option;
+}
+
 (* settings for the cli *)
 type engine_configuration = {
     ~autofix: bool;
@@ -1210,6 +1222,8 @@ type engine_configuration = {
     ~deepsemgrep: bool;
     ~dependency_query: bool;
     ~generic_slow_rollout: bool; (* for features we only want to turn on for select customers *)
+    (* from 1.63.0 *)
+    ?historical_config: historical_configuration option;
 }
 
 (* ----------------------------- *)
