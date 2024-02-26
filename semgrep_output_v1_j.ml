@@ -1801,71 +1801,15 @@ let read_pro_feature = (
 )
 let pro_feature_of_string s =
   read_pro_feature (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__pro_feature_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_pro_feature
-  )
-)
-let string_of__pro_feature_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__pro_feature_option ob x;
-  Buffer.contents ob
-let read__pro_feature_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_pro_feature
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_pro_feature
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _pro_feature_option_of_string s =
-  read__pro_feature_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_engine_of_finding = (
   fun ob x ->
     match x with
       | `OSS -> Buffer.add_string ob "\"OSS\""
-      | `PRO x ->
-        Buffer.add_string ob "[\"PRO\",";
+      | `PRO -> Buffer.add_string ob "\"PRO\""
+      | `PRO_ONLY x ->
+        Buffer.add_string ob "[\"PRO_ONLY\",";
         (
-          write__pro_feature_option
+          write_pro_feature
         ) ob x;
         Buffer.add_char ob ']'
 )
@@ -1884,14 +1828,18 @@ let read_engine_of_finding = (
               Yojson.Safe.read_gt p lb;
               `OSS
             | "PRO" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `PRO
+            | "PRO_ONLY" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read__pro_feature_option
+                  read_pro_feature
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `PRO x
+              `PRO_ONLY x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -1899,22 +1847,24 @@ let read_engine_of_finding = (
           match Yojson.Safe.finish_string p lb with
             | "OSS" ->
               `OSS
+            | "PRO" ->
+              `PRO
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
       | `Square_bracket -> (
           match Atdgen_runtime.Oj_run.read_string p lb with
-            | "PRO" ->
+            | "PRO_ONLY" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read__pro_feature_option
+                  read_pro_feature
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
-              `PRO x
+              `PRO_ONLY x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

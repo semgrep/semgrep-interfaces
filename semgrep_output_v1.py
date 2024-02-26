@@ -908,17 +908,34 @@ class OSS:
 
 @dataclass(frozen=True)
 class PRO:
-    """Original type: engine_of_finding = [ ... | PRO of ... | ... ]"""
-
-    value: Optional[ProFeature]
+    """Original type: engine_of_finding = [ ... | PRO | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
         return 'PRO'
 
+    @staticmethod
+    def to_json() -> Any:
+        return 'PRO'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PROONLY:
+    """Original type: engine_of_finding = [ ... | PRO_ONLY of ... | ... ]"""
+
+    value: ProFeature
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PROONLY'
+
     def to_json(self) -> Any:
-        return ['PRO', _atd_write_option((lambda x: x.to_json()))(self.value)]
+        return ['PRO_ONLY', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -928,7 +945,7 @@ class PRO:
 class EngineOfFinding:
     """Original type: engine_of_finding = [ ... ]"""
 
-    value: Union[OSS, PRO]
+    value: Union[OSS, PRO, PROONLY]
 
     @property
     def kind(self) -> str:
@@ -940,11 +957,13 @@ class EngineOfFinding:
         if isinstance(x, str):
             if x == 'OSS':
                 return cls(OSS())
+            if x == 'PRO':
+                return cls(PRO())
             _atd_bad_json('EngineOfFinding', x)
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
-            if cons == 'PRO':
-                return cls(PRO(_atd_read_option(ProFeature.from_json)(x[1])))
+            if cons == 'PRO_ONLY':
+                return cls(PROONLY(ProFeature.from_json(x[1])))
             _atd_bad_json('EngineOfFinding', x)
         _atd_bad_json('EngineOfFinding', x)
 

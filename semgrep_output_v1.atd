@@ -189,7 +189,8 @@ type engine_of_finding
      <ocaml attr="deriving show">
      <python decorator="dataclass(frozen=True)"> = [
   | OSS 
-  | PRO of pro_feature option
+  | PRO
+  | PRO_ONLY of pro_feature
 ]
 
 type engine_kind
