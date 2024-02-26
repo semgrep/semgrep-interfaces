@@ -1218,7 +1218,7 @@ type engine_configuration = {
     ~deepsemgrep: bool;
     ~dependency_query: bool;
     ~generic_slow_rollout: bool; (* for features we only want to turn on for select customers *)
-    (* from 1.62.0 *)
+    (* from 1.63.0 *)
     ?historical_config: historical_configuration option;
 }
 
