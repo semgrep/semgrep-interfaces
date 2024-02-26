@@ -181,7 +181,7 @@ type pro_feature
 
 (* OSS = ran with OSS
    PRO = ran with PRO, but we didn't infer that OSS couldn't have found this finding
-   PRO_ONLY = ran with PRO and requires a PRO feature (see pro_feature_used)
+   PRO_SPECIFIC = ran with PRO and requires a PRO feature (see pro_feature_used)
    
    Note: OSS and PRO could have clearer names, but for backwards compatibility
    we're leaving them as is *)
@@ -190,7 +190,7 @@ type engine_of_finding
      <python decorator="dataclass(frozen=True)"> = [
   | OSS 
   | PRO
-  | PRO_ONLY of pro_feature
+  | PRO_SPECIFIC of pro_feature
 ]
 
 type engine_kind

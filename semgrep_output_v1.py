@@ -924,18 +924,18 @@ class PRO:
 
 
 @dataclass(frozen=True)
-class PROONLY:
-    """Original type: engine_of_finding = [ ... | PRO_ONLY of ... | ... ]"""
+class PROSPECIFIC:
+    """Original type: engine_of_finding = [ ... | PRO_SPECIFIC of ... | ... ]"""
 
     value: ProFeature
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'PROONLY'
+        return 'PROSPECIFIC'
 
     def to_json(self) -> Any:
-        return ['PRO_ONLY', (lambda x: x.to_json())(self.value)]
+        return ['PRO_SPECIFIC', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -945,7 +945,7 @@ class PROONLY:
 class EngineOfFinding:
     """Original type: engine_of_finding = [ ... ]"""
 
-    value: Union[OSS, PRO, PROONLY]
+    value: Union[OSS, PRO, PROSPECIFIC]
 
     @property
     def kind(self) -> str:
@@ -962,8 +962,8 @@ class EngineOfFinding:
             _atd_bad_json('EngineOfFinding', x)
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
-            if cons == 'PRO_ONLY':
-                return cls(PROONLY(ProFeature.from_json(x[1])))
+            if cons == 'PRO_SPECIFIC':
+                return cls(PROSPECIFIC(ProFeature.from_json(x[1])))
             _atd_bad_json('EngineOfFinding', x)
         _atd_bad_json('EngineOfFinding', x)
 

@@ -91,7 +91,8 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "PRO_ONLY" }, { "$ref": "#/definitions/pro_feature" }
+            { "const": "PRO_SPECIFIC" },
+            { "$ref": "#/definitions/pro_feature" }
           ]
         }
       ]
