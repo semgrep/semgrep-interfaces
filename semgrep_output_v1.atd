@@ -168,7 +168,7 @@ type error_severity
 (* Used for a best-effort report to users about what findings they get with
    the pro engine that they couldn't with the oss engine.
 
-   Interproc_taint = requires interprocedural taint but only intrafile
+   Interproc_taint = requires interprocedural taint
    Interfile_taint = requires interfile taint
    Other_pro_feature = requires some non-taint pro feature *)
 type pro_feature
@@ -186,7 +186,6 @@ type pro_feature
 
    OSS = ran with OSS
    PRO = ran with PRO, but we didn't infer that OSS couldn't have found this finding
-   (* Semgrep 1.64.0 or later *)
    PRO_REQUIRED = ran with PRO and requires a PRO feature (see pro_feature_used)
    
    Note: OSS and PRO could have clearer names, but for backwards compatibility
@@ -196,6 +195,7 @@ type engine_of_finding
      <python decorator="dataclass(frozen=True)"> = [
   | OSS 
   | PRO
+   (* Semgrep 1.64.0 or later *)
   | PRO_REQUIRED of pro_feature
 ]
 
