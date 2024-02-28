@@ -1753,7 +1753,7 @@ let _match_intermediate_var_list_option_of_string s =
 let write_pro_feature = (
   fun ob x ->
     match x with
-      | `Intrafile_taint -> Buffer.add_string ob "\"Intrafile_taint\""
+      | `Intraproc_taint -> Buffer.add_string ob "\"Intraproc_taint\""
       | `Interfile_taint -> Buffer.add_string ob "\"Interfile_taint\""
       | `Other_pro_feature -> Buffer.add_string ob "\"Other_pro_feature\""
 )
@@ -1767,10 +1767,10 @@ let read_pro_feature = (
     match Yojson.Safe.start_any_variant p lb with
       | `Edgy_bracket -> (
           match Yojson.Safe.read_ident p lb with
-            | "Intrafile_taint" ->
+            | "Intraproc_taint" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `Intrafile_taint
+              `Intraproc_taint
             | "Interfile_taint" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -1784,8 +1784,8 @@ let read_pro_feature = (
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
-            | "Intrafile_taint" ->
-              `Intrafile_taint
+            | "Intraproc_taint" ->
+              `Intraproc_taint
             | "Interfile_taint" ->
               `Interfile_taint
             | "Other_pro_feature" ->

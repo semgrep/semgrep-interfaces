@@ -77,7 +77,7 @@
     },
     "pro_feature": {
       "oneOf": [
-        { "const": "Intrafile_taint" },
+        { "const": "Intraproc_taint" },
         { "const": "Interfile_taint" },
         { "const": "Other_pro_feature" }
       ]

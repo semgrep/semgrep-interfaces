@@ -55,7 +55,7 @@ export type ErrorSeverity =
 | { kind: 'Info' /* JSON: "info" */ }
 
 export type ProFeature =
-| { kind: 'Intrafile_taint' }
+| { kind: 'Intraproc_taint' }
 | { kind: 'Interfile_taint' }
 | { kind: 'Other_pro_feature' }
 
@@ -845,8 +845,8 @@ export function readErrorSeverity(x: any, context: any = x): ErrorSeverity {
 
 export function writeProFeature(x: ProFeature, context: any = x): any {
   switch (x.kind) {
-    case 'Intrafile_taint':
-      return 'Intrafile_taint'
+    case 'Intraproc_taint':
+      return 'Intraproc_taint'
     case 'Interfile_taint':
       return 'Interfile_taint'
     case 'Other_pro_feature':
@@ -856,8 +856,8 @@ export function writeProFeature(x: ProFeature, context: any = x): any {
 
 export function readProFeature(x: any, context: any = x): ProFeature {
   switch (x) {
-    case 'Intrafile_taint':
-      return { kind: 'Intrafile_taint' }
+    case 'Intraproc_taint':
+      return { kind: 'Intraproc_taint' }
     case 'Interfile_taint':
       return { kind: 'Interfile_taint' }
     case 'Other_pro_feature':

@@ -805,17 +805,17 @@ class MatchIntermediateVar:
 
 
 @dataclass(frozen=True)
-class IntrafileTaint:
-    """Original type: pro_feature = [ ... | Intrafile_taint | ... ]"""
+class IntraprocTaint:
+    """Original type: pro_feature = [ ... | Intraproc_taint | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'IntrafileTaint'
+        return 'IntraprocTaint'
 
     @staticmethod
     def to_json() -> Any:
-        return 'Intrafile_taint'
+        return 'Intraproc_taint'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -859,7 +859,7 @@ class OtherProFeature:
 class ProFeature:
     """Original type: pro_feature = [ ... ]"""
 
-    value: Union[IntrafileTaint, InterfileTaint, OtherProFeature]
+    value: Union[IntraprocTaint, InterfileTaint, OtherProFeature]
 
     @property
     def kind(self) -> str:
@@ -869,8 +869,8 @@ class ProFeature:
     @classmethod
     def from_json(cls, x: Any) -> 'ProFeature':
         if isinstance(x, str):
-            if x == 'Intrafile_taint':
-                return cls(IntrafileTaint())
+            if x == 'Intraproc_taint':
+                return cls(IntraprocTaint())
             if x == 'Interfile_taint':
                 return cls(InterfileTaint())
             if x == 'Other_pro_feature':

@@ -174,14 +174,20 @@ type error_severity
 type pro_feature
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = [
-  | Intrafile_taint
+  | Intraproc_taint
   | Interfile_taint
   | Other_pro_feature
 ]
 
-(* OSS = ran with OSS
+(* Report the engine used to detect each finding. Additionally, if we are able to
+   infer that the finding could only be detected using the pro engine, report that
+   the pro engine is required and include basic information about which feature is
+   required.
+
+   OSS = ran with OSS
    PRO = ran with PRO, but we didn't infer that OSS couldn't have found this finding
-   PRO_SPECIFIC = ran with PRO and requires a PRO feature (see pro_feature_used)
+   (* Semgrep 1.64.0 or later *)
+   PRO_REQUIRED = ran with PRO and requires a PRO feature (see pro_feature_used)
    
    Note: OSS and PRO could have clearer names, but for backwards compatibility
    we're leaving them as is *)
