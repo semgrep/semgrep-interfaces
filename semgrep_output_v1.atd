@@ -168,13 +168,13 @@ type error_severity
 (* Used for a best-effort report to users about what findings they get with
    the pro engine that they couldn't with the oss engine.
 
-   Intrafile_taint = requires intrafile taint
+   Interproc_taint = requires interprocedural taint but only intrafile
    Interfile_taint = requires interfile taint
    Other_pro_feature = requires some non-taint pro feature *)
 type pro_feature
   <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
-    intraproc_taint: bool;
+    interproc_taint: bool;
     interfile_taint: bool;
     proprietary_language: bool;
 }

@@ -808,7 +808,7 @@ class MatchIntermediateVar:
 class ProFeature:
     """Original type: pro_feature = { ... }"""
 
-    intraproc_taint: bool
+    interproc_taint: bool
     interfile_taint: bool
     proprietary_language: bool
 
@@ -816,7 +816,7 @@ class ProFeature:
     def from_json(cls, x: Any) -> 'ProFeature':
         if isinstance(x, dict):
             return cls(
-                intraproc_taint=_atd_read_bool(x['intraproc_taint']) if 'intraproc_taint' in x else _atd_missing_json_field('ProFeature', 'intraproc_taint'),
+                interproc_taint=_atd_read_bool(x['interproc_taint']) if 'interproc_taint' in x else _atd_missing_json_field('ProFeature', 'interproc_taint'),
                 interfile_taint=_atd_read_bool(x['interfile_taint']) if 'interfile_taint' in x else _atd_missing_json_field('ProFeature', 'interfile_taint'),
                 proprietary_language=_atd_read_bool(x['proprietary_language']) if 'proprietary_language' in x else _atd_missing_json_field('ProFeature', 'proprietary_language'),
             )
@@ -825,7 +825,7 @@ class ProFeature:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['intraproc_taint'] = _atd_write_bool(self.intraproc_taint)
+        res['interproc_taint'] = _atd_write_bool(self.interproc_taint)
         res['interfile_taint'] = _atd_write_bool(self.interfile_taint)
         res['proprietary_language'] = _atd_write_bool(self.proprietary_language)
         return res

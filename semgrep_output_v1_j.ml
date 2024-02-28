@@ -45,7 +45,7 @@ type match_intermediate_var = Semgrep_output_v1_t.match_intermediate_var = {
 }
 
 type pro_feature = Semgrep_output_v1_t.pro_feature = {
-  intraproc_taint: bool;
+  interproc_taint: bool;
   interfile_taint: bool;
   proprietary_language: bool
 }
@@ -1763,11 +1763,11 @@ let write_pro_feature : _ -> pro_feature -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"intraproc_taint\":";
+      Buffer.add_string ob "\"interproc_taint\":";
     (
       Yojson.Safe.write_bool
     )
-      ob x.intraproc_taint;
+      ob x.interproc_taint;
     if !is_first then
       is_first := false
     else
@@ -1796,7 +1796,7 @@ let read_pro_feature = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
-    let field_intraproc_taint = ref (None) in
+    let field_interproc_taint = ref (None) in
     let field_interfile_taint = ref (None) in
     let field_proprietary_language = ref (None) in
     try
@@ -1809,18 +1809,18 @@ let read_pro_feature = (
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
             | 15 -> (
-                if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 't' then (
-                  match String.unsafe_get s (pos+3) with
-                    | 'e' -> (
-                        if String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'f' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'l' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 't' then (
+                if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'r' then (
+                  match String.unsafe_get s (pos+5) with
+                    | 'f' -> (
+                        if String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'l' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 't' then (
                           1
                         )
                         else (
                           -1
                         )
                       )
-                    | 'r' -> (
-                        if String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'p' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 't' then (
+                    | 'p' -> (
+                        if String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 't' then (
                           0
                         )
                         else (
@@ -1852,7 +1852,7 @@ let read_pro_feature = (
       (
         match i with
           | 0 ->
-            field_intraproc_taint := (
+            field_interproc_taint := (
               Some (
                 (
                   Atdgen_runtime.Oj_run.read_bool
@@ -1889,18 +1889,18 @@ let read_pro_feature = (
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
               | 15 -> (
-                  if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 't' then (
-                    match String.unsafe_get s (pos+3) with
-                      | 'e' -> (
-                          if String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'f' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'l' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 't' then (
+                  if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'r' then (
+                    match String.unsafe_get s (pos+5) with
+                      | 'f' -> (
+                          if String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'l' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 't' then (
                             1
                           )
                           else (
                             -1
                           )
                         )
-                      | 'r' -> (
-                          if String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'p' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 't' then (
+                      | 'p' -> (
+                          if String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 't' then (
                             0
                           )
                           else (
@@ -1932,7 +1932,7 @@ let read_pro_feature = (
         (
           match i with
             | 0 ->
-              field_intraproc_taint := (
+              field_interproc_taint := (
                 Some (
                   (
                     Atdgen_runtime.Oj_run.read_bool
@@ -1964,7 +1964,7 @@ let read_pro_feature = (
     with Yojson.End_of_object -> (
         (
           {
-            intraproc_taint = (match !field_intraproc_taint with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "intraproc_taint");
+            interproc_taint = (match !field_interproc_taint with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "interproc_taint");
             interfile_taint = (match !field_interfile_taint with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "interfile_taint");
             proprietary_language = (match !field_proprietary_language with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "proprietary_language");
           }

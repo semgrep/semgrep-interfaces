@@ -45,7 +45,7 @@ type match_intermediate_var = Semgrep_output_v1_t.match_intermediate_var = {
 }
 
 type pro_feature = Semgrep_output_v1_t.pro_feature = {
-  intraproc_taint: bool;
+  interproc_taint: bool;
   interfile_taint: bool;
   proprietary_language: bool
 }

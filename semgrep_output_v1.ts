@@ -55,7 +55,7 @@ export type ErrorSeverity =
 | { kind: 'Info' /* JSON: "info" */ }
 
 export type ProFeature = {
-  intraproc_taint: boolean;
+  interproc_taint: boolean;
   interfile_taint: boolean;
   proprietary_language: boolean;
 }
@@ -846,7 +846,7 @@ export function readErrorSeverity(x: any, context: any = x): ErrorSeverity {
 
 export function writeProFeature(x: ProFeature, context: any = x): any {
   return {
-    'intraproc_taint': _atd_write_required_field('ProFeature', 'intraproc_taint', _atd_write_bool, x.intraproc_taint, x),
+    'interproc_taint': _atd_write_required_field('ProFeature', 'interproc_taint', _atd_write_bool, x.interproc_taint, x),
     'interfile_taint': _atd_write_required_field('ProFeature', 'interfile_taint', _atd_write_bool, x.interfile_taint, x),
     'proprietary_language': _atd_write_required_field('ProFeature', 'proprietary_language', _atd_write_bool, x.proprietary_language, x),
   };
@@ -854,7 +854,7 @@ export function writeProFeature(x: ProFeature, context: any = x): any {
 
 export function readProFeature(x: any, context: any = x): ProFeature {
   return {
-    intraproc_taint: _atd_read_required_field('ProFeature', 'intraproc_taint', _atd_read_bool, x['intraproc_taint'], x),
+    interproc_taint: _atd_read_required_field('ProFeature', 'interproc_taint', _atd_read_bool, x['interproc_taint'], x),
     interfile_taint: _atd_read_required_field('ProFeature', 'interfile_taint', _atd_read_bool, x['interfile_taint'], x),
     proprietary_language: _atd_read_required_field('ProFeature', 'proprietary_language', _atd_read_bool, x['proprietary_language'], x),
   };
