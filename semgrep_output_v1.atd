@@ -173,11 +173,11 @@ type error_severity
    Other_pro_feature = requires some non-taint pro feature *)
 type pro_feature
   <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = [
-  | Intraproc_taint
-  | Interfile_taint
-  | Other_pro_feature
-]
+  <python decorator="dataclass(frozen=True)"> = {
+    intraproc_taint: bool;
+    interfile_taint: bool;
+    proprietary_language: bool;
+}
 
 (* Report the engine used to detect each finding. Additionally, if we are able to
    infer that the finding could only be detected using the pro engine, report that

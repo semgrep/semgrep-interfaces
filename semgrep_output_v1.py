@@ -805,81 +805,30 @@ class MatchIntermediateVar:
 
 
 @dataclass(frozen=True)
-class IntraprocTaint:
-    """Original type: pro_feature = [ ... | Intraproc_taint | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'IntraprocTaint'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Intraproc_taint'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class InterfileTaint:
-    """Original type: pro_feature = [ ... | Interfile_taint | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'InterfileTaint'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Interfile_taint'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class OtherProFeature:
-    """Original type: pro_feature = [ ... | Other_pro_feature | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'OtherProFeature'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Other_pro_feature'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
 class ProFeature:
-    """Original type: pro_feature = [ ... ]"""
+    """Original type: pro_feature = { ... }"""
 
-    value: Union[IntraprocTaint, InterfileTaint, OtherProFeature]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
+    intraproc_taint: bool
+    interfile_taint: bool
+    proprietary_language: bool
 
     @classmethod
     def from_json(cls, x: Any) -> 'ProFeature':
-        if isinstance(x, str):
-            if x == 'Intraproc_taint':
-                return cls(IntraprocTaint())
-            if x == 'Interfile_taint':
-                return cls(InterfileTaint())
-            if x == 'Other_pro_feature':
-                return cls(OtherProFeature())
+        if isinstance(x, dict):
+            return cls(
+                intraproc_taint=_atd_read_bool(x['intraproc_taint']) if 'intraproc_taint' in x else _atd_missing_json_field('ProFeature', 'intraproc_taint'),
+                interfile_taint=_atd_read_bool(x['interfile_taint']) if 'interfile_taint' in x else _atd_missing_json_field('ProFeature', 'interfile_taint'),
+                proprietary_language=_atd_read_bool(x['proprietary_language']) if 'proprietary_language' in x else _atd_missing_json_field('ProFeature', 'proprietary_language'),
+            )
+        else:
             _atd_bad_json('ProFeature', x)
-        _atd_bad_json('ProFeature', x)
 
     def to_json(self) -> Any:
-        return self.value.to_json()
+        res: Dict[str, Any] = {}
+        res['intraproc_taint'] = _atd_write_bool(self.intraproc_taint)
+        res['interfile_taint'] = _atd_write_bool(self.interfile_taint)
+        res['proprietary_language'] = _atd_write_bool(self.proprietary_language)
+        return res
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ProFeature':

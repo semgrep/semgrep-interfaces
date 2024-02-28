@@ -44,7 +44,12 @@ type match_intermediate_var = Semgrep_output_v1_t.match_intermediate_var = {
   content: string
 }
 
-type pro_feature = Semgrep_output_v1_t.pro_feature [@@deriving show]
+type pro_feature = Semgrep_output_v1_t.pro_feature = {
+  intraproc_taint: bool;
+  interfile_taint: bool;
+  proprietary_language: bool
+}
+  [@@deriving show]
 
 type engine_of_finding = Semgrep_output_v1_t.engine_of_finding
   [@@deriving show]

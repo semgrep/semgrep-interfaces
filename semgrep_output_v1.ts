@@ -54,10 +54,11 @@ export type ErrorSeverity =
 | { kind: 'Warning' /* JSON: "warn" */ }
 | { kind: 'Info' /* JSON: "info" */ }
 
-export type ProFeature =
-| { kind: 'Intraproc_taint' }
-| { kind: 'Interfile_taint' }
-| { kind: 'Other_pro_feature' }
+export type ProFeature = {
+  intraproc_taint: boolean;
+  interfile_taint: boolean;
+  proprietary_language: boolean;
+}
 
 export type EngineOfFinding =
 | { kind: 'OSS' }
@@ -844,28 +845,19 @@ export function readErrorSeverity(x: any, context: any = x): ErrorSeverity {
 }
 
 export function writeProFeature(x: ProFeature, context: any = x): any {
-  switch (x.kind) {
-    case 'Intraproc_taint':
-      return 'Intraproc_taint'
-    case 'Interfile_taint':
-      return 'Interfile_taint'
-    case 'Other_pro_feature':
-      return 'Other_pro_feature'
-  }
+  return {
+    'intraproc_taint': _atd_write_required_field('ProFeature', 'intraproc_taint', _atd_write_bool, x.intraproc_taint, x),
+    'interfile_taint': _atd_write_required_field('ProFeature', 'interfile_taint', _atd_write_bool, x.interfile_taint, x),
+    'proprietary_language': _atd_write_required_field('ProFeature', 'proprietary_language', _atd_write_bool, x.proprietary_language, x),
+  };
 }
 
 export function readProFeature(x: any, context: any = x): ProFeature {
-  switch (x) {
-    case 'Intraproc_taint':
-      return { kind: 'Intraproc_taint' }
-    case 'Interfile_taint':
-      return { kind: 'Interfile_taint' }
-    case 'Other_pro_feature':
-      return { kind: 'Other_pro_feature' }
-    default:
-      _atd_bad_json('ProFeature', x, context)
-      throw new Error('impossible')
-  }
+  return {
+    intraproc_taint: _atd_read_required_field('ProFeature', 'intraproc_taint', _atd_read_bool, x['intraproc_taint'], x),
+    interfile_taint: _atd_read_required_field('ProFeature', 'interfile_taint', _atd_read_bool, x['interfile_taint'], x),
+    proprietary_language: _atd_read_required_field('ProFeature', 'proprietary_language', _atd_read_bool, x['proprietary_language'], x),
+  };
 }
 
 export function writeEngineOfFinding(x: EngineOfFinding, context: any = x): any {

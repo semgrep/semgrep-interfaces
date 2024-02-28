@@ -44,7 +44,12 @@ type match_intermediate_var = Semgrep_output_v1_t.match_intermediate_var = {
   content: string
 }
 
-type pro_feature = Semgrep_output_v1_t.pro_feature [@@deriving show]
+type pro_feature = Semgrep_output_v1_t.pro_feature = {
+  intraproc_taint: bool;
+  interfile_taint: bool;
+  proprietary_language: bool
+}
+  [@@deriving show]
 
 type engine_of_finding = Semgrep_output_v1_t.engine_of_finding
   [@@deriving show]
@@ -1750,12 +1755,38 @@ let read__match_intermediate_var_list_option = (
 )
 let _match_intermediate_var_list_option_of_string s =
   read__match_intermediate_var_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_pro_feature = (
-  fun ob x ->
-    match x with
-      | `Intraproc_taint -> Buffer.add_string ob "\"Intraproc_taint\""
-      | `Interfile_taint -> Buffer.add_string ob "\"Interfile_taint\""
-      | `Other_pro_feature -> Buffer.add_string ob "\"Other_pro_feature\""
+let write_pro_feature : _ -> pro_feature -> _ = (
+  fun ob (x : pro_feature) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"intraproc_taint\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.intraproc_taint;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"interfile_taint\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.interfile_taint;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"proprietary_language\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.proprietary_language;
+    Buffer.add_char ob '}';
 )
 let string_of_pro_feature ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -1764,40 +1795,181 @@ let string_of_pro_feature ?(len = 1024) x =
 let read_pro_feature = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "Intraproc_taint" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Intraproc_taint
-            | "Interfile_taint" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Interfile_taint
-            | "Other_pro_feature" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Other_pro_feature
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "Intraproc_taint" ->
-              `Intraproc_taint
-            | "Interfile_taint" ->
-              `Interfile_taint
-            | "Other_pro_feature" ->
-              `Other_pro_feature
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    Yojson.Safe.read_lcurl p lb;
+    let field_intraproc_taint = ref (None) in
+    let field_interfile_taint = ref (None) in
+    let field_proprietary_language = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 15 -> (
+                if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 't' then (
+                  match String.unsafe_get s (pos+3) with
+                    | 'e' -> (
+                        if String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'f' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'l' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 't' then (
+                          1
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'r' -> (
+                        if String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'p' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 't' then (
+                          0
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
+                )
+                else (
+                  -1
+                )
+              )
+            | 20 -> (
+                if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'y' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 'g' && String.unsafe_get s (pos+16) = 'u' && String.unsafe_get s (pos+17) = 'a' && String.unsafe_get s (pos+18) = 'g' && String.unsafe_get s (pos+19) = 'e' then (
+                  2
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_intraproc_taint := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_interfile_taint := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              )
+            );
+          | 2 ->
+            field_proprietary_language := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 15 -> (
+                  if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 't' then (
+                    match String.unsafe_get s (pos+3) with
+                      | 'e' -> (
+                          if String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'f' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'l' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 't' then (
+                            1
+                          )
+                          else (
+                            -1
+                          )
+                        )
+                      | 'r' -> (
+                          if String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'p' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 't' then (
+                            0
+                          )
+                          else (
+                            -1
+                          )
+                        )
+                      | _ -> (
+                          -1
+                        )
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 20 -> (
+                  if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'y' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 'g' && String.unsafe_get s (pos+16) = 'u' && String.unsafe_get s (pos+17) = 'a' && String.unsafe_get s (pos+18) = 'g' && String.unsafe_get s (pos+19) = 'e' then (
+                    2
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_intraproc_taint := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_interfile_taint := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            | 2 ->
+              field_proprietary_language := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            intraproc_taint = (match !field_intraproc_taint with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "intraproc_taint");
+            interfile_taint = (match !field_interfile_taint with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "interfile_taint");
+            proprietary_language = (match !field_proprietary_language with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "proprietary_language");
+          }
+         : pro_feature)
+      )
 )
 let pro_feature_of_string s =
   read_pro_feature (Yojson.Safe.init_lexer ()) (Lexing.from_string s)

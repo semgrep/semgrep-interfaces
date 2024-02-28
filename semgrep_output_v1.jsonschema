@@ -76,11 +76,15 @@
       ]
     },
     "pro_feature": {
-      "oneOf": [
-        { "const": "Intraproc_taint" },
-        { "const": "Interfile_taint" },
-        { "const": "Other_pro_feature" }
-      ]
+      "type": "object",
+      "required": [
+        "intraproc_taint", "interfile_taint", "proprietary_language"
+      ],
+      "properties": {
+        "intraproc_taint": { "type": "boolean" },
+        "interfile_taint": { "type": "boolean" },
+        "proprietary_language": { "type": "boolean" }
+      }
     },
     "engine_of_finding": {
       "oneOf": [
