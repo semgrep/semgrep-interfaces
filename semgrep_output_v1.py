@@ -281,72 +281,6 @@ class Datetime:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
-class OSS:
-    """Original type: engine_kind = [ ... | OSS | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'OSS'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'OSS'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PRO:
-    """Original type: engine_kind = [ ... | PRO | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PRO'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PRO'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class EngineKind:
-    """Original type: engine_kind = [ ... ]"""
-
-    value: Union[OSS, PRO]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'EngineKind':
-        if isinstance(x, str):
-            if x == 'OSS':
-                return cls(OSS())
-            if x == 'PRO':
-                return cls(PRO())
-            _atd_bad_json('EngineKind', x)
-        _atd_bad_json('EngineKind', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'EngineKind':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass
 class Fpath:
     """Original type: fpath"""
@@ -870,6 +804,129 @@ class MatchIntermediateVar:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class ProFeature:
+    """Original type: pro_feature = { ... }"""
+
+    interproc_taint: bool
+    interfile_taint: bool
+    proprietary_language: bool
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ProFeature':
+        if isinstance(x, dict):
+            return cls(
+                interproc_taint=_atd_read_bool(x['interproc_taint']) if 'interproc_taint' in x else _atd_missing_json_field('ProFeature', 'interproc_taint'),
+                interfile_taint=_atd_read_bool(x['interfile_taint']) if 'interfile_taint' in x else _atd_missing_json_field('ProFeature', 'interfile_taint'),
+                proprietary_language=_atd_read_bool(x['proprietary_language']) if 'proprietary_language' in x else _atd_missing_json_field('ProFeature', 'proprietary_language'),
+            )
+        else:
+            _atd_bad_json('ProFeature', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['interproc_taint'] = _atd_write_bool(self.interproc_taint)
+        res['interfile_taint'] = _atd_write_bool(self.interfile_taint)
+        res['proprietary_language'] = _atd_write_bool(self.proprietary_language)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ProFeature':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class OSS:
+    """Original type: engine_of_finding = [ ... | OSS | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'OSS'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'OSS'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PRO:
+    """Original type: engine_of_finding = [ ... | PRO | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PRO'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PRO'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PROREQUIRED:
+    """Original type: engine_of_finding = [ ... | PRO_REQUIRED of ... | ... ]"""
+
+    value: ProFeature
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PROREQUIRED'
+
+    def to_json(self) -> Any:
+        return ['PRO_REQUIRED', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class EngineOfFinding:
+    """Original type: engine_of_finding = [ ... ]"""
+
+    value: Union[OSS, PRO, PROREQUIRED]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'EngineOfFinding':
+        if isinstance(x, str):
+            if x == 'OSS':
+                return cls(OSS())
+            if x == 'PRO':
+                return cls(PRO())
+            _atd_bad_json('EngineOfFinding', x)
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'PRO_REQUIRED':
+                return cls(PROREQUIRED(ProFeature.from_json(x[1])))
+            _atd_bad_json('EngineOfFinding', x)
+        _atd_bad_json('EngineOfFinding', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'EngineOfFinding':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class RawJson:
     """Original type: raw_json"""
@@ -1278,7 +1335,7 @@ class CoreMatchExtra:
     """Original type: core_match_extra = { ... }"""
 
     metavars: Metavars
-    engine_kind: EngineKind
+    engine_kind: EngineOfFinding
     is_ignored: bool
     message: Optional[str] = None
     metadata: Optional[RawJson] = None
@@ -1294,7 +1351,7 @@ class CoreMatchExtra:
         if isinstance(x, dict):
             return cls(
                 metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else _atd_missing_json_field('CoreMatchExtra', 'metavars'),
-                engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else _atd_missing_json_field('CoreMatchExtra', 'engine_kind'),
+                engine_kind=EngineOfFinding.from_json(x['engine_kind']) if 'engine_kind' in x else _atd_missing_json_field('CoreMatchExtra', 'engine_kind'),
                 is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else _atd_missing_json_field('CoreMatchExtra', 'is_ignored'),
                 message=_atd_read_string(x['message']) if 'message' in x else None,
                 metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else None,
@@ -3688,6 +3745,72 @@ class ScaInfo:
 
 
 @dataclass(frozen=True)
+class OSS_:
+    """Original type: engine_kind = [ ... | OSS | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'OSS_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'OSS'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PRO_:
+    """Original type: engine_kind = [ ... | PRO | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PRO_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PRO'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class EngineKind:
+    """Original type: engine_kind = [ ... ]"""
+
+    value: Union[OSS_, PRO_]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'EngineKind':
+        if isinstance(x, str):
+            if x == 'OSS':
+                return cls(OSS_())
+            if x == 'PRO':
+                return cls(PRO_())
+            _atd_bad_json('EngineKind', x)
+        _atd_bad_json('EngineKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'EngineKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class RuleIdAndEngineKind:
     """Original type: rule_id_and_engine_kind"""
 
@@ -4979,7 +5102,7 @@ class CliMatchExtra:
     is_ignored: Optional[bool] = None
     sca_info: Optional[ScaInfo] = None
     dataflow_trace: Optional[MatchDataflowTrace] = None
-    engine_kind: Optional[EngineKind] = None
+    engine_kind: Optional[EngineOfFinding] = None
     validation_state: Optional[ValidationState] = None
     historical_info: Optional[HistoricalInfo] = None
     extra_extra: Optional[RawJson] = None
@@ -4999,7 +5122,7 @@ class CliMatchExtra:
                 is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else None,
                 sca_info=ScaInfo.from_json(x['sca_info']) if 'sca_info' in x else None,
                 dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
-                engine_kind=EngineKind.from_json(x['engine_kind']) if 'engine_kind' in x else None,
+                engine_kind=EngineOfFinding.from_json(x['engine_kind']) if 'engine_kind' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
                 historical_info=HistoricalInfo.from_json(x['historical_info']) if 'historical_info' in x else None,
                 extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,

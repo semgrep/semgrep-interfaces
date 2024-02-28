@@ -75,6 +75,32 @@
         { "const": "error" }, { "const": "warn" }, { "const": "info" }
       ]
     },
+    "pro_feature": {
+      "type": "object",
+      "required": [
+        "interproc_taint", "interfile_taint", "proprietary_language"
+      ],
+      "properties": {
+        "interproc_taint": { "type": "boolean" },
+        "interfile_taint": { "type": "boolean" },
+        "proprietary_language": { "type": "boolean" }
+      }
+    },
+    "engine_of_finding": {
+      "oneOf": [
+        { "const": "OSS" },
+        { "const": "PRO" },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "PRO_REQUIRED" },
+            { "$ref": "#/definitions/pro_feature" }
+          ]
+        }
+      ]
+    },
     "engine_kind": { "oneOf": [ { "const": "OSS" }, { "const": "PRO" } ] },
     "rule_id_and_engine_kind": {
       "type": "array",
@@ -119,7 +145,7 @@
         "metavars": { "$ref": "#/definitions/metavars" },
         "fix": { "type": "string" },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
-        "engine_kind": { "$ref": "#/definitions/engine_kind" },
+        "engine_kind": { "$ref": "#/definitions/engine_of_finding" },
         "is_ignored": { "type": "boolean" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
         "historical_info": { "$ref": "#/definitions/historical_info" },
@@ -154,7 +180,7 @@
         "is_ignored": { "type": "boolean" },
         "sca_info": { "$ref": "#/definitions/sca_info" },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
-        "engine_kind": { "$ref": "#/definitions/engine_kind" },
+        "engine_kind": { "$ref": "#/definitions/engine_of_finding" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
         "historical_info": { "$ref": "#/definitions/historical_info" },
         "extra_extra": { "$ref": "#/definitions/raw_json" }
