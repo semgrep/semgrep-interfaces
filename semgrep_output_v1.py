@@ -2888,12 +2888,102 @@ class CiConfig:
 
 
 @dataclass
+class Message:
+    """Original type: action = [ ... | Message of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Message'
+
+    def to_json(self) -> Any:
+        return ['Message', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Delay:
+    """Original type: action = [ ... | Delay of ... | ... ]"""
+
+    value: float
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Delay'
+
+    def to_json(self) -> Any:
+        return ['Delay', _atd_write_float(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Exit:
+    """Original type: action = [ ... | Exit of ... | ... ]"""
+
+    value: int
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Exit'
+
+    def to_json(self) -> Any:
+        return ['Exit', _atd_write_int(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Action:
+    """Original type: action = [ ... ]"""
+
+    value: Union[Message, Delay, Exit]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Action':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'Message':
+                return cls(Message(_atd_read_string(x[1])))
+            if cons == 'Delay':
+                return cls(Delay(_atd_read_float(x[1])))
+            if cons == 'Exit':
+                return cls(Exit(_atd_read_int(x[1])))
+            _atd_bad_json('Action', x)
+        _atd_bad_json('Action', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Action':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class CiConfigFromCloud:
     """Original type: ci_config_from_cloud = { ... }"""
 
     repo_config: CiConfig
     org_config: Optional[CiConfig] = None
     dirs_config: Optional[List[Tuple[Fpath, CiConfig]]] = None
+    actions: List[Action] = field(default_factory=lambda: [])
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiConfigFromCloud':
@@ -2902,6 +2992,7 @@ class CiConfigFromCloud:
                 repo_config=CiConfig.from_json(x['repo_config']) if 'repo_config' in x else _atd_missing_json_field('CiConfigFromCloud', 'repo_config'),
                 org_config=CiConfig.from_json(x['org_config']) if 'org_config' in x else None,
                 dirs_config=_atd_read_list((lambda x: (Fpath.from_json(x[0]), CiConfig.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['dirs_config']) if 'dirs_config' in x else None,
+                actions=_atd_read_list(Action.from_json)(x['actions']) if 'actions' in x else [],
             )
         else:
             _atd_bad_json('CiConfigFromCloud', x)
@@ -2913,6 +3004,7 @@ class CiConfigFromCloud:
             res['org_config'] = (lambda x: x.to_json())(self.org_config)
         if self.dirs_config is not None:
             res['dirs_config'] = _atd_write_list((lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.dirs_config)
+        res['actions'] = _atd_write_list((lambda x: x.to_json()))(self.actions)
         return res
 
     @classmethod
@@ -2939,6 +3031,7 @@ class ScanConfig:
     triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
     ignored_files: List[str] = field(default_factory=lambda: [])
     enabled_products: Optional[List[Product]] = None
+    actions: List[Action] = field(default_factory=lambda: [])
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanConfig':
@@ -2956,6 +3049,7 @@ class ScanConfig:
                 triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
                 ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
                 enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else None,
+                actions=_atd_read_list(Action.from_json)(x['actions']) if 'actions' in x else [],
             )
         else:
             _atd_bad_json('ScanConfig', x)
@@ -2976,6 +3070,7 @@ class ScanConfig:
         res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
         if self.enabled_products is not None:
             res['enabled_products'] = _atd_write_list((lambda x: x.to_json()))(self.enabled_products)
+        res['actions'] = _atd_write_list((lambda x: x.to_json()))(self.actions)
         return res
 
     @classmethod

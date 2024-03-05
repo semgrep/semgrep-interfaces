@@ -304,10 +304,13 @@ type ci_config = Semgrep_output_v1_t.ci_config = {
   dependency_query: bool
 }
 
+type action = Semgrep_output_v1_t.action
+
 type ci_config_from_cloud = Semgrep_output_v1_t.ci_config_from_cloud = {
   repo_config: ci_config;
   org_config: ci_config option;
-  dirs_config: (fpath * ci_config) list option
+  dirs_config: (fpath * ci_config) list option;
+  actions: action list
 }
 
 type scan_config = Semgrep_output_v1_t.scan_config = {
@@ -322,7 +325,8 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   triage_ignored_syntactic_ids: string list;
   triage_ignored_match_based_ids: string list;
   ignored_files: string list;
-  enabled_products: product list option
+  enabled_products: product list option;
+  actions: action list
 }
 
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
@@ -11725,6 +11729,114 @@ let read_ci_config = (
 )
 let ci_config_of_string s =
   read_ci_config (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_action = (
+  fun ob x ->
+    match x with
+      | `Message x ->
+        Buffer.add_string ob "[\"Message\",";
+        (
+          Yojson.Safe.write_string
+        ) ob x;
+        Buffer.add_char ob ']'
+      | `Delay x ->
+        Buffer.add_string ob "[\"Delay\",";
+        (
+          Yojson.Safe.write_std_float
+        ) ob x;
+        Buffer.add_char ob ']'
+      | `Exit x ->
+        Buffer.add_string ob "[\"Exit\",";
+        (
+          Yojson.Safe.write_int
+        ) ob x;
+        Buffer.add_char ob ']'
+)
+let string_of_action ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_action ob x;
+  Buffer.contents ob
+let read_action = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "Message" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Message x
+            | "Delay" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_number
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Delay x
+            | "Exit" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_int
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Exit x
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Message" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `Message x
+            | "Delay" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_number
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `Delay x
+            | "Exit" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_int
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `Exit x
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let action_of_string s =
+  read_action (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__fpath_ci_config_list = (
   Atdgen_runtime.Oj_run.write_list (
     fun ob x ->
@@ -11909,6 +12021,22 @@ let read__ci_config_option = (
 )
 let _ci_config_option_of_string s =
   read__ci_config_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__action_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_action
+  )
+)
+let string_of__action_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__action_list ob x;
+  Buffer.contents ob
+let read__action_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_action
+  )
+)
+let _action_list_of_string s =
+  read__action_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_ci_config_from_cloud : _ -> ci_config_from_cloud -> _ = (
   fun ob (x : ci_config_from_cloud) ->
     Buffer.add_char ob '{';
@@ -11944,6 +12072,15 @@ let write_ci_config_from_cloud : _ -> ci_config_from_cloud -> _ = (
       )
         ob x;
     );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"actions\":";
+    (
+      write__action_list
+    )
+      ob x.actions;
     Buffer.add_char ob '}';
 )
 let string_of_ci_config_from_cloud ?(len = 1024) x =
@@ -11957,6 +12094,7 @@ let read_ci_config_from_cloud = (
     let field_repo_config = ref (None) in
     let field_org_config = ref (None) in
     let field_dirs_config = ref (None) in
+    let field_actions = ref ([]) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -11966,6 +12104,14 @@ let read_ci_config_from_cloud = (
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
+            | 7 -> (
+                if String.unsafe_get s pos = 'a' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 's' then (
+                  3
+                )
+                else (
+                  -1
+                )
+              )
             | 10 -> (
                 if String.unsafe_get s pos = 'o' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'f' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'g' then (
                   1
@@ -12032,6 +12178,14 @@ let read_ci_config_from_cloud = (
                 )
               );
             )
+          | 3 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_actions := (
+                (
+                  read__action_list
+                ) p lb
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -12045,6 +12199,14 @@ let read_ci_config_from_cloud = (
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
+              | 7 -> (
+                  if String.unsafe_get s pos = 'a' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 's' then (
+                    3
+                  )
+                  else (
+                    -1
+                  )
+                )
               | 10 -> (
                   if String.unsafe_get s pos = 'o' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'f' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'g' then (
                     1
@@ -12111,6 +12273,14 @@ let read_ci_config_from_cloud = (
                   )
                 );
               )
+            | 3 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_actions := (
+                  (
+                    read__action_list
+                  ) p lb
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -12123,6 +12293,7 @@ let read_ci_config_from_cloud = (
             repo_config = (match !field_repo_config with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "repo_config");
             org_config = !field_org_config;
             dirs_config = !field_dirs_config;
+            actions = !field_actions;
           }
          : ci_config_from_cloud)
       )
@@ -12359,6 +12530,15 @@ let write_scan_config : _ -> scan_config -> _ = (
       )
         ob x;
     );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"actions\":";
+    (
+      write__action_list
+    )
+      ob x.actions;
     Buffer.add_char ob '}';
 )
 let string_of_scan_config ?(len = 1024) x =
@@ -12381,6 +12561,7 @@ let read_scan_config = (
     let field_triage_ignored_match_based_ids = ref ([]) in
     let field_ignored_files = ref ([]) in
     let field_enabled_products = ref (None) in
+    let field_actions = ref ([]) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -12391,8 +12572,27 @@ let read_scan_config = (
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
             | 7 -> (
-                if String.unsafe_get s pos = 'a' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'x' then (
-                  5
+                if String.unsafe_get s pos = 'a' then (
+                  match String.unsafe_get s (pos+1) with
+                    | 'c' -> (
+                        if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 's' then (
+                          12
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'u' -> (
+                        if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'x' then (
+                          5
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
                 )
                 else (
                   -1
@@ -12612,6 +12812,14 @@ let read_scan_config = (
                 )
               );
             )
+          | 12 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_actions := (
+                (
+                  read__action_list
+                ) p lb
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -12626,8 +12834,27 @@ let read_scan_config = (
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
               | 7 -> (
-                  if String.unsafe_get s pos = 'a' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'x' then (
-                    5
+                  if String.unsafe_get s pos = 'a' then (
+                    match String.unsafe_get s (pos+1) with
+                      | 'c' -> (
+                          if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 's' then (
+                            12
+                          )
+                          else (
+                            -1
+                          )
+                        )
+                      | 'u' -> (
+                          if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'x' then (
+                            5
+                          )
+                          else (
+                            -1
+                          )
+                        )
+                      | _ -> (
+                          -1
+                        )
                   )
                   else (
                     -1
@@ -12847,6 +13074,14 @@ let read_scan_config = (
                   )
                 );
               )
+            | 12 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_actions := (
+                  (
+                    read__action_list
+                  ) p lb
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -12868,6 +13103,7 @@ let read_scan_config = (
             triage_ignored_match_based_ids = !field_triage_ignored_match_based_ids;
             ignored_files = !field_ignored_files;
             enabled_products = !field_enabled_products;
+            actions = !field_actions;
           }
          : scan_config)
       )

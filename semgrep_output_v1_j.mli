@@ -304,10 +304,13 @@ type ci_config = Semgrep_output_v1_t.ci_config = {
   dependency_query: bool
 }
 
+type action = Semgrep_output_v1_t.action
+
 type ci_config_from_cloud = Semgrep_output_v1_t.ci_config_from_cloud = {
   repo_config: ci_config;
   org_config: ci_config option;
-  dirs_config: (fpath * ci_config) list option
+  dirs_config: (fpath * ci_config) list option;
+  actions: action list
 }
 
 type scan_config = Semgrep_output_v1_t.scan_config = {
@@ -322,7 +325,8 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   triage_ignored_syntactic_ids: string list;
   triage_ignored_match_based_ids: string list;
   ignored_files: string list;
-  enabled_products: product list option
+  enabled_products: product list option;
+  actions: action list
 }
 
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
@@ -1681,6 +1685,26 @@ val read_ci_config :
 val ci_config_of_string :
   string -> ci_config
   (** Deserialize JSON data of type {!type:ci_config}. *)
+
+val write_action :
+  Buffer.t -> action -> unit
+  (** Output a JSON value of type {!type:action}. *)
+
+val string_of_action :
+  ?len:int -> action -> string
+  (** Serialize a value of type {!type:action}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_action :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> action
+  (** Input JSON data of type {!type:action}. *)
+
+val action_of_string :
+  string -> action
+  (** Deserialize JSON data of type {!type:action}. *)
 
 val write_ci_config_from_cloud :
   Buffer.t -> ci_config_from_cloud -> unit
