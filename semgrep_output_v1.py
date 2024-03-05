@@ -1536,6 +1536,37 @@ class Uri:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class TriageIgnored:
+    """Original type: triage_ignored = { ... }"""
+
+    triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
+    triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TriageIgnored':
+        if isinstance(x, dict):
+            return cls(
+                triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
+                triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
+            )
+        else:
+            _atd_bad_json('TriageIgnored', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
+        res['triage_ignored_match_based_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_match_based_ids)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TriageIgnored':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class Direct:
     """Original type: transitivity = [ ... | Direct | ... ]"""
@@ -2495,9 +2526,9 @@ class EngineConfiguration:
     """Original type: engine_configuration = { ... }"""
 
     autofix: bool = field(default_factory=lambda: False)
-    ignored_files: List[str] = field(default_factory=lambda: [])
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
+    ignored_files: List[str] = field(default_factory=lambda: [])
     generic_slow_rollout: bool = field(default_factory=lambda: False)
     historical_config: Optional[HistoricalConfiguration] = None
 
@@ -2506,9 +2537,9 @@ class EngineConfiguration:
         if isinstance(x, dict):
             return cls(
                 autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
-                ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
+                ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
                 generic_slow_rollout=_atd_read_bool(x['generic_slow_rollout']) if 'generic_slow_rollout' in x else False,
                 historical_config=HistoricalConfiguration.from_json(x['historical_config']) if 'historical_config' in x else None,
             )
@@ -2518,9 +2549,9 @@ class EngineConfiguration:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['autofix'] = _atd_write_bool(self.autofix)
-        res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
+        res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
         res['generic_slow_rollout'] = _atd_write_bool(self.generic_slow_rollout)
         if self.historical_config is not None:
             res['historical_config'] = (lambda x: x.to_json())(self.historical_config)
@@ -2820,7 +2851,9 @@ class CiConfig:
     env: CiEnv
     enabled_products: List[Product]
     ignored_files: List[str]
-    autofix: bool
+    autofix: bool = field(default_factory=lambda: False)
+    deepsemgrep: bool = field(default_factory=lambda: False)
+    dependency_query: bool = field(default_factory=lambda: False)
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiConfig':
@@ -2829,7 +2862,9 @@ class CiConfig:
                 env=CiEnv.from_json(x['env']) if 'env' in x else _atd_missing_json_field('CiConfig', 'env'),
                 enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else _atd_missing_json_field('CiConfig', 'enabled_products'),
                 ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else _atd_missing_json_field('CiConfig', 'ignored_files'),
-                autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else _atd_missing_json_field('CiConfig', 'autofix'),
+                autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
+                deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
+                dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
             )
         else:
             _atd_bad_json('CiConfig', x)
@@ -2840,6 +2875,8 @@ class CiConfig:
         res['enabled_products'] = _atd_write_list((lambda x: x.to_json()))(self.enabled_products)
         res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
         res['autofix'] = _atd_write_bool(self.autofix)
+        res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
+        res['dependency_query'] = _atd_write_bool(self.dependency_query)
         return res
 
     @classmethod
@@ -3952,6 +3989,43 @@ class IncompatibleRule:
 
 
 @dataclass
+class HasFeatures:
+    """Original type: has_features = { ... }"""
+
+    has_autofix: bool = field(default_factory=lambda: False)
+    has_deepsemgrep: bool = field(default_factory=lambda: False)
+    has_triage_via_comment: bool = field(default_factory=lambda: False)
+    has_dependency_query: bool = field(default_factory=lambda: False)
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'HasFeatures':
+        if isinstance(x, dict):
+            return cls(
+                has_autofix=_atd_read_bool(x['has_autofix']) if 'has_autofix' in x else False,
+                has_deepsemgrep=_atd_read_bool(x['has_deepsemgrep']) if 'has_deepsemgrep' in x else False,
+                has_triage_via_comment=_atd_read_bool(x['has_triage_via_comment']) if 'has_triage_via_comment' in x else False,
+                has_dependency_query=_atd_read_bool(x['has_dependency_query']) if 'has_dependency_query' in x else False,
+            )
+        else:
+            _atd_bad_json('HasFeatures', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['has_autofix'] = _atd_write_bool(self.has_autofix)
+        res['has_deepsemgrep'] = _atd_write_bool(self.has_deepsemgrep)
+        res['has_triage_via_comment'] = _atd_write_bool(self.has_triage_via_comment)
+        res['has_dependency_query'] = _atd_write_bool(self.has_dependency_query)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'HasFeatures':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class FindingHashes:
     """Original type: finding_hashes = { ... }"""
 
@@ -4070,6 +4144,40 @@ class Finding:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Finding':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Features:
+    """Original type: features = { ... }"""
+
+    autofix: bool = field(default_factory=lambda: False)
+    deepsemgrep: bool = field(default_factory=lambda: False)
+    dependency_query: bool = field(default_factory=lambda: False)
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Features':
+        if isinstance(x, dict):
+            return cls(
+                autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
+                deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
+                dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
+            )
+        else:
+            _atd_bad_json('Features', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['autofix'] = _atd_write_bool(self.autofix)
+        res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
+        res['dependency_query'] = _atd_write_bool(self.dependency_query)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Features':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -4720,11 +4828,11 @@ class DeploymentConfig:
     scm_name: str = field(default_factory=lambda: "")
     slug: str = field(default_factory=lambda: "")
     source_type: str = field(default_factory=lambda: "")
+    default_user_role: str = field(default_factory=lambda: "")
     has_autofix: bool = field(default_factory=lambda: False)
     has_deepsemgrep: bool = field(default_factory=lambda: False)
     has_triage_via_comment: bool = field(default_factory=lambda: False)
     has_dependency_query: bool = field(default_factory=lambda: False)
-    default_user_role: str = field(default_factory=lambda: "")
 
     @classmethod
     def from_json(cls, x: Any) -> 'DeploymentConfig':
@@ -4737,11 +4845,11 @@ class DeploymentConfig:
                 scm_name=_atd_read_string(x['scm_name']) if 'scm_name' in x else "",
                 slug=_atd_read_string(x['slug']) if 'slug' in x else "",
                 source_type=_atd_read_string(x['source_type']) if 'source_type' in x else "",
+                default_user_role=_atd_read_string(x['default_user_role']) if 'default_user_role' in x else "",
                 has_autofix=_atd_read_bool(x['has_autofix']) if 'has_autofix' in x else False,
                 has_deepsemgrep=_atd_read_bool(x['has_deepsemgrep']) if 'has_deepsemgrep' in x else False,
                 has_triage_via_comment=_atd_read_bool(x['has_triage_via_comment']) if 'has_triage_via_comment' in x else False,
                 has_dependency_query=_atd_read_bool(x['has_dependency_query']) if 'has_dependency_query' in x else False,
-                default_user_role=_atd_read_string(x['default_user_role']) if 'default_user_role' in x else "",
             )
         else:
             _atd_bad_json('DeploymentConfig', x)
@@ -4755,11 +4863,11 @@ class DeploymentConfig:
         res['scm_name'] = _atd_write_string(self.scm_name)
         res['slug'] = _atd_write_string(self.slug)
         res['source_type'] = _atd_write_string(self.source_type)
+        res['default_user_role'] = _atd_write_string(self.default_user_role)
         res['has_autofix'] = _atd_write_bool(self.has_autofix)
         res['has_deepsemgrep'] = _atd_write_bool(self.has_deepsemgrep)
         res['has_triage_via_comment'] = _atd_write_bool(self.has_triage_via_comment)
         res['has_dependency_query'] = _atd_write_bool(self.has_dependency_query)
-        res['default_user_role'] = _atd_write_string(self.default_user_role)
         return res
 
     @classmethod

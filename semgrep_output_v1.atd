@@ -996,6 +996,29 @@ type historical_info = {
 *)
 
 (* ----------------------------- *)
+(* Features *)
+(* ----------------------------- *)
+
+(* whether a certain feature is available for a deployment *)
+type has_features = {
+  ~has_autofix : bool;
+  ~has_deepsemgrep : bool;
+  ~has_triage_via_comment : bool;
+  ~has_dependency_query : bool;
+}
+
+type features = {
+   ~autofix: bool;
+   ~deepsemgrep: bool;
+   ~dependency_query: bool;
+}
+
+type triage_ignored = {
+    ~triage_ignored_syntactic_ids: string list;
+    ~triage_ignored_match_based_ids: string list;
+}
+
+(* ----------------------------- *)
 (* CI Configuration *)
 (* ----------------------------- *)
 
@@ -1011,15 +1034,10 @@ type deployment_config <ocaml attr="deriving show"> = {
   ~slug : string;
   (* ex: "github" *)
   ~source_type : string;
-  (* Yet another feature lists
-   * TODO? factorize in ci_config_from_cloud instead of here and scan_config?
-   *)
-  ~has_autofix : bool;
-  ~has_deepsemgrep : bool;
-  ~has_triage_via_comment : bool;
-  ~has_dependency_query : bool;
   (* ex: "member" *)
   ~default_user_role : string;
+  (* TODO? factorize in ci_config_from_cloud instead of here and scan_config? *)
+  inherit has_features;
 }
 
 (* Content of the .semgrepconfig.yml in the repository.
@@ -1037,54 +1055,11 @@ type ci_config_from_repo = {
 (* ?? ex? *)
 type tag = string
 
-(* Semgrep config from the WebApp
- * TODO: not created yet by backend, and not used yet in the CLI
- *)
-type ci_config_from_cloud = {
-    repo_config: ci_config;
-    ?org_config: ci_config option;
-    (* for monorepos, to be "monorepo-friendly" like they say in Ruff *)
-    ?dirs_config: (fpath * ci_config) list option;
-}
-
-(* Note that we should use very simple types below for the configuration
- * of Semgrep: booleans or small enums. No int, as people often don't
- * understand how to set values. For example even if we documented
- * very well the --timeout option in Semgrep, people still didn't
- * know which value to use.
- *
- * LATER: the type below could be used for the automatic generation of UI code
- * in the WebApp for user to setup the CI config with UI widgets. We would need
- * probably ATD extension to express validators, docstring, etc (Jonas's idea).
- *
- *)
-type ci_config = {
-   (* to override environment variables, as lots of the configuration of
-    * 'semgrep ci' comes from environment variables (e.g., SEMGREP_REPO_URL)
-    *)
-    env: ci_env;
-    enabled_products: product list;
-    (* glob patterns *)
-    ignored_files: string list;
-    (* other features *)
-    autofix: bool;
-    (* TODO?
-     *  - feature_rollout (hidden from users)
-     *  - feature_opt_in (set by users)
-     *  - deepsemgrep? but should we use product instead?
-     *  - dependency_query??
-     *  - triage_xxx?
-     *)
-}
-
-type ci_env = (string * string) list
-  <json repr="object">
-  <python repr="dict">
-  <ts repr="map">
-
 (* Response by the backend to the CLI to the POST /scans/<scan_id>/config *)
 type scan_config = {
-    (* TODO: remove deployment_id + deployment_name from here, instead this will be in scan_response.scan_info *)
+    (* TODO: remove deployment_id + deployment_name from here, instead this
+     * will be in scan_response.scan_info
+     *)
     deployment_id: int;
     deployment_name: string;
     (* ex: "audit", "comment", "block" TODO use enum? TODO: seems dead *)
@@ -1095,11 +1070,8 @@ type scan_config = {
     ?ci_config_from_cloud: ci_config_from_cloud option;
 
     (* Deprecated: should rely on ci_config_from_cloud instead *)
-    ~autofix: bool;
-    ~deepsemgrep: bool;
-    ~dependency_query: bool;
-    ~triage_ignored_syntactic_ids: string list;
-    ~triage_ignored_match_based_ids: string list;
+    inherit features;
+    inherit triage_ignored;
     (* glob patterns *)
     ~ignored_files: string list;
     (* since 1.37.0 *)
@@ -1131,7 +1103,8 @@ type project_metadata = {
 
     (* TODO: use enum with <json name="..."> *)
     (* "git" | "github-actions" | "gitlab-ci" | "circleci"
-     * | "jenkins" | "bitbucket" | "azure-pipelines" | "buildkite" | "travis-ci" *)
+     * "jenkins" | "bitbucket" | "azure-pipelines" | "buildkite" | "travis-ci"
+     *)
     scan_environment: string;
 
     (* Git metadata. Many of those fields come from environment variables like
@@ -1236,8 +1209,7 @@ type scan_info = {
 (* config specific to the scan, eg *)
 type scan_configuration = {
     rules: raw_json; (* can we type this better *)
-    ~triage_ignored_syntactic_ids: string list;
-    ~triage_ignored_match_based_ids: string list;
+    inherit triage_ignored;
 }
 
 (* configuration for scanning version control history,
@@ -1250,11 +1222,10 @@ type historical_configuration = {
 
 (* settings for the cli *)
 type engine_configuration = {
-    ~autofix: bool;
+    inherit features;
     ~ignored_files: string list;
-    ~deepsemgrep: bool;
-    ~dependency_query: bool;
-    ~generic_slow_rollout: bool; (* for features we only want to turn on for select customers *)
+    (* for features we only want to turn on for select customers *)
+    ~generic_slow_rollout: bool; 
     (* from 1.63.0 *)
     ?historical_config: historical_configuration option;
 }
@@ -1458,3 +1429,50 @@ type ci_scan_failure = {
     exit_code: int;
     stderr: string;
 }
+
+(* ----------------------------- *)
+(* TODO a better CI config from cloud *)
+(* ----------------------------- *)
+
+(* Semgrep config from the WebApp
+ * TODO: not created yet by backend, and not used yet in the CLI
+ *)
+type ci_config_from_cloud = {
+    repo_config: ci_config;
+    ?org_config: ci_config option;
+    (* for monorepos, to be "monorepo-friendly" like they say in Ruff *)
+    ?dirs_config: (fpath * ci_config) list option;
+}
+
+(* Note that we should use very simple types below for the configuration
+ * of Semgrep: booleans or small enums. No int, as people often don't
+ * understand how to set values. For example even if we documented
+ * very well the --timeout option in Semgrep, people still didn't
+ * know which value to use.
+ *
+ * LATER: the type below could be used for the automatic generation of UI code
+ * in the WebApp for user to setup the CI config with UI widgets. We would need
+ * probably ATD extension to express validators, docstring, etc (Jonas's idea).
+ *
+ *)
+type ci_config = {
+   (* to override environment variables, as lots of the configuration of
+    * 'semgrep ci' comes from environment variables (e.g., SEMGREP_REPO_URL)
+    *)
+    env: ci_env;
+    enabled_products: product list;
+    (* glob patterns *)
+    ignored_files: string list;
+    (* other features *)
+    inherit features;
+    (* TODO?
+     *  - feature_rollout (hidden from users)
+     *  - feature_opt_in (set by users)
+     *  - triage_ignored?
+     *)
+}
+
+type ci_env = (string * string) list
+  <json repr="object">
+  <python repr="dict">
+  <ts repr="map">
