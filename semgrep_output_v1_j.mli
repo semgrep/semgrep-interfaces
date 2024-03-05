@@ -135,6 +135,11 @@ type uuid = Semgrep_output_v1_t.uuid
 
 type uri = Semgrep_output_v1_t.uri
 
+type triage_ignored = Semgrep_output_v1_t.triage_ignored = {
+  triage_ignored_syntactic_ids: string list;
+  triage_ignored_match_based_ids: string list
+}
+
 type transitivity = Semgrep_output_v1_t.transitivity [@@deriving show,eq]
 
 type todo = Semgrep_output_v1_t.todo
@@ -226,9 +231,9 @@ type historical_configuration =
 
 type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   autofix: bool;
-  ignored_files: string list;
   deepsemgrep: bool;
   dependency_query: bool;
+  ignored_files: string list;
   generic_slow_rollout: bool;
   historical_config: historical_configuration option
 }
@@ -294,7 +299,9 @@ type ci_config = Semgrep_output_v1_t.ci_config = {
   env: ci_env;
   enabled_products: product list;
   ignored_files: string list;
-  autofix: bool
+  autofix: bool;
+  deepsemgrep: bool;
+  dependency_query: bool
 }
 
 type ci_config_from_cloud = Semgrep_output_v1_t.ci_config_from_cloud = {
@@ -385,6 +392,13 @@ type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
 }
   [@@deriving show]
 
+type has_features = Semgrep_output_v1_t.has_features = {
+  has_autofix: bool;
+  has_deepsemgrep: bool;
+  has_triage_via_comment: bool;
+  has_dependency_query: bool
+}
+
 type finding_hashes = Semgrep_output_v1_t.finding_hashes = {
   start_line_hash: string;
   end_line_hash: string;
@@ -412,6 +426,12 @@ type finding = Semgrep_output_v1_t.finding = {
   sca_info: sca_info option;
   dataflow_trace: match_dataflow_trace option;
   validation_state: validation_state option
+}
+
+type features = Semgrep_output_v1_t.features = {
+  autofix: bool;
+  deepsemgrep: bool;
+  dependency_query: bool
 }
 
 type error_type = Semgrep_output_v1_t.error_type = 
@@ -465,11 +485,11 @@ type deployment_config = Semgrep_output_v1_t.deployment_config = {
   scm_name: string;
   slug: string;
   source_type: string;
+  default_user_role: string;
   has_autofix: bool;
   has_deepsemgrep: bool;
   has_triage_via_comment: bool;
-  has_dependency_query: bool;
-  default_user_role: string
+  has_dependency_query: bool
 }
   [@@deriving show]
 
@@ -1141,6 +1161,26 @@ val read_uri :
 val uri_of_string :
   string -> uri
   (** Deserialize JSON data of type {!type:uri}. *)
+
+val write_triage_ignored :
+  Buffer.t -> triage_ignored -> unit
+  (** Output a JSON value of type {!type:triage_ignored}. *)
+
+val string_of_triage_ignored :
+  ?len:int -> triage_ignored -> string
+  (** Serialize a value of type {!type:triage_ignored}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_triage_ignored :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> triage_ignored
+  (** Input JSON data of type {!type:triage_ignored}. *)
+
+val triage_ignored_of_string :
+  string -> triage_ignored
+  (** Deserialize JSON data of type {!type:triage_ignored}. *)
 
 val write_transitivity :
   Buffer.t -> transitivity -> unit
@@ -1922,6 +1962,26 @@ val incompatible_rule_of_string :
   string -> incompatible_rule
   (** Deserialize JSON data of type {!type:incompatible_rule}. *)
 
+val write_has_features :
+  Buffer.t -> has_features -> unit
+  (** Output a JSON value of type {!type:has_features}. *)
+
+val string_of_has_features :
+  ?len:int -> has_features -> string
+  (** Serialize a value of type {!type:has_features}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_has_features :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> has_features
+  (** Input JSON data of type {!type:has_features}. *)
+
+val has_features_of_string :
+  string -> has_features
+  (** Deserialize JSON data of type {!type:has_features}. *)
+
 val write_finding_hashes :
   Buffer.t -> finding_hashes -> unit
   (** Output a JSON value of type {!type:finding_hashes}. *)
@@ -1961,6 +2021,26 @@ val read_finding :
 val finding_of_string :
   string -> finding
   (** Deserialize JSON data of type {!type:finding}. *)
+
+val write_features :
+  Buffer.t -> features -> unit
+  (** Output a JSON value of type {!type:features}. *)
+
+val string_of_features :
+  ?len:int -> features -> string
+  (** Serialize a value of type {!type:features}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_features :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> features
+  (** Input JSON data of type {!type:features}. *)
+
+val features_of_string :
+  string -> features
+  (** Deserialize JSON data of type {!type:features}. *)
 
 val write_error_type :
   Buffer.t -> error_type -> unit

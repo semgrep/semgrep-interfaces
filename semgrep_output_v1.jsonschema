@@ -783,6 +783,39 @@
         "git_commit_timestamp": { "$ref": "#/definitions/datetime" }
       }
     },
+    "has_features": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "has_autofix": { "type": "boolean" },
+        "has_deepsemgrep": { "type": "boolean" },
+        "has_triage_via_comment": { "type": "boolean" },
+        "has_dependency_query": { "type": "boolean" }
+      }
+    },
+    "features": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "autofix": { "type": "boolean" },
+        "deepsemgrep": { "type": "boolean" },
+        "dependency_query": { "type": "boolean" }
+      }
+    },
+    "triage_ignored": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "triage_ignored_syntactic_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "triage_ignored_match_based_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
     "deployment_config": {
       "type": "object",
       "required": [ "id", "name" ],
@@ -794,11 +827,11 @@
         "scm_name": { "type": "string" },
         "slug": { "type": "string" },
         "source_type": { "type": "string" },
+        "default_user_role": { "type": "string" },
         "has_autofix": { "type": "boolean" },
         "has_deepsemgrep": { "type": "boolean" },
         "has_triage_via_comment": { "type": "boolean" },
-        "has_dependency_query": { "type": "boolean" },
-        "default_user_role": { "type": "string" }
+        "has_dependency_query": { "type": "boolean" }
       }
     },
     "ci_config_from_repo": {
@@ -810,43 +843,6 @@
       }
     },
     "tag": { "type": "string" },
-    "ci_config_from_cloud": {
-      "type": "object",
-      "required": [ "repo_config" ],
-      "properties": {
-        "repo_config": { "$ref": "#/definitions/ci_config" },
-        "org_config": { "$ref": "#/definitions/ci_config" },
-        "dirs_config": {
-          "type": "array",
-          "items": {
-            "type": "array",
-            "minItems": 2,
-            "items": false,
-            "prefixItems": [
-              { "$ref": "#/definitions/fpath" },
-              { "$ref": "#/definitions/ci_config" }
-            ]
-          }
-        }
-      }
-    },
-    "ci_config": {
-      "type": "object",
-      "required": [ "env", "enabled_products", "ignored_files", "autofix" ],
-      "properties": {
-        "env": { "$ref": "#/definitions/ci_env" },
-        "enabled_products": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/product" }
-        },
-        "ignored_files": { "type": "array", "items": { "type": "string" } },
-        "autofix": { "type": "boolean" }
-      }
-    },
-    "ci_env": {
-      "type": "object",
-      "additionalProperties": { "type": "string" }
-    },
     "scan_config": {
       "type": "object",
       "required": [
@@ -998,9 +994,9 @@
       "required": [],
       "properties": {
         "autofix": { "type": "boolean" },
-        "ignored_files": { "type": "array", "items": { "type": "string" } },
         "deepsemgrep": { "type": "boolean" },
         "dependency_query": { "type": "boolean" },
+        "ignored_files": { "type": "array", "items": { "type": "string" } },
         "generic_slow_rollout": { "type": "boolean" },
         "historical_config": {
           "$ref": "#/definitions/historical_configuration"
@@ -1199,6 +1195,45 @@
         "exit_code": { "type": "integer" },
         "stderr": { "type": "string" }
       }
+    },
+    "ci_config_from_cloud": {
+      "type": "object",
+      "required": [ "repo_config" ],
+      "properties": {
+        "repo_config": { "$ref": "#/definitions/ci_config" },
+        "org_config": { "$ref": "#/definitions/ci_config" },
+        "dirs_config": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "items": false,
+            "prefixItems": [
+              { "$ref": "#/definitions/fpath" },
+              { "$ref": "#/definitions/ci_config" }
+            ]
+          }
+        }
+      }
+    },
+    "ci_config": {
+      "type": "object",
+      "required": [ "env", "enabled_products", "ignored_files" ],
+      "properties": {
+        "env": { "$ref": "#/definitions/ci_env" },
+        "enabled_products": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/product" }
+        },
+        "ignored_files": { "type": "array", "items": { "type": "string" } },
+        "autofix": { "type": "boolean" },
+        "deepsemgrep": { "type": "boolean" },
+        "dependency_query": { "type": "boolean" }
+      }
+    },
+    "ci_env": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
     }
   }
 }

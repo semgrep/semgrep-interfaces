@@ -455,6 +455,24 @@ export type HistoricalInfo = {
   git_commit_timestamp: Datetime;
 }
 
+export type HasFeatures = {
+  has_autofix: boolean;
+  has_deepsemgrep: boolean;
+  has_triage_via_comment: boolean;
+  has_dependency_query: boolean;
+}
+
+export type Features = {
+  autofix: boolean;
+  deepsemgrep: boolean;
+  dependency_query: boolean;
+}
+
+export type TriageIgnored = {
+  triage_ignored_syntactic_ids: string[];
+  triage_ignored_match_based_ids: string[];
+}
+
 export type DeploymentConfig = {
   id: number /*int*/;
   name: string;
@@ -463,11 +481,11 @@ export type DeploymentConfig = {
   scm_name: string;
   slug: string;
   source_type: string;
+  default_user_role: string;
   has_autofix: boolean;
   has_deepsemgrep: boolean;
   has_triage_via_comment: boolean;
   has_dependency_query: boolean;
-  default_user_role: string;
 }
 
 export type CiConfigFromRepo = {
@@ -476,21 +494,6 @@ export type CiConfigFromRepo = {
 }
 
 export type Tag = string
-
-export type CiConfigFromCloud = {
-  repo_config: CiConfig;
-  org_config?: CiConfig;
-  dirs_config?: [Fpath, CiConfig][];
-}
-
-export type CiConfig = {
-  env: CiEnv;
-  enabled_products: Product[];
-  ignored_files: string[];
-  autofix: boolean;
-}
-
-export type CiEnv = Map<string, string>
 
 export type ScanConfig = {
   deployment_id: number /*int*/;
@@ -581,9 +584,9 @@ export type HistoricalConfiguration = {
 
 export type EngineConfiguration = {
   autofix: boolean;
-  ignored_files: string[];
   deepsemgrep: boolean;
   dependency_query: boolean;
+  ignored_files: string[];
   generic_slow_rollout: boolean;
   historical_config?: HistoricalConfiguration;
 }
@@ -689,6 +692,23 @@ export type CiScanFailure = {
   exit_code: number /*int*/;
   stderr: string;
 }
+
+export type CiConfigFromCloud = {
+  repo_config: CiConfig;
+  org_config?: CiConfig;
+  dirs_config?: [Fpath, CiConfig][];
+}
+
+export type CiConfig = {
+  env: CiEnv;
+  enabled_products: Product[];
+  ignored_files: string[];
+  autofix: boolean;
+  deepsemgrep: boolean;
+  dependency_query: boolean;
+}
+
+export type CiEnv = Map<string, string>
 
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
@@ -2122,6 +2142,54 @@ export function readHistoricalInfo(x: any, context: any = x): HistoricalInfo {
   };
 }
 
+export function writeHasFeatures(x: HasFeatures, context: any = x): any {
+  return {
+    'has_autofix': _atd_write_field_with_default(_atd_write_bool, false, x.has_autofix, x),
+    'has_deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.has_deepsemgrep, x),
+    'has_triage_via_comment': _atd_write_field_with_default(_atd_write_bool, false, x.has_triage_via_comment, x),
+    'has_dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.has_dependency_query, x),
+  };
+}
+
+export function readHasFeatures(x: any, context: any = x): HasFeatures {
+  return {
+    has_autofix: _atd_read_field_with_default(_atd_read_bool, false, x['has_autofix'], x),
+    has_deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['has_deepsemgrep'], x),
+    has_triage_via_comment: _atd_read_field_with_default(_atd_read_bool, false, x['has_triage_via_comment'], x),
+    has_dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['has_dependency_query'], x),
+  };
+}
+
+export function writeFeatures(x: Features, context: any = x): any {
+  return {
+    'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
+    'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
+    'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
+  };
+}
+
+export function readFeatures(x: any, context: any = x): Features {
+  return {
+    autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
+    deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
+    dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
+  };
+}
+
+export function writeTriageIgnored(x: TriageIgnored, context: any = x): any {
+  return {
+    'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
+    'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
+  };
+}
+
+export function readTriageIgnored(x: any, context: any = x): TriageIgnored {
+  return {
+    triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),
+    triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
+  };
+}
+
 export function writeDeploymentConfig(x: DeploymentConfig, context: any = x): any {
   return {
     'id': _atd_write_required_field('DeploymentConfig', 'id', _atd_write_int, x.id, x),
@@ -2131,11 +2199,11 @@ export function writeDeploymentConfig(x: DeploymentConfig, context: any = x): an
     'scm_name': _atd_write_field_with_default(_atd_write_string, "", x.scm_name, x),
     'slug': _atd_write_field_with_default(_atd_write_string, "", x.slug, x),
     'source_type': _atd_write_field_with_default(_atd_write_string, "", x.source_type, x),
+    'default_user_role': _atd_write_field_with_default(_atd_write_string, "", x.default_user_role, x),
     'has_autofix': _atd_write_field_with_default(_atd_write_bool, false, x.has_autofix, x),
     'has_deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.has_deepsemgrep, x),
     'has_triage_via_comment': _atd_write_field_with_default(_atd_write_bool, false, x.has_triage_via_comment, x),
     'has_dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.has_dependency_query, x),
-    'default_user_role': _atd_write_field_with_default(_atd_write_string, "", x.default_user_role, x),
   };
 }
 
@@ -2148,11 +2216,11 @@ export function readDeploymentConfig(x: any, context: any = x): DeploymentConfig
     scm_name: _atd_read_field_with_default(_atd_read_string, "", x['scm_name'], x),
     slug: _atd_read_field_with_default(_atd_read_string, "", x['slug'], x),
     source_type: _atd_read_field_with_default(_atd_read_string, "", x['source_type'], x),
+    default_user_role: _atd_read_field_with_default(_atd_read_string, "", x['default_user_role'], x),
     has_autofix: _atd_read_field_with_default(_atd_read_bool, false, x['has_autofix'], x),
     has_deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['has_deepsemgrep'], x),
     has_triage_via_comment: _atd_read_field_with_default(_atd_read_bool, false, x['has_triage_via_comment'], x),
     has_dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['has_dependency_query'], x),
-    default_user_role: _atd_read_field_with_default(_atd_read_string, "", x['default_user_role'], x),
   };
 }
 
@@ -2176,48 +2244,6 @@ export function writeTag(x: Tag, context: any = x): any {
 
 export function readTag(x: any, context: any = x): Tag {
   return _atd_read_string(x, context);
-}
-
-export function writeCiConfigFromCloud(x: CiConfigFromCloud, context: any = x): any {
-  return {
-    'repo_config': _atd_write_required_field('CiConfigFromCloud', 'repo_config', writeCiConfig, x.repo_config, x),
-    'org_config': _atd_write_optional_field(writeCiConfig, x.org_config, x),
-    'dirs_config': _atd_write_optional_field(_atd_write_array(((x, context) => [writeFpath(x[0], x), writeCiConfig(x[1], x)])), x.dirs_config, x),
-  };
-}
-
-export function readCiConfigFromCloud(x: any, context: any = x): CiConfigFromCloud {
-  return {
-    repo_config: _atd_read_required_field('CiConfigFromCloud', 'repo_config', readCiConfig, x['repo_config'], x),
-    org_config: _atd_read_optional_field(readCiConfig, x['org_config'], x),
-    dirs_config: _atd_read_optional_field(_atd_read_array(((x, context): [Fpath, CiConfig] => { _atd_check_json_tuple(2, x, context); return [readFpath(x[0], x), readCiConfig(x[1], x)] })), x['dirs_config'], x),
-  };
-}
-
-export function writeCiConfig(x: CiConfig, context: any = x): any {
-  return {
-    'env': _atd_write_required_field('CiConfig', 'env', writeCiEnv, x.env, x),
-    'enabled_products': _atd_write_required_field('CiConfig', 'enabled_products', _atd_write_array(writeProduct), x.enabled_products, x),
-    'ignored_files': _atd_write_required_field('CiConfig', 'ignored_files', _atd_write_array(_atd_write_string), x.ignored_files, x),
-    'autofix': _atd_write_required_field('CiConfig', 'autofix', _atd_write_bool, x.autofix, x),
-  };
-}
-
-export function readCiConfig(x: any, context: any = x): CiConfig {
-  return {
-    env: _atd_read_required_field('CiConfig', 'env', readCiEnv, x['env'], x),
-    enabled_products: _atd_read_required_field('CiConfig', 'enabled_products', _atd_read_array(readProduct), x['enabled_products'], x),
-    ignored_files: _atd_read_required_field('CiConfig', 'ignored_files', _atd_read_array(_atd_read_string), x['ignored_files'], x),
-    autofix: _atd_read_required_field('CiConfig', 'autofix', _atd_read_bool, x['autofix'], x),
-  };
-}
-
-export function writeCiEnv(x: CiEnv, context: any = x): any {
-  return _atd_write_assoc_map_to_object(_atd_write_string)(x, context);
-}
-
-export function readCiEnv(x: any, context: any = x): CiEnv {
-  return _atd_read_assoc_object_into_map(_atd_read_string)(x, context);
 }
 
 export function writeScanConfig(x: ScanConfig, context: any = x): any {
@@ -2433,9 +2459,9 @@ export function readHistoricalConfiguration(x: any, context: any = x): Historica
 export function writeEngineConfiguration(x: EngineConfiguration, context: any = x): any {
   return {
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
-    'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
+    'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
     'generic_slow_rollout': _atd_write_field_with_default(_atd_write_bool, false, x.generic_slow_rollout, x),
     'historical_config': _atd_write_optional_field(writeHistoricalConfiguration, x.historical_config, x),
   };
@@ -2444,9 +2470,9 @@ export function writeEngineConfiguration(x: EngineConfiguration, context: any = 
 export function readEngineConfiguration(x: any, context: any = x): EngineConfiguration {
   return {
     autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
-    ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
+    ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
     generic_slow_rollout: _atd_read_field_with_default(_atd_read_bool, false, x['generic_slow_rollout'], x),
     historical_config: _atd_read_optional_field(readHistoricalConfiguration, x['historical_config'], x),
   };
@@ -2710,6 +2736,52 @@ export function readCiScanFailure(x: any, context: any = x): CiScanFailure {
     exit_code: _atd_read_required_field('CiScanFailure', 'exit_code', _atd_read_int, x['exit_code'], x),
     stderr: _atd_read_required_field('CiScanFailure', 'stderr', _atd_read_string, x['stderr'], x),
   };
+}
+
+export function writeCiConfigFromCloud(x: CiConfigFromCloud, context: any = x): any {
+  return {
+    'repo_config': _atd_write_required_field('CiConfigFromCloud', 'repo_config', writeCiConfig, x.repo_config, x),
+    'org_config': _atd_write_optional_field(writeCiConfig, x.org_config, x),
+    'dirs_config': _atd_write_optional_field(_atd_write_array(((x, context) => [writeFpath(x[0], x), writeCiConfig(x[1], x)])), x.dirs_config, x),
+  };
+}
+
+export function readCiConfigFromCloud(x: any, context: any = x): CiConfigFromCloud {
+  return {
+    repo_config: _atd_read_required_field('CiConfigFromCloud', 'repo_config', readCiConfig, x['repo_config'], x),
+    org_config: _atd_read_optional_field(readCiConfig, x['org_config'], x),
+    dirs_config: _atd_read_optional_field(_atd_read_array(((x, context): [Fpath, CiConfig] => { _atd_check_json_tuple(2, x, context); return [readFpath(x[0], x), readCiConfig(x[1], x)] })), x['dirs_config'], x),
+  };
+}
+
+export function writeCiConfig(x: CiConfig, context: any = x): any {
+  return {
+    'env': _atd_write_required_field('CiConfig', 'env', writeCiEnv, x.env, x),
+    'enabled_products': _atd_write_required_field('CiConfig', 'enabled_products', _atd_write_array(writeProduct), x.enabled_products, x),
+    'ignored_files': _atd_write_required_field('CiConfig', 'ignored_files', _atd_write_array(_atd_write_string), x.ignored_files, x),
+    'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
+    'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
+    'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
+  };
+}
+
+export function readCiConfig(x: any, context: any = x): CiConfig {
+  return {
+    env: _atd_read_required_field('CiConfig', 'env', readCiEnv, x['env'], x),
+    enabled_products: _atd_read_required_field('CiConfig', 'enabled_products', _atd_read_array(readProduct), x['enabled_products'], x),
+    ignored_files: _atd_read_required_field('CiConfig', 'ignored_files', _atd_read_array(_atd_read_string), x['ignored_files'], x),
+    autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
+    deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
+    dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
+  };
+}
+
+export function writeCiEnv(x: CiEnv, context: any = x): any {
+  return _atd_write_assoc_map_to_object(_atd_write_string)(x, context);
+}
+
+export function readCiEnv(x: any, context: any = x): CiEnv {
+  return _atd_read_assoc_object_into_map(_atd_read_string)(x, context);
 }
 
 
