@@ -473,6 +473,11 @@ export type TriageIgnored = {
   triage_ignored_match_based_ids: string[];
 }
 
+export type Action =
+| { kind: 'Message'; value: string }
+| { kind: 'Delay'; value: number }
+| { kind: 'Exit'; value: number /*int*/ }
+
 export type DeploymentConfig = {
   id: number /*int*/;
   name: string;
@@ -508,6 +513,7 @@ export type ScanConfig = {
   triage_ignored_match_based_ids: string[];
   ignored_files: string[];
   enabled_products?: Product[];
+  actions: Action[];
 }
 
 export type DeploymentResponse = {
@@ -697,6 +703,7 @@ export type CiConfigFromCloud = {
   repo_config: CiConfig;
   org_config?: CiConfig;
   dirs_config?: [Fpath, CiConfig][];
+  actions: Action[];
 }
 
 export type CiConfig = {
@@ -2190,6 +2197,32 @@ export function readTriageIgnored(x: any, context: any = x): TriageIgnored {
   };
 }
 
+export function writeAction(x: Action, context: any = x): any {
+  switch (x.kind) {
+    case 'Message':
+      return ['Message', _atd_write_string(x.value, x)]
+    case 'Delay':
+      return ['Delay', _atd_write_float(x.value, x)]
+    case 'Exit':
+      return ['Exit', _atd_write_int(x.value, x)]
+  }
+}
+
+export function readAction(x: any, context: any = x): Action {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'Message':
+      return { kind: 'Message', value: _atd_read_string(x[1], x) }
+    case 'Delay':
+      return { kind: 'Delay', value: _atd_read_float(x[1], x) }
+    case 'Exit':
+      return { kind: 'Exit', value: _atd_read_int(x[1], x) }
+    default:
+      _atd_bad_json('Action', x, context)
+      throw new Error('impossible')
+  }
+}
+
 export function writeDeploymentConfig(x: DeploymentConfig, context: any = x): any {
   return {
     'id': _atd_write_required_field('DeploymentConfig', 'id', _atd_write_int, x.id, x),
@@ -2260,6 +2293,7 @@ export function writeScanConfig(x: ScanConfig, context: any = x): any {
     'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
     'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
     'enabled_products': _atd_write_optional_field(_atd_write_array(writeProduct), x.enabled_products, x),
+    'actions': _atd_write_field_with_default(_atd_write_array(writeAction), [], x.actions, x),
   };
 }
 
@@ -2277,6 +2311,7 @@ export function readScanConfig(x: any, context: any = x): ScanConfig {
     triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
     ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
     enabled_products: _atd_read_optional_field(_atd_read_array(readProduct), x['enabled_products'], x),
+    actions: _atd_read_field_with_default(_atd_read_array(readAction), [], x['actions'], x),
   };
 }
 
@@ -2743,6 +2778,7 @@ export function writeCiConfigFromCloud(x: CiConfigFromCloud, context: any = x): 
     'repo_config': _atd_write_required_field('CiConfigFromCloud', 'repo_config', writeCiConfig, x.repo_config, x),
     'org_config': _atd_write_optional_field(writeCiConfig, x.org_config, x),
     'dirs_config': _atd_write_optional_field(_atd_write_array(((x, context) => [writeFpath(x[0], x), writeCiConfig(x[1], x)])), x.dirs_config, x),
+    'actions': _atd_write_field_with_default(_atd_write_array(writeAction), [], x.actions, x),
   };
 }
 
@@ -2751,6 +2787,7 @@ export function readCiConfigFromCloud(x: any, context: any = x): CiConfigFromClo
     repo_config: _atd_read_required_field('CiConfigFromCloud', 'repo_config', readCiConfig, x['repo_config'], x),
     org_config: _atd_read_optional_field(readCiConfig, x['org_config'], x),
     dirs_config: _atd_read_optional_field(_atd_read_array(((x, context): [Fpath, CiConfig] => { _atd_check_json_tuple(2, x, context); return [readFpath(x[0], x), readCiConfig(x[1], x)] })), x['dirs_config'], x),
+    actions: _atd_read_field_with_default(_atd_read_array(readAction), [], x['actions'], x),
   };
 }
 

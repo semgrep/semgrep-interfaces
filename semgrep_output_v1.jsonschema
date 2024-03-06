@@ -816,6 +816,28 @@
         }
       }
     },
+    "action": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [ { "const": "Message" }, { "type": "string" } ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [ { "const": "Delay" }, { "type": "number" } ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [ { "const": "Exit" }, { "type": "integer" } ]
+        }
+      ]
+    },
     "deployment_config": {
       "type": "object",
       "required": [ "id", "name" ],
@@ -871,6 +893,10 @@
         "enabled_products": {
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
+        },
+        "actions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/action" }
         }
       }
     },
@@ -1213,6 +1239,10 @@
               { "$ref": "#/definitions/ci_config" }
             ]
           }
+        },
+        "actions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/action" }
         }
       }
     },

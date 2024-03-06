@@ -1019,6 +1019,30 @@ type triage_ignored = {
 }
 
 (* ----------------------------- *)
+(* Action *)
+(* ----------------------------- *)
+
+(* The actions below allow the WebApp to modify the behavior of the CLI
+ * dynamically, which is especially useful for old versions of the CLI
+ * (e.g., insist on the deprecation of an old version of the CLI).
+ * The action below will be executed by the CLI just after receiving the
+ * scan configuration. It's a bit similar to injecting code dynamically,
+ * except the possible actions are clearly delimited here (this is not
+ * eval()).
+ * Note that the version of the CLI is sent to the WebApp in
+ * project_metadata so the backend has all the necessary information to
+ * send back an appropriate action depending on the CLI version.
+ *)
+type action = [
+  | Message of string
+  (* in seconds *)
+  | Delay of float
+  (* unix exit code *)
+  | Exit of int
+  (* TODO? CollectMetrics | CollectProfile | ... *)
+]
+
+(* ----------------------------- *)
 (* CI Configuration *)
 (* ----------------------------- *)
 
@@ -1076,6 +1100,8 @@ type scan_config = {
     ~ignored_files: string list;
     (* since 1.37.0 *)
     ?enabled_products: product list option;
+    (* since 1.64.0 *)
+    ~actions: action list;
   }
 
 (* ----------------------------- *)
@@ -1292,7 +1318,6 @@ type finding_hashes = {
   pattern_hash: string;
 }
 
-
 (* ----------------------------- *)
 (* CI scan results *)
 (* ----------------------------- *)
@@ -1341,8 +1366,6 @@ type ci_scan_dependencies = (string * found_dependency list) list
     <json repr="object">
     <python repr="dict">
     <ts repr="map">
-
-
 
 
 (* Response by the backend to the CLI to the POST /results *)
@@ -1442,6 +1465,7 @@ type ci_config_from_cloud = {
     ?org_config: ci_config option;
     (* for monorepos, to be "monorepo-friendly" like they say in Ruff *)
     ?dirs_config: (fpath * ci_config) list option;
+    ~actions: action list;
 }
 
 (* Note that we should use very simple types below for the configuration
