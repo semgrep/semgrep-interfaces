@@ -1055,7 +1055,8 @@
         "fixed_lines": { "type": "array", "items": { "type": "string" } },
         "sca_info": { "$ref": "#/definitions/sca_info" },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
-        "validation_state": { "$ref": "#/definitions/validation_state" }
+        "validation_state": { "$ref": "#/definitions/validation_state" },
+        "historical_info": { "$ref": "#/definitions/historical_info" }
       }
     },
     "finding_hashes": {

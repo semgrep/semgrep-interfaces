@@ -4180,6 +4180,7 @@ class Finding:
     sca_info: Optional[ScaInfo] = None
     dataflow_trace: Optional[MatchDataflowTrace] = None
     validation_state: Optional[ValidationState] = None
+    historical_info: Optional[HistoricalInfo] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Finding':
@@ -4204,6 +4205,7 @@ class Finding:
                 sca_info=ScaInfo.from_json(x['sca_info']) if 'sca_info' in x else None,
                 dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
+                historical_info=HistoricalInfo.from_json(x['historical_info']) if 'historical_info' in x else None,
             )
         else:
             _atd_bad_json('Finding', x)
@@ -4235,6 +4237,8 @@ class Finding:
             res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
         if self.validation_state is not None:
             res['validation_state'] = (lambda x: x.to_json())(self.validation_state)
+        if self.historical_info is not None:
+            res['historical_info'] = (lambda x: x.to_json())(self.historical_info)
         return res
 
     @classmethod

@@ -617,6 +617,7 @@ export type Finding = {
   sca_info?: ScaInfo;
   dataflow_trace?: MatchDataflowTrace;
   validation_state?: ValidationState;
+  historical_info?: HistoricalInfo;
 }
 
 export type FindingHashes = {
@@ -2534,6 +2535,7 @@ export function writeFinding(x: Finding, context: any = x): any {
     'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
     'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
+    'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
   };
 }
 
@@ -2558,6 +2560,7 @@ export function readFinding(x: any, context: any = x): Finding {
     sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
+    historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),
   };
 }
 
