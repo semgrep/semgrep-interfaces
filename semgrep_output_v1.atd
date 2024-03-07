@@ -1300,6 +1300,8 @@ type finding = {
   ?dataflow_trace: match_dataflow_trace option;
   (* Added in semgrep 1.39.0 see comments in cli_match_extra. *)
   ?validation_state: validation_state option;
+  (* Added in semgrep 1.63.0 see comments in cli_match_extra *)
+  ?historical_info: historical_info option;
 }
 
 (* The goal is to hash findings independently of their precise location so
