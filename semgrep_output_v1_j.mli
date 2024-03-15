@@ -346,7 +346,8 @@ type found_dependency = Semgrep_output_v1_t.found_dependency = {
   resolved_url: string option;
   transitivity: transitivity;
   line_number: int option;
-  children: dependency_child list option
+  children: dependency_child list option;
+  git_ref: string option
 }
 
 type dependency_pattern = Semgrep_output_v1_t.dependency_pattern = {

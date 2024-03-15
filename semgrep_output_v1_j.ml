@@ -346,7 +346,8 @@ type found_dependency = Semgrep_output_v1_t.found_dependency = {
   resolved_url: string option;
   transitivity: transitivity;
   line_number: int option;
-  children: dependency_child list option
+  children: dependency_child list option;
+  git_ref: string option
 }
 
 type dependency_pattern = Semgrep_output_v1_t.dependency_pattern = {
@@ -13712,6 +13713,17 @@ let write_found_dependency : _ -> found_dependency -> _ = (
       )
         ob x;
     );
+    (match x.git_ref with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"git_ref\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_found_dependency ?(len = 1024) x =
@@ -13730,6 +13742,7 @@ let read_found_dependency = (
     let field_transitivity = ref (None) in
     let field_line_number = ref (None) in
     let field_children = ref (None) in
+    let field_git_ref = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -13741,6 +13754,14 @@ let read_found_dependency = (
           match len with
             | 7 -> (
                 match String.unsafe_get s pos with
+                  | 'g' -> (
+                      if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'f' then (
+                        8
+                      )
+                      else (
+                        -1
+                      )
+                    )
                   | 'p' -> (
                       if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'k' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
                         0
@@ -13893,6 +13914,16 @@ let read_found_dependency = (
                 )
               );
             )
+          | 8 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_git_ref := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -13908,6 +13939,14 @@ let read_found_dependency = (
             match len with
               | 7 -> (
                   match String.unsafe_get s pos with
+                    | 'g' -> (
+                        if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'f' then (
+                          8
+                        )
+                        else (
+                          -1
+                        )
+                      )
                     | 'p' -> (
                         if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'k' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
                           0
@@ -14060,6 +14099,16 @@ let read_found_dependency = (
                   )
                 );
               )
+            | 8 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_git_ref := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -14077,6 +14126,7 @@ let read_found_dependency = (
             transitivity = (match !field_transitivity with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "transitivity");
             line_number = !field_line_number;
             children = !field_children;
+            git_ref = !field_git_ref;
           }
          : found_dependency)
       )

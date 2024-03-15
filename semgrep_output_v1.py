@@ -3731,6 +3731,7 @@ class FoundDependency:
     resolved_url: Optional[str] = None
     line_number: Optional[int] = None
     children: Optional[List[DependencyChild]] = None
+    git_ref: Optional[str] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'FoundDependency':
@@ -3744,6 +3745,7 @@ class FoundDependency:
                 resolved_url=_atd_read_string(x['resolved_url']) if 'resolved_url' in x else None,
                 line_number=_atd_read_int(x['line_number']) if 'line_number' in x else None,
                 children=_atd_read_list(DependencyChild.from_json)(x['children']) if 'children' in x else None,
+                git_ref=_atd_read_string(x['git_ref']) if 'git_ref' in x else None,
             )
         else:
             _atd_bad_json('FoundDependency', x)
@@ -3761,6 +3763,8 @@ class FoundDependency:
             res['line_number'] = _atd_write_int(self.line_number)
         if self.children is not None:
             res['children'] = _atd_write_list((lambda x: x.to_json()))(self.children)
+        if self.git_ref is not None:
+            res['git_ref'] = _atd_write_string(self.git_ref)
         return res
 
     @classmethod

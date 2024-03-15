@@ -187,13 +187,13 @@ type pro_feature
    OSS = ran with OSS
    PRO = ran with PRO, but we didn't infer that OSS couldn't have found this finding
    PRO_REQUIRED = ran with PRO and requires a PRO feature (see pro_feature_used)
-   
+
    Note: OSS and PRO could have clearer names, but for backwards compatibility
    we're leaving them as is *)
 type engine_of_finding
      <ocaml attr="deriving show">
      <python decorator="dataclass(frozen=True)"> = [
-  | OSS 
+  | OSS
   | PRO
    (* Semgrep 1.64.0 or later *)
   | PRO_REQUIRED of pro_feature
@@ -202,7 +202,7 @@ type engine_of_finding
 type engine_kind
      <ocaml attr="deriving show">
      <python decorator="dataclass(frozen=True)"> = [
-  | OSS 
+  | OSS
   | PRO
 ]
 
@@ -917,6 +917,10 @@ type found_dependency = {
   ?line_number: int option;
   (* store child dependency information for calculating path to transitivity*)
   ?children: dependency_child list option;
+  (* Git ref of the dependency if the dependency comes directly from a git repo.
+   * Examples: refs/heads/main, refs/tags/v1.0.0, e5c704df4d308690fed696faf4c86453b4d88a95
+   * since 1.66.0 *)
+  ?git_ref: string option
 }
 
 (* json names are to maintain backwards compatibility with the python enum it is replacing *)
@@ -1147,7 +1151,7 @@ type project_metadata = {
     ?repo_id: string option;
     (* a.k.a repository owner id *)
     ?org_id: string option;
-    
+
     (* Users can set a different name for display and for PR comments.
        This allows monorepos to be scanned as separate projects. *)
     ?repo_display_name: string option;
@@ -1251,7 +1255,7 @@ type engine_configuration = {
     inherit features;
     ~ignored_files: string list;
     (* for features we only want to turn on for select customers *)
-    ~generic_slow_rollout: bool; 
+    ~generic_slow_rollout: bool;
     (* from 1.63.0 *)
     ?historical_config: historical_configuration option;
 }
