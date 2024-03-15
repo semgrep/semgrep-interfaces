@@ -417,6 +417,7 @@ export type FoundDependency = {
   transitivity: Transitivity;
   line_number?: number /*int*/;
   children?: DependencyChild[];
+  git_ref?: string;
 }
 
 export type ScaParserName =
@@ -2007,6 +2008,7 @@ export function writeFoundDependency(x: FoundDependency, context: any = x): any 
     'transitivity': _atd_write_required_field('FoundDependency', 'transitivity', writeTransitivity, x.transitivity, x),
     'line_number': _atd_write_optional_field(_atd_write_int, x.line_number, x),
     'children': _atd_write_optional_field(_atd_write_array(writeDependencyChild), x.children, x),
+    'git_ref': _atd_write_optional_field(_atd_write_string, x.git_ref, x),
   };
 }
 
@@ -2020,6 +2022,7 @@ export function readFoundDependency(x: any, context: any = x): FoundDependency {
     transitivity: _atd_read_required_field('FoundDependency', 'transitivity', readTransitivity, x['transitivity'], x),
     line_number: _atd_read_optional_field(_atd_read_int, x['line_number'], x),
     children: _atd_read_optional_field(_atd_read_array(readDependencyChild), x['children'], x),
+    git_ref: _atd_read_optional_field(_atd_read_string, x['git_ref'], x),
   };
 }
 

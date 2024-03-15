@@ -736,7 +736,8 @@
         "children": {
           "type": "array",
           "items": { "$ref": "#/definitions/dependency_child" }
-        }
+        },
+        "git_ref": { "type": "string" }
       }
     },
     "sca_parser_name": {
