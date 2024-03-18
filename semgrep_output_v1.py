@@ -4124,6 +4124,213 @@ class HasFeatures:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class ApplyFixesReturn:
+    """Original type: apply_fixes_return"""
+
+    value: Tuple[int, List[Tuple[int, List[str]]]]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ApplyFixesReturn':
+        return cls((lambda x: (_atd_read_int(x[0]), _atd_read_list((lambda x: (_atd_read_int(x[0]), _atd_read_list(_atd_read_string)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x))
+
+    def to_json(self) -> Any:
+        return (lambda x: [_atd_write_int(x[0]), _atd_write_list((lambda x: [_atd_write_int(x[0]), _atd_write_list(_atd_write_string)(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ApplyFixesReturn':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class RetApplyFixes:
+    """Original type: function_return = [ ... | RetApplyFixes of ... | ... ]"""
+
+    value: ApplyFixesReturn
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetApplyFixes'
+
+    def to_json(self) -> Any:
+        return ['RetApplyFixes', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class RetError:
+    """Original type: function_return = [ ... | RetError of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetError'
+
+    def to_json(self) -> Any:
+        return ['RetError', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class FunctionReturn:
+    """Original type: function_return = [ ... ]"""
+
+    value: Union[RetApplyFixes, RetError]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FunctionReturn':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'RetApplyFixes':
+                return cls(RetApplyFixes(ApplyFixesReturn.from_json(x[1])))
+            if cons == 'RetError':
+                return cls(RetError(_atd_read_string(x[1])))
+            _atd_bad_json('FunctionReturn', x)
+        _atd_bad_json('FunctionReturn', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FunctionReturn':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Edit:
+    """Original type: edit = { ... }"""
+
+    path: Fpath
+    start_offset: int
+    end_offset: int
+    replacement_text: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Edit':
+        if isinstance(x, dict):
+            return cls(
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('Edit', 'path'),
+                start_offset=_atd_read_int(x['start_offset']) if 'start_offset' in x else _atd_missing_json_field('Edit', 'start_offset'),
+                end_offset=_atd_read_int(x['end_offset']) if 'end_offset' in x else _atd_missing_json_field('Edit', 'end_offset'),
+                replacement_text=_atd_read_string(x['replacement_text']) if 'replacement_text' in x else _atd_missing_json_field('Edit', 'replacement_text'),
+            )
+        else:
+            _atd_bad_json('Edit', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['path'] = (lambda x: x.to_json())(self.path)
+        res['start_offset'] = _atd_write_int(self.start_offset)
+        res['end_offset'] = _atd_write_int(self.end_offset)
+        res['replacement_text'] = _atd_write_string(self.replacement_text)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Edit':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ApplyFixesParams:
+    """Original type: apply_fixes_params = { ... }"""
+
+    dryrun: bool
+    edits: List[Edit]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ApplyFixesParams':
+        if isinstance(x, dict):
+            return cls(
+                dryrun=_atd_read_bool(x['dryrun']) if 'dryrun' in x else _atd_missing_json_field('ApplyFixesParams', 'dryrun'),
+                edits=_atd_read_list(Edit.from_json)(x['edits']) if 'edits' in x else _atd_missing_json_field('ApplyFixesParams', 'edits'),
+            )
+        else:
+            _atd_bad_json('ApplyFixesParams', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['dryrun'] = _atd_write_bool(self.dryrun)
+        res['edits'] = _atd_write_list((lambda x: x.to_json()))(self.edits)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ApplyFixesParams':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class CallApplyFixes:
+    """Original type: function_call = [ ... | CallApplyFixes of ... | ... ]"""
+
+    value: ApplyFixesParams
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallApplyFixes'
+
+    def to_json(self) -> Any:
+        return ['CallApplyFixes', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class FunctionCall:
+    """Original type: function_call = [ ... ]"""
+
+    value: Union[CallApplyFixes]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FunctionCall':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'CallApplyFixes':
+                return cls(CallApplyFixes(ApplyFixesParams.from_json(x[1])))
+            _atd_bad_json('FunctionCall', x)
+        _atd_bad_json('FunctionCall', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FunctionCall':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class FindingHashes:
     """Original type: finding_hashes = { ... }"""

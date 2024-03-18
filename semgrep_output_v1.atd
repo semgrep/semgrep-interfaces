@@ -1506,3 +1506,39 @@ type ci_env = (string * string) list
   <json repr="object">
   <python repr="dict">
   <ts repr="map">
+
+(*****************************************************************************)
+(* Python -> OCaml RPC typedefs. For internal use only. *)
+(*****************************************************************************)
+
+(* See src/rpc/README.txt in the Semgrep repository. *)
+
+(* coupling: Textedit.ml *)
+type edit
+    <python decorator="dataclass(frozen=True)"> = {
+  path: fpath;
+  start_offset: int;
+  end_offset: int;
+  replacement_text: string;
+}
+
+type apply_fixes_params
+    <python decorator="dataclass(frozen=True)"> = {
+  dryrun: bool;
+  edits: edit list;
+}
+
+type apply_fixes_return
+    <python decorator="dataclass(frozen=True)"> =
+  (int * (int * string list) list)
+
+type function_call
+    <python decorator="dataclass(frozen=True)"> = [
+  | CallApplyFixes of apply_fixes_params
+]
+
+type function_return
+    <python decorator="dataclass(frozen=True)"> = [
+  | RetApplyFixes of apply_fixes_return
+  | RetError of string
+]

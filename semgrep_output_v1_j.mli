@@ -404,6 +404,24 @@ type has_features = Semgrep_output_v1_t.has_features = {
   has_dependency_query: bool
 }
 
+type apply_fixes_return = Semgrep_output_v1_t.apply_fixes_return
+
+type function_return = Semgrep_output_v1_t.function_return
+
+type edit = Semgrep_output_v1_t.edit = {
+  path: fpath;
+  start_offset: int;
+  end_offset: int;
+  replacement_text: string
+}
+
+type apply_fixes_params = Semgrep_output_v1_t.apply_fixes_params = {
+  dryrun: bool;
+  edits: edit list
+}
+
+type function_call = Semgrep_output_v1_t.function_call
+
 type finding_hashes = Semgrep_output_v1_t.finding_hashes = {
   start_line_hash: string;
   end_line_hash: string;
@@ -2007,6 +2025,106 @@ val read_has_features :
 val has_features_of_string :
   string -> has_features
   (** Deserialize JSON data of type {!type:has_features}. *)
+
+val write_apply_fixes_return :
+  Buffer.t -> apply_fixes_return -> unit
+  (** Output a JSON value of type {!type:apply_fixes_return}. *)
+
+val string_of_apply_fixes_return :
+  ?len:int -> apply_fixes_return -> string
+  (** Serialize a value of type {!type:apply_fixes_return}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_apply_fixes_return :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> apply_fixes_return
+  (** Input JSON data of type {!type:apply_fixes_return}. *)
+
+val apply_fixes_return_of_string :
+  string -> apply_fixes_return
+  (** Deserialize JSON data of type {!type:apply_fixes_return}. *)
+
+val write_function_return :
+  Buffer.t -> function_return -> unit
+  (** Output a JSON value of type {!type:function_return}. *)
+
+val string_of_function_return :
+  ?len:int -> function_return -> string
+  (** Serialize a value of type {!type:function_return}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_function_return :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> function_return
+  (** Input JSON data of type {!type:function_return}. *)
+
+val function_return_of_string :
+  string -> function_return
+  (** Deserialize JSON data of type {!type:function_return}. *)
+
+val write_edit :
+  Buffer.t -> edit -> unit
+  (** Output a JSON value of type {!type:edit}. *)
+
+val string_of_edit :
+  ?len:int -> edit -> string
+  (** Serialize a value of type {!type:edit}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_edit :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> edit
+  (** Input JSON data of type {!type:edit}. *)
+
+val edit_of_string :
+  string -> edit
+  (** Deserialize JSON data of type {!type:edit}. *)
+
+val write_apply_fixes_params :
+  Buffer.t -> apply_fixes_params -> unit
+  (** Output a JSON value of type {!type:apply_fixes_params}. *)
+
+val string_of_apply_fixes_params :
+  ?len:int -> apply_fixes_params -> string
+  (** Serialize a value of type {!type:apply_fixes_params}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_apply_fixes_params :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> apply_fixes_params
+  (** Input JSON data of type {!type:apply_fixes_params}. *)
+
+val apply_fixes_params_of_string :
+  string -> apply_fixes_params
+  (** Deserialize JSON data of type {!type:apply_fixes_params}. *)
+
+val write_function_call :
+  Buffer.t -> function_call -> unit
+  (** Output a JSON value of type {!type:function_call}. *)
+
+val string_of_function_call :
+  ?len:int -> function_call -> string
+  (** Serialize a value of type {!type:function_call}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_function_call :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> function_call
+  (** Input JSON data of type {!type:function_call}. *)
+
+val function_call_of_string :
+  string -> function_call
+  (** Deserialize JSON data of type {!type:function_call}. *)
 
 val write_finding_hashes :
   Buffer.t -> finding_hashes -> unit
