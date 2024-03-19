@@ -719,6 +719,27 @@ export type CiConfig = {
 
 export type CiEnv = Map<string, string>
 
+export type Edit = {
+  path: Fpath;
+  start_offset: number /*int*/;
+  end_offset: number /*int*/;
+  replacement_text: string;
+}
+
+export type ApplyFixesParams = {
+  dryrun: boolean;
+  edits: Edit[];
+}
+
+export type ApplyFixesReturn = [number /*int*/, [number /*int*/, string[]][]]
+
+export type FunctionCall =
+| { kind: 'CallApplyFixes'; value: ApplyFixesParams }
+
+export type FunctionReturn =
+| { kind: 'RetApplyFixes'; value: ApplyFixesReturn }
+| { kind: 'RetError'; value: string }
+
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
 }
@@ -2825,6 +2846,86 @@ export function writeCiEnv(x: CiEnv, context: any = x): any {
 
 export function readCiEnv(x: any, context: any = x): CiEnv {
   return _atd_read_assoc_object_into_map(_atd_read_string)(x, context);
+}
+
+export function writeEdit(x: Edit, context: any = x): any {
+  return {
+    'path': _atd_write_required_field('Edit', 'path', writeFpath, x.path, x),
+    'start_offset': _atd_write_required_field('Edit', 'start_offset', _atd_write_int, x.start_offset, x),
+    'end_offset': _atd_write_required_field('Edit', 'end_offset', _atd_write_int, x.end_offset, x),
+    'replacement_text': _atd_write_required_field('Edit', 'replacement_text', _atd_write_string, x.replacement_text, x),
+  };
+}
+
+export function readEdit(x: any, context: any = x): Edit {
+  return {
+    path: _atd_read_required_field('Edit', 'path', readFpath, x['path'], x),
+    start_offset: _atd_read_required_field('Edit', 'start_offset', _atd_read_int, x['start_offset'], x),
+    end_offset: _atd_read_required_field('Edit', 'end_offset', _atd_read_int, x['end_offset'], x),
+    replacement_text: _atd_read_required_field('Edit', 'replacement_text', _atd_read_string, x['replacement_text'], x),
+  };
+}
+
+export function writeApplyFixesParams(x: ApplyFixesParams, context: any = x): any {
+  return {
+    'dryrun': _atd_write_required_field('ApplyFixesParams', 'dryrun', _atd_write_bool, x.dryrun, x),
+    'edits': _atd_write_required_field('ApplyFixesParams', 'edits', _atd_write_array(writeEdit), x.edits, x),
+  };
+}
+
+export function readApplyFixesParams(x: any, context: any = x): ApplyFixesParams {
+  return {
+    dryrun: _atd_read_required_field('ApplyFixesParams', 'dryrun', _atd_read_bool, x['dryrun'], x),
+    edits: _atd_read_required_field('ApplyFixesParams', 'edits', _atd_read_array(readEdit), x['edits'], x),
+  };
+}
+
+export function writeApplyFixesReturn(x: ApplyFixesReturn, context: any = x): any {
+  return ((x, context) => [_atd_write_int(x[0], x), _atd_write_array(((x, context) => [_atd_write_int(x[0], x), _atd_write_array(_atd_write_string)(x[1], x)]))(x[1], x)])(x, context);
+}
+
+export function readApplyFixesReturn(x: any, context: any = x): ApplyFixesReturn {
+  return ((x, context): [number /*int*/, [number /*int*/, string[]][]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_int(x[0], x), _atd_read_array(((x, context): [number /*int*/, string[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_int(x[0], x), _atd_read_array(_atd_read_string)(x[1], x)] }))(x[1], x)] })(x, context);
+}
+
+export function writeFunctionCall(x: FunctionCall, context: any = x): any {
+  switch (x.kind) {
+    case 'CallApplyFixes':
+      return ['CallApplyFixes', writeApplyFixesParams(x.value, x)]
+  }
+}
+
+export function readFunctionCall(x: any, context: any = x): FunctionCall {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'CallApplyFixes':
+      return { kind: 'CallApplyFixes', value: readApplyFixesParams(x[1], x) }
+    default:
+      _atd_bad_json('FunctionCall', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
+  switch (x.kind) {
+    case 'RetApplyFixes':
+      return ['RetApplyFixes', writeApplyFixesReturn(x.value, x)]
+    case 'RetError':
+      return ['RetError', _atd_write_string(x.value, x)]
+  }
+}
+
+export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'RetApplyFixes':
+      return { kind: 'RetApplyFixes', value: readApplyFixesReturn(x[1], x) }
+    case 'RetError':
+      return { kind: 'RetError', value: _atd_read_string(x[1], x) }
+    default:
+      _atd_bad_json('FunctionReturn', x, context)
+      throw new Error('impossible')
+  }
 }
 
 

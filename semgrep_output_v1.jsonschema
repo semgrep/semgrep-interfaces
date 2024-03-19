@@ -1266,6 +1266,81 @@
     "ci_env": {
       "type": "object",
       "additionalProperties": { "type": "string" }
+    },
+    "edit": {
+      "type": "object",
+      "required": [
+        "path", "start_offset", "end_offset", "replacement_text"
+      ],
+      "properties": {
+        "path": { "$ref": "#/definitions/fpath" },
+        "start_offset": { "type": "integer" },
+        "end_offset": { "type": "integer" },
+        "replacement_text": { "type": "string" }
+      }
+    },
+    "apply_fixes_params": {
+      "type": "object",
+      "required": [ "dryrun", "edits" ],
+      "properties": {
+        "dryrun": { "type": "boolean" },
+        "edits": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/edit" }
+        }
+      }
+    },
+    "apply_fixes_return": {
+      "type": "array",
+      "minItems": 2,
+      "items": false,
+      "prefixItems": [
+        { "type": "integer" },
+        {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "items": false,
+            "prefixItems": [
+              { "type": "integer" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          }
+        }
+      ]
+    },
+    "function_call": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CallApplyFixes" },
+            { "$ref": "#/definitions/apply_fixes_params" }
+          ]
+        }
+      ]
+    },
+    "function_return": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "RetApplyFixes" },
+            { "$ref": "#/definitions/apply_fixes_return" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [ { "const": "RetError" }, { "type": "string" } ]
+        }
+      ]
     }
   }
 }
