@@ -219,7 +219,20 @@ LANGUAGES : List[Language] = [
         id_="c",
         name="C",
         keys=["c"],
-        exts=[".c", ".h"],
+        # When Semgrep encountered a file with .h extension, it saw that it could
+        # be either a C or a C++ file, but Semgrep would always pick the first
+        # choice, that is C (due to the order of declaration in this file). As a
+        # result, C++ .h headers were always considered and parsed as C files,
+        # and suffered from lots of parse errors.
+        #
+        # As a quick-fix, we removed .h from the list of extensions here to force
+        # all .h files to be parsed as C++, which is a more sound choice given
+        # that C++ is a (syntactic) superset of C. Plus, most of our C/C++ users
+        # seem to be mainly C++ users.
+        #
+        # TODO: Eventually we may just use the C++ parser to parse C, and
+        #       probably just handle C as and alias for C++ too.
+        exts=[".c"],
         maturity=Maturity.ALPHA,
         shebangs=[]
     ),
