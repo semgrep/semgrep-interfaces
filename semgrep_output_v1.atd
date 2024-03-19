@@ -885,6 +885,7 @@ type ecosystem <python decorator="dataclass(frozen=True)"> <ocaml attr="deriving
   | Nuget <json name="nuget">
   | Pub <json name="pub">
   | SwiftPM <json name="swiftpm">
+  | Mix <json name="mix">
 ]
 
 type transitivity <python decorator="dataclass(frozen=True)"> <ocaml attr="deriving show,eq"> = [
@@ -944,6 +945,7 @@ type sca_parser_name = [
   | Pubspec_lock <json name="pubspec_lock">
   | Package_swift <json name="package_swift">
   | Package_resolved <json name="package_resolved">
+  | Mix_lock <json name="mix_lock">
 ]
 
 type dependency_parser_error = {

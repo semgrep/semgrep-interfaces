@@ -3405,10 +3405,27 @@ class PackageResolved:
 
 
 @dataclass
+class MixLock:
+    """Original type: sca_parser_name = [ ... | Mix_lock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'MixLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'mix_lock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class ScaParserName:
     """Original type: sca_parser_name = [ ... ]"""
 
-    value: Union[GemfileLock, GoMod, GoSum, GradleLockfile, GradleBuild, Jsondoc, Pipfile, PnpmLock, PoetryLock, PyprojectToml, Requirements, Yarn1, Yarn2, Pomtree, CargoParser, ComposerLock, PubspecLock, PackageSwift, PackageResolved]
+    value: Union[GemfileLock, GoMod, GoSum, GradleLockfile, GradleBuild, Jsondoc, Pipfile, PnpmLock, PoetryLock, PyprojectToml, Requirements, Yarn1, Yarn2, Pomtree, CargoParser, ComposerLock, PubspecLock, PackageSwift, PackageResolved, MixLock]
 
     @property
     def kind(self) -> str:
@@ -3456,6 +3473,8 @@ class ScaParserName:
                 return cls(PackageSwift())
             if x == 'package_resolved':
                 return cls(PackageResolved())
+            if x == 'mix_lock':
+                return cls(MixLock())
             _atd_bad_json('ScaParserName', x)
         _atd_bad_json('ScaParserName', x)
 
@@ -3641,10 +3660,27 @@ class SwiftPM:
 
 
 @dataclass(frozen=True)
+class Mix:
+    """Original type: ecosystem = [ ... | Mix | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Mix'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'mix'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class Ecosystem:
     """Original type: ecosystem = [ ... ]"""
 
-    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub, SwiftPM]
+    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub, SwiftPM, Mix]
 
     @property
     def kind(self) -> str:
@@ -3674,6 +3710,8 @@ class Ecosystem:
                 return cls(Pub())
             if x == 'swiftpm':
                 return cls(SwiftPM())
+            if x == 'mix':
+                return cls(Mix())
             _atd_bad_json('Ecosystem', x)
         _atd_bad_json('Ecosystem', x)
 
