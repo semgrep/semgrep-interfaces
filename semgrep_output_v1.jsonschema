@@ -687,7 +687,8 @@
         { "const": "composer" },
         { "const": "nuget" },
         { "const": "pub" },
-        { "const": "swiftpm" }
+        { "const": "swiftpm" },
+        { "const": "mix" }
       ]
     },
     "transitivity": {
@@ -760,7 +761,8 @@
         { "const": "composer_lock" },
         { "const": "pubspec_lock" },
         { "const": "package_swift" },
-        { "const": "package_resolved" }
+        { "const": "package_resolved" },
+        { "const": "mix_lock" }
       ]
     },
     "dependency_parser_error": {

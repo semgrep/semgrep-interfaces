@@ -13152,6 +13152,7 @@ let write_sca_parser_name = (
       | `Pubspec_lock -> Buffer.add_string ob "\"pubspec_lock\""
       | `Package_swift -> Buffer.add_string ob "\"package_swift\""
       | `Package_resolved -> Buffer.add_string ob "\"package_resolved\""
+      | `Mix_lock -> Buffer.add_string ob "\"mix_lock\""
 )
 let string_of_sca_parser_name ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -13239,6 +13240,10 @@ let read_sca_parser_name = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Package_resolved
+            | "mix_lock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Mix_lock
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -13282,6 +13287,8 @@ let read_sca_parser_name = (
               `Package_swift
             | "package_resolved" ->
               `Package_resolved
+            | "mix_lock" ->
+              `Mix_lock
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -13306,6 +13313,7 @@ let write_ecosystem = (
       | `Nuget -> Buffer.add_string ob "\"nuget\""
       | `Pub -> Buffer.add_string ob "\"pub\""
       | `SwiftPM -> Buffer.add_string ob "\"swiftpm\""
+      | `Mix -> Buffer.add_string ob "\"mix\""
 )
 let string_of_ecosystem ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -13357,6 +13365,10 @@ let read_ecosystem = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `SwiftPM
+            | "mix" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Mix
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -13382,6 +13394,8 @@ let read_ecosystem = (
               `Pub
             | "swiftpm" ->
               `SwiftPM
+            | "mix" ->
+              `Mix
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

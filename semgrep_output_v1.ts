@@ -391,6 +391,7 @@ export type Ecosystem =
 | { kind: 'Nuget' /* JSON: "nuget" */ }
 | { kind: 'Pub' /* JSON: "pub" */ }
 | { kind: 'SwiftPM' /* JSON: "swiftpm" */ }
+| { kind: 'Mix' /* JSON: "mix" */ }
 
 export type Transitivity =
 | { kind: 'Direct' /* JSON: "direct" */ }
@@ -440,6 +441,7 @@ export type ScaParserName =
 | { kind: 'Pubspec_lock' /* JSON: "pubspec_lock" */ }
 | { kind: 'Package_swift' /* JSON: "package_swift" */ }
 | { kind: 'Package_resolved' /* JSON: "package_resolved" */ }
+| { kind: 'Mix_lock' /* JSON: "mix_lock" */ }
 
 export type DependencyParserError = {
   path: string;
@@ -1933,6 +1935,8 @@ export function writeEcosystem(x: Ecosystem, context: any = x): any {
       return 'pub'
     case 'SwiftPM':
       return 'swiftpm'
+    case 'Mix':
+      return 'mix'
   }
 }
 
@@ -1958,6 +1962,8 @@ export function readEcosystem(x: any, context: any = x): Ecosystem {
       return { kind: 'Pub' }
     case 'swiftpm':
       return { kind: 'SwiftPM' }
+    case 'mix':
+      return { kind: 'Mix' }
     default:
       _atd_bad_json('Ecosystem', x, context)
       throw new Error('impossible')
@@ -2087,6 +2093,8 @@ export function writeScaParserName(x: ScaParserName, context: any = x): any {
       return 'package_swift'
     case 'Package_resolved':
       return 'package_resolved'
+    case 'Mix_lock':
+      return 'mix_lock'
   }
 }
 
@@ -2130,6 +2138,8 @@ export function readScaParserName(x: any, context: any = x): ScaParserName {
       return { kind: 'Package_swift' }
     case 'package_resolved':
       return { kind: 'Package_resolved' }
+    case 'mix_lock':
+      return { kind: 'Mix_lock' }
     default:
       _atd_bad_json('ScaParserName', x, context)
       throw new Error('impossible')
