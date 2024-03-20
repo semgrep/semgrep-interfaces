@@ -48,7 +48,8 @@
     ],
     "maturity": "alpha",
     "exts": [
-      ".c"
+      ".c",
+      ".h"
     ],
     "example_ext": null,
     "excluded_exts": [],
