@@ -733,7 +733,10 @@ export type ApplyFixesParams = {
   edits: Edit[];
 }
 
-export type ApplyFixesReturn = [number /*int*/, [number /*int*/, string[]][]]
+export type ApplyFixesReturn = {
+  modified_file_count: number /*int*/;
+  fixed_lines: [number /*int*/, string[]][];
+}
 
 export type FunctionCall =
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
@@ -2891,11 +2894,17 @@ export function readApplyFixesParams(x: any, context: any = x): ApplyFixesParams
 }
 
 export function writeApplyFixesReturn(x: ApplyFixesReturn, context: any = x): any {
-  return ((x, context) => [_atd_write_int(x[0], x), _atd_write_array(((x, context) => [_atd_write_int(x[0], x), _atd_write_array(_atd_write_string)(x[1], x)]))(x[1], x)])(x, context);
+  return {
+    'modified_file_count': _atd_write_required_field('ApplyFixesReturn', 'modified_file_count', _atd_write_int, x.modified_file_count, x),
+    'fixed_lines': _atd_write_required_field('ApplyFixesReturn', 'fixed_lines', _atd_write_array(((x, context) => [_atd_write_int(x[0], x), _atd_write_array(_atd_write_string)(x[1], x)])), x.fixed_lines, x),
+  };
 }
 
 export function readApplyFixesReturn(x: any, context: any = x): ApplyFixesReturn {
-  return ((x, context): [number /*int*/, [number /*int*/, string[]][]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_int(x[0], x), _atd_read_array(((x, context): [number /*int*/, string[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_int(x[0], x), _atd_read_array(_atd_read_string)(x[1], x)] }))(x[1], x)] })(x, context);
+  return {
+    modified_file_count: _atd_read_required_field('ApplyFixesReturn', 'modified_file_count', _atd_read_int, x['modified_file_count'], x),
+    fixed_lines: _atd_read_required_field('ApplyFixesReturn', 'fixed_lines', _atd_read_array(((x, context): [number /*int*/, string[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_int(x[0], x), _atd_read_array(_atd_read_string)(x[1], x)] })), x['fixed_lines'], x),
+  };
 }
 
 export function writeFunctionCall(x: FunctionCall, context: any = x): any {

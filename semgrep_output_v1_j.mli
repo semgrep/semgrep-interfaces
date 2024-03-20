@@ -404,7 +404,10 @@ type has_features = Semgrep_output_v1_t.has_features = {
   has_dependency_query: bool
 }
 
-type apply_fixes_return = Semgrep_output_v1_t.apply_fixes_return
+type apply_fixes_return = Semgrep_output_v1_t.apply_fixes_return = {
+  modified_file_count: int;
+  fixed_lines: (int * string list) list
+}
 
 type function_return = Semgrep_output_v1_t.function_return
 
