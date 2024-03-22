@@ -1260,6 +1260,8 @@ type engine_configuration = {
     ~generic_slow_rollout: bool;
     (* from 1.63.0 *)
     ?historical_config: historical_configuration option;
+    (* from 1.66.0, used to decide whether we want to run custom validator rules *)
+    ?run_custom_validators: bool option;
 }
 
 (* ----------------------------- *)

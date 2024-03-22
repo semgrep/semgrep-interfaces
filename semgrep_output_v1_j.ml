@@ -235,7 +235,8 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   dependency_query: bool;
   ignored_files: string list;
   generic_slow_rollout: bool;
-  historical_config: historical_configuration option
+  historical_config: historical_configuration option;
+  run_custom_validators: bool option
 }
 
 type scan_response = Semgrep_output_v1_t.scan_response = {
@@ -8395,6 +8396,63 @@ let read__historical_configuration_option = (
 )
 let _historical_configuration_option_of_string s =
   read__historical_configuration_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__bool_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    Yojson.Safe.write_bool
+  )
+)
+let string_of__bool_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__bool_option ob x;
+  Buffer.contents ob
+let read__bool_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _bool_option_of_string s =
+  read__bool_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_engine_configuration : _ -> engine_configuration -> _ = (
   fun ob (x : engine_configuration) ->
     Buffer.add_char ob '{';
@@ -8455,6 +8513,17 @@ let write_engine_configuration : _ -> engine_configuration -> _ = (
       )
         ob x;
     );
+    (match x.run_custom_validators with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"run_custom_validators\":";
+      (
+        Yojson.Safe.write_bool
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_engine_configuration ?(len = 1024) x =
@@ -8471,6 +8540,7 @@ let read_engine_configuration = (
     let field_ignored_files = ref ([]) in
     let field_generic_slow_rollout = ref (false) in
     let field_historical_config = ref (None) in
+    let field_run_custom_validators = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -8523,6 +8593,14 @@ let read_engine_configuration = (
             | 20 -> (
                 if String.unsafe_get s pos = 'g' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'c' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 'l' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'w' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'o' && String.unsafe_get s (pos+15) = 'l' && String.unsafe_get s (pos+16) = 'l' && String.unsafe_get s (pos+17) = 'o' && String.unsafe_get s (pos+18) = 'u' && String.unsafe_get s (pos+19) = 't' then (
                   4
+                )
+                else (
+                  -1
+                )
+              )
+            | 21 -> (
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'u' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'm' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'v' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'l' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 'd' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 't' && String.unsafe_get s (pos+18) = 'o' && String.unsafe_get s (pos+19) = 'r' && String.unsafe_get s (pos+20) = 's' then (
+                  6
                 )
                 else (
                   -1
@@ -8582,6 +8660,16 @@ let read_engine_configuration = (
                 Some (
                   (
                     read_historical_configuration
+                  ) p lb
+                )
+              );
+            )
+          | 6 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_run_custom_validators := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
                   ) p lb
                 )
               );
@@ -8647,6 +8735,14 @@ let read_engine_configuration = (
                     -1
                   )
                 )
+              | 21 -> (
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'u' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'm' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'v' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'l' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 'd' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 't' && String.unsafe_get s (pos+18) = 'o' && String.unsafe_get s (pos+19) = 'r' && String.unsafe_get s (pos+20) = 's' then (
+                    6
+                  )
+                  else (
+                    -1
+                  )
+                )
               | _ -> (
                   -1
                 )
@@ -8705,6 +8801,16 @@ let read_engine_configuration = (
                   )
                 );
               )
+            | 6 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_run_custom_validators := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_bool
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -8720,6 +8826,7 @@ let read_engine_configuration = (
             ignored_files = !field_ignored_files;
             generic_slow_rollout = !field_generic_slow_rollout;
             historical_config = !field_historical_config;
+            run_custom_validators = !field_run_custom_validators;
           }
          : engine_configuration)
       )
@@ -9275,63 +9382,6 @@ let read__datetime_option = (
 )
 let _datetime_option_of_string s =
   read__datetime_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__bool_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    Yojson.Safe.write_bool
-  )
-)
-let string_of__bool_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__bool_option ob x;
-  Buffer.contents ob
-let read__bool_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_bool
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_bool
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _bool_option_of_string s =
-  read__bool_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_project_metadata : _ -> project_metadata -> _ = (
   fun ob (x : project_metadata) ->
     Buffer.add_char ob '{';

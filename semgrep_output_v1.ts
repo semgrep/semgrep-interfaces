@@ -598,6 +598,7 @@ export type EngineConfiguration = {
   ignored_files: string[];
   generic_slow_rollout: boolean;
   historical_config?: HistoricalConfiguration;
+  run_custom_validators?: boolean;
 }
 
 export type Finding = {
@@ -2534,6 +2535,7 @@ export function writeEngineConfiguration(x: EngineConfiguration, context: any = 
     'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
     'generic_slow_rollout': _atd_write_field_with_default(_atd_write_bool, false, x.generic_slow_rollout, x),
     'historical_config': _atd_write_optional_field(writeHistoricalConfiguration, x.historical_config, x),
+    'run_custom_validators': _atd_write_optional_field(_atd_write_bool, x.run_custom_validators, x),
   };
 }
 
@@ -2545,6 +2547,7 @@ export function readEngineConfiguration(x: any, context: any = x): EngineConfigu
     ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
     generic_slow_rollout: _atd_read_field_with_default(_atd_read_bool, false, x['generic_slow_rollout'], x),
     historical_config: _atd_read_optional_field(readHistoricalConfiguration, x['historical_config'], x),
+    run_custom_validators: _atd_read_optional_field(_atd_read_bool, x['run_custom_validators'], x),
   };
 }
 

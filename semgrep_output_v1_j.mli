@@ -235,7 +235,8 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   dependency_query: bool;
   ignored_files: string list;
   generic_slow_rollout: bool;
-  historical_config: historical_configuration option
+  historical_config: historical_configuration option;
+  run_custom_validators: bool option
 }
 
 type scan_response = Semgrep_output_v1_t.scan_response = {
