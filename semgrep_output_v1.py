@@ -2531,6 +2531,7 @@ class EngineConfiguration:
     ignored_files: List[str] = field(default_factory=lambda: [])
     generic_slow_rollout: bool = field(default_factory=lambda: False)
     historical_config: Optional[HistoricalConfiguration] = None
+    run_custom_validators: Optional[bool] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'EngineConfiguration':
@@ -2542,6 +2543,7 @@ class EngineConfiguration:
                 ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
                 generic_slow_rollout=_atd_read_bool(x['generic_slow_rollout']) if 'generic_slow_rollout' in x else False,
                 historical_config=HistoricalConfiguration.from_json(x['historical_config']) if 'historical_config' in x else None,
+                run_custom_validators=_atd_read_bool(x['run_custom_validators']) if 'run_custom_validators' in x else None,
             )
         else:
             _atd_bad_json('EngineConfiguration', x)
@@ -2555,6 +2557,8 @@ class EngineConfiguration:
         res['generic_slow_rollout'] = _atd_write_bool(self.generic_slow_rollout)
         if self.historical_config is not None:
             res['historical_config'] = (lambda x: x.to_json())(self.historical_config)
+        if self.run_custom_validators is not None:
+            res['run_custom_validators'] = _atd_write_bool(self.run_custom_validators)
         return res
 
     @classmethod
