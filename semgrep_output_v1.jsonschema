@@ -1293,12 +1293,11 @@
       }
     },
     "apply_fixes_return": {
-      "type": "array",
-      "minItems": 2,
-      "items": false,
-      "prefixItems": [
-        { "type": "integer" },
-        {
+      "type": "object",
+      "required": [ "modified_file_count", "fixed_lines" ],
+      "properties": {
+        "modified_file_count": { "type": "integer" },
+        "fixed_lines": {
           "type": "array",
           "items": {
             "type": "array",
@@ -1310,7 +1309,7 @@
             ]
           }
         }
-      ]
+      }
     },
     "function_call": {
       "oneOf": [

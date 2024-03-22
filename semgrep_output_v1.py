@@ -4164,16 +4164,26 @@ class HasFeatures:
 
 @dataclass(frozen=True)
 class ApplyFixesReturn:
-    """Original type: apply_fixes_return"""
+    """Original type: apply_fixes_return = { ... }"""
 
-    value: Tuple[int, List[Tuple[int, List[str]]]]
+    modified_file_count: int
+    fixed_lines: List[Tuple[int, List[str]]]
 
     @classmethod
     def from_json(cls, x: Any) -> 'ApplyFixesReturn':
-        return cls((lambda x: (_atd_read_int(x[0]), _atd_read_list((lambda x: (_atd_read_int(x[0]), _atd_read_list(_atd_read_string)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x))
+        if isinstance(x, dict):
+            return cls(
+                modified_file_count=_atd_read_int(x['modified_file_count']) if 'modified_file_count' in x else _atd_missing_json_field('ApplyFixesReturn', 'modified_file_count'),
+                fixed_lines=_atd_read_list((lambda x: (_atd_read_int(x[0]), _atd_read_list(_atd_read_string)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['fixed_lines']) if 'fixed_lines' in x else _atd_missing_json_field('ApplyFixesReturn', 'fixed_lines'),
+            )
+        else:
+            _atd_bad_json('ApplyFixesReturn', x)
 
     def to_json(self) -> Any:
-        return (lambda x: [_atd_write_int(x[0]), _atd_write_list((lambda x: [_atd_write_int(x[0]), _atd_write_list(_atd_write_string)(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)
+        res: Dict[str, Any] = {}
+        res['modified_file_count'] = _atd_write_int(self.modified_file_count)
+        res['fixed_lines'] = _atd_write_list((lambda x: [_atd_write_int(x[0]), _atd_write_list(_atd_write_string)(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.fixed_lines)
+        return res
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ApplyFixesReturn':

@@ -1531,8 +1531,14 @@ type apply_fixes_params
 }
 
 type apply_fixes_return
-    <python decorator="dataclass(frozen=True)"> =
-  (int * (int * string list) list)
+    <python decorator="dataclass(frozen=True)"> = {
+  (* Number of files modified *)
+  modified_file_count: int;
+  (* Each item is a pair, where the first item is the index of the associated
+  edit in the input list and the second item is the list of fixed lines
+  associated with that edit. *)
+  fixed_lines: (int * string list) list;
+}
 
 type function_call
     <python decorator="dataclass(frozen=True)"> = [
