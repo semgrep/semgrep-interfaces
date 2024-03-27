@@ -416,7 +416,7 @@ not ambiguous is welcome here.
         id_="php",
         name="PHP",
         keys=["php"],
-        exts=[".php", ".tpl"],
+        exts=[".php", ".tpl", ".phtml"],
         maturity=Maturity.GA,
         shebangs=["php"]
     ),

@@ -447,7 +447,8 @@
     "maturity": "ga",
     "exts": [
       ".php",
-      ".tpl"
+      ".tpl",
+      ".phtml"
     ],
     "example_ext": null,
     "excluded_exts": [],
