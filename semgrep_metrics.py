@@ -369,10 +369,27 @@ class Semgrep:
 
 
 @dataclass
+class NoCommunity:
+    """Original type: secrets_origin = [ ... | NoCommunity | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'NoCommunity'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'NoCommunity'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class SecretsOrigin:
     """Original type: secrets_origin = [ ... ]"""
 
-    value: Union[Any_, Semgrep]
+    value: Union[Any_, Semgrep, NoCommunity]
 
     @property
     def kind(self) -> str:
@@ -386,6 +403,8 @@ class SecretsOrigin:
                 return cls(Any_())
             if x == 'Semgrep':
                 return cls(Semgrep())
+            if x == 'NoCommunity':
+                return cls(NoCommunity())
             _atd_bad_json('SecretsOrigin', x)
         _atd_bad_json('SecretsOrigin', x)
 
