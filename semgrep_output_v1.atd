@@ -1308,6 +1308,8 @@ type finding = {
   ?validation_state: validation_state option;
   (* Added in semgrep 1.65.0 see comments in cli_match_extra *)
   ?historical_info: historical_info option;
+  (* Added in semgrep 1.70.0 *)
+  ?engine_kind: engine_of_finding option;
 }
 
 (* The goal is to hash findings independently of their precise location so

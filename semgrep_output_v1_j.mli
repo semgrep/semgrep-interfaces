@@ -452,7 +452,8 @@ type finding = Semgrep_output_v1_t.finding = {
   sca_info: sca_info option;
   dataflow_trace: match_dataflow_trace option;
   validation_state: validation_state option;
-  historical_info: historical_info option
+  historical_info: historical_info option;
+  engine_kind: engine_of_finding option
 }
 
 type features = Semgrep_output_v1_t.features = {

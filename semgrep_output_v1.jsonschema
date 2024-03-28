@@ -1059,7 +1059,8 @@
         "sca_info": { "$ref": "#/definitions/sca_info" },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
-        "historical_info": { "$ref": "#/definitions/historical_info" }
+        "historical_info": { "$ref": "#/definitions/historical_info" },
+        "engine_kind": { "$ref": "#/definitions/engine_of_finding" }
       }
     },
     "finding_hashes": {
