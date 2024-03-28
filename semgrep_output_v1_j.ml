@@ -452,7 +452,8 @@ type finding = Semgrep_output_v1_t.finding = {
   sca_info: sca_info option;
   dataflow_trace: match_dataflow_trace option;
   validation_state: validation_state option;
-  historical_info: historical_info option
+  historical_info: historical_info option;
+  engine_kind: engine_of_finding option
 }
 
 type features = Semgrep_output_v1_t.features = {
@@ -17291,6 +17292,63 @@ let read__finding_hashes_option = (
 )
 let _finding_hashes_option_of_string s =
   read__finding_hashes_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__engine_of_finding_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_engine_of_finding
+  )
+)
+let string_of__engine_of_finding_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__engine_of_finding_option ob x;
+  Buffer.contents ob
+let read__engine_of_finding_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_engine_of_finding
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_engine_of_finding
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _engine_of_finding_option_of_string s =
+  read__engine_of_finding_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_finding : _ -> finding -> _ = (
   fun ob (x : finding) ->
     Buffer.add_char ob '{';
@@ -17489,6 +17547,17 @@ let write_finding : _ -> finding -> _ = (
       )
         ob x;
     );
+    (match x.engine_kind with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"engine_kind\":";
+      (
+        write_engine_of_finding
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_finding ?(len = 1024) x =
@@ -17519,6 +17588,7 @@ let read_finding = (
     let field_dataflow_trace = ref (None) in
     let field_validation_state = ref (None) in
     let field_historical_info = ref (None) in
+    let field_engine_kind = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -17653,6 +17723,14 @@ let read_finding = (
                   | 'c' -> (
                       if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'e' then (
                         9
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 'e' -> (
+                      if String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'k' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'd' then (
+                        20
                       )
                       else (
                         -1
@@ -17906,6 +17984,16 @@ let read_finding = (
                 )
               );
             )
+          | 20 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_engine_kind := (
+                Some (
+                  (
+                    read_engine_of_finding
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -18044,6 +18132,14 @@ let read_finding = (
                     | 'c' -> (
                         if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'e' then (
                           9
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'e' -> (
+                        if String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'k' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'd' then (
+                          20
                         )
                         else (
                           -1
@@ -18297,6 +18393,16 @@ let read_finding = (
                   )
                 );
               )
+            | 20 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_engine_kind := (
+                  Some (
+                    (
+                      read_engine_of_finding
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -18326,6 +18432,7 @@ let read_finding = (
             dataflow_trace = !field_dataflow_trace;
             validation_state = !field_validation_state;
             historical_info = !field_historical_info;
+            engine_kind = !field_engine_kind;
           }
          : finding)
       )
@@ -22646,63 +22753,6 @@ let read__metavars_option = (
 )
 let _metavars_option_of_string s =
   read__metavars_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__engine_of_finding_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_engine_of_finding
-  )
-)
-let string_of__engine_of_finding_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__engine_of_finding_option ob x;
-  Buffer.contents ob
-let read__engine_of_finding_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_engine_of_finding
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_engine_of_finding
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _engine_of_finding_option_of_string s =
-  read__engine_of_finding_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_cli_match_extra : _ -> cli_match_extra -> _ = (
   fun ob (x : cli_match_extra) ->
     Buffer.add_char ob '{';

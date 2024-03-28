@@ -621,6 +621,7 @@ export type Finding = {
   dataflow_trace?: MatchDataflowTrace;
   validation_state?: ValidationState;
   historical_info?: HistoricalInfo;
+  engine_kind?: EngineOfFinding;
 }
 
 export type FindingHashes = {
@@ -2573,6 +2574,7 @@ export function writeFinding(x: Finding, context: any = x): any {
     'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
+    'engine_kind': _atd_write_optional_field(writeEngineOfFinding, x.engine_kind, x),
   };
 }
 
@@ -2598,6 +2600,7 @@ export function readFinding(x: any, context: any = x): Finding {
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),
+    engine_kind: _atd_read_optional_field(readEngineOfFinding, x['engine_kind'], x),
   };
 }
 
