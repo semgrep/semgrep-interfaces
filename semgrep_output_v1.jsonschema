@@ -688,7 +688,8 @@
         { "const": "nuget" },
         { "const": "pub" },
         { "const": "swiftpm" },
-        { "const": "mix" }
+        { "const": "mix" },
+        { "const": "hex" }
       ]
     },
     "transitivity": {

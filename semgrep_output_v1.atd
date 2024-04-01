@@ -885,7 +885,9 @@ type ecosystem <python decorator="dataclass(frozen=True)"> <ocaml attr="deriving
   | Nuget <json name="nuget">
   | Pub <json name="pub">
   | SwiftPM <json name="swiftpm">
+  (* Deprecated: Mix is a build system, should use Hex, which is the ecosystem *)
   | Mix <json name="mix">
+  | Hex <json name="hex">
 ]
 
 type transitivity <python decorator="dataclass(frozen=True)"> <ocaml attr="deriving show,eq"> = [
