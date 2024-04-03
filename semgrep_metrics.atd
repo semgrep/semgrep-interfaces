@@ -177,7 +177,7 @@ type analysis_type <ocaml attr="deriving show"> = [
  *)
 type code_config  <ocaml attr="deriving show"> = { ?_rfu: int option; }
 
-type secrets_origin <ocaml attr="deriving show"> = [ Any | Semgrep ]
+type secrets_origin <ocaml attr="deriving show"> = [ Any | Semgrep | NoCommunity ]
 type secrets_config 
      <ocaml attr="deriving show"> = {
   permitted_origins: secrets_origin;

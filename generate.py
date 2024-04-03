@@ -475,6 +475,15 @@ not ambiguous is welcome here.
     ),
     Language(
         comment="",
+        id_="ql",
+        name="QL",
+        keys=["ql"],
+        exts=[".ql", ".qll"],
+        example_ext=".ql",
+        maturity=Maturity.ALPHA,
+    ),
+    Language(
+        comment="",
         id_="r",
         name="R",
         keys=["r"],
