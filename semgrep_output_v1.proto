@@ -451,6 +451,7 @@ message Finding {
   MatchDataflowTrace dataflow_trace = 359307815;
   google.protobuf.Any validation_state = 332615966;
   HistoricalInfo historical_info = 358982721;
+  google.protobuf.Any engine_kind = 428564670;
 }
 
 message FindingHashes {
