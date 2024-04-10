@@ -1313,6 +1313,33 @@
         }
       }
     },
+    "sarif_format_params": {
+      "type": "object",
+      "required": [
+        "hide_nudge", "engine_label", "rules", "cli_matches", "cli_errors"
+      ],
+      "properties": {
+        "hide_nudge": { "type": "boolean" },
+        "engine_label": { "type": "string" },
+        "rules": { "$ref": "#/definitions/fpath" },
+        "cli_matches": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/cli_match" }
+        },
+        "cli_errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/cli_error" }
+        }
+      }
+    },
+    "sarif_format_return": {
+      "type": "object",
+      "required": [ "output", "format_time_seconds" ],
+      "properties": {
+        "output": { "type": "string" },
+        "format_time_seconds": { "type": "number" }
+      }
+    },
     "function_call": {
       "oneOf": [
         {
@@ -1322,6 +1349,15 @@
           "prefixItems": [
             { "const": "CallApplyFixes" },
             { "$ref": "#/definitions/apply_fixes_params" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CallSarifFormat" },
+            { "$ref": "#/definitions/sarif_format_params" }
           ]
         }
       ]
@@ -1335,6 +1371,15 @@
           "prefixItems": [
             { "const": "RetApplyFixes" },
             { "$ref": "#/definitions/apply_fixes_return" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "RetSarifFormat" },
+            { "$ref": "#/definitions/sarif_format_return" }
           ]
         },
         {

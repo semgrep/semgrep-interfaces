@@ -57,6 +57,12 @@ type payload = {
      *)
     ~parse_rate <ocaml mutable>: (string (* lang *) * parse_stat) list
                                  <json repr="object">;
+
+    (* Metrics related to osemgrep migration. It's intentionally made optional
+     * so that it's easier to remove the field without breaking backward compatibility
+     * once the migration is complete.
+     *)
+    ?osemgrep <ocaml mutable>: osemgrep_metrics option;
 }
 
 (*****************************************************************************)
@@ -215,3 +221,25 @@ type misc = {
     (* Since Semgrep 1.49.0 *)
     ?interfileLanguagesUsed: string list option;
   }
+
+(*****************************************************************************)
+(* Osemgrep *)
+(*****************************************************************************)
+
+type osemgrep_format_output = {
+  ?succeeded: bool option;
+  ?format: string option;
+  ?is_match: bool option;
+  (* Time to call osemgrep through RPC and get its result back. *)
+  ?osemgrep_rpc_response_time_seconds: float option;
+  (* Time for osemgrep to format the output, excluding RPC. *)
+  ?osemgrep_format_time_seconds: float option;
+  (* Time for pysemgrep to format the output. *)
+  ?pysemgrep_format_time_seconds: float option;
+  (* Time to validate whether the output from osemgrep matches pysemgrep. *)
+  ?validation_time_seconds: float option;
+}
+
+type osemgrep_metrics = {
+  ?format_output <ocaml mutable>: osemgrep_format_output option;
+}

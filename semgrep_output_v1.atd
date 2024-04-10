@@ -1544,13 +1544,43 @@ type apply_fixes_return
   fixed_lines: (int * string list) list;
 }
 
+type sarif_format_params
+    <python decorator="dataclass(frozen=True)"> = {
+  hide_nudge: bool;
+  engine_label: string;
+
+  (* Path the the rules file *)
+  rules: fpath;
+
+  (* Semgrep-core matches along with their match based ids,
+   * which are needed here because the ocaml implementation
+   * of fingerprints currently doesn't match python yet.
+   *)
+  cli_matches: cli_match list;
+
+  (* We use cli_error instead of core_error because it has
+   * extra info from the python side that cannot be fully
+   * recovered cleanly on the ocaml side just by the available
+   * info in core_error.
+   *)
+  cli_errors: cli_error list;
+}
+
+type sarif_format_return
+    <python decorator="dataclass(frozen=True)"> = {
+  output: string;
+  format_time_seconds: float;
+}
+
 type function_call
     <python decorator="dataclass(frozen=True)"> = [
   | CallApplyFixes of apply_fixes_params
+  | CallSarifFormat of sarif_format_params
 ]
 
 type function_return
     <python decorator="dataclass(frozen=True)"> = [
   | RetApplyFixes of apply_fixes_return
+  | RetSarifFormat of sarif_format_return
   | RetError of string
 ]
