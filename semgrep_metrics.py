@@ -650,11 +650,11 @@ class OsemgrepFormatOutput:
 
     succeeded: Optional[bool] = None
     format: Optional[str] = None
-    is_match: Optional[bool] = None
     osemgrep_rpc_response_time_seconds: Optional[float] = None
     osemgrep_format_time_seconds: Optional[float] = None
     pysemgrep_format_time_seconds: Optional[float] = None
     validation_time_seconds: Optional[float] = None
+    is_match: Optional[bool] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'OsemgrepFormatOutput':
@@ -662,11 +662,11 @@ class OsemgrepFormatOutput:
             return cls(
                 succeeded=_atd_read_bool(x['succeeded']) if 'succeeded' in x else None,
                 format=_atd_read_string(x['format']) if 'format' in x else None,
-                is_match=_atd_read_bool(x['is_match']) if 'is_match' in x else None,
                 osemgrep_rpc_response_time_seconds=_atd_read_float(x['osemgrep_rpc_response_time_seconds']) if 'osemgrep_rpc_response_time_seconds' in x else None,
                 osemgrep_format_time_seconds=_atd_read_float(x['osemgrep_format_time_seconds']) if 'osemgrep_format_time_seconds' in x else None,
                 pysemgrep_format_time_seconds=_atd_read_float(x['pysemgrep_format_time_seconds']) if 'pysemgrep_format_time_seconds' in x else None,
                 validation_time_seconds=_atd_read_float(x['validation_time_seconds']) if 'validation_time_seconds' in x else None,
+                is_match=_atd_read_bool(x['is_match']) if 'is_match' in x else None,
             )
         else:
             _atd_bad_json('OsemgrepFormatOutput', x)
@@ -677,8 +677,6 @@ class OsemgrepFormatOutput:
             res['succeeded'] = _atd_write_bool(self.succeeded)
         if self.format is not None:
             res['format'] = _atd_write_string(self.format)
-        if self.is_match is not None:
-            res['is_match'] = _atd_write_bool(self.is_match)
         if self.osemgrep_rpc_response_time_seconds is not None:
             res['osemgrep_rpc_response_time_seconds'] = _atd_write_float(self.osemgrep_rpc_response_time_seconds)
         if self.osemgrep_format_time_seconds is not None:
@@ -687,6 +685,8 @@ class OsemgrepFormatOutput:
             res['pysemgrep_format_time_seconds'] = _atd_write_float(self.pysemgrep_format_time_seconds)
         if self.validation_time_seconds is not None:
             res['validation_time_seconds'] = _atd_write_float(self.validation_time_seconds)
+        if self.is_match is not None:
+            res['is_match'] = _atd_write_bool(self.is_match)
         return res
 
     @classmethod

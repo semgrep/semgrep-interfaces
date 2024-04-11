@@ -1544,6 +1544,7 @@ type apply_fixes_return
   fixed_lines: (int * string list) list;
 }
 
+(* The parameters here pretty much match what's needed by Sarif_output.sarif_output. *)
 type sarif_format_params
     <python decorator="dataclass(frozen=True)"> = {
   hide_nudge: bool;
@@ -1568,7 +1569,13 @@ type sarif_format_params
 
 type sarif_format_return
     <python decorator="dataclass(frozen=True)"> = {
+  (* The formatted output. *)
   output: string;
+  (* Time (in seconds) it took to format the output.
+   * This helps tracking how much actual formatting time is needed
+   * compared to the whole RPC call, so we can profile and improve
+   * performace when needed.
+   *)
   format_time_seconds: float;
 }
 

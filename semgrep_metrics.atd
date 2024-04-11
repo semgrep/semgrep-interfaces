@@ -227,17 +227,25 @@ type misc = {
 (*****************************************************************************)
 
 type osemgrep_format_output = {
+  (* Whether the RPC succeeded. *)
   ?succeeded: bool option;
+  (* Name of the output format. *)
   ?format: string option;
-  ?is_match: bool option;
-  (* Time to call osemgrep through RPC and get its result back. *)
+  (* Time in seconds to call osemgrep through RPC and get its result back. *)
   ?osemgrep_rpc_response_time_seconds: float option;
-  (* Time for osemgrep to format the output, excluding RPC. *)
+  (* Time in seconds for osemgrep to format the output, excluding RPC. *)
   ?osemgrep_format_time_seconds: float option;
-  (* Time for pysemgrep to format the output. *)
+
+  (* We also validate whether osemgrep and pysemgrep return the same output or not.
+   * The fields below help us keep track of this information.
+   *)
+
+  (* Time in seconds for pysemgrep to format the output. *)
   ?pysemgrep_format_time_seconds: float option;
-  (* Time to validate whether the output from osemgrep matches pysemgrep. *)
+  (* Time in seconds to validate whether the output from osemgrep matches pysemgrep. *)
   ?validation_time_seconds: float option;
+  (* Whether the osemgrep output matched the pysemgrep output. *)
+  ?is_match: bool option;
 }
 
 type osemgrep_metrics = {
