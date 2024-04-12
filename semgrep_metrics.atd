@@ -62,7 +62,7 @@ type payload = {
      * so that it's easier to remove the field without breaking backward compatibility
      * once the migration is complete.
      *)
-    ?osemgrep <ocaml mutable>: osemgrep_metrics option;
+    ?osemgrep: osemgrep_metrics option;
 }
 
 (*****************************************************************************)
@@ -249,5 +249,5 @@ type osemgrep_format_output = {
 }
 
 type osemgrep_metrics = {
-  ?format_output <ocaml mutable>: osemgrep_format_output option;
+  ?format_output: osemgrep_format_output option;
 }
