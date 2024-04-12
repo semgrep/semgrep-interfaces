@@ -35,6 +35,8 @@ type lang = string
 (* Entry point *)
 (*****************************************************************************)
 
+(* TODO: explain why the fields are marked as mutable since this is unusual. *)
+
 type payload = {
     (* required event and timing *)
     event_id <ocaml mutable>: uuid;
