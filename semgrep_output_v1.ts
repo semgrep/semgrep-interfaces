@@ -740,11 +740,26 @@ export type ApplyFixesReturn = {
   fixed_lines: [number /*int*/, string[]][];
 }
 
+export type SarifFormatParams = {
+  hide_nudge: boolean;
+  engine_label: string;
+  rules: Fpath;
+  cli_matches: CliMatch[];
+  cli_errors: CliError[];
+}
+
+export type SarifFormatReturn = {
+  output: string;
+  format_time_seconds: number;
+}
+
 export type FunctionCall =
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
+| { kind: 'CallSarifFormat'; value: SarifFormatParams }
 
 export type FunctionReturn =
 | { kind: 'RetApplyFixes'; value: ApplyFixesReturn }
+| { kind: 'RetSarifFormat'; value: SarifFormatReturn }
 | { kind: 'RetError'; value: string }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
@@ -2915,10 +2930,46 @@ export function readApplyFixesReturn(x: any, context: any = x): ApplyFixesReturn
   };
 }
 
+export function writeSarifFormatParams(x: SarifFormatParams, context: any = x): any {
+  return {
+    'hide_nudge': _atd_write_required_field('SarifFormatParams', 'hide_nudge', _atd_write_bool, x.hide_nudge, x),
+    'engine_label': _atd_write_required_field('SarifFormatParams', 'engine_label', _atd_write_string, x.engine_label, x),
+    'rules': _atd_write_required_field('SarifFormatParams', 'rules', writeFpath, x.rules, x),
+    'cli_matches': _atd_write_required_field('SarifFormatParams', 'cli_matches', _atd_write_array(writeCliMatch), x.cli_matches, x),
+    'cli_errors': _atd_write_required_field('SarifFormatParams', 'cli_errors', _atd_write_array(writeCliError), x.cli_errors, x),
+  };
+}
+
+export function readSarifFormatParams(x: any, context: any = x): SarifFormatParams {
+  return {
+    hide_nudge: _atd_read_required_field('SarifFormatParams', 'hide_nudge', _atd_read_bool, x['hide_nudge'], x),
+    engine_label: _atd_read_required_field('SarifFormatParams', 'engine_label', _atd_read_string, x['engine_label'], x),
+    rules: _atd_read_required_field('SarifFormatParams', 'rules', readFpath, x['rules'], x),
+    cli_matches: _atd_read_required_field('SarifFormatParams', 'cli_matches', _atd_read_array(readCliMatch), x['cli_matches'], x),
+    cli_errors: _atd_read_required_field('SarifFormatParams', 'cli_errors', _atd_read_array(readCliError), x['cli_errors'], x),
+  };
+}
+
+export function writeSarifFormatReturn(x: SarifFormatReturn, context: any = x): any {
+  return {
+    'output': _atd_write_required_field('SarifFormatReturn', 'output', _atd_write_string, x.output, x),
+    'format_time_seconds': _atd_write_required_field('SarifFormatReturn', 'format_time_seconds', _atd_write_float, x.format_time_seconds, x),
+  };
+}
+
+export function readSarifFormatReturn(x: any, context: any = x): SarifFormatReturn {
+  return {
+    output: _atd_read_required_field('SarifFormatReturn', 'output', _atd_read_string, x['output'], x),
+    format_time_seconds: _atd_read_required_field('SarifFormatReturn', 'format_time_seconds', _atd_read_float, x['format_time_seconds'], x),
+  };
+}
+
 export function writeFunctionCall(x: FunctionCall, context: any = x): any {
   switch (x.kind) {
     case 'CallApplyFixes':
       return ['CallApplyFixes', writeApplyFixesParams(x.value, x)]
+    case 'CallSarifFormat':
+      return ['CallSarifFormat', writeSarifFormatParams(x.value, x)]
   }
 }
 
@@ -2927,6 +2978,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
   switch (x[0]) {
     case 'CallApplyFixes':
       return { kind: 'CallApplyFixes', value: readApplyFixesParams(x[1], x) }
+    case 'CallSarifFormat':
+      return { kind: 'CallSarifFormat', value: readSarifFormatParams(x[1], x) }
     default:
       _atd_bad_json('FunctionCall', x, context)
       throw new Error('impossible')
@@ -2937,6 +2990,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
   switch (x.kind) {
     case 'RetApplyFixes':
       return ['RetApplyFixes', writeApplyFixesReturn(x.value, x)]
+    case 'RetSarifFormat':
+      return ['RetSarifFormat', writeSarifFormatReturn(x.value, x)]
     case 'RetError':
       return ['RetError', _atd_write_string(x.value, x)]
   }
@@ -2947,6 +3002,8 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
   switch (x[0]) {
     case 'RetApplyFixes':
       return { kind: 'RetApplyFixes', value: readApplyFixesReturn(x[1], x) }
+    case 'RetSarifFormat':
+      return { kind: 'RetSarifFormat', value: readSarifFormatReturn(x[1], x) }
     case 'RetError':
       return { kind: 'RetError', value: _atd_read_string(x[1], x) }
     default:
