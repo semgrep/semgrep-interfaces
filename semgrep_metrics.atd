@@ -35,8 +35,11 @@ type lang = string
 (* Entry point *)
 (*****************************************************************************)
 
-(* TODO: explain why the fields are marked as mutable since this is unusual. *)
-
+(* The use of 'mutable' below is a bit unusual, but many metrics fields are
+ * adjusted in different modules and functions in Semgrep so it was simpler
+ * to use a global in Metrics_.ml and mutable fields.
+ * See the comments in Metrics_.ml about the global 'g' for more information.
+ *)
 type payload = {
     (* required event and timing *)
     event_id <ocaml mutable>: uuid;
@@ -46,12 +49,12 @@ type payload = {
     sent_at <python default="Datetime('')"> <ocaml mutable>: datetime;
 
     (* other fields *)
-    environment <ocaml mutable>: environment;
-    performance <ocaml mutable>: performance;
-    extension <ocaml mutable>: extension;
-    errors <ocaml mutable>: errors;
+    environment: environment;
+    performance: performance;
+    extension: extension;
+    errors: errors;
     (* TODO? why called value? *)
-    value <ocaml mutable>: misc;
+    value: misc;
     (* the string is a 'lang' below but we can't use the alias because this
      * confuses atd which is checking for a 'string' because of the json
      * repr annotation coming after.
@@ -64,7 +67,7 @@ type payload = {
      * so that it's easier to remove the field without breaking backward compatibility
      * once the migration is complete.
      *)
-    ?osemgrep: osemgrep_metrics option;
+    ?osemgrep <ocaml mutable>: osemgrep_metrics option;
 }
 
 (*****************************************************************************)
