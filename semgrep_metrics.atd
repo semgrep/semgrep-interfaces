@@ -9,9 +9,19 @@
  * translated originally from semgrep/cli/.../metrics.py
  *
  * TODO:
- * - some optional arguments should be removed when `osemgrep` replace
- *   `semgrep`. Currently, we tried to fit on tests and don't update the
- *   JSON output. We tried to fit on the Python side too.
+ * - some optional arguments could be removed when `osemgrep` replace
+ *   `pysemgrep`. Currently, we try to fit the tests and don't update the
+ *   JSON output.
+ * - specify the schema for the answer from https://metrics.semgrep.dev
+ *   Here is an example of answer:
+ *       { "errorType":"TypeError",
+ *         "errorMessage":"Cannot read property 'map' of undefined",
+ *          "trace":[
+ *             "TypeError: Cannot read property 'map' of undefined",
+ *             "    at createPerRuleObjects (/var/task/index.js:287:24)",
+ *             "    at Runtime.exports.handler (/var/task/index.js:363:20)",
+ *           ]
+ *        }
 *)
 
 <python text="from dataclasses import field">
@@ -64,8 +74,8 @@ type payload = {
                                  <json repr="object">;
 
     (* Metrics related to osemgrep migration. It's intentionally made optional
-     * so that it's easier to remove the field without breaking backward compatibility
-     * once the migration is complete.
+     * so that it's easier to remove the field without breaking backward
+     * compatibility once the migration is complete.
      *)
     ?osemgrep <ocaml mutable>: osemgrep_metrics option;
 }
@@ -228,7 +238,7 @@ type misc = {
   }
 
 (*****************************************************************************)
-(* Osemgrep *)
+(* Osemgrep specific metrics *)
 (*****************************************************************************)
 
 type osemgrep_format_output = {
@@ -256,3 +266,7 @@ type osemgrep_format_output = {
 type osemgrep_metrics = {
   ?format_output: osemgrep_format_output option;
 }
+
+(*****************************************************************************)
+(* TODO Response by metrics.semgrep.dev *)
+(*****************************************************************************)
