@@ -487,12 +487,14 @@ class ProFeatures:
     """Original type: pro_features = { ... }"""
 
     diffDepth: Optional[int] = None
+    numInterfileDiffScanned: Optional[List[Tuple[str, int]]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ProFeatures':
         if isinstance(x, dict):
             return cls(
                 diffDepth=_atd_read_int(x['diffDepth']) if 'diffDepth' in x else None,
+                numInterfileDiffScanned=_atd_read_assoc_object_into_list(_atd_read_int)(x['numInterfileDiffScanned']) if 'numInterfileDiffScanned' in x else None,
             )
         else:
             _atd_bad_json('ProFeatures', x)
@@ -501,6 +503,8 @@ class ProFeatures:
         res: Dict[str, Any] = {}
         if self.diffDepth is not None:
             res['diffDepth'] = _atd_write_int(self.diffDepth)
+        if self.numInterfileDiffScanned is not None:
+            res['numInterfileDiffScanned'] = _atd_write_assoc_list_to_object(_atd_write_int)(self.numInterfileDiffScanned)
         return res
 
     @classmethod
