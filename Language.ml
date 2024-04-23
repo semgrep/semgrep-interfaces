@@ -4,7 +4,6 @@
 type t =
 | Apex
 | Bash
-| C
 | Cairo
 | Clojure
 | Cpp
@@ -102,19 +101,6 @@ let list = [
   tags = [];
 };
 {
-  id = C;
-  id_string = "c";
-  name = "C";
-  keys = [{|c|}];
-  exts = [{|.c|}; {|.h|}];
-  maturity = Alpha;
-  example_ext = None;
-  excluded_exts = [];
-  reverse_exts = None;
-  shebangs = [];
-  tags = [];
-};
-{
   id = Cairo;
   id_string = "cairo";
   name = "Cairo";
@@ -144,7 +130,7 @@ let list = [
   id = Cpp;
   id_string = "cpp";
   name = "C++";
-  keys = [{|cpp|}; {|c++|}];
+  keys = [{|cpp|}; {|c++|}; {|c|}];
   exts = [{|.cc|}; {|.cpp|}; {|.cxx|}; {|.c++|}; {|.pcc|}; {|.tpp|}; {|.C|}; {|.h|}; {|.hh|}; {|.hpp|}; {|.hxx|}; {|.inl|}; {|.ipp|}];
   maturity = Alpha;
   example_ext = Some {|.cpp|};

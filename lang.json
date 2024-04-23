@@ -41,24 +41,6 @@
     "tags": []
   },
   {
-    "id": "c",
-    "name": "C",
-    "keys": [
-      "c"
-    ],
-    "maturity": "alpha",
-    "exts": [
-      ".c",
-      ".h"
-    ],
-    "example_ext": null,
-    "excluded_exts": [],
-    "reverse_exts": null,
-    "shebangs": [],
-    "is_target_language": true,
-    "tags": []
-  },
-  {
     "id": "cairo",
     "name": "Cairo",
     "keys": [
@@ -100,7 +82,8 @@
     "name": "C++",
     "keys": [
       "cpp",
-      "c++"
+      "c++",
+      "c"
     ],
     "maturity": "alpha",
     "exts": [

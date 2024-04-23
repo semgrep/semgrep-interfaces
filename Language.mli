@@ -4,7 +4,6 @@
 type t =
 | Apex
 | Bash
-| C
 | Cairo
 | Clojure
 | Cpp

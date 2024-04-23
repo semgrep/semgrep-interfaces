@@ -216,15 +216,6 @@ LANGUAGES : List[Language] = [
     ),
     Language(
         comment="",
-        id_="c",
-        name="C",
-        keys=["c"],
-        exts=[".c", ".h"],
-        maturity=Maturity.ALPHA,
-        shebangs=[]
-    ),
-    Language(
-        comment="",
         id_="cairo",
         name="Cairo",
         keys=["cairo"],
@@ -245,7 +236,7 @@ LANGUAGES : List[Language] = [
         comment="",
         id_="cpp",
         name="C++",
-        keys=["cpp", "c++"],
+        keys=["cpp", "c++", "c"],
         # Extensions are taken directly from tokei's language JSON file:
         #   https://github.com/XAMPPRocky/tokei/blob/master/languages.json
         # The .C was added for LSEG
