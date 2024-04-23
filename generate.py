@@ -219,7 +219,7 @@ LANGUAGES : List[Language] = [
         id_="c",
         name="C",
         keys=["c"],
-        exts=[".c", ".h"],
+        exts=[".c"],
         maturity=Maturity.ALPHA,
         shebangs=[]
     ),
