@@ -1560,6 +1560,7 @@ type sarif_format_params
     <python decorator="dataclass(frozen=True)"> = {
   hide_nudge: bool;
   engine_label: string;
+  show_dataflow_traces: bool;
 
   (* Path the the rules file *)
   rules: fpath;
