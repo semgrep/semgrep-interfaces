@@ -2456,40 +2456,6 @@ class ScanInfo:
 
 
 @dataclass
-class ScanConfiguration:
-    """Original type: scan_configuration = { ... }"""
-
-    rules: RawJson
-    triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
-    triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ScanConfiguration':
-        if isinstance(x, dict):
-            return cls(
-                rules=RawJson.from_json(x['rules']) if 'rules' in x else _atd_missing_json_field('ScanConfiguration', 'rules'),
-                triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
-                triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
-            )
-        else:
-            _atd_bad_json('ScanConfiguration', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['rules'] = (lambda x: x.to_json())(self.rules)
-        res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
-        res['triage_ignored_match_based_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_match_based_ids)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ScanConfiguration':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class ProductSpecificIgnores:
     """Original type: product_specific_ignores = { ... }"""
 
@@ -2517,6 +2483,44 @@ class ProductSpecificIgnores:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ProductSpecificIgnores':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScanConfiguration:
+    """Original type: scan_configuration = { ... }"""
+
+    rules: RawJson
+    triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
+    triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
+    product_ignored_files: Optional[ProductSpecificIgnores] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScanConfiguration':
+        if isinstance(x, dict):
+            return cls(
+                rules=RawJson.from_json(x['rules']) if 'rules' in x else _atd_missing_json_field('ScanConfiguration', 'rules'),
+                triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
+                triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
+                product_ignored_files=ProductSpecificIgnores.from_json(x['product_ignored_files']) if 'product_ignored_files' in x else None,
+            )
+        else:
+            _atd_bad_json('ScanConfiguration', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['rules'] = (lambda x: x.to_json())(self.rules)
+        res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
+        res['triage_ignored_match_based_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_match_based_ids)
+        if self.product_ignored_files is not None:
+            res['product_ignored_files'] = (lambda x: x.to_json())(self.product_ignored_files)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScanConfiguration':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -2565,7 +2569,6 @@ class EngineConfiguration:
     ignored_files: List[str] = field(default_factory=lambda: [])
     generic_slow_rollout: bool = field(default_factory=lambda: False)
     historical_config: Optional[HistoricalConfiguration] = None
-    product_ignored_files: Optional[ProductSpecificIgnores] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'EngineConfiguration':
@@ -2577,7 +2580,6 @@ class EngineConfiguration:
                 ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
                 generic_slow_rollout=_atd_read_bool(x['generic_slow_rollout']) if 'generic_slow_rollout' in x else False,
                 historical_config=HistoricalConfiguration.from_json(x['historical_config']) if 'historical_config' in x else None,
-                product_ignored_files=ProductSpecificIgnores.from_json(x['product_ignored_files']) if 'product_ignored_files' in x else None,
             )
         else:
             _atd_bad_json('EngineConfiguration', x)
@@ -2591,8 +2593,6 @@ class EngineConfiguration:
         res['generic_slow_rollout'] = _atd_write_bool(self.generic_slow_rollout)
         if self.historical_config is not None:
             res['historical_config'] = (lambda x: x.to_json())(self.historical_config)
-        if self.product_ignored_files is not None:
-            res['product_ignored_files'] = (lambda x: x.to_json())(self.product_ignored_files)
         return res
 
     @classmethod

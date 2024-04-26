@@ -996,6 +996,15 @@
         "deployment_name": { "type": "string" }
       }
     },
+    "product_specific_ignores": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "sast": { "type": "array", "items": { "type": "string" } },
+        "sca": { "type": "array", "items": { "type": "string" } },
+        "secrets": { "type": "array", "items": { "type": "string" } }
+      }
+    },
     "scan_configuration": {
       "type": "object",
       "required": [ "rules" ],
@@ -1008,6 +1017,9 @@
         "triage_ignored_match_based_ids": {
           "type": "array",
           "items": { "type": "string" }
+        },
+        "product_ignored_files": {
+          "$ref": "#/definitions/product_specific_ignores"
         }
       }
     },
@@ -1017,15 +1029,6 @@
       "properties": {
         "enabled": { "type": "boolean" },
         "lookback_days": { "type": "integer" }
-      }
-    },
-    "product_specific_ignores": {
-      "type": "object",
-      "required": [],
-      "properties": {
-        "sast": { "type": "array", "items": { "type": "string" } },
-        "sca": { "type": "array", "items": { "type": "string" } },
-        "secrets": { "type": "array", "items": { "type": "string" } }
       }
     },
     "engine_configuration": {
@@ -1039,9 +1042,6 @@
         "generic_slow_rollout": { "type": "boolean" },
         "historical_config": {
           "$ref": "#/definitions/historical_configuration"
-        },
-        "product_ignored_files": {
-          "$ref": "#/definitions/product_specific_ignores"
         }
       }
     },

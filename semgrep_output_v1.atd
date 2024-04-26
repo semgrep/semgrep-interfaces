@@ -1240,10 +1240,18 @@ type scan_info = {
     deployment_name: string;
 }
 
+type product_specific_ignores = {
+  ~sast: string list;
+  ~sca: string list;
+  ~secrets: string list;
+}
+
 (* config specific to the scan, eg *)
 type scan_configuration = {
     rules: raw_json; (* can we type this better *)
     inherit triage_ignored;
+    (* from 1.71.0 *)
+    ?product_ignored_files: product_specific_ignores option;
 }
 
 (* configuration for scanning version control history,
@@ -1254,12 +1262,6 @@ type historical_configuration = {
     ?lookback_days: int option;
 }
 
-type product_specific_ignores = {
-  ~sast: string list;
-  ~sca: string list;
-  ~secrets: string list;
-}
-
 (* settings for the cli *)
 type engine_configuration = {
     inherit features;
@@ -1268,8 +1270,6 @@ type engine_configuration = {
     ~generic_slow_rollout: bool;
     (* from 1.63.0 *)
     ?historical_config: historical_configuration option;
-    (* from 1.71.0 *)
-    ?product_ignored_files: product_specific_ignores option;
 }
 
 (* ----------------------------- *)
