@@ -592,6 +592,12 @@ export type HistoricalConfiguration = {
   lookback_days?: number /*int*/;
 }
 
+export type ProductSpecificIgnores = {
+  sast: string[];
+  sca: string[];
+  secrets: string[];
+}
+
 export type EngineConfiguration = {
   autofix: boolean;
   deepsemgrep: boolean;
@@ -599,6 +605,7 @@ export type EngineConfiguration = {
   ignored_files: string[];
   generic_slow_rollout: boolean;
   historical_config?: HistoricalConfiguration;
+  product_ignored_files?: ProductSpecificIgnores;
 }
 
 export type Finding = {
@@ -2550,6 +2557,22 @@ export function readHistoricalConfiguration(x: any, context: any = x): Historica
   };
 }
 
+export function writeProductSpecificIgnores(x: ProductSpecificIgnores, context: any = x): any {
+  return {
+    'sast': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.sast, x),
+    'sca': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.sca, x),
+    'secrets': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.secrets, x),
+  };
+}
+
+export function readProductSpecificIgnores(x: any, context: any = x): ProductSpecificIgnores {
+  return {
+    sast: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['sast'], x),
+    sca: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['sca'], x),
+    secrets: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['secrets'], x),
+  };
+}
+
 export function writeEngineConfiguration(x: EngineConfiguration, context: any = x): any {
   return {
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
@@ -2558,6 +2581,7 @@ export function writeEngineConfiguration(x: EngineConfiguration, context: any = 
     'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
     'generic_slow_rollout': _atd_write_field_with_default(_atd_write_bool, false, x.generic_slow_rollout, x),
     'historical_config': _atd_write_optional_field(writeHistoricalConfiguration, x.historical_config, x),
+    'product_ignored_files': _atd_write_optional_field(writeProductSpecificIgnores, x.product_ignored_files, x),
   };
 }
 
@@ -2569,6 +2593,7 @@ export function readEngineConfiguration(x: any, context: any = x): EngineConfigu
     ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
     generic_slow_rollout: _atd_read_field_with_default(_atd_read_bool, false, x['generic_slow_rollout'], x),
     historical_config: _atd_read_optional_field(readHistoricalConfiguration, x['historical_config'], x),
+    product_ignored_files: _atd_read_optional_field(readProductSpecificIgnores, x['product_ignored_files'], x),
   };
 }
 

@@ -1019,6 +1019,15 @@
         "lookback_days": { "type": "integer" }
       }
     },
+    "product_specific_ignores": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "sast": { "type": "array", "items": { "type": "string" } },
+        "sca": { "type": "array", "items": { "type": "string" } },
+        "secrets": { "type": "array", "items": { "type": "string" } }
+      }
+    },
     "engine_configuration": {
       "type": "object",
       "required": [],
@@ -1030,6 +1039,9 @@
         "generic_slow_rollout": { "type": "boolean" },
         "historical_config": {
           "$ref": "#/definitions/historical_configuration"
+        },
+        "product_ignored_files": {
+          "$ref": "#/definitions/product_specific_ignores"
         }
       }
     },

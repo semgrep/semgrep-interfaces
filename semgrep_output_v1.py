@@ -2490,6 +2490,40 @@ class ScanConfiguration:
 
 
 @dataclass
+class ProductSpecificIgnores:
+    """Original type: product_specific_ignores = { ... }"""
+
+    sast: List[str] = field(default_factory=lambda: [])
+    sca: List[str] = field(default_factory=lambda: [])
+    secrets: List[str] = field(default_factory=lambda: [])
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ProductSpecificIgnores':
+        if isinstance(x, dict):
+            return cls(
+                sast=_atd_read_list(_atd_read_string)(x['sast']) if 'sast' in x else [],
+                sca=_atd_read_list(_atd_read_string)(x['sca']) if 'sca' in x else [],
+                secrets=_atd_read_list(_atd_read_string)(x['secrets']) if 'secrets' in x else [],
+            )
+        else:
+            _atd_bad_json('ProductSpecificIgnores', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['sast'] = _atd_write_list(_atd_write_string)(self.sast)
+        res['sca'] = _atd_write_list(_atd_write_string)(self.sca)
+        res['secrets'] = _atd_write_list(_atd_write_string)(self.secrets)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ProductSpecificIgnores':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class HistoricalConfiguration:
     """Original type: historical_configuration = { ... }"""
 
@@ -2531,6 +2565,7 @@ class EngineConfiguration:
     ignored_files: List[str] = field(default_factory=lambda: [])
     generic_slow_rollout: bool = field(default_factory=lambda: False)
     historical_config: Optional[HistoricalConfiguration] = None
+    product_ignored_files: Optional[ProductSpecificIgnores] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'EngineConfiguration':
@@ -2542,6 +2577,7 @@ class EngineConfiguration:
                 ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
                 generic_slow_rollout=_atd_read_bool(x['generic_slow_rollout']) if 'generic_slow_rollout' in x else False,
                 historical_config=HistoricalConfiguration.from_json(x['historical_config']) if 'historical_config' in x else None,
+                product_ignored_files=ProductSpecificIgnores.from_json(x['product_ignored_files']) if 'product_ignored_files' in x else None,
             )
         else:
             _atd_bad_json('EngineConfiguration', x)
@@ -2555,6 +2591,8 @@ class EngineConfiguration:
         res['generic_slow_rollout'] = _atd_write_bool(self.generic_slow_rollout)
         if self.historical_config is not None:
             res['historical_config'] = (lambda x: x.to_json())(self.historical_config)
+        if self.product_ignored_files is not None:
+            res['product_ignored_files'] = (lambda x: x.to_json())(self.product_ignored_files)
         return res
 
     @classmethod

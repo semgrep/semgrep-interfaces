@@ -223,6 +223,13 @@ type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
   triage_ignored_match_based_ids: string list
 }
 
+type product_specific_ignores =
+  Semgrep_output_v1_t.product_specific_ignores = {
+  sast: string list;
+  sca: string list;
+  secrets: string list
+}
+
 type historical_configuration =
   Semgrep_output_v1_t.historical_configuration = {
   enabled: bool;
@@ -235,7 +242,8 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   dependency_query: bool;
   ignored_files: string list;
   generic_slow_rollout: bool;
-  historical_config: historical_configuration option
+  historical_config: historical_configuration option;
+  product_ignored_files: product_specific_ignores option
 }
 
 type scan_response = Semgrep_output_v1_t.scan_response = {
@@ -1542,6 +1550,26 @@ val read_scan_configuration :
 val scan_configuration_of_string :
   string -> scan_configuration
   (** Deserialize JSON data of type {!type:scan_configuration}. *)
+
+val write_product_specific_ignores :
+  Buffer.t -> product_specific_ignores -> unit
+  (** Output a JSON value of type {!type:product_specific_ignores}. *)
+
+val string_of_product_specific_ignores :
+  ?len:int -> product_specific_ignores -> string
+  (** Serialize a value of type {!type:product_specific_ignores}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_product_specific_ignores :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> product_specific_ignores
+  (** Input JSON data of type {!type:product_specific_ignores}. *)
+
+val product_specific_ignores_of_string :
+  string -> product_specific_ignores
+  (** Deserialize JSON data of type {!type:product_specific_ignores}. *)
 
 val write_historical_configuration :
   Buffer.t -> historical_configuration -> unit
