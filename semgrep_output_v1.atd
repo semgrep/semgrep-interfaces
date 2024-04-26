@@ -145,6 +145,15 @@ type match_severity
   | Info <json name="INFO">
   | Experiment <json name="EXPERIMENT">
   | Inventory <json name="INVENTORY">
+  (* since 1.71.0, meant to replace the cases above where
+   * Error -> High, Warning -> Medium, and Info -> Low,
+   * and Experiment and Inventory should be removed.
+   * Critical is the only really new category here without equivalent before.
+  *)
+  | Critical <json name="CRITICAL">
+  | High <json name="HIGH">
+  | Medium <json name="MEDIUM">
+  | Low <json name="LOW">
 ]
 
 (*
@@ -1282,7 +1291,11 @@ type finding = {
   end_column: int;
 
   message: string;
-  (* int|string until minimum version exceeds 1.32.0, then string *)
+  (* int|string until minimum version exceeds 1.32.0, then int?
+   * Error = 2, Warning = 1, Experiment = 4, otherwise 0
+   * 3 = ?? Critical = ??
+   * TODO: should reuse match_severity instead of using an int here.
+   *)
   severity: abstract;
 
   (* ?? *)

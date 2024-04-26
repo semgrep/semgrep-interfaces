@@ -868,6 +868,10 @@ let write_match_severity = (
       | `Info -> Buffer.add_string ob "\"INFO\""
       | `Experiment -> Buffer.add_string ob "\"EXPERIMENT\""
       | `Inventory -> Buffer.add_string ob "\"INVENTORY\""
+      | `Critical -> Buffer.add_string ob "\"CRITICAL\""
+      | `High -> Buffer.add_string ob "\"HIGH\""
+      | `Medium -> Buffer.add_string ob "\"MEDIUM\""
+      | `Low -> Buffer.add_string ob "\"LOW\""
 )
 let string_of_match_severity ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -899,6 +903,22 @@ let read_match_severity = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Inventory
+            | "CRITICAL" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Critical
+            | "HIGH" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `High
+            | "MEDIUM" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Medium
+            | "LOW" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Low
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -914,6 +934,14 @@ let read_match_severity = (
               `Experiment
             | "INVENTORY" ->
               `Inventory
+            | "CRITICAL" ->
+              `Critical
+            | "HIGH" ->
+              `High
+            | "MEDIUM" ->
+              `Medium
+            | "LOW" ->
+              `Low
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

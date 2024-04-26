@@ -122,9 +122,18 @@ type rule_id = string wrap <ocaml module="Rule_ID">
  * I've removed EXPERIMENT and INVENTORY which should not be used.
 *)
 type severity = [
+  (* TODO deprecate in v2? *)
   | ERROR
   | WARNING
   | INFO
+  (* since 1.71.0, following industry practice as in
+   * https://github.blog/changelog/2021-07-19-codeql-code-scanning-new-severity-levels-for-security-alerts/
+   * Note that SARIF is using Error/Warning/Note
+   *)
+  | CRITICAL
+  | HIGH
+  | MEDIUM
+  | LOW
 ]
 
 (* coupling: Language.ml *)

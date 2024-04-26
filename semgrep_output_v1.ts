@@ -48,6 +48,10 @@ export type MatchSeverity =
 | { kind: 'Info' /* JSON: "INFO" */ }
 | { kind: 'Experiment' /* JSON: "EXPERIMENT" */ }
 | { kind: 'Inventory' /* JSON: "INVENTORY" */ }
+| { kind: 'Critical' /* JSON: "CRITICAL" */ }
+| { kind: 'High' /* JSON: "HIGH" */ }
+| { kind: 'Medium' /* JSON: "MEDIUM" */ }
+| { kind: 'Low' /* JSON: "LOW" */ }
 
 export type ErrorSeverity =
 | { kind: 'Error' /* JSON: "error" */ }
@@ -870,6 +874,14 @@ export function writeMatchSeverity(x: MatchSeverity, context: any = x): any {
       return 'EXPERIMENT'
     case 'Inventory':
       return 'INVENTORY'
+    case 'Critical':
+      return 'CRITICAL'
+    case 'High':
+      return 'HIGH'
+    case 'Medium':
+      return 'MEDIUM'
+    case 'Low':
+      return 'LOW'
   }
 }
 
@@ -885,6 +897,14 @@ export function readMatchSeverity(x: any, context: any = x): MatchSeverity {
       return { kind: 'Experiment' }
     case 'INVENTORY':
       return { kind: 'Inventory' }
+    case 'CRITICAL':
+      return { kind: 'Critical' }
+    case 'HIGH':
+      return { kind: 'High' }
+    case 'MEDIUM':
+      return { kind: 'Medium' }
+    case 'LOW':
+      return { kind: 'Low' }
     default:
       _atd_bad_json('MatchSeverity', x, context)
       throw new Error('impossible')

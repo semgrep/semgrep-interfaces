@@ -67,7 +67,11 @@
         { "const": "WARNING" },
         { "const": "INFO" },
         { "const": "EXPERIMENT" },
-        { "const": "INVENTORY" }
+        { "const": "INVENTORY" },
+        { "const": "CRITICAL" },
+        { "const": "HIGH" },
+        { "const": "MEDIUM" },
+        { "const": "LOW" }
       ]
     },
     "error_severity": {

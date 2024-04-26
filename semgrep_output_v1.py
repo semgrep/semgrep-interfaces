@@ -388,10 +388,78 @@ class Inventory:
 
 
 @dataclass(frozen=True)
+class Critical:
+    """Original type: match_severity = [ ... | Critical | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Critical'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'CRITICAL'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class High:
+    """Original type: match_severity = [ ... | High | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'High'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'HIGH'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Medium:
+    """Original type: match_severity = [ ... | Medium | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Medium'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'MEDIUM'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Low:
+    """Original type: match_severity = [ ... | Low | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Low'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'LOW'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class MatchSeverity:
     """Original type: match_severity = [ ... ]"""
 
-    value: Union[Error, Warning, Info, Experiment, Inventory]
+    value: Union[Error, Warning, Info, Experiment, Inventory, Critical, High, Medium, Low]
 
     @property
     def kind(self) -> str:
@@ -411,6 +479,14 @@ class MatchSeverity:
                 return cls(Experiment())
             if x == 'INVENTORY':
                 return cls(Inventory())
+            if x == 'CRITICAL':
+                return cls(Critical())
+            if x == 'HIGH':
+                return cls(High())
+            if x == 'MEDIUM':
+                return cls(Medium())
+            if x == 'LOW':
+                return cls(Low())
             _atd_bad_json('MatchSeverity', x)
         _atd_bad_json('MatchSeverity', x)
 
