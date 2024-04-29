@@ -223,12 +223,9 @@ type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
   triage_ignored_match_based_ids: string list
 }
 
-type product_specific_ignores =
-  Semgrep_output_v1_t.product_specific_ignores = {
-  sast: string list;
-  sca: string list;
-  secrets: string list
-}
+type glob = Semgrep_output_v1_t.glob
+
+type product_ignored_files = Semgrep_output_v1_t.product_ignored_files
 
 type historical_configuration =
   Semgrep_output_v1_t.historical_configuration = {
@@ -241,7 +238,7 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   deepsemgrep: bool;
   dependency_query: bool;
   ignored_files: string list;
-  product_ignored_files: product_specific_ignores option;
+  product_ignored_files: product_ignored_files option;
   generic_slow_rollout: bool;
   historical_config: historical_configuration option
 }
@@ -8204,202 +8201,116 @@ let read_scan_configuration = (
 )
 let scan_configuration_of_string s =
   read_scan_configuration (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_product_specific_ignores : _ -> product_specific_ignores -> _ = (
-  fun ob (x : product_specific_ignores) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"sast\":";
-    (
-      write__string_list
-    )
-      ob x.sast;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"sca\":";
-    (
-      write__string_list
-    )
-      ob x.sca;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"secrets\":";
-    (
-      write__string_list
-    )
-      ob x.secrets;
-    Buffer.add_char ob '}';
+let write_glob = (
+  Yojson.Safe.write_string
 )
-let string_of_product_specific_ignores ?(len = 1024) x =
+let string_of_glob ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_product_specific_ignores ob x;
+  write_glob ob x;
   Buffer.contents ob
-let read_product_specific_ignores = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_sast = ref ([]) in
-    let field_sca = ref ([]) in
-    let field_secrets = ref ([]) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          match len with
-            | 3 -> (
-                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' then (
-                  1
-                )
-                else (
-                  -1
-                )
-              )
-            | 4 -> (
-                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 't' then (
-                  0
-                )
-                else (
-                  -1
-                )
-              )
-            | 7 -> (
-                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = 's' then (
-                  2
-                )
-                else (
-                  -1
-                )
-              )
-            | _ -> (
-                -1
-              )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_sast := (
-                (
-                  read__string_list
-                ) p lb
-              );
-            )
-          | 1 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_sca := (
-                (
-                  read__string_list
-                ) p lb
-              );
-            )
-          | 2 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_secrets := (
-                (
-                  read__string_list
-                ) p lb
-              );
-            )
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            match len with
-              | 3 -> (
-                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 4 -> (
-                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 't' then (
-                    0
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 7 -> (
-                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = 's' then (
-                    2
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_sast := (
-                  (
-                    read__string_list
-                  ) p lb
-                );
-              )
-            | 1 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_sca := (
-                  (
-                    read__string_list
-                  ) p lb
-                );
-              )
-            | 2 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_secrets := (
-                  (
-                    read__string_list
-                  ) p lb
-                );
-              )
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            sast = !field_sast;
-            sca = !field_sca;
-            secrets = !field_secrets;
-          }
-         : product_specific_ignores)
-      )
+let read_glob = (
+  Atdgen_runtime.Oj_run.read_string
 )
-let product_specific_ignores_of_string s =
-  read_product_specific_ignores (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let glob_of_string s =
+  read_glob (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__glob_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_glob
+  )
+)
+let string_of__glob_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__glob_list ob x;
+  Buffer.contents ob
+let read__glob_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_glob
+  )
+)
+let _glob_list_of_string s =
+  read__glob_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_c6e52f6 = (
+  Atdgen_runtime.Oj_run.write_list (
+    fun ob x ->
+      Buffer.add_char ob '[';
+      (let x, _ = x in
+      (
+        write_product
+      ) ob x
+      );
+      Buffer.add_char ob ',';
+      (let _, x = x in
+      (
+        write__glob_list
+      ) ob x
+      );
+      Buffer.add_char ob ']';
+  )
+)
+let string_of__x_c6e52f6 ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__x_c6e52f6 ob x;
+  Buffer.contents ob
+let read__x_c6e52f6 = (
+  Atdgen_runtime.Oj_run.read_list (
+    fun p lb ->
+      Yojson.Safe.read_space p lb;
+      let std_tuple = Yojson.Safe.start_any_tuple p lb in
+      let len = ref 0 in
+      let end_of_tuple = ref false in
+      (try
+        let x0 =
+          let x =
+            (
+              read_product
+            ) p lb
+          in
+          incr len;
+          Yojson.Safe.read_space p lb;
+          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+          x
+        in
+        let x1 =
+          let x =
+            (
+              read__glob_list
+            ) p lb
+          in
+          incr len;
+          (try
+            Yojson.Safe.read_space p lb;
+            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+          with Yojson.End_of_tuple -> end_of_tuple := true);
+          x
+        in
+        if not !end_of_tuple then (
+          try
+            while true do
+              Yojson.Safe.skip_json p lb;
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+            done
+          with Yojson.End_of_tuple -> ()
+        );
+        (x0, x1)
+      with Yojson.End_of_tuple ->
+        Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+  )
+)
+let _x_c6e52f6_of_string s =
+  read__x_c6e52f6 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_product_ignored_files = (
+  write__x_c6e52f6
+)
+let string_of_product_ignored_files ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_product_ignored_files ob x;
+  Buffer.contents ob
+let read_product_ignored_files = (
+  read__x_c6e52f6
+)
+let product_ignored_files_of_string s =
+  read_product_ignored_files (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_historical_configuration : _ -> historical_configuration -> _ = (
   fun ob (x : historical_configuration) ->
     Buffer.add_char ob '{';
@@ -8559,16 +8470,16 @@ let read_historical_configuration = (
 )
 let historical_configuration_of_string s =
   read_historical_configuration (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__product_specific_ignores_option = (
+let write__product_ignored_files_option = (
   Atdgen_runtime.Oj_run.write_std_option (
-    write_product_specific_ignores
+    write_product_ignored_files
   )
 )
-let string_of__product_specific_ignores_option ?(len = 1024) x =
+let string_of__product_ignored_files_option ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__product_specific_ignores_option ob x;
+  write__product_ignored_files_option ob x;
   Buffer.contents ob
-let read__product_specific_ignores_option = (
+let read__product_ignored_files_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     match Yojson.Safe.start_any_variant p lb with
@@ -8581,7 +8492,7 @@ let read__product_specific_ignores_option = (
             | "Some" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read_product_specific_ignores
+                  read_product_ignored_files
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -8604,7 +8515,7 @@ let read__product_specific_ignores_option = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read_product_specific_ignores
+                  read_product_ignored_files
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -8614,8 +8525,8 @@ let read__product_specific_ignores_option = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-let _product_specific_ignores_option_of_string s =
-  read__product_specific_ignores_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _product_ignored_files_option_of_string s =
+  read__product_ignored_files_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__historical_configuration_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     write_historical_configuration
@@ -8720,7 +8631,7 @@ let write_engine_configuration : _ -> engine_configuration -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"product_ignored_files\":";
       (
-        write_product_specific_ignores
+        write_product_ignored_files
       )
         ob x;
     );
@@ -8871,7 +8782,7 @@ let read_engine_configuration = (
               field_product_ignored_files := (
                 Some (
                   (
-                    read_product_specific_ignores
+                    read_product_ignored_files
                   ) p lb
                 )
               );
@@ -9008,7 +8919,7 @@ let read_engine_configuration = (
                 field_product_ignored_files := (
                   Some (
                     (
-                      read_product_specific_ignores
+                      read_product_ignored_files
                     ) p lb
                   )
                 );
