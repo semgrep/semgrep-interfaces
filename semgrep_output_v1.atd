@@ -1240,6 +1240,8 @@ type scan_info = {
     deployment_name: string;
 }
 
+
+
 (* config specific to the scan, eg *)
 type scan_configuration = {
     rules: raw_json; (* can we type this better *)
@@ -1254,10 +1256,19 @@ type historical_configuration = {
     ?lookback_days: int option;
 }
 
+type glob = string
+
+type product_ignored_files = (product * glob list) list
+  (* We omit the usual <json repr="object"> else we get a "keys must be strings" error *)
+  <python repr="dict">
+  <ts repr="map">
+
 (* settings for the cli *)
 type engine_configuration = {
     inherit features;
     ~ignored_files: string list;
+    (* from 1.71.0 *)
+    ?product_ignored_files: product_ignored_files option;
     (* for features we only want to turn on for select customers *)
     ~generic_slow_rollout: bool;
     (* from 1.63.0 *)

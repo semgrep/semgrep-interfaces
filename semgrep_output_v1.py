@@ -2490,6 +2490,48 @@ class ScanConfiguration:
 
 
 @dataclass
+class Glob:
+    """Original type: glob"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Glob':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Glob':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ProductIgnoredFiles:
+    """Original type: product_ignored_files"""
+
+    value: Dict[Product, List[Glob]]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ProductIgnoredFiles':
+        return cls(_atd_read_assoc_array_into_dict(Product.from_json, _atd_read_list(Glob.from_json))(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_assoc_dict_to_array((lambda x: x.to_json()), _atd_write_list((lambda x: x.to_json())))(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ProductIgnoredFiles':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class HistoricalConfiguration:
     """Original type: historical_configuration = { ... }"""
 
@@ -2529,6 +2571,7 @@ class EngineConfiguration:
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
     ignored_files: List[str] = field(default_factory=lambda: [])
+    product_ignored_files: Optional[ProductIgnoredFiles] = None
     generic_slow_rollout: bool = field(default_factory=lambda: False)
     historical_config: Optional[HistoricalConfiguration] = None
 
@@ -2540,6 +2583,7 @@ class EngineConfiguration:
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
                 ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
+                product_ignored_files=ProductIgnoredFiles.from_json(x['product_ignored_files']) if 'product_ignored_files' in x else None,
                 generic_slow_rollout=_atd_read_bool(x['generic_slow_rollout']) if 'generic_slow_rollout' in x else False,
                 historical_config=HistoricalConfiguration.from_json(x['historical_config']) if 'historical_config' in x else None,
             )
@@ -2552,6 +2596,8 @@ class EngineConfiguration:
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
         res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
+        if self.product_ignored_files is not None:
+            res['product_ignored_files'] = (lambda x: x.to_json())(self.product_ignored_files)
         res['generic_slow_rollout'] = _atd_write_bool(self.generic_slow_rollout)
         if self.historical_config is not None:
             res['historical_config'] = (lambda x: x.to_json())(self.historical_config)
