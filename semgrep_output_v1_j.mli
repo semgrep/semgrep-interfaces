@@ -472,7 +472,7 @@ type cli_error = Semgrep_output_v1_t.cli_error = {
 type sarif_format_params = Semgrep_output_v1_t.sarif_format_params = {
   hide_nudge: bool;
   engine_label: string;
-  show_dataflow_traces: bool;
+  show_dataflow_traces: bool option;
   rules: fpath;
   cli_matches: cli_match list;
   cli_errors: cli_error list

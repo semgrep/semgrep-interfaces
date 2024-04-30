@@ -472,7 +472,7 @@ type cli_error = Semgrep_output_v1_t.cli_error = {
 type sarif_format_params = Semgrep_output_v1_t.sarif_format_params = {
   hide_nudge: bool;
   engine_label: string;
-  show_dataflow_traces: bool;
+  show_dataflow_traces: bool option;
   rules: fpath;
   cli_matches: cli_match list;
   cli_errors: cli_error list
@@ -18674,7 +18674,7 @@ let write_sarif_format_params : _ -> sarif_format_params -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"show_dataflow_traces\":";
     (
-      Yojson.Safe.write_bool
+      write__bool_option
     )
       ob x.show_dataflow_traces;
     if !is_first then
@@ -18811,7 +18811,7 @@ let read_sarif_format_params = (
             field_show_dataflow_traces := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_bool
+                  read__bool_option
                 ) p lb
               )
             );
@@ -18934,7 +18934,7 @@ let read_sarif_format_params = (
               field_show_dataflow_traces := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_bool
+                    read__bool_option
                   ) p lb
                 )
               );

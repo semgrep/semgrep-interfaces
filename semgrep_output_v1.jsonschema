@@ -1338,7 +1338,17 @@
       "properties": {
         "hide_nudge": { "type": "boolean" },
         "engine_label": { "type": "string" },
-        "show_dataflow_traces": { "type": "boolean" },
+        "show_dataflow_traces": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "boolean" } ]
+            },
+            { "const": "None" }
+          ]
+        },
         "rules": { "$ref": "#/definitions/fpath" },
         "cli_matches": {
           "type": "array",

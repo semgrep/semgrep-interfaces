@@ -748,7 +748,7 @@ export type ApplyFixesReturn = {
 export type SarifFormatParams = {
   hide_nudge: boolean;
   engine_label: string;
-  show_dataflow_traces: boolean;
+  show_dataflow_traces: Option<boolean>;
   rules: Fpath;
   cli_matches: CliMatch[];
   cli_errors: CliError[];
@@ -2958,7 +2958,7 @@ export function writeSarifFormatParams(x: SarifFormatParams, context: any = x): 
   return {
     'hide_nudge': _atd_write_required_field('SarifFormatParams', 'hide_nudge', _atd_write_bool, x.hide_nudge, x),
     'engine_label': _atd_write_required_field('SarifFormatParams', 'engine_label', _atd_write_string, x.engine_label, x),
-    'show_dataflow_traces': _atd_write_required_field('SarifFormatParams', 'show_dataflow_traces', _atd_write_bool, x.show_dataflow_traces, x),
+    'show_dataflow_traces': _atd_write_required_field('SarifFormatParams', 'show_dataflow_traces', _atd_write_option(_atd_write_bool), x.show_dataflow_traces, x),
     'rules': _atd_write_required_field('SarifFormatParams', 'rules', writeFpath, x.rules, x),
     'cli_matches': _atd_write_required_field('SarifFormatParams', 'cli_matches', _atd_write_array(writeCliMatch), x.cli_matches, x),
     'cli_errors': _atd_write_required_field('SarifFormatParams', 'cli_errors', _atd_write_array(writeCliError), x.cli_errors, x),
@@ -2969,7 +2969,7 @@ export function readSarifFormatParams(x: any, context: any = x): SarifFormatPara
   return {
     hide_nudge: _atd_read_required_field('SarifFormatParams', 'hide_nudge', _atd_read_bool, x['hide_nudge'], x),
     engine_label: _atd_read_required_field('SarifFormatParams', 'engine_label', _atd_read_string, x['engine_label'], x),
-    show_dataflow_traces: _atd_read_required_field('SarifFormatParams', 'show_dataflow_traces', _atd_read_bool, x['show_dataflow_traces'], x),
+    show_dataflow_traces: _atd_read_required_field('SarifFormatParams', 'show_dataflow_traces', _atd_read_option(_atd_read_bool), x['show_dataflow_traces'], x),
     rules: _atd_read_required_field('SarifFormatParams', 'rules', readFpath, x['rules'], x),
     cli_matches: _atd_read_required_field('SarifFormatParams', 'cli_matches', _atd_read_array(readCliMatch), x['cli_matches'], x),
     cli_errors: _atd_read_required_field('SarifFormatParams', 'cli_errors', _atd_read_array(readCliError), x['cli_errors'], x),
