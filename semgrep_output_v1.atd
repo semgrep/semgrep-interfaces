@@ -1561,11 +1561,6 @@ type sarif_format_params
   hide_nudge: bool;
   engine_label: string;
 
-  (* This field was added later and had to be optional to make it
-   * backward-compatible and pass PR checks.
-   *)
-  ?show_dataflow_traces: bool option;
-
   (* Path the the rules file *)
   rules: fpath;
 
@@ -1581,6 +1576,11 @@ type sarif_format_params
    * info in core_error.
    *)
   cli_errors: cli_error list;
+
+  (* This field was added later and had to be optional to make it
+   * backward-compatible and pass PR checks.
+   *)
+  ?show_dataflow_traces: bool option;
 }
 
 type sarif_format_return

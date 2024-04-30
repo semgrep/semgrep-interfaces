@@ -1337,7 +1337,6 @@
       "properties": {
         "hide_nudge": { "type": "boolean" },
         "engine_label": { "type": "string" },
-        "show_dataflow_traces": { "type": "boolean" },
         "rules": { "$ref": "#/definitions/fpath" },
         "cli_matches": {
           "type": "array",
@@ -1346,7 +1345,8 @@
         "cli_errors": {
           "type": "array",
           "items": { "$ref": "#/definitions/cli_error" }
-        }
+        },
+        "show_dataflow_traces": { "type": "boolean" }
       }
     },
     "sarif_format_return": {
