@@ -1332,23 +1332,12 @@
     "sarif_format_params": {
       "type": "object",
       "required": [
-        "hide_nudge", "engine_label", "show_dataflow_traces", "rules",
-        "cli_matches", "cli_errors"
+        "hide_nudge", "engine_label", "rules", "cli_matches", "cli_errors"
       ],
       "properties": {
         "hide_nudge": { "type": "boolean" },
         "engine_label": { "type": "string" },
-        "show_dataflow_traces": {
-          "oneOf": [
-            {
-              "type": "array",
-              "minItems": 2,
-              "items": false,
-              "prefixItems": [ { "const": "Some" }, { "type": "boolean" } ]
-            },
-            { "const": "None" }
-          ]
-        },
+        "show_dataflow_traces": { "type": "boolean" },
         "rules": { "$ref": "#/definitions/fpath" },
         "cli_matches": {
           "type": "array",

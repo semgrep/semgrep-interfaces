@@ -1564,7 +1564,7 @@ type sarif_format_params
   (* This field was added later and had to be optional to make it
    * backward-compatible and pass PR checks.
    *)
-  show_dataflow_traces: bool option;
+  ?show_dataflow_traces: bool option;
 
   (* Path the the rules file *)
   rules: fpath;

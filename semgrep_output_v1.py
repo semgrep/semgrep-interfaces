@@ -4874,10 +4874,10 @@ class SarifFormatParams:
 
     hide_nudge: bool
     engine_label: str
-    show_dataflow_traces: Optional[bool]
     rules: Fpath
     cli_matches: List[CliMatch]
     cli_errors: List[CliError]
+    show_dataflow_traces: Optional[bool] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'SarifFormatParams':
@@ -4885,10 +4885,10 @@ class SarifFormatParams:
             return cls(
                 hide_nudge=_atd_read_bool(x['hide_nudge']) if 'hide_nudge' in x else _atd_missing_json_field('SarifFormatParams', 'hide_nudge'),
                 engine_label=_atd_read_string(x['engine_label']) if 'engine_label' in x else _atd_missing_json_field('SarifFormatParams', 'engine_label'),
-                show_dataflow_traces=_atd_read_option(_atd_read_bool)(x['show_dataflow_traces']) if 'show_dataflow_traces' in x else _atd_missing_json_field('SarifFormatParams', 'show_dataflow_traces'),
                 rules=Fpath.from_json(x['rules']) if 'rules' in x else _atd_missing_json_field('SarifFormatParams', 'rules'),
                 cli_matches=_atd_read_list(CliMatch.from_json)(x['cli_matches']) if 'cli_matches' in x else _atd_missing_json_field('SarifFormatParams', 'cli_matches'),
                 cli_errors=_atd_read_list(CliError.from_json)(x['cli_errors']) if 'cli_errors' in x else _atd_missing_json_field('SarifFormatParams', 'cli_errors'),
+                show_dataflow_traces=_atd_read_bool(x['show_dataflow_traces']) if 'show_dataflow_traces' in x else None,
             )
         else:
             _atd_bad_json('SarifFormatParams', x)
@@ -4897,10 +4897,11 @@ class SarifFormatParams:
         res: Dict[str, Any] = {}
         res['hide_nudge'] = _atd_write_bool(self.hide_nudge)
         res['engine_label'] = _atd_write_string(self.engine_label)
-        res['show_dataflow_traces'] = _atd_write_option(_atd_write_bool)(self.show_dataflow_traces)
         res['rules'] = (lambda x: x.to_json())(self.rules)
         res['cli_matches'] = _atd_write_list((lambda x: x.to_json()))(self.cli_matches)
         res['cli_errors'] = _atd_write_list((lambda x: x.to_json()))(self.cli_errors)
+        if self.show_dataflow_traces is not None:
+            res['show_dataflow_traces'] = _atd_write_bool(self.show_dataflow_traces)
         return res
 
     @classmethod

@@ -18668,15 +18668,17 @@ let write_sarif_format_params : _ -> sarif_format_params -> _ = (
       Yojson.Safe.write_string
     )
       ob x.engine_label;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"show_dataflow_traces\":";
-    (
-      write__bool_option
-    )
-      ob x.show_dataflow_traces;
+    (match x.show_dataflow_traces with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"show_dataflow_traces\":";
+      (
+        Yojson.Safe.write_bool
+      )
+        ob x;
+    );
     if !is_first then
       is_first := false
     else
@@ -18808,13 +18810,15 @@ let read_sarif_format_params = (
               )
             );
           | 2 ->
-            field_show_dataflow_traces := (
-              Some (
-                (
-                  read__bool_option
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_show_dataflow_traces := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            )
           | 3 ->
             field_rules := (
               Some (
@@ -18931,13 +18935,15 @@ let read_sarif_format_params = (
                 )
               );
             | 2 ->
-              field_show_dataflow_traces := (
-                Some (
-                  (
-                    read__bool_option
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_show_dataflow_traces := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_bool
+                    ) p lb
+                  )
+                );
+              )
             | 3 ->
               field_rules := (
                 Some (
@@ -18973,7 +18979,7 @@ let read_sarif_format_params = (
           {
             hide_nudge = (match !field_hide_nudge with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "hide_nudge");
             engine_label = (match !field_engine_label with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "engine_label");
-            show_dataflow_traces = (match !field_show_dataflow_traces with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "show_dataflow_traces");
+            show_dataflow_traces = !field_show_dataflow_traces;
             rules = (match !field_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rules");
             cli_matches = (match !field_cli_matches with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "cli_matches");
             cli_errors = (match !field_cli_errors with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "cli_errors");
