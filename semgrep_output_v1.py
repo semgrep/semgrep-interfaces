@@ -4877,6 +4877,7 @@ class SarifFormatParams:
     rules: Fpath
     cli_matches: List[CliMatch]
     cli_errors: List[CliError]
+    show_dataflow_traces: Optional[bool] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'SarifFormatParams':
@@ -4887,6 +4888,7 @@ class SarifFormatParams:
                 rules=Fpath.from_json(x['rules']) if 'rules' in x else _atd_missing_json_field('SarifFormatParams', 'rules'),
                 cli_matches=_atd_read_list(CliMatch.from_json)(x['cli_matches']) if 'cli_matches' in x else _atd_missing_json_field('SarifFormatParams', 'cli_matches'),
                 cli_errors=_atd_read_list(CliError.from_json)(x['cli_errors']) if 'cli_errors' in x else _atd_missing_json_field('SarifFormatParams', 'cli_errors'),
+                show_dataflow_traces=_atd_read_bool(x['show_dataflow_traces']) if 'show_dataflow_traces' in x else None,
             )
         else:
             _atd_bad_json('SarifFormatParams', x)
@@ -4898,6 +4900,8 @@ class SarifFormatParams:
         res['rules'] = (lambda x: x.to_json())(self.rules)
         res['cli_matches'] = _atd_write_list((lambda x: x.to_json()))(self.cli_matches)
         res['cli_errors'] = _atd_write_list((lambda x: x.to_json()))(self.cli_errors)
+        if self.show_dataflow_traces is not None:
+            res['show_dataflow_traces'] = _atd_write_bool(self.show_dataflow_traces)
         return res
 
     @classmethod

@@ -474,7 +474,8 @@ type sarif_format_params = Semgrep_output_v1_t.sarif_format_params = {
   engine_label: string;
   rules: fpath;
   cli_matches: cli_match list;
-  cli_errors: cli_error list
+  cli_errors: cli_error list;
+  show_dataflow_traces: bool option
 }
 
 type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
@@ -18694,6 +18695,17 @@ let write_sarif_format_params : _ -> sarif_format_params -> _ = (
       write__cli_error_list
     )
       ob x.cli_errors;
+    (match x.show_dataflow_traces with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"show_dataflow_traces\":";
+      (
+        Yojson.Safe.write_bool
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_sarif_format_params ?(len = 1024) x =
@@ -18709,6 +18721,7 @@ let read_sarif_format_params = (
     let field_rules = ref (None) in
     let field_cli_matches = ref (None) in
     let field_cli_errors = ref (None) in
+    let field_show_dataflow_traces = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -18764,6 +18777,14 @@ let read_sarif_format_params = (
                   -1
                 )
               )
+            | 20 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'w' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'f' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'w' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'r' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = 's' then (
+                  5
+                )
+                else (
+                  -1
+                )
+              )
             | _ -> (
                 -1
               )
@@ -18812,6 +18833,16 @@ let read_sarif_format_params = (
                 ) p lb
               )
             );
+          | 5 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_show_dataflow_traces := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -18871,6 +18902,14 @@ let read_sarif_format_params = (
                     -1
                   )
                 )
+              | 20 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'w' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'f' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'w' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'r' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = 's' then (
+                    5
+                  )
+                  else (
+                    -1
+                  )
+                )
               | _ -> (
                   -1
                 )
@@ -18919,6 +18958,16 @@ let read_sarif_format_params = (
                   ) p lb
                 )
               );
+            | 5 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_show_dataflow_traces := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_bool
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -18933,6 +18982,7 @@ let read_sarif_format_params = (
             rules = (match !field_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rules");
             cli_matches = (match !field_cli_matches with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "cli_matches");
             cli_errors = (match !field_cli_errors with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "cli_errors");
+            show_dataflow_traces = !field_show_dataflow_traces;
           }
          : sarif_format_params)
       )

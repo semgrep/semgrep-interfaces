@@ -1345,7 +1345,8 @@
         "cli_errors": {
           "type": "array",
           "items": { "$ref": "#/definitions/cli_error" }
-        }
+        },
+        "show_dataflow_traces": { "type": "boolean" }
       }
     },
     "sarif_format_return": {

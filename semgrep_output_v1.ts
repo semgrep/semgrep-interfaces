@@ -751,6 +751,7 @@ export type SarifFormatParams = {
   rules: Fpath;
   cli_matches: CliMatch[];
   cli_errors: CliError[];
+  show_dataflow_traces?: boolean;
 }
 
 export type SarifFormatReturn = {
@@ -2960,6 +2961,7 @@ export function writeSarifFormatParams(x: SarifFormatParams, context: any = x): 
     'rules': _atd_write_required_field('SarifFormatParams', 'rules', writeFpath, x.rules, x),
     'cli_matches': _atd_write_required_field('SarifFormatParams', 'cli_matches', _atd_write_array(writeCliMatch), x.cli_matches, x),
     'cli_errors': _atd_write_required_field('SarifFormatParams', 'cli_errors', _atd_write_array(writeCliError), x.cli_errors, x),
+    'show_dataflow_traces': _atd_write_optional_field(_atd_write_bool, x.show_dataflow_traces, x),
   };
 }
 
@@ -2970,6 +2972,7 @@ export function readSarifFormatParams(x: any, context: any = x): SarifFormatPara
     rules: _atd_read_required_field('SarifFormatParams', 'rules', readFpath, x['rules'], x),
     cli_matches: _atd_read_required_field('SarifFormatParams', 'cli_matches', _atd_read_array(readCliMatch), x['cli_matches'], x),
     cli_errors: _atd_read_required_field('SarifFormatParams', 'cli_errors', _atd_read_array(readCliError), x['cli_errors'], x),
+    show_dataflow_traces: _atd_read_optional_field(_atd_read_bool, x['show_dataflow_traces'], x),
   };
 }
 
