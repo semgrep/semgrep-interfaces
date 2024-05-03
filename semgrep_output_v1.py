@@ -2590,14 +2590,14 @@ class Glob:
 class ProductIgnoredFiles:
     """Original type: product_ignored_files"""
 
-    value: Dict[Product, List[Glob]]
+    value: Dict[str, List[Glob]]
 
     @classmethod
     def from_json(cls, x: Any) -> 'ProductIgnoredFiles':
-        return cls(_atd_read_assoc_array_into_dict(Product.from_json, _atd_read_list(Glob.from_json))(x))
+        return cls(_atd_read_assoc_object_into_dict(_atd_read_list(Glob.from_json))(x))
 
     def to_json(self) -> Any:
-        return _atd_write_assoc_dict_to_array((lambda x: x.to_json()), _atd_write_list((lambda x: x.to_json())))(self.value)
+        return _atd_write_assoc_dict_to_object(_atd_write_list((lambda x: x.to_json())))(self.value)
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ProductIgnoredFiles':

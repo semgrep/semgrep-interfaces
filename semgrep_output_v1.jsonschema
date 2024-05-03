@@ -1025,15 +1025,10 @@
     },
     "glob": { "type": "string" },
     "product_ignored_files": {
-      "type": "array",
-      "items": {
+      "type": "object",
+      "additionalProperties": {
         "type": "array",
-        "minItems": 2,
-        "items": false,
-        "prefixItems": [
-          { "$ref": "#/definitions/product" },
-          { "type": "array", "items": { "$ref": "#/definitions/glob" } }
-        ]
+        "items": { "$ref": "#/definitions/glob" }
       }
     },
     "engine_configuration": {

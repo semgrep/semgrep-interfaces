@@ -1269,8 +1269,8 @@ type historical_configuration = {
 
 type glob = string
 
-type product_ignored_files = (product * glob list) list
-  (* We omit the usual <json repr="object"> else we get a "keys must be strings" error *)
+type product_ignored_files = (string * glob list) list
+  <json repr="object"> 
   <python repr="dict">
   <ts repr="map">
 

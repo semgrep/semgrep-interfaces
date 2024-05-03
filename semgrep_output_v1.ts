@@ -598,7 +598,7 @@ export type HistoricalConfiguration = {
 
 export type Glob = string
 
-export type ProductIgnoredFiles = Map<Product, Glob[]>
+export type ProductIgnoredFiles = Map<string, Glob[]>
 
 export type EngineConfiguration = {
   autofix: boolean;
@@ -2585,11 +2585,11 @@ export function readGlob(x: any, context: any = x): Glob {
 }
 
 export function writeProductIgnoredFiles(x: ProductIgnoredFiles, context: any = x): any {
-  return _atd_write_assoc_map_to_array(writeProduct, _atd_write_array(writeGlob))(x, context);
+  return _atd_write_assoc_map_to_object(_atd_write_array(writeGlob))(x, context);
 }
 
 export function readProductIgnoredFiles(x: any, context: any = x): ProductIgnoredFiles {
-  return _atd_read_assoc_array_into_map(readProduct, _atd_read_array(readGlob))(x, context);
+  return _atd_read_assoc_object_into_map(_atd_read_array(readGlob))(x, context);
 }
 
 export function writeEngineConfiguration(x: EngineConfiguration, context: any = x): any {

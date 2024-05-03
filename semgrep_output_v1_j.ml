@@ -8258,85 +8258,35 @@ let read__glob_list = (
 )
 let _glob_list_of_string s =
   read__glob_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__x_c6e52f6 = (
-  Atdgen_runtime.Oj_run.write_list (
-    fun ob x ->
-      Buffer.add_char ob '[';
-      (let x, _ = x in
-      (
-        write_product
-      ) ob x
-      );
-      Buffer.add_char ob ',';
-      (let _, x = x in
-      (
-        write__glob_list
-      ) ob x
-      );
-      Buffer.add_char ob ']';
+let write__x_f404e7c = (
+  Atdgen_runtime.Oj_run.write_assoc_list (
+    Yojson.Safe.write_string
+  ) (
+    write__glob_list
   )
 )
-let string_of__x_c6e52f6 ?(len = 1024) x =
+let string_of__x_f404e7c ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__x_c6e52f6 ob x;
+  write__x_f404e7c ob x;
   Buffer.contents ob
-let read__x_c6e52f6 = (
-  Atdgen_runtime.Oj_run.read_list (
-    fun p lb ->
-      Yojson.Safe.read_space p lb;
-      let std_tuple = Yojson.Safe.start_any_tuple p lb in
-      let len = ref 0 in
-      let end_of_tuple = ref false in
-      (try
-        let x0 =
-          let x =
-            (
-              read_product
-            ) p lb
-          in
-          incr len;
-          Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          x
-        in
-        let x1 =
-          let x =
-            (
-              read__glob_list
-            ) p lb
-          in
-          incr len;
-          (try
-            Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          with Yojson.End_of_tuple -> end_of_tuple := true);
-          x
-        in
-        if not !end_of_tuple then (
-          try
-            while true do
-              Yojson.Safe.skip_json p lb;
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-            done
-          with Yojson.End_of_tuple -> ()
-        );
-        (x0, x1)
-      with Yojson.End_of_tuple ->
-        Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+let read__x_f404e7c = (
+  Atdgen_runtime.Oj_run.read_assoc_list (
+    Atdgen_runtime.Oj_run.read_string
+  ) (
+    read__glob_list
   )
 )
-let _x_c6e52f6_of_string s =
-  read__x_c6e52f6 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _x_f404e7c_of_string s =
+  read__x_f404e7c (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_product_ignored_files = (
-  write__x_c6e52f6
+  write__x_f404e7c
 )
 let string_of_product_ignored_files ?(len = 1024) x =
   let ob = Buffer.create len in
   write_product_ignored_files ob x;
   Buffer.contents ob
 let read_product_ignored_files = (
-  read__x_c6e52f6
+  read__x_f404e7c
 )
 let product_ignored_files_of_string s =
   read_product_ignored_files (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
