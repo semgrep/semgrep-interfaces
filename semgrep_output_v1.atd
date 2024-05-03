@@ -1304,7 +1304,8 @@ type finding = {
   end_column: int;
 
   message: string;
-  (* int|string until minimum version exceeds 1.32.0, then int?
+  (* int|string until minimum version exceeds 1.32.0. After 1.32.0
+   * we're always using an int.
    * TODO: should reuse match_severity instead of using an int here.
    * This is what pysemgrep is currently using:
    * Error = 2, Warning = 1, Experiment = 4, otherwise 0
