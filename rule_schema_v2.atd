@@ -120,20 +120,25 @@ type rule_id = string wrap <ocaml module="Rule_ID">
 
 (* coupling: semgrep_output_v1.atd with match_severity 
  * I've removed EXPERIMENT and INVENTORY which should not be used.
+ * TODO in v2 we should probably remove ERROR/WARNING superseded by
+ * HIGH/MEDIUM.
+ * TODO? have some severity for "positive" findings? or use metadata for it?
+ * (maybe "severity" does not go well with "positive")
 *)
 type severity = [
-  (* TODO deprecate in v2? *)
+  (* TODO: deprecate in v2 *)
   | ERROR
   | WARNING
-  | INFO
-  (* since 1.71.0, following industry practice as in
+  (* since 1.72.0, following industry practice as in
    * https://github.blog/changelog/2021-07-19-codeql-code-scanning-new-severity-levels-for-security-alerts/
-   * Note that SARIF is using Error/Warning/Note
+   * Note that SARIF is using Error/Warning/Note.
    *)
   | CRITICAL
   | HIGH
   | MEDIUM
   | LOW
+  (* one extra category for non-risky stuff (useful for experiments) *)
+  | INFO
 ]
 
 (* coupling: Language.ml *)

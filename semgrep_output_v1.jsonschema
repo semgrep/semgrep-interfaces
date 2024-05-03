@@ -65,13 +65,13 @@
       "oneOf": [
         { "const": "ERROR" },
         { "const": "WARNING" },
-        { "const": "INFO" },
         { "const": "EXPERIMENT" },
         { "const": "INVENTORY" },
         { "const": "CRITICAL" },
         { "const": "HIGH" },
         { "const": "MEDIUM" },
-        { "const": "LOW" }
+        { "const": "LOW" },
+        { "const": "INFO" }
       ]
     },
     "error_severity": {

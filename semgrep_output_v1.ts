@@ -45,13 +45,13 @@ export type RuleId = string
 export type MatchSeverity =
 | { kind: 'Error' /* JSON: "ERROR" */ }
 | { kind: 'Warning' /* JSON: "WARNING" */ }
-| { kind: 'Info' /* JSON: "INFO" */ }
 | { kind: 'Experiment' /* JSON: "EXPERIMENT" */ }
 | { kind: 'Inventory' /* JSON: "INVENTORY" */ }
 | { kind: 'Critical' /* JSON: "CRITICAL" */ }
 | { kind: 'High' /* JSON: "HIGH" */ }
 | { kind: 'Medium' /* JSON: "MEDIUM" */ }
 | { kind: 'Low' /* JSON: "LOW" */ }
+| { kind: 'Info' /* JSON: "INFO" */ }
 
 export type ErrorSeverity =
 | { kind: 'Error' /* JSON: "error" */ }
@@ -874,8 +874,6 @@ export function writeMatchSeverity(x: MatchSeverity, context: any = x): any {
       return 'ERROR'
     case 'Warning':
       return 'WARNING'
-    case 'Info':
-      return 'INFO'
     case 'Experiment':
       return 'EXPERIMENT'
     case 'Inventory':
@@ -888,6 +886,8 @@ export function writeMatchSeverity(x: MatchSeverity, context: any = x): any {
       return 'MEDIUM'
     case 'Low':
       return 'LOW'
+    case 'Info':
+      return 'INFO'
   }
 }
 
@@ -897,8 +897,6 @@ export function readMatchSeverity(x: any, context: any = x): MatchSeverity {
       return { kind: 'Error' }
     case 'WARNING':
       return { kind: 'Warning' }
-    case 'INFO':
-      return { kind: 'Info' }
     case 'EXPERIMENT':
       return { kind: 'Experiment' }
     case 'INVENTORY':
@@ -911,6 +909,8 @@ export function readMatchSeverity(x: any, context: any = x): MatchSeverity {
       return { kind: 'Medium' }
     case 'LOW':
       return { kind: 'Low' }
+    case 'INFO':
+      return { kind: 'Info' }
     default:
       _atd_bad_json('MatchSeverity', x, context)
       throw new Error('impossible')

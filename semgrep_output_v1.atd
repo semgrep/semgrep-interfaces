@@ -126,43 +126,45 @@ type rule_id
   string wrap <ocaml module="Rule_ID">
 
 (*
+   This is used in rules to specify the severity of matches/findings.
+   alt: could be called rule_severity, or finding_severity.
+
    Error = something wrong that must be fixed
    Warning = something wrong that should be fixed
    Info = some special condition worth knowing about
-   Experiment = guess what
+   Experiment = deprecated: guess what
    Inventory = deprecated: was used for the Code Asset Inventory (CAI) project
 
-   This is used in rules to specify the severity of matches/findings.
-
-   alt: could be called rule_severity, or finding_severity.
    coupling: with 'severity' in 'rule_schema_v1.yaml'
+   coupling: with 'severity' in 'rule_schema_v2.atd'
 *)
 type match_severity
     <ocaml attr="deriving show, eq">
     <python decorator="dataclass(frozen=True)"> = [
   | Error <json name="ERROR">
   | Warning <json name="WARNING">
-  | Info <json name="INFO">
   | Experiment <json name="EXPERIMENT">
   | Inventory <json name="INVENTORY">
-  (* since 1.71.0, meant to replace the cases above where
-   * Error -> High, Warning -> Medium, and Info -> Low,
-   * and Experiment and Inventory should be removed.
-   * Critical is the only really new category here without equivalent before.
+  (* since 1.72.0, meant to replace the cases above where
+   * Error -> High, Warning -> Medium. Critical/Low are the only really
+   * new category here without equivalent before.
+   * Experiment and Inventory above should be removed. Info can be kept.
   *)
   | Critical <json name="CRITICAL">
   | High <json name="HIGH">
   | Medium <json name="MEDIUM">
   | Low <json name="LOW">
+  (* generic placeholder for non-risky things (including experiments) *)
+  | Info <json name="INFO">
 ]
 
 (*
+   This is used to specify the severity of errors which
+   happened during Semgrep execution (e.g., a parse error).
+
    Error = Always an error
    Warning = Only an error if "strict" is set
    Info = Nothing may be wrong
-
-   This is used to specify the severity of errors which
-   happened during Semgrep execution (e.g., a parse error)
 
    alt: could reuse match_severity but seems cleaner to define its own type
 *)
@@ -1303,9 +1305,10 @@ type finding = {
 
   message: string;
   (* int|string until minimum version exceeds 1.32.0, then int?
+   * TODO: should reuse match_severity instead of using an int here.
+   * This is what pysemgrep is currently using:
    * Error = 2, Warning = 1, Experiment = 4, otherwise 0
    * 3 = ?? Critical = ??
-   * TODO: should reuse match_severity instead of using an int here.
    *)
   severity: abstract;
 

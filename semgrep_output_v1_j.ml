@@ -871,13 +871,13 @@ let write_match_severity = (
     match x with
       | `Error -> Buffer.add_string ob "\"ERROR\""
       | `Warning -> Buffer.add_string ob "\"WARNING\""
-      | `Info -> Buffer.add_string ob "\"INFO\""
       | `Experiment -> Buffer.add_string ob "\"EXPERIMENT\""
       | `Inventory -> Buffer.add_string ob "\"INVENTORY\""
       | `Critical -> Buffer.add_string ob "\"CRITICAL\""
       | `High -> Buffer.add_string ob "\"HIGH\""
       | `Medium -> Buffer.add_string ob "\"MEDIUM\""
       | `Low -> Buffer.add_string ob "\"LOW\""
+      | `Info -> Buffer.add_string ob "\"INFO\""
 )
 let string_of_match_severity ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -897,10 +897,6 @@ let read_match_severity = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Warning
-            | "INFO" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Info
             | "EXPERIMENT" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -925,6 +921,10 @@ let read_match_severity = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Low
+            | "INFO" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Info
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -934,8 +934,6 @@ let read_match_severity = (
               `Error
             | "WARNING" ->
               `Warning
-            | "INFO" ->
-              `Info
             | "EXPERIMENT" ->
               `Experiment
             | "INVENTORY" ->
@@ -948,6 +946,8 @@ let read_match_severity = (
               `Medium
             | "LOW" ->
               `Low
+            | "INFO" ->
+              `Info
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

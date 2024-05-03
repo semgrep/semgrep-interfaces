@@ -337,23 +337,6 @@ class Warning:
 
 
 @dataclass(frozen=True)
-class Info:
-    """Original type: match_severity = [ ... | Info | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Info'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'INFO'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
 class Experiment:
     """Original type: match_severity = [ ... | Experiment | ... ]"""
 
@@ -456,10 +439,27 @@ class Low:
 
 
 @dataclass(frozen=True)
+class Info:
+    """Original type: match_severity = [ ... | Info | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Info'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'INFO'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class MatchSeverity:
     """Original type: match_severity = [ ... ]"""
 
-    value: Union[Error, Warning, Info, Experiment, Inventory, Critical, High, Medium, Low]
+    value: Union[Error, Warning, Experiment, Inventory, Critical, High, Medium, Low, Info]
 
     @property
     def kind(self) -> str:
@@ -473,8 +473,6 @@ class MatchSeverity:
                 return cls(Error())
             if x == 'WARNING':
                 return cls(Warning())
-            if x == 'INFO':
-                return cls(Info())
             if x == 'EXPERIMENT':
                 return cls(Experiment())
             if x == 'INVENTORY':
@@ -487,6 +485,8 @@ class MatchSeverity:
                 return cls(Medium())
             if x == 'LOW':
                 return cls(Low())
+            if x == 'INFO':
+                return cls(Info())
             _atd_bad_json('MatchSeverity', x)
         _atd_bad_json('MatchSeverity', x)
 
