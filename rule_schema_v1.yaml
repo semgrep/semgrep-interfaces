@@ -24,9 +24,27 @@ $defs:
           response:
             $ref: "#/$defs/http-response-content"
         required: [ request, response ]
+      aws:
+        properties:
+          request:
+            $ref: "#/$defs/aws-request-content"
+          response:
+            $ref: "#/$defs/http-response-content"
+        required: [ request, response ]
     # An individual validator shall be exactly one 'kind' of validator.
     oneOf:
       - required: [ http ]
+      - required: [ aws ]
+  # EXPERIMENTAL
+  aws-request-content:
+    properties:
+      access_key_id:
+        type: string
+      secret_access_key:
+        type: string
+      region:
+        type: string
+    required: [ access_key_id, secret_access_key, region ]
   # EXPERIMENTAL
   http-request-content:
     properties:
