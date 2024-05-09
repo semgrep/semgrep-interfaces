@@ -45,9 +45,13 @@ export type RuleId = string
 export type MatchSeverity =
 | { kind: 'Error' /* JSON: "ERROR" */ }
 | { kind: 'Warning' /* JSON: "WARNING" */ }
-| { kind: 'Info' /* JSON: "INFO" */ }
 | { kind: 'Experiment' /* JSON: "EXPERIMENT" */ }
 | { kind: 'Inventory' /* JSON: "INVENTORY" */ }
+| { kind: 'Critical' /* JSON: "CRITICAL" */ }
+| { kind: 'High' /* JSON: "HIGH" */ }
+| { kind: 'Medium' /* JSON: "MEDIUM" */ }
+| { kind: 'Low' /* JSON: "LOW" */ }
+| { kind: 'Info' /* JSON: "INFO" */ }
 
 export type ErrorSeverity =
 | { kind: 'Error' /* JSON: "error" */ }
@@ -592,11 +596,16 @@ export type HistoricalConfiguration = {
   lookback_days?: number /*int*/;
 }
 
+export type Glob = string
+
+export type ProductIgnoredFiles = Map<Product, Glob[]>
+
 export type EngineConfiguration = {
   autofix: boolean;
   deepsemgrep: boolean;
   dependency_query: boolean;
   ignored_files: string[];
+  product_ignored_files?: ProductIgnoredFiles;
   generic_slow_rollout: boolean;
   historical_config?: HistoricalConfiguration;
 }
@@ -746,6 +755,7 @@ export type SarifFormatParams = {
   rules: Fpath;
   cli_matches: CliMatch[];
   cli_errors: CliError[];
+  show_dataflow_traces?: boolean;
 }
 
 export type SarifFormatReturn = {
@@ -864,12 +874,20 @@ export function writeMatchSeverity(x: MatchSeverity, context: any = x): any {
       return 'ERROR'
     case 'Warning':
       return 'WARNING'
-    case 'Info':
-      return 'INFO'
     case 'Experiment':
       return 'EXPERIMENT'
     case 'Inventory':
       return 'INVENTORY'
+    case 'Critical':
+      return 'CRITICAL'
+    case 'High':
+      return 'HIGH'
+    case 'Medium':
+      return 'MEDIUM'
+    case 'Low':
+      return 'LOW'
+    case 'Info':
+      return 'INFO'
   }
 }
 
@@ -879,12 +897,20 @@ export function readMatchSeverity(x: any, context: any = x): MatchSeverity {
       return { kind: 'Error' }
     case 'WARNING':
       return { kind: 'Warning' }
-    case 'INFO':
-      return { kind: 'Info' }
     case 'EXPERIMENT':
       return { kind: 'Experiment' }
     case 'INVENTORY':
       return { kind: 'Inventory' }
+    case 'CRITICAL':
+      return { kind: 'Critical' }
+    case 'HIGH':
+      return { kind: 'High' }
+    case 'MEDIUM':
+      return { kind: 'Medium' }
+    case 'LOW':
+      return { kind: 'Low' }
+    case 'INFO':
+      return { kind: 'Info' }
     default:
       _atd_bad_json('MatchSeverity', x, context)
       throw new Error('impossible')
@@ -2550,12 +2576,29 @@ export function readHistoricalConfiguration(x: any, context: any = x): Historica
   };
 }
 
+export function writeGlob(x: Glob, context: any = x): any {
+  return _atd_write_string(x, context);
+}
+
+export function readGlob(x: any, context: any = x): Glob {
+  return _atd_read_string(x, context);
+}
+
+export function writeProductIgnoredFiles(x: ProductIgnoredFiles, context: any = x): any {
+  return _atd_write_assoc_map_to_array(writeProduct, _atd_write_array(writeGlob))(x, context);
+}
+
+export function readProductIgnoredFiles(x: any, context: any = x): ProductIgnoredFiles {
+  return _atd_read_assoc_array_into_map(readProduct, _atd_read_array(readGlob))(x, context);
+}
+
 export function writeEngineConfiguration(x: EngineConfiguration, context: any = x): any {
   return {
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
     'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
+    'product_ignored_files': _atd_write_optional_field(writeProductIgnoredFiles, x.product_ignored_files, x),
     'generic_slow_rollout': _atd_write_field_with_default(_atd_write_bool, false, x.generic_slow_rollout, x),
     'historical_config': _atd_write_optional_field(writeHistoricalConfiguration, x.historical_config, x),
   };
@@ -2567,6 +2610,7 @@ export function readEngineConfiguration(x: any, context: any = x): EngineConfigu
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
     ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
+    product_ignored_files: _atd_read_optional_field(readProductIgnoredFiles, x['product_ignored_files'], x),
     generic_slow_rollout: _atd_read_field_with_default(_atd_read_bool, false, x['generic_slow_rollout'], x),
     historical_config: _atd_read_optional_field(readHistoricalConfiguration, x['historical_config'], x),
   };
@@ -2937,6 +2981,7 @@ export function writeSarifFormatParams(x: SarifFormatParams, context: any = x): 
     'rules': _atd_write_required_field('SarifFormatParams', 'rules', writeFpath, x.rules, x),
     'cli_matches': _atd_write_required_field('SarifFormatParams', 'cli_matches', _atd_write_array(writeCliMatch), x.cli_matches, x),
     'cli_errors': _atd_write_required_field('SarifFormatParams', 'cli_errors', _atd_write_array(writeCliError), x.cli_errors, x),
+    'show_dataflow_traces': _atd_write_optional_field(_atd_write_bool, x.show_dataflow_traces, x),
   };
 }
 
@@ -2947,6 +2992,7 @@ export function readSarifFormatParams(x: any, context: any = x): SarifFormatPara
     rules: _atd_read_required_field('SarifFormatParams', 'rules', readFpath, x['rules'], x),
     cli_matches: _atd_read_required_field('SarifFormatParams', 'cli_matches', _atd_read_array(readCliMatch), x['cli_matches'], x),
     cli_errors: _atd_read_required_field('SarifFormatParams', 'cli_errors', _atd_read_array(readCliError), x['cli_errors'], x),
+    show_dataflow_traces: _atd_read_optional_field(_atd_read_bool, x['show_dataflow_traces'], x),
   };
 }
 

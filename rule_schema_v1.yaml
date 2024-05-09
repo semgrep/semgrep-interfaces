@@ -865,6 +865,11 @@ properties:
             # EXPERIMENTAL
             - INVENTORY
             - EXPERIMENT
+            # since 1.72.0
+            - CRITICAL
+            - HIGH
+            - MEDIUM
+            - LOW
         pattern-sinks:
           $ref: "#/$defs/taint-content"
         pattern-sources:

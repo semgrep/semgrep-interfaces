@@ -337,23 +337,6 @@ class Warning:
 
 
 @dataclass(frozen=True)
-class Info:
-    """Original type: match_severity = [ ... | Info | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Info'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'INFO'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
 class Experiment:
     """Original type: match_severity = [ ... | Experiment | ... ]"""
 
@@ -388,10 +371,95 @@ class Inventory:
 
 
 @dataclass(frozen=True)
+class Critical:
+    """Original type: match_severity = [ ... | Critical | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Critical'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'CRITICAL'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class High:
+    """Original type: match_severity = [ ... | High | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'High'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'HIGH'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Medium:
+    """Original type: match_severity = [ ... | Medium | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Medium'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'MEDIUM'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Low:
+    """Original type: match_severity = [ ... | Low | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Low'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'LOW'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Info:
+    """Original type: match_severity = [ ... | Info | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Info'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'INFO'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class MatchSeverity:
     """Original type: match_severity = [ ... ]"""
 
-    value: Union[Error, Warning, Info, Experiment, Inventory]
+    value: Union[Error, Warning, Experiment, Inventory, Critical, High, Medium, Low, Info]
 
     @property
     def kind(self) -> str:
@@ -405,12 +473,20 @@ class MatchSeverity:
                 return cls(Error())
             if x == 'WARNING':
                 return cls(Warning())
-            if x == 'INFO':
-                return cls(Info())
             if x == 'EXPERIMENT':
                 return cls(Experiment())
             if x == 'INVENTORY':
                 return cls(Inventory())
+            if x == 'CRITICAL':
+                return cls(Critical())
+            if x == 'HIGH':
+                return cls(High())
+            if x == 'MEDIUM':
+                return cls(Medium())
+            if x == 'LOW':
+                return cls(Low())
+            if x == 'INFO':
+                return cls(Info())
             _atd_bad_json('MatchSeverity', x)
         _atd_bad_json('MatchSeverity', x)
 
@@ -2490,6 +2566,48 @@ class ScanConfiguration:
 
 
 @dataclass
+class Glob:
+    """Original type: glob"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Glob':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Glob':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ProductIgnoredFiles:
+    """Original type: product_ignored_files"""
+
+    value: Dict[Product, List[Glob]]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ProductIgnoredFiles':
+        return cls(_atd_read_assoc_array_into_dict(Product.from_json, _atd_read_list(Glob.from_json))(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_assoc_dict_to_array((lambda x: x.to_json()), _atd_write_list((lambda x: x.to_json())))(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ProductIgnoredFiles':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class HistoricalConfiguration:
     """Original type: historical_configuration = { ... }"""
 
@@ -2529,6 +2647,7 @@ class EngineConfiguration:
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
     ignored_files: List[str] = field(default_factory=lambda: [])
+    product_ignored_files: Optional[ProductIgnoredFiles] = None
     generic_slow_rollout: bool = field(default_factory=lambda: False)
     historical_config: Optional[HistoricalConfiguration] = None
 
@@ -2540,6 +2659,7 @@ class EngineConfiguration:
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
                 ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
+                product_ignored_files=ProductIgnoredFiles.from_json(x['product_ignored_files']) if 'product_ignored_files' in x else None,
                 generic_slow_rollout=_atd_read_bool(x['generic_slow_rollout']) if 'generic_slow_rollout' in x else False,
                 historical_config=HistoricalConfiguration.from_json(x['historical_config']) if 'historical_config' in x else None,
             )
@@ -2552,6 +2672,8 @@ class EngineConfiguration:
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
         res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
+        if self.product_ignored_files is not None:
+            res['product_ignored_files'] = (lambda x: x.to_json())(self.product_ignored_files)
         res['generic_slow_rollout'] = _atd_write_bool(self.generic_slow_rollout)
         if self.historical_config is not None:
             res['historical_config'] = (lambda x: x.to_json())(self.historical_config)
@@ -4831,6 +4953,7 @@ class SarifFormatParams:
     rules: Fpath
     cli_matches: List[CliMatch]
     cli_errors: List[CliError]
+    show_dataflow_traces: Optional[bool] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'SarifFormatParams':
@@ -4841,6 +4964,7 @@ class SarifFormatParams:
                 rules=Fpath.from_json(x['rules']) if 'rules' in x else _atd_missing_json_field('SarifFormatParams', 'rules'),
                 cli_matches=_atd_read_list(CliMatch.from_json)(x['cli_matches']) if 'cli_matches' in x else _atd_missing_json_field('SarifFormatParams', 'cli_matches'),
                 cli_errors=_atd_read_list(CliError.from_json)(x['cli_errors']) if 'cli_errors' in x else _atd_missing_json_field('SarifFormatParams', 'cli_errors'),
+                show_dataflow_traces=_atd_read_bool(x['show_dataflow_traces']) if 'show_dataflow_traces' in x else None,
             )
         else:
             _atd_bad_json('SarifFormatParams', x)
@@ -4852,6 +4976,8 @@ class SarifFormatParams:
         res['rules'] = (lambda x: x.to_json())(self.rules)
         res['cli_matches'] = _atd_write_list((lambda x: x.to_json()))(self.cli_matches)
         res['cli_errors'] = _atd_write_list((lambda x: x.to_json()))(self.cli_errors)
+        if self.show_dataflow_traces is not None:
+            res['show_dataflow_traces'] = _atd_write_bool(self.show_dataflow_traces)
         return res
 
     @classmethod

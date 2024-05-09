@@ -223,6 +223,10 @@ type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
   triage_ignored_match_based_ids: string list
 }
 
+type glob = Semgrep_output_v1_t.glob
+
+type product_ignored_files = Semgrep_output_v1_t.product_ignored_files
+
 type historical_configuration =
   Semgrep_output_v1_t.historical_configuration = {
   enabled: bool;
@@ -234,6 +238,7 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   deepsemgrep: bool;
   dependency_query: bool;
   ignored_files: string list;
+  product_ignored_files: product_ignored_files option;
   generic_slow_rollout: bool;
   historical_config: historical_configuration option
 }
@@ -469,7 +474,8 @@ type sarif_format_params = Semgrep_output_v1_t.sarif_format_params = {
   engine_label: string;
   rules: fpath;
   cli_matches: cli_match list;
-  cli_errors: cli_error list
+  cli_errors: cli_error list;
+  show_dataflow_traces: bool option
 }
 
 type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
@@ -1542,6 +1548,46 @@ val read_scan_configuration :
 val scan_configuration_of_string :
   string -> scan_configuration
   (** Deserialize JSON data of type {!type:scan_configuration}. *)
+
+val write_glob :
+  Buffer.t -> glob -> unit
+  (** Output a JSON value of type {!type:glob}. *)
+
+val string_of_glob :
+  ?len:int -> glob -> string
+  (** Serialize a value of type {!type:glob}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_glob :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> glob
+  (** Input JSON data of type {!type:glob}. *)
+
+val glob_of_string :
+  string -> glob
+  (** Deserialize JSON data of type {!type:glob}. *)
+
+val write_product_ignored_files :
+  Buffer.t -> product_ignored_files -> unit
+  (** Output a JSON value of type {!type:product_ignored_files}. *)
+
+val string_of_product_ignored_files :
+  ?len:int -> product_ignored_files -> string
+  (** Serialize a value of type {!type:product_ignored_files}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_product_ignored_files :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> product_ignored_files
+  (** Input JSON data of type {!type:product_ignored_files}. *)
+
+val product_ignored_files_of_string :
+  string -> product_ignored_files
+  (** Deserialize JSON data of type {!type:product_ignored_files}. *)
 
 val write_historical_configuration :
   Buffer.t -> historical_configuration -> unit
