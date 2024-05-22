@@ -465,6 +465,11 @@ message FindingHashes {
   string pattern_hash = 242617803;
 }
 
+message BatchInfo {
+  int64 num_batches = 432511017;
+  int64 current_batch = 397095616;
+}
+
 message CiScanResults {
   repeated Finding findings = 343207531;
   repeated Finding ignores = 373337124;
@@ -474,6 +479,7 @@ message CiScanResults {
   repeated string rule_ids = 212698331;
   repeated Contribution contributions = 7572534;
   map<string, google.protobuf.Any> dependencies = 469817480;
+  BatchInfo batch_info = 480675124;
 }
 
 message Contributor {

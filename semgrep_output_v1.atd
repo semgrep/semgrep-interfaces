@@ -1051,6 +1051,7 @@ type features = {
    ~autofix: bool;
    ~deepsemgrep: bool;
    ~dependency_query: bool;
+   (* since semgrep 1.74.0 *)
    ~can_batch_upload: bool;
 }
 
@@ -1387,6 +1388,11 @@ type finding_hashes = {
 (* CI scan results *)
 (* ----------------------------- *)
 
+type batch_info = {
+  num_batches: int;
+  current_batch: int;
+}
+
 (* Sent by the CLI to /findings_and_ignores (a.k.a. /results) *)
 type ci_scan_results = {
   (* TODO: ?version: version option; *)
@@ -1406,6 +1412,9 @@ type ci_scan_results = {
    (* since semgrep 1.38.0 *)
    (* this data was originally sent to /complete, but we want to start sending it /results *)
    ?dependencies: ci_scan_dependencies option;
+
+   (* since semgrep 1.74.0 *)
+   ?batch_info: batch_info option;
 }
 
 (* See https://semgrep.dev/docs/usage-limits

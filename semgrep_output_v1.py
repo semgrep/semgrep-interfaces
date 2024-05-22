@@ -6171,6 +6171,37 @@ class CiScanDependencies:
 
 
 @dataclass
+class BatchInfo:
+    """Original type: batch_info = { ... }"""
+
+    num_batches: int
+    current_batch: int
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'BatchInfo':
+        if isinstance(x, dict):
+            return cls(
+                num_batches=_atd_read_int(x['num_batches']) if 'num_batches' in x else _atd_missing_json_field('BatchInfo', 'num_batches'),
+                current_batch=_atd_read_int(x['current_batch']) if 'current_batch' in x else _atd_missing_json_field('BatchInfo', 'current_batch'),
+            )
+        else:
+            _atd_bad_json('BatchInfo', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['num_batches'] = _atd_write_int(self.num_batches)
+        res['current_batch'] = _atd_write_int(self.current_batch)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'BatchInfo':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class CiScanResults:
     """Original type: ci_scan_results = { ... }"""
 
@@ -6182,6 +6213,7 @@ class CiScanResults:
     rule_ids: List[RuleId]
     contributions: Optional[Contributions] = None
     dependencies: Optional[CiScanDependencies] = None
+    batch_info: Optional[BatchInfo] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanResults':
@@ -6195,6 +6227,7 @@ class CiScanResults:
                 rule_ids=_atd_read_list(RuleId.from_json)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('CiScanResults', 'rule_ids'),
                 contributions=Contributions.from_json(x['contributions']) if 'contributions' in x else None,
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
+                batch_info=BatchInfo.from_json(x['batch_info']) if 'batch_info' in x else None,
             )
         else:
             _atd_bad_json('CiScanResults', x)
@@ -6211,6 +6244,8 @@ class CiScanResults:
             res['contributions'] = (lambda x: x.to_json())(self.contributions)
         if self.dependencies is not None:
             res['dependencies'] = (lambda x: x.to_json())(self.dependencies)
+        if self.batch_info is not None:
+            res['batch_info'] = (lambda x: x.to_json())(self.batch_info)
         return res
 
     @classmethod

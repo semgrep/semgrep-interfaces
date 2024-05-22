@@ -1092,6 +1092,14 @@
         "pattern_hash": { "type": "string" }
       }
     },
+    "batch_info": {
+      "type": "object",
+      "required": [ "num_batches", "current_batch" ],
+      "properties": {
+        "num_batches": { "type": "integer" },
+        "current_batch": { "type": "integer" }
+      }
+    },
     "ci_scan_results": {
       "type": "object",
       "required": [
@@ -1121,7 +1129,8 @@
           "items": { "$ref": "#/definitions/rule_id" }
         },
         "contributions": { "$ref": "#/definitions/contributions" },
-        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" }
+        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" },
+        "batch_info": { "$ref": "#/definitions/batch_info" }
       }
     },
     "contributor": {

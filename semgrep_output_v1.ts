@@ -646,6 +646,11 @@ export type FindingHashes = {
   pattern_hash: string;
 }
 
+export type BatchInfo = {
+  num_batches: number /*int*/;
+  current_batch: number /*int*/;
+}
+
 export type CiScanResults = {
   findings: Finding[];
   ignores: Finding[];
@@ -655,6 +660,7 @@ export type CiScanResults = {
   rule_ids: RuleId[];
   contributions?: Contributions;
   dependencies?: CiScanDependencies;
+  batch_info?: BatchInfo;
 }
 
 export type Contributor = {
@@ -2706,6 +2712,20 @@ export function readFindingHashes(x: any, context: any = x): FindingHashes {
   };
 }
 
+export function writeBatchInfo(x: BatchInfo, context: any = x): any {
+  return {
+    'num_batches': _atd_write_required_field('BatchInfo', 'num_batches', _atd_write_int, x.num_batches, x),
+    'current_batch': _atd_write_required_field('BatchInfo', 'current_batch', _atd_write_int, x.current_batch, x),
+  };
+}
+
+export function readBatchInfo(x: any, context: any = x): BatchInfo {
+  return {
+    num_batches: _atd_read_required_field('BatchInfo', 'num_batches', _atd_read_int, x['num_batches'], x),
+    current_batch: _atd_read_required_field('BatchInfo', 'current_batch', _atd_read_int, x['current_batch'], x),
+  };
+}
+
 export function writeCiScanResults(x: CiScanResults, context: any = x): any {
   return {
     'findings': _atd_write_required_field('CiScanResults', 'findings', _atd_write_array(writeFinding), x.findings, x),
@@ -2716,6 +2736,7 @@ export function writeCiScanResults(x: CiScanResults, context: any = x): any {
     'rule_ids': _atd_write_required_field('CiScanResults', 'rule_ids', _atd_write_array(writeRuleId), x.rule_ids, x),
     'contributions': _atd_write_optional_field(writeContributions, x.contributions, x),
     'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
+    'batch_info': _atd_write_optional_field(writeBatchInfo, x.batch_info, x),
   };
 }
 
@@ -2729,6 +2750,7 @@ export function readCiScanResults(x: any, context: any = x): CiScanResults {
     rule_ids: _atd_read_required_field('CiScanResults', 'rule_ids', _atd_read_array(readRuleId), x['rule_ids'], x),
     contributions: _atd_read_optional_field(readContributions, x['contributions'], x),
     dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
+    batch_info: _atd_read_optional_field(readBatchInfo, x['batch_info'], x),
   };
 }
 
