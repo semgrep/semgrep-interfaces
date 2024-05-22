@@ -11,7 +11,7 @@
  * (see https://json-schema-everywhere.github.io/yaml).
  *
  * Jsonschema, used in rule_schema_v1.yml, is powerful but also arguably
- * complicated and so it might be simpler for many Semgrep developers 
+ * complicated and so it might be simpler for many Semgrep developers
  * (and also some Semgrep users) to use ATD to specify and understand the
  * schema of a rule. It could provide a better basis to think about future
  * syntax extensions.
@@ -103,7 +103,7 @@ type rule = {
      ?options: rule_options option;
 
      (* TODO? impose more constraints on metadata? standard fields?
-      * add a 'confidence:'? 'product:'? 
+      * add a 'confidence:'? 'product:'?
       *)
      ?metadata: raw_json option;
 
@@ -118,7 +118,7 @@ type rule_id = string wrap <ocaml module="Rule_ID">
 (* Severity, language, selector, paths, fix_regex *)
 (*****************************************************************************)
 
-(* coupling: semgrep_output_v1.atd with match_severity 
+(* coupling: semgrep_output_v1.atd with match_severity
  * I've removed EXPERIMENT and INVENTORY which should not be used.
  * TODO in v2 we should probably remove ERROR/WARNING superseded by
  * HIGH/MEDIUM.
@@ -194,8 +194,8 @@ type language = [
   | Vue          <json name="vue">
   | Yaml         <json name="yaml">
 
-  (* a.k.a., spacegrep and aliengrep 
-   * TODO? remove and replace with 'generic:' in formula? 
+  (* a.k.a., spacegrep and aliengrep
+   * TODO? remove and replace with 'generic:' in formula?
    *)
   | Generic      <json name="generic">
   (* TODO remove? redundant with 'regex:' in formula? *)
@@ -347,6 +347,9 @@ type formula = {
   (* TODO? ?taint: taint option; and ?steps: ? *)
 
   ?where: condition list option;
+
+  (* NEW: since 1.74 *)
+  ?fix: string option;
 }
 <json adapter.ocaml="Rule_schema_v2_adapter.Formula">
 
@@ -361,7 +364,7 @@ type pattern = string
  *   - metavariable: $X
  *     regex: $Z
  * which when turned into JSON gives:
- *  { where: 
+ *  { where:
  *     [ { metavariable: $X, regex: $Z } ]
  *   }
  * which we must transform in an ATD-compliant:
@@ -385,7 +388,7 @@ type comparison = {
     ?strip: bool option;
   }
 
-(* comparison expression with metavariables, ex: $X > 100 
+(* comparison expression with metavariables, ex: $X > 100
  * (currently using a Python-like syntax)
  *)
 type comparison_expr = string
@@ -412,7 +415,7 @@ type metavariable_cond = {
   ?constant_propagation <json name="constant-propagation">: bool option;
 
   ?analyzer: analyzer option;
-}  
+}
 
 type mvar = string
 
