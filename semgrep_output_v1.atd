@@ -1051,6 +1051,7 @@ type features = {
    ~autofix: bool;
    ~deepsemgrep: bool;
    ~dependency_query: bool;
+   ~can_batch_upload: bool;
 }
 
 type triage_ignored = {

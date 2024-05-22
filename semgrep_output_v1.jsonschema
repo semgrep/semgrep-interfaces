@@ -800,7 +800,8 @@
       "properties": {
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
-        "dependency_query": { "type": "boolean" }
+        "dependency_query": { "type": "boolean" },
+        "can_batch_upload": { "type": "boolean" }
       }
     },
     "triage_ignored": {
@@ -882,6 +883,7 @@
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
         "dependency_query": { "type": "boolean" },
+        "can_batch_upload": { "type": "boolean" },
         "triage_ignored_syntactic_ids": {
           "type": "array",
           "items": { "type": "string" }
@@ -1036,6 +1038,7 @@
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
         "dependency_query": { "type": "boolean" },
+        "can_batch_upload": { "type": "boolean" },
         "ignored_files": { "type": "array", "items": { "type": "string" } },
         "product_ignored_files": {
           "$ref": "#/definitions/product_ignored_files"
@@ -1277,7 +1280,8 @@
         "ignored_files": { "type": "array", "items": { "type": "string" } },
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
-        "dependency_query": { "type": "boolean" }
+        "dependency_query": { "type": "boolean" },
+        "can_batch_upload": { "type": "boolean" }
       }
     },
     "ci_env": {

@@ -306,6 +306,7 @@ message Features {
   bool autofix = 82457874;
   bool deepsemgrep = 444846865;
   bool dependency_query = 471197362;
+  bool can_batch_upload = 393661893;
 }
 
 message TriageIgnored {
@@ -342,6 +343,7 @@ message ScanConfig {
   bool autofix = 82457874;
   bool deepsemgrep = 444846865;
   bool dependency_query = 471197362;
+  bool can_batch_upload = 393661893;
   repeated string triage_ignored_syntactic_ids = 211590151;
   repeated string triage_ignored_match_based_ids = 327942260;
   repeated string ignored_files = 482076310;
@@ -425,6 +427,7 @@ message EngineConfiguration {
   bool autofix = 82457874;
   bool deepsemgrep = 444846865;
   bool dependency_query = 471197362;
+  bool can_batch_upload = 393661893;
   repeated string ignored_files = 482076310;
   repeated google.protobuf.Any product_ignored_files = 298217262;
   bool generic_slow_rollout = 78139686;
@@ -545,6 +548,7 @@ message CiConfig {
   bool autofix = 82457874;
   bool deepsemgrep = 444846865;
   bool dependency_query = 471197362;
+  bool can_batch_upload = 393661893;
 }
 
 message Edit {

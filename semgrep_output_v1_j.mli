@@ -235,6 +235,7 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
+  can_batch_upload: bool;
   ignored_files: string list;
   product_ignored_files: product_ignored_files option;
   generic_slow_rollout: bool;
@@ -304,7 +305,8 @@ type ci_config = Semgrep_output_v1_t.ci_config = {
   ignored_files: string list;
   autofix: bool;
   deepsemgrep: bool;
-  dependency_query: bool
+  dependency_query: bool;
+  can_batch_upload: bool
 }
 
 type action = Semgrep_output_v1_t.action
@@ -325,6 +327,7 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
+  can_batch_upload: bool;
   triage_ignored_syntactic_ids: string list;
   triage_ignored_match_based_ids: string list;
   ignored_files: string list;
@@ -558,7 +561,8 @@ type finding = Semgrep_output_v1_t.finding = {
 type features = Semgrep_output_v1_t.features = {
   autofix: bool;
   deepsemgrep: bool;
-  dependency_query: bool
+  dependency_query: bool;
+  can_batch_upload: bool
 }
 
 type deployment_config = Semgrep_output_v1_t.deployment_config = {

@@ -476,6 +476,7 @@ export type Features = {
   autofix: boolean;
   deepsemgrep: boolean;
   dependency_query: boolean;
+  can_batch_upload: boolean;
 }
 
 export type TriageIgnored = {
@@ -519,6 +520,7 @@ export type ScanConfig = {
   autofix: boolean;
   deepsemgrep: boolean;
   dependency_query: boolean;
+  can_batch_upload: boolean;
   triage_ignored_syntactic_ids: string[];
   triage_ignored_match_based_ids: string[];
   ignored_files: string[];
@@ -606,6 +608,7 @@ export type EngineConfiguration = {
   autofix: boolean;
   deepsemgrep: boolean;
   dependency_query: boolean;
+  can_batch_upload: boolean;
   ignored_files: string[];
   product_ignored_files?: ProductIgnoredFiles;
   generic_slow_rollout: boolean;
@@ -730,6 +733,7 @@ export type CiConfig = {
   autofix: boolean;
   deepsemgrep: boolean;
   dependency_query: boolean;
+  can_batch_upload: boolean;
 }
 
 export type CiEnv = Map<string, string>
@@ -2267,6 +2271,7 @@ export function writeFeatures(x: Features, context: any = x): any {
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
+    'can_batch_upload': _atd_write_field_with_default(_atd_write_bool, false, x.can_batch_upload, x),
   };
 }
 
@@ -2275,6 +2280,7 @@ export function readFeatures(x: any, context: any = x): Features {
     autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
+    can_batch_upload: _atd_read_field_with_default(_atd_read_bool, false, x['can_batch_upload'], x),
   };
 }
 
@@ -2384,6 +2390,7 @@ export function writeScanConfig(x: ScanConfig, context: any = x): any {
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
+    'can_batch_upload': _atd_write_field_with_default(_atd_write_bool, false, x.can_batch_upload, x),
     'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
     'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
     'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
@@ -2402,6 +2409,7 @@ export function readScanConfig(x: any, context: any = x): ScanConfig {
     autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
+    can_batch_upload: _atd_read_field_with_default(_atd_read_bool, false, x['can_batch_upload'], x),
     triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),
     triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
     ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
@@ -2607,6 +2615,7 @@ export function writeEngineConfiguration(x: EngineConfiguration, context: any = 
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
+    'can_batch_upload': _atd_write_field_with_default(_atd_write_bool, false, x.can_batch_upload, x),
     'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
     'product_ignored_files': _atd_write_optional_field(writeProductIgnoredFiles, x.product_ignored_files, x),
     'generic_slow_rollout': _atd_write_field_with_default(_atd_write_bool, false, x.generic_slow_rollout, x),
@@ -2619,6 +2628,7 @@ export function readEngineConfiguration(x: any, context: any = x): EngineConfigu
     autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
+    can_batch_upload: _atd_read_field_with_default(_atd_read_bool, false, x['can_batch_upload'], x),
     ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
     product_ignored_files: _atd_read_optional_field(readProductIgnoredFiles, x['product_ignored_files'], x),
     generic_slow_rollout: _atd_read_field_with_default(_atd_read_bool, false, x['generic_slow_rollout'], x),
@@ -2916,6 +2926,7 @@ export function writeCiConfig(x: CiConfig, context: any = x): any {
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
+    'can_batch_upload': _atd_write_field_with_default(_atd_write_bool, false, x.can_batch_upload, x),
   };
 }
 
@@ -2927,6 +2938,7 @@ export function readCiConfig(x: any, context: any = x): CiConfig {
     autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
+    can_batch_upload: _atd_read_field_with_default(_atd_read_bool, false, x['can_batch_upload'], x),
   };
 }
 
