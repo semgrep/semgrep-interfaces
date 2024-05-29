@@ -235,7 +235,7 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
-  can_batch_upload: bool;
+  use_batch_upload: bool;
   ignored_files: string list;
   product_ignored_files: product_ignored_files option;
   generic_slow_rollout: bool;
@@ -306,7 +306,7 @@ type ci_config = Semgrep_output_v1_t.ci_config = {
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
-  can_batch_upload: bool
+  use_batch_upload: bool
 }
 
 type action = Semgrep_output_v1_t.action
@@ -327,7 +327,7 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
-  can_batch_upload: bool;
+  use_batch_upload: bool;
   triage_ignored_syntactic_ids: string list;
   triage_ignored_match_based_ids: string list;
   ignored_files: string list;
@@ -562,7 +562,7 @@ type features = Semgrep_output_v1_t.features = {
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
-  can_batch_upload: bool
+  use_batch_upload: bool
 }
 
 type deployment_config = Semgrep_output_v1_t.deployment_config = {
@@ -8532,11 +8532,11 @@ let write_engine_configuration : _ -> engine_configuration -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"can_batch_upload\":";
+      Buffer.add_string ob "\"use_batch_upload\":";
     (
       Yojson.Safe.write_bool
     )
-      ob x.can_batch_upload;
+      ob x.use_batch_upload;
     if !is_first then
       is_first := false
     else
@@ -8590,7 +8590,7 @@ let read_engine_configuration = (
     let field_autofix = ref (false) in
     let field_deepsemgrep = ref (false) in
     let field_dependency_query = ref (false) in
-    let field_can_batch_upload = ref (false) in
+    let field_use_batch_upload = ref (false) in
     let field_ignored_files = ref ([]) in
     let field_product_ignored_files = ref (None) in
     let field_generic_slow_rollout = ref (false) in
@@ -8630,17 +8630,17 @@ let read_engine_configuration = (
               )
             | 16 -> (
                 match String.unsafe_get s pos with
-                  | 'c' -> (
-                      if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'a' && String.unsafe_get s (pos+15) = 'd' then (
-                        3
+                  | 'd' -> (
+                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'q' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'y' then (
+                        2
                       )
                       else (
                         -1
                       )
                     )
-                  | 'd' -> (
-                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'q' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'y' then (
-                        2
+                  | 'u' -> (
+                      if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'a' && String.unsafe_get s (pos+15) = 'd' then (
+                        3
                       )
                       else (
                         -1
@@ -8708,7 +8708,7 @@ let read_engine_configuration = (
             )
           | 3 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_can_batch_upload := (
+              field_use_batch_upload := (
                 (
                   Atdgen_runtime.Oj_run.read_bool
                 ) p lb
@@ -8789,17 +8789,17 @@ let read_engine_configuration = (
                 )
               | 16 -> (
                   match String.unsafe_get s pos with
-                    | 'c' -> (
-                        if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'a' && String.unsafe_get s (pos+15) = 'd' then (
-                          3
+                    | 'd' -> (
+                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'q' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'y' then (
+                          2
                         )
                         else (
                           -1
                         )
                       )
-                    | 'd' -> (
-                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'q' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'y' then (
-                          2
+                    | 'u' -> (
+                        if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'a' && String.unsafe_get s (pos+15) = 'd' then (
+                          3
                         )
                         else (
                           -1
@@ -8867,7 +8867,7 @@ let read_engine_configuration = (
               )
             | 3 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_can_batch_upload := (
+                field_use_batch_upload := (
                   (
                     Atdgen_runtime.Oj_run.read_bool
                   ) p lb
@@ -8921,7 +8921,7 @@ let read_engine_configuration = (
             autofix = !field_autofix;
             deepsemgrep = !field_deepsemgrep;
             dependency_query = !field_dependency_query;
-            can_batch_upload = !field_can_batch_upload;
+            use_batch_upload = !field_use_batch_upload;
             ignored_files = !field_ignored_files;
             product_ignored_files = !field_product_ignored_files;
             generic_slow_rollout = !field_generic_slow_rollout;
@@ -11680,11 +11680,11 @@ let write_ci_config : _ -> ci_config -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"can_batch_upload\":";
+      Buffer.add_string ob "\"use_batch_upload\":";
     (
       Yojson.Safe.write_bool
     )
-      ob x.can_batch_upload;
+      ob x.use_batch_upload;
     Buffer.add_char ob '}';
 )
 let string_of_ci_config ?(len = 1024) x =
@@ -11701,7 +11701,7 @@ let read_ci_config = (
     let field_autofix = ref (false) in
     let field_deepsemgrep = ref (false) in
     let field_dependency_query = ref (false) in
-    let field_can_batch_upload = ref (false) in
+    let field_use_batch_upload = ref (false) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -11745,14 +11745,6 @@ let read_ci_config = (
               )
             | 16 -> (
                 match String.unsafe_get s pos with
-                  | 'c' -> (
-                      if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'a' && String.unsafe_get s (pos+15) = 'd' then (
-                        6
-                      )
-                      else (
-                        -1
-                      )
-                    )
                   | 'd' -> (
                       if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'q' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'y' then (
                         5
@@ -11764,6 +11756,14 @@ let read_ci_config = (
                   | 'e' -> (
                       if String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'c' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 's' then (
                         1
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 'u' -> (
+                      if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'a' && String.unsafe_get s (pos+15) = 'd' then (
+                        6
                       )
                       else (
                         -1
@@ -11831,7 +11831,7 @@ let read_ci_config = (
             )
           | 6 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_can_batch_upload := (
+              field_use_batch_upload := (
                 (
                   Atdgen_runtime.Oj_run.read_bool
                 ) p lb
@@ -11884,14 +11884,6 @@ let read_ci_config = (
                 )
               | 16 -> (
                   match String.unsafe_get s pos with
-                    | 'c' -> (
-                        if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'a' && String.unsafe_get s (pos+15) = 'd' then (
-                          6
-                        )
-                        else (
-                          -1
-                        )
-                      )
                     | 'd' -> (
                         if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'q' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'y' then (
                           5
@@ -11903,6 +11895,14 @@ let read_ci_config = (
                     | 'e' -> (
                         if String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'c' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 's' then (
                           1
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'u' -> (
+                        if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'a' && String.unsafe_get s (pos+15) = 'd' then (
+                          6
                         )
                         else (
                           -1
@@ -11970,7 +11970,7 @@ let read_ci_config = (
               )
             | 6 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_can_batch_upload := (
+                field_use_batch_upload := (
                   (
                     Atdgen_runtime.Oj_run.read_bool
                   ) p lb
@@ -11991,7 +11991,7 @@ let read_ci_config = (
             autofix = !field_autofix;
             deepsemgrep = !field_deepsemgrep;
             dependency_query = !field_dependency_query;
-            can_batch_upload = !field_can_batch_upload;
+            use_batch_upload = !field_use_batch_upload;
           }
          : ci_config)
       )
@@ -12765,11 +12765,11 @@ let write_scan_config : _ -> scan_config -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"can_batch_upload\":";
+      Buffer.add_string ob "\"use_batch_upload\":";
     (
       Yojson.Safe.write_bool
     )
-      ob x.can_batch_upload;
+      ob x.use_batch_upload;
     if !is_first then
       is_first := false
     else
@@ -12835,7 +12835,7 @@ let read_scan_config = (
     let field_autofix = ref (false) in
     let field_deepsemgrep = ref (false) in
     let field_dependency_query = ref (false) in
-    let field_can_batch_upload = ref (false) in
+    let field_use_batch_upload = ref (false) in
     let field_triage_ignored_syntactic_ids = ref ([]) in
     let field_triage_ignored_match_based_ids = ref ([]) in
     let field_ignored_files = ref ([]) in
@@ -12939,14 +12939,6 @@ let read_scan_config = (
               )
             | 16 -> (
                 match String.unsafe_get s pos with
-                  | 'c' -> (
-                      if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'a' && String.unsafe_get s (pos+15) = 'd' then (
-                        8
-                      )
-                      else (
-                        -1
-                      )
-                    )
                   | 'd' -> (
                       if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'q' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'y' then (
                         7
@@ -12958,6 +12950,14 @@ let read_scan_config = (
                   | 'e' -> (
                       if String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'c' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 's' then (
                         12
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 'u' -> (
+                      if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'a' && String.unsafe_get s (pos+15) = 'd' then (
+                        8
                       )
                       else (
                         -1
@@ -13067,7 +13067,7 @@ let read_scan_config = (
             )
           | 8 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_can_batch_upload := (
+              field_use_batch_upload := (
                 (
                   Atdgen_runtime.Oj_run.read_bool
                 ) p lb
@@ -13217,14 +13217,6 @@ let read_scan_config = (
                 )
               | 16 -> (
                   match String.unsafe_get s pos with
-                    | 'c' -> (
-                        if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'a' && String.unsafe_get s (pos+15) = 'd' then (
-                          8
-                        )
-                        else (
-                          -1
-                        )
-                      )
                     | 'd' -> (
                         if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'q' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'y' then (
                           7
@@ -13236,6 +13228,14 @@ let read_scan_config = (
                     | 'e' -> (
                         if String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'c' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 's' then (
                           12
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'u' -> (
+                        if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'a' && String.unsafe_get s (pos+15) = 'd' then (
+                          8
                         )
                         else (
                           -1
@@ -13345,7 +13345,7 @@ let read_scan_config = (
               )
             | 8 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_can_batch_upload := (
+                field_use_batch_upload := (
                   (
                     Atdgen_runtime.Oj_run.read_bool
                   ) p lb
@@ -13410,7 +13410,7 @@ let read_scan_config = (
             autofix = !field_autofix;
             deepsemgrep = !field_deepsemgrep;
             dependency_query = !field_dependency_query;
-            can_batch_upload = !field_can_batch_upload;
+            use_batch_upload = !field_use_batch_upload;
             triage_ignored_syntactic_ids = !field_triage_ignored_syntactic_ids;
             triage_ignored_match_based_ids = !field_triage_ignored_match_based_ids;
             ignored_files = !field_ignored_files;
@@ -22267,11 +22267,11 @@ let write_features : _ -> features -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"can_batch_upload\":";
+      Buffer.add_string ob "\"use_batch_upload\":";
     (
       Yojson.Safe.write_bool
     )
-      ob x.can_batch_upload;
+      ob x.use_batch_upload;
     Buffer.add_char ob '}';
 )
 let string_of_features ?(len = 1024) x =
@@ -22285,7 +22285,7 @@ let read_features = (
     let field_autofix = ref (false) in
     let field_deepsemgrep = ref (false) in
     let field_dependency_query = ref (false) in
-    let field_can_batch_upload = ref (false) in
+    let field_use_batch_upload = ref (false) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -22313,17 +22313,17 @@ let read_features = (
               )
             | 16 -> (
                 match String.unsafe_get s pos with
-                  | 'c' -> (
-                      if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'a' && String.unsafe_get s (pos+15) = 'd' then (
-                        3
+                  | 'd' -> (
+                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'q' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'y' then (
+                        2
                       )
                       else (
                         -1
                       )
                     )
-                  | 'd' -> (
-                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'q' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'y' then (
-                        2
+                  | 'u' -> (
+                      if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'a' && String.unsafe_get s (pos+15) = 'd' then (
+                        3
                       )
                       else (
                         -1
@@ -22367,7 +22367,7 @@ let read_features = (
             )
           | 3 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_can_batch_upload := (
+              field_use_batch_upload := (
                 (
                   Atdgen_runtime.Oj_run.read_bool
                 ) p lb
@@ -22404,17 +22404,17 @@ let read_features = (
                 )
               | 16 -> (
                   match String.unsafe_get s pos with
-                    | 'c' -> (
-                        if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'a' && String.unsafe_get s (pos+15) = 'd' then (
-                          3
+                    | 'd' -> (
+                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'q' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'y' then (
+                          2
                         )
                         else (
                           -1
                         )
                       )
-                    | 'd' -> (
-                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'q' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'y' then (
-                          2
+                    | 'u' -> (
+                        if String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'a' && String.unsafe_get s (pos+15) = 'd' then (
+                          3
                         )
                         else (
                           -1
@@ -22458,7 +22458,7 @@ let read_features = (
               )
             | 3 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_can_batch_upload := (
+                field_use_batch_upload := (
                   (
                     Atdgen_runtime.Oj_run.read_bool
                   ) p lb
@@ -22476,7 +22476,7 @@ let read_features = (
             autofix = !field_autofix;
             deepsemgrep = !field_deepsemgrep;
             dependency_query = !field_dependency_query;
-            can_batch_upload = !field_can_batch_upload;
+            use_batch_upload = !field_use_batch_upload;
           }
          : features)
       )
