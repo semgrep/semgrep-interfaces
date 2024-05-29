@@ -413,7 +413,12 @@ type match_dataflow_trace <python decorator="dataclass(frozen=True)"> = {
  * TODO: define a location_with_content type that can be reused.
  *)
 type match_call_trace <python decorator="dataclass(frozen=True, order=True)"> = [
+  (* CliLoc is a spot in the code *)
   | CliLoc of (location * string)
+
+  (* CliCall is a spot in the code that points to another spot,
+   * e.g. the function definition being called
+   *)
   | CliCall of ((location * string) * match_intermediate_var list * match_call_trace)
 ] <ocaml repr="classic">
 
