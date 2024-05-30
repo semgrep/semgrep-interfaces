@@ -155,9 +155,11 @@ export type MatchDataflowTrace = {
   taint_sink?: MatchCallTrace;
 }
 
+export type LocAndContent = [Location, string]
+
 export type MatchCallTrace =
-| { kind: 'CliLoc'; value: [Location, string] }
-| { kind: 'CliCall'; value: [[Location, string], MatchIntermediateVar[], MatchCallTrace] }
+| { kind: 'CliLoc'; value: LocAndContent }
+| { kind: 'CliCall'; value: [LocAndContent, MatchIntermediateVar[], MatchCallTrace] }
 
 export type MatchIntermediateVar = {
   location: Location;
@@ -1246,12 +1248,20 @@ export function readMatchDataflowTrace(x: any, context: any = x): MatchDataflowT
   };
 }
 
+export function writeLocAndContent(x: LocAndContent, context: any = x): any {
+  return ((x, context) => [writeLocation(x[0], x), _atd_write_string(x[1], x)])(x, context);
+}
+
+export function readLocAndContent(x: any, context: any = x): LocAndContent {
+  return ((x, context): [Location, string] => { _atd_check_json_tuple(2, x, context); return [readLocation(x[0], x), _atd_read_string(x[1], x)] })(x, context);
+}
+
 export function writeMatchCallTrace(x: MatchCallTrace, context: any = x): any {
   switch (x.kind) {
     case 'CliLoc':
-      return ['CliLoc', ((x, context) => [writeLocation(x[0], x), _atd_write_string(x[1], x)])(x.value, x)]
+      return ['CliLoc', writeLocAndContent(x.value, x)]
     case 'CliCall':
-      return ['CliCall', ((x, context) => [((x, context) => [writeLocation(x[0], x), _atd_write_string(x[1], x)])(x[0], x), _atd_write_array(writeMatchIntermediateVar)(x[1], x), writeMatchCallTrace(x[2], x)])(x.value, x)]
+      return ['CliCall', ((x, context) => [writeLocAndContent(x[0], x), _atd_write_array(writeMatchIntermediateVar)(x[1], x), writeMatchCallTrace(x[2], x)])(x.value, x)]
   }
 }
 
@@ -1259,9 +1269,9 @@ export function readMatchCallTrace(x: any, context: any = x): MatchCallTrace {
   _atd_check_json_tuple(2, x, context)
   switch (x[0]) {
     case 'CliLoc':
-      return { kind: 'CliLoc', value: ((x, context): [Location, string] => { _atd_check_json_tuple(2, x, context); return [readLocation(x[0], x), _atd_read_string(x[1], x)] })(x[1], x) }
+      return { kind: 'CliLoc', value: readLocAndContent(x[1], x) }
     case 'CliCall':
-      return { kind: 'CliCall', value: ((x, context): [[Location, string], MatchIntermediateVar[], MatchCallTrace] => { _atd_check_json_tuple(3, x, context); return [((x, context): [Location, string] => { _atd_check_json_tuple(2, x, context); return [readLocation(x[0], x), _atd_read_string(x[1], x)] })(x[0], x), _atd_read_array(readMatchIntermediateVar)(x[1], x), readMatchCallTrace(x[2], x)] })(x[1], x) }
+      return { kind: 'CliCall', value: ((x, context): [LocAndContent, MatchIntermediateVar[], MatchCallTrace] => { _atd_check_json_tuple(3, x, context); return [readLocAndContent(x[0], x), _atd_read_array(readMatchIntermediateVar)(x[1], x), readMatchCallTrace(x[2], x)] })(x[1], x) }
     default:
       _atd_bad_json('MatchCallTrace', x, context)
       throw new Error('impossible')

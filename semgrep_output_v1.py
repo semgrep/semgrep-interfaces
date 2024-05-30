@@ -849,6 +849,27 @@ class Location:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class LocAndContent:
+    """Original type: loc_and_content"""
+
+    value: Tuple[Location, str]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'LocAndContent':
+        return cls((lambda x: (Location.from_json(x[0]), _atd_read_string(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x))
+
+    def to_json(self) -> Any:
+        return (lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_string(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'LocAndContent':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class MatchIntermediateVar:
     """Original type: match_intermediate_var = { ... }"""
@@ -1304,7 +1325,7 @@ class ValidationState:
 class CliLoc:
     """Original type: match_call_trace = [ ... | CliLoc of ... | ... ]"""
 
-    value: Tuple[Location, str]
+    value: LocAndContent
 
     @property
     def kind(self) -> str:
@@ -1312,7 +1333,7 @@ class CliLoc:
         return 'CliLoc'
 
     def to_json(self) -> Any:
-        return ['CliLoc', (lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_string(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
+        return ['CliLoc', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1322,7 +1343,7 @@ class CliLoc:
 class CliCall:
     """Original type: match_call_trace = [ ... | CliCall of ... | ... ]"""
 
-    value: Tuple[Tuple[Location, str], List[MatchIntermediateVar], MatchCallTrace]
+    value: Tuple[LocAndContent, List[MatchIntermediateVar], MatchCallTrace]
 
     @property
     def kind(self) -> str:
@@ -1330,7 +1351,7 @@ class CliCall:
         return 'CliCall'
 
     def to_json(self) -> Any:
-        return ['CliCall', (lambda x: [(lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_string(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1]), (lambda x: x.to_json())(x[2])] if isinstance(x, tuple) and len(x) == 3 else _atd_bad_python('tuple of length 3', x))(self.value)]
+        return ['CliCall', (lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1]), (lambda x: x.to_json())(x[2])] if isinstance(x, tuple) and len(x) == 3 else _atd_bad_python('tuple of length 3', x))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1352,9 +1373,9 @@ class MatchCallTrace:
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'CliLoc':
-                return cls(CliLoc((lambda x: (Location.from_json(x[0]), _atd_read_string(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+                return cls(CliLoc(LocAndContent.from_json(x[1])))
             if cons == 'CliCall':
-                return cls(CliCall((lambda x: ((lambda x: (Location.from_json(x[0]), _atd_read_string(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[0]), _atd_read_list(MatchIntermediateVar.from_json)(x[1]), MatchCallTrace.from_json(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
+                return cls(CliCall((lambda x: (LocAndContent.from_json(x[0]), _atd_read_list(MatchIntermediateVar.from_json)(x[1]), MatchCallTrace.from_json(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
             _atd_bad_json('MatchCallTrace', x)
         _atd_bad_json('MatchCallTrace', x)
 

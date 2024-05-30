@@ -39,6 +39,8 @@ type location = Semgrep_output_v1_t.location = {
 }
   [@@deriving show]
 
+type loc_and_content = Semgrep_output_v1_t.loc_and_content
+
 type match_intermediate_var = Semgrep_output_v1_t.match_intermediate_var = {
   location: location;
   content: string
@@ -85,13 +87,9 @@ type validation_state = Semgrep_output_v1_t.validation_state
   [@@deriving show, eq]
 
 type match_call_trace = Semgrep_output_v1_t.match_call_trace = 
-    CliLoc of (location * string)
+    CliLoc of loc_and_content
   | CliCall
-      of (
-          (location * string)
-        * match_intermediate_var list
-        * match_call_trace
-      )
+      of (loc_and_content * match_intermediate_var list * match_call_trace)
 
 
 type match_dataflow_trace = Semgrep_output_v1_t.match_dataflow_trace = {
@@ -828,6 +826,26 @@ val read_location :
 val location_of_string :
   string -> location
   (** Deserialize JSON data of type {!type:location}. *)
+
+val write_loc_and_content :
+  Buffer.t -> loc_and_content -> unit
+  (** Output a JSON value of type {!type:loc_and_content}. *)
+
+val string_of_loc_and_content :
+  ?len:int -> loc_and_content -> string
+  (** Serialize a value of type {!type:loc_and_content}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_loc_and_content :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> loc_and_content
+  (** Input JSON data of type {!type:loc_and_content}. *)
+
+val loc_and_content_of_string :
+  string -> loc_and_content
+  (** Deserialize JSON data of type {!type:loc_and_content}. *)
 
 val write_match_intermediate_var :
   Buffer.t -> match_intermediate_var -> unit

@@ -225,6 +225,14 @@
         "taint_sink": { "$ref": "#/definitions/match_call_trace" }
       }
     },
+    "loc_and_content": {
+      "type": "array",
+      "minItems": 2,
+      "items": false,
+      "prefixItems": [
+        { "$ref": "#/definitions/location" }, { "type": "string" }
+      ]
+    },
     "match_call_trace": {
       "oneOf": [
         {
@@ -233,14 +241,7 @@
           "items": false,
           "prefixItems": [
             { "const": "CliLoc" },
-            {
-              "type": "array",
-              "minItems": 2,
-              "items": false,
-              "prefixItems": [
-                { "$ref": "#/definitions/location" }, { "type": "string" }
-              ]
-            }
+            { "$ref": "#/definitions/loc_and_content" }
           ]
         },
         {
@@ -254,15 +255,7 @@
               "minItems": 3,
               "items": false,
               "prefixItems": [
-                {
-                  "type": "array",
-                  "minItems": 2,
-                  "items": false,
-                  "prefixItems": [
-                    { "$ref": "#/definitions/location" },
-                    { "type": "string" }
-                  ]
-                },
+                { "$ref": "#/definitions/loc_and_content" },
                 {
                   "type": "array",
                   "items": { "$ref": "#/definitions/match_intermediate_var" }

@@ -39,6 +39,8 @@ type location = Semgrep_output_v1_t.location = {
 }
   [@@deriving show]
 
+type loc_and_content = Semgrep_output_v1_t.loc_and_content
+
 type match_intermediate_var = Semgrep_output_v1_t.match_intermediate_var = {
   location: location;
   content: string
@@ -85,13 +87,9 @@ type validation_state = Semgrep_output_v1_t.validation_state
   [@@deriving show, eq]
 
 type match_call_trace = Semgrep_output_v1_t.match_call_trace = 
-    CliLoc of (location * string)
+    CliLoc of loc_and_content
   | CliCall
-      of (
-          (location * string)
-        * match_intermediate_var list
-        * match_call_trace
-      )
+      of (loc_and_content * match_intermediate_var list * match_call_trace)
 
 
 type match_dataflow_trace = Semgrep_output_v1_t.match_dataflow_trace = {
@@ -1624,6 +1622,72 @@ let read_location = (
 )
 let location_of_string s =
   read_location (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_loc_and_content = (
+  fun ob x ->
+    Buffer.add_char ob '[';
+    (let x, _ = x in
+    (
+      write_location
+    ) ob x
+    );
+    Buffer.add_char ob ',';
+    (let _, x = x in
+    (
+      Yojson.Safe.write_string
+    ) ob x
+    );
+    Buffer.add_char ob ']';
+)
+let string_of_loc_and_content ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_loc_and_content ob x;
+  Buffer.contents ob
+let read_loc_and_content = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+    let len = ref 0 in
+    let end_of_tuple = ref false in
+    (try
+      let x0 =
+        let x =
+          (
+            read_location
+          ) p lb
+        in
+        incr len;
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+        x
+      in
+      let x1 =
+        let x =
+          (
+            Atdgen_runtime.Oj_run.read_string
+          ) p lb
+        in
+        incr len;
+        (try
+          Yojson.Safe.read_space p lb;
+          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+        with Yojson.End_of_tuple -> end_of_tuple := true);
+        x
+      in
+      if not !end_of_tuple then (
+        try
+          while true do
+            Yojson.Safe.skip_json p lb;
+            Yojson.Safe.read_space p lb;
+            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+          done
+        with Yojson.End_of_tuple -> ()
+      );
+      (x0, x1)
+    with Yojson.End_of_tuple ->
+      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+)
+let loc_and_content_of_string s =
+  read_loc_and_content (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_match_intermediate_var : _ -> match_intermediate_var -> _ = (
   fun ob (x : match_intermediate_var) ->
     Buffer.add_char ob '{';
@@ -3222,20 +3286,7 @@ let rec write_match_call_trace : _ -> match_call_trace -> _ = (
       | CliLoc x ->
         Buffer.add_string ob "[\"CliLoc\",";
         (
-          fun ob x ->
-            Buffer.add_char ob '[';
-            (let x, _ = x in
-            (
-              write_location
-            ) ob x
-            );
-            Buffer.add_char ob ',';
-            (let _, x = x in
-            (
-              Yojson.Safe.write_string
-            ) ob x
-            );
-            Buffer.add_char ob ']';
+          write_loc_and_content
         ) ob x;
         Buffer.add_char ob ']'
       | CliCall x ->
@@ -3245,20 +3296,7 @@ let rec write_match_call_trace : _ -> match_call_trace -> _ = (
             Buffer.add_char ob '[';
             (let x, _, _ = x in
             (
-              fun ob x ->
-                Buffer.add_char ob '[';
-                (let x, _ = x in
-                (
-                  write_location
-                ) ob x
-                );
-                Buffer.add_char ob ',';
-                (let _, x = x in
-                (
-                  Yojson.Safe.write_string
-                ) ob x
-                );
-                Buffer.add_char ob ']';
+              write_loc_and_content
             ) ob x
             );
             Buffer.add_char ob ',';
@@ -3290,48 +3328,7 @@ let rec read_match_call_trace = (
             | "CliLoc" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  fun p lb ->
-                    Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                    let len = ref 0 in
-                    let end_of_tuple = ref false in
-                    (try
-                      let x0 =
-                        let x =
-                          (
-                            read_location
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x1 =
-                        let x =
-                          (
-                            Atdgen_runtime.Oj_run.read_string
-                          ) p lb
-                        in
-                        incr len;
-                        (try
-                          Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
-                        x
-                      in
-                      if not !end_of_tuple then (
-                        try
-                          while true do
-                            Yojson.Safe.skip_json p lb;
-                            Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                          done
-                        with Yojson.End_of_tuple -> ()
-                      );
-                      (x0, x1)
-                    with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+                  read_loc_and_content
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -3349,48 +3346,7 @@ let rec read_match_call_trace = (
                       let x0 =
                         let x =
                           (
-                            fun p lb ->
-                              Yojson.Safe.read_space p lb;
-                              let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                              let len = ref 0 in
-                              let end_of_tuple = ref false in
-                              (try
-                                let x0 =
-                                  let x =
-                                    (
-                                      read_location
-                                    ) p lb
-                                  in
-                                  incr len;
-                                  Yojson.Safe.read_space p lb;
-                                  Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                                  x
-                                in
-                                let x1 =
-                                  let x =
-                                    (
-                                      Atdgen_runtime.Oj_run.read_string
-                                    ) p lb
-                                  in
-                                  incr len;
-                                  (try
-                                    Yojson.Safe.read_space p lb;
-                                    Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                                  with Yojson.End_of_tuple -> end_of_tuple := true);
-                                  x
-                                in
-                                if not !end_of_tuple then (
-                                  try
-                                    while true do
-                                      Yojson.Safe.skip_json p lb;
-                                      Yojson.Safe.read_space p lb;
-                                      Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                                    done
-                                  with Yojson.End_of_tuple -> ()
-                                );
-                                (x0, x1)
-                              with Yojson.End_of_tuple ->
-                                Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+                            read_loc_and_content
                           ) p lb
                         in
                         incr len;
@@ -3454,48 +3410,7 @@ let rec read_match_call_trace = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  fun p lb ->
-                    Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                    let len = ref 0 in
-                    let end_of_tuple = ref false in
-                    (try
-                      let x0 =
-                        let x =
-                          (
-                            read_location
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x1 =
-                        let x =
-                          (
-                            Atdgen_runtime.Oj_run.read_string
-                          ) p lb
-                        in
-                        incr len;
-                        (try
-                          Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
-                        x
-                      in
-                      if not !end_of_tuple then (
-                        try
-                          while true do
-                            Yojson.Safe.skip_json p lb;
-                            Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                          done
-                        with Yojson.End_of_tuple -> ()
-                      );
-                      (x0, x1)
-                    with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+                  read_loc_and_content
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -3515,48 +3430,7 @@ let rec read_match_call_trace = (
                       let x0 =
                         let x =
                           (
-                            fun p lb ->
-                              Yojson.Safe.read_space p lb;
-                              let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                              let len = ref 0 in
-                              let end_of_tuple = ref false in
-                              (try
-                                let x0 =
-                                  let x =
-                                    (
-                                      read_location
-                                    ) p lb
-                                  in
-                                  incr len;
-                                  Yojson.Safe.read_space p lb;
-                                  Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                                  x
-                                in
-                                let x1 =
-                                  let x =
-                                    (
-                                      Atdgen_runtime.Oj_run.read_string
-                                    ) p lb
-                                  in
-                                  incr len;
-                                  (try
-                                    Yojson.Safe.read_space p lb;
-                                    Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                                  with Yojson.End_of_tuple -> end_of_tuple := true);
-                                  x
-                                in
-                                if not !end_of_tuple then (
-                                  try
-                                    while true do
-                                      Yojson.Safe.skip_json p lb;
-                                      Yojson.Safe.read_space p lb;
-                                      Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                                    done
-                                  with Yojson.End_of_tuple -> ()
-                                );
-                                (x0, x1)
-                              with Yojson.End_of_tuple ->
-                                Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+                            read_loc_and_content
                           ) p lb
                         in
                         incr len;
