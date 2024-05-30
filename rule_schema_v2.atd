@@ -232,7 +232,6 @@ type fix_regex = {
  *)
 type rule_options = {
   ?constant_propagation: bool option;
-  ?nonkeyword_attributes_order_matters: bool option;
   ?symbolic_propagation: bool option;
 
   ?taint_unify_mvars: bool option;
@@ -276,6 +275,8 @@ type rule_options = {
   ?generic_comment_style: generic_comment_style option;
 
   ?interfile: bool option;
+
+  ?nonkeyword_attributes_order_matters: bool option;
 }
 
 type generic_engine = [
