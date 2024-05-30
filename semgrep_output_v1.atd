@@ -1256,6 +1256,7 @@ type scan_info = {
 (* config specific to the scan, eg *)
 type scan_configuration = {
     rules: raw_json; (* can we type this better *)
+    ?has_batch_upload: bool option;
     inherit triage_ignored;
 }
 

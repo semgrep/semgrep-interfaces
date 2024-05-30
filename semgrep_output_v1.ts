@@ -587,6 +587,7 @@ export type ScanInfo = {
 
 export type ScanConfiguration = {
   rules: RawJson;
+  has_batch_upload?: boolean;
   triage_ignored_syntactic_ids: string[];
   triage_ignored_match_based_ids: string[];
 }
@@ -2549,6 +2550,7 @@ export function readScanInfo(x: any, context: any = x): ScanInfo {
 export function writeScanConfiguration(x: ScanConfiguration, context: any = x): any {
   return {
     'rules': _atd_write_required_field('ScanConfiguration', 'rules', writeRawJson, x.rules, x),
+    'has_batch_upload': _atd_write_optional_field(_atd_write_bool, x.has_batch_upload, x),
     'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
     'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
   };
@@ -2557,6 +2559,7 @@ export function writeScanConfiguration(x: ScanConfiguration, context: any = x): 
 export function readScanConfiguration(x: any, context: any = x): ScanConfiguration {
   return {
     rules: _atd_read_required_field('ScanConfiguration', 'rules', readRawJson, x['rules'], x),
+    has_batch_upload: _atd_read_optional_field(_atd_read_bool, x['has_batch_upload'], x),
     triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),
     triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
   };

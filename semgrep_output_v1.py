@@ -2536,6 +2536,7 @@ class ScanConfiguration:
     """Original type: scan_configuration = { ... }"""
 
     rules: RawJson
+    has_batch_upload: Optional[bool] = None
     triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
     triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
 
@@ -2544,6 +2545,7 @@ class ScanConfiguration:
         if isinstance(x, dict):
             return cls(
                 rules=RawJson.from_json(x['rules']) if 'rules' in x else _atd_missing_json_field('ScanConfiguration', 'rules'),
+                has_batch_upload=_atd_read_bool(x['has_batch_upload']) if 'has_batch_upload' in x else None,
                 triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
                 triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
             )
@@ -2553,6 +2555,8 @@ class ScanConfiguration:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['rules'] = (lambda x: x.to_json())(self.rules)
+        if self.has_batch_upload is not None:
+            res['has_batch_upload'] = _atd_write_bool(self.has_batch_upload)
         res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
         res['triage_ignored_match_based_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_match_based_ids)
         return res

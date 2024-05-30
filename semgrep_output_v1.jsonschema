@@ -1005,6 +1005,7 @@
       "required": [ "rules" ],
       "properties": {
         "rules": { "$ref": "#/definitions/raw_json" },
+        "has_batch_upload": { "type": "boolean" },
         "triage_ignored_syntactic_ids": {
           "type": "array",
           "items": { "type": "string" }

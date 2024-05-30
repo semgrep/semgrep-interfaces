@@ -219,6 +219,7 @@ type scan_info = Semgrep_output_v1_t.scan_info = {
 
 type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
   rules: raw_json;
+  has_batch_upload: bool option;
   triage_ignored_syntactic_ids: string list;
   triage_ignored_match_based_ids: string list
 }
