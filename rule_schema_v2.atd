@@ -276,7 +276,7 @@ type rule_options = {
 
   ?interfile: bool option;
 
-  ?nonkeyword_attributes_order_matters: bool option;
+  ?decorators_order_matters: bool option;
 }
 
 type generic_engine = [
