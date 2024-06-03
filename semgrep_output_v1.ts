@@ -474,6 +474,7 @@ export type Features = {
   autofix: boolean;
   deepsemgrep: boolean;
   dependency_query: boolean;
+  use_batch_upload?: boolean;
 }
 
 export type TriageIgnored = {
@@ -517,6 +518,7 @@ export type ScanConfig = {
   autofix: boolean;
   deepsemgrep: boolean;
   dependency_query: boolean;
+  use_batch_upload?: boolean;
   triage_ignored_syntactic_ids: string[];
   triage_ignored_match_based_ids: string[];
   ignored_files: string[];
@@ -587,7 +589,6 @@ export type ScanInfo = {
 
 export type ScanConfiguration = {
   rules: RawJson;
-  has_batch_upload?: boolean;
   triage_ignored_syntactic_ids: string[];
   triage_ignored_match_based_ids: string[];
 }
@@ -605,6 +606,7 @@ export type EngineConfiguration = {
   autofix: boolean;
   deepsemgrep: boolean;
   dependency_query: boolean;
+  use_batch_upload?: boolean;
   ignored_files: string[];
   product_ignored_files?: ProductIgnoredFiles;
   generic_slow_rollout: boolean;
@@ -651,6 +653,7 @@ export type CiScanResults = {
   rule_ids: RuleId[];
   contributions?: Contributions;
   dependencies?: CiScanDependencies;
+  batch_info?: BatchInfo;
 }
 
 export type Contributor = {
@@ -667,6 +670,11 @@ export type Contribution = {
 export type Contributions = Contribution[]
 
 export type CiScanDependencies = Map<string, FoundDependency[]>
+
+export type BatchInfo = {
+  num_batches: number /*int*/;
+  current_batch: number /*int*/;
+}
 
 export type CiScanResultsResponse = {
   errors: CiScanResultsResponseError[];
@@ -729,6 +737,7 @@ export type CiConfig = {
   autofix: boolean;
   deepsemgrep: boolean;
   dependency_query: boolean;
+  use_batch_upload?: boolean;
 }
 
 export type CiEnv = Map<string, string>
@@ -2258,6 +2267,7 @@ export function writeFeatures(x: Features, context: any = x): any {
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
+    'use_batch_upload': _atd_write_optional_field(_atd_write_bool, x.use_batch_upload, x),
   };
 }
 
@@ -2266,6 +2276,7 @@ export function readFeatures(x: any, context: any = x): Features {
     autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
+    use_batch_upload: _atd_read_optional_field(_atd_read_bool, x['use_batch_upload'], x),
   };
 }
 
@@ -2375,6 +2386,7 @@ export function writeScanConfig(x: ScanConfig, context: any = x): any {
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
+    'use_batch_upload': _atd_write_optional_field(_atd_write_bool, x.use_batch_upload, x),
     'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
     'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
     'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
@@ -2393,6 +2405,7 @@ export function readScanConfig(x: any, context: any = x): ScanConfig {
     autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
+    use_batch_upload: _atd_read_optional_field(_atd_read_bool, x['use_batch_upload'], x),
     triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),
     triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
     ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
@@ -2550,7 +2563,6 @@ export function readScanInfo(x: any, context: any = x): ScanInfo {
 export function writeScanConfiguration(x: ScanConfiguration, context: any = x): any {
   return {
     'rules': _atd_write_required_field('ScanConfiguration', 'rules', writeRawJson, x.rules, x),
-    'has_batch_upload': _atd_write_optional_field(_atd_write_bool, x.has_batch_upload, x),
     'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
     'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
   };
@@ -2559,7 +2571,6 @@ export function writeScanConfiguration(x: ScanConfiguration, context: any = x): 
 export function readScanConfiguration(x: any, context: any = x): ScanConfiguration {
   return {
     rules: _atd_read_required_field('ScanConfiguration', 'rules', readRawJson, x['rules'], x),
-    has_batch_upload: _atd_read_optional_field(_atd_read_bool, x['has_batch_upload'], x),
     triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),
     triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
   };
@@ -2600,6 +2611,7 @@ export function writeEngineConfiguration(x: EngineConfiguration, context: any = 
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
+    'use_batch_upload': _atd_write_optional_field(_atd_write_bool, x.use_batch_upload, x),
     'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
     'product_ignored_files': _atd_write_optional_field(writeProductIgnoredFiles, x.product_ignored_files, x),
     'generic_slow_rollout': _atd_write_field_with_default(_atd_write_bool, false, x.generic_slow_rollout, x),
@@ -2612,6 +2624,7 @@ export function readEngineConfiguration(x: any, context: any = x): EngineConfigu
     autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
+    use_batch_upload: _atd_read_optional_field(_atd_read_bool, x['use_batch_upload'], x),
     ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
     product_ignored_files: _atd_read_optional_field(readProductIgnoredFiles, x['product_ignored_files'], x),
     generic_slow_rollout: _atd_read_field_with_default(_atd_read_bool, false, x['generic_slow_rollout'], x),
@@ -2699,6 +2712,7 @@ export function writeCiScanResults(x: CiScanResults, context: any = x): any {
     'rule_ids': _atd_write_required_field('CiScanResults', 'rule_ids', _atd_write_array(writeRuleId), x.rule_ids, x),
     'contributions': _atd_write_optional_field(writeContributions, x.contributions, x),
     'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
+    'batch_info': _atd_write_optional_field(writeBatchInfo, x.batch_info, x),
   };
 }
 
@@ -2712,6 +2726,7 @@ export function readCiScanResults(x: any, context: any = x): CiScanResults {
     rule_ids: _atd_read_required_field('CiScanResults', 'rule_ids', _atd_read_array(readRuleId), x['rule_ids'], x),
     contributions: _atd_read_optional_field(readContributions, x['contributions'], x),
     dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
+    batch_info: _atd_read_optional_field(readBatchInfo, x['batch_info'], x),
   };
 }
 
@@ -2759,6 +2774,20 @@ export function writeCiScanDependencies(x: CiScanDependencies, context: any = x)
 
 export function readCiScanDependencies(x: any, context: any = x): CiScanDependencies {
   return _atd_read_assoc_object_into_map(_atd_read_array(readFoundDependency))(x, context);
+}
+
+export function writeBatchInfo(x: BatchInfo, context: any = x): any {
+  return {
+    'num_batches': _atd_write_required_field('BatchInfo', 'num_batches', _atd_write_int, x.num_batches, x),
+    'current_batch': _atd_write_required_field('BatchInfo', 'current_batch', _atd_write_int, x.current_batch, x),
+  };
+}
+
+export function readBatchInfo(x: any, context: any = x): BatchInfo {
+  return {
+    num_batches: _atd_read_required_field('BatchInfo', 'num_batches', _atd_read_int, x['num_batches'], x),
+    current_batch: _atd_read_required_field('BatchInfo', 'current_batch', _atd_read_int, x['current_batch'], x),
+  };
 }
 
 export function writeCiScanResultsResponse(x: CiScanResultsResponse, context: any = x): any {
@@ -2909,6 +2938,7 @@ export function writeCiConfig(x: CiConfig, context: any = x): any {
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
+    'use_batch_upload': _atd_write_optional_field(_atd_write_bool, x.use_batch_upload, x),
   };
 }
 
@@ -2920,6 +2950,7 @@ export function readCiConfig(x: any, context: any = x): CiConfig {
     autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
+    use_batch_upload: _atd_read_optional_field(_atd_read_bool, x['use_batch_upload'], x),
   };
 }
 

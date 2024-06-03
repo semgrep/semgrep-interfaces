@@ -807,7 +807,8 @@
       "properties": {
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
-        "dependency_query": { "type": "boolean" }
+        "dependency_query": { "type": "boolean" },
+        "use_batch_upload": { "type": "boolean" }
       }
     },
     "triage_ignored": {
@@ -889,6 +890,7 @@
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
         "dependency_query": { "type": "boolean" },
+        "use_batch_upload": { "type": "boolean" },
         "triage_ignored_syntactic_ids": {
           "type": "array",
           "items": { "type": "string" }
@@ -1005,7 +1007,6 @@
       "required": [ "rules" ],
       "properties": {
         "rules": { "$ref": "#/definitions/raw_json" },
-        "has_batch_upload": { "type": "boolean" },
         "triage_ignored_syntactic_ids": {
           "type": "array",
           "items": { "type": "string" }
@@ -1044,6 +1045,7 @@
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
         "dependency_query": { "type": "boolean" },
+        "use_batch_upload": { "type": "boolean" },
         "ignored_files": { "type": "array", "items": { "type": "string" } },
         "product_ignored_files": {
           "$ref": "#/definitions/product_ignored_files"
@@ -1126,7 +1128,8 @@
           "items": { "$ref": "#/definitions/rule_id" }
         },
         "contributions": { "$ref": "#/definitions/contributions" },
-        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" }
+        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" },
+        "batch_info": { "$ref": "#/definitions/batch_info" }
       }
     },
     "contributor": {
@@ -1155,6 +1158,14 @@
       "additionalProperties": {
         "type": "array",
         "items": { "$ref": "#/definitions/found_dependency" }
+      }
+    },
+    "batch_info": {
+      "type": "object",
+      "required": [ "num_batches", "current_batch" ],
+      "properties": {
+        "num_batches": { "type": "integer" },
+        "current_batch": { "type": "integer" }
       }
     },
     "ci_scan_results_response": {
@@ -1285,7 +1296,8 @@
         "ignored_files": { "type": "array", "items": { "type": "string" } },
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
-        "dependency_query": { "type": "boolean" }
+        "dependency_query": { "type": "boolean" },
+        "use_batch_upload": { "type": "boolean" }
       }
     },
     "ci_env": {

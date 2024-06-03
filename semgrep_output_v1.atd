@@ -1030,6 +1030,8 @@ type features = {
    ~autofix: bool;
    ~deepsemgrep: bool;
    ~dependency_query: bool;
+   (* Since 1.75.0, optional for backwards compatibility. Defaults to false. *)
+   ?use_batch_upload: bool option;
 }
 
 type triage_ignored = {
@@ -1256,7 +1258,6 @@ type scan_info = {
 (* config specific to the scan, eg *)
 type scan_configuration = {
     rules: raw_json; (* can we type this better *)
-    ?has_batch_upload: bool option;
     inherit triage_ignored;
 }
 
@@ -1382,6 +1383,7 @@ type ci_scan_results = {
    (* since semgrep 1.38.0 *)
    (* this data was originally sent to /complete, but we want to start sending it /results *)
    ?dependencies: ci_scan_dependencies option;
+   ?batch_info: batch_info option;
 }
 
 (* See https://semgrep.dev/docs/usage-limits
@@ -1407,6 +1409,12 @@ type ci_scan_dependencies = (string * found_dependency list) list
     <json repr="object">
     <python repr="dict">
     <ts repr="map">
+
+(* Present when using the batching protocol *)
+type batch_info = {
+     num_batches: int;
+     current_batch : int;
+}
 
 
 (* Response by the backend to the CLI to the POST /results *)
