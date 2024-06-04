@@ -1092,12 +1092,15 @@
         "pattern_hash": { "type": "string" }
       }
     },
+    "batch_type": {
+      "oneOf": [ { "const": "partial" }, { "const": "last" } ]
+    },
     "batch_info": {
       "type": "object",
-      "required": [ "num_batches", "current_batch" ],
+      "required": [ "part_number", "state" ],
       "properties": {
-        "num_batches": { "type": "integer" },
-        "current_batch": { "type": "integer" }
+        "part_number": { "type": "integer" },
+        "state": { "$ref": "#/definitions/batch_type" }
       }
     },
     "ci_scan_results": {

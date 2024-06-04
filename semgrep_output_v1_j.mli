@@ -667,9 +667,11 @@ type ci_scan_results_response =
 
 type ci_scan_dependencies = Semgrep_output_v1_t.ci_scan_dependencies
 
+type batch_type = Semgrep_output_v1_t.batch_type
+
 type batch_info = Semgrep_output_v1_t.batch_info = {
-  num_batches: int;
-  current_batch: int
+  part_number: int;
+  state: batch_type
 }
 
 type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
@@ -2696,6 +2698,26 @@ val read_ci_scan_dependencies :
 val ci_scan_dependencies_of_string :
   string -> ci_scan_dependencies
   (** Deserialize JSON data of type {!type:ci_scan_dependencies}. *)
+
+val write_batch_type :
+  Buffer.t -> batch_type -> unit
+  (** Output a JSON value of type {!type:batch_type}. *)
+
+val string_of_batch_type :
+  ?len:int -> batch_type -> string
+  (** Serialize a value of type {!type:batch_type}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_batch_type :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> batch_type
+  (** Input JSON data of type {!type:batch_type}. *)
+
+val batch_type_of_string :
+  string -> batch_type
+  (** Deserialize JSON data of type {!type:batch_type}. *)
 
 val write_batch_info :
   Buffer.t -> batch_info -> unit

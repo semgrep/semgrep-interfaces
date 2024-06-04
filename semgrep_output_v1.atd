@@ -1388,9 +1388,15 @@ type finding_hashes = {
 (* CI scan results *)
 (* ----------------------------- *)
 
+(* json names are to maintain backwards compatibility with the python enum it is replacing *)
+type batch_type = [
+  | PARTIAL <json name="partial">
+  | LAST <json name="last">
+]
+
 type batch_info = {
-  num_batches: int;
-  current_batch: int;
+  part_number: int;
+  state: batch_type;
 }
 
 (* Sent by the CLI to /findings_and_ignores (a.k.a. /results) *)

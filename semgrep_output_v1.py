@@ -6171,26 +6171,92 @@ class CiScanDependencies:
 
 
 @dataclass
+class PARTIAL:
+    """Original type: batch_type = [ ... | PARTIAL | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PARTIAL'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'partial'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class LAST:
+    """Original type: batch_type = [ ... | LAST | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'LAST'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'last'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class BatchType:
+    """Original type: batch_type = [ ... ]"""
+
+    value: Union[PARTIAL, LAST]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'BatchType':
+        if isinstance(x, str):
+            if x == 'partial':
+                return cls(PARTIAL())
+            if x == 'last':
+                return cls(LAST())
+            _atd_bad_json('BatchType', x)
+        _atd_bad_json('BatchType', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'BatchType':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class BatchInfo:
     """Original type: batch_info = { ... }"""
 
-    num_batches: int
-    current_batch: int
+    part_number: int
+    state: BatchType
 
     @classmethod
     def from_json(cls, x: Any) -> 'BatchInfo':
         if isinstance(x, dict):
             return cls(
-                num_batches=_atd_read_int(x['num_batches']) if 'num_batches' in x else _atd_missing_json_field('BatchInfo', 'num_batches'),
-                current_batch=_atd_read_int(x['current_batch']) if 'current_batch' in x else _atd_missing_json_field('BatchInfo', 'current_batch'),
+                part_number=_atd_read_int(x['part_number']) if 'part_number' in x else _atd_missing_json_field('BatchInfo', 'part_number'),
+                state=BatchType.from_json(x['state']) if 'state' in x else _atd_missing_json_field('BatchInfo', 'state'),
             )
         else:
             _atd_bad_json('BatchInfo', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['num_batches'] = _atd_write_int(self.num_batches)
-        res['current_batch'] = _atd_write_int(self.current_batch)
+        res['part_number'] = _atd_write_int(self.part_number)
+        res['state'] = (lambda x: x.to_json())(self.state)
         return res
 
     @classmethod

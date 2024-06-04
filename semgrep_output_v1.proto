@@ -466,8 +466,8 @@ message FindingHashes {
 }
 
 message BatchInfo {
-  int64 num_batches = 432511017;
-  int64 current_batch = 397095616;
+  int64 part_number = 82914882;
+  google.protobuf.Any state = 96828305;
 }
 
 message CiScanResults {

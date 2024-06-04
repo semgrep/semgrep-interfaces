@@ -646,9 +646,13 @@ export type FindingHashes = {
   pattern_hash: string;
 }
 
+export type BatchType =
+| { kind: 'PARTIAL' /* JSON: "partial" */ }
+| { kind: 'LAST' /* JSON: "last" */ }
+
 export type BatchInfo = {
-  num_batches: number /*int*/;
-  current_batch: number /*int*/;
+  part_number: number /*int*/;
+  state: BatchType;
 }
 
 export type CiScanResults = {
@@ -2712,17 +2716,38 @@ export function readFindingHashes(x: any, context: any = x): FindingHashes {
   };
 }
 
+export function writeBatchType(x: BatchType, context: any = x): any {
+  switch (x.kind) {
+    case 'PARTIAL':
+      return 'partial'
+    case 'LAST':
+      return 'last'
+  }
+}
+
+export function readBatchType(x: any, context: any = x): BatchType {
+  switch (x) {
+    case 'partial':
+      return { kind: 'PARTIAL' }
+    case 'last':
+      return { kind: 'LAST' }
+    default:
+      _atd_bad_json('BatchType', x, context)
+      throw new Error('impossible')
+  }
+}
+
 export function writeBatchInfo(x: BatchInfo, context: any = x): any {
   return {
-    'num_batches': _atd_write_required_field('BatchInfo', 'num_batches', _atd_write_int, x.num_batches, x),
-    'current_batch': _atd_write_required_field('BatchInfo', 'current_batch', _atd_write_int, x.current_batch, x),
+    'part_number': _atd_write_required_field('BatchInfo', 'part_number', _atd_write_int, x.part_number, x),
+    'state': _atd_write_required_field('BatchInfo', 'state', writeBatchType, x.state, x),
   };
 }
 
 export function readBatchInfo(x: any, context: any = x): BatchInfo {
   return {
-    num_batches: _atd_read_required_field('BatchInfo', 'num_batches', _atd_read_int, x['num_batches'], x),
-    current_batch: _atd_read_required_field('BatchInfo', 'current_batch', _atd_read_int, x['current_batch'], x),
+    part_number: _atd_read_required_field('BatchInfo', 'part_number', _atd_read_int, x['part_number'], x),
+    state: _atd_read_required_field('BatchInfo', 'state', readBatchType, x['state'], x),
   };
 }
 

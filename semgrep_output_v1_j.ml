@@ -667,9 +667,11 @@ type ci_scan_results_response =
 
 type ci_scan_dependencies = Semgrep_output_v1_t.ci_scan_dependencies
 
+type batch_type = Semgrep_output_v1_t.batch_type
+
 type batch_info = Semgrep_output_v1_t.batch_info = {
-  num_batches: int;
-  current_batch: int
+  part_number: int;
+  state: batch_type
 }
 
 type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
@@ -26412,6 +26414,50 @@ let read_ci_scan_dependencies = (
 )
 let ci_scan_dependencies_of_string s =
   read_ci_scan_dependencies (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_batch_type = (
+  fun ob x ->
+    match x with
+      | `PARTIAL -> Buffer.add_string ob "\"partial\""
+      | `LAST -> Buffer.add_string ob "\"last\""
+)
+let string_of_batch_type ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_batch_type ob x;
+  Buffer.contents ob
+let read_batch_type = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "partial" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `PARTIAL
+            | "last" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `LAST
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "partial" ->
+              `PARTIAL
+            | "last" ->
+              `LAST
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let batch_type_of_string s =
+  read_batch_type (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_batch_info : _ -> batch_info -> _ = (
   fun ob (x : batch_info) ->
     Buffer.add_char ob '{';
@@ -26420,20 +26466,20 @@ let write_batch_info : _ -> batch_info -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"num_batches\":";
+      Buffer.add_string ob "\"part_number\":";
     (
       Yojson.Safe.write_int
     )
-      ob x.num_batches;
+      ob x.part_number;
     if !is_first then
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"current_batch\":";
+      Buffer.add_string ob "\"state\":";
     (
-      Yojson.Safe.write_int
+      write_batch_type
     )
-      ob x.current_batch;
+      ob x.state;
     Buffer.add_char ob '}';
 )
 let string_of_batch_info ?(len = 1024) x =
@@ -26444,8 +26490,8 @@ let read_batch_info = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
-    let field_num_batches = ref (None) in
-    let field_current_batch = ref (None) in
+    let field_part_number = ref (None) in
+    let field_state = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -26455,17 +26501,17 @@ let read_batch_info = (
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
-            | 11 -> (
-                if String.unsafe_get s pos = 'n' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' then (
-                  0
+            | 5 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' then (
+                  1
                 )
                 else (
                   -1
                 )
               )
-            | 13 -> (
-                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'b' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'c' && String.unsafe_get s (pos+12) = 'h' then (
-                  1
+            | 11 -> (
+                if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'u' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'b' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'r' then (
+                  0
                 )
                 else (
                   -1
@@ -26480,7 +26526,7 @@ let read_batch_info = (
       (
         match i with
           | 0 ->
-            field_num_batches := (
+            field_part_number := (
               Some (
                 (
                   Atdgen_runtime.Oj_run.read_int
@@ -26488,10 +26534,10 @@ let read_batch_info = (
               )
             );
           | 1 ->
-            field_current_batch := (
+            field_state := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_int
+                  read_batch_type
                 ) p lb
               )
             );
@@ -26508,17 +26554,17 @@ let read_batch_info = (
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
-              | 11 -> (
-                  if String.unsafe_get s pos = 'n' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'b' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' then (
-                    0
+              | 5 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' then (
+                    1
                   )
                   else (
                     -1
                   )
                 )
-              | 13 -> (
-                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'b' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'c' && String.unsafe_get s (pos+12) = 'h' then (
-                    1
+              | 11 -> (
+                  if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'u' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'b' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'r' then (
+                    0
                   )
                   else (
                     -1
@@ -26533,7 +26579,7 @@ let read_batch_info = (
         (
           match i with
             | 0 ->
-              field_num_batches := (
+              field_part_number := (
                 Some (
                   (
                     Atdgen_runtime.Oj_run.read_int
@@ -26541,10 +26587,10 @@ let read_batch_info = (
                 )
               );
             | 1 ->
-              field_current_batch := (
+              field_state := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_int
+                    read_batch_type
                   ) p lb
                 )
               );
@@ -26557,8 +26603,8 @@ let read_batch_info = (
     with Yojson.End_of_object -> (
         (
           {
-            num_batches = (match !field_num_batches with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "num_batches");
-            current_batch = (match !field_current_batch with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "current_batch");
+            part_number = (match !field_part_number with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "part_number");
+            state = (match !field_state with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "state");
           }
          : batch_info)
       )
