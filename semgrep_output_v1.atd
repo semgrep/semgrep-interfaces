@@ -1052,7 +1052,7 @@ type features = {
    ~deepsemgrep: bool;
    ~dependency_query: bool;
    (* since semgrep 1.74.0 *)
-   ~use_batch_upload: bool;
+   ?use_batch_upload: bool option;
 }
 
 type triage_ignored = {
