@@ -667,7 +667,7 @@ type ci_scan_results_response =
 
 type ci_scan_dependencies = Semgrep_output_v1_t.ci_scan_dependencies
 
-type batch_type = Semgrep_output_v1_t.batch_type
+type batch_type = Semgrep_output_v1_t.batch_type [@@deriving show,eq]
 
 type batch_info = Semgrep_output_v1_t.batch_info = {
   part_number: int;

@@ -667,7 +667,7 @@ type ci_scan_results_response =
 
 type ci_scan_dependencies = Semgrep_output_v1_t.ci_scan_dependencies
 
-type batch_type = Semgrep_output_v1_t.batch_type
+type batch_type = Semgrep_output_v1_t.batch_type [@@deriving show,eq]
 
 type batch_info = Semgrep_output_v1_t.batch_info = {
   part_number: int;
@@ -26417,8 +26417,8 @@ let ci_scan_dependencies_of_string s =
 let write_batch_type = (
   fun ob x ->
     match x with
-      | `PARTIAL -> Buffer.add_string ob "\"partial\""
-      | `LAST -> Buffer.add_string ob "\"last\""
+      | `PartialBatch -> Buffer.add_string ob "\"partial\""
+      | `LastBatch -> Buffer.add_string ob "\"last\""
 )
 let string_of_batch_type ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -26433,20 +26433,20 @@ let read_batch_type = (
             | "partial" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `PARTIAL
+              `PartialBatch
             | "last" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `LAST
+              `LastBatch
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "partial" ->
-              `PARTIAL
+              `PartialBatch
             | "last" ->
-              `LAST
+              `LastBatch
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

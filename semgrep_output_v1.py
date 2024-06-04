@@ -6170,14 +6170,14 @@ class CiScanDependencies:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
-class PARTIAL:
-    """Original type: batch_type = [ ... | PARTIAL | ... ]"""
+@dataclass(frozen=True)
+class PartialBatch:
+    """Original type: batch_type = [ ... | PartialBatch | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'PARTIAL'
+        return 'PartialBatch'
 
     @staticmethod
     def to_json() -> Any:
@@ -6187,14 +6187,14 @@ class PARTIAL:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
-class LAST:
-    """Original type: batch_type = [ ... | LAST | ... ]"""
+@dataclass(frozen=True)
+class LastBatch:
+    """Original type: batch_type = [ ... | LastBatch | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'LAST'
+        return 'LastBatch'
 
     @staticmethod
     def to_json() -> Any:
@@ -6204,11 +6204,11 @@ class LAST:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class BatchType:
     """Original type: batch_type = [ ... ]"""
 
-    value: Union[PARTIAL, LAST]
+    value: Union[PartialBatch, LastBatch]
 
     @property
     def kind(self) -> str:
@@ -6219,9 +6219,9 @@ class BatchType:
     def from_json(cls, x: Any) -> 'BatchType':
         if isinstance(x, str):
             if x == 'partial':
-                return cls(PARTIAL())
+                return cls(PartialBatch())
             if x == 'last':
-                return cls(LAST())
+                return cls(LastBatch())
             _atd_bad_json('BatchType', x)
         _atd_bad_json('BatchType', x)
 

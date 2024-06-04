@@ -647,8 +647,8 @@ export type FindingHashes = {
 }
 
 export type BatchType =
-| { kind: 'PARTIAL' /* JSON: "partial" */ }
-| { kind: 'LAST' /* JSON: "last" */ }
+| { kind: 'PartialBatch' /* JSON: "partial" */ }
+| { kind: 'LastBatch' /* JSON: "last" */ }
 
 export type BatchInfo = {
   part_number: number /*int*/;
@@ -2718,9 +2718,9 @@ export function readFindingHashes(x: any, context: any = x): FindingHashes {
 
 export function writeBatchType(x: BatchType, context: any = x): any {
   switch (x.kind) {
-    case 'PARTIAL':
+    case 'PartialBatch':
       return 'partial'
-    case 'LAST':
+    case 'LastBatch':
       return 'last'
   }
 }
@@ -2728,9 +2728,9 @@ export function writeBatchType(x: BatchType, context: any = x): any {
 export function readBatchType(x: any, context: any = x): BatchType {
   switch (x) {
     case 'partial':
-      return { kind: 'PARTIAL' }
+      return { kind: 'PartialBatch' }
     case 'last':
-      return { kind: 'LAST' }
+      return { kind: 'LastBatch' }
     default:
       _atd_bad_json('BatchType', x, context)
       throw new Error('impossible')

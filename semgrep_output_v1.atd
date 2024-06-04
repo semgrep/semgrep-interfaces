@@ -1389,9 +1389,9 @@ type finding_hashes = {
 (* ----------------------------- *)
 
 (* json names are to maintain backwards compatibility with the python enum it is replacing *)
-type batch_type = [
-  | PARTIAL <json name="partial">
-  | LAST <json name="last">
+type batch_type <python decorator="dataclass(frozen=True)"> <ocaml attr="deriving show,eq"> = [
+  | PartialBatch <json name="partial">
+  | LastBatch <json name="last">
 ]
 
 type batch_info = {
