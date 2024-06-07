@@ -102,6 +102,7 @@ type environment = {
     ~isDiffScan <python default="False"> <ocaml mutable> : bool;
     ?integrationName <ocaml mutable>: string option;
     ~isAuthenticated <python default="False"> <ocaml mutable>: bool;
+    ?deployment_id: int option;
   }
 
 (*****************************************************************************)
