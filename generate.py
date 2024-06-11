@@ -402,6 +402,15 @@ not ambiguous is welcome here.
         shebangs=["lua"]
     ),
     Language(
+        comment="Move language with Aptos flavor",
+        id_="move_on_aptos",
+        name="Move (on Aptos)",
+        keys=["move_on_aptos"],
+        exts=[".move"],
+        maturity=Maturity.DEVELOP,
+        shebangs=[]
+    ),
+    Language(
         comment="",
         id_="ocaml",
         name="OCaml",

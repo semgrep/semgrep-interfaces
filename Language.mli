@@ -23,6 +23,7 @@ type t =
 | Kotlin
 | Lisp
 | Lua
+| Move_on_aptos
 | Ocaml
 | Php
 | Promql

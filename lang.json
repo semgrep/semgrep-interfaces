@@ -418,6 +418,24 @@
     "tags": []
   },
   {
+    "comment": "Move language with Aptos flavor",
+    "id": "move_on_aptos",
+    "name": "Move (on Aptos)",
+    "keys": [
+      "move_on_aptos"
+    ],
+    "maturity": "develop",
+    "exts": [
+      ".move"
+    ],
+    "example_ext": null,
+    "excluded_exts": [],
+    "reverse_exts": null,
+    "shebangs": [],
+    "is_target_language": true,
+    "tags": []
+  },
+  {
     "id": "ocaml",
     "name": "OCaml",
     "keys": [
