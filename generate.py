@@ -404,7 +404,7 @@ not ambiguous is welcome here.
     Language(
         comment="Move language with Aptos flavor",
         id_="move_on_aptos",
-        name="Move (on Aptos)",
+        name="Move on Aptos",
         keys=["move_on_aptos"],
         exts=[".move"],
         maturity=Maturity.DEVELOP,

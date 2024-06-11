@@ -361,7 +361,7 @@ let list = [
 {
   id = Move_on_aptos;
   id_string = "move_on_aptos";
-  name = "Move (on Aptos)";
+  name = "Move on Aptos";
   keys = [{|move_on_aptos|}];
   exts = [{|.move|}];
   maturity = Develop;

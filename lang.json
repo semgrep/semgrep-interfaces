@@ -420,7 +420,7 @@
   {
     "comment": "Move language with Aptos flavor",
     "id": "move_on_aptos",
-    "name": "Move (on Aptos)",
+    "name": "Move on Aptos",
     "keys": [
       "move_on_aptos"
     ],
