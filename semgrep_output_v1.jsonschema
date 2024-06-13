@@ -1118,7 +1118,8 @@
           "items": { "$ref": "#/definitions/rule_id" }
         },
         "contributions": { "$ref": "#/definitions/contributions" },
-        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" }
+        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" },
+        "repo_config": { "$ref": "#/definitions/raw_json" }
       }
     },
     "contributor": {
@@ -1209,8 +1210,7 @@
         "findings_by_product": {
           "type": "object",
           "additionalProperties": { "type": "integer" }
-        },
-        "repo_config": { "$ref": "#/definitions/raw_json" }
+        }
       }
     },
     "parsing_stats": {

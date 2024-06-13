@@ -671,7 +671,8 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   renamed_paths: fpath list;
   rule_ids: rule_id list;
   contributions: contributions option;
-  dependencies: ci_scan_dependencies option
+  dependencies: ci_scan_dependencies option;
+  repo_config: raw_json option
 }
 
 type ci_scan_failure = Semgrep_output_v1_t.ci_scan_failure = {
@@ -687,8 +688,7 @@ type ci_scan_complete_stats = Semgrep_output_v1_t.ci_scan_complete_stats = {
   lockfile_scan_info: (string * int) list;
   parse_rate: (string * parsing_stats) list;
   engine_requested: string option;
-  findings_by_product: (string * int) list option;
-  repo_config: raw_json option
+  findings_by_product: (string * int) list option
 }
 
 type ci_scan_complete_response =
@@ -26417,6 +26417,17 @@ let write_ci_scan_results : _ -> ci_scan_results -> _ = (
       )
         ob x;
     );
+    (match x.repo_config with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"repo_config\":";
+      (
+        write_raw_json
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_ci_scan_results ?(len = 1024) x =
@@ -26435,6 +26446,7 @@ let read_ci_scan_results = (
     let field_rule_ids = ref (None) in
     let field_contributions = ref (None) in
     let field_dependencies = ref (None) in
+    let field_repo_config = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -26481,6 +26493,14 @@ let read_ci_scan_results = (
                   | _ -> (
                       -1
                     )
+              )
+            | 11 -> (
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'g' then (
+                  8
+                )
+                else (
+                  -1
+                )
               )
             | 12 -> (
                 if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 's' then (
@@ -26596,6 +26616,16 @@ let read_ci_scan_results = (
                 )
               );
             )
+          | 8 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_repo_config := (
+                Some (
+                  (
+                    read_raw_json
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -26646,6 +26676,14 @@ let read_ci_scan_results = (
                     | _ -> (
                         -1
                       )
+                )
+              | 11 -> (
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'g' then (
+                    8
+                  )
+                  else (
+                    -1
+                  )
                 )
               | 12 -> (
                   if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 's' then (
@@ -26761,6 +26799,16 @@ let read_ci_scan_results = (
                   )
                 );
               )
+            | 8 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_repo_config := (
+                  Some (
+                    (
+                      read_raw_json
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -26778,6 +26826,7 @@ let read_ci_scan_results = (
             rule_ids = (match !field_rule_ids with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rule_ids");
             contributions = !field_contributions;
             dependencies = !field_dependencies;
+            repo_config = !field_repo_config;
           }
          : ci_scan_results)
       )
@@ -27114,17 +27163,6 @@ let write_ci_scan_complete_stats : _ -> ci_scan_complete_stats -> _ = (
       )
         ob x;
     );
-    (match x.repo_config with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"repo_config\":";
-      (
-        write_raw_json
-      )
-        ob x;
-    );
     Buffer.add_char ob '}';
 )
 let string_of_ci_scan_complete_stats ?(len = 1024) x =
@@ -27143,7 +27181,6 @@ let read_ci_scan_complete_stats = (
     let field_parse_rate = ref (None) in
     let field_engine_requested = ref (None) in
     let field_findings_by_product = ref (None) in
-    let field_repo_config = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -27190,14 +27227,6 @@ let read_ci_scan_complete_stats = (
                   | _ -> (
                       -1
                     )
-              )
-            | 11 -> (
-                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'g' then (
-                  8
-                )
-                else (
-                  -1
-                )
               )
             | 16 -> (
                 match String.unsafe_get s pos with
@@ -27313,16 +27342,6 @@ let read_ci_scan_complete_stats = (
                 )
               );
             )
-          | 8 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_repo_config := (
-                Some (
-                  (
-                    read_raw_json
-                  ) p lb
-                )
-              );
-            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -27373,14 +27392,6 @@ let read_ci_scan_complete_stats = (
                     | _ -> (
                         -1
                       )
-                )
-              | 11 -> (
-                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'g' then (
-                    8
-                  )
-                  else (
-                    -1
-                  )
                 )
               | 16 -> (
                   match String.unsafe_get s pos with
@@ -27496,16 +27507,6 @@ let read_ci_scan_complete_stats = (
                   )
                 );
               )
-            | 8 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_repo_config := (
-                  Some (
-                    (
-                      read_raw_json
-                    ) p lb
-                  )
-                );
-              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -27523,7 +27524,6 @@ let read_ci_scan_complete_stats = (
             parse_rate = (match !field_parse_rate with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "parse_rate");
             engine_requested = !field_engine_requested;
             findings_by_product = !field_findings_by_product;
-            repo_config = !field_repo_config;
           }
          : ci_scan_complete_stats)
       )

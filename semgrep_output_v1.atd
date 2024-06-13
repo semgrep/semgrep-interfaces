@@ -1405,6 +1405,8 @@ type ci_scan_results = {
    (* since semgrep 1.38.0 *)
    (* this data was originally sent to /complete, but we want to start sending it /results *)
    ?dependencies: ci_scan_dependencies option;
+
+   ?repo_config: raw_json option;
 }
 
 (* See https://semgrep.dev/docs/usage-limits
@@ -1490,8 +1492,6 @@ type ci_scan_complete_stats = {
     <python repr="dict">
     <ts repr="map">
     option;
-
-  ?repo_config: raw_json option;
 }
 
 type parsing_stats = {
