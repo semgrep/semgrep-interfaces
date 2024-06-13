@@ -652,7 +652,7 @@ export type CiScanResults = {
   rule_ids: RuleId[];
   contributions?: Contributions;
   dependencies?: CiScanDependencies;
-  repo_config?: RawJson;
+  repo_config?: string;
 }
 
 export type Contributor = {
@@ -2707,7 +2707,7 @@ export function writeCiScanResults(x: CiScanResults, context: any = x): any {
     'rule_ids': _atd_write_required_field('CiScanResults', 'rule_ids', _atd_write_array(writeRuleId), x.rule_ids, x),
     'contributions': _atd_write_optional_field(writeContributions, x.contributions, x),
     'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
-    'repo_config': _atd_write_optional_field(writeRawJson, x.repo_config, x),
+    'repo_config': _atd_write_optional_field(_atd_write_string, x.repo_config, x),
   };
 }
 
@@ -2721,7 +2721,7 @@ export function readCiScanResults(x: any, context: any = x): CiScanResults {
     rule_ids: _atd_read_required_field('CiScanResults', 'rule_ids', _atd_read_array(readRuleId), x['rule_ids'], x),
     contributions: _atd_read_optional_field(readContributions, x['contributions'], x),
     dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
-    repo_config: _atd_read_optional_field(readRawJson, x['repo_config'], x),
+    repo_config: _atd_read_optional_field(_atd_read_string, x['repo_config'], x),
   };
 }
 

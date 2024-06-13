@@ -1119,7 +1119,7 @@
         },
         "contributions": { "$ref": "#/definitions/contributions" },
         "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" },
-        "repo_config": { "$ref": "#/definitions/raw_json" }
+        "repo_config": { "type": "string" }
       }
     },
     "contributor": {

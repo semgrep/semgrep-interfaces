@@ -672,7 +672,7 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   rule_ids: rule_id list;
   contributions: contributions option;
   dependencies: ci_scan_dependencies option;
-  repo_config: raw_json option
+  repo_config: string option
 }
 
 type ci_scan_failure = Semgrep_output_v1_t.ci_scan_failure = {
@@ -26424,7 +26424,7 @@ let write_ci_scan_results : _ -> ci_scan_results -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"repo_config\":";
       (
-        write_raw_json
+        Yojson.Safe.write_string
       )
         ob x;
     );
@@ -26621,7 +26621,7 @@ let read_ci_scan_results = (
               field_repo_config := (
                 Some (
                   (
-                    read_raw_json
+                    Atdgen_runtime.Oj_run.read_string
                   ) p lb
                 )
               );
@@ -26804,7 +26804,7 @@ let read_ci_scan_results = (
                 field_repo_config := (
                   Some (
                     (
-                      read_raw_json
+                      Atdgen_runtime.Oj_run.read_string
                     ) p lb
                   )
                 );

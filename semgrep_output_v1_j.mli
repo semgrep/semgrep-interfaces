@@ -672,7 +672,7 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   rule_ids: rule_id list;
   contributions: contributions option;
   dependencies: ci_scan_dependencies option;
-  repo_config: raw_json option
+  repo_config: string option
 }
 
 type ci_scan_failure = Semgrep_output_v1_t.ci_scan_failure = {

@@ -6170,7 +6170,7 @@ class CiScanResults:
     rule_ids: List[RuleId]
     contributions: Optional[Contributions] = None
     dependencies: Optional[CiScanDependencies] = None
-    repo_config: Optional[RawJson] = None
+    repo_config: Optional[str] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanResults':
@@ -6184,7 +6184,7 @@ class CiScanResults:
                 rule_ids=_atd_read_list(RuleId.from_json)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('CiScanResults', 'rule_ids'),
                 contributions=Contributions.from_json(x['contributions']) if 'contributions' in x else None,
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
-                repo_config=RawJson.from_json(x['repo_config']) if 'repo_config' in x else None,
+                repo_config=_atd_read_string(x['repo_config']) if 'repo_config' in x else None,
             )
         else:
             _atd_bad_json('CiScanResults', x)
@@ -6202,7 +6202,7 @@ class CiScanResults:
         if self.dependencies is not None:
             res['dependencies'] = (lambda x: x.to_json())(self.dependencies)
         if self.repo_config is not None:
-            res['repo_config'] = (lambda x: x.to_json())(self.repo_config)
+            res['repo_config'] = _atd_write_string(self.repo_config)
         return res
 
     @classmethod
