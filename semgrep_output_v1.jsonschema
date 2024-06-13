@@ -1209,7 +1209,8 @@
         "findings_by_product": {
           "type": "object",
           "additionalProperties": { "type": "integer" }
-        }
+        },
+        "repo_config": { "$ref": "#/definitions/raw_json" }
       }
     },
     "parsing_stats": {

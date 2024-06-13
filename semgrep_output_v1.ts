@@ -696,6 +696,7 @@ export type CiScanCompleteStats = {
   parse_rate: Map<string, ParsingStats>;
   engine_requested?: string;
   findings_by_product?: Map<string, number /*int*/>;
+  repo_config?: RawJson;
 }
 
 export type ParsingStats = {
@@ -2826,6 +2827,7 @@ export function writeCiScanCompleteStats(x: CiScanCompleteStats, context: any = 
     'parse_rate': _atd_write_required_field('CiScanCompleteStats', 'parse_rate', _atd_write_assoc_map_to_object(writeParsingStats), x.parse_rate, x),
     'engine_requested': _atd_write_optional_field(_atd_write_string, x.engine_requested, x),
     'findings_by_product': _atd_write_optional_field(_atd_write_assoc_map_to_object(_atd_write_int), x.findings_by_product, x),
+    'repo_config': _atd_write_optional_field(writeRawJson, x.repo_config, x),
   };
 }
 
@@ -2839,6 +2841,7 @@ export function readCiScanCompleteStats(x: any, context: any = x): CiScanComplet
     parse_rate: _atd_read_required_field('CiScanCompleteStats', 'parse_rate', _atd_read_assoc_object_into_map(readParsingStats), x['parse_rate'], x),
     engine_requested: _atd_read_optional_field(_atd_read_string, x['engine_requested'], x),
     findings_by_product: _atd_read_optional_field(_atd_read_assoc_object_into_map(_atd_read_int), x['findings_by_product'], x),
+    repo_config: _atd_read_optional_field(readRawJson, x['repo_config'], x),
   };
 }
 

@@ -687,7 +687,8 @@ type ci_scan_complete_stats = Semgrep_output_v1_t.ci_scan_complete_stats = {
   lockfile_scan_info: (string * int) list;
   parse_rate: (string * parsing_stats) list;
   engine_requested: string option;
-  findings_by_product: (string * int) list option
+  findings_by_product: (string * int) list option;
+  repo_config: raw_json option
 }
 
 type ci_scan_complete_response =

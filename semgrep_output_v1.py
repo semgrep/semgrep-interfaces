@@ -6252,6 +6252,7 @@ class CiScanCompleteStats:
     parse_rate: Dict[str, ParsingStats]
     engine_requested: Optional[str] = None
     findings_by_product: Optional[Dict[str, int]] = None
+    repo_config: Optional[RawJson] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanCompleteStats':
@@ -6265,6 +6266,7 @@ class CiScanCompleteStats:
                 parse_rate=_atd_read_assoc_object_into_dict(ParsingStats.from_json)(x['parse_rate']) if 'parse_rate' in x else _atd_missing_json_field('CiScanCompleteStats', 'parse_rate'),
                 engine_requested=_atd_read_string(x['engine_requested']) if 'engine_requested' in x else None,
                 findings_by_product=_atd_read_assoc_object_into_dict(_atd_read_int)(x['findings_by_product']) if 'findings_by_product' in x else None,
+                repo_config=RawJson.from_json(x['repo_config']) if 'repo_config' in x else None,
             )
         else:
             _atd_bad_json('CiScanCompleteStats', x)
@@ -6281,6 +6283,8 @@ class CiScanCompleteStats:
             res['engine_requested'] = _atd_write_string(self.engine_requested)
         if self.findings_by_product is not None:
             res['findings_by_product'] = _atd_write_assoc_dict_to_object(_atd_write_int)(self.findings_by_product)
+        if self.repo_config is not None:
+            res['repo_config'] = (lambda x: x.to_json())(self.repo_config)
         return res
 
     @classmethod

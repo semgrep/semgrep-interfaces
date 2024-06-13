@@ -1490,6 +1490,8 @@ type ci_scan_complete_stats = {
     <python repr="dict">
     <ts repr="map">
     option;
+
+  ?repo_config: raw_json option;
 }
 
 type parsing_stats = {
