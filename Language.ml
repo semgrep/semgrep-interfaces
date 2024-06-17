@@ -23,6 +23,7 @@ type t =
 | Kotlin
 | Lisp
 | Lua
+| Move_on_aptos
 | Ocaml
 | Php
 | Promql
@@ -352,6 +353,22 @@ let list = [
   excluded_exts = [];
   reverse_exts = None;
   shebangs = [{|lua|}];
+  tags = [];
+};
+(*
+  Move language with Aptos flavor
+*)
+{
+  id = Move_on_aptos;
+  id_string = "move_on_aptos";
+  name = "Move on Aptos";
+  keys = [{|move_on_aptos|}];
+  exts = [{|.move|}];
+  maturity = Develop;
+  example_ext = None;
+  excluded_exts = [];
+  reverse_exts = None;
+  shebangs = [];
   tags = [];
 };
 {
