@@ -1059,6 +1059,7 @@ class Environment:
     isDiffScan: bool = field(default_factory=lambda: False)
     integrationName: Optional[str] = None
     isAuthenticated: bool = field(default_factory=lambda: False)
+    deployment_id: Optional[int] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Environment':
@@ -1074,6 +1075,7 @@ class Environment:
                 isDiffScan=_atd_read_bool(x['isDiffScan']) if 'isDiffScan' in x else False,
                 integrationName=_atd_read_string(x['integrationName']) if 'integrationName' in x else None,
                 isAuthenticated=_atd_read_bool(x['isAuthenticated']) if 'isAuthenticated' in x else False,
+                deployment_id=_atd_read_int(x['deployment_id']) if 'deployment_id' in x else None,
             )
         else:
             _atd_bad_json('Environment', x)
@@ -1092,6 +1094,8 @@ class Environment:
         if self.integrationName is not None:
             res['integrationName'] = _atd_write_string(self.integrationName)
         res['isAuthenticated'] = _atd_write_bool(self.isAuthenticated)
+        if self.deployment_id is not None:
+            res['deployment_id'] = _atd_write_int(self.deployment_id)
         return res
 
     @classmethod
