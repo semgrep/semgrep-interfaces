@@ -264,27 +264,6 @@ from dataclasses import field
 
 
 @dataclass
-class Uuid:
-    """Original type: uuid"""
-
-    value: str
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Uuid':
-        return cls(_atd_read_string(x))
-
-    def to_json(self) -> Any:
-        return _atd_write_string(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Uuid':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class SupplyChainConfig:
     """Original type: supply_chain_config = { ... }"""
 
@@ -307,27 +286,6 @@ class SupplyChainConfig:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'SupplyChainConfig':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Sha256:
-    """Original type: sha256"""
-
-    value: str
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Sha256':
-        return cls(_atd_read_string(x))
-
-    def to_json(self) -> Any:
-        return _atd_write_string(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Sha256':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -448,6 +406,297 @@ class SecretsConfig:
 
 
 @dataclass
+class ProFeatures:
+    """Original type: pro_features = { ... }"""
+
+    diffDepth: Optional[int] = None
+    numInterfileDiffScanned: Optional[List[Tuple[str, int]]] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ProFeatures':
+        if isinstance(x, dict):
+            return cls(
+                diffDepth=_atd_read_int(x['diffDepth']) if 'diffDepth' in x else None,
+                numInterfileDiffScanned=_atd_read_assoc_object_into_list(_atd_read_int)(x['numInterfileDiffScanned']) if 'numInterfileDiffScanned' in x else None,
+            )
+        else:
+            _atd_bad_json('ProFeatures', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        if self.diffDepth is not None:
+            res['diffDepth'] = _atd_write_int(self.diffDepth)
+        if self.numInterfileDiffScanned is not None:
+            res['numInterfileDiffScanned'] = _atd_write_assoc_list_to_object(_atd_write_int)(self.numInterfileDiffScanned)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ProFeatures':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CodeConfig:
+    """Original type: code_config = { ... }"""
+
+    _rfu: Optional[int] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CodeConfig':
+        if isinstance(x, dict):
+            return cls(
+                _rfu=_atd_read_int(x['_rfu']) if '_rfu' in x else None,
+            )
+        else:
+            _atd_bad_json('CodeConfig', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        if self._rfu is not None:
+            res['_rfu'] = _atd_write_int(self._rfu)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CodeConfig':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Intraprocedural:
+    """Original type: analysis_type = [ ... | Intraprocedural | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Intraprocedural'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Intraprocedural'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Interprocedural:
+    """Original type: analysis_type = [ ... | Interprocedural | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Interprocedural'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Interprocedural'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Interfile:
+    """Original type: analysis_type = [ ... | Interfile | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Interfile'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Interfile'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class AnalysisType:
+    """Original type: analysis_type = [ ... ]"""
+
+    value: Union[Intraprocedural, Interprocedural, Interfile]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'AnalysisType':
+        if isinstance(x, str):
+            if x == 'Intraprocedural':
+                return cls(Intraprocedural())
+            if x == 'Interprocedural':
+                return cls(Interprocedural())
+            if x == 'Interfile':
+                return cls(Interfile())
+            _atd_bad_json('AnalysisType', x)
+        _atd_bad_json('AnalysisType', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'AnalysisType':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class EngineConfig:
+    """Original type: engine_config = { ... }"""
+
+    analysis_type: AnalysisType
+    pro_langs: bool
+    code_config: Optional[CodeConfig] = None
+    secrets_config: Optional[SecretsConfig] = None
+    supply_chain_config: Optional[SupplyChainConfig] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'EngineConfig':
+        if isinstance(x, dict):
+            return cls(
+                analysis_type=AnalysisType.from_json(x['analysis_type']) if 'analysis_type' in x else _atd_missing_json_field('EngineConfig', 'analysis_type'),
+                pro_langs=_atd_read_bool(x['pro_langs']) if 'pro_langs' in x else _atd_missing_json_field('EngineConfig', 'pro_langs'),
+                code_config=CodeConfig.from_json(x['code_config']) if 'code_config' in x else None,
+                secrets_config=SecretsConfig.from_json(x['secrets_config']) if 'secrets_config' in x else None,
+                supply_chain_config=SupplyChainConfig.from_json(x['supply_chain_config']) if 'supply_chain_config' in x else None,
+            )
+        else:
+            _atd_bad_json('EngineConfig', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['analysis_type'] = (lambda x: x.to_json())(self.analysis_type)
+        res['pro_langs'] = _atd_write_bool(self.pro_langs)
+        if self.code_config is not None:
+            res['code_config'] = (lambda x: x.to_json())(self.code_config)
+        if self.secrets_config is not None:
+            res['secrets_config'] = (lambda x: x.to_json())(self.secrets_config)
+        if self.supply_chain_config is not None:
+            res['supply_chain_config'] = (lambda x: x.to_json())(self.supply_chain_config)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'EngineConfig':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Value:
+    """Original type: value = { ... }"""
+
+    features: List[str]
+    proFeatures: Optional[ProFeatures] = None
+    numFindings: Optional[int] = None
+    numFindingsByProduct: Optional[List[Tuple[str, int]]] = None
+    numIgnored: Optional[int] = None
+    ruleHashesWithFindings: Optional[List[Tuple[str, int]]] = None
+    engineRequested: str = field(default_factory=lambda: 'OSS')
+    engineConfig: Optional[EngineConfig] = None
+    interfileLanguagesUsed: Optional[List[str]] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Value':
+        if isinstance(x, dict):
+            return cls(
+                features=_atd_read_list(_atd_read_string)(x['features']) if 'features' in x else _atd_missing_json_field('Value', 'features'),
+                proFeatures=ProFeatures.from_json(x['proFeatures']) if 'proFeatures' in x else None,
+                numFindings=_atd_read_int(x['numFindings']) if 'numFindings' in x else None,
+                numFindingsByProduct=_atd_read_assoc_object_into_list(_atd_read_int)(x['numFindingsByProduct']) if 'numFindingsByProduct' in x else None,
+                numIgnored=_atd_read_int(x['numIgnored']) if 'numIgnored' in x else None,
+                ruleHashesWithFindings=_atd_read_assoc_object_into_list(_atd_read_int)(x['ruleHashesWithFindings']) if 'ruleHashesWithFindings' in x else None,
+                engineRequested=_atd_read_string(x['engineRequested']) if 'engineRequested' in x else 'OSS',
+                engineConfig=EngineConfig.from_json(x['engineConfig']) if 'engineConfig' in x else None,
+                interfileLanguagesUsed=_atd_read_list(_atd_read_string)(x['interfileLanguagesUsed']) if 'interfileLanguagesUsed' in x else None,
+            )
+        else:
+            _atd_bad_json('Value', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['features'] = _atd_write_list(_atd_write_string)(self.features)
+        if self.proFeatures is not None:
+            res['proFeatures'] = (lambda x: x.to_json())(self.proFeatures)
+        if self.numFindings is not None:
+            res['numFindings'] = _atd_write_int(self.numFindings)
+        if self.numFindingsByProduct is not None:
+            res['numFindingsByProduct'] = _atd_write_assoc_list_to_object(_atd_write_int)(self.numFindingsByProduct)
+        if self.numIgnored is not None:
+            res['numIgnored'] = _atd_write_int(self.numIgnored)
+        if self.ruleHashesWithFindings is not None:
+            res['ruleHashesWithFindings'] = _atd_write_assoc_list_to_object(_atd_write_int)(self.ruleHashesWithFindings)
+        res['engineRequested'] = _atd_write_string(self.engineRequested)
+        if self.engineConfig is not None:
+            res['engineConfig'] = (lambda x: x.to_json())(self.engineConfig)
+        if self.interfileLanguagesUsed is not None:
+            res['interfileLanguagesUsed'] = _atd_write_list(_atd_write_string)(self.interfileLanguagesUsed)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Value':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Uuid:
+    """Original type: uuid"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Uuid':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Uuid':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Sha256:
+    """Original type: sha256"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Sha256':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Sha256':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class RuleStats:
     """Original type: rule_stats = { ... }"""
 
@@ -476,39 +725,6 @@ class RuleStats:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'RuleStats':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class ProFeatures:
-    """Original type: pro_features = { ... }"""
-
-    diffDepth: Optional[int] = None
-    numInterfileDiffScanned: Optional[List[Tuple[str, int]]] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ProFeatures':
-        if isinstance(x, dict):
-            return cls(
-                diffDepth=_atd_read_int(x['diffDepth']) if 'diffDepth' in x else None,
-                numInterfileDiffScanned=_atd_read_assoc_object_into_list(_atd_read_int)(x['numInterfileDiffScanned']) if 'numInterfileDiffScanned' in x else None,
-            )
-        else:
-            _atd_bad_json('ProFeatures', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        if self.diffDepth is not None:
-            res['diffDepth'] = _atd_write_int(self.diffDepth)
-        if self.numInterfileDiffScanned is not None:
-            res['numInterfileDiffScanned'] = _atd_write_assoc_list_to_object(_atd_write_int)(self.numInterfileDiffScanned)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ProFeatures':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -731,222 +947,6 @@ class OsemgrepMetrics:
 
 
 @dataclass
-class CodeConfig:
-    """Original type: code_config = { ... }"""
-
-    _rfu: Optional[int] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CodeConfig':
-        if isinstance(x, dict):
-            return cls(
-                _rfu=_atd_read_int(x['_rfu']) if '_rfu' in x else None,
-            )
-        else:
-            _atd_bad_json('CodeConfig', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        if self._rfu is not None:
-            res['_rfu'] = _atd_write_int(self._rfu)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CodeConfig':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Intraprocedural:
-    """Original type: analysis_type = [ ... | Intraprocedural | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Intraprocedural'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Intraprocedural'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Interprocedural:
-    """Original type: analysis_type = [ ... | Interprocedural | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Interprocedural'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Interprocedural'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Interfile:
-    """Original type: analysis_type = [ ... | Interfile | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Interfile'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Interfile'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class AnalysisType:
-    """Original type: analysis_type = [ ... ]"""
-
-    value: Union[Intraprocedural, Interprocedural, Interfile]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'AnalysisType':
-        if isinstance(x, str):
-            if x == 'Intraprocedural':
-                return cls(Intraprocedural())
-            if x == 'Interprocedural':
-                return cls(Interprocedural())
-            if x == 'Interfile':
-                return cls(Interfile())
-            _atd_bad_json('AnalysisType', x)
-        _atd_bad_json('AnalysisType', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'AnalysisType':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class EngineConfig:
-    """Original type: engine_config = { ... }"""
-
-    analysis_type: AnalysisType
-    pro_langs: bool
-    code_config: Optional[CodeConfig] = None
-    secrets_config: Optional[SecretsConfig] = None
-    supply_chain_config: Optional[SupplyChainConfig] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'EngineConfig':
-        if isinstance(x, dict):
-            return cls(
-                analysis_type=AnalysisType.from_json(x['analysis_type']) if 'analysis_type' in x else _atd_missing_json_field('EngineConfig', 'analysis_type'),
-                pro_langs=_atd_read_bool(x['pro_langs']) if 'pro_langs' in x else _atd_missing_json_field('EngineConfig', 'pro_langs'),
-                code_config=CodeConfig.from_json(x['code_config']) if 'code_config' in x else None,
-                secrets_config=SecretsConfig.from_json(x['secrets_config']) if 'secrets_config' in x else None,
-                supply_chain_config=SupplyChainConfig.from_json(x['supply_chain_config']) if 'supply_chain_config' in x else None,
-            )
-        else:
-            _atd_bad_json('EngineConfig', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['analysis_type'] = (lambda x: x.to_json())(self.analysis_type)
-        res['pro_langs'] = _atd_write_bool(self.pro_langs)
-        if self.code_config is not None:
-            res['code_config'] = (lambda x: x.to_json())(self.code_config)
-        if self.secrets_config is not None:
-            res['secrets_config'] = (lambda x: x.to_json())(self.secrets_config)
-        if self.supply_chain_config is not None:
-            res['supply_chain_config'] = (lambda x: x.to_json())(self.supply_chain_config)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'EngineConfig':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Misc:
-    """Original type: misc = { ... }"""
-
-    features: List[str]
-    proFeatures: Optional[ProFeatures] = None
-    numFindings: Optional[int] = None
-    numFindingsByProduct: Optional[List[Tuple[str, int]]] = None
-    numIgnored: Optional[int] = None
-    ruleHashesWithFindings: Optional[List[Tuple[str, int]]] = None
-    engineRequested: str = field(default_factory=lambda: 'OSS')
-    engineConfig: Optional[EngineConfig] = None
-    interfileLanguagesUsed: Optional[List[str]] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Misc':
-        if isinstance(x, dict):
-            return cls(
-                features=_atd_read_list(_atd_read_string)(x['features']) if 'features' in x else _atd_missing_json_field('Misc', 'features'),
-                proFeatures=ProFeatures.from_json(x['proFeatures']) if 'proFeatures' in x else None,
-                numFindings=_atd_read_int(x['numFindings']) if 'numFindings' in x else None,
-                numFindingsByProduct=_atd_read_assoc_object_into_list(_atd_read_int)(x['numFindingsByProduct']) if 'numFindingsByProduct' in x else None,
-                numIgnored=_atd_read_int(x['numIgnored']) if 'numIgnored' in x else None,
-                ruleHashesWithFindings=_atd_read_assoc_object_into_list(_atd_read_int)(x['ruleHashesWithFindings']) if 'ruleHashesWithFindings' in x else None,
-                engineRequested=_atd_read_string(x['engineRequested']) if 'engineRequested' in x else 'OSS',
-                engineConfig=EngineConfig.from_json(x['engineConfig']) if 'engineConfig' in x else None,
-                interfileLanguagesUsed=_atd_read_list(_atd_read_string)(x['interfileLanguagesUsed']) if 'interfileLanguagesUsed' in x else None,
-            )
-        else:
-            _atd_bad_json('Misc', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['features'] = _atd_write_list(_atd_write_string)(self.features)
-        if self.proFeatures is not None:
-            res['proFeatures'] = (lambda x: x.to_json())(self.proFeatures)
-        if self.numFindings is not None:
-            res['numFindings'] = _atd_write_int(self.numFindings)
-        if self.numFindingsByProduct is not None:
-            res['numFindingsByProduct'] = _atd_write_assoc_list_to_object(_atd_write_int)(self.numFindingsByProduct)
-        if self.numIgnored is not None:
-            res['numIgnored'] = _atd_write_int(self.numIgnored)
-        if self.ruleHashesWithFindings is not None:
-            res['ruleHashesWithFindings'] = _atd_write_assoc_list_to_object(_atd_write_int)(self.ruleHashesWithFindings)
-        res['engineRequested'] = _atd_write_string(self.engineRequested)
-        if self.engineConfig is not None:
-            res['engineConfig'] = (lambda x: x.to_json())(self.engineConfig)
-        if self.interfileLanguagesUsed is not None:
-            res['interfileLanguagesUsed'] = _atd_write_list(_atd_write_string)(self.interfileLanguagesUsed)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Misc':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class Extension:
     """Original type: extension = { ... }"""
 
@@ -1132,14 +1132,14 @@ class Payload:
     """Original type: payload = { ... }"""
 
     event_id: Uuid
-    anonymous_user_id: str
     started_at: Datetime
     sent_at: Datetime
+    anonymous_user_id: str
     environment: Environment
     performance: Performance
-    extension: Extension
     errors: Errors
-    value: Misc
+    value: Value
+    extension: Extension
     parse_rate: List[Tuple[str, ParseStat]] = field(default_factory=lambda: [])
     osemgrep: Optional[OsemgrepMetrics] = None
 
@@ -1148,14 +1148,14 @@ class Payload:
         if isinstance(x, dict):
             return cls(
                 event_id=Uuid.from_json(x['event_id']) if 'event_id' in x else _atd_missing_json_field('Payload', 'event_id'),
-                anonymous_user_id=_atd_read_string(x['anonymous_user_id']) if 'anonymous_user_id' in x else _atd_missing_json_field('Payload', 'anonymous_user_id'),
                 started_at=Datetime.from_json(x['started_at']) if 'started_at' in x else _atd_missing_json_field('Payload', 'started_at'),
                 sent_at=Datetime.from_json(x['sent_at']) if 'sent_at' in x else _atd_missing_json_field('Payload', 'sent_at'),
+                anonymous_user_id=_atd_read_string(x['anonymous_user_id']) if 'anonymous_user_id' in x else _atd_missing_json_field('Payload', 'anonymous_user_id'),
                 environment=Environment.from_json(x['environment']) if 'environment' in x else _atd_missing_json_field('Payload', 'environment'),
                 performance=Performance.from_json(x['performance']) if 'performance' in x else _atd_missing_json_field('Payload', 'performance'),
-                extension=Extension.from_json(x['extension']) if 'extension' in x else _atd_missing_json_field('Payload', 'extension'),
                 errors=Errors.from_json(x['errors']) if 'errors' in x else _atd_missing_json_field('Payload', 'errors'),
-                value=Misc.from_json(x['value']) if 'value' in x else _atd_missing_json_field('Payload', 'value'),
+                value=Value.from_json(x['value']) if 'value' in x else _atd_missing_json_field('Payload', 'value'),
+                extension=Extension.from_json(x['extension']) if 'extension' in x else _atd_missing_json_field('Payload', 'extension'),
                 parse_rate=_atd_read_assoc_object_into_list(ParseStat.from_json)(x['parse_rate']) if 'parse_rate' in x else [],
                 osemgrep=OsemgrepMetrics.from_json(x['osemgrep']) if 'osemgrep' in x else None,
             )
@@ -1165,14 +1165,14 @@ class Payload:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['event_id'] = (lambda x: x.to_json())(self.event_id)
-        res['anonymous_user_id'] = _atd_write_string(self.anonymous_user_id)
         res['started_at'] = (lambda x: x.to_json())(self.started_at)
         res['sent_at'] = (lambda x: x.to_json())(self.sent_at)
+        res['anonymous_user_id'] = _atd_write_string(self.anonymous_user_id)
         res['environment'] = (lambda x: x.to_json())(self.environment)
         res['performance'] = (lambda x: x.to_json())(self.performance)
-        res['extension'] = (lambda x: x.to_json())(self.extension)
         res['errors'] = (lambda x: x.to_json())(self.errors)
         res['value'] = (lambda x: x.to_json())(self.value)
+        res['extension'] = (lambda x: x.to_json())(self.extension)
         res['parse_rate'] = _atd_write_assoc_list_to_object((lambda x: x.to_json()))(self.parse_rate)
         if self.osemgrep is not None:
             res['osemgrep'] = (lambda x: x.to_json())(self.osemgrep)
