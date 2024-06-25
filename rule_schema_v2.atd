@@ -277,6 +277,8 @@ type rule_options = {
   ?interfile: bool option;
 
   ?decorators_order_matters: bool option;
+
+  ?comparison_uses_control_flow: bool option;
 }
 
 type generic_engine = [
