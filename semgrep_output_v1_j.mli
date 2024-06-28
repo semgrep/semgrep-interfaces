@@ -155,7 +155,12 @@ type rule_result = Semgrep_output_v1_t.rule_result = {
 
 type fixtest_result = Semgrep_output_v1_t.fixtest_result = { passed: bool }
 
-type config_error = Semgrep_output_v1_t.config_error
+type config_error_reason = Semgrep_output_v1_t.config_error_reason
+
+type config_error = Semgrep_output_v1_t.config_error = {
+  file: fpath;
+  reason: config_error_reason
+}
 
 type checks = Semgrep_output_v1_t.checks = {
   checks: (string * rule_result) list
@@ -1348,6 +1353,26 @@ val read_fixtest_result :
 val fixtest_result_of_string :
   string -> fixtest_result
   (** Deserialize JSON data of type {!type:fixtest_result}. *)
+
+val write_config_error_reason :
+  Buffer.t -> config_error_reason -> unit
+  (** Output a JSON value of type {!type:config_error_reason}. *)
+
+val string_of_config_error_reason :
+  ?len:int -> config_error_reason -> string
+  (** Serialize a value of type {!type:config_error_reason}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_config_error_reason :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> config_error_reason
+  (** Input JSON data of type {!type:config_error_reason}. *)
+
+val config_error_reason_of_string :
+  string -> config_error_reason
+  (** Deserialize JSON data of type {!type:config_error_reason}. *)
 
 val write_config_error :
   Buffer.t -> config_error -> unit

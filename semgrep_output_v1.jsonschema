@@ -581,17 +581,14 @@
         }
       }
     },
+    "config_error_reason": { "oneOf": [ { "const": "unparsable" } ] },
     "config_error": {
-      "oneOf": [
-        {
-          "type": "array",
-          "minItems": 2,
-          "items": false,
-          "prefixItems": [
-            { "const": "Unparsable" }, { "$ref": "#/definitions/fpath" }
-          ]
-        }
-      ]
+      "type": "object",
+      "required": [ "file", "reason" ],
+      "properties": {
+        "file": { "$ref": "#/definitions/fpath" },
+        "reason": { "$ref": "#/definitions/config_error_reason" }
+      }
     },
     "tests_result": {
       "type": "object",

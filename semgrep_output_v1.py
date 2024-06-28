@@ -1865,25 +1865,24 @@ class FixtestResult:
 
 @dataclass
 class Unparsable:
-    """Original type: config_error = [ ... | Unparsable of ... | ... ]"""
-
-    value: Fpath
+    """Original type: config_error_reason = [ ... | Unparsable | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
         return 'Unparsable'
 
-    def to_json(self) -> Any:
-        return ['Unparsable', (lambda x: x.to_json())(self.value)]
+    @staticmethod
+    def to_json() -> Any:
+        return 'unparsable'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
 @dataclass
-class ConfigError:
-    """Original type: config_error = [ ... ]"""
+class ConfigErrorReason:
+    """Original type: config_error_reason = [ ... ]"""
 
     value: Union[Unparsable]
 
@@ -1893,16 +1892,46 @@ class ConfigError:
         return self.value.kind
 
     @classmethod
-    def from_json(cls, x: Any) -> 'ConfigError':
-        if isinstance(x, List) and len(x) == 2:
-            cons = x[0]
-            if cons == 'Unparsable':
-                return cls(Unparsable(Fpath.from_json(x[1])))
-            _atd_bad_json('ConfigError', x)
-        _atd_bad_json('ConfigError', x)
+    def from_json(cls, x: Any) -> 'ConfigErrorReason':
+        if isinstance(x, str):
+            if x == 'unparsable':
+                return cls(Unparsable())
+            _atd_bad_json('ConfigErrorReason', x)
+        _atd_bad_json('ConfigErrorReason', x)
 
     def to_json(self) -> Any:
         return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ConfigErrorReason':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ConfigError:
+    """Original type: config_error = { ... }"""
+
+    file: Fpath
+    reason: ConfigErrorReason
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ConfigError':
+        if isinstance(x, dict):
+            return cls(
+                file=Fpath.from_json(x['file']) if 'file' in x else _atd_missing_json_field('ConfigError', 'file'),
+                reason=ConfigErrorReason.from_json(x['reason']) if 'reason' in x else _atd_missing_json_field('ConfigError', 'reason'),
+            )
+        else:
+            _atd_bad_json('ConfigError', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['file'] = (lambda x: x.to_json())(self.file)
+        res['reason'] = (lambda x: x.to_json())(self.reason)
+        return res
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ConfigError':

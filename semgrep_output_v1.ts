@@ -344,8 +344,13 @@ export type CliOutputExtra = {
   skipped_rules: SkippedRule[];
 }
 
-export type ConfigError =
-| { kind: 'Unparsable'; value: Fpath }
+export type ConfigErrorReason =
+| { kind: 'Unparsable' /* JSON: "unparsable" */ }
+
+export type ConfigError = {
+  file: Fpath;
+  reason: ConfigErrorReason;
+}
 
 export type TestsResult = {
   results: [string, Checks][];
@@ -1856,22 +1861,35 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
   };
 }
 
-export function writeConfigError(x: ConfigError, context: any = x): any {
+export function writeConfigErrorReason(x: ConfigErrorReason, context: any = x): any {
   switch (x.kind) {
     case 'Unparsable':
-      return ['Unparsable', writeFpath(x.value, x)]
+      return 'unparsable'
   }
 }
 
-export function readConfigError(x: any, context: any = x): ConfigError {
-  _atd_check_json_tuple(2, x, context)
-  switch (x[0]) {
-    case 'Unparsable':
-      return { kind: 'Unparsable', value: readFpath(x[1], x) }
+export function readConfigErrorReason(x: any, context: any = x): ConfigErrorReason {
+  switch (x) {
+    case 'unparsable':
+      return { kind: 'Unparsable' }
     default:
-      _atd_bad_json('ConfigError', x, context)
+      _atd_bad_json('ConfigErrorReason', x, context)
       throw new Error('impossible')
   }
+}
+
+export function writeConfigError(x: ConfigError, context: any = x): any {
+  return {
+    'file': _atd_write_required_field('ConfigError', 'file', writeFpath, x.file, x),
+    'reason': _atd_write_required_field('ConfigError', 'reason', writeConfigErrorReason, x.reason, x),
+  };
+}
+
+export function readConfigError(x: any, context: any = x): ConfigError {
+  return {
+    file: _atd_read_required_field('ConfigError', 'file', readFpath, x['file'], x),
+    reason: _atd_read_required_field('ConfigError', 'reason', readConfigErrorReason, x['reason'], x),
+  };
 }
 
 export function writeTestsResult(x: TestsResult, context: any = x): any {
