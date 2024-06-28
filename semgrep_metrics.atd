@@ -253,7 +253,7 @@ type extension = {
     ?version <ocaml mutable>: string option;
     (* type of extension, i.e. vscode, or intellij *)
     ?ty <ocaml mutable>: string option;
-    (* number of autofixes via code actions *)
+    (* number of autofixes accepted via code actions *)
     ?autofixCount <ocaml mutable>: int option;
     (* how many findings have been ignored *)
     ?ignoreCount <ocaml mutable>: int option;
