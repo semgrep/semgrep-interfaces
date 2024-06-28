@@ -164,7 +164,7 @@ type tests_result = Semgrep_output_v1_t.tests_result = {
   fixtest_results: (string * fixtest_result) list;
   config_missing_tests: fpath list;
   config_missing_fixtests: fpath list;
-  config_unparsable: fpath list;
+  config_unparsable: fpath list option;
   config_with_errors: todo list
 }
 

@@ -856,7 +856,8 @@ type tests_result = {
    fixtest_results: (string (* target file *) * fixtest_result) list <json repr="object">;
    config_missing_tests: fpath list;
    config_missing_fixtests: fpath list;
-   config_unparsable: fpath list;
+   (* NEW: since v1.79 *)
+   ?config_unparsable: fpath list option;
    config_with_errors: todo list;
 }
 

@@ -349,7 +349,7 @@ export type TestsResult = {
   fixtest_results: [string, FixtestResult][];
   config_missing_tests: Fpath[];
   config_missing_fixtests: Fpath[];
-  config_unparsable: Fpath[];
+  config_unparsable?: Fpath[];
   config_with_errors: Todo[];
 }
 
@@ -1860,7 +1860,7 @@ export function writeTestsResult(x: TestsResult, context: any = x): any {
     'fixtest_results': _atd_write_required_field('TestsResult', 'fixtest_results', _atd_write_assoc_array_to_object(writeFixtestResult), x.fixtest_results, x),
     'config_missing_tests': _atd_write_required_field('TestsResult', 'config_missing_tests', _atd_write_array(writeFpath), x.config_missing_tests, x),
     'config_missing_fixtests': _atd_write_required_field('TestsResult', 'config_missing_fixtests', _atd_write_array(writeFpath), x.config_missing_fixtests, x),
-    'config_unparsable': _atd_write_required_field('TestsResult', 'config_unparsable', _atd_write_array(writeFpath), x.config_unparsable, x),
+    'config_unparsable': _atd_write_optional_field(_atd_write_array(writeFpath), x.config_unparsable, x),
     'config_with_errors': _atd_write_required_field('TestsResult', 'config_with_errors', _atd_write_array(writeTodo), x.config_with_errors, x),
   };
 }
@@ -1871,7 +1871,7 @@ export function readTestsResult(x: any, context: any = x): TestsResult {
     fixtest_results: _atd_read_required_field('TestsResult', 'fixtest_results', _atd_read_assoc_object_into_array(readFixtestResult), x['fixtest_results'], x),
     config_missing_tests: _atd_read_required_field('TestsResult', 'config_missing_tests', _atd_read_array(readFpath), x['config_missing_tests'], x),
     config_missing_fixtests: _atd_read_required_field('TestsResult', 'config_missing_fixtests', _atd_read_array(readFpath), x['config_missing_fixtests'], x),
-    config_unparsable: _atd_read_required_field('TestsResult', 'config_unparsable', _atd_read_array(readFpath), x['config_unparsable'], x),
+    config_unparsable: _atd_read_optional_field(_atd_read_array(readFpath), x['config_unparsable'], x),
     config_with_errors: _atd_read_required_field('TestsResult', 'config_with_errors', _atd_read_array(readTodo), x['config_with_errors'], x),
   };
 }
