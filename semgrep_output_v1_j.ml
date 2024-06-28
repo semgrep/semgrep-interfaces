@@ -155,6 +155,8 @@ type rule_result = Semgrep_output_v1_t.rule_result = {
 
 type fixtest_result = Semgrep_output_v1_t.fixtest_result = { passed: bool }
 
+type config_error = Semgrep_output_v1_t.config_error
+
 type checks = Semgrep_output_v1_t.checks = {
   checks: (string * rule_result) list
 }
@@ -164,8 +166,7 @@ type tests_result = Semgrep_output_v1_t.tests_result = {
   fixtest_results: (string * fixtest_result) list;
   config_missing_tests: fpath list;
   config_missing_fixtests: fpath list;
-  config_unparsable: fpath list option;
-  config_with_errors: todo list
+  config_with_errors: config_error list
 }
 
 type target_times = Semgrep_output_v1_t.target_times = {
@@ -5850,6 +5851,62 @@ let read_fixtest_result = (
 )
 let fixtest_result_of_string s =
   read_fixtest_result (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_config_error = (
+  fun ob x ->
+    match x with
+      | `Unparsable x ->
+        Buffer.add_string ob "[\"Unparsable\",";
+        (
+          write_fpath
+        ) ob x;
+        Buffer.add_char ob ']'
+)
+let string_of_config_error ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_config_error ob x;
+  Buffer.contents ob
+let read_config_error = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "Unparsable" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_fpath
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Unparsable x
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Unparsable" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_fpath
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `Unparsable x
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let config_error_of_string s =
+  read_config_error (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__x_e141b07 = (
   Atdgen_runtime.Oj_run.write_assoc_list (
     Yojson.Safe.write_string
@@ -6024,63 +6081,22 @@ let read__fpath_list = (
 )
 let _fpath_list_of_string s =
   read__fpath_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__fpath_list_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write__fpath_list
+let write__config_error_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_config_error
   )
 )
-let string_of__fpath_list_option ?(len = 1024) x =
+let string_of__config_error_list ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__fpath_list_option ob x;
+  write__config_error_list ob x;
   Buffer.contents ob
-let read__fpath_list_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__fpath_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__fpath_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+let read__config_error_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_config_error
+  )
 )
-let _fpath_list_option_of_string s =
-  read__fpath_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _config_error_list_of_string s =
+  read__config_error_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_tests_result : _ -> tests_result -> _ = (
   fun ob (x : tests_result) ->
     Buffer.add_char ob '{';
@@ -6121,24 +6137,13 @@ let write_tests_result : _ -> tests_result -> _ = (
       write__fpath_list
     )
       ob x.config_missing_fixtests;
-    (match x.config_unparsable with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"config_unparsable\":";
-      (
-        write__fpath_list
-      )
-        ob x;
-    );
     if !is_first then
       is_first := false
     else
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"config_with_errors\":";
     (
-      write__todo_list
+      write__config_error_list
     )
       ob x.config_with_errors;
     Buffer.add_char ob '}';
@@ -6155,7 +6160,6 @@ let read_tests_result = (
     let field_fixtest_results = ref (None) in
     let field_config_missing_tests = ref (None) in
     let field_config_missing_fixtests = ref (None) in
-    let field_config_unparsable = ref (None) in
     let field_config_with_errors = ref (None) in
     try
       Yojson.Safe.read_space p lb;
@@ -6182,17 +6186,9 @@ let read_tests_result = (
                   -1
                 )
               )
-            | 17 -> (
-                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'b' && String.unsafe_get s (pos+15) = 'l' && String.unsafe_get s (pos+16) = 'e' then (
-                  4
-                )
-                else (
-                  -1
-                )
-              )
             | 18 -> (
                 if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'o' && String.unsafe_get s (pos+16) = 'r' && String.unsafe_get s (pos+17) = 's' then (
-                  5
+                  4
                 )
                 else (
                   -1
@@ -6255,20 +6251,10 @@ let read_tests_result = (
               )
             );
           | 4 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_config_unparsable := (
-                Some (
-                  (
-                    read__fpath_list
-                  ) p lb
-                )
-              );
-            )
-          | 5 ->
             field_config_with_errors := (
               Some (
                 (
-                  read__todo_list
+                  read__config_error_list
                 ) p lb
               )
             );
@@ -6301,17 +6287,9 @@ let read_tests_result = (
                     -1
                   )
                 )
-              | 17 -> (
-                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'b' && String.unsafe_get s (pos+15) = 'l' && String.unsafe_get s (pos+16) = 'e' then (
-                    4
-                  )
-                  else (
-                    -1
-                  )
-                )
               | 18 -> (
                   if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'o' && String.unsafe_get s (pos+16) = 'r' && String.unsafe_get s (pos+17) = 's' then (
-                    5
+                    4
                   )
                   else (
                     -1
@@ -6374,20 +6352,10 @@ let read_tests_result = (
                 )
               );
             | 4 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_config_unparsable := (
-                  Some (
-                    (
-                      read__fpath_list
-                    ) p lb
-                  )
-                );
-              )
-            | 5 ->
               field_config_with_errors := (
                 Some (
                   (
-                    read__todo_list
+                    read__config_error_list
                   ) p lb
                 )
               );
@@ -6404,7 +6372,6 @@ let read_tests_result = (
             fixtest_results = (match !field_fixtest_results with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "fixtest_results");
             config_missing_tests = (match !field_config_missing_tests with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "config_missing_tests");
             config_missing_fixtests = (match !field_config_missing_fixtests with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "config_missing_fixtests");
-            config_unparsable = !field_config_unparsable;
             config_with_errors = (match !field_config_with_errors with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "config_with_errors");
           }
          : tests_result)

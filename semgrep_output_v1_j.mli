@@ -155,6 +155,8 @@ type rule_result = Semgrep_output_v1_t.rule_result = {
 
 type fixtest_result = Semgrep_output_v1_t.fixtest_result = { passed: bool }
 
+type config_error = Semgrep_output_v1_t.config_error
+
 type checks = Semgrep_output_v1_t.checks = {
   checks: (string * rule_result) list
 }
@@ -164,8 +166,7 @@ type tests_result = Semgrep_output_v1_t.tests_result = {
   fixtest_results: (string * fixtest_result) list;
   config_missing_tests: fpath list;
   config_missing_fixtests: fpath list;
-  config_unparsable: fpath list option;
-  config_with_errors: todo list
+  config_with_errors: config_error list
 }
 
 type target_times = Semgrep_output_v1_t.target_times = {
@@ -1347,6 +1348,26 @@ val read_fixtest_result :
 val fixtest_result_of_string :
   string -> fixtest_result
   (** Deserialize JSON data of type {!type:fixtest_result}. *)
+
+val write_config_error :
+  Buffer.t -> config_error -> unit
+  (** Output a JSON value of type {!type:config_error}. *)
+
+val string_of_config_error :
+  ?len:int -> config_error -> string
+  (** Serialize a value of type {!type:config_error}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_config_error :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> config_error
+  (** Input JSON data of type {!type:config_error}. *)
+
+val config_error_of_string :
+  string -> config_error
+  (** Deserialize JSON data of type {!type:config_error}. *)
 
 val write_checks :
   Buffer.t -> checks -> unit
