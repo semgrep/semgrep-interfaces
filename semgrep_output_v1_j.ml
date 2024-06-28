@@ -164,6 +164,7 @@ type tests_result = Semgrep_output_v1_t.tests_result = {
   fixtest_results: (string * fixtest_result) list;
   config_missing_tests: fpath list;
   config_missing_fixtests: fpath list;
+  config_unparsable: fpath list;
   config_with_errors: todo list
 }
 
@@ -6067,6 +6068,15 @@ let write_tests_result : _ -> tests_result -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
+      Buffer.add_string ob "\"config_unparsable\":";
+    (
+      write__fpath_list
+    )
+      ob x.config_unparsable;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
       Buffer.add_string ob "\"config_with_errors\":";
     (
       write__todo_list
@@ -6086,6 +6096,7 @@ let read_tests_result = (
     let field_fixtest_results = ref (None) in
     let field_config_missing_tests = ref (None) in
     let field_config_missing_fixtests = ref (None) in
+    let field_config_unparsable = ref (None) in
     let field_config_with_errors = ref (None) in
     try
       Yojson.Safe.read_space p lb;
@@ -6112,9 +6123,17 @@ let read_tests_result = (
                   -1
                 )
               )
+            | 17 -> (
+                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'b' && String.unsafe_get s (pos+15) = 'l' && String.unsafe_get s (pos+16) = 'e' then (
+                  4
+                )
+                else (
+                  -1
+                )
+              )
             | 18 -> (
                 if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'o' && String.unsafe_get s (pos+16) = 'r' && String.unsafe_get s (pos+17) = 's' then (
-                  4
+                  5
                 )
                 else (
                   -1
@@ -6177,6 +6196,14 @@ let read_tests_result = (
               )
             );
           | 4 ->
+            field_config_unparsable := (
+              Some (
+                (
+                  read__fpath_list
+                ) p lb
+              )
+            );
+          | 5 ->
             field_config_with_errors := (
               Some (
                 (
@@ -6213,9 +6240,17 @@ let read_tests_result = (
                     -1
                   )
                 )
+              | 17 -> (
+                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'b' && String.unsafe_get s (pos+15) = 'l' && String.unsafe_get s (pos+16) = 'e' then (
+                    4
+                  )
+                  else (
+                    -1
+                  )
+                )
               | 18 -> (
                   if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'o' && String.unsafe_get s (pos+16) = 'r' && String.unsafe_get s (pos+17) = 's' then (
-                    4
+                    5
                   )
                   else (
                     -1
@@ -6278,6 +6313,14 @@ let read_tests_result = (
                 )
               );
             | 4 ->
+              field_config_unparsable := (
+                Some (
+                  (
+                    read__fpath_list
+                  ) p lb
+                )
+              );
+            | 5 ->
               field_config_with_errors := (
                 Some (
                   (
@@ -6298,6 +6341,7 @@ let read_tests_result = (
             fixtest_results = (match !field_fixtest_results with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "fixtest_results");
             config_missing_tests = (match !field_config_missing_tests with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "config_missing_tests");
             config_missing_fixtests = (match !field_config_missing_fixtests with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "config_missing_fixtests");
+            config_unparsable = (match !field_config_unparsable with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "config_unparsable");
             config_with_errors = (match !field_config_with_errors with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "config_with_errors");
           }
          : tests_result)

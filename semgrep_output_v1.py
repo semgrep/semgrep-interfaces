@@ -1899,6 +1899,7 @@ class TestsResult:
     fixtest_results: List[Tuple[str, FixtestResult]]
     config_missing_tests: List[Fpath]
     config_missing_fixtests: List[Fpath]
+    config_unparsable: List[Fpath]
     config_with_errors: List[Todo]
 
     @classmethod
@@ -1909,6 +1910,7 @@ class TestsResult:
                 fixtest_results=_atd_read_assoc_object_into_list(FixtestResult.from_json)(x['fixtest_results']) if 'fixtest_results' in x else _atd_missing_json_field('TestsResult', 'fixtest_results'),
                 config_missing_tests=_atd_read_list(Fpath.from_json)(x['config_missing_tests']) if 'config_missing_tests' in x else _atd_missing_json_field('TestsResult', 'config_missing_tests'),
                 config_missing_fixtests=_atd_read_list(Fpath.from_json)(x['config_missing_fixtests']) if 'config_missing_fixtests' in x else _atd_missing_json_field('TestsResult', 'config_missing_fixtests'),
+                config_unparsable=_atd_read_list(Fpath.from_json)(x['config_unparsable']) if 'config_unparsable' in x else _atd_missing_json_field('TestsResult', 'config_unparsable'),
                 config_with_errors=_atd_read_list(Todo.from_json)(x['config_with_errors']) if 'config_with_errors' in x else _atd_missing_json_field('TestsResult', 'config_with_errors'),
             )
         else:
@@ -1920,6 +1922,7 @@ class TestsResult:
         res['fixtest_results'] = _atd_write_assoc_list_to_object((lambda x: x.to_json()))(self.fixtest_results)
         res['config_missing_tests'] = _atd_write_list((lambda x: x.to_json()))(self.config_missing_tests)
         res['config_missing_fixtests'] = _atd_write_list((lambda x: x.to_json()))(self.config_missing_fixtests)
+        res['config_unparsable'] = _atd_write_list((lambda x: x.to_json()))(self.config_unparsable)
         res['config_with_errors'] = _atd_write_list((lambda x: x.to_json()))(self.config_with_errors)
         return res
 

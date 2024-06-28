@@ -585,7 +585,7 @@
       "type": "object",
       "required": [
         "results", "fixtest_results", "config_missing_tests",
-        "config_missing_fixtests", "config_with_errors"
+        "config_missing_fixtests", "config_unparsable", "config_with_errors"
       ],
       "properties": {
         "results": {
@@ -601,6 +601,10 @@
           "items": { "$ref": "#/definitions/fpath" }
         },
         "config_missing_fixtests": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/fpath" }
+        },
+        "config_unparsable": {
           "type": "array",
           "items": { "$ref": "#/definitions/fpath" }
         },
