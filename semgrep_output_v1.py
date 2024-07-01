@@ -1634,6 +1634,151 @@ class Uri:
 
 
 @dataclass
+class Todo:
+    """Original type: todo"""
+
+    value: int
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Todo':
+        return cls(_atd_read_int(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_int(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Todo':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class UnexpectedNoMatchDiagnosis:
+    """Original type: unexpected_no_match_diagnosis"""
+
+    value: Todo
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'UnexpectedNoMatchDiagnosis':
+        return cls(Todo.from_json(x))
+
+    def to_json(self) -> Any:
+        return (lambda x: x.to_json())(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'UnexpectedNoMatchDiagnosis':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Focus:
+    """Original type: originating_node_kind = [ ... | Focus | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Focus'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Focus'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Xpattern:
+    """Original type: originating_node_kind = [ ... | Xpattern | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Xpattern'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Xpattern'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class OriginatingNodeKind:
+    """Original type: originating_node_kind = [ ... ]"""
+
+    value: Union[Focus, Xpattern]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'OriginatingNodeKind':
+        if isinstance(x, str):
+            if x == 'Focus':
+                return cls(Focus())
+            if x == 'Xpattern':
+                return cls(Xpattern())
+            _atd_bad_json('OriginatingNodeKind', x)
+        _atd_bad_json('OriginatingNodeKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'OriginatingNodeKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class UnexpectedMatchDiagnosis:
+    """Original type: unexpected_match_diagnosis = { ... }"""
+
+    matched_line: int
+    originating_pos: Position
+    originating_kind: OriginatingNodeKind
+    killing_parent_pos: List[Position]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'UnexpectedMatchDiagnosis':
+        if isinstance(x, dict):
+            return cls(
+                matched_line=_atd_read_int(x['matched_line']) if 'matched_line' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'matched_line'),
+                originating_pos=Position.from_json(x['originating_pos']) if 'originating_pos' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'originating_pos'),
+                originating_kind=OriginatingNodeKind.from_json(x['originating_kind']) if 'originating_kind' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'originating_kind'),
+                killing_parent_pos=_atd_read_list(Position.from_json)(x['killing_parent_pos']) if 'killing_parent_pos' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'killing_parent_pos'),
+            )
+        else:
+            _atd_bad_json('UnexpectedMatchDiagnosis', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['matched_line'] = _atd_write_int(self.matched_line)
+        res['originating_pos'] = (lambda x: x.to_json())(self.originating_pos)
+        res['originating_kind'] = (lambda x: x.to_json())(self.originating_kind)
+        res['killing_parent_pos'] = _atd_write_list((lambda x: x.to_json()))(self.killing_parent_pos)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'UnexpectedMatchDiagnosis':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class TriageIgnored:
     """Original type: triage_ignored = { ... }"""
 
@@ -1750,20 +1895,33 @@ class Transitivity:
 
 
 @dataclass
-class Todo:
-    """Original type: todo"""
+class MatchingDiagnosis:
+    """Original type: matching_diagnosis = { ... }"""
 
-    value: int
+    target: Fpath
+    unexpected_match_diagnoses: List[UnexpectedMatchDiagnosis]
+    unexpected_no_match_diagnoses: List[UnexpectedNoMatchDiagnosis]
 
     @classmethod
-    def from_json(cls, x: Any) -> 'Todo':
-        return cls(_atd_read_int(x))
+    def from_json(cls, x: Any) -> 'MatchingDiagnosis':
+        if isinstance(x, dict):
+            return cls(
+                target=Fpath.from_json(x['target']) if 'target' in x else _atd_missing_json_field('MatchingDiagnosis', 'target'),
+                unexpected_match_diagnoses=_atd_read_list(UnexpectedMatchDiagnosis.from_json)(x['unexpected_match_diagnoses']) if 'unexpected_match_diagnoses' in x else _atd_missing_json_field('MatchingDiagnosis', 'unexpected_match_diagnoses'),
+                unexpected_no_match_diagnoses=_atd_read_list(UnexpectedNoMatchDiagnosis.from_json)(x['unexpected_no_match_diagnoses']) if 'unexpected_no_match_diagnoses' in x else _atd_missing_json_field('MatchingDiagnosis', 'unexpected_no_match_diagnoses'),
+            )
+        else:
+            _atd_bad_json('MatchingDiagnosis', x)
 
     def to_json(self) -> Any:
-        return _atd_write_int(self.value)
+        res: Dict[str, Any] = {}
+        res['target'] = (lambda x: x.to_json())(self.target)
+        res['unexpected_match_diagnoses'] = _atd_write_list((lambda x: x.to_json()))(self.unexpected_match_diagnoses)
+        res['unexpected_no_match_diagnoses'] = _atd_write_list((lambda x: x.to_json()))(self.unexpected_no_match_diagnoses)
+        return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'Todo':
+    def from_json_string(cls, x: str) -> 'MatchingDiagnosis':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1808,6 +1966,7 @@ class RuleResult:
     passed: bool
     matches: List[Tuple[str, ExpectedReported]]
     errors: List[Todo]
+    diagnosis: Optional[MatchingDiagnosis] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'RuleResult':
@@ -1816,6 +1975,7 @@ class RuleResult:
                 passed=_atd_read_bool(x['passed']) if 'passed' in x else _atd_missing_json_field('RuleResult', 'passed'),
                 matches=_atd_read_assoc_object_into_list(ExpectedReported.from_json)(x['matches']) if 'matches' in x else _atd_missing_json_field('RuleResult', 'matches'),
                 errors=_atd_read_list(Todo.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('RuleResult', 'errors'),
+                diagnosis=MatchingDiagnosis.from_json(x['diagnosis']) if 'diagnosis' in x else None,
             )
         else:
             _atd_bad_json('RuleResult', x)
@@ -1825,6 +1985,8 @@ class RuleResult:
         res['passed'] = _atd_write_bool(self.passed)
         res['matches'] = _atd_write_assoc_list_to_object((lambda x: x.to_json()))(self.matches)
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
+        if self.diagnosis is not None:
+            res['diagnosis'] = (lambda x: x.to_json())(self.diagnosis)
         return res
 
     @classmethod

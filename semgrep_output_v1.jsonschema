@@ -581,6 +581,44 @@
         }
       }
     },
+    "originating_node_kind": {
+      "oneOf": [ { "const": "Focus" }, { "const": "Xpattern" } ]
+    },
+    "unexpected_match_diagnosis": {
+      "type": "object",
+      "required": [
+        "matched_line", "originating_pos", "originating_kind",
+        "killing_parent_pos"
+      ],
+      "properties": {
+        "matched_line": { "type": "integer" },
+        "originating_pos": { "$ref": "#/definitions/position" },
+        "originating_kind": { "$ref": "#/definitions/originating_node_kind" },
+        "killing_parent_pos": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/position" }
+        }
+      }
+    },
+    "unexpected_no_match_diagnosis": { "$ref": "#/definitions/todo" },
+    "matching_diagnosis": {
+      "type": "object",
+      "required": [
+        "target", "unexpected_match_diagnoses",
+        "unexpected_no_match_diagnoses"
+      ],
+      "properties": {
+        "target": { "$ref": "#/definitions/fpath" },
+        "unexpected_match_diagnoses": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/unexpected_match_diagnosis" }
+        },
+        "unexpected_no_match_diagnoses": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/unexpected_no_match_diagnosis" }
+        }
+      }
+    },
     "tests_result": {
       "type": "object",
       "required": [
@@ -634,7 +672,8 @@
         "errors": {
           "type": "array",
           "items": { "$ref": "#/definitions/todo" }
-        }
+        },
+        "diagnosis": { "$ref": "#/definitions/matching_diagnosis" }
       }
     },
     "expected_reported": {

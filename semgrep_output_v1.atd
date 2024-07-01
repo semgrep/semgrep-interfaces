@@ -401,10 +401,10 @@ type svalue_value <python decorator="dataclass(frozen=True)"> = {
  *
  * 1:   def foo():
  * 2:     return source()
- * 3:   
+ * 3:
  * 4:   def bar(v):
  * 5:     sink(v)
- * 6:   
+ * 6:
  * 7:   x = foo()
  * 8:   y = x
  * 9:   bar(y)
@@ -427,7 +427,7 @@ type match_dataflow_trace <python decorator="dataclass(frozen=True)"> = {
 
 (* The string attached to the location is the actual code from the file.
  * This can contain sensitive information so be careful!
- * 
+ *
  * TODO: the type seems redundant since location already specifies a range.
  * maybe this saves some effort to the user of this type which do not
  * need to read the file to get the content.
@@ -850,6 +850,33 @@ type cli_output_extra = {
 (* 'semgrep test' output *)
 (*****************************************************************************)
 
+
+type originating_node_kind = [
+  | Focus
+  | Xpattern
+]
+
+type unexpected_match_diagnosis = {
+  matched_line: int;
+  (* the position in the rule file of them pattern which originated
+     the match
+   *)
+  originating_pos: position;
+  originating_kind: originating_node_kind;
+  (* the position in the rule file of all the parent operators which
+     could have killed the unexpected match
+   *)
+  killing_parent_pos: position list;
+}
+
+type unexpected_no_match_diagnosis = todo
+
+type matching_diagnosis = {
+  target: fpath;
+  unexpected_match_diagnoses: unexpected_match_diagnosis list;
+  unexpected_no_match_diagnoses: unexpected_no_match_diagnosis list;
+}
+
 type tests_result = {
   (* would like to use rule_id here but then can't use json repr *)
    results: (string (* rule file *) * checks) list <json repr="object">;
@@ -870,6 +897,8 @@ type rule_result = {
   matches: (string (* target filename *) * expected_reported) list
     <json repr="object">;
   errors: todo list;
+   (* NEW: since 1.79 *)
+  ?diagnosis: matching_diagnosis option;
 }
 
 type expected_reported = {
