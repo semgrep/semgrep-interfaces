@@ -149,12 +149,19 @@ type snippet = Semgrep_output_v1_t.snippet = { line: int; text: string }
 
 type originating_node_kind = Semgrep_output_v1_t.originating_node_kind
 
+type killing_parent_kind = Semgrep_output_v1_t.killing_parent_kind
+
+type killing_parent = Semgrep_output_v1_t.killing_parent = {
+  killing_parent_kind: killing_parent_kind;
+  snippet: snippet
+}
+
 type unexpected_match_diagnosis =
   Semgrep_output_v1_t.unexpected_match_diagnosis = {
   matched_text: snippet;
   originating_kind: originating_node_kind;
   originating_text: snippet;
-  killing_parents: snippet list
+  killing_parents: killing_parent list
 }
 
 type triage_ignored = Semgrep_output_v1_t.triage_ignored = {
@@ -1355,6 +1362,46 @@ val read_originating_node_kind :
 val originating_node_kind_of_string :
   string -> originating_node_kind
   (** Deserialize JSON data of type {!type:originating_node_kind}. *)
+
+val write_killing_parent_kind :
+  Buffer.t -> killing_parent_kind -> unit
+  (** Output a JSON value of type {!type:killing_parent_kind}. *)
+
+val string_of_killing_parent_kind :
+  ?len:int -> killing_parent_kind -> string
+  (** Serialize a value of type {!type:killing_parent_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_killing_parent_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> killing_parent_kind
+  (** Input JSON data of type {!type:killing_parent_kind}. *)
+
+val killing_parent_kind_of_string :
+  string -> killing_parent_kind
+  (** Deserialize JSON data of type {!type:killing_parent_kind}. *)
+
+val write_killing_parent :
+  Buffer.t -> killing_parent -> unit
+  (** Output a JSON value of type {!type:killing_parent}. *)
+
+val string_of_killing_parent :
+  ?len:int -> killing_parent -> string
+  (** Serialize a value of type {!type:killing_parent}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_killing_parent :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> killing_parent
+  (** Input JSON data of type {!type:killing_parent}. *)
+
+val killing_parent_of_string :
+  string -> killing_parent
+  (** Deserialize JSON data of type {!type:killing_parent}. *)
 
 val write_unexpected_match_diagnosis :
   Buffer.t -> unexpected_match_diagnosis -> unit

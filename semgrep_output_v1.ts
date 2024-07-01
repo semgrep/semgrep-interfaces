@@ -354,16 +354,26 @@ export type OriginatingNodeKind =
 | { kind: 'Focus' }
 | { kind: 'Xpattern' }
 
+export type KillingParentKind =
+| { kind: 'Inside' }
+| { kind: 'Negation' }
+| { kind: 'Filter'; value: string }
+
 export type Snippet = {
   line: number /*int*/;
   text: string;
+}
+
+export type KillingParent = {
+  killing_parent_kind: KillingParentKind;
+  snippet: Snippet;
 }
 
 export type UnexpectedMatchDiagnosis = {
   matched_text: Snippet;
   originating_kind: OriginatingNodeKind;
   originating_text: Snippet;
-  killing_parents: Snippet[];
+  killing_parents: KillingParent[];
 }
 
 export type UnexpectedNoMatchDiagnosis = Todo
@@ -1921,6 +1931,41 @@ export function readOriginatingNodeKind(x: any, context: any = x): OriginatingNo
   }
 }
 
+export function writeKillingParentKind(x: KillingParentKind, context: any = x): any {
+  switch (x.kind) {
+    case 'Inside':
+      return 'Inside'
+    case 'Negation':
+      return 'Negation'
+    case 'Filter':
+      return ['Filter', _atd_write_string(x.value, x)]
+  }
+}
+
+export function readKillingParentKind(x: any, context: any = x): KillingParentKind {
+  if (typeof x === 'string') {
+    switch (x) {
+      case 'Inside':
+        return { kind: 'Inside' }
+      case 'Negation':
+        return { kind: 'Negation' }
+      default:
+        _atd_bad_json('KillingParentKind', x, context)
+        throw new Error('impossible')
+    }
+  }
+  else {
+    _atd_check_json_tuple(2, x, context)
+    switch (x[0]) {
+      case 'Filter':
+        return { kind: 'Filter', value: _atd_read_string(x[1], x) }
+      default:
+        _atd_bad_json('KillingParentKind', x, context)
+        throw new Error('impossible')
+    }
+  }
+}
+
 export function writeSnippet(x: Snippet, context: any = x): any {
   return {
     'line': _atd_write_required_field('Snippet', 'line', _atd_write_int, x.line, x),
@@ -1935,12 +1980,26 @@ export function readSnippet(x: any, context: any = x): Snippet {
   };
 }
 
+export function writeKillingParent(x: KillingParent, context: any = x): any {
+  return {
+    'killing_parent_kind': _atd_write_required_field('KillingParent', 'killing_parent_kind', writeKillingParentKind, x.killing_parent_kind, x),
+    'snippet': _atd_write_required_field('KillingParent', 'snippet', writeSnippet, x.snippet, x),
+  };
+}
+
+export function readKillingParent(x: any, context: any = x): KillingParent {
+  return {
+    killing_parent_kind: _atd_read_required_field('KillingParent', 'killing_parent_kind', readKillingParentKind, x['killing_parent_kind'], x),
+    snippet: _atd_read_required_field('KillingParent', 'snippet', readSnippet, x['snippet'], x),
+  };
+}
+
 export function writeUnexpectedMatchDiagnosis(x: UnexpectedMatchDiagnosis, context: any = x): any {
   return {
     'matched_text': _atd_write_required_field('UnexpectedMatchDiagnosis', 'matched_text', writeSnippet, x.matched_text, x),
     'originating_kind': _atd_write_required_field('UnexpectedMatchDiagnosis', 'originating_kind', writeOriginatingNodeKind, x.originating_kind, x),
     'originating_text': _atd_write_required_field('UnexpectedMatchDiagnosis', 'originating_text', writeSnippet, x.originating_text, x),
-    'killing_parents': _atd_write_required_field('UnexpectedMatchDiagnosis', 'killing_parents', _atd_write_array(writeSnippet), x.killing_parents, x),
+    'killing_parents': _atd_write_required_field('UnexpectedMatchDiagnosis', 'killing_parents', _atd_write_array(writeKillingParent), x.killing_parents, x),
   };
 }
 
@@ -1949,7 +2008,7 @@ export function readUnexpectedMatchDiagnosis(x: any, context: any = x): Unexpect
     matched_text: _atd_read_required_field('UnexpectedMatchDiagnosis', 'matched_text', readSnippet, x['matched_text'], x),
     originating_kind: _atd_read_required_field('UnexpectedMatchDiagnosis', 'originating_kind', readOriginatingNodeKind, x['originating_kind'], x),
     originating_text: _atd_read_required_field('UnexpectedMatchDiagnosis', 'originating_text', readSnippet, x['originating_text'], x),
-    killing_parents: _atd_read_required_field('UnexpectedMatchDiagnosis', 'killing_parents', _atd_read_array(readSnippet), x['killing_parents'], x),
+    killing_parents: _atd_read_required_field('UnexpectedMatchDiagnosis', 'killing_parents', _atd_read_array(readKillingParent), x['killing_parents'], x),
   };
 }
 

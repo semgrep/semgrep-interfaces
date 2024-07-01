@@ -149,12 +149,19 @@ type snippet = Semgrep_output_v1_t.snippet = { line: int; text: string }
 
 type originating_node_kind = Semgrep_output_v1_t.originating_node_kind
 
+type killing_parent_kind = Semgrep_output_v1_t.killing_parent_kind
+
+type killing_parent = Semgrep_output_v1_t.killing_parent = {
+  killing_parent_kind: killing_parent_kind;
+  snippet: snippet
+}
+
 type unexpected_match_diagnosis =
   Semgrep_output_v1_t.unexpected_match_diagnosis = {
   matched_text: snippet;
   originating_kind: originating_node_kind;
   originating_text: snippet;
-  killing_parents: snippet list
+  killing_parents: killing_parent list
 }
 
 type triage_ignored = Semgrep_output_v1_t.triage_ignored = {
@@ -5672,22 +5679,245 @@ let read_originating_node_kind = (
 )
 let originating_node_kind_of_string s =
   read_originating_node_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__snippet_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_snippet
-  )
+let write_killing_parent_kind = (
+  fun ob x ->
+    match x with
+      | `Inside -> Buffer.add_string ob "\"Inside\""
+      | `Negation -> Buffer.add_string ob "\"Negation\""
+      | `Filter x ->
+        Buffer.add_string ob "[\"Filter\",";
+        (
+          Yojson.Safe.write_string
+        ) ob x;
+        Buffer.add_char ob ']'
 )
-let string_of__snippet_list ?(len = 1024) x =
+let string_of_killing_parent_kind ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__snippet_list ob x;
+  write_killing_parent_kind ob x;
   Buffer.contents ob
-let read__snippet_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_snippet
+let read_killing_parent_kind = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "Inside" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Inside
+            | "Negation" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Negation
+            | "Filter" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Filter x
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "Inside" ->
+              `Inside
+            | "Negation" ->
+              `Negation
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Filter" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `Filter x
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let killing_parent_kind_of_string s =
+  read_killing_parent_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_killing_parent : _ -> killing_parent -> _ = (
+  fun ob (x : killing_parent) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"killing_parent_kind\":";
+    (
+      write_killing_parent_kind
+    )
+      ob x.killing_parent_kind;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"snippet\":";
+    (
+      write_snippet
+    )
+      ob x.snippet;
+    Buffer.add_char ob '}';
+)
+let string_of_killing_parent ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_killing_parent ob x;
+  Buffer.contents ob
+let read_killing_parent = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_killing_parent_kind = ref (None) in
+    let field_snippet = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 7 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 't' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | 19 -> (
+                if String.unsafe_get s pos = 'k' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'k' && String.unsafe_get s (pos+16) = 'i' && String.unsafe_get s (pos+17) = 'n' && String.unsafe_get s (pos+18) = 'd' then (
+                  0
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_killing_parent_kind := (
+              Some (
+                (
+                  read_killing_parent_kind
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_snippet := (
+              Some (
+                (
+                  read_snippet
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 7 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 't' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 19 -> (
+                  if String.unsafe_get s pos = 'k' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'k' && String.unsafe_get s (pos+16) = 'i' && String.unsafe_get s (pos+17) = 'n' && String.unsafe_get s (pos+18) = 'd' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_killing_parent_kind := (
+                Some (
+                  (
+                    read_killing_parent_kind
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_snippet := (
+                Some (
+                  (
+                    read_snippet
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            killing_parent_kind = (match !field_killing_parent_kind with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "killing_parent_kind");
+            snippet = (match !field_snippet with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "snippet");
+          }
+         : killing_parent)
+      )
+)
+let killing_parent_of_string s =
+  read_killing_parent (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__killing_parent_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_killing_parent
   )
 )
-let _snippet_list_of_string s =
-  read__snippet_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let string_of__killing_parent_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__killing_parent_list ob x;
+  Buffer.contents ob
+let read__killing_parent_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_killing_parent
+  )
+)
+let _killing_parent_list_of_string s =
+  read__killing_parent_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_unexpected_match_diagnosis : _ -> unexpected_match_diagnosis -> _ = (
   fun ob (x : unexpected_match_diagnosis) ->
     Buffer.add_char ob '{';
@@ -5725,7 +5955,7 @@ let write_unexpected_match_diagnosis : _ -> unexpected_match_diagnosis -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"killing_parents\":";
     (
-      write__snippet_list
+      write__killing_parent_list
     )
       ob x.killing_parents;
     Buffer.add_char ob '}';
@@ -5830,7 +6060,7 @@ let read_unexpected_match_diagnosis = (
             field_killing_parents := (
               Some (
                 (
-                  read__snippet_list
+                  read__killing_parent_list
                 ) p lb
               )
             );
@@ -5926,7 +6156,7 @@ let read_unexpected_match_diagnosis = (
               field_killing_parents := (
                 Some (
                   (
-                    read__snippet_list
+                    read__killing_parent_list
                   ) p lb
                 )
               );

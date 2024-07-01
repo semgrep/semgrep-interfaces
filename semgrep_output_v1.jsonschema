@@ -625,12 +625,34 @@
     "originating_node_kind": {
       "oneOf": [ { "const": "Focus" }, { "const": "Xpattern" } ]
     },
+    "killing_parent_kind": {
+      "oneOf": [
+        { "const": "Inside" },
+        { "const": "Negation" },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [ { "const": "Filter" }, { "type": "string" } ]
+        }
+      ]
+    },
     "snippet": {
       "type": "object",
       "required": [ "line", "text" ],
       "properties": {
         "line": { "type": "integer" },
         "text": { "type": "string" }
+      }
+    },
+    "killing_parent": {
+      "type": "object",
+      "required": [ "killing_parent_kind", "snippet" ],
+      "properties": {
+        "killing_parent_kind": {
+          "$ref": "#/definitions/killing_parent_kind"
+        },
+        "snippet": { "$ref": "#/definitions/snippet" }
       }
     },
     "unexpected_match_diagnosis": {
@@ -645,7 +667,7 @@
         "originating_text": { "$ref": "#/definitions/snippet" },
         "killing_parents": {
           "type": "array",
-          "items": { "$ref": "#/definitions/snippet" }
+          "items": { "$ref": "#/definitions/killing_parent" }
         }
       }
     },
