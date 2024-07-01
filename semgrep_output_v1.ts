@@ -348,11 +348,16 @@ export type OriginatingNodeKind =
 | { kind: 'Focus' }
 | { kind: 'Xpattern' }
 
+export type Snippet = {
+  line: number /*int*/;
+  text: string;
+}
+
 export type UnexpectedMatchDiagnosis = {
-  matched_line: number /*int*/;
-  originating_pos: Position;
+  matched_text: Snippet;
   originating_kind: OriginatingNodeKind;
-  killing_parent_pos: Position[];
+  originating_text: Snippet;
+  killing_parents: Snippet[];
 }
 
 export type UnexpectedNoMatchDiagnosis = Todo
@@ -1894,21 +1899,35 @@ export function readOriginatingNodeKind(x: any, context: any = x): OriginatingNo
   }
 }
 
+export function writeSnippet(x: Snippet, context: any = x): any {
+  return {
+    'line': _atd_write_required_field('Snippet', 'line', _atd_write_int, x.line, x),
+    'text': _atd_write_required_field('Snippet', 'text', _atd_write_string, x.text, x),
+  };
+}
+
+export function readSnippet(x: any, context: any = x): Snippet {
+  return {
+    line: _atd_read_required_field('Snippet', 'line', _atd_read_int, x['line'], x),
+    text: _atd_read_required_field('Snippet', 'text', _atd_read_string, x['text'], x),
+  };
+}
+
 export function writeUnexpectedMatchDiagnosis(x: UnexpectedMatchDiagnosis, context: any = x): any {
   return {
-    'matched_line': _atd_write_required_field('UnexpectedMatchDiagnosis', 'matched_line', _atd_write_int, x.matched_line, x),
-    'originating_pos': _atd_write_required_field('UnexpectedMatchDiagnosis', 'originating_pos', writePosition, x.originating_pos, x),
+    'matched_text': _atd_write_required_field('UnexpectedMatchDiagnosis', 'matched_text', writeSnippet, x.matched_text, x),
     'originating_kind': _atd_write_required_field('UnexpectedMatchDiagnosis', 'originating_kind', writeOriginatingNodeKind, x.originating_kind, x),
-    'killing_parent_pos': _atd_write_required_field('UnexpectedMatchDiagnosis', 'killing_parent_pos', _atd_write_array(writePosition), x.killing_parent_pos, x),
+    'originating_text': _atd_write_required_field('UnexpectedMatchDiagnosis', 'originating_text', writeSnippet, x.originating_text, x),
+    'killing_parents': _atd_write_required_field('UnexpectedMatchDiagnosis', 'killing_parents', _atd_write_array(writeSnippet), x.killing_parents, x),
   };
 }
 
 export function readUnexpectedMatchDiagnosis(x: any, context: any = x): UnexpectedMatchDiagnosis {
   return {
-    matched_line: _atd_read_required_field('UnexpectedMatchDiagnosis', 'matched_line', _atd_read_int, x['matched_line'], x),
-    originating_pos: _atd_read_required_field('UnexpectedMatchDiagnosis', 'originating_pos', readPosition, x['originating_pos'], x),
+    matched_text: _atd_read_required_field('UnexpectedMatchDiagnosis', 'matched_text', readSnippet, x['matched_text'], x),
     originating_kind: _atd_read_required_field('UnexpectedMatchDiagnosis', 'originating_kind', readOriginatingNodeKind, x['originating_kind'], x),
-    killing_parent_pos: _atd_read_required_field('UnexpectedMatchDiagnosis', 'killing_parent_pos', _atd_read_array(readPosition), x['killing_parent_pos'], x),
+    originating_text: _atd_read_required_field('UnexpectedMatchDiagnosis', 'originating_text', readSnippet, x['originating_text'], x),
+    killing_parents: _atd_read_required_field('UnexpectedMatchDiagnosis', 'killing_parents', _atd_read_array(readSnippet), x['killing_parents'], x),
   };
 }
 

@@ -138,14 +138,16 @@ type todo = Semgrep_output_v1_t.todo
 type unexpected_no_match_diagnosis =
   Semgrep_output_v1_t.unexpected_no_match_diagnosis
 
+type snippet = Semgrep_output_v1_t.snippet = { line: int; text: string }
+
 type originating_node_kind = Semgrep_output_v1_t.originating_node_kind
 
 type unexpected_match_diagnosis =
   Semgrep_output_v1_t.unexpected_match_diagnosis = {
-  matched_line: int;
-  originating_pos: position;
+  matched_text: snippet;
   originating_kind: originating_node_kind;
-  killing_parent_pos: position list
+  originating_text: snippet;
+  killing_parents: snippet list
 }
 
 type triage_ignored = Semgrep_output_v1_t.triage_ignored = {
@@ -1286,6 +1288,26 @@ val read_unexpected_no_match_diagnosis :
 val unexpected_no_match_diagnosis_of_string :
   string -> unexpected_no_match_diagnosis
   (** Deserialize JSON data of type {!type:unexpected_no_match_diagnosis}. *)
+
+val write_snippet :
+  Buffer.t -> snippet -> unit
+  (** Output a JSON value of type {!type:snippet}. *)
+
+val string_of_snippet :
+  ?len:int -> snippet -> string
+  (** Serialize a value of type {!type:snippet}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_snippet :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> snippet
+  (** Input JSON data of type {!type:snippet}. *)
+
+val snippet_of_string :
+  string -> snippet
+  (** Deserialize JSON data of type {!type:snippet}. *)
 
 val write_originating_node_kind :
   Buffer.t -> originating_node_kind -> unit

@@ -138,14 +138,16 @@ type todo = Semgrep_output_v1_t.todo
 type unexpected_no_match_diagnosis =
   Semgrep_output_v1_t.unexpected_no_match_diagnosis
 
+type snippet = Semgrep_output_v1_t.snippet = { line: int; text: string }
+
 type originating_node_kind = Semgrep_output_v1_t.originating_node_kind
 
 type unexpected_match_diagnosis =
   Semgrep_output_v1_t.unexpected_match_diagnosis = {
-  matched_line: int;
-  originating_pos: position;
+  matched_text: snippet;
   originating_kind: originating_node_kind;
-  killing_parent_pos: position list
+  originating_text: snippet;
+  killing_parents: snippet list
 }
 
 type triage_ignored = Semgrep_output_v1_t.triage_ignored = {
@@ -5140,6 +5142,169 @@ let read_unexpected_no_match_diagnosis = (
 )
 let unexpected_no_match_diagnosis_of_string s =
   read_unexpected_no_match_diagnosis (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_snippet : _ -> snippet -> _ = (
+  fun ob (x : snippet) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"line\":";
+    (
+      Yojson.Safe.write_int
+    )
+      ob x.line;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"text\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.text;
+    Buffer.add_char ob '}';
+)
+let string_of_snippet ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_snippet ob x;
+  Buffer.contents ob
+let read_snippet = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_line = ref (None) in
+    let field_text = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          if len = 4 then (
+            match String.unsafe_get s pos with
+              | 'l' -> (
+                  if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'e' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 't' -> (
+                  if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = 't' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+          )
+          else (
+            -1
+          )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_line := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_int
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_text := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            if len = 4 then (
+              match String.unsafe_get s pos with
+                | 'l' -> (
+                    if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'e' then (
+                      0
+                    )
+                    else (
+                      -1
+                    )
+                  )
+                | 't' -> (
+                    if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = 't' then (
+                      1
+                    )
+                    else (
+                      -1
+                    )
+                  )
+                | _ -> (
+                    -1
+                  )
+            )
+            else (
+              -1
+            )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_line := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_int
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_text := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            line = (match !field_line with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "line");
+            text = (match !field_text with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "text");
+          }
+         : snippet)
+      )
+)
+let snippet_of_string s =
+  read_snippet (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_originating_node_kind = (
   fun ob x ->
     match x with
@@ -5184,22 +5349,22 @@ let read_originating_node_kind = (
 )
 let originating_node_kind_of_string s =
   read_originating_node_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__position_list = (
+let write__snippet_list = (
   Atdgen_runtime.Oj_run.write_list (
-    write_position
+    write_snippet
   )
 )
-let string_of__position_list ?(len = 1024) x =
+let string_of__snippet_list ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__position_list ob x;
+  write__snippet_list ob x;
   Buffer.contents ob
-let read__position_list = (
+let read__snippet_list = (
   Atdgen_runtime.Oj_run.read_list (
-    read_position
+    read_snippet
   )
 )
-let _position_list_of_string s =
-  read__position_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _snippet_list_of_string s =
+  read__snippet_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_unexpected_match_diagnosis : _ -> unexpected_match_diagnosis -> _ = (
   fun ob (x : unexpected_match_diagnosis) ->
     Buffer.add_char ob '{';
@@ -5208,20 +5373,11 @@ let write_unexpected_match_diagnosis : _ -> unexpected_match_diagnosis -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"matched_line\":";
+      Buffer.add_string ob "\"matched_text\":";
     (
-      Yojson.Safe.write_int
+      write_snippet
     )
-      ob x.matched_line;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"originating_pos\":";
-    (
-      write_position
-    )
-      ob x.originating_pos;
+      ob x.matched_text;
     if !is_first then
       is_first := false
     else
@@ -5235,11 +5391,20 @@ let write_unexpected_match_diagnosis : _ -> unexpected_match_diagnosis -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"killing_parent_pos\":";
+      Buffer.add_string ob "\"originating_text\":";
     (
-      write__position_list
+      write_snippet
     )
-      ob x.killing_parent_pos;
+      ob x.originating_text;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"killing_parents\":";
+    (
+      write__snippet_list
+    )
+      ob x.killing_parents;
     Buffer.add_char ob '}';
 )
 let string_of_unexpected_match_diagnosis ?(len = 1024) x =
@@ -5250,10 +5415,10 @@ let read_unexpected_match_diagnosis = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
-    let field_matched_line = ref (None) in
-    let field_originating_pos = ref (None) in
+    let field_matched_text = ref (None) in
     let field_originating_kind = ref (None) in
-    let field_killing_parent_pos = ref (None) in
+    let field_originating_text = ref (None) in
+    let field_killing_parents = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -5264,7 +5429,7 @@ let read_unexpected_match_diagnosis = (
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
             | 12 -> (
-                if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'h' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'l' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'e' then (
+                if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'h' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'x' && String.unsafe_get s (pos+11) = 't' then (
                   0
                 )
                 else (
@@ -5272,24 +5437,35 @@ let read_unexpected_match_diagnosis = (
                 )
               )
             | 15 -> (
-                if String.unsafe_get s pos = 'o' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'g' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'p' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 's' then (
-                  1
+                if String.unsafe_get s pos = 'k' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 's' then (
+                  3
                 )
                 else (
                   -1
                 )
               )
             | 16 -> (
-                if String.unsafe_get s pos = 'o' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'g' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'k' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 'd' then (
-                  2
-                )
-                else (
-                  -1
-                )
-              )
-            | 18 -> (
-                if String.unsafe_get s pos = 'k' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'p' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 's' then (
-                  3
+                if String.unsafe_get s pos = 'o' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'g' && String.unsafe_get s (pos+11) = '_' then (
+                  match String.unsafe_get s (pos+12) with
+                    | 'k' -> (
+                        if String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 'd' then (
+                          1
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 't' -> (
+                        if String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'x' && String.unsafe_get s (pos+15) = 't' then (
+                          2
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
                 )
                 else (
                   -1
@@ -5304,22 +5480,14 @@ let read_unexpected_match_diagnosis = (
       (
         match i with
           | 0 ->
-            field_matched_line := (
+            field_matched_text := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_int
+                  read_snippet
                 ) p lb
               )
             );
           | 1 ->
-            field_originating_pos := (
-              Some (
-                (
-                  read_position
-                ) p lb
-              )
-            );
-          | 2 ->
             field_originating_kind := (
               Some (
                 (
@@ -5327,11 +5495,19 @@ let read_unexpected_match_diagnosis = (
                 ) p lb
               )
             );
-          | 3 ->
-            field_killing_parent_pos := (
+          | 2 ->
+            field_originating_text := (
               Some (
                 (
-                  read__position_list
+                  read_snippet
+                ) p lb
+              )
+            );
+          | 3 ->
+            field_killing_parents := (
+              Some (
+                (
+                  read__snippet_list
                 ) p lb
               )
             );
@@ -5349,7 +5525,7 @@ let read_unexpected_match_diagnosis = (
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
               | 12 -> (
-                  if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'h' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'l' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'e' then (
+                  if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'h' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'x' && String.unsafe_get s (pos+11) = 't' then (
                     0
                   )
                   else (
@@ -5357,24 +5533,35 @@ let read_unexpected_match_diagnosis = (
                   )
                 )
               | 15 -> (
-                  if String.unsafe_get s pos = 'o' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'g' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'p' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 's' then (
-                    1
+                  if String.unsafe_get s pos = 'k' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 's' then (
+                    3
                   )
                   else (
                     -1
                   )
                 )
               | 16 -> (
-                  if String.unsafe_get s pos = 'o' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'g' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'k' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 'd' then (
-                    2
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 18 -> (
-                  if String.unsafe_get s pos = 'k' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'p' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 's' then (
-                    3
+                  if String.unsafe_get s pos = 'o' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'g' && String.unsafe_get s (pos+11) = '_' then (
+                    match String.unsafe_get s (pos+12) with
+                      | 'k' -> (
+                          if String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 'd' then (
+                            1
+                          )
+                          else (
+                            -1
+                          )
+                        )
+                      | 't' -> (
+                          if String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'x' && String.unsafe_get s (pos+15) = 't' then (
+                            2
+                          )
+                          else (
+                            -1
+                          )
+                        )
+                      | _ -> (
+                          -1
+                        )
                   )
                   else (
                     -1
@@ -5389,22 +5576,14 @@ let read_unexpected_match_diagnosis = (
         (
           match i with
             | 0 ->
-              field_matched_line := (
+              field_matched_text := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_int
+                    read_snippet
                   ) p lb
                 )
               );
             | 1 ->
-              field_originating_pos := (
-                Some (
-                  (
-                    read_position
-                  ) p lb
-                )
-              );
-            | 2 ->
               field_originating_kind := (
                 Some (
                   (
@@ -5412,11 +5591,19 @@ let read_unexpected_match_diagnosis = (
                   ) p lb
                 )
               );
-            | 3 ->
-              field_killing_parent_pos := (
+            | 2 ->
+              field_originating_text := (
                 Some (
                   (
-                    read__position_list
+                    read_snippet
+                  ) p lb
+                )
+              );
+            | 3 ->
+              field_killing_parents := (
+                Some (
+                  (
+                    read__snippet_list
                   ) p lb
                 )
               );
@@ -5429,10 +5616,10 @@ let read_unexpected_match_diagnosis = (
     with Yojson.End_of_object -> (
         (
           {
-            matched_line = (match !field_matched_line with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "matched_line");
-            originating_pos = (match !field_originating_pos with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "originating_pos");
+            matched_text = (match !field_matched_text with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "matched_text");
             originating_kind = (match !field_originating_kind with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "originating_kind");
-            killing_parent_pos = (match !field_killing_parent_pos with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "killing_parent_pos");
+            originating_text = (match !field_originating_text with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "originating_text");
+            killing_parents = (match !field_killing_parents with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "killing_parents");
           }
          : unexpected_match_diagnosis)
       )

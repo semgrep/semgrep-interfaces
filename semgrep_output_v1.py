@@ -1676,6 +1676,37 @@ class UnexpectedNoMatchDiagnosis:
 
 
 @dataclass
+class Snippet:
+    """Original type: snippet = { ... }"""
+
+    line: int
+    text: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Snippet':
+        if isinstance(x, dict):
+            return cls(
+                line=_atd_read_int(x['line']) if 'line' in x else _atd_missing_json_field('Snippet', 'line'),
+                text=_atd_read_string(x['text']) if 'text' in x else _atd_missing_json_field('Snippet', 'text'),
+            )
+        else:
+            _atd_bad_json('Snippet', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['line'] = _atd_write_int(self.line)
+        res['text'] = _atd_write_string(self.text)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Snippet':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Focus:
     """Original type: originating_node_kind = [ ... | Focus | ... ]"""
 
@@ -1745,29 +1776,29 @@ class OriginatingNodeKind:
 class UnexpectedMatchDiagnosis:
     """Original type: unexpected_match_diagnosis = { ... }"""
 
-    matched_line: int
-    originating_pos: Position
+    matched_text: Snippet
     originating_kind: OriginatingNodeKind
-    killing_parent_pos: List[Position]
+    originating_text: Snippet
+    killing_parents: List[Snippet]
 
     @classmethod
     def from_json(cls, x: Any) -> 'UnexpectedMatchDiagnosis':
         if isinstance(x, dict):
             return cls(
-                matched_line=_atd_read_int(x['matched_line']) if 'matched_line' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'matched_line'),
-                originating_pos=Position.from_json(x['originating_pos']) if 'originating_pos' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'originating_pos'),
+                matched_text=Snippet.from_json(x['matched_text']) if 'matched_text' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'matched_text'),
                 originating_kind=OriginatingNodeKind.from_json(x['originating_kind']) if 'originating_kind' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'originating_kind'),
-                killing_parent_pos=_atd_read_list(Position.from_json)(x['killing_parent_pos']) if 'killing_parent_pos' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'killing_parent_pos'),
+                originating_text=Snippet.from_json(x['originating_text']) if 'originating_text' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'originating_text'),
+                killing_parents=_atd_read_list(Snippet.from_json)(x['killing_parents']) if 'killing_parents' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'killing_parents'),
             )
         else:
             _atd_bad_json('UnexpectedMatchDiagnosis', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['matched_line'] = _atd_write_int(self.matched_line)
-        res['originating_pos'] = (lambda x: x.to_json())(self.originating_pos)
+        res['matched_text'] = (lambda x: x.to_json())(self.matched_text)
         res['originating_kind'] = (lambda x: x.to_json())(self.originating_kind)
-        res['killing_parent_pos'] = _atd_write_list((lambda x: x.to_json()))(self.killing_parent_pos)
+        res['originating_text'] = (lambda x: x.to_json())(self.originating_text)
+        res['killing_parents'] = _atd_write_list((lambda x: x.to_json()))(self.killing_parents)
         return res
 
     @classmethod

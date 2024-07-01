@@ -584,19 +584,27 @@
     "originating_node_kind": {
       "oneOf": [ { "const": "Focus" }, { "const": "Xpattern" } ]
     },
+    "snippet": {
+      "type": "object",
+      "required": [ "line", "text" ],
+      "properties": {
+        "line": { "type": "integer" },
+        "text": { "type": "string" }
+      }
+    },
     "unexpected_match_diagnosis": {
       "type": "object",
       "required": [
-        "matched_line", "originating_pos", "originating_kind",
-        "killing_parent_pos"
+        "matched_text", "originating_kind", "originating_text",
+        "killing_parents"
       ],
       "properties": {
-        "matched_line": { "type": "integer" },
-        "originating_pos": { "$ref": "#/definitions/position" },
+        "matched_text": { "$ref": "#/definitions/snippet" },
         "originating_kind": { "$ref": "#/definitions/originating_node_kind" },
-        "killing_parent_pos": {
+        "originating_text": { "$ref": "#/definitions/snippet" },
+        "killing_parents": {
           "type": "array",
-          "items": { "$ref": "#/definitions/position" }
+          "items": { "$ref": "#/definitions/snippet" }
         }
       }
     },
