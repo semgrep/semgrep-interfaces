@@ -1773,13 +1773,133 @@ class OriginatingNodeKind:
 
 
 @dataclass
+class Inside_:
+    """Original type: killing_parent_kind = [ ... | Inside | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Inside_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Inside'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Negation_:
+    """Original type: killing_parent_kind = [ ... | Negation | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Negation_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Negation'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Filter_:
+    """Original type: killing_parent_kind = [ ... | Filter of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Filter_'
+
+    def to_json(self) -> Any:
+        return ['Filter', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class KillingParentKind:
+    """Original type: killing_parent_kind = [ ... ]"""
+
+    value: Union[Inside_, Negation_, Filter_]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'KillingParentKind':
+        if isinstance(x, str):
+            if x == 'Inside':
+                return cls(Inside_())
+            if x == 'Negation':
+                return cls(Negation_())
+            _atd_bad_json('KillingParentKind', x)
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'Filter':
+                return cls(Filter_(_atd_read_string(x[1])))
+            _atd_bad_json('KillingParentKind', x)
+        _atd_bad_json('KillingParentKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'KillingParentKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class KillingParent:
+    """Original type: killing_parent = { ... }"""
+
+    killing_parent_kind: KillingParentKind
+    snippet: Snippet
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'KillingParent':
+        if isinstance(x, dict):
+            return cls(
+                killing_parent_kind=KillingParentKind.from_json(x['killing_parent_kind']) if 'killing_parent_kind' in x else _atd_missing_json_field('KillingParent', 'killing_parent_kind'),
+                snippet=Snippet.from_json(x['snippet']) if 'snippet' in x else _atd_missing_json_field('KillingParent', 'snippet'),
+            )
+        else:
+            _atd_bad_json('KillingParent', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['killing_parent_kind'] = (lambda x: x.to_json())(self.killing_parent_kind)
+        res['snippet'] = (lambda x: x.to_json())(self.snippet)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'KillingParent':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class UnexpectedMatchDiagnosis:
     """Original type: unexpected_match_diagnosis = { ... }"""
 
     matched_text: Snippet
     originating_kind: OriginatingNodeKind
     originating_text: Snippet
-    killing_parents: List[Snippet]
+    killing_parents: List[KillingParent]
 
     @classmethod
     def from_json(cls, x: Any) -> 'UnexpectedMatchDiagnosis':
@@ -1788,7 +1908,7 @@ class UnexpectedMatchDiagnosis:
                 matched_text=Snippet.from_json(x['matched_text']) if 'matched_text' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'matched_text'),
                 originating_kind=OriginatingNodeKind.from_json(x['originating_kind']) if 'originating_kind' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'originating_kind'),
                 originating_text=Snippet.from_json(x['originating_text']) if 'originating_text' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'originating_text'),
-                killing_parents=_atd_read_list(Snippet.from_json)(x['killing_parents']) if 'killing_parents' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'killing_parents'),
+                killing_parents=_atd_read_list(KillingParent.from_json)(x['killing_parents']) if 'killing_parents' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'killing_parents'),
             )
         else:
             _atd_bad_json('UnexpectedMatchDiagnosis', x)
