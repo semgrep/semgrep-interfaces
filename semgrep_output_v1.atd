@@ -877,17 +877,25 @@ type originating_node_kind = [
   | Xpattern
 ]
 
+(* Instead of serving snippets here, we could just give the locations of
+   the patterns and matches.
+   For convenience when scripting with this in rule generation, we will
+   just get the source text here.
+ *)
+type snippet = {
+  line: int;
+  text: string;
+}
+
 type unexpected_match_diagnosis = {
-  matched_line: int;
-  (* the position in the rule file of them pattern which originated
-     the match
-   *)
-  originating_pos: position;
+  matched_text: snippet;
+  (* information about the originating pattern in the rule file *)
   originating_kind: originating_node_kind;
-  (* the position in the rule file of all the parent operators which
+  originating_text: snippet;
+  (* the snippets  in the rule file of all the parent operators which
      could have killed the unexpected match
    *)
-  killing_parent_pos: position list;
+  killing_parents: snippet list;
 }
 
 type unexpected_no_match_diagnosis = todo
