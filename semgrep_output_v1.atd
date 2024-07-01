@@ -869,10 +869,22 @@ type snippet = {
 type unexpected_match_diagnosis = {
   matched_text: snippet;
   (* information about the originating pattern in the rule file *)
+  (* This is where the unexpected match came from. *)
   originating_kind: originating_node_kind;
   originating_text: snippet;
-  (* the snippets  in the rule file of all the parent operators which
-     could have killed the unexpected match
+  (* the snippets in the rule file of all the parent operators which
+     could have killed the unexpected match along its way to being
+     returned
+     Intuitively, these are all the sites at which the rule could
+     have removed the unexpected match, but didn't.
+     Note that because of the order of operations, this technically
+     means that in the following pattern:
+     all:
+       - pattern: A
+       - not: B
+     the `not` node is a "parent" of the `pattern` node, even though
+     they are siblings in the actual tree. This is because the ranges
+     of the `pattern` are input to the `not` node.
    *)
   killing_parents: snippet list;
 }
