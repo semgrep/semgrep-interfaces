@@ -352,6 +352,9 @@ type formula = {
 
   (* NEW: since 1.74 *)
   ?fix: string option;
+
+  (* NEW: since 1.79 *)
+  ?as <ocaml name="as_">: string option;
 }
 <json adapter.ocaml="Rule_schema_v2_adapter.Formula">
 
