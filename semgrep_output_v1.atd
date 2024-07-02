@@ -928,7 +928,10 @@ type unexpected_match_diagnosis = {
   killing_parents: killing_parent list;
 }
 
-type unexpected_no_match_diagnosis = todo
+type unexpected_no_match_diagnosis = [
+  | Never_matched
+  | Killed_by_nodes of killing_parent list
+]
 
 type matching_diagnosis = {
   target: fpath;

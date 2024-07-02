@@ -376,7 +376,8 @@ export type UnexpectedMatchDiagnosis = {
   killing_parents: KillingParent[];
 }
 
-export type UnexpectedNoMatchDiagnosis = Todo
+export type UnexpectedNoMatchDiagnosis =
+| { kind: 'Never_matched' }
 
 export type MatchingDiagnosis = {
   target: Fpath;
@@ -2013,11 +2014,20 @@ export function readUnexpectedMatchDiagnosis(x: any, context: any = x): Unexpect
 }
 
 export function writeUnexpectedNoMatchDiagnosis(x: UnexpectedNoMatchDiagnosis, context: any = x): any {
-  return writeTodo(x, context);
+  switch (x.kind) {
+    case 'Never_matched':
+      return 'Never_matched'
+  }
 }
 
 export function readUnexpectedNoMatchDiagnosis(x: any, context: any = x): UnexpectedNoMatchDiagnosis {
-  return readTodo(x, context);
+  switch (x) {
+    case 'Never_matched':
+      return { kind: 'Never_matched' }
+    default:
+      _atd_bad_json('UnexpectedNoMatchDiagnosis', x, context)
+      throw new Error('impossible')
+  }
 }
 
 export function writeMatchingDiagnosis(x: MatchingDiagnosis, context: any = x): any {
