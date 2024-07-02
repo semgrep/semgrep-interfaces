@@ -800,7 +800,8 @@
       "properties": {
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
-        "dependency_query": { "type": "boolean" }
+        "dependency_query": { "type": "boolean" },
+        "use_batch_upload": { "type": "boolean" }
       }
     },
     "triage_ignored": {
@@ -882,6 +883,7 @@
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
         "dependency_query": { "type": "boolean" },
+        "use_batch_upload": { "type": "boolean" },
         "triage_ignored_syntactic_ids": {
           "type": "array",
           "items": { "type": "string" }
@@ -1036,6 +1038,7 @@
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
         "dependency_query": { "type": "boolean" },
+        "use_batch_upload": { "type": "boolean" },
         "ignored_files": { "type": "array", "items": { "type": "string" } },
         "product_ignored_files": {
           "$ref": "#/definitions/product_ignored_files"
@@ -1089,6 +1092,17 @@
         "pattern_hash": { "type": "string" }
       }
     },
+    "batch_type": {
+      "oneOf": [ { "const": "partial" }, { "const": "last" } ]
+    },
+    "batch_info": {
+      "type": "object",
+      "required": [ "part_number", "state" ],
+      "properties": {
+        "part_number": { "type": "integer" },
+        "state": { "$ref": "#/definitions/batch_type" }
+      }
+    },
     "ci_scan_results": {
       "type": "object",
       "required": [
@@ -1118,7 +1132,8 @@
           "items": { "$ref": "#/definitions/rule_id" }
         },
         "contributions": { "$ref": "#/definitions/contributions" },
-        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" }
+        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" },
+        "batch_info": { "$ref": "#/definitions/batch_info" }
       }
     },
     "contributor": {
@@ -1277,7 +1292,8 @@
         "ignored_files": { "type": "array", "items": { "type": "string" } },
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
-        "dependency_query": { "type": "boolean" }
+        "dependency_query": { "type": "boolean" },
+        "use_batch_upload": { "type": "boolean" }
       }
     },
     "ci_env": {

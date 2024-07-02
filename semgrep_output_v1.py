@@ -2667,6 +2667,7 @@ class EngineConfiguration:
     autofix: bool = field(default_factory=lambda: False)
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
+    use_batch_upload: Optional[bool] = None
     ignored_files: List[str] = field(default_factory=lambda: [])
     product_ignored_files: Optional[ProductIgnoredFiles] = None
     generic_slow_rollout: bool = field(default_factory=lambda: False)
@@ -2679,6 +2680,7 @@ class EngineConfiguration:
                 autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
+                use_batch_upload=_atd_read_bool(x['use_batch_upload']) if 'use_batch_upload' in x else None,
                 ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
                 product_ignored_files=ProductIgnoredFiles.from_json(x['product_ignored_files']) if 'product_ignored_files' in x else None,
                 generic_slow_rollout=_atd_read_bool(x['generic_slow_rollout']) if 'generic_slow_rollout' in x else False,
@@ -2692,6 +2694,8 @@ class EngineConfiguration:
         res['autofix'] = _atd_write_bool(self.autofix)
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
+        if self.use_batch_upload is not None:
+            res['use_batch_upload'] = _atd_write_bool(self.use_batch_upload)
         res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
         if self.product_ignored_files is not None:
             res['product_ignored_files'] = (lambda x: x.to_json())(self.product_ignored_files)
@@ -2997,6 +3001,7 @@ class CiConfig:
     autofix: bool = field(default_factory=lambda: False)
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
+    use_batch_upload: Optional[bool] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiConfig':
@@ -3008,6 +3013,7 @@ class CiConfig:
                 autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
+                use_batch_upload=_atd_read_bool(x['use_batch_upload']) if 'use_batch_upload' in x else None,
             )
         else:
             _atd_bad_json('CiConfig', x)
@@ -3020,6 +3026,8 @@ class CiConfig:
         res['autofix'] = _atd_write_bool(self.autofix)
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
+        if self.use_batch_upload is not None:
+            res['use_batch_upload'] = _atd_write_bool(self.use_batch_upload)
         return res
 
     @classmethod
@@ -3170,6 +3178,7 @@ class ScanConfig:
     autofix: bool = field(default_factory=lambda: False)
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
+    use_batch_upload: Optional[bool] = None
     triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
     triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
     ignored_files: List[str] = field(default_factory=lambda: [])
@@ -3188,6 +3197,7 @@ class ScanConfig:
                 autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
+                use_batch_upload=_atd_read_bool(x['use_batch_upload']) if 'use_batch_upload' in x else None,
                 triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
                 triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
                 ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
@@ -3208,6 +3218,8 @@ class ScanConfig:
         res['autofix'] = _atd_write_bool(self.autofix)
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
+        if self.use_batch_upload is not None:
+            res['use_batch_upload'] = _atd_write_bool(self.use_batch_upload)
         res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
         res['triage_ignored_match_based_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_match_based_ids)
         res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
@@ -5611,6 +5623,7 @@ class Features:
     autofix: bool = field(default_factory=lambda: False)
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
+    use_batch_upload: Optional[bool] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Features':
@@ -5619,6 +5632,7 @@ class Features:
                 autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
+                use_batch_upload=_atd_read_bool(x['use_batch_upload']) if 'use_batch_upload' in x else None,
             )
         else:
             _atd_bad_json('Features', x)
@@ -5628,6 +5642,8 @@ class Features:
         res['autofix'] = _atd_write_bool(self.autofix)
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
+        if self.use_batch_upload is not None:
+            res['use_batch_upload'] = _atd_write_bool(self.use_batch_upload)
         return res
 
     @classmethod
@@ -6158,6 +6174,103 @@ class CiScanDependencies:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class PartialBatch:
+    """Original type: batch_type = [ ... | PartialBatch | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PartialBatch'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'partial'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class LastBatch:
+    """Original type: batch_type = [ ... | LastBatch | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'LastBatch'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'last'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class BatchType:
+    """Original type: batch_type = [ ... ]"""
+
+    value: Union[PartialBatch, LastBatch]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'BatchType':
+        if isinstance(x, str):
+            if x == 'partial':
+                return cls(PartialBatch())
+            if x == 'last':
+                return cls(LastBatch())
+            _atd_bad_json('BatchType', x)
+        _atd_bad_json('BatchType', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'BatchType':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class BatchInfo:
+    """Original type: batch_info = { ... }"""
+
+    part_number: int
+    state: BatchType
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'BatchInfo':
+        if isinstance(x, dict):
+            return cls(
+                part_number=_atd_read_int(x['part_number']) if 'part_number' in x else _atd_missing_json_field('BatchInfo', 'part_number'),
+                state=BatchType.from_json(x['state']) if 'state' in x else _atd_missing_json_field('BatchInfo', 'state'),
+            )
+        else:
+            _atd_bad_json('BatchInfo', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['part_number'] = _atd_write_int(self.part_number)
+        res['state'] = (lambda x: x.to_json())(self.state)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'BatchInfo':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class CiScanResults:
     """Original type: ci_scan_results = { ... }"""
@@ -6170,6 +6283,7 @@ class CiScanResults:
     rule_ids: List[RuleId]
     contributions: Optional[Contributions] = None
     dependencies: Optional[CiScanDependencies] = None
+    batch_info: Optional[BatchInfo] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanResults':
@@ -6183,6 +6297,7 @@ class CiScanResults:
                 rule_ids=_atd_read_list(RuleId.from_json)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('CiScanResults', 'rule_ids'),
                 contributions=Contributions.from_json(x['contributions']) if 'contributions' in x else None,
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
+                batch_info=BatchInfo.from_json(x['batch_info']) if 'batch_info' in x else None,
             )
         else:
             _atd_bad_json('CiScanResults', x)
@@ -6199,6 +6314,8 @@ class CiScanResults:
             res['contributions'] = (lambda x: x.to_json())(self.contributions)
         if self.dependencies is not None:
             res['dependencies'] = (lambda x: x.to_json())(self.dependencies)
+        if self.batch_info is not None:
+            res['batch_info'] = (lambda x: x.to_json())(self.batch_info)
         return res
 
     @classmethod

@@ -235,6 +235,7 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
+  use_batch_upload: bool option;
   ignored_files: string list;
   product_ignored_files: product_ignored_files option;
   generic_slow_rollout: bool;
@@ -304,7 +305,8 @@ type ci_config = Semgrep_output_v1_t.ci_config = {
   ignored_files: string list;
   autofix: bool;
   deepsemgrep: bool;
-  dependency_query: bool
+  dependency_query: bool;
+  use_batch_upload: bool option
 }
 
 type action = Semgrep_output_v1_t.action
@@ -325,6 +327,7 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
+  use_batch_upload: bool option;
   triage_ignored_syntactic_ids: string list;
   triage_ignored_match_based_ids: string list;
   ignored_files: string list;
@@ -558,7 +561,8 @@ type finding = Semgrep_output_v1_t.finding = {
 type features = Semgrep_output_v1_t.features = {
   autofix: bool;
   deepsemgrep: bool;
-  dependency_query: bool
+  dependency_query: bool;
+  use_batch_upload: bool option
 }
 
 type deployment_config = Semgrep_output_v1_t.deployment_config = {
@@ -663,6 +667,13 @@ type ci_scan_results_response =
 
 type ci_scan_dependencies = Semgrep_output_v1_t.ci_scan_dependencies
 
+type batch_type = Semgrep_output_v1_t.batch_type [@@deriving show,eq]
+
+type batch_info = Semgrep_output_v1_t.batch_info = {
+  part_number: int;
+  state: batch_type
+}
+
 type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   findings: finding list;
   ignores: finding list;
@@ -671,7 +682,8 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   renamed_paths: fpath list;
   rule_ids: rule_id list;
   contributions: contributions option;
-  dependencies: ci_scan_dependencies option
+  dependencies: ci_scan_dependencies option;
+  batch_info: batch_info option
 }
 
 type ci_scan_failure = Semgrep_output_v1_t.ci_scan_failure = {
@@ -2686,6 +2698,46 @@ val read_ci_scan_dependencies :
 val ci_scan_dependencies_of_string :
   string -> ci_scan_dependencies
   (** Deserialize JSON data of type {!type:ci_scan_dependencies}. *)
+
+val write_batch_type :
+  Buffer.t -> batch_type -> unit
+  (** Output a JSON value of type {!type:batch_type}. *)
+
+val string_of_batch_type :
+  ?len:int -> batch_type -> string
+  (** Serialize a value of type {!type:batch_type}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_batch_type :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> batch_type
+  (** Input JSON data of type {!type:batch_type}. *)
+
+val batch_type_of_string :
+  string -> batch_type
+  (** Deserialize JSON data of type {!type:batch_type}. *)
+
+val write_batch_info :
+  Buffer.t -> batch_info -> unit
+  (** Output a JSON value of type {!type:batch_info}. *)
+
+val string_of_batch_info :
+  ?len:int -> batch_info -> string
+  (** Serialize a value of type {!type:batch_info}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_batch_info :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> batch_info
+  (** Input JSON data of type {!type:batch_info}. *)
+
+val batch_info_of_string :
+  string -> batch_info
+  (** Deserialize JSON data of type {!type:batch_info}. *)
 
 val write_ci_scan_results :
   Buffer.t -> ci_scan_results -> unit
