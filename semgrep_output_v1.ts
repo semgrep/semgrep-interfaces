@@ -286,27 +286,50 @@ export type TargetTimes = {
   run_time: number;
 }
 
-export type MatchingExplanation = {
-  op: MatchingOperation;
-  children: MatchingExplanation[];
-  matches: CoreMatch[];
-  loc: Location;
+export type TaintExplanation = {
+  sources: PatternExplanation[];
+  sinks: PatternExplanation[];
+  sanitizers: PatternExplanation[];
 }
 
-export type MatchingOperation =
+export type FilterExplanation = {
+  kind: string;
+  loc: Location;
+  matches: CoreMatch[];
+  extra: Option<PatternExplanation>;
+}
+
+export type FocusExplanation = {
+  loc: Location;
+  matches: CoreMatch[];
+}
+
+export type NegativeExplanation = {
+  matched: PatternExplanation[];
+  killed: CoreMatch[];
+}
+
+export type PatternExplanation = {
+  kind: PatternKind;
+  loc: Location;
+  matches: CoreMatch[];
+  positive: PatternExplanation[];
+  negative: NegativeExplanation[];
+  filters: FilterExplanation[];
+  focus: FocusExplanation[];
+}
+
+export type PatternKind =
+| { kind: 'XPat'; value: string }
 | { kind: 'And' }
 | { kind: 'Or' }
+| { kind: 'Not' }
 | { kind: 'Inside' }
 | { kind: 'Anywhere' }
-| { kind: 'XPat'; value: string }
-| { kind: 'Negation' }
-| { kind: 'Filter'; value: string }
-| { kind: 'Taint' }
-| { kind: 'TaintSource' }
-| { kind: 'TaintSink' }
-| { kind: 'TaintSanitizer' }
-| { kind: 'EllipsisAndStmts' }
-| { kind: 'ClassHeaderAndElems' }
+
+export type MatchingExplanation =
+| { kind: 'TaintExplanation'; value: TaintExplanation }
+| { kind: 'PatternExplanation'; value: PatternExplanation }
 
 export type CoreOutput = {
   version?: Version;
@@ -1676,82 +1699,124 @@ export function readTargetTimes(x: any, context: any = x): TargetTimes {
   };
 }
 
-export function writeMatchingExplanation(x: MatchingExplanation, context: any = x): any {
+export function writeTaintExplanation(x: TaintExplanation, context: any = x): any {
   return {
-    'op': _atd_write_required_field('MatchingExplanation', 'op', writeMatchingOperation, x.op, x),
-    'children': _atd_write_required_field('MatchingExplanation', 'children', _atd_write_array(writeMatchingExplanation), x.children, x),
-    'matches': _atd_write_required_field('MatchingExplanation', 'matches', _atd_write_array(writeCoreMatch), x.matches, x),
-    'loc': _atd_write_required_field('MatchingExplanation', 'loc', writeLocation, x.loc, x),
+    'sources': _atd_write_required_field('TaintExplanation', 'sources', _atd_write_array(writePatternExplanation), x.sources, x),
+    'sinks': _atd_write_required_field('TaintExplanation', 'sinks', _atd_write_array(writePatternExplanation), x.sinks, x),
+    'sanitizers': _atd_write_required_field('TaintExplanation', 'sanitizers', _atd_write_array(writePatternExplanation), x.sanitizers, x),
   };
 }
 
-export function readMatchingExplanation(x: any, context: any = x): MatchingExplanation {
+export function readTaintExplanation(x: any, context: any = x): TaintExplanation {
   return {
-    op: _atd_read_required_field('MatchingExplanation', 'op', readMatchingOperation, x['op'], x),
-    children: _atd_read_required_field('MatchingExplanation', 'children', _atd_read_array(readMatchingExplanation), x['children'], x),
-    matches: _atd_read_required_field('MatchingExplanation', 'matches', _atd_read_array(readCoreMatch), x['matches'], x),
-    loc: _atd_read_required_field('MatchingExplanation', 'loc', readLocation, x['loc'], x),
+    sources: _atd_read_required_field('TaintExplanation', 'sources', _atd_read_array(readPatternExplanation), x['sources'], x),
+    sinks: _atd_read_required_field('TaintExplanation', 'sinks', _atd_read_array(readPatternExplanation), x['sinks'], x),
+    sanitizers: _atd_read_required_field('TaintExplanation', 'sanitizers', _atd_read_array(readPatternExplanation), x['sanitizers'], x),
   };
 }
 
-export function writeMatchingOperation(x: MatchingOperation, context: any = x): any {
+export function writeFilterExplanation(x: FilterExplanation, context: any = x): any {
+  return {
+    'kind': _atd_write_required_field('FilterExplanation', 'kind', _atd_write_string, x.kind, x),
+    'loc': _atd_write_required_field('FilterExplanation', 'loc', writeLocation, x.loc, x),
+    'matches': _atd_write_required_field('FilterExplanation', 'matches', _atd_write_array(writeCoreMatch), x.matches, x),
+    'extra': _atd_write_required_field('FilterExplanation', 'extra', _atd_write_option(writePatternExplanation), x.extra, x),
+  };
+}
+
+export function readFilterExplanation(x: any, context: any = x): FilterExplanation {
+  return {
+    kind: _atd_read_required_field('FilterExplanation', 'kind', _atd_read_string, x['kind'], x),
+    loc: _atd_read_required_field('FilterExplanation', 'loc', readLocation, x['loc'], x),
+    matches: _atd_read_required_field('FilterExplanation', 'matches', _atd_read_array(readCoreMatch), x['matches'], x),
+    extra: _atd_read_required_field('FilterExplanation', 'extra', _atd_read_option(readPatternExplanation), x['extra'], x),
+  };
+}
+
+export function writeFocusExplanation(x: FocusExplanation, context: any = x): any {
+  return {
+    'loc': _atd_write_required_field('FocusExplanation', 'loc', writeLocation, x.loc, x),
+    'matches': _atd_write_required_field('FocusExplanation', 'matches', _atd_write_array(writeCoreMatch), x.matches, x),
+  };
+}
+
+export function readFocusExplanation(x: any, context: any = x): FocusExplanation {
+  return {
+    loc: _atd_read_required_field('FocusExplanation', 'loc', readLocation, x['loc'], x),
+    matches: _atd_read_required_field('FocusExplanation', 'matches', _atd_read_array(readCoreMatch), x['matches'], x),
+  };
+}
+
+export function writeNegativeExplanation(x: NegativeExplanation, context: any = x): any {
+  return {
+    'matched': _atd_write_required_field('NegativeExplanation', 'matched', _atd_write_array(writePatternExplanation), x.matched, x),
+    'killed': _atd_write_required_field('NegativeExplanation', 'killed', _atd_write_array(writeCoreMatch), x.killed, x),
+  };
+}
+
+export function readNegativeExplanation(x: any, context: any = x): NegativeExplanation {
+  return {
+    matched: _atd_read_required_field('NegativeExplanation', 'matched', _atd_read_array(readPatternExplanation), x['matched'], x),
+    killed: _atd_read_required_field('NegativeExplanation', 'killed', _atd_read_array(readCoreMatch), x['killed'], x),
+  };
+}
+
+export function writePatternExplanation(x: PatternExplanation, context: any = x): any {
+  return {
+    'kind': _atd_write_required_field('PatternExplanation', 'kind', writePatternKind, x.kind, x),
+    'loc': _atd_write_required_field('PatternExplanation', 'loc', writeLocation, x.loc, x),
+    'matches': _atd_write_required_field('PatternExplanation', 'matches', _atd_write_array(writeCoreMatch), x.matches, x),
+    'positive': _atd_write_required_field('PatternExplanation', 'positive', _atd_write_array(writePatternExplanation), x.positive, x),
+    'negative': _atd_write_required_field('PatternExplanation', 'negative', _atd_write_array(writeNegativeExplanation), x.negative, x),
+    'filters': _atd_write_required_field('PatternExplanation', 'filters', _atd_write_array(writeFilterExplanation), x.filters, x),
+    'focus': _atd_write_required_field('PatternExplanation', 'focus', _atd_write_array(writeFocusExplanation), x.focus, x),
+  };
+}
+
+export function readPatternExplanation(x: any, context: any = x): PatternExplanation {
+  return {
+    kind: _atd_read_required_field('PatternExplanation', 'kind', readPatternKind, x['kind'], x),
+    loc: _atd_read_required_field('PatternExplanation', 'loc', readLocation, x['loc'], x),
+    matches: _atd_read_required_field('PatternExplanation', 'matches', _atd_read_array(readCoreMatch), x['matches'], x),
+    positive: _atd_read_required_field('PatternExplanation', 'positive', _atd_read_array(readPatternExplanation), x['positive'], x),
+    negative: _atd_read_required_field('PatternExplanation', 'negative', _atd_read_array(readNegativeExplanation), x['negative'], x),
+    filters: _atd_read_required_field('PatternExplanation', 'filters', _atd_read_array(readFilterExplanation), x['filters'], x),
+    focus: _atd_read_required_field('PatternExplanation', 'focus', _atd_read_array(readFocusExplanation), x['focus'], x),
+  };
+}
+
+export function writePatternKind(x: PatternKind, context: any = x): any {
   switch (x.kind) {
+    case 'XPat':
+      return ['XPat', _atd_write_string(x.value, x)]
     case 'And':
       return 'And'
     case 'Or':
       return 'Or'
+    case 'Not':
+      return 'Not'
     case 'Inside':
       return 'Inside'
     case 'Anywhere':
       return 'Anywhere'
-    case 'XPat':
-      return ['XPat', _atd_write_string(x.value, x)]
-    case 'Negation':
-      return 'Negation'
-    case 'Filter':
-      return ['Filter', _atd_write_string(x.value, x)]
-    case 'Taint':
-      return 'Taint'
-    case 'TaintSource':
-      return 'TaintSource'
-    case 'TaintSink':
-      return 'TaintSink'
-    case 'TaintSanitizer':
-      return 'TaintSanitizer'
-    case 'EllipsisAndStmts':
-      return 'EllipsisAndStmts'
-    case 'ClassHeaderAndElems':
-      return 'ClassHeaderAndElems'
   }
 }
 
-export function readMatchingOperation(x: any, context: any = x): MatchingOperation {
+export function readPatternKind(x: any, context: any = x): PatternKind {
   if (typeof x === 'string') {
     switch (x) {
       case 'And':
         return { kind: 'And' }
       case 'Or':
         return { kind: 'Or' }
+      case 'Not':
+        return { kind: 'Not' }
       case 'Inside':
         return { kind: 'Inside' }
       case 'Anywhere':
         return { kind: 'Anywhere' }
-      case 'Negation':
-        return { kind: 'Negation' }
-      case 'Taint':
-        return { kind: 'Taint' }
-      case 'TaintSource':
-        return { kind: 'TaintSource' }
-      case 'TaintSink':
-        return { kind: 'TaintSink' }
-      case 'TaintSanitizer':
-        return { kind: 'TaintSanitizer' }
-      case 'EllipsisAndStmts':
-        return { kind: 'EllipsisAndStmts' }
-      case 'ClassHeaderAndElems':
-        return { kind: 'ClassHeaderAndElems' }
       default:
-        _atd_bad_json('MatchingOperation', x, context)
+        _atd_bad_json('PatternKind', x, context)
         throw new Error('impossible')
     }
   }
@@ -1760,12 +1825,32 @@ export function readMatchingOperation(x: any, context: any = x): MatchingOperati
     switch (x[0]) {
       case 'XPat':
         return { kind: 'XPat', value: _atd_read_string(x[1], x) }
-      case 'Filter':
-        return { kind: 'Filter', value: _atd_read_string(x[1], x) }
       default:
-        _atd_bad_json('MatchingOperation', x, context)
+        _atd_bad_json('PatternKind', x, context)
         throw new Error('impossible')
     }
+  }
+}
+
+export function writeMatchingExplanation(x: MatchingExplanation, context: any = x): any {
+  switch (x.kind) {
+    case 'TaintExplanation':
+      return ['TaintExplanation', writeTaintExplanation(x.value, x)]
+    case 'PatternExplanation':
+      return ['PatternExplanation', writePatternExplanation(x.value, x)]
+  }
+}
+
+export function readMatchingExplanation(x: any, context: any = x): MatchingExplanation {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'TaintExplanation':
+      return { kind: 'TaintExplanation', value: readTaintExplanation(x[1], x) }
+    case 'PatternExplanation':
+      return { kind: 'PatternExplanation', value: readPatternExplanation(x[1], x) }
+    default:
+      _atd_bad_json('MatchingExplanation', x, context)
+      throw new Error('impossible')
   }
 }
 

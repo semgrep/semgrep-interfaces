@@ -502,76 +502,8 @@ class MatchSeverity:
 
 
 @dataclass
-class And:
-    """Original type: matching_operation = [ ... | And | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'And'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'And'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Or:
-    """Original type: matching_operation = [ ... | Or | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Or'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Or'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Inside:
-    """Original type: matching_operation = [ ... | Inside | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Inside'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Inside'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Anywhere:
-    """Original type: matching_operation = [ ... | Anywhere | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Anywhere'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Anywhere'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class XPat:
-    """Original type: matching_operation = [ ... | XPat of ... | ... ]"""
+    """Original type: pattern_kind = [ ... | XPat of ... | ... ]"""
 
     value: str
 
@@ -588,147 +520,95 @@ class XPat:
 
 
 @dataclass
-class Negation:
-    """Original type: matching_operation = [ ... | Negation | ... ]"""
+class And:
+    """Original type: pattern_kind = [ ... | And | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'Negation'
+        return 'And'
 
     @staticmethod
     def to_json() -> Any:
-        return 'Negation'
+        return 'And'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
 @dataclass
-class Filter:
-    """Original type: matching_operation = [ ... | Filter of ... | ... ]"""
-
-    value: str
+class Or:
+    """Original type: pattern_kind = [ ... | Or | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'Filter'
-
-    def to_json(self) -> Any:
-        return ['Filter', _atd_write_string(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Taint:
-    """Original type: matching_operation = [ ... | Taint | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Taint'
+        return 'Or'
 
     @staticmethod
     def to_json() -> Any:
-        return 'Taint'
+        return 'Or'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
 @dataclass
-class TaintSource:
-    """Original type: matching_operation = [ ... | TaintSource | ... ]"""
+class Not:
+    """Original type: pattern_kind = [ ... | Not | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'TaintSource'
+        return 'Not'
 
     @staticmethod
     def to_json() -> Any:
-        return 'TaintSource'
+        return 'Not'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
 @dataclass
-class TaintSink:
-    """Original type: matching_operation = [ ... | TaintSink | ... ]"""
+class Inside:
+    """Original type: pattern_kind = [ ... | Inside | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'TaintSink'
+        return 'Inside'
 
     @staticmethod
     def to_json() -> Any:
-        return 'TaintSink'
+        return 'Inside'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
 @dataclass
-class TaintSanitizer:
-    """Original type: matching_operation = [ ... | TaintSanitizer | ... ]"""
+class Anywhere:
+    """Original type: pattern_kind = [ ... | Anywhere | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'TaintSanitizer'
+        return 'Anywhere'
 
     @staticmethod
     def to_json() -> Any:
-        return 'TaintSanitizer'
+        return 'Anywhere'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
 @dataclass
-class EllipsisAndStmts:
-    """Original type: matching_operation = [ ... | EllipsisAndStmts | ... ]"""
+class PatternKind:
+    """Original type: pattern_kind = [ ... ]"""
 
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'EllipsisAndStmts'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'EllipsisAndStmts'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class ClassHeaderAndElems:
-    """Original type: matching_operation = [ ... | ClassHeaderAndElems | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'ClassHeaderAndElems'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'ClassHeaderAndElems'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class MatchingOperation:
-    """Original type: matching_operation = [ ... ]"""
-
-    value: Union[And, Or, Inside, Anywhere, XPat, Negation, Filter, Taint, TaintSource, TaintSink, TaintSanitizer, EllipsisAndStmts, ClassHeaderAndElems]
+    value: Union[XPat, And, Or, Not, Inside, Anywhere]
 
     @property
     def kind(self) -> str:
@@ -736,45 +616,31 @@ class MatchingOperation:
         return self.value.kind
 
     @classmethod
-    def from_json(cls, x: Any) -> 'MatchingOperation':
+    def from_json(cls, x: Any) -> 'PatternKind':
         if isinstance(x, str):
             if x == 'And':
                 return cls(And())
             if x == 'Or':
                 return cls(Or())
+            if x == 'Not':
+                return cls(Not())
             if x == 'Inside':
                 return cls(Inside())
             if x == 'Anywhere':
                 return cls(Anywhere())
-            if x == 'Negation':
-                return cls(Negation())
-            if x == 'Taint':
-                return cls(Taint())
-            if x == 'TaintSource':
-                return cls(TaintSource())
-            if x == 'TaintSink':
-                return cls(TaintSink())
-            if x == 'TaintSanitizer':
-                return cls(TaintSanitizer())
-            if x == 'EllipsisAndStmts':
-                return cls(EllipsisAndStmts())
-            if x == 'ClassHeaderAndElems':
-                return cls(ClassHeaderAndElems())
-            _atd_bad_json('MatchingOperation', x)
+            _atd_bad_json('PatternKind', x)
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'XPat':
                 return cls(XPat(_atd_read_string(x[1])))
-            if cons == 'Filter':
-                return cls(Filter(_atd_read_string(x[1])))
-            _atd_bad_json('MatchingOperation', x)
-        _atd_bad_json('MatchingOperation', x)
+            _atd_bad_json('PatternKind', x)
+        _atd_bad_json('PatternKind', x)
 
     def to_json(self) -> Any:
         return self.value.to_json()
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'MatchingOperation':
+    def from_json_string(cls, x: str) -> 'PatternKind':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1534,36 +1400,142 @@ class CoreMatch:
 
 
 @dataclass
-class MatchingExplanation:
-    """Original type: matching_explanation = { ... }"""
+class FocusExplanation:
+    """Original type: focus_explanation = { ... }"""
 
-    op: MatchingOperation
-    children: List[MatchingExplanation]
-    matches: List[CoreMatch]
     loc: Location
+    matches: List[CoreMatch]
 
     @classmethod
-    def from_json(cls, x: Any) -> 'MatchingExplanation':
+    def from_json(cls, x: Any) -> 'FocusExplanation':
         if isinstance(x, dict):
             return cls(
-                op=MatchingOperation.from_json(x['op']) if 'op' in x else _atd_missing_json_field('MatchingExplanation', 'op'),
-                children=_atd_read_list(MatchingExplanation.from_json)(x['children']) if 'children' in x else _atd_missing_json_field('MatchingExplanation', 'children'),
-                matches=_atd_read_list(CoreMatch.from_json)(x['matches']) if 'matches' in x else _atd_missing_json_field('MatchingExplanation', 'matches'),
-                loc=Location.from_json(x['loc']) if 'loc' in x else _atd_missing_json_field('MatchingExplanation', 'loc'),
+                loc=Location.from_json(x['loc']) if 'loc' in x else _atd_missing_json_field('FocusExplanation', 'loc'),
+                matches=_atd_read_list(CoreMatch.from_json)(x['matches']) if 'matches' in x else _atd_missing_json_field('FocusExplanation', 'matches'),
             )
         else:
-            _atd_bad_json('MatchingExplanation', x)
+            _atd_bad_json('FocusExplanation', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['op'] = (lambda x: x.to_json())(self.op)
-        res['children'] = _atd_write_list((lambda x: x.to_json()))(self.children)
-        res['matches'] = _atd_write_list((lambda x: x.to_json()))(self.matches)
         res['loc'] = (lambda x: x.to_json())(self.loc)
+        res['matches'] = _atd_write_list((lambda x: x.to_json()))(self.matches)
         return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'MatchingExplanation':
+    def from_json_string(cls, x: str) -> 'FocusExplanation':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class FilterExplanation:
+    """Original type: filter_explanation = { ... }"""
+
+    kind: str
+    loc: Location
+    matches: List[CoreMatch]
+    extra: Optional[PatternExplanation]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FilterExplanation':
+        if isinstance(x, dict):
+            return cls(
+                kind=_atd_read_string(x['kind']) if 'kind' in x else _atd_missing_json_field('FilterExplanation', 'kind'),
+                loc=Location.from_json(x['loc']) if 'loc' in x else _atd_missing_json_field('FilterExplanation', 'loc'),
+                matches=_atd_read_list(CoreMatch.from_json)(x['matches']) if 'matches' in x else _atd_missing_json_field('FilterExplanation', 'matches'),
+                extra=_atd_read_option(PatternExplanation.from_json)(x['extra']) if 'extra' in x else _atd_missing_json_field('FilterExplanation', 'extra'),
+            )
+        else:
+            _atd_bad_json('FilterExplanation', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['kind'] = _atd_write_string(self.kind)
+        res['loc'] = (lambda x: x.to_json())(self.loc)
+        res['matches'] = _atd_write_list((lambda x: x.to_json()))(self.matches)
+        res['extra'] = _atd_write_option((lambda x: x.to_json()))(self.extra)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FilterExplanation':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+@dataclass
+class NegativeExplanation:
+    """Original type: negative_explanation = { ... }"""
+
+    matched: List[PatternExplanation]
+    killed: List[CoreMatch]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'NegativeExplanation':
+        if isinstance(x, dict):
+            return cls(
+                matched=_atd_read_list(PatternExplanation.from_json)(x['matched']) if 'matched' in x else _atd_missing_json_field('NegativeExplanation', 'matched'),
+                killed=_atd_read_list(CoreMatch.from_json)(x['killed']) if 'killed' in x else _atd_missing_json_field('NegativeExplanation', 'killed'),
+            )
+        else:
+            _atd_bad_json('NegativeExplanation', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['matched'] = _atd_write_list((lambda x: x.to_json()))(self.matched)
+        res['killed'] = _atd_write_list((lambda x: x.to_json()))(self.killed)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'NegativeExplanation':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+@dataclass
+class PatternExplanation:
+    """Original type: pattern_explanation = { ... }"""
+
+    kind: PatternKind
+    loc: Location
+    matches: List[CoreMatch]
+    positive: List[PatternExplanation]
+    negative: List[NegativeExplanation]
+    filters: List[FilterExplanation]
+    focus: List[FocusExplanation]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'PatternExplanation':
+        if isinstance(x, dict):
+            return cls(
+                kind=PatternKind.from_json(x['kind']) if 'kind' in x else _atd_missing_json_field('PatternExplanation', 'kind'),
+                loc=Location.from_json(x['loc']) if 'loc' in x else _atd_missing_json_field('PatternExplanation', 'loc'),
+                matches=_atd_read_list(CoreMatch.from_json)(x['matches']) if 'matches' in x else _atd_missing_json_field('PatternExplanation', 'matches'),
+                positive=_atd_read_list(PatternExplanation.from_json)(x['positive']) if 'positive' in x else _atd_missing_json_field('PatternExplanation', 'positive'),
+                negative=_atd_read_list(NegativeExplanation.from_json)(x['negative']) if 'negative' in x else _atd_missing_json_field('PatternExplanation', 'negative'),
+                filters=_atd_read_list(FilterExplanation.from_json)(x['filters']) if 'filters' in x else _atd_missing_json_field('PatternExplanation', 'filters'),
+                focus=_atd_read_list(FocusExplanation.from_json)(x['focus']) if 'focus' in x else _atd_missing_json_field('PatternExplanation', 'focus'),
+            )
+        else:
+            _atd_bad_json('PatternExplanation', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['kind'] = (lambda x: x.to_json())(self.kind)
+        res['loc'] = (lambda x: x.to_json())(self.loc)
+        res['matches'] = _atd_write_list((lambda x: x.to_json()))(self.matches)
+        res['positive'] = _atd_write_list((lambda x: x.to_json()))(self.positive)
+        res['negative'] = _atd_write_list((lambda x: x.to_json()))(self.negative)
+        res['filters'] = _atd_write_list((lambda x: x.to_json()))(self.filters)
+        res['focus'] = _atd_write_list((lambda x: x.to_json()))(self.focus)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'PatternExplanation':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1965,6 +1937,40 @@ class TargetTimes:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'TargetTimes':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TaintExplanation:
+    """Original type: taint_explanation = { ... }"""
+
+    sources: List[PatternExplanation]
+    sinks: List[PatternExplanation]
+    sanitizers: List[PatternExplanation]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TaintExplanation':
+        if isinstance(x, dict):
+            return cls(
+                sources=_atd_read_list(PatternExplanation.from_json)(x['sources']) if 'sources' in x else _atd_missing_json_field('TaintExplanation', 'sources'),
+                sinks=_atd_read_list(PatternExplanation.from_json)(x['sinks']) if 'sinks' in x else _atd_missing_json_field('TaintExplanation', 'sinks'),
+                sanitizers=_atd_read_list(PatternExplanation.from_json)(x['sanitizers']) if 'sanitizers' in x else _atd_missing_json_field('TaintExplanation', 'sanitizers'),
+            )
+        else:
+            _atd_bad_json('TaintExplanation', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['sources'] = _atd_write_list((lambda x: x.to_json()))(self.sources)
+        res['sinks'] = _atd_write_list((lambda x: x.to_json()))(self.sinks)
+        res['sanitizers'] = _atd_write_list((lambda x: x.to_json()))(self.sanitizers)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TaintExplanation':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -5171,6 +5177,75 @@ class ParsingStats:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ParsingStats':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TaintExplanation_:
+    """Original type: matching_explanation = [ ... | TaintExplanation of ... | ... ]"""
+
+    value: TaintExplanation
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'TaintExplanation_'
+
+    def to_json(self) -> Any:
+        return ['TaintExplanation', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PatternExplanation_:
+    """Original type: matching_explanation = [ ... | PatternExplanation of ... | ... ]"""
+
+    value: PatternExplanation
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PatternExplanation_'
+
+    def to_json(self) -> Any:
+        return ['PatternExplanation', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class MatchingExplanation:
+    """Original type: matching_explanation = [ ... ]"""
+
+    value: Union[TaintExplanation_, PatternExplanation_]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'MatchingExplanation':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'TaintExplanation':
+                return cls(TaintExplanation_(TaintExplanation.from_json(x[1])))
+            if cons == 'PatternExplanation':
+                return cls(PatternExplanation_(PatternExplanation.from_json(x[1])))
+            _atd_bad_json('MatchingExplanation', x)
+        _atd_bad_json('MatchingExplanation', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'MatchingExplanation':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

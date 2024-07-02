@@ -8,20 +8,13 @@ type fpath = Semgrep_output_v1_t.fpath [@@deriving show]
 type match_severity = Semgrep_output_v1_t.match_severity
   [@@deriving show, eq]
 
-type matching_operation = Semgrep_output_v1_t.matching_operation = 
-    And
+type pattern_kind = Semgrep_output_v1_t.pattern_kind = 
+    XPat of string
+  | And
   | Or
+  | Not
   | Inside
   | Anywhere
-  | XPat of string
-  | Negation
-  | Filter of string
-  | Taint
-  | TaintSource
-  | TaintSink
-  | TaintSanitizer
-  | EllipsisAndStmts
-  | ClassHeaderAndElems
 
   [@@deriving show { with_path = false}]
 
@@ -120,11 +113,31 @@ type core_match = Semgrep_output_v1_t.core_match = {
   extra: core_match_extra
 }
 
-type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
-  op: matching_operation;
-  children: matching_explanation list;
+type focus_explanation = Semgrep_output_v1_t.focus_explanation = {
+  loc: location;
+  matches: core_match list
+}
+
+type filter_explanation = Semgrep_output_v1_t.filter_explanation = {
+  kind: string;
+  loc: location;
   matches: core_match list;
-  loc: location
+  extra: pattern_explanation option
+}
+
+and negative_explanation = Semgrep_output_v1_t.negative_explanation = {
+  matched: pattern_explanation list;
+  killed: core_match list
+}
+
+and pattern_explanation = Semgrep_output_v1_t.pattern_explanation = {
+  kind: pattern_kind;
+  loc: location;
+  matches: core_match list;
+  positive: pattern_explanation list;
+  negative: negative_explanation list;
+  filters: filter_explanation list;
+  focus: focus_explanation list
 }
 
 type version = Semgrep_output_v1_t.version [@@deriving show]
@@ -173,6 +186,12 @@ type target_times = Semgrep_output_v1_t.target_times = {
   match_times: float list;
   parse_times: float list;
   run_time: float
+}
+
+type taint_explanation = Semgrep_output_v1_t.taint_explanation = {
+  sources: pattern_explanation list;
+  sinks: pattern_explanation list;
+  sanitizers: pattern_explanation list
 }
 
 type tag = Semgrep_output_v1_t.tag
@@ -496,6 +515,8 @@ type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
   num_bytes: int
 }
 
+type matching_explanation = Semgrep_output_v1_t.matching_explanation
+
 type has_features = Semgrep_output_v1_t.has_features = {
   has_autofix: bool;
   has_deepsemgrep: bool;
@@ -767,25 +788,25 @@ val match_severity_of_string :
   string -> match_severity
   (** Deserialize JSON data of type {!type:match_severity}. *)
 
-val write_matching_operation :
-  Buffer.t -> matching_operation -> unit
-  (** Output a JSON value of type {!type:matching_operation}. *)
+val write_pattern_kind :
+  Buffer.t -> pattern_kind -> unit
+  (** Output a JSON value of type {!type:pattern_kind}. *)
 
-val string_of_matching_operation :
-  ?len:int -> matching_operation -> string
-  (** Serialize a value of type {!type:matching_operation}
+val string_of_pattern_kind :
+  ?len:int -> pattern_kind -> string
+  (** Serialize a value of type {!type:pattern_kind}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_matching_operation :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> matching_operation
-  (** Input JSON data of type {!type:matching_operation}. *)
+val read_pattern_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> pattern_kind
+  (** Input JSON data of type {!type:pattern_kind}. *)
 
-val matching_operation_of_string :
-  string -> matching_operation
-  (** Deserialize JSON data of type {!type:matching_operation}. *)
+val pattern_kind_of_string :
+  string -> pattern_kind
+  (** Deserialize JSON data of type {!type:pattern_kind}. *)
 
 val write_position :
   Buffer.t -> position -> unit
@@ -1147,25 +1168,85 @@ val core_match_of_string :
   string -> core_match
   (** Deserialize JSON data of type {!type:core_match}. *)
 
-val write_matching_explanation :
-  Buffer.t -> matching_explanation -> unit
-  (** Output a JSON value of type {!type:matching_explanation}. *)
+val write_focus_explanation :
+  Buffer.t -> focus_explanation -> unit
+  (** Output a JSON value of type {!type:focus_explanation}. *)
 
-val string_of_matching_explanation :
-  ?len:int -> matching_explanation -> string
-  (** Serialize a value of type {!type:matching_explanation}
+val string_of_focus_explanation :
+  ?len:int -> focus_explanation -> string
+  (** Serialize a value of type {!type:focus_explanation}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_matching_explanation :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> matching_explanation
-  (** Input JSON data of type {!type:matching_explanation}. *)
+val read_focus_explanation :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> focus_explanation
+  (** Input JSON data of type {!type:focus_explanation}. *)
 
-val matching_explanation_of_string :
-  string -> matching_explanation
-  (** Deserialize JSON data of type {!type:matching_explanation}. *)
+val focus_explanation_of_string :
+  string -> focus_explanation
+  (** Deserialize JSON data of type {!type:focus_explanation}. *)
+
+val write_filter_explanation :
+  Buffer.t -> filter_explanation -> unit
+  (** Output a JSON value of type {!type:filter_explanation}. *)
+
+val string_of_filter_explanation :
+  ?len:int -> filter_explanation -> string
+  (** Serialize a value of type {!type:filter_explanation}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_filter_explanation :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> filter_explanation
+  (** Input JSON data of type {!type:filter_explanation}. *)
+
+val filter_explanation_of_string :
+  string -> filter_explanation
+  (** Deserialize JSON data of type {!type:filter_explanation}. *)
+
+val write_negative_explanation :
+  Buffer.t -> negative_explanation -> unit
+  (** Output a JSON value of type {!type:negative_explanation}. *)
+
+val string_of_negative_explanation :
+  ?len:int -> negative_explanation -> string
+  (** Serialize a value of type {!type:negative_explanation}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_negative_explanation :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> negative_explanation
+  (** Input JSON data of type {!type:negative_explanation}. *)
+
+val negative_explanation_of_string :
+  string -> negative_explanation
+  (** Deserialize JSON data of type {!type:negative_explanation}. *)
+
+val write_pattern_explanation :
+  Buffer.t -> pattern_explanation -> unit
+  (** Output a JSON value of type {!type:pattern_explanation}. *)
+
+val string_of_pattern_explanation :
+  ?len:int -> pattern_explanation -> string
+  (** Serialize a value of type {!type:pattern_explanation}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_pattern_explanation :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> pattern_explanation
+  (** Input JSON data of type {!type:pattern_explanation}. *)
+
+val pattern_explanation_of_string :
+  string -> pattern_explanation
+  (** Deserialize JSON data of type {!type:pattern_explanation}. *)
 
 val write_version :
   Buffer.t -> version -> unit
@@ -1406,6 +1487,26 @@ val read_target_times :
 val target_times_of_string :
   string -> target_times
   (** Deserialize JSON data of type {!type:target_times}. *)
+
+val write_taint_explanation :
+  Buffer.t -> taint_explanation -> unit
+  (** Output a JSON value of type {!type:taint_explanation}. *)
+
+val string_of_taint_explanation :
+  ?len:int -> taint_explanation -> string
+  (** Serialize a value of type {!type:taint_explanation}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_taint_explanation :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> taint_explanation
+  (** Input JSON data of type {!type:taint_explanation}. *)
+
+val taint_explanation_of_string :
+  string -> taint_explanation
+  (** Deserialize JSON data of type {!type:taint_explanation}. *)
 
 val write_tag :
   Buffer.t -> tag -> unit
@@ -2246,6 +2347,26 @@ val read_parsing_stats :
 val parsing_stats_of_string :
   string -> parsing_stats
   (** Deserialize JSON data of type {!type:parsing_stats}. *)
+
+val write_matching_explanation :
+  Buffer.t -> matching_explanation -> unit
+  (** Output a JSON value of type {!type:matching_explanation}. *)
+
+val string_of_matching_explanation :
+  ?len:int -> matching_explanation -> string
+  (** Serialize a value of type {!type:matching_explanation}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_matching_explanation :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> matching_explanation
+  (** Input JSON data of type {!type:matching_explanation}. *)
+
+val matching_explanation_of_string :
+  string -> matching_explanation
+  (** Deserialize JSON data of type {!type:matching_explanation}. *)
 
 val write_has_features :
   Buffer.t -> has_features -> unit

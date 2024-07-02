@@ -732,53 +732,60 @@ type target_times = {
 (*****************************************************************************)
 (* Matching explanations *)
 (*****************************************************************************)
-(* coupling: semgrep-core/src/core/Matching_explanation.ml
- * LATER: merge with Matching_explanation.t at some point
- * EXPERIMENTAL *)
-type matching_explanation = {
-    op: matching_operation;
-    children: matching_explanation list;
-    (* result matches at this node (can be empty when we reach a nomatch) *)
-    matches: core_match list;
-    (* location in the rule file! not target file.
-     * This tries to delimit the part of the rule relevant to the current
-     * operation (e.g., the position of the 'patterns:' token in the rule
-     * for the And operation).
-     *)
-    loc: location;
-    }
-(* TODO:
- * - Negation
- * - Where filters (metavar-comparison, etc)
- * - tainting source/sink/sanitizer
- * - subpattern EllipsisAndStmt, ClassHeaderAndElems
- * Note that this type is used in Matching_explanation.ml hence the need
- * for deriving show below.
+
+(* this means that we won't have the matches consolidated at the entire
+   node, but all of these are just unions of their input ranges anyways
  *)
-type matching_operation <ocaml attr="deriving show { with_path = false}"> = [
+type taint_explanation = {
+  sources: pattern_explanation list;
+  sinks: pattern_explanation list;
+  sanitizers: pattern_explanation list;
+  (* TODO: propagators *)
+}
+
+type filter_explanation = {
+  kind: string;
+  loc: location;
+  matches: core_match list;
+  (* A metavariable-pattern may contain matches in itself.
+   *)
+  extra: pattern_explanation option;
+}
+
+type focus_explanation = {
+  loc: location;
+  matches: core_match list;
+}
+
+type negative_explanation = {
+  matched: pattern_explanation list;
+  killed: core_match list;
+}
+
+type pattern_explanation = {
+  kind: pattern_kind;
+  loc: location;
+  matches: core_match list;
+  (* children *)
+  positive: pattern_explanation list;
+  negative: negative_explanation list;
+  filters: filter_explanation list;
+  focus: focus_explanation list;
+}
+
+type pattern_kind <ocaml attr="deriving show { with_path = false}"> = [
+  | XPat of string
   | And
   | Or
+  | Not
   | Inside
   | Anywhere
-  (* XPat for eXtended pattern. Can be a spacegrep pattern, a
-   * regexp pattern, or a proper semgrep pattern.
-   * see semgrep-core/src/core/XPattern.ml
-   *)
-  | XPat of string
-  (* TODO *)
-  | Negation
-  (* TODO "metavar-regex:xxx" | "metavar-comparison:xxx" | "metavar-pattern" *)
-  | Filter of string
-  (* TODO tainting "operations" *)
-  | Taint
-  | TaintSource
-  | TaintSink
-  | TaintSanitizer
-  (* TODO subpatterns *)
-  | EllipsisAndStmts
-  | ClassHeaderAndElems
 ] <ocaml repr="classic">
 
+type matching_explanation = [
+  | TaintExplanation of taint_explanation
+  | PatternExplanation of pattern_explanation
+]
 
 (*****************************************************************************)
 (* Final scan output  *)

@@ -479,47 +479,140 @@
         "run_time": { "type": "number" }
       }
     },
-    "matching_explanation": {
+    "taint_explanation": {
       "type": "object",
-      "required": [ "op", "children", "matches", "loc" ],
+      "required": [ "sources", "sinks", "sanitizers" ],
       "properties": {
-        "op": { "$ref": "#/definitions/matching_operation" },
-        "children": {
+        "sources": {
           "type": "array",
-          "items": { "$ref": "#/definitions/matching_explanation" }
+          "items": { "$ref": "#/definitions/pattern_explanation" }
         },
+        "sinks": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/pattern_explanation" }
+        },
+        "sanitizers": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/pattern_explanation" }
+        }
+      }
+    },
+    "filter_explanation": {
+      "type": "object",
+      "required": [ "kind", "loc", "matches", "extra" ],
+      "properties": {
+        "kind": { "type": "string" },
+        "loc": { "$ref": "#/definitions/location" },
         "matches": {
           "type": "array",
           "items": { "$ref": "#/definitions/core_match" }
         },
-        "loc": { "$ref": "#/definitions/location" }
+        "extra": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" },
+                { "$ref": "#/definitions/pattern_explanation" }
+              ]
+            },
+            { "const": "None" }
+          ]
+        }
       }
     },
-    "matching_operation": {
+    "focus_explanation": {
+      "type": "object",
+      "required": [ "loc", "matches" ],
+      "properties": {
+        "loc": { "$ref": "#/definitions/location" },
+        "matches": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/core_match" }
+        }
+      }
+    },
+    "negative_explanation": {
+      "type": "object",
+      "required": [ "matched", "killed" ],
+      "properties": {
+        "matched": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/pattern_explanation" }
+        },
+        "killed": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/core_match" }
+        }
+      }
+    },
+    "pattern_explanation": {
+      "type": "object",
+      "required": [
+        "kind", "loc", "matches", "positive", "negative", "filters", "focus"
+      ],
+      "properties": {
+        "kind": { "$ref": "#/definitions/pattern_kind" },
+        "loc": { "$ref": "#/definitions/location" },
+        "matches": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/core_match" }
+        },
+        "positive": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/pattern_explanation" }
+        },
+        "negative": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/negative_explanation" }
+        },
+        "filters": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/filter_explanation" }
+        },
+        "focus": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/focus_explanation" }
+        }
+      }
+    },
+    "pattern_kind": {
       "oneOf": [
-        { "const": "And" },
-        { "const": "Or" },
-        { "const": "Inside" },
-        { "const": "Anywhere" },
         {
           "type": "array",
           "minItems": 2,
           "items": false,
           "prefixItems": [ { "const": "XPat" }, { "type": "string" } ]
         },
-        { "const": "Negation" },
+        { "const": "And" },
+        { "const": "Or" },
+        { "const": "Not" },
+        { "const": "Inside" },
+        { "const": "Anywhere" }
+      ]
+    },
+    "matching_explanation": {
+      "oneOf": [
         {
           "type": "array",
           "minItems": 2,
           "items": false,
-          "prefixItems": [ { "const": "Filter" }, { "type": "string" } ]
+          "prefixItems": [
+            { "const": "TaintExplanation" },
+            { "$ref": "#/definitions/taint_explanation" }
+          ]
         },
-        { "const": "Taint" },
-        { "const": "TaintSource" },
-        { "const": "TaintSink" },
-        { "const": "TaintSanitizer" },
-        { "const": "EllipsisAndStmts" },
-        { "const": "ClassHeaderAndElems" }
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "PatternExplanation" },
+            { "$ref": "#/definitions/pattern_explanation" }
+          ]
+        }
       ]
     },
     "core_output": {
