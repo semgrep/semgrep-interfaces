@@ -630,7 +630,9 @@
         }
       }
     },
-    "unexpected_no_match_diagnosis": { "$ref": "#/definitions/todo" },
+    "unexpected_no_match_diagnosis": {
+      "oneOf": [ { "const": "Never_matched" } ]
+    },
     "matching_diagnosis": {
       "type": "object",
       "required": [

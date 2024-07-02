@@ -1634,21 +1634,17 @@ class Uri:
 
 
 @dataclass
-class Todo:
-    """Original type: todo"""
+class NeverMatched:
+    """Original type: unexpected_no_match_diagnosis = [ ... | Never_matched | ... ]"""
 
-    value: int
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'NeverMatched'
 
-    @classmethod
-    def from_json(cls, x: Any) -> 'Todo':
-        return cls(_atd_read_int(x))
-
-    def to_json(self) -> Any:
-        return _atd_write_int(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Todo':
-        return cls.from_json(json.loads(x))
+    @staticmethod
+    def to_json() -> Any:
+        return 'Never_matched'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1656,16 +1652,25 @@ class Todo:
 
 @dataclass
 class UnexpectedNoMatchDiagnosis:
-    """Original type: unexpected_no_match_diagnosis"""
+    """Original type: unexpected_no_match_diagnosis = [ ... ]"""
 
-    value: Todo
+    value: Union[NeverMatched]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
 
     @classmethod
     def from_json(cls, x: Any) -> 'UnexpectedNoMatchDiagnosis':
-        return cls(Todo.from_json(x))
+        if isinstance(x, str):
+            if x == 'Never_matched':
+                return cls(NeverMatched())
+            _atd_bad_json('UnexpectedNoMatchDiagnosis', x)
+        _atd_bad_json('UnexpectedNoMatchDiagnosis', x)
 
     def to_json(self) -> Any:
-        return (lambda x: x.to_json())(self.value)
+        return self.value.to_json()
 
     @classmethod
     def from_json_string(cls, x: str) -> 'UnexpectedNoMatchDiagnosis':
@@ -2039,6 +2044,27 @@ class Transitivity:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Transitivity':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Todo:
+    """Original type: todo"""
+
+    value: int
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Todo':
+        return cls(_atd_read_int(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_int(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Todo':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

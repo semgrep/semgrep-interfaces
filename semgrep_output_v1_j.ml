@@ -133,8 +133,6 @@ type uuid = Semgrep_output_v1_t.uuid
 
 type uri = Semgrep_output_v1_t.uri
 
-type todo = Semgrep_output_v1_t.todo
-
 type unexpected_no_match_diagnosis =
   Semgrep_output_v1_t.unexpected_no_match_diagnosis
 
@@ -163,6 +161,8 @@ type triage_ignored = Semgrep_output_v1_t.triage_ignored = {
 }
 
 type transitivity = Semgrep_output_v1_t.transitivity [@@deriving show,eq]
+
+type todo = Semgrep_output_v1_t.todo
 
 type matching_diagnosis = Semgrep_output_v1_t.matching_diagnosis = {
   target: fpath;
@@ -5125,27 +5125,40 @@ let read_uri = (
 )
 let uri_of_string s =
   read_uri (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_todo = (
-  Yojson.Safe.write_int
-)
-let string_of_todo ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_todo ob x;
-  Buffer.contents ob
-let read_todo = (
-  Atdgen_runtime.Oj_run.read_int
-)
-let todo_of_string s =
-  read_todo (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_unexpected_no_match_diagnosis = (
-  write_todo
+  fun ob x ->
+    match x with
+      | `Never_matched -> Buffer.add_string ob "\"Never_matched\""
 )
 let string_of_unexpected_no_match_diagnosis ?(len = 1024) x =
   let ob = Buffer.create len in
   write_unexpected_no_match_diagnosis ob x;
   Buffer.contents ob
 let read_unexpected_no_match_diagnosis = (
-  read_todo
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "Never_matched" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Never_matched
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "Never_matched" ->
+              `Never_matched
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
 )
 let unexpected_no_match_diagnosis_of_string s =
   read_unexpected_no_match_diagnosis (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
@@ -6076,6 +6089,18 @@ let read_transitivity = (
 )
 let transitivity_of_string s =
   read_transitivity (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_todo = (
+  Yojson.Safe.write_int
+)
+let string_of_todo ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_todo ob x;
+  Buffer.contents ob
+let read_todo = (
+  Atdgen_runtime.Oj_run.read_int
+)
+let todo_of_string s =
+  read_todo (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__unexpected_no_match_diagnosis_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_unexpected_no_match_diagnosis

@@ -133,8 +133,6 @@ type uuid = Semgrep_output_v1_t.uuid
 
 type uri = Semgrep_output_v1_t.uri
 
-type todo = Semgrep_output_v1_t.todo
-
 type unexpected_no_match_diagnosis =
   Semgrep_output_v1_t.unexpected_no_match_diagnosis
 
@@ -163,6 +161,8 @@ type triage_ignored = Semgrep_output_v1_t.triage_ignored = {
 }
 
 type transitivity = Semgrep_output_v1_t.transitivity [@@deriving show,eq]
+
+type todo = Semgrep_output_v1_t.todo
 
 type matching_diagnosis = Semgrep_output_v1_t.matching_diagnosis = {
   target: fpath;
@@ -1256,26 +1256,6 @@ val uri_of_string :
   string -> uri
   (** Deserialize JSON data of type {!type:uri}. *)
 
-val write_todo :
-  Buffer.t -> todo -> unit
-  (** Output a JSON value of type {!type:todo}. *)
-
-val string_of_todo :
-  ?len:int -> todo -> string
-  (** Serialize a value of type {!type:todo}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_todo :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> todo
-  (** Input JSON data of type {!type:todo}. *)
-
-val todo_of_string :
-  string -> todo
-  (** Deserialize JSON data of type {!type:todo}. *)
-
 val write_unexpected_no_match_diagnosis :
   Buffer.t -> unexpected_no_match_diagnosis -> unit
   (** Output a JSON value of type {!type:unexpected_no_match_diagnosis}. *)
@@ -1435,6 +1415,26 @@ val read_transitivity :
 val transitivity_of_string :
   string -> transitivity
   (** Deserialize JSON data of type {!type:transitivity}. *)
+
+val write_todo :
+  Buffer.t -> todo -> unit
+  (** Output a JSON value of type {!type:todo}. *)
+
+val string_of_todo :
+  ?len:int -> todo -> string
+  (** Serialize a value of type {!type:todo}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_todo :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> todo
+  (** Input JSON data of type {!type:todo}. *)
+
+val todo_of_string :
+  string -> todo
+  (** Deserialize JSON data of type {!type:todo}. *)
 
 val write_matching_diagnosis :
   Buffer.t -> matching_diagnosis -> unit
