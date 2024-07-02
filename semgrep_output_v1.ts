@@ -344,6 +344,40 @@ export type CliOutputExtra = {
   skipped_rules: SkippedRule[];
 }
 
+export type OriginatingNodeKind =
+| { kind: 'Focus' }
+| { kind: 'Xpattern' }
+
+export type KillingParentKind =
+| { kind: 'Inside' }
+| { kind: 'Negation' }
+| { kind: 'Filter'; value: string }
+
+export type Snippet = {
+  line: number /*int*/;
+  text: string;
+}
+
+export type KillingParent = {
+  killing_parent_kind: KillingParentKind;
+  snippet: Snippet;
+}
+
+export type UnexpectedMatchDiagnosis = {
+  matched_text: Snippet;
+  originating_kind: OriginatingNodeKind;
+  originating_text: Snippet;
+  killing_parents: KillingParent[];
+}
+
+export type UnexpectedNoMatchDiagnosis = Todo
+
+export type MatchingDiagnosis = {
+  target: Fpath;
+  unexpected_match_diagnoses: UnexpectedMatchDiagnosis[];
+  unexpected_no_match_diagnoses: UnexpectedNoMatchDiagnosis[];
+}
+
 export type TestsResult = {
   results: [string, Checks][];
   fixtest_results: [string, FixtestResult][];
@@ -360,6 +394,7 @@ export type RuleResult = {
   passed: boolean;
   matches: [string, ExpectedReported][];
   errors: Todo[];
+  diagnosis?: MatchingDiagnosis;
 }
 
 export type ExpectedReported = {
@@ -1853,6 +1888,132 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
   };
 }
 
+export function writeOriginatingNodeKind(x: OriginatingNodeKind, context: any = x): any {
+  switch (x.kind) {
+    case 'Focus':
+      return 'Focus'
+    case 'Xpattern':
+      return 'Xpattern'
+  }
+}
+
+export function readOriginatingNodeKind(x: any, context: any = x): OriginatingNodeKind {
+  switch (x) {
+    case 'Focus':
+      return { kind: 'Focus' }
+    case 'Xpattern':
+      return { kind: 'Xpattern' }
+    default:
+      _atd_bad_json('OriginatingNodeKind', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeKillingParentKind(x: KillingParentKind, context: any = x): any {
+  switch (x.kind) {
+    case 'Inside':
+      return 'Inside'
+    case 'Negation':
+      return 'Negation'
+    case 'Filter':
+      return ['Filter', _atd_write_string(x.value, x)]
+  }
+}
+
+export function readKillingParentKind(x: any, context: any = x): KillingParentKind {
+  if (typeof x === 'string') {
+    switch (x) {
+      case 'Inside':
+        return { kind: 'Inside' }
+      case 'Negation':
+        return { kind: 'Negation' }
+      default:
+        _atd_bad_json('KillingParentKind', x, context)
+        throw new Error('impossible')
+    }
+  }
+  else {
+    _atd_check_json_tuple(2, x, context)
+    switch (x[0]) {
+      case 'Filter':
+        return { kind: 'Filter', value: _atd_read_string(x[1], x) }
+      default:
+        _atd_bad_json('KillingParentKind', x, context)
+        throw new Error('impossible')
+    }
+  }
+}
+
+export function writeSnippet(x: Snippet, context: any = x): any {
+  return {
+    'line': _atd_write_required_field('Snippet', 'line', _atd_write_int, x.line, x),
+    'text': _atd_write_required_field('Snippet', 'text', _atd_write_string, x.text, x),
+  };
+}
+
+export function readSnippet(x: any, context: any = x): Snippet {
+  return {
+    line: _atd_read_required_field('Snippet', 'line', _atd_read_int, x['line'], x),
+    text: _atd_read_required_field('Snippet', 'text', _atd_read_string, x['text'], x),
+  };
+}
+
+export function writeKillingParent(x: KillingParent, context: any = x): any {
+  return {
+    'killing_parent_kind': _atd_write_required_field('KillingParent', 'killing_parent_kind', writeKillingParentKind, x.killing_parent_kind, x),
+    'snippet': _atd_write_required_field('KillingParent', 'snippet', writeSnippet, x.snippet, x),
+  };
+}
+
+export function readKillingParent(x: any, context: any = x): KillingParent {
+  return {
+    killing_parent_kind: _atd_read_required_field('KillingParent', 'killing_parent_kind', readKillingParentKind, x['killing_parent_kind'], x),
+    snippet: _atd_read_required_field('KillingParent', 'snippet', readSnippet, x['snippet'], x),
+  };
+}
+
+export function writeUnexpectedMatchDiagnosis(x: UnexpectedMatchDiagnosis, context: any = x): any {
+  return {
+    'matched_text': _atd_write_required_field('UnexpectedMatchDiagnosis', 'matched_text', writeSnippet, x.matched_text, x),
+    'originating_kind': _atd_write_required_field('UnexpectedMatchDiagnosis', 'originating_kind', writeOriginatingNodeKind, x.originating_kind, x),
+    'originating_text': _atd_write_required_field('UnexpectedMatchDiagnosis', 'originating_text', writeSnippet, x.originating_text, x),
+    'killing_parents': _atd_write_required_field('UnexpectedMatchDiagnosis', 'killing_parents', _atd_write_array(writeKillingParent), x.killing_parents, x),
+  };
+}
+
+export function readUnexpectedMatchDiagnosis(x: any, context: any = x): UnexpectedMatchDiagnosis {
+  return {
+    matched_text: _atd_read_required_field('UnexpectedMatchDiagnosis', 'matched_text', readSnippet, x['matched_text'], x),
+    originating_kind: _atd_read_required_field('UnexpectedMatchDiagnosis', 'originating_kind', readOriginatingNodeKind, x['originating_kind'], x),
+    originating_text: _atd_read_required_field('UnexpectedMatchDiagnosis', 'originating_text', readSnippet, x['originating_text'], x),
+    killing_parents: _atd_read_required_field('UnexpectedMatchDiagnosis', 'killing_parents', _atd_read_array(readKillingParent), x['killing_parents'], x),
+  };
+}
+
+export function writeUnexpectedNoMatchDiagnosis(x: UnexpectedNoMatchDiagnosis, context: any = x): any {
+  return writeTodo(x, context);
+}
+
+export function readUnexpectedNoMatchDiagnosis(x: any, context: any = x): UnexpectedNoMatchDiagnosis {
+  return readTodo(x, context);
+}
+
+export function writeMatchingDiagnosis(x: MatchingDiagnosis, context: any = x): any {
+  return {
+    'target': _atd_write_required_field('MatchingDiagnosis', 'target', writeFpath, x.target, x),
+    'unexpected_match_diagnoses': _atd_write_required_field('MatchingDiagnosis', 'unexpected_match_diagnoses', _atd_write_array(writeUnexpectedMatchDiagnosis), x.unexpected_match_diagnoses, x),
+    'unexpected_no_match_diagnoses': _atd_write_required_field('MatchingDiagnosis', 'unexpected_no_match_diagnoses', _atd_write_array(writeUnexpectedNoMatchDiagnosis), x.unexpected_no_match_diagnoses, x),
+  };
+}
+
+export function readMatchingDiagnosis(x: any, context: any = x): MatchingDiagnosis {
+  return {
+    target: _atd_read_required_field('MatchingDiagnosis', 'target', readFpath, x['target'], x),
+    unexpected_match_diagnoses: _atd_read_required_field('MatchingDiagnosis', 'unexpected_match_diagnoses', _atd_read_array(readUnexpectedMatchDiagnosis), x['unexpected_match_diagnoses'], x),
+    unexpected_no_match_diagnoses: _atd_read_required_field('MatchingDiagnosis', 'unexpected_no_match_diagnoses', _atd_read_array(readUnexpectedNoMatchDiagnosis), x['unexpected_no_match_diagnoses'], x),
+  };
+}
+
 export function writeTestsResult(x: TestsResult, context: any = x): any {
   return {
     'results': _atd_write_required_field('TestsResult', 'results', _atd_write_assoc_array_to_object(writeChecks), x.results, x),
@@ -1890,6 +2051,7 @@ export function writeRuleResult(x: RuleResult, context: any = x): any {
     'passed': _atd_write_required_field('RuleResult', 'passed', _atd_write_bool, x.passed, x),
     'matches': _atd_write_required_field('RuleResult', 'matches', _atd_write_assoc_array_to_object(writeExpectedReported), x.matches, x),
     'errors': _atd_write_required_field('RuleResult', 'errors', _atd_write_array(writeTodo), x.errors, x),
+    'diagnosis': _atd_write_optional_field(writeMatchingDiagnosis, x.diagnosis, x),
   };
 }
 
@@ -1898,6 +2060,7 @@ export function readRuleResult(x: any, context: any = x): RuleResult {
     passed: _atd_read_required_field('RuleResult', 'passed', _atd_read_bool, x['passed'], x),
     matches: _atd_read_required_field('RuleResult', 'matches', _atd_read_assoc_object_into_array(readExpectedReported), x['matches'], x),
     errors: _atd_read_required_field('RuleResult', 'errors', _atd_read_array(readTodo), x['errors'], x),
+    diagnosis: _atd_read_optional_field(readMatchingDiagnosis, x['diagnosis'], x),
   };
 }
 
