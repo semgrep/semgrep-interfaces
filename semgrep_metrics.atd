@@ -243,13 +243,20 @@ type supply_chain_config  <ocaml attr="deriving show"> = { ?_rfu: int option; }
 
 (* Metrics from our IDE extensions? *)
 type extension = {
+    (* unique ID provided by the integration *)
     ?machineId <ocaml mutable>: string option;
+    (* if the integration was just installed *)
     ?isNewAppInstall <ocaml mutable>: bool option;
+    (* tracks unique sessions of the integration *)
     ?sessionId <ocaml mutable>: string option;
-    (* ?? *)
+    (* version of the integration. NOT semgrep version *)
     ?version <ocaml mutable>: string option;
-    (* ?? *)
+    (* type of extension, i.e. vscode, or intellij *)
     ?ty <ocaml mutable>: string option;
+    (* number of autofixes accepted via code actions *)
+    ?autofixCount <ocaml mutable>: int option;
+    (* how many findings have been ignored *)
+    ?ignoreCount <ocaml mutable>: int option;
 }
 
 (*****************************************************************************)

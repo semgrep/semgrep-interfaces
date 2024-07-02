@@ -955,6 +955,8 @@ class Extension:
     sessionId: Optional[str] = None
     version: Optional[str] = None
     ty: Optional[str] = None
+    autofixCount: Optional[int] = None
+    ignoreCount: Optional[int] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Extension':
@@ -965,6 +967,8 @@ class Extension:
                 sessionId=_atd_read_string(x['sessionId']) if 'sessionId' in x else None,
                 version=_atd_read_string(x['version']) if 'version' in x else None,
                 ty=_atd_read_string(x['ty']) if 'ty' in x else None,
+                autofixCount=_atd_read_int(x['autofixCount']) if 'autofixCount' in x else None,
+                ignoreCount=_atd_read_int(x['ignoreCount']) if 'ignoreCount' in x else None,
             )
         else:
             _atd_bad_json('Extension', x)
@@ -981,6 +985,10 @@ class Extension:
             res['version'] = _atd_write_string(self.version)
         if self.ty is not None:
             res['ty'] = _atd_write_string(self.ty)
+        if self.autofixCount is not None:
+            res['autofixCount'] = _atd_write_int(self.autofixCount)
+        if self.ignoreCount is not None:
+            res['ignoreCount'] = _atd_write_int(self.ignoreCount)
         return res
 
     @classmethod
