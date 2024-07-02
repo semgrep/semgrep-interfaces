@@ -401,10 +401,10 @@ type svalue_value <python decorator="dataclass(frozen=True)"> = {
  *
  * 1:   def foo():
  * 2:     return source()
- * 3:   
+ * 3:
  * 4:   def bar(v):
  * 5:     sink(v)
- * 6:   
+ * 6:
  * 7:   x = foo()
  * 8:   y = x
  * 9:   bar(y)
@@ -427,7 +427,7 @@ type match_dataflow_trace <python decorator="dataclass(frozen=True)"> = {
 
 (* The string attached to the location is the actual code from the file.
  * This can contain sensitive information so be careful!
- * 
+ *
  * TODO: the type seems redundant since location already specifies a range.
  * maybe this saves some effort to the user of this type which do not
  * need to read the file to get the content.
@@ -850,13 +850,22 @@ type cli_output_extra = {
 (* 'semgrep test' output *)
 (*****************************************************************************)
 
+type config_error_reason = [
+  | Unparsable <json name="unparsable">
+]
+
+type config_error = {
+  file: fpath;
+  reason: config_error_reason
+}
+
 type tests_result = {
   (* would like to use rule_id here but then can't use json repr *)
    results: (string (* rule file *) * checks) list <json repr="object">;
    fixtest_results: (string (* target file *) * fixtest_result) list <json repr="object">;
    config_missing_tests: fpath list;
    config_missing_fixtests: fpath list;
-   config_with_errors: todo list;
+   config_with_errors: config_error list;
 }
 
 type checks = {

@@ -344,12 +344,20 @@ export type CliOutputExtra = {
   skipped_rules: SkippedRule[];
 }
 
+export type ConfigErrorReason =
+| { kind: 'Unparsable' /* JSON: "unparsable" */ }
+
+export type ConfigError = {
+  file: Fpath;
+  reason: ConfigErrorReason;
+}
+
 export type TestsResult = {
   results: [string, Checks][];
   fixtest_results: [string, FixtestResult][];
   config_missing_tests: Fpath[];
   config_missing_fixtests: Fpath[];
-  config_with_errors: Todo[];
+  config_with_errors: ConfigError[];
 }
 
 export type Checks = {
@@ -1853,13 +1861,44 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
   };
 }
 
+export function writeConfigErrorReason(x: ConfigErrorReason, context: any = x): any {
+  switch (x.kind) {
+    case 'Unparsable':
+      return 'unparsable'
+  }
+}
+
+export function readConfigErrorReason(x: any, context: any = x): ConfigErrorReason {
+  switch (x) {
+    case 'unparsable':
+      return { kind: 'Unparsable' }
+    default:
+      _atd_bad_json('ConfigErrorReason', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeConfigError(x: ConfigError, context: any = x): any {
+  return {
+    'file': _atd_write_required_field('ConfigError', 'file', writeFpath, x.file, x),
+    'reason': _atd_write_required_field('ConfigError', 'reason', writeConfigErrorReason, x.reason, x),
+  };
+}
+
+export function readConfigError(x: any, context: any = x): ConfigError {
+  return {
+    file: _atd_read_required_field('ConfigError', 'file', readFpath, x['file'], x),
+    reason: _atd_read_required_field('ConfigError', 'reason', readConfigErrorReason, x['reason'], x),
+  };
+}
+
 export function writeTestsResult(x: TestsResult, context: any = x): any {
   return {
     'results': _atd_write_required_field('TestsResult', 'results', _atd_write_assoc_array_to_object(writeChecks), x.results, x),
     'fixtest_results': _atd_write_required_field('TestsResult', 'fixtest_results', _atd_write_assoc_array_to_object(writeFixtestResult), x.fixtest_results, x),
     'config_missing_tests': _atd_write_required_field('TestsResult', 'config_missing_tests', _atd_write_array(writeFpath), x.config_missing_tests, x),
     'config_missing_fixtests': _atd_write_required_field('TestsResult', 'config_missing_fixtests', _atd_write_array(writeFpath), x.config_missing_fixtests, x),
-    'config_with_errors': _atd_write_required_field('TestsResult', 'config_with_errors', _atd_write_array(writeTodo), x.config_with_errors, x),
+    'config_with_errors': _atd_write_required_field('TestsResult', 'config_with_errors', _atd_write_array(writeConfigError), x.config_with_errors, x),
   };
 }
 
@@ -1869,7 +1908,7 @@ export function readTestsResult(x: any, context: any = x): TestsResult {
     fixtest_results: _atd_read_required_field('TestsResult', 'fixtest_results', _atd_read_assoc_object_into_array(readFixtestResult), x['fixtest_results'], x),
     config_missing_tests: _atd_read_required_field('TestsResult', 'config_missing_tests', _atd_read_array(readFpath), x['config_missing_tests'], x),
     config_missing_fixtests: _atd_read_required_field('TestsResult', 'config_missing_fixtests', _atd_read_array(readFpath), x['config_missing_fixtests'], x),
-    config_with_errors: _atd_read_required_field('TestsResult', 'config_with_errors', _atd_read_array(readTodo), x['config_with_errors'], x),
+    config_with_errors: _atd_read_required_field('TestsResult', 'config_with_errors', _atd_read_array(readConfigError), x['config_with_errors'], x),
   };
 }
 
