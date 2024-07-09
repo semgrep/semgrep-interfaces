@@ -756,8 +756,15 @@ type matching_explanation = {
  *)
 type matching_explanation_extra = {
   (* only present in And kind *)
+  (* this information is useful for determining the input matches
+     to the first Negation node
+   *)
   before_negation_matches: core_match list option;
   (* only present in nodes which have children Filter nodes *)
+  (* this information is useful for determining the input matches
+     to the first Filter node, as there is otherwise no way of
+     obtaining the post-intersection matches in an And node, for instance
+   *)
   before_filter_matches: core_match list option;
 }
 
