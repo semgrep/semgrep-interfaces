@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // Source file sha256 digest: 1b3c139e14662ac70fbc399eea8d38893a1b3dac067d2900071230f419f6e9ea
 =======
 // Source file sha256 digest: 085b42dec2d9a32da7c61d1270240d95b4b600983e397c7c7a6f9ac41af22b24
@@ -13,6 +14,9 @@
 =======
 // Source file sha256 digest: 2caef902b291fd8b29e6bd655cf1b9fa7436beee8bcc546cdd495af1190ccce5
 >>>>>>> 5fbaf64 (no matches)
+=======
+// Source file sha256 digest: ab39fe345d303466dac6d7c73ed2a9f9eefbcad82d04d75cbc50f18ef266ba00
+>>>>>>> a9b3d0c (add rule diagnosis no match kind)
 
 syntax = "proto3";
 
@@ -252,10 +256,15 @@ message UnexpectedMatchDiagnosis {
   repeated KillingParent killing_parents = 319756597;
 }
 
+message UnexpectedNoMatchDiagnosis {
+  int64 line = 3117964;
+  google.protobuf.Any kind = 3088172;
+}
+
 message MatchingDiagnosis {
   string target = 196212821;
   repeated UnexpectedMatchDiagnosis unexpected_match_diagnoses = 26764990;
-  repeated google.protobuf.Any unexpected_no_match_diagnoses = 179104248;
+  repeated UnexpectedNoMatchDiagnosis unexpected_no_match_diagnoses = 179104248;
 }
 
 message TestsResult {

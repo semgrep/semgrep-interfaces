@@ -627,6 +627,7 @@
     },
     "killing_parent_kind": {
       "oneOf": [
+        { "const": "And" },
         { "const": "Inside" },
         { "const": "Negation" },
         {
@@ -672,7 +673,31 @@
       }
     },
     "unexpected_no_match_diagnosis": {
-      "oneOf": [ { "const": "Never_matched" } ]
+      "type": "object",
+      "required": [ "line", "kind" ],
+      "properties": {
+        "line": { "type": "integer" },
+        "kind": {
+          "$ref": "#/definitions/unexpected_no_match_diagnosis_kind"
+        }
+      }
+    },
+    "unexpected_no_match_diagnosis_kind": {
+      "oneOf": [
+        { "const": "Never_matched" },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "Killed_by_nodes" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/killing_parent" }
+            }
+          ]
+        }
+      ]
     },
     "matching_diagnosis": {
       "type": "object",

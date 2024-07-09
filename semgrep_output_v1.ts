@@ -355,6 +355,7 @@ export type OriginatingNodeKind =
 | { kind: 'Xpattern' }
 
 export type KillingParentKind =
+| { kind: 'And' }
 | { kind: 'Inside' }
 | { kind: 'Negation' }
 | { kind: 'Filter'; value: string }
@@ -376,8 +377,14 @@ export type UnexpectedMatchDiagnosis = {
   killing_parents: KillingParent[];
 }
 
-export type UnexpectedNoMatchDiagnosis =
+export type UnexpectedNoMatchDiagnosis = {
+  line: number /*int*/;
+  kind: UnexpectedNoMatchDiagnosisKind;
+}
+
+export type UnexpectedNoMatchDiagnosisKind =
 | { kind: 'Never_matched' }
+| { kind: 'Killed_by_nodes'; value: KillingParent[] }
 
 export type MatchingDiagnosis = {
   target: Fpath;
@@ -1934,6 +1941,8 @@ export function readOriginatingNodeKind(x: any, context: any = x): OriginatingNo
 
 export function writeKillingParentKind(x: KillingParentKind, context: any = x): any {
   switch (x.kind) {
+    case 'And':
+      return 'And'
     case 'Inside':
       return 'Inside'
     case 'Negation':
@@ -1946,6 +1955,8 @@ export function writeKillingParentKind(x: KillingParentKind, context: any = x): 
 export function readKillingParentKind(x: any, context: any = x): KillingParentKind {
   if (typeof x === 'string') {
     switch (x) {
+      case 'And':
+        return { kind: 'And' }
       case 'Inside':
         return { kind: 'Inside' }
       case 'Negation':
@@ -2014,19 +2025,47 @@ export function readUnexpectedMatchDiagnosis(x: any, context: any = x): Unexpect
 }
 
 export function writeUnexpectedNoMatchDiagnosis(x: UnexpectedNoMatchDiagnosis, context: any = x): any {
-  switch (x.kind) {
-    case 'Never_matched':
-      return 'Never_matched'
-  }
+  return {
+    'line': _atd_write_required_field('UnexpectedNoMatchDiagnosis', 'line', _atd_write_int, x.line, x),
+    'kind': _atd_write_required_field('UnexpectedNoMatchDiagnosis', 'kind', writeUnexpectedNoMatchDiagnosisKind, x.kind, x),
+  };
 }
 
 export function readUnexpectedNoMatchDiagnosis(x: any, context: any = x): UnexpectedNoMatchDiagnosis {
-  switch (x) {
+  return {
+    line: _atd_read_required_field('UnexpectedNoMatchDiagnosis', 'line', _atd_read_int, x['line'], x),
+    kind: _atd_read_required_field('UnexpectedNoMatchDiagnosis', 'kind', readUnexpectedNoMatchDiagnosisKind, x['kind'], x),
+  };
+}
+
+export function writeUnexpectedNoMatchDiagnosisKind(x: UnexpectedNoMatchDiagnosisKind, context: any = x): any {
+  switch (x.kind) {
     case 'Never_matched':
-      return { kind: 'Never_matched' }
-    default:
-      _atd_bad_json('UnexpectedNoMatchDiagnosis', x, context)
-      throw new Error('impossible')
+      return 'Never_matched'
+    case 'Killed_by_nodes':
+      return ['Killed_by_nodes', _atd_write_array(writeKillingParent)(x.value, x)]
+  }
+}
+
+export function readUnexpectedNoMatchDiagnosisKind(x: any, context: any = x): UnexpectedNoMatchDiagnosisKind {
+  if (typeof x === 'string') {
+    switch (x) {
+      case 'Never_matched':
+        return { kind: 'Never_matched' }
+      default:
+        _atd_bad_json('UnexpectedNoMatchDiagnosisKind', x, context)
+        throw new Error('impossible')
+    }
+  }
+  else {
+    _atd_check_json_tuple(2, x, context)
+    switch (x[0]) {
+      case 'Killed_by_nodes':
+        return { kind: 'Killed_by_nodes', value: _atd_read_array(readKillingParent)(x[1], x) }
+      default:
+        _atd_bad_json('UnexpectedNoMatchDiagnosisKind', x, context)
+        throw new Error('impossible')
+    }
   }
 }
 
