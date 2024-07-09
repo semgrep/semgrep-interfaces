@@ -234,6 +234,15 @@ LANGUAGES : List[Language] = [
     ),
     Language(
         comment="",
+        id_="circom",
+        name="Circom",
+        keys=["circom"],
+        exts=[".circom"],
+        maturity=Maturity.DEVELOP,
+        shebangs=[]
+    ),
+    Language(
+        comment="",
         id_="clojure",
         name="Clojure",
         keys=["clojure"],

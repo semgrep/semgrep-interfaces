@@ -6,6 +6,7 @@ type t =
 | Bash
 | C
 | Cairo
+| Circom
 | Clojure
 | Cpp
 | Csharp

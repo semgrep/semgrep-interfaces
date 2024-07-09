@@ -6,6 +6,7 @@ type t =
 | Bash
 | C
 | Cairo
+| Circom
 | Clojure
 | Cpp
 | Csharp
@@ -122,6 +123,19 @@ let list = [
   keys = [{|cairo|}];
   exts = [{|.cairo|}];
   maturity = Alpha;
+  example_ext = None;
+  excluded_exts = [];
+  reverse_exts = None;
+  shebangs = [];
+  tags = [];
+};
+{
+  id = Circom;
+  id_string = "circom";
+  name = "Circom";
+  keys = [{|circom|}];
+  exts = [{|.circom|}];
+  maturity = Develop;
   example_ext = None;
   excluded_exts = [];
   reverse_exts = None;
