@@ -133,12 +133,7 @@ type uuid = Semgrep_output_v1_t.uuid
 
 type uri = Semgrep_output_v1_t.uri
 
-type unexpected_no_match_diagnosis =
-  Semgrep_output_v1_t.unexpected_no_match_diagnosis
-
 type snippet = Semgrep_output_v1_t.snippet = { line: int; text: string }
-
-type originating_node_kind = Semgrep_output_v1_t.originating_node_kind
 
 type killing_parent_kind = Semgrep_output_v1_t.killing_parent_kind
 
@@ -146,6 +141,17 @@ type killing_parent = Semgrep_output_v1_t.killing_parent = {
   killing_parent_kind: killing_parent_kind;
   snippet: snippet
 }
+
+type unexpected_no_match_diagnosis_kind =
+  Semgrep_output_v1_t.unexpected_no_match_diagnosis_kind
+
+type unexpected_no_match_diagnosis =
+  Semgrep_output_v1_t.unexpected_no_match_diagnosis = {
+  line: int;
+  kind: unexpected_no_match_diagnosis_kind
+}
+
+type originating_node_kind = Semgrep_output_v1_t.originating_node_kind
 
 type unexpected_match_diagnosis =
   Semgrep_output_v1_t.unexpected_match_diagnosis = {
@@ -5125,43 +5131,6 @@ let read_uri = (
 )
 let uri_of_string s =
   read_uri (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_unexpected_no_match_diagnosis = (
-  fun ob x ->
-    match x with
-      | `Never_matched -> Buffer.add_string ob "\"Never_matched\""
-)
-let string_of_unexpected_no_match_diagnosis ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_unexpected_no_match_diagnosis ob x;
-  Buffer.contents ob
-let read_unexpected_no_match_diagnosis = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "Never_matched" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Never_matched
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "Never_matched" ->
-              `Never_matched
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let unexpected_no_match_diagnosis_of_string s =
-  read_unexpected_no_match_diagnosis (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_snippet : _ -> snippet -> _ = (
   fun ob (x : snippet) ->
     Buffer.add_char ob '{';
@@ -5325,53 +5294,10 @@ let read_snippet = (
 )
 let snippet_of_string s =
   read_snippet (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_originating_node_kind = (
-  fun ob x ->
-    match x with
-      | `Focus -> Buffer.add_string ob "\"Focus\""
-      | `Xpattern -> Buffer.add_string ob "\"Xpattern\""
-)
-let string_of_originating_node_kind ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_originating_node_kind ob x;
-  Buffer.contents ob
-let read_originating_node_kind = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "Focus" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Focus
-            | "Xpattern" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Xpattern
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "Focus" ->
-              `Focus
-            | "Xpattern" ->
-              `Xpattern
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let originating_node_kind_of_string s =
-  read_originating_node_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_killing_parent_kind = (
   fun ob x ->
     match x with
+      | `And -> Buffer.add_string ob "\"And\""
       | `Inside -> Buffer.add_string ob "\"Inside\""
       | `Negation -> Buffer.add_string ob "\"Negation\""
       | `Filter x ->
@@ -5391,6 +5317,10 @@ let read_killing_parent_kind = (
     match Yojson.Safe.start_any_variant p lb with
       | `Edgy_bracket -> (
           match Yojson.Safe.read_ident p lb with
+            | "And" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `And
             | "Inside" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -5413,6 +5343,8 @@ let read_killing_parent_kind = (
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
+            | "And" ->
+              `And
             | "Inside" ->
               `Inside
             | "Negation" ->
@@ -5608,6 +5540,276 @@ let read__killing_parent_list = (
 )
 let _killing_parent_list_of_string s =
   read__killing_parent_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_unexpected_no_match_diagnosis_kind = (
+  fun ob x ->
+    match x with
+      | `Never_matched -> Buffer.add_string ob "\"Never_matched\""
+      | `Killed_by_nodes x ->
+        Buffer.add_string ob "[\"Killed_by_nodes\",";
+        (
+          write__killing_parent_list
+        ) ob x;
+        Buffer.add_char ob ']'
+)
+let string_of_unexpected_no_match_diagnosis_kind ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_unexpected_no_match_diagnosis_kind ob x;
+  Buffer.contents ob
+let read_unexpected_no_match_diagnosis_kind = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "Never_matched" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Never_matched
+            | "Killed_by_nodes" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__killing_parent_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Killed_by_nodes x
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "Never_matched" ->
+              `Never_matched
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Killed_by_nodes" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__killing_parent_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `Killed_by_nodes x
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let unexpected_no_match_diagnosis_kind_of_string s =
+  read_unexpected_no_match_diagnosis_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_unexpected_no_match_diagnosis : _ -> unexpected_no_match_diagnosis -> _ = (
+  fun ob (x : unexpected_no_match_diagnosis) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"line\":";
+    (
+      Yojson.Safe.write_int
+    )
+      ob x.line;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"kind\":";
+    (
+      write_unexpected_no_match_diagnosis_kind
+    )
+      ob x.kind;
+    Buffer.add_char ob '}';
+)
+let string_of_unexpected_no_match_diagnosis ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_unexpected_no_match_diagnosis ob x;
+  Buffer.contents ob
+let read_unexpected_no_match_diagnosis = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_line = ref (None) in
+    let field_kind = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          if len = 4 then (
+            match String.unsafe_get s pos with
+              | 'k' -> (
+                  if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 'l' -> (
+                  if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'e' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+          )
+          else (
+            -1
+          )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_line := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_int
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_kind := (
+              Some (
+                (
+                  read_unexpected_no_match_diagnosis_kind
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            if len = 4 then (
+              match String.unsafe_get s pos with
+                | 'k' -> (
+                    if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' then (
+                      1
+                    )
+                    else (
+                      -1
+                    )
+                  )
+                | 'l' -> (
+                    if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'e' then (
+                      0
+                    )
+                    else (
+                      -1
+                    )
+                  )
+                | _ -> (
+                    -1
+                  )
+            )
+            else (
+              -1
+            )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_line := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_int
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_kind := (
+                Some (
+                  (
+                    read_unexpected_no_match_diagnosis_kind
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            line = (match !field_line with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "line");
+            kind = (match !field_kind with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "kind");
+          }
+         : unexpected_no_match_diagnosis)
+      )
+)
+let unexpected_no_match_diagnosis_of_string s =
+  read_unexpected_no_match_diagnosis (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_originating_node_kind = (
+  fun ob x ->
+    match x with
+      | `Focus -> Buffer.add_string ob "\"Focus\""
+      | `Xpattern -> Buffer.add_string ob "\"Xpattern\""
+)
+let string_of_originating_node_kind ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_originating_node_kind ob x;
+  Buffer.contents ob
+let read_originating_node_kind = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "Focus" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Focus
+            | "Xpattern" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Xpattern
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "Focus" ->
+              `Focus
+            | "Xpattern" ->
+              `Xpattern
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let originating_node_kind_of_string s =
+  read_originating_node_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_unexpected_match_diagnosis : _ -> unexpected_match_diagnosis -> _ = (
   fun ob (x : unexpected_match_diagnosis) ->
     Buffer.add_char ob '{';

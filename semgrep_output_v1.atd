@@ -856,6 +856,7 @@ type originating_node_kind = [
 ]
 
 type killing_parent_kind = [
+  | And
   | Inside
   | Negation
   | Filter of string
@@ -907,7 +908,12 @@ type unexpected_match_diagnosis = {
   killing_parents: killing_parent list;
 }
 
-type unexpected_no_match_diagnosis = [
+type unexpected_no_match_diagnosis = {
+  line: int;
+  kind: unexpected_no_match_diagnosis_kind;
+}
+
+type unexpected_no_match_diagnosis_kind = [
   | Never_matched
   | Killed_by_nodes of killing_parent list
 ]

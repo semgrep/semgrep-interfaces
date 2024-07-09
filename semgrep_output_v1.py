@@ -1634,53 +1634,6 @@ class Uri:
 
 
 @dataclass
-class NeverMatched:
-    """Original type: unexpected_no_match_diagnosis = [ ... | Never_matched | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'NeverMatched'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Never_matched'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class UnexpectedNoMatchDiagnosis:
-    """Original type: unexpected_no_match_diagnosis = [ ... ]"""
-
-    value: Union[NeverMatched]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'UnexpectedNoMatchDiagnosis':
-        if isinstance(x, str):
-            if x == 'Never_matched':
-                return cls(NeverMatched())
-            _atd_bad_json('UnexpectedNoMatchDiagnosis', x)
-        _atd_bad_json('UnexpectedNoMatchDiagnosis', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'UnexpectedNoMatchDiagnosis':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class Snippet:
     """Original type: snippet = { ... }"""
 
@@ -1705,6 +1658,246 @@ class Snippet:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Snippet':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class And_:
+    """Original type: killing_parent_kind = [ ... | And | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'And_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'And'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Inside_:
+    """Original type: killing_parent_kind = [ ... | Inside | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Inside_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Inside'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Negation_:
+    """Original type: killing_parent_kind = [ ... | Negation | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Negation_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Negation'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Filter_:
+    """Original type: killing_parent_kind = [ ... | Filter of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Filter_'
+
+    def to_json(self) -> Any:
+        return ['Filter', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class KillingParentKind:
+    """Original type: killing_parent_kind = [ ... ]"""
+
+    value: Union[And_, Inside_, Negation_, Filter_]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'KillingParentKind':
+        if isinstance(x, str):
+            if x == 'And':
+                return cls(And_())
+            if x == 'Inside':
+                return cls(Inside_())
+            if x == 'Negation':
+                return cls(Negation_())
+            _atd_bad_json('KillingParentKind', x)
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'Filter':
+                return cls(Filter_(_atd_read_string(x[1])))
+            _atd_bad_json('KillingParentKind', x)
+        _atd_bad_json('KillingParentKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'KillingParentKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class KillingParent:
+    """Original type: killing_parent = { ... }"""
+
+    killing_parent_kind: KillingParentKind
+    snippet: Snippet
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'KillingParent':
+        if isinstance(x, dict):
+            return cls(
+                killing_parent_kind=KillingParentKind.from_json(x['killing_parent_kind']) if 'killing_parent_kind' in x else _atd_missing_json_field('KillingParent', 'killing_parent_kind'),
+                snippet=Snippet.from_json(x['snippet']) if 'snippet' in x else _atd_missing_json_field('KillingParent', 'snippet'),
+            )
+        else:
+            _atd_bad_json('KillingParent', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['killing_parent_kind'] = (lambda x: x.to_json())(self.killing_parent_kind)
+        res['snippet'] = (lambda x: x.to_json())(self.snippet)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'KillingParent':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class NeverMatched:
+    """Original type: unexpected_no_match_diagnosis_kind = [ ... | Never_matched | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'NeverMatched'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Never_matched'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class KilledByNodes:
+    """Original type: unexpected_no_match_diagnosis_kind = [ ... | Killed_by_nodes of ... | ... ]"""
+
+    value: List[KillingParent]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'KilledByNodes'
+
+    def to_json(self) -> Any:
+        return ['Killed_by_nodes', _atd_write_list((lambda x: x.to_json()))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class UnexpectedNoMatchDiagnosisKind:
+    """Original type: unexpected_no_match_diagnosis_kind = [ ... ]"""
+
+    value: Union[NeverMatched, KilledByNodes]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'UnexpectedNoMatchDiagnosisKind':
+        if isinstance(x, str):
+            if x == 'Never_matched':
+                return cls(NeverMatched())
+            _atd_bad_json('UnexpectedNoMatchDiagnosisKind', x)
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'Killed_by_nodes':
+                return cls(KilledByNodes(_atd_read_list(KillingParent.from_json)(x[1])))
+            _atd_bad_json('UnexpectedNoMatchDiagnosisKind', x)
+        _atd_bad_json('UnexpectedNoMatchDiagnosisKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'UnexpectedNoMatchDiagnosisKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class UnexpectedNoMatchDiagnosis:
+    """Original type: unexpected_no_match_diagnosis = { ... }"""
+
+    line: int
+    kind: UnexpectedNoMatchDiagnosisKind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'UnexpectedNoMatchDiagnosis':
+        if isinstance(x, dict):
+            return cls(
+                line=_atd_read_int(x['line']) if 'line' in x else _atd_missing_json_field('UnexpectedNoMatchDiagnosis', 'line'),
+                kind=UnexpectedNoMatchDiagnosisKind.from_json(x['kind']) if 'kind' in x else _atd_missing_json_field('UnexpectedNoMatchDiagnosis', 'kind'),
+            )
+        else:
+            _atd_bad_json('UnexpectedNoMatchDiagnosis', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['line'] = _atd_write_int(self.line)
+        res['kind'] = (lambda x: x.to_json())(self.kind)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'UnexpectedNoMatchDiagnosis':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1771,126 +1964,6 @@ class OriginatingNodeKind:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'OriginatingNodeKind':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Inside_:
-    """Original type: killing_parent_kind = [ ... | Inside | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Inside_'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Inside'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Negation_:
-    """Original type: killing_parent_kind = [ ... | Negation | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Negation_'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Negation'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Filter_:
-    """Original type: killing_parent_kind = [ ... | Filter of ... | ... ]"""
-
-    value: str
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Filter_'
-
-    def to_json(self) -> Any:
-        return ['Filter', _atd_write_string(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class KillingParentKind:
-    """Original type: killing_parent_kind = [ ... ]"""
-
-    value: Union[Inside_, Negation_, Filter_]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'KillingParentKind':
-        if isinstance(x, str):
-            if x == 'Inside':
-                return cls(Inside_())
-            if x == 'Negation':
-                return cls(Negation_())
-            _atd_bad_json('KillingParentKind', x)
-        if isinstance(x, List) and len(x) == 2:
-            cons = x[0]
-            if cons == 'Filter':
-                return cls(Filter_(_atd_read_string(x[1])))
-            _atd_bad_json('KillingParentKind', x)
-        _atd_bad_json('KillingParentKind', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'KillingParentKind':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class KillingParent:
-    """Original type: killing_parent = { ... }"""
-
-    killing_parent_kind: KillingParentKind
-    snippet: Snippet
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'KillingParent':
-        if isinstance(x, dict):
-            return cls(
-                killing_parent_kind=KillingParentKind.from_json(x['killing_parent_kind']) if 'killing_parent_kind' in x else _atd_missing_json_field('KillingParent', 'killing_parent_kind'),
-                snippet=Snippet.from_json(x['snippet']) if 'snippet' in x else _atd_missing_json_field('KillingParent', 'snippet'),
-            )
-        else:
-            _atd_bad_json('KillingParent', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['killing_parent_kind'] = (lambda x: x.to_json())(self.killing_parent_kind)
-        res['snippet'] = (lambda x: x.to_json())(self.snippet)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'KillingParent':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

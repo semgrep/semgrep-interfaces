@@ -133,12 +133,7 @@ type uuid = Semgrep_output_v1_t.uuid
 
 type uri = Semgrep_output_v1_t.uri
 
-type unexpected_no_match_diagnosis =
-  Semgrep_output_v1_t.unexpected_no_match_diagnosis
-
 type snippet = Semgrep_output_v1_t.snippet = { line: int; text: string }
-
-type originating_node_kind = Semgrep_output_v1_t.originating_node_kind
 
 type killing_parent_kind = Semgrep_output_v1_t.killing_parent_kind
 
@@ -146,6 +141,17 @@ type killing_parent = Semgrep_output_v1_t.killing_parent = {
   killing_parent_kind: killing_parent_kind;
   snippet: snippet
 }
+
+type unexpected_no_match_diagnosis_kind =
+  Semgrep_output_v1_t.unexpected_no_match_diagnosis_kind
+
+type unexpected_no_match_diagnosis =
+  Semgrep_output_v1_t.unexpected_no_match_diagnosis = {
+  line: int;
+  kind: unexpected_no_match_diagnosis_kind
+}
+
+type originating_node_kind = Semgrep_output_v1_t.originating_node_kind
 
 type unexpected_match_diagnosis =
   Semgrep_output_v1_t.unexpected_match_diagnosis = {
@@ -1256,26 +1262,6 @@ val uri_of_string :
   string -> uri
   (** Deserialize JSON data of type {!type:uri}. *)
 
-val write_unexpected_no_match_diagnosis :
-  Buffer.t -> unexpected_no_match_diagnosis -> unit
-  (** Output a JSON value of type {!type:unexpected_no_match_diagnosis}. *)
-
-val string_of_unexpected_no_match_diagnosis :
-  ?len:int -> unexpected_no_match_diagnosis -> string
-  (** Serialize a value of type {!type:unexpected_no_match_diagnosis}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_unexpected_no_match_diagnosis :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> unexpected_no_match_diagnosis
-  (** Input JSON data of type {!type:unexpected_no_match_diagnosis}. *)
-
-val unexpected_no_match_diagnosis_of_string :
-  string -> unexpected_no_match_diagnosis
-  (** Deserialize JSON data of type {!type:unexpected_no_match_diagnosis}. *)
-
 val write_snippet :
   Buffer.t -> snippet -> unit
   (** Output a JSON value of type {!type:snippet}. *)
@@ -1295,26 +1281,6 @@ val read_snippet :
 val snippet_of_string :
   string -> snippet
   (** Deserialize JSON data of type {!type:snippet}. *)
-
-val write_originating_node_kind :
-  Buffer.t -> originating_node_kind -> unit
-  (** Output a JSON value of type {!type:originating_node_kind}. *)
-
-val string_of_originating_node_kind :
-  ?len:int -> originating_node_kind -> string
-  (** Serialize a value of type {!type:originating_node_kind}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_originating_node_kind :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> originating_node_kind
-  (** Input JSON data of type {!type:originating_node_kind}. *)
-
-val originating_node_kind_of_string :
-  string -> originating_node_kind
-  (** Deserialize JSON data of type {!type:originating_node_kind}. *)
 
 val write_killing_parent_kind :
   Buffer.t -> killing_parent_kind -> unit
@@ -1355,6 +1321,66 @@ val read_killing_parent :
 val killing_parent_of_string :
   string -> killing_parent
   (** Deserialize JSON data of type {!type:killing_parent}. *)
+
+val write_unexpected_no_match_diagnosis_kind :
+  Buffer.t -> unexpected_no_match_diagnosis_kind -> unit
+  (** Output a JSON value of type {!type:unexpected_no_match_diagnosis_kind}. *)
+
+val string_of_unexpected_no_match_diagnosis_kind :
+  ?len:int -> unexpected_no_match_diagnosis_kind -> string
+  (** Serialize a value of type {!type:unexpected_no_match_diagnosis_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_unexpected_no_match_diagnosis_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> unexpected_no_match_diagnosis_kind
+  (** Input JSON data of type {!type:unexpected_no_match_diagnosis_kind}. *)
+
+val unexpected_no_match_diagnosis_kind_of_string :
+  string -> unexpected_no_match_diagnosis_kind
+  (** Deserialize JSON data of type {!type:unexpected_no_match_diagnosis_kind}. *)
+
+val write_unexpected_no_match_diagnosis :
+  Buffer.t -> unexpected_no_match_diagnosis -> unit
+  (** Output a JSON value of type {!type:unexpected_no_match_diagnosis}. *)
+
+val string_of_unexpected_no_match_diagnosis :
+  ?len:int -> unexpected_no_match_diagnosis -> string
+  (** Serialize a value of type {!type:unexpected_no_match_diagnosis}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_unexpected_no_match_diagnosis :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> unexpected_no_match_diagnosis
+  (** Input JSON data of type {!type:unexpected_no_match_diagnosis}. *)
+
+val unexpected_no_match_diagnosis_of_string :
+  string -> unexpected_no_match_diagnosis
+  (** Deserialize JSON data of type {!type:unexpected_no_match_diagnosis}. *)
+
+val write_originating_node_kind :
+  Buffer.t -> originating_node_kind -> unit
+  (** Output a JSON value of type {!type:originating_node_kind}. *)
+
+val string_of_originating_node_kind :
+  ?len:int -> originating_node_kind -> string
+  (** Serialize a value of type {!type:originating_node_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_originating_node_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> originating_node_kind
+  (** Input JSON data of type {!type:originating_node_kind}. *)
+
+val originating_node_kind_of_string :
+  string -> originating_node_kind
+  (** Deserialize JSON data of type {!type:originating_node_kind}. *)
 
 val write_unexpected_match_diagnosis :
   Buffer.t -> unexpected_match_diagnosis -> unit
