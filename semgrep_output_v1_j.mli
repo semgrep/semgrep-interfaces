@@ -140,6 +140,21 @@ type uuid = Semgrep_output_v1_t.uuid
 
 type uri = Semgrep_output_v1_t.uri
 
+type todo = Semgrep_output_v1_t.todo
+
+type unexpected_no_match_diagnosis =
+  Semgrep_output_v1_t.unexpected_no_match_diagnosis
+
+type originating_node_kind = Semgrep_output_v1_t.originating_node_kind
+
+type unexpected_match_diagnosis =
+  Semgrep_output_v1_t.unexpected_match_diagnosis = {
+  matched_line: int;
+  originating_pos: position;
+  originating_kind: originating_node_kind;
+  killing_parent_pos: position list
+}
+
 type triage_ignored = Semgrep_output_v1_t.triage_ignored = {
   triage_ignored_syntactic_ids: string list;
   triage_ignored_match_based_ids: string list
@@ -147,7 +162,11 @@ type triage_ignored = Semgrep_output_v1_t.triage_ignored = {
 
 type transitivity = Semgrep_output_v1_t.transitivity [@@deriving show,eq]
 
-type todo = Semgrep_output_v1_t.todo
+type matching_diagnosis = Semgrep_output_v1_t.matching_diagnosis = {
+  target: fpath;
+  unexpected_match_diagnoses: unexpected_match_diagnosis list;
+  unexpected_no_match_diagnoses: unexpected_no_match_diagnosis list
+}
 
 type expected_reported = Semgrep_output_v1_t.expected_reported = {
   expected_lines: int list;
@@ -157,7 +176,8 @@ type expected_reported = Semgrep_output_v1_t.expected_reported = {
 type rule_result = Semgrep_output_v1_t.rule_result = {
   passed: bool;
   matches: (string * expected_reported) list;
-  errors: todo list
+  errors: todo list;
+  diagnosis: matching_diagnosis option
 }
 
 type fixtest_result = Semgrep_output_v1_t.fixtest_result = { passed: bool }
@@ -1254,6 +1274,86 @@ val uri_of_string :
   string -> uri
   (** Deserialize JSON data of type {!type:uri}. *)
 
+val write_todo :
+  Buffer.t -> todo -> unit
+  (** Output a JSON value of type {!type:todo}. *)
+
+val string_of_todo :
+  ?len:int -> todo -> string
+  (** Serialize a value of type {!type:todo}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_todo :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> todo
+  (** Input JSON data of type {!type:todo}. *)
+
+val todo_of_string :
+  string -> todo
+  (** Deserialize JSON data of type {!type:todo}. *)
+
+val write_unexpected_no_match_diagnosis :
+  Buffer.t -> unexpected_no_match_diagnosis -> unit
+  (** Output a JSON value of type {!type:unexpected_no_match_diagnosis}. *)
+
+val string_of_unexpected_no_match_diagnosis :
+  ?len:int -> unexpected_no_match_diagnosis -> string
+  (** Serialize a value of type {!type:unexpected_no_match_diagnosis}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_unexpected_no_match_diagnosis :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> unexpected_no_match_diagnosis
+  (** Input JSON data of type {!type:unexpected_no_match_diagnosis}. *)
+
+val unexpected_no_match_diagnosis_of_string :
+  string -> unexpected_no_match_diagnosis
+  (** Deserialize JSON data of type {!type:unexpected_no_match_diagnosis}. *)
+
+val write_originating_node_kind :
+  Buffer.t -> originating_node_kind -> unit
+  (** Output a JSON value of type {!type:originating_node_kind}. *)
+
+val string_of_originating_node_kind :
+  ?len:int -> originating_node_kind -> string
+  (** Serialize a value of type {!type:originating_node_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_originating_node_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> originating_node_kind
+  (** Input JSON data of type {!type:originating_node_kind}. *)
+
+val originating_node_kind_of_string :
+  string -> originating_node_kind
+  (** Deserialize JSON data of type {!type:originating_node_kind}. *)
+
+val write_unexpected_match_diagnosis :
+  Buffer.t -> unexpected_match_diagnosis -> unit
+  (** Output a JSON value of type {!type:unexpected_match_diagnosis}. *)
+
+val string_of_unexpected_match_diagnosis :
+  ?len:int -> unexpected_match_diagnosis -> string
+  (** Serialize a value of type {!type:unexpected_match_diagnosis}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_unexpected_match_diagnosis :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> unexpected_match_diagnosis
+  (** Input JSON data of type {!type:unexpected_match_diagnosis}. *)
+
+val unexpected_match_diagnosis_of_string :
+  string -> unexpected_match_diagnosis
+  (** Deserialize JSON data of type {!type:unexpected_match_diagnosis}. *)
+
 val write_triage_ignored :
   Buffer.t -> triage_ignored -> unit
   (** Output a JSON value of type {!type:triage_ignored}. *)
@@ -1294,25 +1394,25 @@ val transitivity_of_string :
   string -> transitivity
   (** Deserialize JSON data of type {!type:transitivity}. *)
 
-val write_todo :
-  Buffer.t -> todo -> unit
-  (** Output a JSON value of type {!type:todo}. *)
+val write_matching_diagnosis :
+  Buffer.t -> matching_diagnosis -> unit
+  (** Output a JSON value of type {!type:matching_diagnosis}. *)
 
-val string_of_todo :
-  ?len:int -> todo -> string
-  (** Serialize a value of type {!type:todo}
+val string_of_matching_diagnosis :
+  ?len:int -> matching_diagnosis -> string
+  (** Serialize a value of type {!type:matching_diagnosis}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_todo :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> todo
-  (** Input JSON data of type {!type:todo}. *)
+val read_matching_diagnosis :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> matching_diagnosis
+  (** Input JSON data of type {!type:matching_diagnosis}. *)
 
-val todo_of_string :
-  string -> todo
-  (** Deserialize JSON data of type {!type:todo}. *)
+val matching_diagnosis_of_string :
+  string -> matching_diagnosis
+  (** Deserialize JSON data of type {!type:matching_diagnosis}. *)
 
 val write_expected_reported :
   Buffer.t -> expected_reported -> unit

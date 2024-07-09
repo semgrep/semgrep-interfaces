@@ -871,6 +871,33 @@ type cli_output_extra = {
 (* 'semgrep test' output *)
 (*****************************************************************************)
 
+
+type originating_node_kind = [
+  | Focus
+  | Xpattern
+]
+
+type unexpected_match_diagnosis = {
+  matched_line: int;
+  (* the position in the rule file of them pattern which originated
+     the match
+   *)
+  originating_pos: position;
+  originating_kind: originating_node_kind;
+  (* the position in the rule file of all the parent operators which
+     could have killed the unexpected match
+   *)
+  killing_parent_pos: position list;
+}
+
+type unexpected_no_match_diagnosis = todo
+
+type matching_diagnosis = {
+  target: fpath;
+  unexpected_match_diagnoses: unexpected_match_diagnosis list;
+  unexpected_no_match_diagnoses: unexpected_no_match_diagnosis list;
+}
+
 type tests_result = {
   (* would like to use rule_id here but then can't use json repr *)
    results: (string (* rule file *) * checks) list <json repr="object">;
@@ -891,6 +918,8 @@ type rule_result = {
   matches: (string (* target filename *) * expected_reported) list
     <json repr="object">;
   errors: todo list;
+   (* NEW: since 1.79 *)
+  ?diagnosis: matching_diagnosis option;
 }
 
 type expected_reported = {
