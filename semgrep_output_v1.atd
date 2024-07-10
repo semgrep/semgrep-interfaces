@@ -752,7 +752,8 @@ type matching_explanation = {
 
 (* For any "extra" information that we cannot fit at the node itself.
    This is useful for kind-specific information, which we cannot put
-   in the operation itself without giving up our ability to derive `show`.
+   in the operation itself without giving up our ability to derive `show`
+   (needed for `matching_operation` below).
  *)
 type matching_explanation_extra = {
   (* only present in And kind *)
