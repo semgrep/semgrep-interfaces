@@ -622,38 +622,22 @@
         }
       }
     },
-    "originating_node_kind": {
-      "oneOf": [ { "const": "Focus" }, { "const": "Xpattern" } ]
-    },
-    "killing_parent_kind": {
-      "oneOf": [
-        { "const": "And" },
-        { "const": "Inside" },
-        { "const": "Negation" },
-        {
+    "matching_diagnosis": {
+      "type": "object",
+      "required": [
+        "target", "unexpected_match_diagnoses",
+        "unexpected_no_match_diagnoses"
+      ],
+      "properties": {
+        "target": { "$ref": "#/definitions/fpath" },
+        "unexpected_match_diagnoses": {
           "type": "array",
-          "minItems": 2,
-          "items": false,
-          "prefixItems": [ { "const": "Filter" }, { "type": "string" } ]
-        }
-      ]
-    },
-    "snippet": {
-      "type": "object",
-      "required": [ "line", "text" ],
-      "properties": {
-        "line": { "type": "integer" },
-        "text": { "type": "string" }
-      }
-    },
-    "killing_parent": {
-      "type": "object",
-      "required": [ "killing_parent_kind", "snippet" ],
-      "properties": {
-        "killing_parent_kind": {
-          "$ref": "#/definitions/killing_parent_kind"
+          "items": { "$ref": "#/definitions/unexpected_match_diagnosis" }
         },
-        "snippet": { "$ref": "#/definitions/snippet" }
+        "unexpected_no_match_diagnoses": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/unexpected_no_match_diagnosis" }
+        }
       }
     },
     "unexpected_match_diagnosis": {
@@ -699,22 +683,38 @@
         }
       ]
     },
-    "matching_diagnosis": {
-      "type": "object",
-      "required": [
-        "target", "unexpected_match_diagnoses",
-        "unexpected_no_match_diagnoses"
-      ],
-      "properties": {
-        "target": { "$ref": "#/definitions/fpath" },
-        "unexpected_match_diagnoses": {
+    "originating_node_kind": {
+      "oneOf": [ { "const": "Focus" }, { "const": "Xpattern" } ]
+    },
+    "killing_parent_kind": {
+      "oneOf": [
+        { "const": "And" },
+        { "const": "Inside" },
+        { "const": "Negation" },
+        {
           "type": "array",
-          "items": { "$ref": "#/definitions/unexpected_match_diagnosis" }
-        },
-        "unexpected_no_match_diagnoses": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/unexpected_no_match_diagnosis" }
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [ { "const": "Filter" }, { "type": "string" } ]
         }
+      ]
+    },
+    "snippet": {
+      "type": "object",
+      "required": [ "line", "text" ],
+      "properties": {
+        "line": { "type": "integer" },
+        "text": { "type": "string" }
+      }
+    },
+    "killing_parent": {
+      "type": "object",
+      "required": [ "killing_parent_kind", "snippet" ],
+      "properties": {
+        "killing_parent_kind": {
+          "$ref": "#/definitions/killing_parent_kind"
+        },
+        "snippet": { "$ref": "#/definitions/snippet" }
       }
     },
     "tests_result": {

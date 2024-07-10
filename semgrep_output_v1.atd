@@ -875,9 +875,9 @@ type cli_output_extra = {
    explanations, specific to a particular test-annotated target file.
 
    For instance, suppose we have the rule:
-   all:
-     - pattern: foo(...)
-     - not: foo(good)
+   1 | all:
+   2 | - pattern: foo(...)
+   3 | - not: foo(good)
    and the following Python annotated target:
 
    1 | # ruleid: my_rule
@@ -901,6 +901,15 @@ type cli_output_extra = {
    killed by the `foo(bad)`, but if there were more negative patterns,
    it could have been killed elsewhere too. All we can do is point out
    places where the rule-writer _may_ have messed up.
+
+   So in this case, we would expect an `unexpected_match_diagnosis` with
+   the form:
+   { matched_text = { line = 4; text = "foo(bad)" };
+     originating_kind = Xpattern;
+     originating_text = { line = 2; text = "- pattern: foo(...)" };
+     killing_parents = [ { killing_parent_kind = Negation;
+                           snippet = { line = 3; text = "- not: foo(good)" } } ]
+   }
  *)
 type matching_diagnosis = {
   target: fpath;
