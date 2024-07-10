@@ -871,6 +871,71 @@ type cli_output_extra = {
 (* Matching diagnosis *)
 (*****************************************************************************)
 
+(* A "matching diagnosis" is a postprocessed interpretation of matching
+   explanations, specific to a particular test-annotated target file.
+
+   For instance, suppose we have the rule:
+   all:
+     - pattern: foo(...)
+     - not: foo(good)
+   and the following Python annotated target:
+
+   1 | # ruleid: my_rule
+   2 | foo()
+   3 | # ok: my_rule
+   4 | foo(bad)
+
+   We would clearly get an unexpected match on line 4, which would fail
+   the test assertion.
+
+   By looking at the matching explanation, we can deduce that the match
+   on line 4 must clearly have been introduced by the positive `foo(..)`
+   pattern. The rule-writer probably meant to kill `foo(bad)` with the
+   negative `foo(good)` pattern.
+
+   This is essentially what matching diagnoses are -- using matching
+   explanations to point out where the erroneous parts of the rule _may_
+   be.
+
+   Note that this is a _may_, because an unexpected match could have been
+   killed by the `foo(bad)`, but if there were more negative patterns,
+   it could have been killed elsewhere too. All we can do is point out
+   places where the rule-writer _may_ have messed up.
+ *)
+type matching_diagnosis = {
+  target: fpath;
+  unexpected_match_diagnoses: unexpected_match_diagnosis list;
+  unexpected_no_match_diagnoses: unexpected_no_match_diagnosis list;
+}
+
+(* TODO: this is only completely faithful for search mode rules.
+   this means that if we have an unexpected search mode finding, we
+   should indeed diagnose all the different areas in the rule that
+   could have been responsible for switching the match off.
+   however, for something like a taint mode finding, this is heavily
+   dependent on the structure of the code, so we it's a lot harder.
+   so for taint, secrets, supply chain, this will suggest some reasons
+   but not all, for why a match may be unexpected.
+ *)
+type unexpected_match_diagnosis = {
+  matched_text: snippet;
+  (* information about the originating pattern in the rule file *)
+  (* This is where the unexpected match came from. *)
+  originating_kind: originating_node_kind;
+  originating_text: snippet;
+  killing_parents: killing_parent list;
+}
+
+type unexpected_no_match_diagnosis = {
+  line: int;
+  kind: unexpected_no_match_diagnosis_kind;
+}
+
+type unexpected_no_match_diagnosis_kind = [
+  | Never_matched
+  | Killed_by_nodes of killing_parent list
+]
+
 type originating_node_kind = [
   | Focus
   | Xpattern
@@ -909,40 +974,6 @@ type snippet = {
 type killing_parent = {
   killing_parent_kind: killing_parent_kind;
   snippet: snippet;
-}
-
-(* TODO: this is only completely faithful for search mode rules.
-   this means that if we have an unexpected search mode finding, we
-   should indeed diagnose all the different areas in the rule that
-   could have been responsible for switching the match off.
-   however, for something like a taint mode finding, this is heavily
-   dependent on the structure of the code, so we it's a lot harder.
-   so for taint, secrets, supply chain, this will suggest some reasons
-   but not all, for why a match may be unexpected.
- *)
-type unexpected_match_diagnosis = {
-  matched_text: snippet;
-  (* information about the originating pattern in the rule file *)
-  (* This is where the unexpected match came from. *)
-  originating_kind: originating_node_kind;
-  originating_text: snippet;
-  killing_parents: killing_parent list;
-}
-
-type unexpected_no_match_diagnosis = {
-  line: int;
-  kind: unexpected_no_match_diagnosis_kind;
-}
-
-type unexpected_no_match_diagnosis_kind = [
-  | Never_matched
-  | Killed_by_nodes of killing_parent list
-]
-
-type matching_diagnosis = {
-  target: fpath;
-  unexpected_match_diagnoses: unexpected_match_diagnosis list;
-  unexpected_no_match_diagnoses: unexpected_no_match_diagnosis list;
 }
 
 (*****************************************************************************)
