@@ -851,7 +851,7 @@ type cli_output_extra = {
 (*****************************************************************************)
 
 type config_error_reason = [
-  | Unparsable <json name="unparsable">
+  | UnparsableRule <json name="unparsable_rule">
 ]
 
 type config_error = {
