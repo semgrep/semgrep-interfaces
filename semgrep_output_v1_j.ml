@@ -5859,7 +5859,7 @@ let fixtest_result_of_string s =
 let write_config_error_reason = (
   fun ob x ->
     match x with
-      | `Unparsable -> Buffer.add_string ob "\"unparsable\""
+      | `UnparsableRule -> Buffer.add_string ob "\"unparsable_rule\""
 )
 let string_of_config_error_reason ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -5871,17 +5871,17 @@ let read_config_error_reason = (
     match Yojson.Safe.start_any_variant p lb with
       | `Edgy_bracket -> (
           match Yojson.Safe.read_ident p lb with
-            | "unparsable" ->
+            | "unparsable_rule" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `Unparsable
+              `UnparsableRule
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
-            | "unparsable" ->
-              `Unparsable
+            | "unparsable_rule" ->
+              `UnparsableRule
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

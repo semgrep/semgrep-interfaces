@@ -345,7 +345,7 @@ export type CliOutputExtra = {
 }
 
 export type ConfigErrorReason =
-| { kind: 'Unparsable' /* JSON: "unparsable" */ }
+| { kind: 'UnparsableRule' /* JSON: "unparsable_rule" */ }
 
 export type ConfigError = {
   file: Fpath;
@@ -1863,15 +1863,15 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
 
 export function writeConfigErrorReason(x: ConfigErrorReason, context: any = x): any {
   switch (x.kind) {
-    case 'Unparsable':
-      return 'unparsable'
+    case 'UnparsableRule':
+      return 'unparsable_rule'
   }
 }
 
 export function readConfigErrorReason(x: any, context: any = x): ConfigErrorReason {
   switch (x) {
-    case 'unparsable':
-      return { kind: 'Unparsable' }
+    case 'unparsable_rule':
+      return { kind: 'UnparsableRule' }
     default:
       _atd_bad_json('ConfigErrorReason', x, context)
       throw new Error('impossible')

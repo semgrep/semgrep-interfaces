@@ -581,7 +581,7 @@
         }
       }
     },
-    "config_error_reason": { "oneOf": [ { "const": "unparsable" } ] },
+    "config_error_reason": { "oneOf": [ { "const": "unparsable_rule" } ] },
     "config_error": {
       "type": "object",
       "required": [ "file", "reason" ],

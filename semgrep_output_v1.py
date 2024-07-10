@@ -1864,17 +1864,17 @@ class FixtestResult:
 
 
 @dataclass
-class Unparsable:
-    """Original type: config_error_reason = [ ... | Unparsable | ... ]"""
+class UnparsableRule:
+    """Original type: config_error_reason = [ ... | UnparsableRule | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'Unparsable'
+        return 'UnparsableRule'
 
     @staticmethod
     def to_json() -> Any:
-        return 'unparsable'
+        return 'unparsable_rule'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1884,7 +1884,7 @@ class Unparsable:
 class ConfigErrorReason:
     """Original type: config_error_reason = [ ... ]"""
 
-    value: Union[Unparsable]
+    value: Union[UnparsableRule]
 
     @property
     def kind(self) -> str:
@@ -1894,8 +1894,8 @@ class ConfigErrorReason:
     @classmethod
     def from_json(cls, x: Any) -> 'ConfigErrorReason':
         if isinstance(x, str):
-            if x == 'unparsable':
-                return cls(Unparsable())
+            if x == 'unparsable_rule':
+                return cls(UnparsableRule())
             _atd_bad_json('ConfigErrorReason', x)
         _atd_bad_json('ConfigErrorReason', x)
 
