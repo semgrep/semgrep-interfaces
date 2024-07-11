@@ -492,7 +492,48 @@
           "type": "array",
           "items": { "$ref": "#/definitions/core_match" }
         },
-        "loc": { "$ref": "#/definitions/location" }
+        "loc": { "$ref": "#/definitions/location" },
+        "extra": { "$ref": "#/definitions/matching_explanation_extra" }
+      }
+    },
+    "matching_explanation_extra": {
+      "type": "object",
+      "required": [ "before_negation_matches", "before_filter_matches" ],
+      "properties": {
+        "before_negation_matches": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" },
+                {
+                  "type": "array",
+                  "items": { "$ref": "#/definitions/core_match" }
+                }
+              ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "before_filter_matches": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" },
+                {
+                  "type": "array",
+                  "items": { "$ref": "#/definitions/core_match" }
+                }
+              ]
+            },
+            { "const": "None" }
+          ]
+        }
       }
     },
     "matching_operation": {

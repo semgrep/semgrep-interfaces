@@ -401,10 +401,10 @@ type svalue_value <python decorator="dataclass(frozen=True)"> = {
  *
  * 1:   def foo():
  * 2:     return source()
- * 3:   
+ * 3:
  * 4:   def bar(v):
  * 5:     sink(v)
- * 6:   
+ * 6:
  * 7:   x = foo()
  * 8:   y = x
  * 9:   bar(y)
@@ -427,7 +427,7 @@ type match_dataflow_trace <python decorator="dataclass(frozen=True)"> = {
 
 (* The string attached to the location is the actual code from the file.
  * This can contain sensitive information so be careful!
- * 
+ *
  * TODO: the type seems redundant since location already specifies a range.
  * maybe this saves some effort to the user of this type which do not
  * need to read the file to get the content.
@@ -746,7 +746,29 @@ type matching_explanation = {
      * for the And operation).
      *)
     loc: location;
-    }
+    (* NEW: since v1.79 *)
+    ?extra: matching_explanation_extra option;
+}
+
+(* For any "extra" information that we cannot fit at the node itself.
+   This is useful for kind-specific information, which we cannot put
+   in the operation itself without giving up our ability to derive `show`
+   (needed for `matching_operation` below).
+ *)
+type matching_explanation_extra = {
+  (* only present in And kind *)
+  (* this information is useful for determining the input matches
+     to the first Negation node
+   *)
+  before_negation_matches: core_match list option;
+  (* only present in nodes which have children Filter nodes *)
+  (* this information is useful for determining the input matches
+     to the first Filter node, as there is otherwise no way of
+     obtaining the post-intersection matches in an And node, for instance
+   *)
+  before_filter_matches: core_match list option;
+}
+
 (* TODO:
  * - Negation
  * - Where filters (metavar-comparison, etc)
