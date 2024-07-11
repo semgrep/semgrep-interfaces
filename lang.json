@@ -76,6 +76,23 @@
     "tags": []
   },
   {
+    "id": "circom",
+    "name": "Circom",
+    "keys": [
+      "circom"
+    ],
+    "maturity": "develop",
+    "exts": [
+      ".circom"
+    ],
+    "example_ext": null,
+    "excluded_exts": [],
+    "reverse_exts": null,
+    "shebangs": [],
+    "is_target_language": true,
+    "tags": []
+  },
+  {
     "id": "clojure",
     "name": "Clojure",
     "keys": [
