@@ -622,6 +622,15 @@
         }
       }
     },
+    "config_error_reason": { "oneOf": [ { "const": "unparsable_rule" } ] },
+    "config_error": {
+      "type": "object",
+      "required": [ "file", "reason" ],
+      "properties": {
+        "file": { "$ref": "#/definitions/fpath" },
+        "reason": { "$ref": "#/definitions/config_error_reason" }
+      }
+    },
     "tests_result": {
       "type": "object",
       "required": [
@@ -647,7 +656,7 @@
         },
         "config_with_errors": {
           "type": "array",
-          "items": { "$ref": "#/definitions/todo" }
+          "items": { "$ref": "#/definitions/config_error" }
         }
       }
     },

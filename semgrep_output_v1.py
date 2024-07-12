@@ -1899,6 +1899,84 @@ class FixtestResult:
 
 
 @dataclass
+class UnparsableRule:
+    """Original type: config_error_reason = [ ... | UnparsableRule | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'UnparsableRule'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'unparsable_rule'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ConfigErrorReason:
+    """Original type: config_error_reason = [ ... ]"""
+
+    value: Union[UnparsableRule]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ConfigErrorReason':
+        if isinstance(x, str):
+            if x == 'unparsable_rule':
+                return cls(UnparsableRule())
+            _atd_bad_json('ConfigErrorReason', x)
+        _atd_bad_json('ConfigErrorReason', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ConfigErrorReason':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ConfigError:
+    """Original type: config_error = { ... }"""
+
+    file: Fpath
+    reason: ConfigErrorReason
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ConfigError':
+        if isinstance(x, dict):
+            return cls(
+                file=Fpath.from_json(x['file']) if 'file' in x else _atd_missing_json_field('ConfigError', 'file'),
+                reason=ConfigErrorReason.from_json(x['reason']) if 'reason' in x else _atd_missing_json_field('ConfigError', 'reason'),
+            )
+        else:
+            _atd_bad_json('ConfigError', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['file'] = (lambda x: x.to_json())(self.file)
+        res['reason'] = (lambda x: x.to_json())(self.reason)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ConfigError':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Checks:
     """Original type: checks = { ... }"""
 
@@ -1934,7 +2012,7 @@ class TestsResult:
     fixtest_results: List[Tuple[str, FixtestResult]]
     config_missing_tests: List[Fpath]
     config_missing_fixtests: List[Fpath]
-    config_with_errors: List[Todo]
+    config_with_errors: List[ConfigError]
 
     @classmethod
     def from_json(cls, x: Any) -> 'TestsResult':
@@ -1944,7 +2022,7 @@ class TestsResult:
                 fixtest_results=_atd_read_assoc_object_into_list(FixtestResult.from_json)(x['fixtest_results']) if 'fixtest_results' in x else _atd_missing_json_field('TestsResult', 'fixtest_results'),
                 config_missing_tests=_atd_read_list(Fpath.from_json)(x['config_missing_tests']) if 'config_missing_tests' in x else _atd_missing_json_field('TestsResult', 'config_missing_tests'),
                 config_missing_fixtests=_atd_read_list(Fpath.from_json)(x['config_missing_fixtests']) if 'config_missing_fixtests' in x else _atd_missing_json_field('TestsResult', 'config_missing_fixtests'),
-                config_with_errors=_atd_read_list(Todo.from_json)(x['config_with_errors']) if 'config_with_errors' in x else _atd_missing_json_field('TestsResult', 'config_with_errors'),
+                config_with_errors=_atd_read_list(ConfigError.from_json)(x['config_with_errors']) if 'config_with_errors' in x else _atd_missing_json_field('TestsResult', 'config_with_errors'),
             )
         else:
             _atd_bad_json('TestsResult', x)

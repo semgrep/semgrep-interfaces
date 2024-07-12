@@ -162,6 +162,13 @@ type rule_result = Semgrep_output_v1_t.rule_result = {
 
 type fixtest_result = Semgrep_output_v1_t.fixtest_result = { passed: bool }
 
+type config_error_reason = Semgrep_output_v1_t.config_error_reason
+
+type config_error = Semgrep_output_v1_t.config_error = {
+  file: fpath;
+  reason: config_error_reason
+}
+
 type checks = Semgrep_output_v1_t.checks = {
   checks: (string * rule_result) list
 }
@@ -171,7 +178,7 @@ type tests_result = Semgrep_output_v1_t.tests_result = {
   fixtest_results: (string * fixtest_result) list;
   config_missing_tests: fpath list;
   config_missing_fixtests: fpath list;
-  config_with_errors: todo list
+  config_with_errors: config_error list
 }
 
 type target_times = Semgrep_output_v1_t.target_times = {
@@ -6172,6 +6179,196 @@ let read_fixtest_result = (
 )
 let fixtest_result_of_string s =
   read_fixtest_result (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_config_error_reason = (
+  fun ob x ->
+    match x with
+      | `UnparsableRule -> Buffer.add_string ob "\"unparsable_rule\""
+)
+let string_of_config_error_reason ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_config_error_reason ob x;
+  Buffer.contents ob
+let read_config_error_reason = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "unparsable_rule" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `UnparsableRule
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "unparsable_rule" ->
+              `UnparsableRule
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let config_error_reason_of_string s =
+  read_config_error_reason (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_config_error : _ -> config_error -> _ = (
+  fun ob (x : config_error) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"file\":";
+    (
+      write_fpath
+    )
+      ob x.file;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"reason\":";
+    (
+      write_config_error_reason
+    )
+      ob x.reason;
+    Buffer.add_char ob '}';
+)
+let string_of_config_error ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_config_error ob x;
+  Buffer.contents ob
+let read_config_error = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_file = ref (None) in
+    let field_reason = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 4 -> (
+                if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' then (
+                  0
+                )
+                else (
+                  -1
+                )
+              )
+            | 6 -> (
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'n' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_file := (
+              Some (
+                (
+                  read_fpath
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_reason := (
+              Some (
+                (
+                  read_config_error_reason
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 4 -> (
+                  if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 6 -> (
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'n' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_file := (
+                Some (
+                  (
+                    read_fpath
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_reason := (
+                Some (
+                  (
+                    read_config_error_reason
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            file = (match !field_file with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "file");
+            reason = (match !field_reason with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "reason");
+          }
+         : config_error)
+      )
+)
+let config_error_of_string s =
+  read_config_error (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__x_e141b07 = (
   Atdgen_runtime.Oj_run.write_assoc_list (
     Yojson.Safe.write_string
@@ -6346,6 +6543,22 @@ let read__fpath_list = (
 )
 let _fpath_list_of_string s =
   read__fpath_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__config_error_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_config_error
+  )
+)
+let string_of__config_error_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__config_error_list ob x;
+  Buffer.contents ob
+let read__config_error_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_config_error
+  )
+)
+let _config_error_list_of_string s =
+  read__config_error_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_tests_result : _ -> tests_result -> _ = (
   fun ob (x : tests_result) ->
     Buffer.add_char ob '{';
@@ -6392,7 +6605,7 @@ let write_tests_result : _ -> tests_result -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"config_with_errors\":";
     (
-      write__todo_list
+      write__config_error_list
     )
       ob x.config_with_errors;
     Buffer.add_char ob '}';
@@ -6503,7 +6716,7 @@ let read_tests_result = (
             field_config_with_errors := (
               Some (
                 (
-                  read__todo_list
+                  read__config_error_list
                 ) p lb
               )
             );
@@ -6604,7 +6817,7 @@ let read_tests_result = (
               field_config_with_errors := (
                 Some (
                   (
-                    read__todo_list
+                    read__config_error_list
                   ) p lb
                 )
               );

@@ -872,13 +872,22 @@ type cli_output_extra = {
 (* 'semgrep test' output *)
 (*****************************************************************************)
 
+type config_error_reason = [
+  | UnparsableRule <json name="unparsable_rule">
+]
+
+type config_error = {
+  file: fpath;
+  reason: config_error_reason
+}
+
 type tests_result = {
   (* would like to use rule_id here but then can't use json repr *)
    results: (string (* rule file *) * checks) list <json repr="object">;
    fixtest_results: (string (* target file *) * fixtest_result) list <json repr="object">;
    config_missing_tests: fpath list;
    config_missing_fixtests: fpath list;
-   config_with_errors: todo list;
+   config_with_errors: config_error list;
 }
 
 type checks = {
