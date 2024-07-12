@@ -1534,6 +1534,37 @@ class CoreMatch:
 
 
 @dataclass
+class MatchingExplanationExtra:
+    """Original type: matching_explanation_extra = { ... }"""
+
+    before_negation_matches: Optional[List[CoreMatch]]
+    before_filter_matches: Optional[List[CoreMatch]]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'MatchingExplanationExtra':
+        if isinstance(x, dict):
+            return cls(
+                before_negation_matches=_atd_read_option(_atd_read_list(CoreMatch.from_json))(x['before_negation_matches']) if 'before_negation_matches' in x else _atd_missing_json_field('MatchingExplanationExtra', 'before_negation_matches'),
+                before_filter_matches=_atd_read_option(_atd_read_list(CoreMatch.from_json))(x['before_filter_matches']) if 'before_filter_matches' in x else _atd_missing_json_field('MatchingExplanationExtra', 'before_filter_matches'),
+            )
+        else:
+            _atd_bad_json('MatchingExplanationExtra', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['before_negation_matches'] = _atd_write_option(_atd_write_list((lambda x: x.to_json())))(self.before_negation_matches)
+        res['before_filter_matches'] = _atd_write_option(_atd_write_list((lambda x: x.to_json())))(self.before_filter_matches)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'MatchingExplanationExtra':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class MatchingExplanation:
     """Original type: matching_explanation = { ... }"""
 
@@ -1541,6 +1572,7 @@ class MatchingExplanation:
     children: List[MatchingExplanation]
     matches: List[CoreMatch]
     loc: Location
+    extra: Optional[MatchingExplanationExtra] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'MatchingExplanation':
@@ -1550,6 +1582,7 @@ class MatchingExplanation:
                 children=_atd_read_list(MatchingExplanation.from_json)(x['children']) if 'children' in x else _atd_missing_json_field('MatchingExplanation', 'children'),
                 matches=_atd_read_list(CoreMatch.from_json)(x['matches']) if 'matches' in x else _atd_missing_json_field('MatchingExplanation', 'matches'),
                 loc=Location.from_json(x['loc']) if 'loc' in x else _atd_missing_json_field('MatchingExplanation', 'loc'),
+                extra=MatchingExplanationExtra.from_json(x['extra']) if 'extra' in x else None,
             )
         else:
             _atd_bad_json('MatchingExplanation', x)
@@ -1560,6 +1593,8 @@ class MatchingExplanation:
         res['children'] = _atd_write_list((lambda x: x.to_json()))(self.children)
         res['matches'] = _atd_write_list((lambda x: x.to_json()))(self.matches)
         res['loc'] = (lambda x: x.to_json())(self.loc)
+        if self.extra is not None:
+            res['extra'] = (lambda x: x.to_json())(self.extra)
         return res
 
     @classmethod

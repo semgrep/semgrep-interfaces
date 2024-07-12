@@ -291,6 +291,12 @@ export type MatchingExplanation = {
   children: MatchingExplanation[];
   matches: CoreMatch[];
   loc: Location;
+  extra?: MatchingExplanationExtra;
+}
+
+export type MatchingExplanationExtra = {
+  before_negation_matches: Option<CoreMatch[]>;
+  before_filter_matches: Option<CoreMatch[]>;
 }
 
 export type MatchingOperation =
@@ -1690,6 +1696,7 @@ export function writeMatchingExplanation(x: MatchingExplanation, context: any = 
     'children': _atd_write_required_field('MatchingExplanation', 'children', _atd_write_array(writeMatchingExplanation), x.children, x),
     'matches': _atd_write_required_field('MatchingExplanation', 'matches', _atd_write_array(writeCoreMatch), x.matches, x),
     'loc': _atd_write_required_field('MatchingExplanation', 'loc', writeLocation, x.loc, x),
+    'extra': _atd_write_optional_field(writeMatchingExplanationExtra, x.extra, x),
   };
 }
 
@@ -1699,6 +1706,21 @@ export function readMatchingExplanation(x: any, context: any = x): MatchingExpla
     children: _atd_read_required_field('MatchingExplanation', 'children', _atd_read_array(readMatchingExplanation), x['children'], x),
     matches: _atd_read_required_field('MatchingExplanation', 'matches', _atd_read_array(readCoreMatch), x['matches'], x),
     loc: _atd_read_required_field('MatchingExplanation', 'loc', readLocation, x['loc'], x),
+    extra: _atd_read_optional_field(readMatchingExplanationExtra, x['extra'], x),
+  };
+}
+
+export function writeMatchingExplanationExtra(x: MatchingExplanationExtra, context: any = x): any {
+  return {
+    'before_negation_matches': _atd_write_required_field('MatchingExplanationExtra', 'before_negation_matches', _atd_write_option(_atd_write_array(writeCoreMatch)), x.before_negation_matches, x),
+    'before_filter_matches': _atd_write_required_field('MatchingExplanationExtra', 'before_filter_matches', _atd_write_option(_atd_write_array(writeCoreMatch)), x.before_filter_matches, x),
+  };
+}
+
+export function readMatchingExplanationExtra(x: any, context: any = x): MatchingExplanationExtra {
+  return {
+    before_negation_matches: _atd_read_required_field('MatchingExplanationExtra', 'before_negation_matches', _atd_read_option(_atd_read_array(readCoreMatch)), x['before_negation_matches'], x),
+    before_filter_matches: _atd_read_required_field('MatchingExplanationExtra', 'before_filter_matches', _atd_read_option(_atd_read_array(readCoreMatch)), x['before_filter_matches'], x),
   };
 }
 

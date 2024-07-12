@@ -120,11 +120,18 @@ type core_match = Semgrep_output_v1_t.core_match = {
   extra: core_match_extra
 }
 
+type matching_explanation_extra =
+  Semgrep_output_v1_t.matching_explanation_extra = {
+  before_negation_matches: core_match list option;
+  before_filter_matches: core_match list option
+}
+
 type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
   op: matching_operation;
   children: matching_explanation list;
   matches: core_match list;
-  loc: location
+  loc: location;
+  extra: matching_explanation_extra option
 }
 
 type version = Semgrep_output_v1_t.version [@@deriving show]
@@ -1153,6 +1160,26 @@ val read_core_match :
 val core_match_of_string :
   string -> core_match
   (** Deserialize JSON data of type {!type:core_match}. *)
+
+val write_matching_explanation_extra :
+  Buffer.t -> matching_explanation_extra -> unit
+  (** Output a JSON value of type {!type:matching_explanation_extra}. *)
+
+val string_of_matching_explanation_extra :
+  ?len:int -> matching_explanation_extra -> string
+  (** Serialize a value of type {!type:matching_explanation_extra}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_matching_explanation_extra :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> matching_explanation_extra
+  (** Input JSON data of type {!type:matching_explanation_extra}. *)
+
+val matching_explanation_extra_of_string :
+  string -> matching_explanation_extra
+  (** Deserialize JSON data of type {!type:matching_explanation_extra}. *)
 
 val write_matching_explanation :
   Buffer.t -> matching_explanation -> unit
