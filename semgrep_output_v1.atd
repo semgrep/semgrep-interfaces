@@ -871,6 +871,7 @@ type cli_output_extra = {
 (*****************************************************************************)
 (* Matching diagnosis *)
 (*****************************************************************************)
+(* EXPERIMENTAL *)
 
 (* A "matching diagnosis" is a postprocessed interpretation of matching
    explanations, specific to a particular test-annotated target file.
@@ -878,21 +879,21 @@ type cli_output_extra = {
    For instance, suppose we have the rule:
    1 | all:
    2 | - pattern: foo(...)
-   3 | - not: foo(good)
+   3 | - not: foo(goood)
    and the following Python annotated target:
 
    1 | # ruleid: my_rule
    2 | foo()
    3 | # ok: my_rule
-   4 | foo(bad)
+   4 | foo(good)
 
-   We would clearly get an unexpected match on line 4, which would fail
+   We would get an unexpected match on line 4, which would fail
    the test assertion.
 
    By looking at the matching explanation, we can deduce that the match
    on line 4 must clearly have been introduced by the positive `foo(..)`
-   pattern. The rule-writer probably meant to kill `foo(bad)` with the
-   negative `foo(good)` pattern.
+   pattern. The rule-writer probably meant to kill `foo(good)` with the
+   negative `foo(goood)` pattern.
 
    This is essentially what matching diagnoses are -- using matching
    explanations to point out where the erroneous parts of the rule _may_
@@ -913,6 +914,7 @@ type cli_output_extra = {
    }
  *)
 type matching_diagnosis = {
+  (* specifically, the test target *)
   target: fpath;
   unexpected_match_diagnoses: unexpected_match_diagnosis list;
   unexpected_no_match_diagnoses: unexpected_no_match_diagnosis list;
