@@ -622,6 +622,101 @@
         }
       }
     },
+    "matching_diagnosis": {
+      "type": "object",
+      "required": [
+        "target", "unexpected_match_diagnoses",
+        "unexpected_no_match_diagnoses"
+      ],
+      "properties": {
+        "target": { "$ref": "#/definitions/fpath" },
+        "unexpected_match_diagnoses": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/unexpected_match_diagnosis" }
+        },
+        "unexpected_no_match_diagnoses": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/unexpected_no_match_diagnosis" }
+        }
+      }
+    },
+    "unexpected_match_diagnosis": {
+      "type": "object",
+      "required": [
+        "matched_text", "originating_kind", "originating_text",
+        "killing_parents"
+      ],
+      "properties": {
+        "matched_text": { "$ref": "#/definitions/snippet" },
+        "originating_kind": { "$ref": "#/definitions/originating_node_kind" },
+        "originating_text": { "$ref": "#/definitions/snippet" },
+        "killing_parents": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/killing_parent" }
+        }
+      }
+    },
+    "unexpected_no_match_diagnosis": {
+      "type": "object",
+      "required": [ "line", "kind" ],
+      "properties": {
+        "line": { "type": "integer" },
+        "kind": {
+          "$ref": "#/definitions/unexpected_no_match_diagnosis_kind"
+        }
+      }
+    },
+    "unexpected_no_match_diagnosis_kind": {
+      "oneOf": [
+        { "const": "Never_matched" },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "Killed_by_nodes" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/killing_parent" }
+            }
+          ]
+        }
+      ]
+    },
+    "originating_node_kind": {
+      "oneOf": [ { "const": "Focus" }, { "const": "Xpattern" } ]
+    },
+    "killing_parent_kind": {
+      "oneOf": [
+        { "const": "And" },
+        { "const": "Inside" },
+        { "const": "Negation" },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [ { "const": "Filter" }, { "type": "string" } ]
+        }
+      ]
+    },
+    "snippet": {
+      "type": "object",
+      "required": [ "line", "text" ],
+      "properties": {
+        "line": { "type": "integer" },
+        "text": { "type": "string" }
+      }
+    },
+    "killing_parent": {
+      "type": "object",
+      "required": [ "killing_parent_kind", "snippet" ],
+      "properties": {
+        "killing_parent_kind": {
+          "$ref": "#/definitions/killing_parent_kind"
+        },
+        "snippet": { "$ref": "#/definitions/snippet" }
+      }
+    },
     "config_error_reason": { "oneOf": [ { "const": "unparsable_rule" } ] },
     "config_error": {
       "type": "object",
@@ -684,7 +779,8 @@
         "errors": {
           "type": "array",
           "items": { "$ref": "#/definitions/todo" }
-        }
+        },
+        "diagnosis": { "$ref": "#/definitions/matching_diagnosis" }
       }
     },
     "expected_reported": {

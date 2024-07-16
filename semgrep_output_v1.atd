@@ -869,6 +869,126 @@ type cli_output_extra = {
 }
 
 (*****************************************************************************)
+(* Matching diagnosis *)
+(*****************************************************************************)
+(* EXPERIMENTAL *)
+
+(* A "matching diagnosis" is a postprocessed interpretation of matching
+   explanations, specific to a particular test-annotated target file.
+
+   For instance, suppose we have the rule:
+   1 | all:
+   2 | - pattern: foo(...)
+   3 | - not: foo(goood)
+   and the following Python annotated target:
+
+   1 | # ruleid: my_rule
+   2 | foo()
+   3 | # ok: my_rule
+   4 | foo(good)
+
+   We would get an unexpected match on line 4, which would fail
+   the test assertion.
+
+   By looking at the matching explanation, we can deduce that the match
+   on line 4 must clearly have been introduced by the positive `foo(..)`
+   pattern. The rule-writer probably meant to kill `foo(good)` with the
+   negative `foo(goood)` pattern.
+
+   This is essentially what matching diagnoses are -- using matching
+   explanations to point out where the erroneous parts of the rule _may_
+   be.
+
+   Note that this is a _may_, because an unexpected match could have been
+   killed by the `foo(bad)`, but if there were more negative patterns,
+   it could have been killed elsewhere too. All we can do is point out
+   places where the rule-writer _may_ have messed up.
+
+   So in this case, we would expect an `unexpected_match_diagnosis` with
+   the form:
+   { matched_text = { line = 4; text = "foo(bad)" };
+     originating_kind = Xpattern;
+     originating_text = { line = 2; text = "- pattern: foo(...)" };
+     killing_parents = [ { killing_parent_kind = Negation;
+                           snippet = { line = 3; text = "- not: foo(good)" } } ]
+   }
+ *)
+type matching_diagnosis = {
+  (* specifically, the test target *)
+  target: fpath;
+  unexpected_match_diagnoses: unexpected_match_diagnosis list;
+  unexpected_no_match_diagnoses: unexpected_no_match_diagnosis list;
+}
+
+(* TODO: this is only completely faithful for search mode rules.
+   this means that if we have an unexpected search mode finding, we
+   should indeed diagnose all the different areas in the rule that
+   could have been responsible for switching the match off.
+   however, for something like a taint mode finding, this is heavily
+   dependent on the structure of the code, so we it's a lot harder.
+   so for taint, secrets, supply chain, this will suggest some reasons
+   but not all, for why a match may be unexpected.
+ *)
+type unexpected_match_diagnosis = {
+  matched_text: snippet;
+  (* information about the originating pattern in the rule file *)
+  (* This is where the unexpected match came from. *)
+  originating_kind: originating_node_kind;
+  originating_text: snippet;
+  killing_parents: killing_parent list;
+}
+
+type unexpected_no_match_diagnosis = {
+  line: int;
+  kind: unexpected_no_match_diagnosis_kind;
+}
+
+type unexpected_no_match_diagnosis_kind = [
+  | Never_matched
+  | Killed_by_nodes of killing_parent list
+]
+
+type originating_node_kind = [
+  | Focus
+  | Xpattern
+]
+
+type killing_parent_kind = [
+  | And
+  | Inside
+  | Negation
+  | Filter of string
+]
+
+(* Instead of serving snippets here, we could just give the locations of
+   the patterns and matches.
+   For convenience when scripting with this in rule generation, we will
+   just get the source text here.
+ *)
+type snippet = {
+  line: int;
+  text: string;
+}
+
+(* a "killing parent" is a parent operator which could have
+   killed the unexpected match along its way to being returned
+   Intuitively, these are all the sites at which the rule could
+   have removed the unexpected match, but didn't.
+   Note that because of the order of operations, this technically
+   means that in the following pattern:
+   all:
+     - pattern: A
+     - not: B
+   the `not` node is a "parent" of the `pattern` node, even though
+   they are siblings in the actual tree. This is because the ranges
+   of the `pattern` are input to the `not` node.
+ *)
+type killing_parent = {
+  killing_parent_kind: killing_parent_kind;
+  snippet: snippet;
+}
+
+(*****************************************************************************)
 (* 'semgrep test' output *)
 (*****************************************************************************)
 
@@ -901,6 +1021,8 @@ type rule_result = {
   matches: (string (* target filename *) * expected_reported) list
     <json repr="object">;
   errors: todo list;
+   (* NEW: since 1.79 *)
+  ?diagnosis: matching_diagnosis option;
 }
 
 type expected_reported = {
