@@ -552,6 +552,19 @@ type has_features = Semgrep_output_v1_t.has_features = {
   has_dependency_query: bool
 }
 
+type contributor = Semgrep_output_v1_t.contributor = {
+  commit_author_name: string;
+  commit_author_email: string
+}
+
+type contribution = Semgrep_output_v1_t.contribution = {
+  commit_hash: string;
+  commit_timestamp: datetime;
+  contributor: contributor
+}
+
+type contributions = Semgrep_output_v1_t.contributions
+
 type apply_fixes_return = Semgrep_output_v1_t.apply_fixes_return = {
   modified_file_count: int;
   fixed_lines: (int * string list) list
@@ -660,19 +673,6 @@ type core_output = Semgrep_output_v1_t.core_output = {
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list
 }
-
-type contributor = Semgrep_output_v1_t.contributor = {
-  commit_author_name: string;
-  commit_author_email: string
-}
-
-type contribution = Semgrep_output_v1_t.contribution = {
-  commit_hash: string;
-  commit_timestamp: datetime;
-  contributor: contributor
-}
-
-type contributions = Semgrep_output_v1_t.contributions
 
 type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   paths: scanned_and_skipped;
@@ -2536,6 +2536,66 @@ val has_features_of_string :
   string -> has_features
   (** Deserialize JSON data of type {!type:has_features}. *)
 
+val write_contributor :
+  Buffer.t -> contributor -> unit
+  (** Output a JSON value of type {!type:contributor}. *)
+
+val string_of_contributor :
+  ?len:int -> contributor -> string
+  (** Serialize a value of type {!type:contributor}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_contributor :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> contributor
+  (** Input JSON data of type {!type:contributor}. *)
+
+val contributor_of_string :
+  string -> contributor
+  (** Deserialize JSON data of type {!type:contributor}. *)
+
+val write_contribution :
+  Buffer.t -> contribution -> unit
+  (** Output a JSON value of type {!type:contribution}. *)
+
+val string_of_contribution :
+  ?len:int -> contribution -> string
+  (** Serialize a value of type {!type:contribution}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_contribution :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> contribution
+  (** Input JSON data of type {!type:contribution}. *)
+
+val contribution_of_string :
+  string -> contribution
+  (** Deserialize JSON data of type {!type:contribution}. *)
+
+val write_contributions :
+  Buffer.t -> contributions -> unit
+  (** Output a JSON value of type {!type:contributions}. *)
+
+val string_of_contributions :
+  ?len:int -> contributions -> string
+  (** Serialize a value of type {!type:contributions}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_contributions :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> contributions
+  (** Input JSON data of type {!type:contributions}. *)
+
+val contributions_of_string :
+  string -> contributions
+  (** Deserialize JSON data of type {!type:contributions}. *)
+
 val write_apply_fixes_return :
   Buffer.t -> apply_fixes_return -> unit
   (** Output a JSON value of type {!type:apply_fixes_return}. *)
@@ -2795,66 +2855,6 @@ val read_core_output :
 val core_output_of_string :
   string -> core_output
   (** Deserialize JSON data of type {!type:core_output}. *)
-
-val write_contributor :
-  Buffer.t -> contributor -> unit
-  (** Output a JSON value of type {!type:contributor}. *)
-
-val string_of_contributor :
-  ?len:int -> contributor -> string
-  (** Serialize a value of type {!type:contributor}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_contributor :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> contributor
-  (** Input JSON data of type {!type:contributor}. *)
-
-val contributor_of_string :
-  string -> contributor
-  (** Deserialize JSON data of type {!type:contributor}. *)
-
-val write_contribution :
-  Buffer.t -> contribution -> unit
-  (** Output a JSON value of type {!type:contribution}. *)
-
-val string_of_contribution :
-  ?len:int -> contribution -> string
-  (** Serialize a value of type {!type:contribution}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_contribution :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> contribution
-  (** Input JSON data of type {!type:contribution}. *)
-
-val contribution_of_string :
-  string -> contribution
-  (** Deserialize JSON data of type {!type:contribution}. *)
-
-val write_contributions :
-  Buffer.t -> contributions -> unit
-  (** Output a JSON value of type {!type:contributions}. *)
-
-val string_of_contributions :
-  ?len:int -> contributions -> string
-  (** Serialize a value of type {!type:contributions}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_contributions :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> contributions
-  (** Input JSON data of type {!type:contributions}. *)
-
-val contributions_of_string :
-  string -> contributions
-  (** Deserialize JSON data of type {!type:contributions}. *)
 
 val write_cli_output_extra :
   Buffer.t -> cli_output_extra -> unit

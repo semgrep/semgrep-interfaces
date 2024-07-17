@@ -1502,6 +1502,7 @@
     },
     "function_call": {
       "oneOf": [
+        { "const": "CallContributions" },
         {
           "type": "array",
           "minItems": 2,
@@ -1528,6 +1529,12 @@
           "type": "array",
           "minItems": 2,
           "items": false,
+          "prefixItems": [ { "const": "RetError" }, { "type": "string" } ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
           "prefixItems": [
             { "const": "RetApplyFixes" },
             { "$ref": "#/definitions/apply_fixes_return" }
@@ -1546,7 +1553,10 @@
           "type": "array",
           "minItems": 2,
           "items": false,
-          "prefixItems": [ { "const": "RetError" }, { "type": "string" } ]
+          "prefixItems": [
+            { "const": "RetContributions" },
+            { "$ref": "#/definitions/contributions" }
+          ]
         }
       ]
     }

@@ -1791,13 +1791,15 @@ type sarif_format_return
 
 type function_call
     <python decorator="dataclass(frozen=True)"> = [
+  | CallContributions
   | CallApplyFixes of apply_fixes_params
   | CallSarifFormat of sarif_format_params
 ]
 
 type function_return
     <python decorator="dataclass(frozen=True)"> = [
+  | RetError of string
   | RetApplyFixes of apply_fixes_return
   | RetSarifFormat of sarif_format_return
-  | RetError of string
+  | RetContributions of contributions
 ]

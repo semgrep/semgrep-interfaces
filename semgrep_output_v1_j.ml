@@ -552,6 +552,19 @@ type has_features = Semgrep_output_v1_t.has_features = {
   has_dependency_query: bool
 }
 
+type contributor = Semgrep_output_v1_t.contributor = {
+  commit_author_name: string;
+  commit_author_email: string
+}
+
+type contribution = Semgrep_output_v1_t.contribution = {
+  commit_hash: string;
+  commit_timestamp: datetime;
+  contributor: contributor
+}
+
+type contributions = Semgrep_output_v1_t.contributions
+
 type apply_fixes_return = Semgrep_output_v1_t.apply_fixes_return = {
   modified_file_count: int;
   fixed_lines: (int * string list) list
@@ -660,19 +673,6 @@ type core_output = Semgrep_output_v1_t.core_output = {
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list
 }
-
-type contributor = Semgrep_output_v1_t.contributor = {
-  commit_author_name: string;
-  commit_author_email: string
-}
-
-type contribution = Semgrep_output_v1_t.contribution = {
-  commit_hash: string;
-  commit_timestamp: datetime;
-  contributor: contributor
-}
-
-type contributions = Semgrep_output_v1_t.contributions
 
 type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   paths: scanned_and_skipped;
@@ -21719,6 +21719,405 @@ let read_has_features = (
 )
 let has_features_of_string s =
   read_has_features (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_contributor : _ -> contributor -> _ = (
+  fun ob (x : contributor) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"commit_author_name\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.commit_author_name;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"commit_author_email\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.commit_author_email;
+    Buffer.add_char ob '}';
+)
+let string_of_contributor ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_contributor ob x;
+  Buffer.contents ob
+let read_contributor = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_commit_author_name = ref (None) in
+    let field_commit_author_email = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 18 -> (
+                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 'a' && String.unsafe_get s (pos+16) = 'm' && String.unsafe_get s (pos+17) = 'e' then (
+                  0
+                )
+                else (
+                  -1
+                )
+              )
+            | 19 -> (
+                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'm' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 'l' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_commit_author_name := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_commit_author_email := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 18 -> (
+                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 'a' && String.unsafe_get s (pos+16) = 'm' && String.unsafe_get s (pos+17) = 'e' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 19 -> (
+                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'm' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 'l' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_commit_author_name := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_commit_author_email := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            commit_author_name = (match !field_commit_author_name with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_author_name");
+            commit_author_email = (match !field_commit_author_email with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_author_email");
+          }
+         : contributor)
+      )
+)
+let contributor_of_string s =
+  read_contributor (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_contribution : _ -> contribution -> _ = (
+  fun ob (x : contribution) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"commit_hash\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.commit_hash;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"commit_timestamp\":";
+    (
+      write_datetime
+    )
+      ob x.commit_timestamp;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"contributor\":";
+    (
+      write_contributor
+    )
+      ob x.contributor;
+    Buffer.add_char ob '}';
+)
+let string_of_contribution ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_contribution ob x;
+  Buffer.contents ob
+let read_contribution = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_commit_hash = ref (None) in
+    let field_commit_timestamp = ref (None) in
+    let field_contributor = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 11 -> (
+                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' then (
+                  match String.unsafe_get s (pos+2) with
+                    | 'm' -> (
+                        if String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'h' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'h' then (
+                          0
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'n' -> (
+                        if String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'r' then (
+                          2
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
+                )
+                else (
+                  -1
+                )
+              )
+            | 16 -> (
+                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'm' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'm' && String.unsafe_get s (pos+15) = 'p' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_commit_hash := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_commit_timestamp := (
+              Some (
+                (
+                  read_datetime
+                ) p lb
+              )
+            );
+          | 2 ->
+            field_contributor := (
+              Some (
+                (
+                  read_contributor
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 11 -> (
+                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' then (
+                    match String.unsafe_get s (pos+2) with
+                      | 'm' -> (
+                          if String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'h' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'h' then (
+                            0
+                          )
+                          else (
+                            -1
+                          )
+                        )
+                      | 'n' -> (
+                          if String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'r' then (
+                            2
+                          )
+                          else (
+                            -1
+                          )
+                        )
+                      | _ -> (
+                          -1
+                        )
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 16 -> (
+                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'm' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'm' && String.unsafe_get s (pos+15) = 'p' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_commit_hash := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_commit_timestamp := (
+                Some (
+                  (
+                    read_datetime
+                  ) p lb
+                )
+              );
+            | 2 ->
+              field_contributor := (
+                Some (
+                  (
+                    read_contributor
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            commit_hash = (match !field_commit_hash with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_hash");
+            commit_timestamp = (match !field_commit_timestamp with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_timestamp");
+            contributor = (match !field_contributor with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "contributor");
+          }
+         : contribution)
+      )
+)
+let contribution_of_string s =
+  read_contribution (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__contribution_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_contribution
+  )
+)
+let string_of__contribution_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__contribution_list ob x;
+  Buffer.contents ob
+let read__contribution_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_contribution
+  )
+)
+let _contribution_list_of_string s =
+  read__contribution_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_contributions = (
+  write__contribution_list
+)
+let string_of_contributions ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_contributions ob x;
+  Buffer.contents ob
+let read_contributions = (
+  read__contribution_list
+)
+let contributions_of_string s =
+  read_contributions (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__int_string_list_list = (
   Atdgen_runtime.Oj_run.write_list (
     fun ob x ->
@@ -21945,6 +22344,12 @@ let apply_fixes_return_of_string s =
 let write_function_return = (
   fun ob x ->
     match x with
+      | `RetError x ->
+        Buffer.add_string ob "[\"RetError\",";
+        (
+          Yojson.Safe.write_string
+        ) ob x;
+        Buffer.add_char ob ']'
       | `RetApplyFixes x ->
         Buffer.add_string ob "[\"RetApplyFixes\",";
         (
@@ -21957,10 +22362,10 @@ let write_function_return = (
           write_sarif_format_return
         ) ob x;
         Buffer.add_char ob ']'
-      | `RetError x ->
-        Buffer.add_string ob "[\"RetError\",";
+      | `RetContributions x ->
+        Buffer.add_string ob "[\"RetContributions\",";
         (
-          Yojson.Safe.write_string
+          write_contributions
         ) ob x;
         Buffer.add_char ob ']'
 )
@@ -21974,6 +22379,15 @@ let read_function_return = (
     match Yojson.Safe.start_any_variant p lb with
       | `Edgy_bracket -> (
           match Yojson.Safe.read_ident p lb with
+            | "RetError" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `RetError x
             | "RetApplyFixes" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -21992,15 +22406,15 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `RetSarifFormat x
-            | "RetError" ->
+            | "RetContributions" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_contributions
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `RetError x
+              `RetContributions x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -22011,6 +22425,17 @@ let read_function_return = (
         )
       | `Square_bracket -> (
           match Atdgen_runtime.Oj_run.read_string p lb with
+            | "RetError" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `RetError x
             | "RetApplyFixes" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -22033,17 +22458,17 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `RetSarifFormat x
-            | "RetError" ->
+            | "RetContributions" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_contributions
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
-              `RetError x
+              `RetContributions x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -22461,6 +22886,7 @@ let apply_fixes_params_of_string s =
 let write_function_call = (
   fun ob x ->
     match x with
+      | `CallContributions -> Buffer.add_string ob "\"CallContributions\""
       | `CallApplyFixes x ->
         Buffer.add_string ob "[\"CallApplyFixes\",";
         (
@@ -22484,6 +22910,10 @@ let read_function_call = (
     match Yojson.Safe.start_any_variant p lb with
       | `Edgy_bracket -> (
           match Yojson.Safe.read_ident p lb with
+            | "CallContributions" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `CallContributions
             | "CallApplyFixes" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -22507,6 +22937,8 @@ let read_function_call = (
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
+            | "CallContributions" ->
+              `CallContributions
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -26388,405 +26820,6 @@ let read_core_output = (
 )
 let core_output_of_string s =
   read_core_output (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_contributor : _ -> contributor -> _ = (
-  fun ob (x : contributor) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"commit_author_name\":";
-    (
-      Yojson.Safe.write_string
-    )
-      ob x.commit_author_name;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"commit_author_email\":";
-    (
-      Yojson.Safe.write_string
-    )
-      ob x.commit_author_email;
-    Buffer.add_char ob '}';
-)
-let string_of_contributor ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_contributor ob x;
-  Buffer.contents ob
-let read_contributor = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_commit_author_name = ref (None) in
-    let field_commit_author_email = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          match len with
-            | 18 -> (
-                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 'a' && String.unsafe_get s (pos+16) = 'm' && String.unsafe_get s (pos+17) = 'e' then (
-                  0
-                )
-                else (
-                  -1
-                )
-              )
-            | 19 -> (
-                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'm' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 'l' then (
-                  1
-                )
-                else (
-                  -1
-                )
-              )
-            | _ -> (
-                -1
-              )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_commit_author_name := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              )
-            );
-          | 1 ->
-            field_commit_author_email := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              )
-            );
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            match len with
-              | 18 -> (
-                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 'a' && String.unsafe_get s (pos+16) = 'm' && String.unsafe_get s (pos+17) = 'e' then (
-                    0
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 19 -> (
-                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'm' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 'l' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_commit_author_name := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            | 1 ->
-              field_commit_author_email := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            commit_author_name = (match !field_commit_author_name with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_author_name");
-            commit_author_email = (match !field_commit_author_email with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_author_email");
-          }
-         : contributor)
-      )
-)
-let contributor_of_string s =
-  read_contributor (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_contribution : _ -> contribution -> _ = (
-  fun ob (x : contribution) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"commit_hash\":";
-    (
-      Yojson.Safe.write_string
-    )
-      ob x.commit_hash;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"commit_timestamp\":";
-    (
-      write_datetime
-    )
-      ob x.commit_timestamp;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"contributor\":";
-    (
-      write_contributor
-    )
-      ob x.contributor;
-    Buffer.add_char ob '}';
-)
-let string_of_contribution ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_contribution ob x;
-  Buffer.contents ob
-let read_contribution = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_commit_hash = ref (None) in
-    let field_commit_timestamp = ref (None) in
-    let field_contributor = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          match len with
-            | 11 -> (
-                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' then (
-                  match String.unsafe_get s (pos+2) with
-                    | 'm' -> (
-                        if String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'h' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'h' then (
-                          0
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 'n' -> (
-                        if String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'r' then (
-                          2
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
-                )
-                else (
-                  -1
-                )
-              )
-            | 16 -> (
-                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'm' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'm' && String.unsafe_get s (pos+15) = 'p' then (
-                  1
-                )
-                else (
-                  -1
-                )
-              )
-            | _ -> (
-                -1
-              )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_commit_hash := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              )
-            );
-          | 1 ->
-            field_commit_timestamp := (
-              Some (
-                (
-                  read_datetime
-                ) p lb
-              )
-            );
-          | 2 ->
-            field_contributor := (
-              Some (
-                (
-                  read_contributor
-                ) p lb
-              )
-            );
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            match len with
-              | 11 -> (
-                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' then (
-                    match String.unsafe_get s (pos+2) with
-                      | 'm' -> (
-                          if String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'h' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'h' then (
-                            0
-                          )
-                          else (
-                            -1
-                          )
-                        )
-                      | 'n' -> (
-                          if String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'r' then (
-                            2
-                          )
-                          else (
-                            -1
-                          )
-                        )
-                      | _ -> (
-                          -1
-                        )
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 16 -> (
-                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'm' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'm' && String.unsafe_get s (pos+15) = 'p' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_commit_hash := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            | 1 ->
-              field_commit_timestamp := (
-                Some (
-                  (
-                    read_datetime
-                  ) p lb
-                )
-              );
-            | 2 ->
-              field_contributor := (
-                Some (
-                  (
-                    read_contributor
-                  ) p lb
-                )
-              );
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            commit_hash = (match !field_commit_hash with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_hash");
-            commit_timestamp = (match !field_commit_timestamp with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "commit_timestamp");
-            contributor = (match !field_contributor with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "contributor");
-          }
-         : contribution)
-      )
-)
-let contribution_of_string s =
-  read_contribution (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__contribution_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_contribution
-  )
-)
-let string_of__contribution_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__contribution_list ob x;
-  Buffer.contents ob
-let read__contribution_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_contribution
-  )
-)
-let _contribution_list_of_string s =
-  read__contribution_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_contributions = (
-  write__contribution_list
-)
-let string_of_contributions ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_contributions ob x;
-  Buffer.contents ob
-let read_contributions = (
-  read__contribution_list
-)
-let contributions_of_string s =
-  read_contributions (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_cli_output_extra : _ -> cli_output_extra -> _ = (
   fun ob (x : cli_output_extra) ->
     Buffer.add_char ob '{';
