@@ -5739,6 +5739,92 @@ class HasFeatures:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class Contributor:
+    """Original type: contributor = { ... }"""
+
+    commit_author_name: str
+    commit_author_email: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Contributor':
+        if isinstance(x, dict):
+            return cls(
+                commit_author_name=_atd_read_string(x['commit_author_name']) if 'commit_author_name' in x else _atd_missing_json_field('Contributor', 'commit_author_name'),
+                commit_author_email=_atd_read_string(x['commit_author_email']) if 'commit_author_email' in x else _atd_missing_json_field('Contributor', 'commit_author_email'),
+            )
+        else:
+            _atd_bad_json('Contributor', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['commit_author_name'] = _atd_write_string(self.commit_author_name)
+        res['commit_author_email'] = _atd_write_string(self.commit_author_email)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Contributor':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Contribution:
+    """Original type: contribution = { ... }"""
+
+    commit_hash: str
+    commit_timestamp: Datetime
+    contributor: Contributor
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Contribution':
+        if isinstance(x, dict):
+            return cls(
+                commit_hash=_atd_read_string(x['commit_hash']) if 'commit_hash' in x else _atd_missing_json_field('Contribution', 'commit_hash'),
+                commit_timestamp=Datetime.from_json(x['commit_timestamp']) if 'commit_timestamp' in x else _atd_missing_json_field('Contribution', 'commit_timestamp'),
+                contributor=Contributor.from_json(x['contributor']) if 'contributor' in x else _atd_missing_json_field('Contribution', 'contributor'),
+            )
+        else:
+            _atd_bad_json('Contribution', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['commit_hash'] = _atd_write_string(self.commit_hash)
+        res['commit_timestamp'] = (lambda x: x.to_json())(self.commit_timestamp)
+        res['contributor'] = (lambda x: x.to_json())(self.contributor)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Contribution':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Contributions:
+    """Original type: contributions"""
+
+    value: List[Contribution]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Contributions':
+        return cls(_atd_read_list(Contribution.from_json)(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_list((lambda x: x.to_json()))(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Contributions':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class ApplyFixesReturn:
     """Original type: apply_fixes_return = { ... }"""
@@ -5765,6 +5851,24 @@ class ApplyFixesReturn:
     @classmethod
     def from_json_string(cls, x: str) -> 'ApplyFixesReturn':
         return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class RetError:
+    """Original type: function_return = [ ... | RetError of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetError'
+
+    def to_json(self) -> Any:
+        return ['RetError', _atd_write_string(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -5807,18 +5911,18 @@ class RetSarifFormat:
 
 
 @dataclass(frozen=True)
-class RetError:
-    """Original type: function_return = [ ... | RetError of ... | ... ]"""
+class RetContributions:
+    """Original type: function_return = [ ... | RetContributions of ... | ... ]"""
 
-    value: str
+    value: Contributions
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'RetError'
+        return 'RetContributions'
 
     def to_json(self) -> Any:
-        return ['RetError', _atd_write_string(self.value)]
+        return ['RetContributions', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -5828,7 +5932,7 @@ class RetError:
 class FunctionReturn:
     """Original type: function_return = [ ... ]"""
 
-    value: Union[RetApplyFixes, RetSarifFormat, RetError]
+    value: Union[RetError, RetApplyFixes, RetSarifFormat, RetContributions]
 
     @property
     def kind(self) -> str:
@@ -5839,12 +5943,14 @@ class FunctionReturn:
     def from_json(cls, x: Any) -> 'FunctionReturn':
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
+            if cons == 'RetError':
+                return cls(RetError(_atd_read_string(x[1])))
             if cons == 'RetApplyFixes':
                 return cls(RetApplyFixes(ApplyFixesReturn.from_json(x[1])))
             if cons == 'RetSarifFormat':
                 return cls(RetSarifFormat(SarifFormatReturn.from_json(x[1])))
-            if cons == 'RetError':
-                return cls(RetError(_atd_read_string(x[1])))
+            if cons == 'RetContributions':
+                return cls(RetContributions(Contributions.from_json(x[1])))
             _atd_bad_json('FunctionReturn', x)
         _atd_bad_json('FunctionReturn', x)
 
@@ -5928,6 +6034,23 @@ class ApplyFixesParams:
 
 
 @dataclass(frozen=True)
+class CallContributions:
+    """Original type: function_call = [ ... | CallContributions | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallContributions'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'CallContributions'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class CallApplyFixes:
     """Original type: function_call = [ ... | CallApplyFixes of ... | ... ]"""
 
@@ -5967,7 +6090,7 @@ class CallSarifFormat:
 class FunctionCall:
     """Original type: function_call = [ ... ]"""
 
-    value: Union[CallApplyFixes, CallSarifFormat]
+    value: Union[CallContributions, CallApplyFixes, CallSarifFormat]
 
     @property
     def kind(self) -> str:
@@ -5976,6 +6099,10 @@ class FunctionCall:
 
     @classmethod
     def from_json(cls, x: Any) -> 'FunctionCall':
+        if isinstance(x, str):
+            if x == 'CallContributions':
+                return cls(CallContributions())
+            _atd_bad_json('FunctionCall', x)
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'CallApplyFixes':
@@ -6398,92 +6525,6 @@ class CoreOutput:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'CoreOutput':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Contributor:
-    """Original type: contributor = { ... }"""
-
-    commit_author_name: str
-    commit_author_email: str
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Contributor':
-        if isinstance(x, dict):
-            return cls(
-                commit_author_name=_atd_read_string(x['commit_author_name']) if 'commit_author_name' in x else _atd_missing_json_field('Contributor', 'commit_author_name'),
-                commit_author_email=_atd_read_string(x['commit_author_email']) if 'commit_author_email' in x else _atd_missing_json_field('Contributor', 'commit_author_email'),
-            )
-        else:
-            _atd_bad_json('Contributor', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['commit_author_name'] = _atd_write_string(self.commit_author_name)
-        res['commit_author_email'] = _atd_write_string(self.commit_author_email)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Contributor':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Contribution:
-    """Original type: contribution = { ... }"""
-
-    commit_hash: str
-    commit_timestamp: Datetime
-    contributor: Contributor
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Contribution':
-        if isinstance(x, dict):
-            return cls(
-                commit_hash=_atd_read_string(x['commit_hash']) if 'commit_hash' in x else _atd_missing_json_field('Contribution', 'commit_hash'),
-                commit_timestamp=Datetime.from_json(x['commit_timestamp']) if 'commit_timestamp' in x else _atd_missing_json_field('Contribution', 'commit_timestamp'),
-                contributor=Contributor.from_json(x['contributor']) if 'contributor' in x else _atd_missing_json_field('Contribution', 'contributor'),
-            )
-        else:
-            _atd_bad_json('Contribution', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['commit_hash'] = _atd_write_string(self.commit_hash)
-        res['commit_timestamp'] = (lambda x: x.to_json())(self.commit_timestamp)
-        res['contributor'] = (lambda x: x.to_json())(self.contributor)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Contribution':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Contributions:
-    """Original type: contributions"""
-
-    value: List[Contribution]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Contributions':
-        return cls(_atd_read_list(Contribution.from_json)(x))
-
-    def to_json(self) -> Any:
-        return _atd_write_list((lambda x: x.to_json()))(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Contributions':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

@@ -823,13 +823,15 @@ export type SarifFormatReturn = {
 }
 
 export type FunctionCall =
+| { kind: 'CallContributions' }
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
 | { kind: 'CallSarifFormat'; value: SarifFormatParams }
 
 export type FunctionReturn =
+| { kind: 'RetError'; value: string }
 | { kind: 'RetApplyFixes'; value: ApplyFixesReturn }
 | { kind: 'RetSarifFormat'; value: SarifFormatReturn }
-| { kind: 'RetError'; value: string }
+| { kind: 'RetContributions'; value: Contributions }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
@@ -3295,6 +3297,8 @@ export function readSarifFormatReturn(x: any, context: any = x): SarifFormatRetu
 
 export function writeFunctionCall(x: FunctionCall, context: any = x): any {
   switch (x.kind) {
+    case 'CallContributions':
+      return 'CallContributions'
     case 'CallApplyFixes':
       return ['CallApplyFixes', writeApplyFixesParams(x.value, x)]
     case 'CallSarifFormat':
@@ -3303,38 +3307,53 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
 }
 
 export function readFunctionCall(x: any, context: any = x): FunctionCall {
-  _atd_check_json_tuple(2, x, context)
-  switch (x[0]) {
-    case 'CallApplyFixes':
-      return { kind: 'CallApplyFixes', value: readApplyFixesParams(x[1], x) }
-    case 'CallSarifFormat':
-      return { kind: 'CallSarifFormat', value: readSarifFormatParams(x[1], x) }
-    default:
-      _atd_bad_json('FunctionCall', x, context)
-      throw new Error('impossible')
+  if (typeof x === 'string') {
+    switch (x) {
+      case 'CallContributions':
+        return { kind: 'CallContributions' }
+      default:
+        _atd_bad_json('FunctionCall', x, context)
+        throw new Error('impossible')
+    }
+  }
+  else {
+    _atd_check_json_tuple(2, x, context)
+    switch (x[0]) {
+      case 'CallApplyFixes':
+        return { kind: 'CallApplyFixes', value: readApplyFixesParams(x[1], x) }
+      case 'CallSarifFormat':
+        return { kind: 'CallSarifFormat', value: readSarifFormatParams(x[1], x) }
+      default:
+        _atd_bad_json('FunctionCall', x, context)
+        throw new Error('impossible')
+    }
   }
 }
 
 export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
   switch (x.kind) {
+    case 'RetError':
+      return ['RetError', _atd_write_string(x.value, x)]
     case 'RetApplyFixes':
       return ['RetApplyFixes', writeApplyFixesReturn(x.value, x)]
     case 'RetSarifFormat':
       return ['RetSarifFormat', writeSarifFormatReturn(x.value, x)]
-    case 'RetError':
-      return ['RetError', _atd_write_string(x.value, x)]
+    case 'RetContributions':
+      return ['RetContributions', writeContributions(x.value, x)]
   }
 }
 
 export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
   _atd_check_json_tuple(2, x, context)
   switch (x[0]) {
+    case 'RetError':
+      return { kind: 'RetError', value: _atd_read_string(x[1], x) }
     case 'RetApplyFixes':
       return { kind: 'RetApplyFixes', value: readApplyFixesReturn(x[1], x) }
     case 'RetSarifFormat':
       return { kind: 'RetSarifFormat', value: readSarifFormatReturn(x[1], x) }
-    case 'RetError':
-      return { kind: 'RetError', value: _atd_read_string(x[1], x) }
+    case 'RetContributions':
+      return { kind: 'RetContributions', value: readContributions(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')
