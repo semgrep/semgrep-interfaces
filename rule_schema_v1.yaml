@@ -289,6 +289,7 @@ $defs:
         - $ref: "#/$defs/metavariable-regex"
         - $ref: "#/$defs/metavariable-pattern"
         - $ref: "#/$defs/metavariable-type"
+        - $ref: "#/$defs/semgrep-internal-metavariable-name"
         - $ref: "#/$defs/metavariable-comparison"
         - $ref: "#/$defs/pattern-where-python"
   pattern-either-content:
@@ -614,6 +615,25 @@ $defs:
         additionalProperties: false
     required:
       - metavariable-type
+    additionalProperties: false
+  semgrep-internal-metavariable-name:
+    type: object
+    properties:
+      semgrep-internal-metavariable-name:
+        type: object
+        title: Filter for metavariables with a certain kind
+        properties:
+          metavariable:
+            type: string
+            title: Metavariable to match
+          kind:
+            title: Kind keyword
+            type: string
+        required:
+          - kind
+        additionalProperties: false
+    required:
+      - semgrep-internal-metavariable-name
     additionalProperties: false
   metavariable-comparison:
     type: object
