@@ -1500,6 +1500,9 @@
         "format_time_seconds": { "type": "number" }
       }
     },
+    "output_format": {
+      "oneOf": [ { "const": "Vim" }, { "const": "Emacs" } ]
+    },
     "function_call": {
       "oneOf": [
         { "const": "CallContributions" },
@@ -1519,6 +1522,23 @@
           "prefixItems": [
             { "const": "CallSarifFormat" },
             { "$ref": "#/definitions/sarif_format_params" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CallFormatter" },
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "$ref": "#/definitions/output_format" },
+                { "$ref": "#/definitions/cli_output" }
+              ]
+            }
           ]
         }
       ]
@@ -1556,6 +1576,14 @@
           "prefixItems": [
             { "const": "RetContributions" },
             { "$ref": "#/definitions/contributions" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "RetFormatter" }, { "type": "string" }
           ]
         }
       ]

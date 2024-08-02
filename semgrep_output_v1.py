@@ -5703,6 +5703,72 @@ class ParsingStats:
 
 
 @dataclass
+class Vim:
+    """Original type: output_format = [ ... | Vim | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Vim'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Vim'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Emacs:
+    """Original type: output_format = [ ... | Emacs | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Emacs'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Emacs'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class OutputFormat:
+    """Original type: output_format = [ ... ]"""
+
+    value: Union[Vim, Emacs]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'OutputFormat':
+        if isinstance(x, str):
+            if x == 'Vim':
+                return cls(Vim())
+            if x == 'Emacs':
+                return cls(Emacs())
+            _atd_bad_json('OutputFormat', x)
+        _atd_bad_json('OutputFormat', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'OutputFormat':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class HasFeatures:
     """Original type: has_features = { ... }"""
 
@@ -5929,10 +5995,28 @@ class RetContributions:
 
 
 @dataclass(frozen=True)
+class RetFormatter:
+    """Original type: function_return = [ ... | RetFormatter of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetFormatter'
+
+    def to_json(self) -> Any:
+        return ['RetFormatter', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionReturn:
     """Original type: function_return = [ ... ]"""
 
-    value: Union[RetError, RetApplyFixes, RetSarifFormat, RetContributions]
+    value: Union[RetError, RetApplyFixes, RetSarifFormat, RetContributions, RetFormatter]
 
     @property
     def kind(self) -> str:
@@ -5951,6 +6035,8 @@ class FunctionReturn:
                 return cls(RetSarifFormat(SarifFormatReturn.from_json(x[1])))
             if cons == 'RetContributions':
                 return cls(RetContributions(Contributions.from_json(x[1])))
+            if cons == 'RetFormatter':
+                return cls(RetFormatter(_atd_read_string(x[1])))
             _atd_bad_json('FunctionReturn', x)
         _atd_bad_json('FunctionReturn', x)
 
@@ -5996,6 +6082,67 @@ class Edit:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Edit':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CliOutput:
+    """Original type: cli_output = { ... }"""
+
+    errors: List[CliError]
+    results: List[CliMatch]
+    paths: ScannedAndSkipped
+    version: Optional[Version] = None
+    time: Optional[Profile] = None
+    explanations: Optional[List[MatchingExplanation]] = None
+    rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
+    engine_requested: Optional[EngineKind] = None
+    interfile_languages_used: Optional[List[str]] = None
+    skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CliOutput':
+        if isinstance(x, dict):
+            return cls(
+                errors=_atd_read_list(CliError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CliOutput', 'errors'),
+                results=_atd_read_list(CliMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CliOutput', 'results'),
+                paths=ScannedAndSkipped.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutput', 'paths'),
+                version=Version.from_json(x['version']) if 'version' in x else None,
+                time=Profile.from_json(x['time']) if 'time' in x else None,
+                explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
+                rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
+                engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
+                interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
+                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
+            )
+        else:
+            _atd_bad_json('CliOutput', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
+        res['results'] = _atd_write_list((lambda x: x.to_json()))(self.results)
+        res['paths'] = (lambda x: x.to_json())(self.paths)
+        if self.version is not None:
+            res['version'] = (lambda x: x.to_json())(self.version)
+        if self.time is not None:
+            res['time'] = (lambda x: x.to_json())(self.time)
+        if self.explanations is not None:
+            res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
+        if self.rules_by_engine is not None:
+            res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
+        if self.engine_requested is not None:
+            res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
+        if self.interfile_languages_used is not None:
+            res['interfile_languages_used'] = _atd_write_list(_atd_write_string)(self.interfile_languages_used)
+        res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CliOutput':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -6087,10 +6234,28 @@ class CallSarifFormat:
 
 
 @dataclass(frozen=True)
+class CallFormatter:
+    """Original type: function_call = [ ... | CallFormatter of ... | ... ]"""
+
+    value: Tuple[OutputFormat, CliOutput]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallFormatter'
+
+    def to_json(self) -> Any:
+        return ['CallFormatter', (lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionCall:
     """Original type: function_call = [ ... ]"""
 
-    value: Union[CallContributions, CallApplyFixes, CallSarifFormat]
+    value: Union[CallContributions, CallApplyFixes, CallSarifFormat, CallFormatter]
 
     @property
     def kind(self) -> str:
@@ -6109,6 +6274,8 @@ class FunctionCall:
                 return cls(CallApplyFixes(ApplyFixesParams.from_json(x[1])))
             if cons == 'CallSarifFormat':
                 return cls(CallSarifFormat(SarifFormatParams.from_json(x[1])))
+            if cons == 'CallFormatter':
+                return cls(CallFormatter((lambda x: (OutputFormat.from_json(x[0]), CliOutput.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
             _atd_bad_json('FunctionCall', x)
         _atd_bad_json('FunctionCall', x)
 
@@ -6576,67 +6743,6 @@ class CliOutputExtra:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'CliOutputExtra':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class CliOutput:
-    """Original type: cli_output = { ... }"""
-
-    errors: List[CliError]
-    results: List[CliMatch]
-    paths: ScannedAndSkipped
-    version: Optional[Version] = None
-    time: Optional[Profile] = None
-    explanations: Optional[List[MatchingExplanation]] = None
-    rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
-    engine_requested: Optional[EngineKind] = None
-    interfile_languages_used: Optional[List[str]] = None
-    skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CliOutput':
-        if isinstance(x, dict):
-            return cls(
-                errors=_atd_read_list(CliError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CliOutput', 'errors'),
-                results=_atd_read_list(CliMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CliOutput', 'results'),
-                paths=ScannedAndSkipped.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutput', 'paths'),
-                version=Version.from_json(x['version']) if 'version' in x else None,
-                time=Profile.from_json(x['time']) if 'time' in x else None,
-                explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
-                rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
-                engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
-                interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
-                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
-            )
-        else:
-            _atd_bad_json('CliOutput', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
-        res['results'] = _atd_write_list((lambda x: x.to_json()))(self.results)
-        res['paths'] = (lambda x: x.to_json())(self.paths)
-        if self.version is not None:
-            res['version'] = (lambda x: x.to_json())(self.version)
-        if self.time is not None:
-            res['time'] = (lambda x: x.to_json())(self.time)
-        if self.explanations is not None:
-            res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
-        if self.rules_by_engine is not None:
-            res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
-        if self.engine_requested is not None:
-            res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
-        if self.interfile_languages_used is not None:
-            res['interfile_languages_used'] = _atd_write_list(_atd_write_string)(self.interfile_languages_used)
-        res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CliOutput':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
