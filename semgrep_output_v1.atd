@@ -1806,6 +1806,35 @@ type output_format = [
   | Emacs
 ]
 
+(* supply chain dependency resolution *)
+type dependency_graph_node
+    <python decorator="dataclass(frozen=True)"> = {
+  package_name: string;
+  package_version: string;
+  ecosystem: ecosystem;
+  children: dependency_graph_node list;
+}
+
+type dependency_graph
+    <python decorator="dataclass(frozen=True)"> = {
+  manifest_path: fpath;
+  root_node: dependency_graph_node;
+}
+
+type manifest = {
+  ecosystem: ecosystem;
+  path: fpath;
+}
+
+type resolve_dependencies_params = {
+  manifests: manifest list;
+}
+
+type resolve_dependencies_return
+    <python decorator="dataclass(frozen=True)"> = {
+  resolved_graphs: dependency_graph list;
+}
+
 type function_call
     <python decorator="dataclass(frozen=True)"> = [
   | CallContributions
@@ -1817,6 +1846,7 @@ type function_call
      the RPC pipe.
   *)
   | CallValidate of fpath
+  | CallResolveDependencies of resolve_dependencies_params
 ]
 
 type function_return
@@ -1827,4 +1857,5 @@ type function_return
   | RetContributions of contributions
   | RetFormatter of string
   | RetValidate of bool
+  | RetResolveDependencies of resolve_dependencies_return
 ]
