@@ -3,6 +3,8 @@
 
 type datetime = Semgrep_output_v1_t.datetime
 
+type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show,eq]
+
 type fpath = Semgrep_output_v1_t.fpath [@@deriving show]
 
 type match_severity = Semgrep_output_v1_t.match_severity
@@ -85,6 +87,13 @@ type metavars = Semgrep_output_v1_t.metavars
 
 type validation_state = Semgrep_output_v1_t.validation_state
   [@@deriving show, eq]
+
+type dependency_graph_node = Semgrep_output_v1_t.dependency_graph_node = {
+  package_name: string;
+  package_version: string;
+  ecosystem: ecosystem;
+  children: dependency_graph_node list
+}
 
 type match_call_trace = Semgrep_output_v1_t.match_call_trace = 
     CliLoc of loc_and_content
@@ -383,8 +392,6 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
 
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
 
-type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show,eq]
-
 type dependency_child = Semgrep_output_v1_t.dependency_child = {
   package: string;
   version: string
@@ -528,6 +535,26 @@ type sarif_format_params = Semgrep_output_v1_t.sarif_format_params = {
 type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
+
+type dependency_graph = Semgrep_output_v1_t.dependency_graph = {
+  manifest_path: fpath;
+  root_node: dependency_graph_node
+}
+
+type resolve_dependencies_return =
+  Semgrep_output_v1_t.resolve_dependencies_return = {
+  resolved_graphs: dependency_graph list
+}
+
+type manifest = Semgrep_output_v1_t.manifest = {
+  ecosystem: ecosystem;
+  path: fpath
+}
+
+type resolve_dependencies_params =
+  Semgrep_output_v1_t.resolve_dependencies_params = {
+  manifests: manifest list
+}
 
 type profile = Semgrep_output_v1_t.profile = {
   rules: rule_id list;
@@ -775,6 +802,26 @@ val read_datetime :
 val datetime_of_string :
   string -> datetime
   (** Deserialize JSON data of type {!type:datetime}. *)
+
+val write_ecosystem :
+  Buffer.t -> ecosystem -> unit
+  (** Output a JSON value of type {!type:ecosystem}. *)
+
+val string_of_ecosystem :
+  ?len:int -> ecosystem -> string
+  (** Serialize a value of type {!type:ecosystem}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_ecosystem :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ecosystem
+  (** Input JSON data of type {!type:ecosystem}. *)
+
+val ecosystem_of_string :
+  string -> ecosystem
+  (** Deserialize JSON data of type {!type:ecosystem}. *)
 
 val write_fpath :
   Buffer.t -> fpath -> unit
@@ -1115,6 +1162,26 @@ val read_validation_state :
 val validation_state_of_string :
   string -> validation_state
   (** Deserialize JSON data of type {!type:validation_state}. *)
+
+val write_dependency_graph_node :
+  Buffer.t -> dependency_graph_node -> unit
+  (** Output a JSON value of type {!type:dependency_graph_node}. *)
+
+val string_of_dependency_graph_node :
+  ?len:int -> dependency_graph_node -> string
+  (** Serialize a value of type {!type:dependency_graph_node}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_dependency_graph_node :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_graph_node
+  (** Input JSON data of type {!type:dependency_graph_node}. *)
+
+val dependency_graph_node_of_string :
+  string -> dependency_graph_node
+  (** Deserialize JSON data of type {!type:dependency_graph_node}. *)
 
 val write_match_call_trace :
   Buffer.t -> match_call_trace -> unit
@@ -2136,26 +2203,6 @@ val sca_parser_name_of_string :
   string -> sca_parser_name
   (** Deserialize JSON data of type {!type:sca_parser_name}. *)
 
-val write_ecosystem :
-  Buffer.t -> ecosystem -> unit
-  (** Output a JSON value of type {!type:ecosystem}. *)
-
-val string_of_ecosystem :
-  ?len:int -> ecosystem -> string
-  (** Serialize a value of type {!type:ecosystem}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_ecosystem :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ecosystem
-  (** Input JSON data of type {!type:ecosystem}. *)
-
-val ecosystem_of_string :
-  string -> ecosystem
-  (** Deserialize JSON data of type {!type:ecosystem}. *)
-
 val write_dependency_child :
   Buffer.t -> dependency_child -> unit
   (** Output a JSON value of type {!type:dependency_child}. *)
@@ -2475,6 +2522,86 @@ val read_rule_id_and_engine_kind :
 val rule_id_and_engine_kind_of_string :
   string -> rule_id_and_engine_kind
   (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
+
+val write_dependency_graph :
+  Buffer.t -> dependency_graph -> unit
+  (** Output a JSON value of type {!type:dependency_graph}. *)
+
+val string_of_dependency_graph :
+  ?len:int -> dependency_graph -> string
+  (** Serialize a value of type {!type:dependency_graph}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_dependency_graph :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_graph
+  (** Input JSON data of type {!type:dependency_graph}. *)
+
+val dependency_graph_of_string :
+  string -> dependency_graph
+  (** Deserialize JSON data of type {!type:dependency_graph}. *)
+
+val write_resolve_dependencies_return :
+  Buffer.t -> resolve_dependencies_return -> unit
+  (** Output a JSON value of type {!type:resolve_dependencies_return}. *)
+
+val string_of_resolve_dependencies_return :
+  ?len:int -> resolve_dependencies_return -> string
+  (** Serialize a value of type {!type:resolve_dependencies_return}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolve_dependencies_return :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolve_dependencies_return
+  (** Input JSON data of type {!type:resolve_dependencies_return}. *)
+
+val resolve_dependencies_return_of_string :
+  string -> resolve_dependencies_return
+  (** Deserialize JSON data of type {!type:resolve_dependencies_return}. *)
+
+val write_manifest :
+  Buffer.t -> manifest -> unit
+  (** Output a JSON value of type {!type:manifest}. *)
+
+val string_of_manifest :
+  ?len:int -> manifest -> string
+  (** Serialize a value of type {!type:manifest}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_manifest :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> manifest
+  (** Input JSON data of type {!type:manifest}. *)
+
+val manifest_of_string :
+  string -> manifest
+  (** Deserialize JSON data of type {!type:manifest}. *)
+
+val write_resolve_dependencies_params :
+  Buffer.t -> resolve_dependencies_params -> unit
+  (** Output a JSON value of type {!type:resolve_dependencies_params}. *)
+
+val string_of_resolve_dependencies_params :
+  ?len:int -> resolve_dependencies_params -> string
+  (** Serialize a value of type {!type:resolve_dependencies_params}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolve_dependencies_params :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolve_dependencies_params
+  (** Input JSON data of type {!type:resolve_dependencies_params}. *)
+
+val resolve_dependencies_params_of_string :
+  string -> resolve_dependencies_params
+  (** Deserialize JSON data of type {!type:resolve_dependencies_params}. *)
 
 val write_profile :
   Buffer.t -> profile -> unit

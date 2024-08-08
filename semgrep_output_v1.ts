@@ -822,16 +822,43 @@ export type SarifFormatReturn = {
   format_time_seconds: number;
 }
 
+export type DependencyGraphNode = {
+  package_name: string;
+  package_version: string;
+  ecosystem: Ecosystem;
+  children: DependencyGraphNode[];
+}
+
+export type DependencyGraph = {
+  manifest_path: Fpath;
+  root_node: DependencyGraphNode;
+}
+
+export type Manifest = {
+  ecosystem: Ecosystem;
+  path: Fpath;
+}
+
+export type ResolveDependenciesParams = {
+  manifests: Manifest[];
+}
+
+export type ResolveDependenciesReturn = {
+  resolved_graphs: DependencyGraph[];
+}
+
 export type FunctionCall =
 | { kind: 'CallContributions' }
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
 | { kind: 'CallSarifFormat'; value: SarifFormatParams }
+| { kind: 'CallResolveDependencies'; value: ResolveDependenciesParams }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
 | { kind: 'RetApplyFixes'; value: ApplyFixesReturn }
 | { kind: 'RetSarifFormat'; value: SarifFormatReturn }
 | { kind: 'RetContributions'; value: Contributions }
+| { kind: 'RetResolveDependencies'; value: ResolveDependenciesReturn }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
@@ -3295,6 +3322,76 @@ export function readSarifFormatReturn(x: any, context: any = x): SarifFormatRetu
   };
 }
 
+export function writeDependencyGraphNode(x: DependencyGraphNode, context: any = x): any {
+  return {
+    'package_name': _atd_write_required_field('DependencyGraphNode', 'package_name', _atd_write_string, x.package_name, x),
+    'package_version': _atd_write_required_field('DependencyGraphNode', 'package_version', _atd_write_string, x.package_version, x),
+    'ecosystem': _atd_write_required_field('DependencyGraphNode', 'ecosystem', writeEcosystem, x.ecosystem, x),
+    'children': _atd_write_required_field('DependencyGraphNode', 'children', _atd_write_array(writeDependencyGraphNode), x.children, x),
+  };
+}
+
+export function readDependencyGraphNode(x: any, context: any = x): DependencyGraphNode {
+  return {
+    package_name: _atd_read_required_field('DependencyGraphNode', 'package_name', _atd_read_string, x['package_name'], x),
+    package_version: _atd_read_required_field('DependencyGraphNode', 'package_version', _atd_read_string, x['package_version'], x),
+    ecosystem: _atd_read_required_field('DependencyGraphNode', 'ecosystem', readEcosystem, x['ecosystem'], x),
+    children: _atd_read_required_field('DependencyGraphNode', 'children', _atd_read_array(readDependencyGraphNode), x['children'], x),
+  };
+}
+
+export function writeDependencyGraph(x: DependencyGraph, context: any = x): any {
+  return {
+    'manifest_path': _atd_write_required_field('DependencyGraph', 'manifest_path', writeFpath, x.manifest_path, x),
+    'root_node': _atd_write_required_field('DependencyGraph', 'root_node', writeDependencyGraphNode, x.root_node, x),
+  };
+}
+
+export function readDependencyGraph(x: any, context: any = x): DependencyGraph {
+  return {
+    manifest_path: _atd_read_required_field('DependencyGraph', 'manifest_path', readFpath, x['manifest_path'], x),
+    root_node: _atd_read_required_field('DependencyGraph', 'root_node', readDependencyGraphNode, x['root_node'], x),
+  };
+}
+
+export function writeManifest(x: Manifest, context: any = x): any {
+  return {
+    'ecosystem': _atd_write_required_field('Manifest', 'ecosystem', writeEcosystem, x.ecosystem, x),
+    'path': _atd_write_required_field('Manifest', 'path', writeFpath, x.path, x),
+  };
+}
+
+export function readManifest(x: any, context: any = x): Manifest {
+  return {
+    ecosystem: _atd_read_required_field('Manifest', 'ecosystem', readEcosystem, x['ecosystem'], x),
+    path: _atd_read_required_field('Manifest', 'path', readFpath, x['path'], x),
+  };
+}
+
+export function writeResolveDependenciesParams(x: ResolveDependenciesParams, context: any = x): any {
+  return {
+    'manifests': _atd_write_required_field('ResolveDependenciesParams', 'manifests', _atd_write_array(writeManifest), x.manifests, x),
+  };
+}
+
+export function readResolveDependenciesParams(x: any, context: any = x): ResolveDependenciesParams {
+  return {
+    manifests: _atd_read_required_field('ResolveDependenciesParams', 'manifests', _atd_read_array(readManifest), x['manifests'], x),
+  };
+}
+
+export function writeResolveDependenciesReturn(x: ResolveDependenciesReturn, context: any = x): any {
+  return {
+    'resolved_graphs': _atd_write_required_field('ResolveDependenciesReturn', 'resolved_graphs', _atd_write_array(writeDependencyGraph), x.resolved_graphs, x),
+  };
+}
+
+export function readResolveDependenciesReturn(x: any, context: any = x): ResolveDependenciesReturn {
+  return {
+    resolved_graphs: _atd_read_required_field('ResolveDependenciesReturn', 'resolved_graphs', _atd_read_array(readDependencyGraph), x['resolved_graphs'], x),
+  };
+}
+
 export function writeFunctionCall(x: FunctionCall, context: any = x): any {
   switch (x.kind) {
     case 'CallContributions':
@@ -3303,6 +3400,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallApplyFixes', writeApplyFixesParams(x.value, x)]
     case 'CallSarifFormat':
       return ['CallSarifFormat', writeSarifFormatParams(x.value, x)]
+    case 'CallResolveDependencies':
+      return ['CallResolveDependencies', writeResolveDependenciesParams(x.value, x)]
   }
 }
 
@@ -3323,6 +3422,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallApplyFixes', value: readApplyFixesParams(x[1], x) }
       case 'CallSarifFormat':
         return { kind: 'CallSarifFormat', value: readSarifFormatParams(x[1], x) }
+      case 'CallResolveDependencies':
+        return { kind: 'CallResolveDependencies', value: readResolveDependenciesParams(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -3340,6 +3441,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetSarifFormat', writeSarifFormatReturn(x.value, x)]
     case 'RetContributions':
       return ['RetContributions', writeContributions(x.value, x)]
+    case 'RetResolveDependencies':
+      return ['RetResolveDependencies', writeResolveDependenciesReturn(x.value, x)]
   }
 }
 
@@ -3354,6 +3457,8 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetSarifFormat', value: readSarifFormatReturn(x[1], x) }
     case 'RetContributions':
       return { kind: 'RetContributions', value: readContributions(x[1], x) }
+    case 'RetResolveDependencies':
+      return { kind: 'RetResolveDependencies', value: readResolveDependenciesReturn(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')

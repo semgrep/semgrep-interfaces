@@ -1500,6 +1500,57 @@
         "format_time_seconds": { "type": "number" }
       }
     },
+    "dependency_graph_node": {
+      "type": "object",
+      "required": [
+        "package_name", "package_version", "ecosystem", "children"
+      ],
+      "properties": {
+        "package_name": { "type": "string" },
+        "package_version": { "type": "string" },
+        "ecosystem": { "$ref": "#/definitions/ecosystem" },
+        "children": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/dependency_graph_node" }
+        }
+      }
+    },
+    "dependency_graph": {
+      "type": "object",
+      "required": [ "manifest_path", "root_node" ],
+      "properties": {
+        "manifest_path": { "$ref": "#/definitions/fpath" },
+        "root_node": { "$ref": "#/definitions/dependency_graph_node" }
+      }
+    },
+    "manifest": {
+      "type": "object",
+      "required": [ "ecosystem", "path" ],
+      "properties": {
+        "ecosystem": { "$ref": "#/definitions/ecosystem" },
+        "path": { "$ref": "#/definitions/fpath" }
+      }
+    },
+    "resolve_dependencies_params": {
+      "type": "object",
+      "required": [ "manifests" ],
+      "properties": {
+        "manifests": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/manifest" }
+        }
+      }
+    },
+    "resolve_dependencies_return": {
+      "type": "object",
+      "required": [ "resolved_graphs" ],
+      "properties": {
+        "resolved_graphs": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/dependency_graph" }
+        }
+      }
+    },
     "function_call": {
       "oneOf": [
         { "const": "CallContributions" },
@@ -1519,6 +1570,15 @@
           "prefixItems": [
             { "const": "CallSarifFormat" },
             { "$ref": "#/definitions/sarif_format_params" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CallResolveDependencies" },
+            { "$ref": "#/definitions/resolve_dependencies_params" }
           ]
         }
       ]
@@ -1556,6 +1616,15 @@
           "prefixItems": [
             { "const": "RetContributions" },
             { "$ref": "#/definitions/contributions" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "RetResolveDependencies" },
+            { "$ref": "#/definitions/resolve_dependencies_return" }
           ]
         }
       ]
