@@ -758,7 +758,8 @@
     "maturity": "ga",
     "exts": [
       ".tf",
-      ".hcl"
+      ".hcl",
+      ".tfvars"
     ],
     "example_ext": null,
     "excluded_exts": [],
