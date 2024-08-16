@@ -155,7 +155,7 @@ export type MatchDataflowTrace = {
   taint_sink?: MatchCallTrace;
 }
 
-export type LocAndContent = [Location, string]
+export type LocAndContent = [Location, Option<string>]
 
 export type MatchCallTrace =
 | { kind: 'CliLoc'; value: LocAndContent }
@@ -163,7 +163,7 @@ export type MatchCallTrace =
 
 export type MatchIntermediateVar = {
   location: Location;
-  content: string;
+  content: Option<string>;
 }
 
 export type ErrorType =
@@ -1314,11 +1314,11 @@ export function readMatchDataflowTrace(x: any, context: any = x): MatchDataflowT
 }
 
 export function writeLocAndContent(x: LocAndContent, context: any = x): any {
-  return ((x, context) => [writeLocation(x[0], x), _atd_write_string(x[1], x)])(x, context);
+  return ((x, context) => [writeLocation(x[0], x), _atd_write_option(_atd_write_string)(x[1], x)])(x, context);
 }
 
 export function readLocAndContent(x: any, context: any = x): LocAndContent {
-  return ((x, context): [Location, string] => { _atd_check_json_tuple(2, x, context); return [readLocation(x[0], x), _atd_read_string(x[1], x)] })(x, context);
+  return ((x, context): [Location, Option<string>] => { _atd_check_json_tuple(2, x, context); return [readLocation(x[0], x), _atd_read_option(_atd_read_string)(x[1], x)] })(x, context);
 }
 
 export function writeMatchCallTrace(x: MatchCallTrace, context: any = x): any {
@@ -1346,14 +1346,14 @@ export function readMatchCallTrace(x: any, context: any = x): MatchCallTrace {
 export function writeMatchIntermediateVar(x: MatchIntermediateVar, context: any = x): any {
   return {
     'location': _atd_write_required_field('MatchIntermediateVar', 'location', writeLocation, x.location, x),
-    'content': _atd_write_required_field('MatchIntermediateVar', 'content', _atd_write_string, x.content, x),
+    'content': _atd_write_required_field('MatchIntermediateVar', 'content', _atd_write_option(_atd_write_string), x.content, x),
   };
 }
 
 export function readMatchIntermediateVar(x: any, context: any = x): MatchIntermediateVar {
   return {
     location: _atd_read_required_field('MatchIntermediateVar', 'location', readLocation, x['location'], x),
-    content: _atd_read_required_field('MatchIntermediateVar', 'content', _atd_read_string, x['content'], x),
+    content: _atd_read_required_field('MatchIntermediateVar', 'content', _atd_read_option(_atd_read_string), x['content'], x),
   };
 }
 

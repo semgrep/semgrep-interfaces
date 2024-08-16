@@ -230,7 +230,18 @@
       "minItems": 2,
       "items": false,
       "prefixItems": [
-        { "$ref": "#/definitions/location" }, { "type": "string" }
+        { "$ref": "#/definitions/location" },
+        {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        }
       ]
     },
     "match_call_trace": {
@@ -272,7 +283,17 @@
       "required": [ "location", "content" ],
       "properties": {
         "location": { "$ref": "#/definitions/location" },
-        "content": { "type": "string" }
+        "content": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        }
       }
     },
     "error_type": {

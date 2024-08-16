@@ -43,7 +43,7 @@ type loc_and_content = Semgrep_output_v1_t.loc_and_content
 
 type match_intermediate_var = Semgrep_output_v1_t.match_intermediate_var = {
   location: location;
-  content: string
+  content: string option
 }
 
 type pro_feature = Semgrep_output_v1_t.pro_feature = {
@@ -1684,7 +1684,7 @@ let write_loc_and_content = (
     Buffer.add_char ob ',';
     (let _, x = x in
     (
-      Yojson.Safe.write_string
+      write__string_option
     ) ob x
     );
     Buffer.add_char ob ']';
@@ -1714,7 +1714,7 @@ let read_loc_and_content = (
       let x1 =
         let x =
           (
-            Atdgen_runtime.Oj_run.read_string
+            read__string_option
           ) p lb
         in
         incr len;
@@ -1758,7 +1758,7 @@ let write_match_intermediate_var : _ -> match_intermediate_var -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"content\":";
     (
-      Yojson.Safe.write_string
+      write__string_option
     )
       ob x.content;
     Buffer.add_char ob '}';
@@ -1818,7 +1818,7 @@ let read_match_intermediate_var = (
             field_content := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read__string_option
                 ) p lb
               )
             );
@@ -1871,7 +1871,7 @@ let read_match_intermediate_var = (
               field_content := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read__string_option
                   ) p lb
                 )
               );

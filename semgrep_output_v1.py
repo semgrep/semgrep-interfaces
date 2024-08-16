@@ -853,14 +853,14 @@ class Location:
 class LocAndContent:
     """Original type: loc_and_content"""
 
-    value: Tuple[Location, str]
+    value: Tuple[Location, Optional[str]]
 
     @classmethod
     def from_json(cls, x: Any) -> 'LocAndContent':
-        return cls((lambda x: (Location.from_json(x[0]), _atd_read_string(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x))
+        return cls((lambda x: (Location.from_json(x[0]), _atd_read_option(_atd_read_string)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x))
 
     def to_json(self) -> Any:
-        return (lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_string(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)
+        return (lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_option(_atd_write_string)(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)
 
     @classmethod
     def from_json_string(cls, x: str) -> 'LocAndContent':
@@ -875,14 +875,14 @@ class MatchIntermediateVar:
     """Original type: match_intermediate_var = { ... }"""
 
     location: Location
-    content: str
+    content: Optional[str]
 
     @classmethod
     def from_json(cls, x: Any) -> 'MatchIntermediateVar':
         if isinstance(x, dict):
             return cls(
                 location=Location.from_json(x['location']) if 'location' in x else _atd_missing_json_field('MatchIntermediateVar', 'location'),
-                content=_atd_read_string(x['content']) if 'content' in x else _atd_missing_json_field('MatchIntermediateVar', 'content'),
+                content=_atd_read_option(_atd_read_string)(x['content']) if 'content' in x else _atd_missing_json_field('MatchIntermediateVar', 'content'),
             )
         else:
             _atd_bad_json('MatchIntermediateVar', x)
@@ -890,7 +890,7 @@ class MatchIntermediateVar:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['location'] = (lambda x: x.to_json())(self.location)
-        res['content'] = _atd_write_string(self.content)
+        res['content'] = _atd_write_option(_atd_write_string)(self.content)
         return res
 
     @classmethod

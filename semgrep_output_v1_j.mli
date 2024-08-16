@@ -43,7 +43,7 @@ type loc_and_content = Semgrep_output_v1_t.loc_and_content
 
 type match_intermediate_var = Semgrep_output_v1_t.match_intermediate_var = {
   location: location;
-  content: string
+  content: string option
 }
 
 type pro_feature = Semgrep_output_v1_t.pro_feature = {
