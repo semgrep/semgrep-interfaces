@@ -975,6 +975,10 @@ let write_operator = (
       | `NotIs -> Buffer.add_string ob "\"NotIs\""
       | `Background -> Buffer.add_string ob "\"Background\""
       | `Pipe -> Buffer.add_string ob "\"Pipe\""
+      | `LDA -> Buffer.add_string ob "\"LDA\""
+      | `RDA -> Buffer.add_string ob "\"RDA\""
+      | `LSA -> Buffer.add_string ob "\"LSA\""
+      | `RSA -> Buffer.add_string ob "\"RSA\""
 )
 let string_of_operator ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -1166,6 +1170,22 @@ let read_operator = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Pipe
+            | "LDA" -> 
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `LDA
+            | "RDA" -> 
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `RDA
+            | "LSA" -> 
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `LSA
+            | "RSA" -> 
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `RSA
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -1259,6 +1279,14 @@ let read_operator = (
               `NotIs
             | "Background" ->
               `Background
+            | "LDA" ->
+              `LDA
+            | "RDA" ->
+              `RDA
+            | "LSA" ->
+              `LSA
+            | "RSA" ->
+              `RSA
             | "Pipe" ->
               `Pipe
             | x ->
