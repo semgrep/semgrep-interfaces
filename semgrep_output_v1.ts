@@ -291,6 +291,12 @@ export type MatchingExplanation = {
   children: MatchingExplanation[];
   matches: CoreMatch[];
   loc: Location;
+  extra?: MatchingExplanationExtra;
+}
+
+export type MatchingExplanationExtra = {
+  before_negation_matches: Option<CoreMatch[]>;
+  before_filter_matches: Option<CoreMatch[]>;
 }
 
 export type MatchingOperation =
@@ -344,12 +350,62 @@ export type CliOutputExtra = {
   skipped_rules: SkippedRule[];
 }
 
+export type MatchingDiagnosis = {
+  target: Fpath;
+  unexpected_match_diagnoses: UnexpectedMatchDiagnosis[];
+  unexpected_no_match_diagnoses: UnexpectedNoMatchDiagnosis[];
+}
+
+export type UnexpectedMatchDiagnosis = {
+  matched_text: Snippet;
+  originating_kind: OriginatingNodeKind;
+  originating_text: Snippet;
+  killing_parents: KillingParent[];
+}
+
+export type UnexpectedNoMatchDiagnosis = {
+  line: number /*int*/;
+  kind: UnexpectedNoMatchDiagnosisKind;
+}
+
+export type UnexpectedNoMatchDiagnosisKind =
+| { kind: 'Never_matched' }
+| { kind: 'Killed_by_nodes'; value: KillingParent[] }
+
+export type OriginatingNodeKind =
+| { kind: 'Focus' }
+| { kind: 'Xpattern' }
+
+export type KillingParentKind =
+| { kind: 'And' }
+| { kind: 'Inside' }
+| { kind: 'Negation' }
+| { kind: 'Filter'; value: string }
+
+export type Snippet = {
+  line: number /*int*/;
+  text: string;
+}
+
+export type KillingParent = {
+  killing_parent_kind: KillingParentKind;
+  snippet: Snippet;
+}
+
+export type ConfigErrorReason =
+| { kind: 'UnparsableRule' /* JSON: "unparsable_rule" */ }
+
+export type ConfigError = {
+  file: Fpath;
+  reason: ConfigErrorReason;
+}
+
 export type TestsResult = {
   results: [string, Checks][];
   fixtest_results: [string, FixtestResult][];
   config_missing_tests: Fpath[];
   config_missing_fixtests: Fpath[];
-  config_with_errors: Todo[];
+  config_with_errors: ConfigError[];
 }
 
 export type Checks = {
@@ -360,6 +416,7 @@ export type RuleResult = {
   passed: boolean;
   matches: [string, ExpectedReported][];
   errors: Todo[];
+  diagnosis?: MatchingDiagnosis;
 }
 
 export type ExpectedReported = {
@@ -765,14 +822,22 @@ export type SarifFormatReturn = {
   format_time_seconds: number;
 }
 
+export type OutputFormat =
+| { kind: 'Vim' }
+| { kind: 'Emacs' }
+
 export type FunctionCall =
+| { kind: 'CallContributions' }
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
 | { kind: 'CallSarifFormat'; value: SarifFormatParams }
+| { kind: 'CallFormatter'; value: [OutputFormat, CliOutput] }
 
 export type FunctionReturn =
+| { kind: 'RetError'; value: string }
 | { kind: 'RetApplyFixes'; value: ApplyFixesReturn }
 | { kind: 'RetSarifFormat'; value: SarifFormatReturn }
-| { kind: 'RetError'; value: string }
+| { kind: 'RetContributions'; value: Contributions }
+| { kind: 'RetFormatter'; value: string }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
@@ -1682,6 +1747,7 @@ export function writeMatchingExplanation(x: MatchingExplanation, context: any = 
     'children': _atd_write_required_field('MatchingExplanation', 'children', _atd_write_array(writeMatchingExplanation), x.children, x),
     'matches': _atd_write_required_field('MatchingExplanation', 'matches', _atd_write_array(writeCoreMatch), x.matches, x),
     'loc': _atd_write_required_field('MatchingExplanation', 'loc', writeLocation, x.loc, x),
+    'extra': _atd_write_optional_field(writeMatchingExplanationExtra, x.extra, x),
   };
 }
 
@@ -1691,6 +1757,21 @@ export function readMatchingExplanation(x: any, context: any = x): MatchingExpla
     children: _atd_read_required_field('MatchingExplanation', 'children', _atd_read_array(readMatchingExplanation), x['children'], x),
     matches: _atd_read_required_field('MatchingExplanation', 'matches', _atd_read_array(readCoreMatch), x['matches'], x),
     loc: _atd_read_required_field('MatchingExplanation', 'loc', readLocation, x['loc'], x),
+    extra: _atd_read_optional_field(readMatchingExplanationExtra, x['extra'], x),
+  };
+}
+
+export function writeMatchingExplanationExtra(x: MatchingExplanationExtra, context: any = x): any {
+  return {
+    'before_negation_matches': _atd_write_required_field('MatchingExplanationExtra', 'before_negation_matches', _atd_write_option(_atd_write_array(writeCoreMatch)), x.before_negation_matches, x),
+    'before_filter_matches': _atd_write_required_field('MatchingExplanationExtra', 'before_filter_matches', _atd_write_option(_atd_write_array(writeCoreMatch)), x.before_filter_matches, x),
+  };
+}
+
+export function readMatchingExplanationExtra(x: any, context: any = x): MatchingExplanationExtra {
+  return {
+    before_negation_matches: _atd_read_required_field('MatchingExplanationExtra', 'before_negation_matches', _atd_read_option(_atd_read_array(readCoreMatch)), x['before_negation_matches'], x),
+    before_filter_matches: _atd_read_required_field('MatchingExplanationExtra', 'before_filter_matches', _atd_read_option(_atd_read_array(readCoreMatch)), x['before_filter_matches'], x),
   };
 }
 
@@ -1853,13 +1934,211 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
   };
 }
 
+export function writeMatchingDiagnosis(x: MatchingDiagnosis, context: any = x): any {
+  return {
+    'target': _atd_write_required_field('MatchingDiagnosis', 'target', writeFpath, x.target, x),
+    'unexpected_match_diagnoses': _atd_write_required_field('MatchingDiagnosis', 'unexpected_match_diagnoses', _atd_write_array(writeUnexpectedMatchDiagnosis), x.unexpected_match_diagnoses, x),
+    'unexpected_no_match_diagnoses': _atd_write_required_field('MatchingDiagnosis', 'unexpected_no_match_diagnoses', _atd_write_array(writeUnexpectedNoMatchDiagnosis), x.unexpected_no_match_diagnoses, x),
+  };
+}
+
+export function readMatchingDiagnosis(x: any, context: any = x): MatchingDiagnosis {
+  return {
+    target: _atd_read_required_field('MatchingDiagnosis', 'target', readFpath, x['target'], x),
+    unexpected_match_diagnoses: _atd_read_required_field('MatchingDiagnosis', 'unexpected_match_diagnoses', _atd_read_array(readUnexpectedMatchDiagnosis), x['unexpected_match_diagnoses'], x),
+    unexpected_no_match_diagnoses: _atd_read_required_field('MatchingDiagnosis', 'unexpected_no_match_diagnoses', _atd_read_array(readUnexpectedNoMatchDiagnosis), x['unexpected_no_match_diagnoses'], x),
+  };
+}
+
+export function writeUnexpectedMatchDiagnosis(x: UnexpectedMatchDiagnosis, context: any = x): any {
+  return {
+    'matched_text': _atd_write_required_field('UnexpectedMatchDiagnosis', 'matched_text', writeSnippet, x.matched_text, x),
+    'originating_kind': _atd_write_required_field('UnexpectedMatchDiagnosis', 'originating_kind', writeOriginatingNodeKind, x.originating_kind, x),
+    'originating_text': _atd_write_required_field('UnexpectedMatchDiagnosis', 'originating_text', writeSnippet, x.originating_text, x),
+    'killing_parents': _atd_write_required_field('UnexpectedMatchDiagnosis', 'killing_parents', _atd_write_array(writeKillingParent), x.killing_parents, x),
+  };
+}
+
+export function readUnexpectedMatchDiagnosis(x: any, context: any = x): UnexpectedMatchDiagnosis {
+  return {
+    matched_text: _atd_read_required_field('UnexpectedMatchDiagnosis', 'matched_text', readSnippet, x['matched_text'], x),
+    originating_kind: _atd_read_required_field('UnexpectedMatchDiagnosis', 'originating_kind', readOriginatingNodeKind, x['originating_kind'], x),
+    originating_text: _atd_read_required_field('UnexpectedMatchDiagnosis', 'originating_text', readSnippet, x['originating_text'], x),
+    killing_parents: _atd_read_required_field('UnexpectedMatchDiagnosis', 'killing_parents', _atd_read_array(readKillingParent), x['killing_parents'], x),
+  };
+}
+
+export function writeUnexpectedNoMatchDiagnosis(x: UnexpectedNoMatchDiagnosis, context: any = x): any {
+  return {
+    'line': _atd_write_required_field('UnexpectedNoMatchDiagnosis', 'line', _atd_write_int, x.line, x),
+    'kind': _atd_write_required_field('UnexpectedNoMatchDiagnosis', 'kind', writeUnexpectedNoMatchDiagnosisKind, x.kind, x),
+  };
+}
+
+export function readUnexpectedNoMatchDiagnosis(x: any, context: any = x): UnexpectedNoMatchDiagnosis {
+  return {
+    line: _atd_read_required_field('UnexpectedNoMatchDiagnosis', 'line', _atd_read_int, x['line'], x),
+    kind: _atd_read_required_field('UnexpectedNoMatchDiagnosis', 'kind', readUnexpectedNoMatchDiagnosisKind, x['kind'], x),
+  };
+}
+
+export function writeUnexpectedNoMatchDiagnosisKind(x: UnexpectedNoMatchDiagnosisKind, context: any = x): any {
+  switch (x.kind) {
+    case 'Never_matched':
+      return 'Never_matched'
+    case 'Killed_by_nodes':
+      return ['Killed_by_nodes', _atd_write_array(writeKillingParent)(x.value, x)]
+  }
+}
+
+export function readUnexpectedNoMatchDiagnosisKind(x: any, context: any = x): UnexpectedNoMatchDiagnosisKind {
+  if (typeof x === 'string') {
+    switch (x) {
+      case 'Never_matched':
+        return { kind: 'Never_matched' }
+      default:
+        _atd_bad_json('UnexpectedNoMatchDiagnosisKind', x, context)
+        throw new Error('impossible')
+    }
+  }
+  else {
+    _atd_check_json_tuple(2, x, context)
+    switch (x[0]) {
+      case 'Killed_by_nodes':
+        return { kind: 'Killed_by_nodes', value: _atd_read_array(readKillingParent)(x[1], x) }
+      default:
+        _atd_bad_json('UnexpectedNoMatchDiagnosisKind', x, context)
+        throw new Error('impossible')
+    }
+  }
+}
+
+export function writeOriginatingNodeKind(x: OriginatingNodeKind, context: any = x): any {
+  switch (x.kind) {
+    case 'Focus':
+      return 'Focus'
+    case 'Xpattern':
+      return 'Xpattern'
+  }
+}
+
+export function readOriginatingNodeKind(x: any, context: any = x): OriginatingNodeKind {
+  switch (x) {
+    case 'Focus':
+      return { kind: 'Focus' }
+    case 'Xpattern':
+      return { kind: 'Xpattern' }
+    default:
+      _atd_bad_json('OriginatingNodeKind', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeKillingParentKind(x: KillingParentKind, context: any = x): any {
+  switch (x.kind) {
+    case 'And':
+      return 'And'
+    case 'Inside':
+      return 'Inside'
+    case 'Negation':
+      return 'Negation'
+    case 'Filter':
+      return ['Filter', _atd_write_string(x.value, x)]
+  }
+}
+
+export function readKillingParentKind(x: any, context: any = x): KillingParentKind {
+  if (typeof x === 'string') {
+    switch (x) {
+      case 'And':
+        return { kind: 'And' }
+      case 'Inside':
+        return { kind: 'Inside' }
+      case 'Negation':
+        return { kind: 'Negation' }
+      default:
+        _atd_bad_json('KillingParentKind', x, context)
+        throw new Error('impossible')
+    }
+  }
+  else {
+    _atd_check_json_tuple(2, x, context)
+    switch (x[0]) {
+      case 'Filter':
+        return { kind: 'Filter', value: _atd_read_string(x[1], x) }
+      default:
+        _atd_bad_json('KillingParentKind', x, context)
+        throw new Error('impossible')
+    }
+  }
+}
+
+export function writeSnippet(x: Snippet, context: any = x): any {
+  return {
+    'line': _atd_write_required_field('Snippet', 'line', _atd_write_int, x.line, x),
+    'text': _atd_write_required_field('Snippet', 'text', _atd_write_string, x.text, x),
+  };
+}
+
+export function readSnippet(x: any, context: any = x): Snippet {
+  return {
+    line: _atd_read_required_field('Snippet', 'line', _atd_read_int, x['line'], x),
+    text: _atd_read_required_field('Snippet', 'text', _atd_read_string, x['text'], x),
+  };
+}
+
+export function writeKillingParent(x: KillingParent, context: any = x): any {
+  return {
+    'killing_parent_kind': _atd_write_required_field('KillingParent', 'killing_parent_kind', writeKillingParentKind, x.killing_parent_kind, x),
+    'snippet': _atd_write_required_field('KillingParent', 'snippet', writeSnippet, x.snippet, x),
+  };
+}
+
+export function readKillingParent(x: any, context: any = x): KillingParent {
+  return {
+    killing_parent_kind: _atd_read_required_field('KillingParent', 'killing_parent_kind', readKillingParentKind, x['killing_parent_kind'], x),
+    snippet: _atd_read_required_field('KillingParent', 'snippet', readSnippet, x['snippet'], x),
+  };
+}
+
+export function writeConfigErrorReason(x: ConfigErrorReason, context: any = x): any {
+  switch (x.kind) {
+    case 'UnparsableRule':
+      return 'unparsable_rule'
+  }
+}
+
+export function readConfigErrorReason(x: any, context: any = x): ConfigErrorReason {
+  switch (x) {
+    case 'unparsable_rule':
+      return { kind: 'UnparsableRule' }
+    default:
+      _atd_bad_json('ConfigErrorReason', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeConfigError(x: ConfigError, context: any = x): any {
+  return {
+    'file': _atd_write_required_field('ConfigError', 'file', writeFpath, x.file, x),
+    'reason': _atd_write_required_field('ConfigError', 'reason', writeConfigErrorReason, x.reason, x),
+  };
+}
+
+export function readConfigError(x: any, context: any = x): ConfigError {
+  return {
+    file: _atd_read_required_field('ConfigError', 'file', readFpath, x['file'], x),
+    reason: _atd_read_required_field('ConfigError', 'reason', readConfigErrorReason, x['reason'], x),
+  };
+}
+
 export function writeTestsResult(x: TestsResult, context: any = x): any {
   return {
     'results': _atd_write_required_field('TestsResult', 'results', _atd_write_assoc_array_to_object(writeChecks), x.results, x),
     'fixtest_results': _atd_write_required_field('TestsResult', 'fixtest_results', _atd_write_assoc_array_to_object(writeFixtestResult), x.fixtest_results, x),
     'config_missing_tests': _atd_write_required_field('TestsResult', 'config_missing_tests', _atd_write_array(writeFpath), x.config_missing_tests, x),
     'config_missing_fixtests': _atd_write_required_field('TestsResult', 'config_missing_fixtests', _atd_write_array(writeFpath), x.config_missing_fixtests, x),
-    'config_with_errors': _atd_write_required_field('TestsResult', 'config_with_errors', _atd_write_array(writeTodo), x.config_with_errors, x),
+    'config_with_errors': _atd_write_required_field('TestsResult', 'config_with_errors', _atd_write_array(writeConfigError), x.config_with_errors, x),
   };
 }
 
@@ -1869,7 +2148,7 @@ export function readTestsResult(x: any, context: any = x): TestsResult {
     fixtest_results: _atd_read_required_field('TestsResult', 'fixtest_results', _atd_read_assoc_object_into_array(readFixtestResult), x['fixtest_results'], x),
     config_missing_tests: _atd_read_required_field('TestsResult', 'config_missing_tests', _atd_read_array(readFpath), x['config_missing_tests'], x),
     config_missing_fixtests: _atd_read_required_field('TestsResult', 'config_missing_fixtests', _atd_read_array(readFpath), x['config_missing_fixtests'], x),
-    config_with_errors: _atd_read_required_field('TestsResult', 'config_with_errors', _atd_read_array(readTodo), x['config_with_errors'], x),
+    config_with_errors: _atd_read_required_field('TestsResult', 'config_with_errors', _atd_read_array(readConfigError), x['config_with_errors'], x),
   };
 }
 
@@ -1890,6 +2169,7 @@ export function writeRuleResult(x: RuleResult, context: any = x): any {
     'passed': _atd_write_required_field('RuleResult', 'passed', _atd_write_bool, x.passed, x),
     'matches': _atd_write_required_field('RuleResult', 'matches', _atd_write_assoc_array_to_object(writeExpectedReported), x.matches, x),
     'errors': _atd_write_required_field('RuleResult', 'errors', _atd_write_array(writeTodo), x.errors, x),
+    'diagnosis': _atd_write_optional_field(writeMatchingDiagnosis, x.diagnosis, x),
   };
 }
 
@@ -1898,6 +2178,7 @@ export function readRuleResult(x: any, context: any = x): RuleResult {
     passed: _atd_read_required_field('RuleResult', 'passed', _atd_read_bool, x['passed'], x),
     matches: _atd_read_required_field('RuleResult', 'matches', _atd_read_assoc_object_into_array(readExpectedReported), x['matches'], x),
     errors: _atd_read_required_field('RuleResult', 'errors', _atd_read_array(readTodo), x['errors'], x),
+    diagnosis: _atd_read_optional_field(readMatchingDiagnosis, x['diagnosis'], x),
   };
 }
 
@@ -3020,48 +3301,94 @@ export function readSarifFormatReturn(x: any, context: any = x): SarifFormatRetu
   };
 }
 
+export function writeOutputFormat(x: OutputFormat, context: any = x): any {
+  switch (x.kind) {
+    case 'Vim':
+      return 'Vim'
+    case 'Emacs':
+      return 'Emacs'
+  }
+}
+
+export function readOutputFormat(x: any, context: any = x): OutputFormat {
+  switch (x) {
+    case 'Vim':
+      return { kind: 'Vim' }
+    case 'Emacs':
+      return { kind: 'Emacs' }
+    default:
+      _atd_bad_json('OutputFormat', x, context)
+      throw new Error('impossible')
+  }
+}
+
 export function writeFunctionCall(x: FunctionCall, context: any = x): any {
   switch (x.kind) {
+    case 'CallContributions':
+      return 'CallContributions'
     case 'CallApplyFixes':
       return ['CallApplyFixes', writeApplyFixesParams(x.value, x)]
     case 'CallSarifFormat':
       return ['CallSarifFormat', writeSarifFormatParams(x.value, x)]
+    case 'CallFormatter':
+      return ['CallFormatter', ((x, context) => [writeOutputFormat(x[0], x), writeCliOutput(x[1], x)])(x.value, x)]
   }
 }
 
 export function readFunctionCall(x: any, context: any = x): FunctionCall {
-  _atd_check_json_tuple(2, x, context)
-  switch (x[0]) {
-    case 'CallApplyFixes':
-      return { kind: 'CallApplyFixes', value: readApplyFixesParams(x[1], x) }
-    case 'CallSarifFormat':
-      return { kind: 'CallSarifFormat', value: readSarifFormatParams(x[1], x) }
-    default:
-      _atd_bad_json('FunctionCall', x, context)
-      throw new Error('impossible')
+  if (typeof x === 'string') {
+    switch (x) {
+      case 'CallContributions':
+        return { kind: 'CallContributions' }
+      default:
+        _atd_bad_json('FunctionCall', x, context)
+        throw new Error('impossible')
+    }
+  }
+  else {
+    _atd_check_json_tuple(2, x, context)
+    switch (x[0]) {
+      case 'CallApplyFixes':
+        return { kind: 'CallApplyFixes', value: readApplyFixesParams(x[1], x) }
+      case 'CallSarifFormat':
+        return { kind: 'CallSarifFormat', value: readSarifFormatParams(x[1], x) }
+      case 'CallFormatter':
+        return { kind: 'CallFormatter', value: ((x, context): [OutputFormat, CliOutput] => { _atd_check_json_tuple(2, x, context); return [readOutputFormat(x[0], x), readCliOutput(x[1], x)] })(x[1], x) }
+      default:
+        _atd_bad_json('FunctionCall', x, context)
+        throw new Error('impossible')
+    }
   }
 }
 
 export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
   switch (x.kind) {
+    case 'RetError':
+      return ['RetError', _atd_write_string(x.value, x)]
     case 'RetApplyFixes':
       return ['RetApplyFixes', writeApplyFixesReturn(x.value, x)]
     case 'RetSarifFormat':
       return ['RetSarifFormat', writeSarifFormatReturn(x.value, x)]
-    case 'RetError':
-      return ['RetError', _atd_write_string(x.value, x)]
+    case 'RetContributions':
+      return ['RetContributions', writeContributions(x.value, x)]
+    case 'RetFormatter':
+      return ['RetFormatter', _atd_write_string(x.value, x)]
   }
 }
 
 export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
   _atd_check_json_tuple(2, x, context)
   switch (x[0]) {
+    case 'RetError':
+      return { kind: 'RetError', value: _atd_read_string(x[1], x) }
     case 'RetApplyFixes':
       return { kind: 'RetApplyFixes', value: readApplyFixesReturn(x[1], x) }
     case 'RetSarifFormat':
       return { kind: 'RetSarifFormat', value: readSarifFormatReturn(x[1], x) }
-    case 'RetError':
-      return { kind: 'RetError', value: _atd_read_string(x[1], x) }
+    case 'RetContributions':
+      return { kind: 'RetContributions', value: readContributions(x[1], x) }
+    case 'RetFormatter':
+      return { kind: 'RetFormatter', value: _atd_read_string(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')

@@ -410,6 +410,10 @@ type metavariable_cond = {
   ?type_ <json name="type">: string option;
   ?types: string list option;
 
+  (* for semgrep-internal-metavariable-name, currently only support
+     "django-view" kind *)
+  ?kind: string option;
+
   (* this covers regex:/pattern:, but also all:/any: with optional where:
    * CHECK: language is valid only when combined with a formula
    * CHECK: constant_propagation: is valid only when combined with regex:

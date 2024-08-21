@@ -492,7 +492,48 @@
           "type": "array",
           "items": { "$ref": "#/definitions/core_match" }
         },
-        "loc": { "$ref": "#/definitions/location" }
+        "loc": { "$ref": "#/definitions/location" },
+        "extra": { "$ref": "#/definitions/matching_explanation_extra" }
+      }
+    },
+    "matching_explanation_extra": {
+      "type": "object",
+      "required": [ "before_negation_matches", "before_filter_matches" ],
+      "properties": {
+        "before_negation_matches": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" },
+                {
+                  "type": "array",
+                  "items": { "$ref": "#/definitions/core_match" }
+                }
+              ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "before_filter_matches": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" },
+                {
+                  "type": "array",
+                  "items": { "$ref": "#/definitions/core_match" }
+                }
+              ]
+            },
+            { "const": "None" }
+          ]
+        }
       }
     },
     "matching_operation": {
@@ -581,6 +622,110 @@
         }
       }
     },
+    "matching_diagnosis": {
+      "type": "object",
+      "required": [
+        "target", "unexpected_match_diagnoses",
+        "unexpected_no_match_diagnoses"
+      ],
+      "properties": {
+        "target": { "$ref": "#/definitions/fpath" },
+        "unexpected_match_diagnoses": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/unexpected_match_diagnosis" }
+        },
+        "unexpected_no_match_diagnoses": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/unexpected_no_match_diagnosis" }
+        }
+      }
+    },
+    "unexpected_match_diagnosis": {
+      "type": "object",
+      "required": [
+        "matched_text", "originating_kind", "originating_text",
+        "killing_parents"
+      ],
+      "properties": {
+        "matched_text": { "$ref": "#/definitions/snippet" },
+        "originating_kind": { "$ref": "#/definitions/originating_node_kind" },
+        "originating_text": { "$ref": "#/definitions/snippet" },
+        "killing_parents": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/killing_parent" }
+        }
+      }
+    },
+    "unexpected_no_match_diagnosis": {
+      "type": "object",
+      "required": [ "line", "kind" ],
+      "properties": {
+        "line": { "type": "integer" },
+        "kind": {
+          "$ref": "#/definitions/unexpected_no_match_diagnosis_kind"
+        }
+      }
+    },
+    "unexpected_no_match_diagnosis_kind": {
+      "oneOf": [
+        { "const": "Never_matched" },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "Killed_by_nodes" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/killing_parent" }
+            }
+          ]
+        }
+      ]
+    },
+    "originating_node_kind": {
+      "oneOf": [ { "const": "Focus" }, { "const": "Xpattern" } ]
+    },
+    "killing_parent_kind": {
+      "oneOf": [
+        { "const": "And" },
+        { "const": "Inside" },
+        { "const": "Negation" },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [ { "const": "Filter" }, { "type": "string" } ]
+        }
+      ]
+    },
+    "snippet": {
+      "type": "object",
+      "required": [ "line", "text" ],
+      "properties": {
+        "line": { "type": "integer" },
+        "text": { "type": "string" }
+      }
+    },
+    "killing_parent": {
+      "type": "object",
+      "required": [ "killing_parent_kind", "snippet" ],
+      "properties": {
+        "killing_parent_kind": {
+          "$ref": "#/definitions/killing_parent_kind"
+        },
+        "snippet": { "$ref": "#/definitions/snippet" }
+      }
+    },
+    "config_error_reason": { "oneOf": [ { "const": "unparsable_rule" } ] },
+    "config_error": {
+      "type": "object",
+      "required": [ "file", "reason" ],
+      "properties": {
+        "file": { "$ref": "#/definitions/fpath" },
+        "reason": { "$ref": "#/definitions/config_error_reason" }
+      }
+    },
     "tests_result": {
       "type": "object",
       "required": [
@@ -606,7 +751,7 @@
         },
         "config_with_errors": {
           "type": "array",
-          "items": { "$ref": "#/definitions/todo" }
+          "items": { "$ref": "#/definitions/config_error" }
         }
       }
     },
@@ -634,7 +779,8 @@
         "errors": {
           "type": "array",
           "items": { "$ref": "#/definitions/todo" }
-        }
+        },
+        "diagnosis": { "$ref": "#/definitions/matching_diagnosis" }
       }
     },
     "expected_reported": {
@@ -1354,8 +1500,12 @@
         "format_time_seconds": { "type": "number" }
       }
     },
+    "output_format": {
+      "oneOf": [ { "const": "Vim" }, { "const": "Emacs" } ]
+    },
     "function_call": {
       "oneOf": [
+        { "const": "CallContributions" },
         {
           "type": "array",
           "minItems": 2,
@@ -1373,11 +1523,34 @@
             { "const": "CallSarifFormat" },
             { "$ref": "#/definitions/sarif_format_params" }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CallFormatter" },
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "$ref": "#/definitions/output_format" },
+                { "$ref": "#/definitions/cli_output" }
+              ]
+            }
+          ]
         }
       ]
     },
     "function_return": {
       "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [ { "const": "RetError" }, { "type": "string" } ]
+        },
         {
           "type": "array",
           "minItems": 2,
@@ -1400,7 +1573,18 @@
           "type": "array",
           "minItems": 2,
           "items": false,
-          "prefixItems": [ { "const": "RetError" }, { "type": "string" } ]
+          "prefixItems": [
+            { "const": "RetContributions" },
+            { "$ref": "#/definitions/contributions" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "RetFormatter" }, { "type": "string" }
+          ]
         }
       ]
     }

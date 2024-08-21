@@ -120,11 +120,18 @@ type core_match = Semgrep_output_v1_t.core_match = {
   extra: core_match_extra
 }
 
+type matching_explanation_extra =
+  Semgrep_output_v1_t.matching_explanation_extra = {
+  before_negation_matches: core_match list option;
+  before_filter_matches: core_match list option
+}
+
 type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
   op: matching_operation;
   children: matching_explanation list;
   matches: core_match list;
-  loc: location
+  loc: location;
+  extra: matching_explanation_extra option
 }
 
 type version = Semgrep_output_v1_t.version [@@deriving show]
@@ -132,6 +139,34 @@ type version = Semgrep_output_v1_t.version [@@deriving show]
 type uuid = Semgrep_output_v1_t.uuid
 
 type uri = Semgrep_output_v1_t.uri
+
+type snippet = Semgrep_output_v1_t.snippet = { line: int; text: string }
+
+type killing_parent_kind = Semgrep_output_v1_t.killing_parent_kind
+
+type killing_parent = Semgrep_output_v1_t.killing_parent = {
+  killing_parent_kind: killing_parent_kind;
+  snippet: snippet
+}
+
+type unexpected_no_match_diagnosis_kind =
+  Semgrep_output_v1_t.unexpected_no_match_diagnosis_kind
+
+type unexpected_no_match_diagnosis =
+  Semgrep_output_v1_t.unexpected_no_match_diagnosis = {
+  line: int;
+  kind: unexpected_no_match_diagnosis_kind
+}
+
+type originating_node_kind = Semgrep_output_v1_t.originating_node_kind
+
+type unexpected_match_diagnosis =
+  Semgrep_output_v1_t.unexpected_match_diagnosis = {
+  matched_text: snippet;
+  originating_kind: originating_node_kind;
+  originating_text: snippet;
+  killing_parents: killing_parent list
+}
 
 type triage_ignored = Semgrep_output_v1_t.triage_ignored = {
   triage_ignored_syntactic_ids: string list;
@@ -142,6 +177,12 @@ type transitivity = Semgrep_output_v1_t.transitivity [@@deriving show,eq]
 
 type todo = Semgrep_output_v1_t.todo
 
+type matching_diagnosis = Semgrep_output_v1_t.matching_diagnosis = {
+  target: fpath;
+  unexpected_match_diagnoses: unexpected_match_diagnosis list;
+  unexpected_no_match_diagnoses: unexpected_no_match_diagnosis list
+}
+
 type expected_reported = Semgrep_output_v1_t.expected_reported = {
   expected_lines: int list;
   reported_lines: int list
@@ -150,10 +191,18 @@ type expected_reported = Semgrep_output_v1_t.expected_reported = {
 type rule_result = Semgrep_output_v1_t.rule_result = {
   passed: bool;
   matches: (string * expected_reported) list;
-  errors: todo list
+  errors: todo list;
+  diagnosis: matching_diagnosis option
 }
 
 type fixtest_result = Semgrep_output_v1_t.fixtest_result = { passed: bool }
+
+type config_error_reason = Semgrep_output_v1_t.config_error_reason
+
+type config_error = Semgrep_output_v1_t.config_error = {
+  file: fpath;
+  reason: config_error_reason
+}
 
 type checks = Semgrep_output_v1_t.checks = {
   checks: (string * rule_result) list
@@ -164,7 +213,7 @@ type tests_result = Semgrep_output_v1_t.tests_result = {
   fixtest_results: (string * fixtest_result) list;
   config_missing_tests: fpath list;
   config_missing_fixtests: fpath list;
-  config_with_errors: todo list
+  config_with_errors: config_error list
 }
 
 type target_times = Semgrep_output_v1_t.target_times = {
@@ -496,12 +545,27 @@ type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
   num_bytes: int
 }
 
+type output_format = Semgrep_output_v1_t.output_format
+
 type has_features = Semgrep_output_v1_t.has_features = {
   has_autofix: bool;
   has_deepsemgrep: bool;
   has_triage_via_comment: bool;
   has_dependency_query: bool
 }
+
+type contributor = Semgrep_output_v1_t.contributor = {
+  commit_author_name: string;
+  commit_author_email: string
+}
+
+type contribution = Semgrep_output_v1_t.contribution = {
+  commit_hash: string;
+  commit_timestamp: datetime;
+  contributor: contributor
+}
+
+type contributions = Semgrep_output_v1_t.contributions
 
 type apply_fixes_return = Semgrep_output_v1_t.apply_fixes_return = {
   modified_file_count: int;
@@ -515,6 +579,19 @@ type edit = Semgrep_output_v1_t.edit = {
   start_offset: int;
   end_offset: int;
   replacement_text: string
+}
+
+type cli_output = Semgrep_output_v1_t.cli_output = {
+  version: version option;
+  errors: cli_error list;
+  results: cli_match list;
+  paths: scanned_and_skipped;
+  time: profile option;
+  explanations: matching_explanation list option;
+  rules_by_engine: rule_id_and_engine_kind list option;
+  engine_requested: engine_kind option;
+  interfile_languages_used: string list option;
+  skipped_rules: skipped_rule list
 }
 
 type apply_fixes_params = Semgrep_output_v1_t.apply_fixes_params = {
@@ -612,33 +689,7 @@ type core_output = Semgrep_output_v1_t.core_output = {
   skipped_rules: skipped_rule list
 }
 
-type contributor = Semgrep_output_v1_t.contributor = {
-  commit_author_name: string;
-  commit_author_email: string
-}
-
-type contribution = Semgrep_output_v1_t.contribution = {
-  commit_hash: string;
-  commit_timestamp: datetime;
-  contributor: contributor
-}
-
-type contributions = Semgrep_output_v1_t.contributions
-
 type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
-  paths: scanned_and_skipped;
-  time: profile option;
-  explanations: matching_explanation list option;
-  rules_by_engine: rule_id_and_engine_kind list option;
-  engine_requested: engine_kind option;
-  interfile_languages_used: string list option;
-  skipped_rules: skipped_rule list
-}
-
-type cli_output = Semgrep_output_v1_t.cli_output = {
-  version: version option;
-  errors: cli_error list;
-  results: cli_match list;
   paths: scanned_and_skipped;
   time: profile option;
   explanations: matching_explanation list option;
@@ -1147,6 +1198,26 @@ val core_match_of_string :
   string -> core_match
   (** Deserialize JSON data of type {!type:core_match}. *)
 
+val write_matching_explanation_extra :
+  Buffer.t -> matching_explanation_extra -> unit
+  (** Output a JSON value of type {!type:matching_explanation_extra}. *)
+
+val string_of_matching_explanation_extra :
+  ?len:int -> matching_explanation_extra -> string
+  (** Serialize a value of type {!type:matching_explanation_extra}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_matching_explanation_extra :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> matching_explanation_extra
+  (** Input JSON data of type {!type:matching_explanation_extra}. *)
+
+val matching_explanation_extra_of_string :
+  string -> matching_explanation_extra
+  (** Deserialize JSON data of type {!type:matching_explanation_extra}. *)
+
 val write_matching_explanation :
   Buffer.t -> matching_explanation -> unit
   (** Output a JSON value of type {!type:matching_explanation}. *)
@@ -1227,6 +1298,146 @@ val uri_of_string :
   string -> uri
   (** Deserialize JSON data of type {!type:uri}. *)
 
+val write_snippet :
+  Buffer.t -> snippet -> unit
+  (** Output a JSON value of type {!type:snippet}. *)
+
+val string_of_snippet :
+  ?len:int -> snippet -> string
+  (** Serialize a value of type {!type:snippet}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_snippet :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> snippet
+  (** Input JSON data of type {!type:snippet}. *)
+
+val snippet_of_string :
+  string -> snippet
+  (** Deserialize JSON data of type {!type:snippet}. *)
+
+val write_killing_parent_kind :
+  Buffer.t -> killing_parent_kind -> unit
+  (** Output a JSON value of type {!type:killing_parent_kind}. *)
+
+val string_of_killing_parent_kind :
+  ?len:int -> killing_parent_kind -> string
+  (** Serialize a value of type {!type:killing_parent_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_killing_parent_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> killing_parent_kind
+  (** Input JSON data of type {!type:killing_parent_kind}. *)
+
+val killing_parent_kind_of_string :
+  string -> killing_parent_kind
+  (** Deserialize JSON data of type {!type:killing_parent_kind}. *)
+
+val write_killing_parent :
+  Buffer.t -> killing_parent -> unit
+  (** Output a JSON value of type {!type:killing_parent}. *)
+
+val string_of_killing_parent :
+  ?len:int -> killing_parent -> string
+  (** Serialize a value of type {!type:killing_parent}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_killing_parent :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> killing_parent
+  (** Input JSON data of type {!type:killing_parent}. *)
+
+val killing_parent_of_string :
+  string -> killing_parent
+  (** Deserialize JSON data of type {!type:killing_parent}. *)
+
+val write_unexpected_no_match_diagnosis_kind :
+  Buffer.t -> unexpected_no_match_diagnosis_kind -> unit
+  (** Output a JSON value of type {!type:unexpected_no_match_diagnosis_kind}. *)
+
+val string_of_unexpected_no_match_diagnosis_kind :
+  ?len:int -> unexpected_no_match_diagnosis_kind -> string
+  (** Serialize a value of type {!type:unexpected_no_match_diagnosis_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_unexpected_no_match_diagnosis_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> unexpected_no_match_diagnosis_kind
+  (** Input JSON data of type {!type:unexpected_no_match_diagnosis_kind}. *)
+
+val unexpected_no_match_diagnosis_kind_of_string :
+  string -> unexpected_no_match_diagnosis_kind
+  (** Deserialize JSON data of type {!type:unexpected_no_match_diagnosis_kind}. *)
+
+val write_unexpected_no_match_diagnosis :
+  Buffer.t -> unexpected_no_match_diagnosis -> unit
+  (** Output a JSON value of type {!type:unexpected_no_match_diagnosis}. *)
+
+val string_of_unexpected_no_match_diagnosis :
+  ?len:int -> unexpected_no_match_diagnosis -> string
+  (** Serialize a value of type {!type:unexpected_no_match_diagnosis}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_unexpected_no_match_diagnosis :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> unexpected_no_match_diagnosis
+  (** Input JSON data of type {!type:unexpected_no_match_diagnosis}. *)
+
+val unexpected_no_match_diagnosis_of_string :
+  string -> unexpected_no_match_diagnosis
+  (** Deserialize JSON data of type {!type:unexpected_no_match_diagnosis}. *)
+
+val write_originating_node_kind :
+  Buffer.t -> originating_node_kind -> unit
+  (** Output a JSON value of type {!type:originating_node_kind}. *)
+
+val string_of_originating_node_kind :
+  ?len:int -> originating_node_kind -> string
+  (** Serialize a value of type {!type:originating_node_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_originating_node_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> originating_node_kind
+  (** Input JSON data of type {!type:originating_node_kind}. *)
+
+val originating_node_kind_of_string :
+  string -> originating_node_kind
+  (** Deserialize JSON data of type {!type:originating_node_kind}. *)
+
+val write_unexpected_match_diagnosis :
+  Buffer.t -> unexpected_match_diagnosis -> unit
+  (** Output a JSON value of type {!type:unexpected_match_diagnosis}. *)
+
+val string_of_unexpected_match_diagnosis :
+  ?len:int -> unexpected_match_diagnosis -> string
+  (** Serialize a value of type {!type:unexpected_match_diagnosis}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_unexpected_match_diagnosis :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> unexpected_match_diagnosis
+  (** Input JSON data of type {!type:unexpected_match_diagnosis}. *)
+
+val unexpected_match_diagnosis_of_string :
+  string -> unexpected_match_diagnosis
+  (** Deserialize JSON data of type {!type:unexpected_match_diagnosis}. *)
+
 val write_triage_ignored :
   Buffer.t -> triage_ignored -> unit
   (** Output a JSON value of type {!type:triage_ignored}. *)
@@ -1287,6 +1498,26 @@ val todo_of_string :
   string -> todo
   (** Deserialize JSON data of type {!type:todo}. *)
 
+val write_matching_diagnosis :
+  Buffer.t -> matching_diagnosis -> unit
+  (** Output a JSON value of type {!type:matching_diagnosis}. *)
+
+val string_of_matching_diagnosis :
+  ?len:int -> matching_diagnosis -> string
+  (** Serialize a value of type {!type:matching_diagnosis}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_matching_diagnosis :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> matching_diagnosis
+  (** Input JSON data of type {!type:matching_diagnosis}. *)
+
+val matching_diagnosis_of_string :
+  string -> matching_diagnosis
+  (** Deserialize JSON data of type {!type:matching_diagnosis}. *)
+
 val write_expected_reported :
   Buffer.t -> expected_reported -> unit
   (** Output a JSON value of type {!type:expected_reported}. *)
@@ -1346,6 +1577,46 @@ val read_fixtest_result :
 val fixtest_result_of_string :
   string -> fixtest_result
   (** Deserialize JSON data of type {!type:fixtest_result}. *)
+
+val write_config_error_reason :
+  Buffer.t -> config_error_reason -> unit
+  (** Output a JSON value of type {!type:config_error_reason}. *)
+
+val string_of_config_error_reason :
+  ?len:int -> config_error_reason -> string
+  (** Serialize a value of type {!type:config_error_reason}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_config_error_reason :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> config_error_reason
+  (** Input JSON data of type {!type:config_error_reason}. *)
+
+val config_error_reason_of_string :
+  string -> config_error_reason
+  (** Deserialize JSON data of type {!type:config_error_reason}. *)
+
+val write_config_error :
+  Buffer.t -> config_error -> unit
+  (** Output a JSON value of type {!type:config_error}. *)
+
+val string_of_config_error :
+  ?len:int -> config_error -> string
+  (** Serialize a value of type {!type:config_error}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_config_error :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> config_error
+  (** Input JSON data of type {!type:config_error}. *)
+
+val config_error_of_string :
+  string -> config_error
+  (** Deserialize JSON data of type {!type:config_error}. *)
 
 val write_checks :
   Buffer.t -> checks -> unit
@@ -2247,6 +2518,26 @@ val parsing_stats_of_string :
   string -> parsing_stats
   (** Deserialize JSON data of type {!type:parsing_stats}. *)
 
+val write_output_format :
+  Buffer.t -> output_format -> unit
+  (** Output a JSON value of type {!type:output_format}. *)
+
+val string_of_output_format :
+  ?len:int -> output_format -> string
+  (** Serialize a value of type {!type:output_format}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_output_format :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> output_format
+  (** Input JSON data of type {!type:output_format}. *)
+
+val output_format_of_string :
+  string -> output_format
+  (** Deserialize JSON data of type {!type:output_format}. *)
+
 val write_has_features :
   Buffer.t -> has_features -> unit
   (** Output a JSON value of type {!type:has_features}. *)
@@ -2266,6 +2557,66 @@ val read_has_features :
 val has_features_of_string :
   string -> has_features
   (** Deserialize JSON data of type {!type:has_features}. *)
+
+val write_contributor :
+  Buffer.t -> contributor -> unit
+  (** Output a JSON value of type {!type:contributor}. *)
+
+val string_of_contributor :
+  ?len:int -> contributor -> string
+  (** Serialize a value of type {!type:contributor}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_contributor :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> contributor
+  (** Input JSON data of type {!type:contributor}. *)
+
+val contributor_of_string :
+  string -> contributor
+  (** Deserialize JSON data of type {!type:contributor}. *)
+
+val write_contribution :
+  Buffer.t -> contribution -> unit
+  (** Output a JSON value of type {!type:contribution}. *)
+
+val string_of_contribution :
+  ?len:int -> contribution -> string
+  (** Serialize a value of type {!type:contribution}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_contribution :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> contribution
+  (** Input JSON data of type {!type:contribution}. *)
+
+val contribution_of_string :
+  string -> contribution
+  (** Deserialize JSON data of type {!type:contribution}. *)
+
+val write_contributions :
+  Buffer.t -> contributions -> unit
+  (** Output a JSON value of type {!type:contributions}. *)
+
+val string_of_contributions :
+  ?len:int -> contributions -> string
+  (** Serialize a value of type {!type:contributions}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_contributions :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> contributions
+  (** Input JSON data of type {!type:contributions}. *)
+
+val contributions_of_string :
+  string -> contributions
+  (** Deserialize JSON data of type {!type:contributions}. *)
 
 val write_apply_fixes_return :
   Buffer.t -> apply_fixes_return -> unit
@@ -2326,6 +2677,26 @@ val read_edit :
 val edit_of_string :
   string -> edit
   (** Deserialize JSON data of type {!type:edit}. *)
+
+val write_cli_output :
+  Buffer.t -> cli_output -> unit
+  (** Output a JSON value of type {!type:cli_output}. *)
+
+val string_of_cli_output :
+  ?len:int -> cli_output -> string
+  (** Serialize a value of type {!type:cli_output}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_cli_output :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_output
+  (** Input JSON data of type {!type:cli_output}. *)
+
+val cli_output_of_string :
+  string -> cli_output
+  (** Deserialize JSON data of type {!type:cli_output}. *)
 
 val write_apply_fixes_params :
   Buffer.t -> apply_fixes_params -> unit
@@ -2527,66 +2898,6 @@ val core_output_of_string :
   string -> core_output
   (** Deserialize JSON data of type {!type:core_output}. *)
 
-val write_contributor :
-  Buffer.t -> contributor -> unit
-  (** Output a JSON value of type {!type:contributor}. *)
-
-val string_of_contributor :
-  ?len:int -> contributor -> string
-  (** Serialize a value of type {!type:contributor}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_contributor :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> contributor
-  (** Input JSON data of type {!type:contributor}. *)
-
-val contributor_of_string :
-  string -> contributor
-  (** Deserialize JSON data of type {!type:contributor}. *)
-
-val write_contribution :
-  Buffer.t -> contribution -> unit
-  (** Output a JSON value of type {!type:contribution}. *)
-
-val string_of_contribution :
-  ?len:int -> contribution -> string
-  (** Serialize a value of type {!type:contribution}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_contribution :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> contribution
-  (** Input JSON data of type {!type:contribution}. *)
-
-val contribution_of_string :
-  string -> contribution
-  (** Deserialize JSON data of type {!type:contribution}. *)
-
-val write_contributions :
-  Buffer.t -> contributions -> unit
-  (** Output a JSON value of type {!type:contributions}. *)
-
-val string_of_contributions :
-  ?len:int -> contributions -> string
-  (** Serialize a value of type {!type:contributions}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_contributions :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> contributions
-  (** Input JSON data of type {!type:contributions}. *)
-
-val contributions_of_string :
-  string -> contributions
-  (** Deserialize JSON data of type {!type:contributions}. *)
-
 val write_cli_output_extra :
   Buffer.t -> cli_output_extra -> unit
   (** Output a JSON value of type {!type:cli_output_extra}. *)
@@ -2606,26 +2917,6 @@ val read_cli_output_extra :
 val cli_output_extra_of_string :
   string -> cli_output_extra
   (** Deserialize JSON data of type {!type:cli_output_extra}. *)
-
-val write_cli_output :
-  Buffer.t -> cli_output -> unit
-  (** Output a JSON value of type {!type:cli_output}. *)
-
-val string_of_cli_output :
-  ?len:int -> cli_output -> string
-  (** Serialize a value of type {!type:cli_output}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cli_output :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_output
-  (** Input JSON data of type {!type:cli_output}. *)
-
-val cli_output_of_string :
-  string -> cli_output
-  (** Deserialize JSON data of type {!type:cli_output}. *)
 
 val write_ci_scan_results_response_error :
   Buffer.t -> ci_scan_results_response_error -> unit

@@ -1534,6 +1534,37 @@ class CoreMatch:
 
 
 @dataclass
+class MatchingExplanationExtra:
+    """Original type: matching_explanation_extra = { ... }"""
+
+    before_negation_matches: Optional[List[CoreMatch]]
+    before_filter_matches: Optional[List[CoreMatch]]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'MatchingExplanationExtra':
+        if isinstance(x, dict):
+            return cls(
+                before_negation_matches=_atd_read_option(_atd_read_list(CoreMatch.from_json))(x['before_negation_matches']) if 'before_negation_matches' in x else _atd_missing_json_field('MatchingExplanationExtra', 'before_negation_matches'),
+                before_filter_matches=_atd_read_option(_atd_read_list(CoreMatch.from_json))(x['before_filter_matches']) if 'before_filter_matches' in x else _atd_missing_json_field('MatchingExplanationExtra', 'before_filter_matches'),
+            )
+        else:
+            _atd_bad_json('MatchingExplanationExtra', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['before_negation_matches'] = _atd_write_option(_atd_write_list((lambda x: x.to_json())))(self.before_negation_matches)
+        res['before_filter_matches'] = _atd_write_option(_atd_write_list((lambda x: x.to_json())))(self.before_filter_matches)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'MatchingExplanationExtra':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class MatchingExplanation:
     """Original type: matching_explanation = { ... }"""
 
@@ -1541,6 +1572,7 @@ class MatchingExplanation:
     children: List[MatchingExplanation]
     matches: List[CoreMatch]
     loc: Location
+    extra: Optional[MatchingExplanationExtra] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'MatchingExplanation':
@@ -1550,6 +1582,7 @@ class MatchingExplanation:
                 children=_atd_read_list(MatchingExplanation.from_json)(x['children']) if 'children' in x else _atd_missing_json_field('MatchingExplanation', 'children'),
                 matches=_atd_read_list(CoreMatch.from_json)(x['matches']) if 'matches' in x else _atd_missing_json_field('MatchingExplanation', 'matches'),
                 loc=Location.from_json(x['loc']) if 'loc' in x else _atd_missing_json_field('MatchingExplanation', 'loc'),
+                extra=MatchingExplanationExtra.from_json(x['extra']) if 'extra' in x else None,
             )
         else:
             _atd_bad_json('MatchingExplanation', x)
@@ -1560,6 +1593,8 @@ class MatchingExplanation:
         res['children'] = _atd_write_list((lambda x: x.to_json()))(self.children)
         res['matches'] = _atd_write_list((lambda x: x.to_json()))(self.matches)
         res['loc'] = (lambda x: x.to_json())(self.loc)
+        if self.extra is not None:
+            res['extra'] = (lambda x: x.to_json())(self.extra)
         return res
 
     @classmethod
@@ -1627,6 +1662,380 @@ class Uri:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Uri':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Snippet:
+    """Original type: snippet = { ... }"""
+
+    line: int
+    text: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Snippet':
+        if isinstance(x, dict):
+            return cls(
+                line=_atd_read_int(x['line']) if 'line' in x else _atd_missing_json_field('Snippet', 'line'),
+                text=_atd_read_string(x['text']) if 'text' in x else _atd_missing_json_field('Snippet', 'text'),
+            )
+        else:
+            _atd_bad_json('Snippet', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['line'] = _atd_write_int(self.line)
+        res['text'] = _atd_write_string(self.text)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Snippet':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class And_:
+    """Original type: killing_parent_kind = [ ... | And | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'And_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'And'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Inside_:
+    """Original type: killing_parent_kind = [ ... | Inside | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Inside_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Inside'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Negation_:
+    """Original type: killing_parent_kind = [ ... | Negation | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Negation_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Negation'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Filter_:
+    """Original type: killing_parent_kind = [ ... | Filter of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Filter_'
+
+    def to_json(self) -> Any:
+        return ['Filter', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class KillingParentKind:
+    """Original type: killing_parent_kind = [ ... ]"""
+
+    value: Union[And_, Inside_, Negation_, Filter_]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'KillingParentKind':
+        if isinstance(x, str):
+            if x == 'And':
+                return cls(And_())
+            if x == 'Inside':
+                return cls(Inside_())
+            if x == 'Negation':
+                return cls(Negation_())
+            _atd_bad_json('KillingParentKind', x)
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'Filter':
+                return cls(Filter_(_atd_read_string(x[1])))
+            _atd_bad_json('KillingParentKind', x)
+        _atd_bad_json('KillingParentKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'KillingParentKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class KillingParent:
+    """Original type: killing_parent = { ... }"""
+
+    killing_parent_kind: KillingParentKind
+    snippet: Snippet
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'KillingParent':
+        if isinstance(x, dict):
+            return cls(
+                killing_parent_kind=KillingParentKind.from_json(x['killing_parent_kind']) if 'killing_parent_kind' in x else _atd_missing_json_field('KillingParent', 'killing_parent_kind'),
+                snippet=Snippet.from_json(x['snippet']) if 'snippet' in x else _atd_missing_json_field('KillingParent', 'snippet'),
+            )
+        else:
+            _atd_bad_json('KillingParent', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['killing_parent_kind'] = (lambda x: x.to_json())(self.killing_parent_kind)
+        res['snippet'] = (lambda x: x.to_json())(self.snippet)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'KillingParent':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class NeverMatched:
+    """Original type: unexpected_no_match_diagnosis_kind = [ ... | Never_matched | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'NeverMatched'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Never_matched'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class KilledByNodes:
+    """Original type: unexpected_no_match_diagnosis_kind = [ ... | Killed_by_nodes of ... | ... ]"""
+
+    value: List[KillingParent]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'KilledByNodes'
+
+    def to_json(self) -> Any:
+        return ['Killed_by_nodes', _atd_write_list((lambda x: x.to_json()))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class UnexpectedNoMatchDiagnosisKind:
+    """Original type: unexpected_no_match_diagnosis_kind = [ ... ]"""
+
+    value: Union[NeverMatched, KilledByNodes]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'UnexpectedNoMatchDiagnosisKind':
+        if isinstance(x, str):
+            if x == 'Never_matched':
+                return cls(NeverMatched())
+            _atd_bad_json('UnexpectedNoMatchDiagnosisKind', x)
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'Killed_by_nodes':
+                return cls(KilledByNodes(_atd_read_list(KillingParent.from_json)(x[1])))
+            _atd_bad_json('UnexpectedNoMatchDiagnosisKind', x)
+        _atd_bad_json('UnexpectedNoMatchDiagnosisKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'UnexpectedNoMatchDiagnosisKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class UnexpectedNoMatchDiagnosis:
+    """Original type: unexpected_no_match_diagnosis = { ... }"""
+
+    line: int
+    kind: UnexpectedNoMatchDiagnosisKind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'UnexpectedNoMatchDiagnosis':
+        if isinstance(x, dict):
+            return cls(
+                line=_atd_read_int(x['line']) if 'line' in x else _atd_missing_json_field('UnexpectedNoMatchDiagnosis', 'line'),
+                kind=UnexpectedNoMatchDiagnosisKind.from_json(x['kind']) if 'kind' in x else _atd_missing_json_field('UnexpectedNoMatchDiagnosis', 'kind'),
+            )
+        else:
+            _atd_bad_json('UnexpectedNoMatchDiagnosis', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['line'] = _atd_write_int(self.line)
+        res['kind'] = (lambda x: x.to_json())(self.kind)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'UnexpectedNoMatchDiagnosis':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Focus:
+    """Original type: originating_node_kind = [ ... | Focus | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Focus'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Focus'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Xpattern:
+    """Original type: originating_node_kind = [ ... | Xpattern | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Xpattern'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Xpattern'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class OriginatingNodeKind:
+    """Original type: originating_node_kind = [ ... ]"""
+
+    value: Union[Focus, Xpattern]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'OriginatingNodeKind':
+        if isinstance(x, str):
+            if x == 'Focus':
+                return cls(Focus())
+            if x == 'Xpattern':
+                return cls(Xpattern())
+            _atd_bad_json('OriginatingNodeKind', x)
+        _atd_bad_json('OriginatingNodeKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'OriginatingNodeKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class UnexpectedMatchDiagnosis:
+    """Original type: unexpected_match_diagnosis = { ... }"""
+
+    matched_text: Snippet
+    originating_kind: OriginatingNodeKind
+    originating_text: Snippet
+    killing_parents: List[KillingParent]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'UnexpectedMatchDiagnosis':
+        if isinstance(x, dict):
+            return cls(
+                matched_text=Snippet.from_json(x['matched_text']) if 'matched_text' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'matched_text'),
+                originating_kind=OriginatingNodeKind.from_json(x['originating_kind']) if 'originating_kind' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'originating_kind'),
+                originating_text=Snippet.from_json(x['originating_text']) if 'originating_text' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'originating_text'),
+                killing_parents=_atd_read_list(KillingParent.from_json)(x['killing_parents']) if 'killing_parents' in x else _atd_missing_json_field('UnexpectedMatchDiagnosis', 'killing_parents'),
+            )
+        else:
+            _atd_bad_json('UnexpectedMatchDiagnosis', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['matched_text'] = (lambda x: x.to_json())(self.matched_text)
+        res['originating_kind'] = (lambda x: x.to_json())(self.originating_kind)
+        res['originating_text'] = (lambda x: x.to_json())(self.originating_text)
+        res['killing_parents'] = _atd_write_list((lambda x: x.to_json()))(self.killing_parents)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'UnexpectedMatchDiagnosis':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1771,6 +2180,40 @@ class Todo:
 
 
 @dataclass
+class MatchingDiagnosis:
+    """Original type: matching_diagnosis = { ... }"""
+
+    target: Fpath
+    unexpected_match_diagnoses: List[UnexpectedMatchDiagnosis]
+    unexpected_no_match_diagnoses: List[UnexpectedNoMatchDiagnosis]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'MatchingDiagnosis':
+        if isinstance(x, dict):
+            return cls(
+                target=Fpath.from_json(x['target']) if 'target' in x else _atd_missing_json_field('MatchingDiagnosis', 'target'),
+                unexpected_match_diagnoses=_atd_read_list(UnexpectedMatchDiagnosis.from_json)(x['unexpected_match_diagnoses']) if 'unexpected_match_diagnoses' in x else _atd_missing_json_field('MatchingDiagnosis', 'unexpected_match_diagnoses'),
+                unexpected_no_match_diagnoses=_atd_read_list(UnexpectedNoMatchDiagnosis.from_json)(x['unexpected_no_match_diagnoses']) if 'unexpected_no_match_diagnoses' in x else _atd_missing_json_field('MatchingDiagnosis', 'unexpected_no_match_diagnoses'),
+            )
+        else:
+            _atd_bad_json('MatchingDiagnosis', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['target'] = (lambda x: x.to_json())(self.target)
+        res['unexpected_match_diagnoses'] = _atd_write_list((lambda x: x.to_json()))(self.unexpected_match_diagnoses)
+        res['unexpected_no_match_diagnoses'] = _atd_write_list((lambda x: x.to_json()))(self.unexpected_no_match_diagnoses)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'MatchingDiagnosis':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class ExpectedReported:
     """Original type: expected_reported = { ... }"""
 
@@ -1808,6 +2251,7 @@ class RuleResult:
     passed: bool
     matches: List[Tuple[str, ExpectedReported]]
     errors: List[Todo]
+    diagnosis: Optional[MatchingDiagnosis] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'RuleResult':
@@ -1816,6 +2260,7 @@ class RuleResult:
                 passed=_atd_read_bool(x['passed']) if 'passed' in x else _atd_missing_json_field('RuleResult', 'passed'),
                 matches=_atd_read_assoc_object_into_list(ExpectedReported.from_json)(x['matches']) if 'matches' in x else _atd_missing_json_field('RuleResult', 'matches'),
                 errors=_atd_read_list(Todo.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('RuleResult', 'errors'),
+                diagnosis=MatchingDiagnosis.from_json(x['diagnosis']) if 'diagnosis' in x else None,
             )
         else:
             _atd_bad_json('RuleResult', x)
@@ -1825,6 +2270,8 @@ class RuleResult:
         res['passed'] = _atd_write_bool(self.passed)
         res['matches'] = _atd_write_assoc_list_to_object((lambda x: x.to_json()))(self.matches)
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
+        if self.diagnosis is not None:
+            res['diagnosis'] = (lambda x: x.to_json())(self.diagnosis)
         return res
 
     @classmethod
@@ -1857,6 +2304,84 @@ class FixtestResult:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'FixtestResult':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class UnparsableRule:
+    """Original type: config_error_reason = [ ... | UnparsableRule | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'UnparsableRule'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'unparsable_rule'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ConfigErrorReason:
+    """Original type: config_error_reason = [ ... ]"""
+
+    value: Union[UnparsableRule]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ConfigErrorReason':
+        if isinstance(x, str):
+            if x == 'unparsable_rule':
+                return cls(UnparsableRule())
+            _atd_bad_json('ConfigErrorReason', x)
+        _atd_bad_json('ConfigErrorReason', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ConfigErrorReason':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ConfigError:
+    """Original type: config_error = { ... }"""
+
+    file: Fpath
+    reason: ConfigErrorReason
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ConfigError':
+        if isinstance(x, dict):
+            return cls(
+                file=Fpath.from_json(x['file']) if 'file' in x else _atd_missing_json_field('ConfigError', 'file'),
+                reason=ConfigErrorReason.from_json(x['reason']) if 'reason' in x else _atd_missing_json_field('ConfigError', 'reason'),
+            )
+        else:
+            _atd_bad_json('ConfigError', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['file'] = (lambda x: x.to_json())(self.file)
+        res['reason'] = (lambda x: x.to_json())(self.reason)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ConfigError':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1899,7 +2424,7 @@ class TestsResult:
     fixtest_results: List[Tuple[str, FixtestResult]]
     config_missing_tests: List[Fpath]
     config_missing_fixtests: List[Fpath]
-    config_with_errors: List[Todo]
+    config_with_errors: List[ConfigError]
 
     @classmethod
     def from_json(cls, x: Any) -> 'TestsResult':
@@ -1909,7 +2434,7 @@ class TestsResult:
                 fixtest_results=_atd_read_assoc_object_into_list(FixtestResult.from_json)(x['fixtest_results']) if 'fixtest_results' in x else _atd_missing_json_field('TestsResult', 'fixtest_results'),
                 config_missing_tests=_atd_read_list(Fpath.from_json)(x['config_missing_tests']) if 'config_missing_tests' in x else _atd_missing_json_field('TestsResult', 'config_missing_tests'),
                 config_missing_fixtests=_atd_read_list(Fpath.from_json)(x['config_missing_fixtests']) if 'config_missing_fixtests' in x else _atd_missing_json_field('TestsResult', 'config_missing_fixtests'),
-                config_with_errors=_atd_read_list(Todo.from_json)(x['config_with_errors']) if 'config_with_errors' in x else _atd_missing_json_field('TestsResult', 'config_with_errors'),
+                config_with_errors=_atd_read_list(ConfigError.from_json)(x['config_with_errors']) if 'config_with_errors' in x else _atd_missing_json_field('TestsResult', 'config_with_errors'),
             )
         else:
             _atd_bad_json('TestsResult', x)
@@ -5178,6 +5703,72 @@ class ParsingStats:
 
 
 @dataclass
+class Vim:
+    """Original type: output_format = [ ... | Vim | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Vim'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Vim'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Emacs:
+    """Original type: output_format = [ ... | Emacs | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Emacs'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Emacs'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class OutputFormat:
+    """Original type: output_format = [ ... ]"""
+
+    value: Union[Vim, Emacs]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'OutputFormat':
+        if isinstance(x, str):
+            if x == 'Vim':
+                return cls(Vim())
+            if x == 'Emacs':
+                return cls(Emacs())
+            _atd_bad_json('OutputFormat', x)
+        _atd_bad_json('OutputFormat', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'OutputFormat':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class HasFeatures:
     """Original type: has_features = { ... }"""
 
@@ -5214,6 +5805,92 @@ class HasFeatures:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class Contributor:
+    """Original type: contributor = { ... }"""
+
+    commit_author_name: str
+    commit_author_email: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Contributor':
+        if isinstance(x, dict):
+            return cls(
+                commit_author_name=_atd_read_string(x['commit_author_name']) if 'commit_author_name' in x else _atd_missing_json_field('Contributor', 'commit_author_name'),
+                commit_author_email=_atd_read_string(x['commit_author_email']) if 'commit_author_email' in x else _atd_missing_json_field('Contributor', 'commit_author_email'),
+            )
+        else:
+            _atd_bad_json('Contributor', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['commit_author_name'] = _atd_write_string(self.commit_author_name)
+        res['commit_author_email'] = _atd_write_string(self.commit_author_email)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Contributor':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Contribution:
+    """Original type: contribution = { ... }"""
+
+    commit_hash: str
+    commit_timestamp: Datetime
+    contributor: Contributor
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Contribution':
+        if isinstance(x, dict):
+            return cls(
+                commit_hash=_atd_read_string(x['commit_hash']) if 'commit_hash' in x else _atd_missing_json_field('Contribution', 'commit_hash'),
+                commit_timestamp=Datetime.from_json(x['commit_timestamp']) if 'commit_timestamp' in x else _atd_missing_json_field('Contribution', 'commit_timestamp'),
+                contributor=Contributor.from_json(x['contributor']) if 'contributor' in x else _atd_missing_json_field('Contribution', 'contributor'),
+            )
+        else:
+            _atd_bad_json('Contribution', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['commit_hash'] = _atd_write_string(self.commit_hash)
+        res['commit_timestamp'] = (lambda x: x.to_json())(self.commit_timestamp)
+        res['contributor'] = (lambda x: x.to_json())(self.contributor)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Contribution':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Contributions:
+    """Original type: contributions"""
+
+    value: List[Contribution]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Contributions':
+        return cls(_atd_read_list(Contribution.from_json)(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_list((lambda x: x.to_json()))(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Contributions':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class ApplyFixesReturn:
     """Original type: apply_fixes_return = { ... }"""
@@ -5240,6 +5917,24 @@ class ApplyFixesReturn:
     @classmethod
     def from_json_string(cls, x: str) -> 'ApplyFixesReturn':
         return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class RetError:
+    """Original type: function_return = [ ... | RetError of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetError'
+
+    def to_json(self) -> Any:
+        return ['RetError', _atd_write_string(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -5282,18 +5977,36 @@ class RetSarifFormat:
 
 
 @dataclass(frozen=True)
-class RetError:
-    """Original type: function_return = [ ... | RetError of ... | ... ]"""
+class RetContributions:
+    """Original type: function_return = [ ... | RetContributions of ... | ... ]"""
+
+    value: Contributions
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetContributions'
+
+    def to_json(self) -> Any:
+        return ['RetContributions', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class RetFormatter:
+    """Original type: function_return = [ ... | RetFormatter of ... | ... ]"""
 
     value: str
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'RetError'
+        return 'RetFormatter'
 
     def to_json(self) -> Any:
-        return ['RetError', _atd_write_string(self.value)]
+        return ['RetFormatter', _atd_write_string(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -5303,7 +6016,7 @@ class RetError:
 class FunctionReturn:
     """Original type: function_return = [ ... ]"""
 
-    value: Union[RetApplyFixes, RetSarifFormat, RetError]
+    value: Union[RetError, RetApplyFixes, RetSarifFormat, RetContributions, RetFormatter]
 
     @property
     def kind(self) -> str:
@@ -5314,12 +6027,16 @@ class FunctionReturn:
     def from_json(cls, x: Any) -> 'FunctionReturn':
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
+            if cons == 'RetError':
+                return cls(RetError(_atd_read_string(x[1])))
             if cons == 'RetApplyFixes':
                 return cls(RetApplyFixes(ApplyFixesReturn.from_json(x[1])))
             if cons == 'RetSarifFormat':
                 return cls(RetSarifFormat(SarifFormatReturn.from_json(x[1])))
-            if cons == 'RetError':
-                return cls(RetError(_atd_read_string(x[1])))
+            if cons == 'RetContributions':
+                return cls(RetContributions(Contributions.from_json(x[1])))
+            if cons == 'RetFormatter':
+                return cls(RetFormatter(_atd_read_string(x[1])))
             _atd_bad_json('FunctionReturn', x)
         _atd_bad_json('FunctionReturn', x)
 
@@ -5371,6 +6088,67 @@ class Edit:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class CliOutput:
+    """Original type: cli_output = { ... }"""
+
+    errors: List[CliError]
+    results: List[CliMatch]
+    paths: ScannedAndSkipped
+    version: Optional[Version] = None
+    time: Optional[Profile] = None
+    explanations: Optional[List[MatchingExplanation]] = None
+    rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
+    engine_requested: Optional[EngineKind] = None
+    interfile_languages_used: Optional[List[str]] = None
+    skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CliOutput':
+        if isinstance(x, dict):
+            return cls(
+                errors=_atd_read_list(CliError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CliOutput', 'errors'),
+                results=_atd_read_list(CliMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CliOutput', 'results'),
+                paths=ScannedAndSkipped.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutput', 'paths'),
+                version=Version.from_json(x['version']) if 'version' in x else None,
+                time=Profile.from_json(x['time']) if 'time' in x else None,
+                explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
+                rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
+                engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
+                interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
+                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
+            )
+        else:
+            _atd_bad_json('CliOutput', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
+        res['results'] = _atd_write_list((lambda x: x.to_json()))(self.results)
+        res['paths'] = (lambda x: x.to_json())(self.paths)
+        if self.version is not None:
+            res['version'] = (lambda x: x.to_json())(self.version)
+        if self.time is not None:
+            res['time'] = (lambda x: x.to_json())(self.time)
+        if self.explanations is not None:
+            res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
+        if self.rules_by_engine is not None:
+            res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
+        if self.engine_requested is not None:
+            res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
+        if self.interfile_languages_used is not None:
+            res['interfile_languages_used'] = _atd_write_list(_atd_write_string)(self.interfile_languages_used)
+        res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CliOutput':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class ApplyFixesParams:
     """Original type: apply_fixes_params = { ... }"""
@@ -5397,6 +6175,23 @@ class ApplyFixesParams:
     @classmethod
     def from_json_string(cls, x: str) -> 'ApplyFixesParams':
         return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class CallContributions:
+    """Original type: function_call = [ ... | CallContributions | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallContributions'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'CallContributions'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -5439,10 +6234,28 @@ class CallSarifFormat:
 
 
 @dataclass(frozen=True)
+class CallFormatter:
+    """Original type: function_call = [ ... | CallFormatter of ... | ... ]"""
+
+    value: Tuple[OutputFormat, CliOutput]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallFormatter'
+
+    def to_json(self) -> Any:
+        return ['CallFormatter', (lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionCall:
     """Original type: function_call = [ ... ]"""
 
-    value: Union[CallApplyFixes, CallSarifFormat]
+    value: Union[CallContributions, CallApplyFixes, CallSarifFormat, CallFormatter]
 
     @property
     def kind(self) -> str:
@@ -5451,12 +6264,18 @@ class FunctionCall:
 
     @classmethod
     def from_json(cls, x: Any) -> 'FunctionCall':
+        if isinstance(x, str):
+            if x == 'CallContributions':
+                return cls(CallContributions())
+            _atd_bad_json('FunctionCall', x)
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'CallApplyFixes':
                 return cls(CallApplyFixes(ApplyFixesParams.from_json(x[1])))
             if cons == 'CallSarifFormat':
                 return cls(CallSarifFormat(SarifFormatParams.from_json(x[1])))
+            if cons == 'CallFormatter':
+                return cls(CallFormatter((lambda x: (OutputFormat.from_json(x[0]), CliOutput.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
             _atd_bad_json('FunctionCall', x)
         _atd_bad_json('FunctionCall', x)
 
@@ -5880,92 +6699,6 @@ class CoreOutput:
 
 
 @dataclass
-class Contributor:
-    """Original type: contributor = { ... }"""
-
-    commit_author_name: str
-    commit_author_email: str
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Contributor':
-        if isinstance(x, dict):
-            return cls(
-                commit_author_name=_atd_read_string(x['commit_author_name']) if 'commit_author_name' in x else _atd_missing_json_field('Contributor', 'commit_author_name'),
-                commit_author_email=_atd_read_string(x['commit_author_email']) if 'commit_author_email' in x else _atd_missing_json_field('Contributor', 'commit_author_email'),
-            )
-        else:
-            _atd_bad_json('Contributor', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['commit_author_name'] = _atd_write_string(self.commit_author_name)
-        res['commit_author_email'] = _atd_write_string(self.commit_author_email)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Contributor':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Contribution:
-    """Original type: contribution = { ... }"""
-
-    commit_hash: str
-    commit_timestamp: Datetime
-    contributor: Contributor
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Contribution':
-        if isinstance(x, dict):
-            return cls(
-                commit_hash=_atd_read_string(x['commit_hash']) if 'commit_hash' in x else _atd_missing_json_field('Contribution', 'commit_hash'),
-                commit_timestamp=Datetime.from_json(x['commit_timestamp']) if 'commit_timestamp' in x else _atd_missing_json_field('Contribution', 'commit_timestamp'),
-                contributor=Contributor.from_json(x['contributor']) if 'contributor' in x else _atd_missing_json_field('Contribution', 'contributor'),
-            )
-        else:
-            _atd_bad_json('Contribution', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['commit_hash'] = _atd_write_string(self.commit_hash)
-        res['commit_timestamp'] = (lambda x: x.to_json())(self.commit_timestamp)
-        res['contributor'] = (lambda x: x.to_json())(self.contributor)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Contribution':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Contributions:
-    """Original type: contributions"""
-
-    value: List[Contribution]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Contributions':
-        return cls(_atd_read_list(Contribution.from_json)(x))
-
-    def to_json(self) -> Any:
-        return _atd_write_list((lambda x: x.to_json()))(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Contributions':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class CliOutputExtra:
     """Original type: cli_output_extra = { ... }"""
 
@@ -6010,67 +6743,6 @@ class CliOutputExtra:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'CliOutputExtra':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class CliOutput:
-    """Original type: cli_output = { ... }"""
-
-    errors: List[CliError]
-    results: List[CliMatch]
-    paths: ScannedAndSkipped
-    version: Optional[Version] = None
-    time: Optional[Profile] = None
-    explanations: Optional[List[MatchingExplanation]] = None
-    rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
-    engine_requested: Optional[EngineKind] = None
-    interfile_languages_used: Optional[List[str]] = None
-    skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CliOutput':
-        if isinstance(x, dict):
-            return cls(
-                errors=_atd_read_list(CliError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CliOutput', 'errors'),
-                results=_atd_read_list(CliMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CliOutput', 'results'),
-                paths=ScannedAndSkipped.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutput', 'paths'),
-                version=Version.from_json(x['version']) if 'version' in x else None,
-                time=Profile.from_json(x['time']) if 'time' in x else None,
-                explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
-                rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
-                engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
-                interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
-                skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
-            )
-        else:
-            _atd_bad_json('CliOutput', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
-        res['results'] = _atd_write_list((lambda x: x.to_json()))(self.results)
-        res['paths'] = (lambda x: x.to_json())(self.paths)
-        if self.version is not None:
-            res['version'] = (lambda x: x.to_json())(self.version)
-        if self.time is not None:
-            res['time'] = (lambda x: x.to_json())(self.time)
-        if self.explanations is not None:
-            res['explanations'] = _atd_write_list((lambda x: x.to_json()))(self.explanations)
-        if self.rules_by_engine is not None:
-            res['rules_by_engine'] = _atd_write_list((lambda x: x.to_json()))(self.rules_by_engine)
-        if self.engine_requested is not None:
-            res['engine_requested'] = (lambda x: x.to_json())(self.engine_requested)
-        if self.interfile_languages_used is not None:
-            res['interfile_languages_used'] = _atd_write_list(_atd_write_string)(self.interfile_languages_used)
-        res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CliOutput':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
