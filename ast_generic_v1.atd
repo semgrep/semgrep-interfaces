@@ -355,6 +355,10 @@ type operator = [
   (* Shell & and | *)
   | Background
   | Pipe
+  | LDA
+  | RDA
+  | LSA
+  | RSA
   ]
 
 type incr_decr = [Incr | Decr] (* '++', '--' *)

@@ -2307,12 +2307,76 @@ class Pipe:
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
+@dataclass
+class LDA:
+    """Original type: operator = [ ... | LDA | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'LDA'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'LDA'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+@dataclass
+class RDA:
+    """Original type: operator = [ ... | RDA | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RDA'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'RDA'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+@dataclass
+class LSA:
+    """Original type: operator = [ ... | LSA | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'LSA'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'LSA'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+@dataclass
+class RSA:
+    """Original type: operator = [ ... | RSA | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RSA'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'RSA'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
 
 @dataclass
 class Operator:
     """Original type: operator = [ ... ]"""
 
-    value: Union[Plus, Minus, Mult, Div, Mod, Pow, FloorDiv, MatMult, LSL, LSR, ASR, BitOr, BitXor, BitAnd, BitNot, BitClear, And, Or, Xor, Not, Eq, NotEq, PhysEq, NotPhysEq, Lt, LtE, Gt, GtE, Cmp, Concat, Append, RegexpMatch, NotMatch, Range, RangeInclusive, NotNullPostfix, Length, Elvis, Nullish, In, NotIn, Is, NotIs, Background, Pipe]
+    value: Union[Plus, Minus, Mult, Div, Mod, Pow, FloorDiv, MatMult, LSL, LSR, ASR, BitOr, BitXor, BitAnd, BitNot, BitClear, And, Or, Xor, Not, Eq, NotEq, PhysEq, NotPhysEq, Lt, LtE, Gt, GtE, Cmp, Concat, Append, RegexpMatch, NotMatch, Range, RangeInclusive, NotNullPostfix, Length, Elvis, Nullish, In, NotIn, Is, NotIs, Background, Pipe, LDA, RDA, LSA, RSA]
 
     @property
     def kind(self) -> str:
@@ -2412,6 +2476,14 @@ class Operator:
                 return cls(Background())
             if x == 'Pipe':
                 return cls(Pipe())
+            if x == 'LDA':
+                return cls(LDA())
+            if x == 'RDA':
+                return cls(RDA())
+            if x == 'LSA':
+                return cls(LSA())
+            if x == 'RSA':
+                return cls(RSA())
             _atd_bad_json('Operator', x)
         _atd_bad_json('Operator', x)
 
