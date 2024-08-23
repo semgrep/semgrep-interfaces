@@ -1170,19 +1170,19 @@ let read_operator = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Pipe
-            | "LDA" -> 
+            | "LDA" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `LDA
-            | "RDA" -> 
+            | "RDA" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `RDA
-            | "LSA" -> 
+            | "LSA" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `LSA
-            | "RSA" -> 
+            | "RSA" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `RSA
@@ -1279,6 +1279,8 @@ let read_operator = (
               `NotIs
             | "Background" ->
               `Background
+            | "Pipe" ->
+              `Pipe
             | "LDA" ->
               `LDA
             | "RDA" ->
@@ -1287,8 +1289,6 @@ let read_operator = (
               `LSA
             | "RSA" ->
               `RSA
-            | "Pipe" ->
-              `Pipe
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
