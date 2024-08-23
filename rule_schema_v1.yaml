@@ -629,9 +629,6 @@ $defs:
           kind:
             title: Kind keyword
             type: string
-          module:
-            title: Kind keyword
-            type: string
         required:
           - kind
         additionalProperties: false
