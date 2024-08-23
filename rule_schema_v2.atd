@@ -414,7 +414,7 @@ type metavariable_cond = {
      "django-view" kind *)
   ?kind: string option;
   (* for semgrep-internal-metavariable-name; consider renaming? for v2 *)
-  ?module: string option;
+  ?module_ <json name="module">: string option;
 
   (* this covers regex:/pattern:, but also all:/any: with optional where:
    * CHECK: language is valid only when combined with a formula
