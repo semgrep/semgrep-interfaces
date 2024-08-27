@@ -7131,3 +7131,34 @@ class CiScanComplete:
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class AnnotatedDependencyGraph:
+    """Original type: annotated_dependency_graph = { ... }"""
+
+    dependency_graph: DependencyGraph
+    scan_id: int
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'AnnotatedDependencyGraph':
+        if isinstance(x, dict):
+            return cls(
+                dependency_graph=DependencyGraph.from_json(x['dependency_graph']) if 'dependency_graph' in x else _atd_missing_json_field('AnnotatedDependencyGraph', 'dependency_graph'),
+                scan_id=_atd_read_int(x['scan_id']) if 'scan_id' in x else _atd_missing_json_field('AnnotatedDependencyGraph', 'scan_id'),
+            )
+        else:
+            _atd_bad_json('AnnotatedDependencyGraph', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['dependency_graph'] = (lambda x: x.to_json())(self.dependency_graph)
+        res['scan_id'] = _atd_write_int(self.scan_id)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'AnnotatedDependencyGraph':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)

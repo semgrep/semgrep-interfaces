@@ -1790,6 +1790,12 @@ type sarif_format_return
 }
 
 (* supply chain dependency resolution *)
+type annotated_dependency_graph
+    <python decorator="dataclass(frozen=True)"> = {
+  dependency_graph: dependency_graph;
+  scan_id: int;
+}
+
 type dependency_graph_node
     <python decorator="dataclass(frozen=True)"> = {
   package_name: string;

@@ -783,6 +783,12 @@ type ci_scan_complete = Semgrep_output_v1_t.ci_scan_complete = {
   final_attempt: bool option
 }
 
+type annotated_dependency_graph =
+  Semgrep_output_v1_t.annotated_dependency_graph = {
+  dependency_graph: dependency_graph;
+  scan_id: int
+}
+
 val write_datetime :
   Buffer.t -> datetime -> unit
   (** Output a JSON value of type {!type:datetime}. *)
@@ -3182,4 +3188,24 @@ val read_ci_scan_complete :
 val ci_scan_complete_of_string :
   string -> ci_scan_complete
   (** Deserialize JSON data of type {!type:ci_scan_complete}. *)
+
+val write_annotated_dependency_graph :
+  Buffer.t -> annotated_dependency_graph -> unit
+  (** Output a JSON value of type {!type:annotated_dependency_graph}. *)
+
+val string_of_annotated_dependency_graph :
+  ?len:int -> annotated_dependency_graph -> string
+  (** Serialize a value of type {!type:annotated_dependency_graph}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_annotated_dependency_graph :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> annotated_dependency_graph
+  (** Input JSON data of type {!type:annotated_dependency_graph}. *)
+
+val annotated_dependency_graph_of_string :
+  string -> annotated_dependency_graph
+  (** Deserialize JSON data of type {!type:annotated_dependency_graph}. *)
 

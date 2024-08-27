@@ -822,6 +822,11 @@ export type SarifFormatReturn = {
   format_time_seconds: number;
 }
 
+export type AnnotatedDependencyGraph = {
+  dependency_graph: DependencyGraph;
+  scan_id: number /*int*/;
+}
+
 export type DependencyGraphNode = {
   package_name: string;
   package_version: string;
@@ -3319,6 +3324,20 @@ export function readSarifFormatReturn(x: any, context: any = x): SarifFormatRetu
   return {
     output: _atd_read_required_field('SarifFormatReturn', 'output', _atd_read_string, x['output'], x),
     format_time_seconds: _atd_read_required_field('SarifFormatReturn', 'format_time_seconds', _atd_read_float, x['format_time_seconds'], x),
+  };
+}
+
+export function writeAnnotatedDependencyGraph(x: AnnotatedDependencyGraph, context: any = x): any {
+  return {
+    'dependency_graph': _atd_write_required_field('AnnotatedDependencyGraph', 'dependency_graph', writeDependencyGraph, x.dependency_graph, x),
+    'scan_id': _atd_write_required_field('AnnotatedDependencyGraph', 'scan_id', _atd_write_int, x.scan_id, x),
+  };
+}
+
+export function readAnnotatedDependencyGraph(x: any, context: any = x): AnnotatedDependencyGraph {
+  return {
+    dependency_graph: _atd_read_required_field('AnnotatedDependencyGraph', 'dependency_graph', readDependencyGraph, x['dependency_graph'], x),
+    scan_id: _atd_read_required_field('AnnotatedDependencyGraph', 'scan_id', _atd_read_int, x['scan_id'], x),
   };
 }
 

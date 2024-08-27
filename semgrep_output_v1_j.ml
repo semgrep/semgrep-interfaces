@@ -783,6 +783,12 @@ type ci_scan_complete = Semgrep_output_v1_t.ci_scan_complete = {
   final_attempt: bool option
 }
 
+type annotated_dependency_graph =
+  Semgrep_output_v1_t.annotated_dependency_graph = {
+  dependency_graph: dependency_graph;
+  scan_id: int
+}
+
 let write__string_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     Yojson.Safe.write_string
@@ -30844,3 +30850,156 @@ let read_ci_scan_complete = (
 )
 let ci_scan_complete_of_string s =
   read_ci_scan_complete (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_annotated_dependency_graph : _ -> annotated_dependency_graph -> _ = (
+  fun ob (x : annotated_dependency_graph) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"dependency_graph\":";
+    (
+      write_dependency_graph
+    )
+      ob x.dependency_graph;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"scan_id\":";
+    (
+      Yojson.Safe.write_int
+    )
+      ob x.scan_id;
+    Buffer.add_char ob '}';
+)
+let string_of_annotated_dependency_graph ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_annotated_dependency_graph ob x;
+  Buffer.contents ob
+let read_annotated_dependency_graph = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_dependency_graph = ref (None) in
+    let field_scan_id = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 7 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | 16 -> (
+                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'g' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'p' && String.unsafe_get s (pos+15) = 'h' then (
+                  0
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_dependency_graph := (
+              Some (
+                (
+                  read_dependency_graph
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_scan_id := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_int
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 7 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 16 -> (
+                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'g' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'p' && String.unsafe_get s (pos+15) = 'h' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_dependency_graph := (
+                Some (
+                  (
+                    read_dependency_graph
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_scan_id := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_int
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            dependency_graph = (match !field_dependency_graph with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "dependency_graph");
+            scan_id = (match !field_scan_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "scan_id");
+          }
+         : annotated_dependency_graph)
+      )
+)
+let annotated_dependency_graph_of_string s =
+  read_annotated_dependency_graph (Yojson.Safe.init_lexer ()) (Lexing.from_string s)

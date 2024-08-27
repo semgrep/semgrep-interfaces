@@ -1500,6 +1500,14 @@
         "format_time_seconds": { "type": "number" }
       }
     },
+    "annotated_dependency_graph": {
+      "type": "object",
+      "required": [ "dependency_graph", "scan_id" ],
+      "properties": {
+        "dependency_graph": { "$ref": "#/definitions/dependency_graph" },
+        "scan_id": { "type": "integer" }
+      }
+    },
     "dependency_graph_node": {
       "type": "object",
       "required": [
