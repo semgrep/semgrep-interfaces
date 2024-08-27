@@ -397,6 +397,7 @@ type found_dependency = Semgrep_output_v1_t.found_dependency = {
   allowed_hashes: (string * string list) list;
   resolved_url: string option;
   transitivity: transitivity;
+  reference_filepath: fpath option;
   line_number: int option;
   children: dependency_child list option;
   git_ref: string option
@@ -15585,6 +15586,63 @@ let read__x_b85b97f = (
 )
 let _x_b85b97f_of_string s =
   read__x_b85b97f (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__fpath_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_fpath
+  )
+)
+let string_of__fpath_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__fpath_option ob x;
+  Buffer.contents ob
+let read__fpath_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_fpath
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_fpath
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _fpath_option_of_string s =
+  read__fpath_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__dependency_child_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_dependency_child
@@ -15718,6 +15776,17 @@ let write_found_dependency : _ -> found_dependency -> _ = (
       write_transitivity
     )
       ob x.transitivity;
+    (match x.reference_filepath with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"reference_filepath\":";
+      (
+        write_fpath
+      )
+        ob x;
+    );
     (match x.line_number with None -> () | Some x ->
       if !is_first then
         is_first := false
@@ -15767,6 +15836,7 @@ let read_found_dependency = (
     let field_allowed_hashes = ref (None) in
     let field_resolved_url = ref (None) in
     let field_transitivity = ref (None) in
+    let field_reference_filepath = ref (None) in
     let field_line_number = ref (None) in
     let field_children = ref (None) in
     let field_git_ref = ref (None) in
@@ -15783,7 +15853,7 @@ let read_found_dependency = (
                 match String.unsafe_get s pos with
                   | 'g' -> (
                       if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'f' then (
-                        8
+                        9
                       )
                       else (
                         -1
@@ -15811,7 +15881,7 @@ let read_found_dependency = (
               )
             | 8 -> (
                 if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' then (
-                  7
+                  8
                 )
                 else (
                   -1
@@ -15827,7 +15897,7 @@ let read_found_dependency = (
               )
             | 11 -> (
                 if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'u' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'b' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'r' then (
-                  6
+                  7
                 )
                 else (
                   -1
@@ -15858,6 +15928,14 @@ let read_found_dependency = (
             | 14 -> (
                 if String.unsafe_get s pos = 'a' && String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'w' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'h' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 's' then (
                   3
+                )
+                else (
+                  -1
+                )
+              )
+            | 18 -> (
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'f' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'f' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'p' && String.unsafe_get s (pos+15) = 'a' && String.unsafe_get s (pos+16) = 't' && String.unsafe_get s (pos+17) = 'h' then (
+                  6
                 )
                 else (
                   -1
@@ -15923,6 +16001,16 @@ let read_found_dependency = (
             );
           | 6 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_reference_filepath := (
+                Some (
+                  (
+                    read_fpath
+                  ) p lb
+                )
+              );
+            )
+          | 7 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_line_number := (
                 Some (
                   (
@@ -15931,7 +16019,7 @@ let read_found_dependency = (
                 )
               );
             )
-          | 7 ->
+          | 8 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_children := (
                 Some (
@@ -15941,7 +16029,7 @@ let read_found_dependency = (
                 )
               );
             )
-          | 8 ->
+          | 9 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_git_ref := (
                 Some (
@@ -15968,7 +16056,7 @@ let read_found_dependency = (
                   match String.unsafe_get s pos with
                     | 'g' -> (
                         if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'f' then (
-                          8
+                          9
                         )
                         else (
                           -1
@@ -15996,7 +16084,7 @@ let read_found_dependency = (
                 )
               | 8 -> (
                   if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' then (
-                    7
+                    8
                   )
                   else (
                     -1
@@ -16012,7 +16100,7 @@ let read_found_dependency = (
                 )
               | 11 -> (
                   if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'u' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'b' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'r' then (
-                    6
+                    7
                   )
                   else (
                     -1
@@ -16043,6 +16131,14 @@ let read_found_dependency = (
               | 14 -> (
                   if String.unsafe_get s pos = 'a' && String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'w' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'h' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 's' then (
                     3
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 18 -> (
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'f' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'f' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'p' && String.unsafe_get s (pos+15) = 'a' && String.unsafe_get s (pos+16) = 't' && String.unsafe_get s (pos+17) = 'h' then (
+                    6
                   )
                   else (
                     -1
@@ -16108,6 +16204,16 @@ let read_found_dependency = (
               );
             | 6 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_reference_filepath := (
+                  Some (
+                    (
+                      read_fpath
+                    ) p lb
+                  )
+                );
+              )
+            | 7 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_line_number := (
                   Some (
                     (
@@ -16116,7 +16222,7 @@ let read_found_dependency = (
                   )
                 );
               )
-            | 7 ->
+            | 8 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_children := (
                   Some (
@@ -16126,7 +16232,7 @@ let read_found_dependency = (
                   )
                 );
               )
-            | 8 ->
+            | 9 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_git_ref := (
                   Some (
@@ -16151,6 +16257,7 @@ let read_found_dependency = (
             allowed_hashes = (match !field_allowed_hashes with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "allowed_hashes");
             resolved_url = !field_resolved_url;
             transitivity = (match !field_transitivity with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "transitivity");
+            reference_filepath = !field_reference_filepath;
             line_number = !field_line_number;
             children = !field_children;
             git_ref = !field_git_ref;
@@ -19658,63 +19765,6 @@ let read_cli_match = (
 )
 let cli_match_of_string s =
   read_cli_match (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__fpath_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_fpath
-  )
-)
-let string_of__fpath_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__fpath_option ob x;
-  Buffer.contents ob
-let read__fpath_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_fpath
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_fpath
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _fpath_option_of_string s =
-  read__fpath_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__error_span_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_error_span
