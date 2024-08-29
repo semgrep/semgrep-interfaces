@@ -485,6 +485,7 @@ export type FoundDependency = {
   line_number?: number /*int*/;
   children?: DependencyChild[];
   git_ref?: string;
+  id?: string;
 }
 
 export type ScaParserName =
@@ -828,29 +829,28 @@ export type OutputFormat =
 | { kind: 'Vim' }
 | { kind: 'Emacs' }
 
-export type DependencyGraphNode = {
-  package_name: string;
-  package_version: string;
-  ecosystem: Ecosystem;
-  children: DependencyGraphNode[];
-}
-
-export type DependencyGraph = {
-  manifest_path: Fpath;
-  root_node: DependencyGraphNode;
-}
-
 export type Manifest = {
   ecosystem: Ecosystem;
   path: Fpath;
 }
 
+export type DependencyRelationships = {
+  dep_id: string;
+  depends_on_dep_ids: string[];
+}
+
+export type ResolvedSubproject = {
+  manifest: Manifest;
+  dependencies: FoundDependency[];
+  dep_relationships: Option<DependencyRelationships[]>;
+}
+
 export type ResolveDependenciesParams = {
-  manifests: Manifest[];
+  to_resolve: Manifest[];
 }
 
 export type ResolveDependenciesReturn = {
-  resolved_graphs: DependencyGraph[];
+  resolved: ResolvedSubproject[];
 }
 
 export type FunctionCall =
@@ -2413,6 +2413,7 @@ export function writeFoundDependency(x: FoundDependency, context: any = x): any 
     'line_number': _atd_write_optional_field(_atd_write_int, x.line_number, x),
     'children': _atd_write_optional_field(_atd_write_array(writeDependencyChild), x.children, x),
     'git_ref': _atd_write_optional_field(_atd_write_string, x.git_ref, x),
+    'id': _atd_write_optional_field(_atd_write_string, x.id, x),
   };
 }
 
@@ -2428,6 +2429,7 @@ export function readFoundDependency(x: any, context: any = x): FoundDependency {
     line_number: _atd_read_optional_field(_atd_read_int, x['line_number'], x),
     children: _atd_read_optional_field(_atd_read_array(readDependencyChild), x['children'], x),
     git_ref: _atd_read_optional_field(_atd_read_string, x['git_ref'], x),
+    id: _atd_read_optional_field(_atd_read_string, x['id'], x),
   };
 }
 
@@ -3359,38 +3361,6 @@ export function readOutputFormat(x: any, context: any = x): OutputFormat {
   }
 }
 
-export function writeDependencyGraphNode(x: DependencyGraphNode, context: any = x): any {
-  return {
-    'package_name': _atd_write_required_field('DependencyGraphNode', 'package_name', _atd_write_string, x.package_name, x),
-    'package_version': _atd_write_required_field('DependencyGraphNode', 'package_version', _atd_write_string, x.package_version, x),
-    'ecosystem': _atd_write_required_field('DependencyGraphNode', 'ecosystem', writeEcosystem, x.ecosystem, x),
-    'children': _atd_write_required_field('DependencyGraphNode', 'children', _atd_write_array(writeDependencyGraphNode), x.children, x),
-  };
-}
-
-export function readDependencyGraphNode(x: any, context: any = x): DependencyGraphNode {
-  return {
-    package_name: _atd_read_required_field('DependencyGraphNode', 'package_name', _atd_read_string, x['package_name'], x),
-    package_version: _atd_read_required_field('DependencyGraphNode', 'package_version', _atd_read_string, x['package_version'], x),
-    ecosystem: _atd_read_required_field('DependencyGraphNode', 'ecosystem', readEcosystem, x['ecosystem'], x),
-    children: _atd_read_required_field('DependencyGraphNode', 'children', _atd_read_array(readDependencyGraphNode), x['children'], x),
-  };
-}
-
-export function writeDependencyGraph(x: DependencyGraph, context: any = x): any {
-  return {
-    'manifest_path': _atd_write_required_field('DependencyGraph', 'manifest_path', writeFpath, x.manifest_path, x),
-    'root_node': _atd_write_required_field('DependencyGraph', 'root_node', writeDependencyGraphNode, x.root_node, x),
-  };
-}
-
-export function readDependencyGraph(x: any, context: any = x): DependencyGraph {
-  return {
-    manifest_path: _atd_read_required_field('DependencyGraph', 'manifest_path', readFpath, x['manifest_path'], x),
-    root_node: _atd_read_required_field('DependencyGraph', 'root_node', readDependencyGraphNode, x['root_node'], x),
-  };
-}
-
 export function writeManifest(x: Manifest, context: any = x): any {
   return {
     'ecosystem': _atd_write_required_field('Manifest', 'ecosystem', writeEcosystem, x.ecosystem, x),
@@ -3405,27 +3375,57 @@ export function readManifest(x: any, context: any = x): Manifest {
   };
 }
 
+export function writeDependencyRelationships(x: DependencyRelationships, context: any = x): any {
+  return {
+    'dep_id': _atd_write_required_field('DependencyRelationships', 'dep_id', _atd_write_string, x.dep_id, x),
+    'depends_on_dep_ids': _atd_write_required_field('DependencyRelationships', 'depends_on_dep_ids', _atd_write_array(_atd_write_string), x.depends_on_dep_ids, x),
+  };
+}
+
+export function readDependencyRelationships(x: any, context: any = x): DependencyRelationships {
+  return {
+    dep_id: _atd_read_required_field('DependencyRelationships', 'dep_id', _atd_read_string, x['dep_id'], x),
+    depends_on_dep_ids: _atd_read_required_field('DependencyRelationships', 'depends_on_dep_ids', _atd_read_array(_atd_read_string), x['depends_on_dep_ids'], x),
+  };
+}
+
+export function writeResolvedSubproject(x: ResolvedSubproject, context: any = x): any {
+  return {
+    'manifest': _atd_write_required_field('ResolvedSubproject', 'manifest', writeManifest, x.manifest, x),
+    'dependencies': _atd_write_required_field('ResolvedSubproject', 'dependencies', _atd_write_array(writeFoundDependency), x.dependencies, x),
+    'dep_relationships': _atd_write_required_field('ResolvedSubproject', 'dep_relationships', _atd_write_option(_atd_write_array(writeDependencyRelationships)), x.dep_relationships, x),
+  };
+}
+
+export function readResolvedSubproject(x: any, context: any = x): ResolvedSubproject {
+  return {
+    manifest: _atd_read_required_field('ResolvedSubproject', 'manifest', readManifest, x['manifest'], x),
+    dependencies: _atd_read_required_field('ResolvedSubproject', 'dependencies', _atd_read_array(readFoundDependency), x['dependencies'], x),
+    dep_relationships: _atd_read_required_field('ResolvedSubproject', 'dep_relationships', _atd_read_option(_atd_read_array(readDependencyRelationships)), x['dep_relationships'], x),
+  };
+}
+
 export function writeResolveDependenciesParams(x: ResolveDependenciesParams, context: any = x): any {
   return {
-    'manifests': _atd_write_required_field('ResolveDependenciesParams', 'manifests', _atd_write_array(writeManifest), x.manifests, x),
+    'to_resolve': _atd_write_required_field('ResolveDependenciesParams', 'to_resolve', _atd_write_array(writeManifest), x.to_resolve, x),
   };
 }
 
 export function readResolveDependenciesParams(x: any, context: any = x): ResolveDependenciesParams {
   return {
-    manifests: _atd_read_required_field('ResolveDependenciesParams', 'manifests', _atd_read_array(readManifest), x['manifests'], x),
+    to_resolve: _atd_read_required_field('ResolveDependenciesParams', 'to_resolve', _atd_read_array(readManifest), x['to_resolve'], x),
   };
 }
 
 export function writeResolveDependenciesReturn(x: ResolveDependenciesReturn, context: any = x): any {
   return {
-    'resolved_graphs': _atd_write_required_field('ResolveDependenciesReturn', 'resolved_graphs', _atd_write_array(writeDependencyGraph), x.resolved_graphs, x),
+    'resolved': _atd_write_required_field('ResolveDependenciesReturn', 'resolved', _atd_write_array(writeResolvedSubproject), x.resolved, x),
   };
 }
 
 export function readResolveDependenciesReturn(x: any, context: any = x): ResolveDependenciesReturn {
   return {
-    resolved_graphs: _atd_read_required_field('ResolveDependenciesReturn', 'resolved_graphs', _atd_read_array(readDependencyGraph), x['resolved_graphs'], x),
+    resolved: _atd_read_required_field('ResolveDependenciesReturn', 'resolved', _atd_read_array(readResolvedSubproject), x['resolved'], x),
   };
 }
 

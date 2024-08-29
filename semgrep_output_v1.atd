@@ -1119,7 +1119,9 @@ type found_dependency = {
   (* Git ref of the dependency if the dependency comes directly from a git repo.
    * Examples: refs/heads/main, refs/tags/v1.0.0, e5c704df4d308690fed696faf4c86453b4d88a95
    * since 1.66.0 *)
-  ?git_ref: string option
+  ?git_ref: string option;
+  (* ID is used to associate dependencies with each other via depends_on relationships *)
+  ?id: string option;
 }
 
 (* json names are to maintain backwards compatibility with the python enum it is replacing *)
@@ -1806,33 +1808,35 @@ type output_format = [
   | Emacs
 ]
 
-(* supply chain dependency resolution *)
-type dependency_graph_node
-    <python decorator="dataclass(frozen=True)"> = {
-  package_name: string;
-  package_version: string;
-  ecosystem: ecosystem;
-  children: dependency_graph_node list;
-}
-
-type dependency_graph
-    <python decorator="dataclass(frozen=True)"> = {
-  manifest_path: fpath;
-  root_node: dependency_graph_node;
-}
-
 type manifest = {
   ecosystem: ecosystem;
   path: fpath;
 }
 
+
+type dependency_relationships
+    <python decorator="dataclass(frozen=True)"> = {
+  dep_id: string;
+  depends_on_dep_ids: string list;
+}
+
+type resolved_subproject
+    <python decorator="dataclass(frozen=True)"> = {
+  manifest: manifest;
+
+  dependencies: found_dependency list;
+  (* dependency_relationship items each reference an id from found_dependency.id
+    and the IDs of the dependencies that that item depends on *)
+  dep_relationships: dependency_relationships list option;
+}
+
 type resolve_dependencies_params = {
-  manifests: manifest list;
+  to_resolve: manifest list;
 }
 
 type resolve_dependencies_return
     <python decorator="dataclass(frozen=True)"> = {
-  resolved_graphs: dependency_graph list;
+  resolved: resolved_subproject list;
 }
 
 type function_call

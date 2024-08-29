@@ -884,7 +884,8 @@
           "type": "array",
           "items": { "$ref": "#/definitions/dependency_child" }
         },
-        "git_ref": { "type": "string" }
+        "git_ref": { "type": "string" },
+        "id": { "type": "string" }
       }
     },
     "sca_parser_name": {
@@ -1505,29 +1506,6 @@
     "output_format": {
       "oneOf": [ { "const": "Vim" }, { "const": "Emacs" } ]
     },
-    "dependency_graph_node": {
-      "type": "object",
-      "required": [
-        "package_name", "package_version", "ecosystem", "children"
-      ],
-      "properties": {
-        "package_name": { "type": "string" },
-        "package_version": { "type": "string" },
-        "ecosystem": { "$ref": "#/definitions/ecosystem" },
-        "children": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/dependency_graph_node" }
-        }
-      }
-    },
-    "dependency_graph": {
-      "type": "object",
-      "required": [ "manifest_path", "root_node" ],
-      "properties": {
-        "manifest_path": { "$ref": "#/definitions/fpath" },
-        "root_node": { "$ref": "#/definitions/dependency_graph_node" }
-      }
-    },
     "manifest": {
       "type": "object",
       "required": [ "ecosystem", "path" ],
@@ -1536,11 +1514,52 @@
         "path": { "$ref": "#/definitions/fpath" }
       }
     },
+    "dependency_relationships": {
+      "type": "object",
+      "required": [ "dep_id", "depends_on_dep_ids" ],
+      "properties": {
+        "dep_id": { "type": "string" },
+        "depends_on_dep_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "resolved_subproject": {
+      "type": "object",
+      "required": [ "manifest", "dependencies", "dep_relationships" ],
+      "properties": {
+        "manifest": { "$ref": "#/definitions/manifest" },
+        "dependencies": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/found_dependency" }
+        },
+        "dep_relationships": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/dependency_relationships"
+                  }
+                }
+              ]
+            },
+            { "const": "None" }
+          ]
+        }
+      }
+    },
     "resolve_dependencies_params": {
       "type": "object",
-      "required": [ "manifests" ],
+      "required": [ "to_resolve" ],
       "properties": {
-        "manifests": {
+        "to_resolve": {
           "type": "array",
           "items": { "$ref": "#/definitions/manifest" }
         }
@@ -1548,11 +1567,11 @@
     },
     "resolve_dependencies_return": {
       "type": "object",
-      "required": [ "resolved_graphs" ],
+      "required": [ "resolved" ],
       "properties": {
-        "resolved_graphs": {
+        "resolved": {
           "type": "array",
-          "items": { "$ref": "#/definitions/dependency_graph" }
+          "items": { "$ref": "#/definitions/resolved_subproject" }
         }
       }
     },

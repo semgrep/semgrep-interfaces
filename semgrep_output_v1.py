@@ -281,262 +281,6 @@ class Datetime:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
-class Npm:
-    """Original type: ecosystem = [ ... | Npm | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Npm'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'npm'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Pypi:
-    """Original type: ecosystem = [ ... | Pypi | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Pypi'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'pypi'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Gem:
-    """Original type: ecosystem = [ ... | Gem | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Gem'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'gem'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Gomod:
-    """Original type: ecosystem = [ ... | Gomod | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Gomod'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'gomod'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Cargo:
-    """Original type: ecosystem = [ ... | Cargo | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Cargo'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'cargo'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Maven:
-    """Original type: ecosystem = [ ... | Maven | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Maven'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'maven'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Composer:
-    """Original type: ecosystem = [ ... | Composer | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Composer'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'composer'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Nuget:
-    """Original type: ecosystem = [ ... | Nuget | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Nuget'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'nuget'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Pub:
-    """Original type: ecosystem = [ ... | Pub | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Pub'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'pub'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class SwiftPM:
-    """Original type: ecosystem = [ ... | SwiftPM | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'SwiftPM'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'swiftpm'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Mix:
-    """Original type: ecosystem = [ ... | Mix | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Mix'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'mix'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Hex:
-    """Original type: ecosystem = [ ... | Hex | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Hex'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'hex'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Ecosystem:
-    """Original type: ecosystem = [ ... ]"""
-
-    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub, SwiftPM, Mix, Hex]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Ecosystem':
-        if isinstance(x, str):
-            if x == 'npm':
-                return cls(Npm())
-            if x == 'pypi':
-                return cls(Pypi())
-            if x == 'gem':
-                return cls(Gem())
-            if x == 'gomod':
-                return cls(Gomod())
-            if x == 'cargo':
-                return cls(Cargo())
-            if x == 'maven':
-                return cls(Maven())
-            if x == 'composer':
-                return cls(Composer())
-            if x == 'nuget':
-                return cls(Nuget())
-            if x == 'pub':
-                return cls(Pub())
-            if x == 'swiftpm':
-                return cls(SwiftPM())
-            if x == 'mix':
-                return cls(Mix())
-            if x == 'hex':
-                return cls(Hex())
-            _atd_bad_json('Ecosystem', x)
-        _atd_bad_json('Ecosystem', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Ecosystem':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass
 class Fpath:
     """Original type: fpath"""
@@ -1571,43 +1315,6 @@ class ValidationState:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ValidationState':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class DependencyGraphNode:
-    """Original type: dependency_graph_node = { ... }"""
-
-    package_name: str
-    package_version: str
-    ecosystem: Ecosystem
-    children: List[DependencyGraphNode]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'DependencyGraphNode':
-        if isinstance(x, dict):
-            return cls(
-                package_name=_atd_read_string(x['package_name']) if 'package_name' in x else _atd_missing_json_field('DependencyGraphNode', 'package_name'),
-                package_version=_atd_read_string(x['package_version']) if 'package_version' in x else _atd_missing_json_field('DependencyGraphNode', 'package_version'),
-                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('DependencyGraphNode', 'ecosystem'),
-                children=_atd_read_list(DependencyGraphNode.from_json)(x['children']) if 'children' in x else _atd_missing_json_field('DependencyGraphNode', 'children'),
-            )
-        else:
-            _atd_bad_json('DependencyGraphNode', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['package_name'] = _atd_write_string(self.package_name)
-        res['package_version'] = _atd_write_string(self.package_version)
-        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
-        res['children'] = _atd_write_list((lambda x: x.to_json()))(self.children)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'DependencyGraphNode':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -4450,6 +4157,262 @@ class ScaParserName:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class Npm:
+    """Original type: ecosystem = [ ... | Npm | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Npm'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'npm'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Pypi:
+    """Original type: ecosystem = [ ... | Pypi | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Pypi'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'pypi'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Gem:
+    """Original type: ecosystem = [ ... | Gem | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Gem'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'gem'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Gomod:
+    """Original type: ecosystem = [ ... | Gomod | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Gomod'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'gomod'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Cargo:
+    """Original type: ecosystem = [ ... | Cargo | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Cargo'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'cargo'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Maven:
+    """Original type: ecosystem = [ ... | Maven | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Maven'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'maven'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Composer:
+    """Original type: ecosystem = [ ... | Composer | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Composer'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'composer'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Nuget:
+    """Original type: ecosystem = [ ... | Nuget | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Nuget'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'nuget'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Pub:
+    """Original type: ecosystem = [ ... | Pub | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Pub'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'pub'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class SwiftPM:
+    """Original type: ecosystem = [ ... | SwiftPM | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SwiftPM'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'swiftpm'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Mix:
+    """Original type: ecosystem = [ ... | Mix | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Mix'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'mix'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Hex:
+    """Original type: ecosystem = [ ... | Hex | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Hex'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'hex'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Ecosystem:
+    """Original type: ecosystem = [ ... ]"""
+
+    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub, SwiftPM, Mix, Hex]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Ecosystem':
+        if isinstance(x, str):
+            if x == 'npm':
+                return cls(Npm())
+            if x == 'pypi':
+                return cls(Pypi())
+            if x == 'gem':
+                return cls(Gem())
+            if x == 'gomod':
+                return cls(Gomod())
+            if x == 'cargo':
+                return cls(Cargo())
+            if x == 'maven':
+                return cls(Maven())
+            if x == 'composer':
+                return cls(Composer())
+            if x == 'nuget':
+                return cls(Nuget())
+            if x == 'pub':
+                return cls(Pub())
+            if x == 'swiftpm':
+                return cls(SwiftPM())
+            if x == 'mix':
+                return cls(Mix())
+            if x == 'hex':
+                return cls(Hex())
+            _atd_bad_json('Ecosystem', x)
+        _atd_bad_json('Ecosystem', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Ecosystem':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class DependencyChild:
     """Original type: dependency_child = { ... }"""
@@ -4495,6 +4458,7 @@ class FoundDependency:
     line_number: Optional[int] = None
     children: Optional[List[DependencyChild]] = None
     git_ref: Optional[str] = None
+    id: Optional[str] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'FoundDependency':
@@ -4510,6 +4474,7 @@ class FoundDependency:
                 line_number=_atd_read_int(x['line_number']) if 'line_number' in x else None,
                 children=_atd_read_list(DependencyChild.from_json)(x['children']) if 'children' in x else None,
                 git_ref=_atd_read_string(x['git_ref']) if 'git_ref' in x else None,
+                id=_atd_read_string(x['id']) if 'id' in x else None,
             )
         else:
             _atd_bad_json('FoundDependency', x)
@@ -4531,6 +4496,8 @@ class FoundDependency:
             res['children'] = _atd_write_list((lambda x: x.to_json()))(self.children)
         if self.git_ref is not None:
             res['git_ref'] = _atd_write_string(self.git_ref)
+        if self.id is not None:
+            res['id'] = _atd_write_string(self.id)
         return res
 
     @classmethod
@@ -5681,65 +5648,6 @@ class RuleIdAndEngineKind:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
-class DependencyGraph:
-    """Original type: dependency_graph = { ... }"""
-
-    manifest_path: Fpath
-    root_node: DependencyGraphNode
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'DependencyGraph':
-        if isinstance(x, dict):
-            return cls(
-                manifest_path=Fpath.from_json(x['manifest_path']) if 'manifest_path' in x else _atd_missing_json_field('DependencyGraph', 'manifest_path'),
-                root_node=DependencyGraphNode.from_json(x['root_node']) if 'root_node' in x else _atd_missing_json_field('DependencyGraph', 'root_node'),
-            )
-        else:
-            _atd_bad_json('DependencyGraph', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['manifest_path'] = (lambda x: x.to_json())(self.manifest_path)
-        res['root_node'] = (lambda x: x.to_json())(self.root_node)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'DependencyGraph':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class ResolveDependenciesReturn:
-    """Original type: resolve_dependencies_return = { ... }"""
-
-    resolved_graphs: List[DependencyGraph]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ResolveDependenciesReturn':
-        if isinstance(x, dict):
-            return cls(
-                resolved_graphs=_atd_read_list(DependencyGraph.from_json)(x['resolved_graphs']) if 'resolved_graphs' in x else _atd_missing_json_field('ResolveDependenciesReturn', 'resolved_graphs'),
-            )
-        else:
-            _atd_bad_json('ResolveDependenciesReturn', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['resolved_graphs'] = _atd_write_list((lambda x: x.to_json()))(self.resolved_graphs)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ResolveDependenciesReturn':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass
 class Manifest:
     """Original type: manifest = { ... }"""
@@ -5771,24 +5679,117 @@ class Manifest:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class DependencyRelationships:
+    """Original type: dependency_relationships = { ... }"""
+
+    dep_id: str
+    depends_on_dep_ids: List[str]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencyRelationships':
+        if isinstance(x, dict):
+            return cls(
+                dep_id=_atd_read_string(x['dep_id']) if 'dep_id' in x else _atd_missing_json_field('DependencyRelationships', 'dep_id'),
+                depends_on_dep_ids=_atd_read_list(_atd_read_string)(x['depends_on_dep_ids']) if 'depends_on_dep_ids' in x else _atd_missing_json_field('DependencyRelationships', 'depends_on_dep_ids'),
+            )
+        else:
+            _atd_bad_json('DependencyRelationships', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['dep_id'] = _atd_write_string(self.dep_id)
+        res['depends_on_dep_ids'] = _atd_write_list(_atd_write_string)(self.depends_on_dep_ids)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencyRelationships':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ResolvedSubproject:
+    """Original type: resolved_subproject = { ... }"""
+
+    manifest: Manifest
+    dependencies: List[FoundDependency]
+    dep_relationships: Optional[List[DependencyRelationships]]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolvedSubproject':
+        if isinstance(x, dict):
+            return cls(
+                manifest=Manifest.from_json(x['manifest']) if 'manifest' in x else _atd_missing_json_field('ResolvedSubproject', 'manifest'),
+                dependencies=_atd_read_list(FoundDependency.from_json)(x['dependencies']) if 'dependencies' in x else _atd_missing_json_field('ResolvedSubproject', 'dependencies'),
+                dep_relationships=_atd_read_option(_atd_read_list(DependencyRelationships.from_json))(x['dep_relationships']) if 'dep_relationships' in x else _atd_missing_json_field('ResolvedSubproject', 'dep_relationships'),
+            )
+        else:
+            _atd_bad_json('ResolvedSubproject', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['manifest'] = (lambda x: x.to_json())(self.manifest)
+        res['dependencies'] = _atd_write_list((lambda x: x.to_json()))(self.dependencies)
+        res['dep_relationships'] = _atd_write_option(_atd_write_list((lambda x: x.to_json())))(self.dep_relationships)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolvedSubproject':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ResolveDependenciesReturn:
+    """Original type: resolve_dependencies_return = { ... }"""
+
+    resolved: List[ResolvedSubproject]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolveDependenciesReturn':
+        if isinstance(x, dict):
+            return cls(
+                resolved=_atd_read_list(ResolvedSubproject.from_json)(x['resolved']) if 'resolved' in x else _atd_missing_json_field('ResolveDependenciesReturn', 'resolved'),
+            )
+        else:
+            _atd_bad_json('ResolveDependenciesReturn', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['resolved'] = _atd_write_list((lambda x: x.to_json()))(self.resolved)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolveDependenciesReturn':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class ResolveDependenciesParams:
     """Original type: resolve_dependencies_params = { ... }"""
 
-    manifests: List[Manifest]
+    to_resolve: List[Manifest]
 
     @classmethod
     def from_json(cls, x: Any) -> 'ResolveDependenciesParams':
         if isinstance(x, dict):
             return cls(
-                manifests=_atd_read_list(Manifest.from_json)(x['manifests']) if 'manifests' in x else _atd_missing_json_field('ResolveDependenciesParams', 'manifests'),
+                to_resolve=_atd_read_list(Manifest.from_json)(x['to_resolve']) if 'to_resolve' in x else _atd_missing_json_field('ResolveDependenciesParams', 'to_resolve'),
             )
         else:
             _atd_bad_json('ResolveDependenciesParams', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['manifests'] = _atd_write_list((lambda x: x.to_json()))(self.manifests)
+        res['to_resolve'] = _atd_write_list((lambda x: x.to_json()))(self.to_resolve)
         return res
 
     @classmethod
