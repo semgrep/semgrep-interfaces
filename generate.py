@@ -568,7 +568,7 @@ not ambiguous is welcome here.
         id_="terraform",
         name="Terraform",
         keys=["tf", "hcl", "terraform"],
-        exts=[".tf", ".hcl"],
+        exts=[".tf", ".hcl", ".tfvars"],
         maturity=Maturity.GA,
         shebangs=[]
     ),

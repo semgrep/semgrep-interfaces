@@ -629,8 +629,16 @@ $defs:
           kind:
             title: Kind keyword
             type: string
+          module:
+            title: Kind keyword
+            type: string
         required:
-          - kind
+          - metavariable
+        anyOf:
+        - required:
+            - kind
+        - required:
+            - module
         additionalProperties: false
     required:
       - semgrep-internal-metavariable-name

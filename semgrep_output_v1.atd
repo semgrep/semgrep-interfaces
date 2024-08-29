@@ -1787,7 +1787,13 @@ type sarif_format_return
    * performace when needed.
    *)
   format_time_seconds: float;
-}
+  }
+
+(* TODO: merge with src/osemgrep/reporting/Output_format.ml *)
+type output_format = [
+  | Vim
+  | Emacs
+]
 
 (* supply chain dependency resolution *)
 type annotated_dependency_graph
@@ -1830,6 +1836,7 @@ type function_call
   | CallApplyFixes of apply_fixes_params
   | CallSarifFormat of sarif_format_params
   | CallResolveDependencies of resolve_dependencies_params
+  | CallFormatter of (output_format * cli_output)
 ]
 
 type function_return
@@ -1839,4 +1846,5 @@ type function_return
   | RetSarifFormat of sarif_format_return
   | RetContributions of contributions
   | RetResolveDependencies of resolve_dependencies_return
+  | RetFormatter of string
 ]

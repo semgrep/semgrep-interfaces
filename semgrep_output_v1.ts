@@ -822,6 +822,10 @@ export type SarifFormatReturn = {
   format_time_seconds: number;
 }
 
+export type OutputFormat =
+| { kind: 'Vim' }
+| { kind: 'Emacs' }
+
 export type AnnotatedDependencyGraph = {
   dependency_graph: DependencyGraph;
   scan_id: number /*int*/;
@@ -857,6 +861,7 @@ export type FunctionCall =
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
 | { kind: 'CallSarifFormat'; value: SarifFormatParams }
 | { kind: 'CallResolveDependencies'; value: ResolveDependenciesParams }
+| { kind: 'CallFormatter'; value: [OutputFormat, CliOutput] }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -864,6 +869,7 @@ export type FunctionReturn =
 | { kind: 'RetSarifFormat'; value: SarifFormatReturn }
 | { kind: 'RetContributions'; value: Contributions }
 | { kind: 'RetResolveDependencies'; value: ResolveDependenciesReturn }
+| { kind: 'RetFormatter'; value: string }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
@@ -3327,6 +3333,27 @@ export function readSarifFormatReturn(x: any, context: any = x): SarifFormatRetu
   };
 }
 
+export function writeOutputFormat(x: OutputFormat, context: any = x): any {
+  switch (x.kind) {
+    case 'Vim':
+      return 'Vim'
+    case 'Emacs':
+      return 'Emacs'
+  }
+}
+
+export function readOutputFormat(x: any, context: any = x): OutputFormat {
+  switch (x) {
+    case 'Vim':
+      return { kind: 'Vim' }
+    case 'Emacs':
+      return { kind: 'Emacs' }
+    default:
+      _atd_bad_json('OutputFormat', x, context)
+      throw new Error('impossible')
+  }
+}
+
 export function writeAnnotatedDependencyGraph(x: AnnotatedDependencyGraph, context: any = x): any {
   return {
     'dependency_graph': _atd_write_required_field('AnnotatedDependencyGraph', 'dependency_graph', writeDependencyGraph, x.dependency_graph, x),
@@ -3421,6 +3448,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallSarifFormat', writeSarifFormatParams(x.value, x)]
     case 'CallResolveDependencies':
       return ['CallResolveDependencies', writeResolveDependenciesParams(x.value, x)]
+    case 'CallFormatter':
+      return ['CallFormatter', ((x, context) => [writeOutputFormat(x[0], x), writeCliOutput(x[1], x)])(x.value, x)]
   }
 }
 
@@ -3443,6 +3472,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallSarifFormat', value: readSarifFormatParams(x[1], x) }
       case 'CallResolveDependencies':
         return { kind: 'CallResolveDependencies', value: readResolveDependenciesParams(x[1], x) }
+      case 'CallFormatter':
+        return { kind: 'CallFormatter', value: ((x, context): [OutputFormat, CliOutput] => { _atd_check_json_tuple(2, x, context); return [readOutputFormat(x[0], x), readCliOutput(x[1], x)] })(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -3462,6 +3493,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetContributions', writeContributions(x.value, x)]
     case 'RetResolveDependencies':
       return ['RetResolveDependencies', writeResolveDependenciesReturn(x.value, x)]
+    case 'RetFormatter':
+      return ['RetFormatter', _atd_write_string(x.value, x)]
   }
 }
 
@@ -3478,6 +3511,8 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetContributions', value: readContributions(x[1], x) }
     case 'RetResolveDependencies':
       return { kind: 'RetResolveDependencies', value: readResolveDependenciesReturn(x[1], x) }
+    case 'RetFormatter':
+      return { kind: 'RetFormatter', value: _atd_read_string(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')

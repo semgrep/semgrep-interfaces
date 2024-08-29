@@ -572,6 +572,8 @@ type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
   num_bytes: int
 }
 
+type output_format = Semgrep_output_v1_t.output_format
+
 type has_features = Semgrep_output_v1_t.has_features = {
   has_autofix: bool;
   has_deepsemgrep: bool;
@@ -604,6 +606,19 @@ type edit = Semgrep_output_v1_t.edit = {
   start_offset: int;
   end_offset: int;
   replacement_text: string
+}
+
+type cli_output = Semgrep_output_v1_t.cli_output = {
+  version: version option;
+  errors: cli_error list;
+  results: cli_match list;
+  paths: scanned_and_skipped;
+  time: profile option;
+  explanations: matching_explanation list option;
+  rules_by_engine: rule_id_and_engine_kind list option;
+  engine_requested: engine_kind option;
+  interfile_languages_used: string list option;
+  skipped_rules: skipped_rule list
 }
 
 type apply_fixes_params = Semgrep_output_v1_t.apply_fixes_params = {
@@ -702,19 +717,6 @@ type core_output = Semgrep_output_v1_t.core_output = {
 }
 
 type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
-  paths: scanned_and_skipped;
-  time: profile option;
-  explanations: matching_explanation list option;
-  rules_by_engine: rule_id_and_engine_kind list option;
-  engine_requested: engine_kind option;
-  interfile_languages_used: string list option;
-  skipped_rules: skipped_rule list
-}
-
-type cli_output = Semgrep_output_v1_t.cli_output = {
-  version: version option;
-  errors: cli_error list;
-  results: cli_match list;
   paths: scanned_and_skipped;
   time: profile option;
   explanations: matching_explanation list option;
@@ -2649,6 +2651,26 @@ val parsing_stats_of_string :
   string -> parsing_stats
   (** Deserialize JSON data of type {!type:parsing_stats}. *)
 
+val write_output_format :
+  Buffer.t -> output_format -> unit
+  (** Output a JSON value of type {!type:output_format}. *)
+
+val string_of_output_format :
+  ?len:int -> output_format -> string
+  (** Serialize a value of type {!type:output_format}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_output_format :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> output_format
+  (** Input JSON data of type {!type:output_format}. *)
+
+val output_format_of_string :
+  string -> output_format
+  (** Deserialize JSON data of type {!type:output_format}. *)
+
 val write_has_features :
   Buffer.t -> has_features -> unit
   (** Output a JSON value of type {!type:has_features}. *)
@@ -2788,6 +2810,26 @@ val read_edit :
 val edit_of_string :
   string -> edit
   (** Deserialize JSON data of type {!type:edit}. *)
+
+val write_cli_output :
+  Buffer.t -> cli_output -> unit
+  (** Output a JSON value of type {!type:cli_output}. *)
+
+val string_of_cli_output :
+  ?len:int -> cli_output -> string
+  (** Serialize a value of type {!type:cli_output}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_cli_output :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_output
+  (** Input JSON data of type {!type:cli_output}. *)
+
+val cli_output_of_string :
+  string -> cli_output
+  (** Deserialize JSON data of type {!type:cli_output}. *)
 
 val write_apply_fixes_params :
   Buffer.t -> apply_fixes_params -> unit
@@ -3008,26 +3050,6 @@ val read_cli_output_extra :
 val cli_output_extra_of_string :
   string -> cli_output_extra
   (** Deserialize JSON data of type {!type:cli_output_extra}. *)
-
-val write_cli_output :
-  Buffer.t -> cli_output -> unit
-  (** Output a JSON value of type {!type:cli_output}. *)
-
-val string_of_cli_output :
-  ?len:int -> cli_output -> string
-  (** Serialize a value of type {!type:cli_output}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cli_output :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_output
-  (** Input JSON data of type {!type:cli_output}. *)
-
-val cli_output_of_string :
-  string -> cli_output
-  (** Deserialize JSON data of type {!type:cli_output}. *)
 
 val write_ci_scan_results_response_error :
   Buffer.t -> ci_scan_results_response_error -> unit

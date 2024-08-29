@@ -1500,6 +1500,9 @@
         "format_time_seconds": { "type": "number" }
       }
     },
+    "output_format": {
+      "oneOf": [ { "const": "Vim" }, { "const": "Emacs" } ]
+    },
     "annotated_dependency_graph": {
       "type": "object",
       "required": [ "dependency_graph", "scan_id" ],
@@ -1588,6 +1591,23 @@
             { "const": "CallResolveDependencies" },
             { "$ref": "#/definitions/resolve_dependencies_params" }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CallFormatter" },
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "$ref": "#/definitions/output_format" },
+                { "$ref": "#/definitions/cli_output" }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -1633,6 +1653,14 @@
           "prefixItems": [
             { "const": "RetResolveDependencies" },
             { "$ref": "#/definitions/resolve_dependencies_return" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "RetFormatter" }, { "type": "string" }
           ]
         }
       ]
