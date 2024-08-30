@@ -482,13 +482,43 @@ $defs:
         title: Inspect a metavariable with a given analyzer
         properties:
           analyzer:
-            type: string
             title: Analyzer to use
+            oneOf:
+              - const: entropy
+              - const: entropy_v2
+              - const: redos
+              - type: object
+                properties:
+                  kind:
+                    const: entropy
+                  required:
+                    - kind
+                  additionalProperties: false
+              - type: object
+                properties:
+                  kind:
+                    const: entropy_v2
+                  mode:
+                    oneOf:
+                      - const: lax
+                      - const: strict
+                      - const: default
+                  required:
+                    - kind
+                  additionalProperties: false
+              - type: object
+                properties:
+                  kind:
+                    const: redos
+                  required:
+                    - kind
+                  additionalProperties: false
           metavariable:
             type: string
             title: Metavariable to analyze
           options:
             type: object
+          additionalProperties: false
         required:
           - analyzer
           - metavariable
