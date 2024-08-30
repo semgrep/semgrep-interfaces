@@ -773,6 +773,13 @@ export type CiScanFailure = {
   stderr: string;
 }
 
+export type CiPartialScan = {
+  ok: boolean;
+  results?: CiScanResults;
+  complete?: CiScanComplete;
+  failure?: CiScanFailure;
+}
+
 export type CiConfigFromCloud = {
   repo_config: CiConfig;
   org_config?: CiConfig;
@@ -3168,6 +3175,24 @@ export function readCiScanFailure(x: any, context: any = x): CiScanFailure {
   return {
     exit_code: _atd_read_required_field('CiScanFailure', 'exit_code', _atd_read_int, x['exit_code'], x),
     stderr: _atd_read_required_field('CiScanFailure', 'stderr', _atd_read_string, x['stderr'], x),
+  };
+}
+
+export function writeCiPartialScan(x: CiPartialScan, context: any = x): any {
+  return {
+    'ok': _atd_write_required_field('CiPartialScan', 'ok', _atd_write_bool, x.ok, x),
+    'results': _atd_write_optional_field(writeCiScanResults, x.results, x),
+    'complete': _atd_write_optional_field(writeCiScanComplete, x.complete, x),
+    'failure': _atd_write_optional_field(writeCiScanFailure, x.failure, x),
+  };
+}
+
+export function readCiPartialScan(x: any, context: any = x): CiPartialScan {
+  return {
+    ok: _atd_read_required_field('CiPartialScan', 'ok', _atd_read_bool, x['ok'], x),
+    results: _atd_read_optional_field(readCiScanResults, x['results'], x),
+    complete: _atd_read_optional_field(readCiScanComplete, x['complete'], x),
+    failure: _atd_read_optional_field(readCiScanFailure, x['failure'], x),
   };
 }
 

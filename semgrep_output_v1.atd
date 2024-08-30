@@ -1671,6 +1671,21 @@ type ci_scan_failure = {
 }
 
 (* ----------------------------- *)
+(* CI partial scan *)
+(* ----------------------------- *)
+
+type ci_partial_scan = {
+  ok: bool;
+
+  (* if ok, these will be populated *)
+  ?results: ci_scan_results option;
+  ?complete: ci_scan_complete option;
+
+  (* if not ok, this will be populated *)
+  ?failure: ci_scan_failure option;
+}
+
+(* ----------------------------- *)
 (* TODO a better CI config from cloud *)
 (* ----------------------------- *)
 

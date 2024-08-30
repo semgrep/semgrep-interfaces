@@ -7042,3 +7042,43 @@ class CiScanComplete:
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CiPartialScan:
+    """Original type: ci_partial_scan = { ... }"""
+
+    ok: bool
+    results: Optional[CiScanResults] = None
+    complete: Optional[CiScanComplete] = None
+    failure: Optional[CiScanFailure] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiPartialScan':
+        if isinstance(x, dict):
+            return cls(
+                ok=_atd_read_bool(x['ok']) if 'ok' in x else _atd_missing_json_field('CiPartialScan', 'ok'),
+                results=CiScanResults.from_json(x['results']) if 'results' in x else None,
+                complete=CiScanComplete.from_json(x['complete']) if 'complete' in x else None,
+                failure=CiScanFailure.from_json(x['failure']) if 'failure' in x else None,
+            )
+        else:
+            _atd_bad_json('CiPartialScan', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['ok'] = _atd_write_bool(self.ok)
+        if self.results is not None:
+            res['results'] = (lambda x: x.to_json())(self.results)
+        if self.complete is not None:
+            res['complete'] = (lambda x: x.to_json())(self.complete)
+        if self.failure is not None:
+            res['failure'] = (lambda x: x.to_json())(self.failure)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiPartialScan':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
