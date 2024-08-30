@@ -1387,6 +1387,16 @@
         "stderr": { "type": "string" }
       }
     },
+    "ci_partial_scan": {
+      "type": "object",
+      "required": [ "ok" ],
+      "properties": {
+        "ok": { "type": "boolean" },
+        "results": { "$ref": "#/definitions/ci_scan_results" },
+        "complete": { "$ref": "#/definitions/ci_scan_complete" },
+        "failure": { "$ref": "#/definitions/ci_scan_failure" }
+      }
+    },
     "ci_config_from_cloud": {
       "type": "object",
       "required": [ "repo_config" ],

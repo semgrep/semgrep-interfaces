@@ -758,6 +758,13 @@ type ci_scan_complete = Semgrep_output_v1_t.ci_scan_complete = {
   final_attempt: bool option
 }
 
+type ci_partial_scan = Semgrep_output_v1_t.ci_partial_scan = {
+  ok: bool;
+  results: ci_scan_results option;
+  complete: ci_scan_complete option;
+  failure: ci_scan_failure option
+}
+
 val write_datetime :
   Buffer.t -> datetime -> unit
   (** Output a JSON value of type {!type:datetime}. *)
@@ -3077,4 +3084,24 @@ val read_ci_scan_complete :
 val ci_scan_complete_of_string :
   string -> ci_scan_complete
   (** Deserialize JSON data of type {!type:ci_scan_complete}. *)
+
+val write_ci_partial_scan :
+  Buffer.t -> ci_partial_scan -> unit
+  (** Output a JSON value of type {!type:ci_partial_scan}. *)
+
+val string_of_ci_partial_scan :
+  ?len:int -> ci_partial_scan -> string
+  (** Serialize a value of type {!type:ci_partial_scan}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_ci_partial_scan :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_partial_scan
+  (** Input JSON data of type {!type:ci_partial_scan}. *)
+
+val ci_partial_scan_of_string :
+  string -> ci_partial_scan
+  (** Deserialize JSON data of type {!type:ci_partial_scan}. *)
 
