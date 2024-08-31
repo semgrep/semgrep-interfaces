@@ -1,0 +1,33 @@
+#! /usr/bin/env bash
+#
+# Use a JSON Schema validator to check input files that should pass or fail.
+#
+# A file with the .ok.yaml extension is expected to pass validation.
+# A file with the .fail.yaml extenstion is expected to fail.
+#
+set -eu
+
+schema_file=$1
+input_dir=$2
+
+# Check that check-jsonschema is installed
+# Installation instructions:
+#   https://github.com/python-jsonschema/check-jsonschema
+check-jsonschema --version
+
+# Check well-formed files
+check-jsonschema --schemafile "$schema_file" "$input_dir"/*.ok.yaml
+
+exit_code=0
+
+# Check that malformed files are detected
+for input_file in "$input_dir"/*.fail.yaml; do
+  if check-jsonschema --schemafile "$schema_file" "$input_file"; then
+    echo "*** $input_file: should have failed validation" >&2
+    exit_code=1
+  else
+    echo "XFAIL (failed as expected)"
+  fi
+done
+
+exit "$exit_code"
