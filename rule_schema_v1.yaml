@@ -35,6 +35,38 @@ $defs:
     oneOf:
       - required: [ http ]
       - required: [ aws ]
+  analyzer:
+    title: Analyzer to use
+    oneOf:
+      - const: entropy
+      - const: entropy_v2
+      - const: redos
+      - type: object
+        properties:
+          kind:
+            const: entropy
+        required:
+          - kind
+        additionalProperties: false
+      - type: object
+        properties:
+          kind:
+            const: entropy_v2
+          mode:
+            oneOf:
+              - const: lax
+              - const: strict
+              - const: default
+        required:
+          - kind
+        additionalProperties: false
+      - type: object
+        properties:
+          kind:
+            const: redos
+        required:
+          - kind
+        additionalProperties: false
   # EXPERIMENTAL
   aws-request-content:
     properties:
@@ -227,7 +259,7 @@ $defs:
                   metavariable:
                     type: string
                   analyzer:
-                    type: string
+                    $ref: "#/$defs/analyzer"
   general-pattern-content:
     title: "Return finding where code matches against the following pattern"
     oneOf:
@@ -482,42 +514,10 @@ $defs:
         title: Inspect a metavariable with a given analyzer
         properties:
           analyzer:
-            title: Analyzer to use
-            oneOf:
-              - const: entropy
-              - const: entropy_v2
-              - const: redos
-              - type: object
-                properties:
-                  kind:
-                    const: entropy
-                  required:
-                    - kind
-                  additionalProperties: false
-              - type: object
-                properties:
-                  kind:
-                    const: entropy_v2
-                  mode:
-                    oneOf:
-                      - const: lax
-                      - const: strict
-                      - const: default
-                  required:
-                    - kind
-                  additionalProperties: false
-              - type: object
-                properties:
-                  kind:
-                    const: redos
-                  required:
-                    - kind
-                  additionalProperties: false
+            $ref: "#/$defs/analyzer"
           metavariable:
             type: string
             title: Metavariable to analyze
-          options:
-            type: object
           additionalProperties: false
         required:
           - analyzer
