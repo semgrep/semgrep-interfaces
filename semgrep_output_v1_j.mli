@@ -451,6 +451,7 @@ type error_type = Semgrep_output_v1_t.error_type =
   | FatalError
   | Timeout
   | OutOfMemory
+  | StackOverflow
   | TimeoutDuringInterfile
   | OutOfMemoryDuringInterfile
   | MissingPlugin
