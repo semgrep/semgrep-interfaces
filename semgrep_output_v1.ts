@@ -183,6 +183,7 @@ export type ErrorType =
 | { kind: 'FatalError' /* JSON: "Fatal error" */ }
 | { kind: 'Timeout' }
 | { kind: 'OutOfMemory' /* JSON: "Out of memory" */ }
+| { kind: 'StackOverflow' /* JSON: "Stack overflow" */ }
 | { kind: 'TimeoutDuringInterfile' /* JSON: "Timeout during interfile analysis" */ }
 | { kind: 'OutOfMemoryDuringInterfile' /* JSON: "OOM during interfile analysis" */ }
 | { kind: 'MissingPlugin' /* JSON: "Missing plugin" */ }
@@ -1391,6 +1392,8 @@ export function writeErrorType(x: ErrorType, context: any = x): any {
       return 'Timeout'
     case 'OutOfMemory':
       return 'Out of memory'
+    case 'StackOverflow':
+      return 'Stack overflow'
     case 'TimeoutDuringInterfile':
       return 'Timeout during interfile analysis'
     case 'OutOfMemoryDuringInterfile':
@@ -1445,6 +1448,8 @@ export function readErrorType(x: any, context: any = x): ErrorType {
         return { kind: 'Timeout' }
       case 'Out of memory':
         return { kind: 'OutOfMemory' }
+      case 'Stack overflow':
+        return { kind: 'StackOverflow' }
       case 'Timeout during interfile analysis':
         return { kind: 'TimeoutDuringInterfile' }
       case 'OOM during interfile analysis':

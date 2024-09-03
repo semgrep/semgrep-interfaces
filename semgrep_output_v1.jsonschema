@@ -293,6 +293,7 @@
         { "const": "Fatal error" },
         { "const": "Timeout" },
         { "const": "Out of memory" },
+        { "const": "Stack overflow" },
         { "const": "Timeout during interfile analysis" },
         { "const": "OOM during interfile analysis" },
         { "const": "Missing plugin" },
