@@ -4454,7 +4454,7 @@ class FoundDependency:
     allowed_hashes: Dict[str, List[str]]
     transitivity: Transitivity
     resolved_url: Optional[str] = None
-    reference_filepath: Optional[Fpath] = None
+    lockfile_path: Optional[Fpath] = None
     line_number: Optional[int] = None
     children: Optional[List[DependencyChild]] = None
     git_ref: Optional[str] = None
@@ -4469,7 +4469,7 @@ class FoundDependency:
                 allowed_hashes=_atd_read_assoc_object_into_dict(_atd_read_list(_atd_read_string))(x['allowed_hashes']) if 'allowed_hashes' in x else _atd_missing_json_field('FoundDependency', 'allowed_hashes'),
                 transitivity=Transitivity.from_json(x['transitivity']) if 'transitivity' in x else _atd_missing_json_field('FoundDependency', 'transitivity'),
                 resolved_url=_atd_read_string(x['resolved_url']) if 'resolved_url' in x else None,
-                reference_filepath=Fpath.from_json(x['reference_filepath']) if 'reference_filepath' in x else None,
+                lockfile_path=Fpath.from_json(x['lockfile_path']) if 'lockfile_path' in x else None,
                 line_number=_atd_read_int(x['line_number']) if 'line_number' in x else None,
                 children=_atd_read_list(DependencyChild.from_json)(x['children']) if 'children' in x else None,
                 git_ref=_atd_read_string(x['git_ref']) if 'git_ref' in x else None,
@@ -4486,8 +4486,8 @@ class FoundDependency:
         res['transitivity'] = (lambda x: x.to_json())(self.transitivity)
         if self.resolved_url is not None:
             res['resolved_url'] = _atd_write_string(self.resolved_url)
-        if self.reference_filepath is not None:
-            res['reference_filepath'] = (lambda x: x.to_json())(self.reference_filepath)
+        if self.lockfile_path is not None:
+            res['lockfile_path'] = (lambda x: x.to_json())(self.lockfile_path)
         if self.line_number is not None:
             res['line_number'] = _atd_write_int(self.line_number)
         if self.children is not None:

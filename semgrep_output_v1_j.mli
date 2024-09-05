@@ -397,7 +397,7 @@ type found_dependency = Semgrep_output_v1_t.found_dependency = {
   allowed_hashes: (string * string list) list;
   resolved_url: string option;
   transitivity: transitivity;
-  reference_filepath: fpath option;
+  lockfile_path: fpath option;
   line_number: int option;
   children: dependency_child list option;
   git_ref: string option

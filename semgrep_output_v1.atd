@@ -1104,8 +1104,8 @@ type found_dependency = {
     <ts repr="map">;
   ?resolved_url: string option;
   transitivity: transitivity;
-  (* reference_filepath and line_number point to some location in some file *)
-  ?reference_filepath: fpath option;
+  (* lockfile_path and line_number point to some location in some file *)
+  ?lockfile_path: fpath option;
   ?line_number: int option;
   (* store child dependency information for calculating path to transitivity*)
   ?children: dependency_child list option;
