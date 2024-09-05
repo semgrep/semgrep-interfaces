@@ -4952,6 +4952,23 @@ class OutOfMemory:
 
 
 @dataclass(frozen=True, order=True)
+class StackOverflow:
+    """Original type: error_type = [ ... | StackOverflow | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'StackOverflow'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Stack overflow'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
 class TimeoutDuringInterfile:
     """Original type: error_type = [ ... | TimeoutDuringInterfile | ... ]"""
 
@@ -5094,7 +5111,7 @@ class IncompatibleRule0:
 class ErrorType:
     """Original type: error_type = [ ... ]"""
 
-    value: Union[LexicalError, ParseError, OtherParseError, AstBuilderError, RuleParseError, SemgrepWarning, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0]
+    value: Union[LexicalError, ParseError, OtherParseError, AstBuilderError, RuleParseError, SemgrepWarning, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, StackOverflow, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0]
 
     @property
     def kind(self) -> str:
@@ -5136,6 +5153,8 @@ class ErrorType:
                 return cls(Timeout())
             if x == 'Out of memory':
                 return cls(OutOfMemory())
+            if x == 'Stack overflow':
+                return cls(StackOverflow())
             if x == 'Timeout during interfile analysis':
                 return cls(TimeoutDuringInterfile())
             if x == 'OOM during interfile analysis':

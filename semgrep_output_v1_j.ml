@@ -452,6 +452,7 @@ type error_type = Semgrep_output_v1_t.error_type =
   | FatalError
   | Timeout
   | OutOfMemory
+  | StackOverflow
   | TimeoutDuringInterfile
   | OutOfMemoryDuringInterfile
   | MissingPlugin
@@ -17416,6 +17417,7 @@ let write_error_type : _ -> error_type -> _ = (
       | FatalError -> Buffer.add_string ob "\"Fatal error\""
       | Timeout -> Buffer.add_string ob "\"Timeout\""
       | OutOfMemory -> Buffer.add_string ob "\"Out of memory\""
+      | StackOverflow -> Buffer.add_string ob "\"Stack overflow\""
       | TimeoutDuringInterfile -> Buffer.add_string ob "\"Timeout during interfile analysis\""
       | OutOfMemoryDuringInterfile -> Buffer.add_string ob "\"OOM during interfile analysis\""
       | MissingPlugin -> Buffer.add_string ob "\"Missing plugin\""
@@ -17514,6 +17516,10 @@ let read_error_type = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (OutOfMemory : error_type)
+            | "Stack overflow" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (StackOverflow : error_type)
             | "Timeout during interfile analysis" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -17598,6 +17604,8 @@ let read_error_type = (
               (Timeout : error_type)
             | "Out of memory" ->
               (OutOfMemory : error_type)
+            | "Stack overflow" ->
+              (StackOverflow : error_type)
             | "Timeout during interfile analysis" ->
               (TimeoutDuringInterfile : error_type)
             | "OOM during interfile analysis" ->
