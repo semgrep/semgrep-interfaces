@@ -518,7 +518,6 @@ $defs:
           metavariable:
             type: string
             title: Metavariable to analyze
-          additionalProperties: false
         required:
           - analyzer
           - metavariable
