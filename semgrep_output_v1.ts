@@ -799,6 +799,14 @@ export type Edit = {
   replacement_text: string;
 }
 
+export type ValidationParams = {
+  path: Fpath;
+}
+
+export type ValidationReturn = {
+  valid: boolean;
+}
+
 export type ApplyFixesParams = {
   dryrun: boolean;
   edits: Edit[];
@@ -832,6 +840,7 @@ export type FunctionCall =
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
 | { kind: 'CallSarifFormat'; value: SarifFormatParams }
 | { kind: 'CallFormatter'; value: [OutputFormat, CliOutput] }
+| { kind: 'CallValidate'; value: ValidationParams }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -839,6 +848,7 @@ export type FunctionReturn =
 | { kind: 'RetSarifFormat'; value: SarifFormatReturn }
 | { kind: 'RetContributions'; value: Contributions }
 | { kind: 'RetFormatter'; value: string }
+| { kind: 'RetValidate'; value: ValidationReturn }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
@@ -3242,6 +3252,30 @@ export function readEdit(x: any, context: any = x): Edit {
   };
 }
 
+export function writeValidationParams(x: ValidationParams, context: any = x): any {
+  return {
+    'path': _atd_write_required_field('ValidationParams', 'path', writeFpath, x.path, x),
+  };
+}
+
+export function readValidationParams(x: any, context: any = x): ValidationParams {
+  return {
+    path: _atd_read_required_field('ValidationParams', 'path', readFpath, x['path'], x),
+  };
+}
+
+export function writeValidationReturn(x: ValidationReturn, context: any = x): any {
+  return {
+    'valid': _atd_write_required_field('ValidationReturn', 'valid', _atd_write_bool, x.valid, x),
+  };
+}
+
+export function readValidationReturn(x: any, context: any = x): ValidationReturn {
+  return {
+    valid: _atd_read_required_field('ValidationReturn', 'valid', _atd_read_bool, x['valid'], x),
+  };
+}
+
 export function writeApplyFixesParams(x: ApplyFixesParams, context: any = x): any {
   return {
     'dryrun': _atd_write_required_field('ApplyFixesParams', 'dryrun', _atd_write_bool, x.dryrun, x),
@@ -3337,6 +3371,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallSarifFormat', writeSarifFormatParams(x.value, x)]
     case 'CallFormatter':
       return ['CallFormatter', ((x, context) => [writeOutputFormat(x[0], x), writeCliOutput(x[1], x)])(x.value, x)]
+    case 'CallValidate':
+      return ['CallValidate', writeValidationParams(x.value, x)]
   }
 }
 
@@ -3359,6 +3395,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallSarifFormat', value: readSarifFormatParams(x[1], x) }
       case 'CallFormatter':
         return { kind: 'CallFormatter', value: ((x, context): [OutputFormat, CliOutput] => { _atd_check_json_tuple(2, x, context); return [readOutputFormat(x[0], x), readCliOutput(x[1], x)] })(x[1], x) }
+      case 'CallValidate':
+        return { kind: 'CallValidate', value: readValidationParams(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -3378,6 +3416,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetContributions', writeContributions(x.value, x)]
     case 'RetFormatter':
       return ['RetFormatter', _atd_write_string(x.value, x)]
+    case 'RetValidate':
+      return ['RetValidate', writeValidationReturn(x.value, x)]
   }
 }
 
@@ -3394,6 +3434,8 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetContributions', value: readContributions(x[1], x) }
     case 'RetFormatter':
       return { kind: 'RetFormatter', value: _atd_read_string(x[1], x) }
+    case 'RetValidate':
+      return { kind: 'RetValidate', value: readValidationReturn(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')

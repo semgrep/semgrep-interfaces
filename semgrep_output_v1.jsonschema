@@ -1443,6 +1443,16 @@
         "replacement_text": { "type": "string" }
       }
     },
+    "validation_params": {
+      "type": "object",
+      "required": [ "path" ],
+      "properties": { "path": { "$ref": "#/definitions/fpath" } }
+    },
+    "validation_return": {
+      "type": "object",
+      "required": [ "valid" ],
+      "properties": { "valid": { "type": "boolean" } }
+    },
     "apply_fixes_params": {
       "type": "object",
       "required": [ "dryrun", "edits" ],
@@ -1541,6 +1551,15 @@
               ]
             }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CallValidate" },
+            { "$ref": "#/definitions/validation_params" }
+          ]
         }
       ]
     },
@@ -1585,6 +1604,15 @@
           "items": false,
           "prefixItems": [
             { "const": "RetFormatter" }, { "type": "string" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "RetValidate" },
+            { "$ref": "#/definitions/validation_return" }
           ]
         }
       ]

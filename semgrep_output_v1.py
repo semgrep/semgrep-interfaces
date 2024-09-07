@@ -1626,6 +1626,62 @@ class Version:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class ValidationReturn:
+    """Original type: validation_return = { ... }"""
+
+    valid: bool
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ValidationReturn':
+        if isinstance(x, dict):
+            return cls(
+                valid=_atd_read_bool(x['valid']) if 'valid' in x else _atd_missing_json_field('ValidationReturn', 'valid'),
+            )
+        else:
+            _atd_bad_json('ValidationReturn', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['valid'] = _atd_write_bool(self.valid)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ValidationReturn':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ValidationParams:
+    """Original type: validation_params = { ... }"""
+
+    path: Fpath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ValidationParams':
+        if isinstance(x, dict):
+            return cls(
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('ValidationParams', 'path'),
+            )
+        else:
+            _atd_bad_json('ValidationParams', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['path'] = (lambda x: x.to_json())(self.path)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ValidationParams':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class Uuid:
     """Original type: uuid"""
@@ -6032,10 +6088,28 @@ class RetFormatter:
 
 
 @dataclass(frozen=True)
+class RetValidate:
+    """Original type: function_return = [ ... | RetValidate of ... | ... ]"""
+
+    value: ValidationReturn
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetValidate'
+
+    def to_json(self) -> Any:
+        return ['RetValidate', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionReturn:
     """Original type: function_return = [ ... ]"""
 
-    value: Union[RetError, RetApplyFixes, RetSarifFormat, RetContributions, RetFormatter]
+    value: Union[RetError, RetApplyFixes, RetSarifFormat, RetContributions, RetFormatter, RetValidate]
 
     @property
     def kind(self) -> str:
@@ -6056,6 +6130,8 @@ class FunctionReturn:
                 return cls(RetContributions(Contributions.from_json(x[1])))
             if cons == 'RetFormatter':
                 return cls(RetFormatter(_atd_read_string(x[1])))
+            if cons == 'RetValidate':
+                return cls(RetValidate(ValidationReturn.from_json(x[1])))
             _atd_bad_json('FunctionReturn', x)
         _atd_bad_json('FunctionReturn', x)
 
@@ -6271,10 +6347,28 @@ class CallFormatter:
 
 
 @dataclass(frozen=True)
+class CallValidate:
+    """Original type: function_call = [ ... | CallValidate of ... | ... ]"""
+
+    value: ValidationParams
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallValidate'
+
+    def to_json(self) -> Any:
+        return ['CallValidate', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionCall:
     """Original type: function_call = [ ... ]"""
 
-    value: Union[CallContributions, CallApplyFixes, CallSarifFormat, CallFormatter]
+    value: Union[CallContributions, CallApplyFixes, CallSarifFormat, CallFormatter, CallValidate]
 
     @property
     def kind(self) -> str:
@@ -6295,6 +6389,8 @@ class FunctionCall:
                 return cls(CallSarifFormat(SarifFormatParams.from_json(x[1])))
             if cons == 'CallFormatter':
                 return cls(CallFormatter((lambda x: (OutputFormat.from_json(x[0]), CliOutput.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+            if cons == 'CallValidate':
+                return cls(CallValidate(ValidationParams.from_json(x[1])))
             _atd_bad_json('FunctionCall', x)
         _atd_bad_json('FunctionCall', x)
 

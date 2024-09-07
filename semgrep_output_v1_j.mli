@@ -136,6 +136,14 @@ type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
 
 type version = Semgrep_output_v1_t.version [@@deriving show]
 
+type validation_return = Semgrep_output_v1_t.validation_return = {
+  valid: bool
+}
+
+type validation_params = Semgrep_output_v1_t.validation_params = {
+  path: fpath
+}
+
 type uuid = Semgrep_output_v1_t.uuid
 
 type uri = Semgrep_output_v1_t.uri
@@ -1258,6 +1266,46 @@ val read_version :
 val version_of_string :
   string -> version
   (** Deserialize JSON data of type {!type:version}. *)
+
+val write_validation_return :
+  Buffer.t -> validation_return -> unit
+  (** Output a JSON value of type {!type:validation_return}. *)
+
+val string_of_validation_return :
+  ?len:int -> validation_return -> string
+  (** Serialize a value of type {!type:validation_return}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_validation_return :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> validation_return
+  (** Input JSON data of type {!type:validation_return}. *)
+
+val validation_return_of_string :
+  string -> validation_return
+  (** Deserialize JSON data of type {!type:validation_return}. *)
+
+val write_validation_params :
+  Buffer.t -> validation_params -> unit
+  (** Output a JSON value of type {!type:validation_params}. *)
+
+val string_of_validation_params :
+  ?len:int -> validation_params -> string
+  (** Serialize a value of type {!type:validation_params}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_validation_params :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> validation_params
+  (** Input JSON data of type {!type:validation_params}. *)
+
+val validation_params_of_string :
+  string -> validation_params
+  (** Deserialize JSON data of type {!type:validation_params}. *)
 
 val write_uuid :
   Buffer.t -> uuid -> unit

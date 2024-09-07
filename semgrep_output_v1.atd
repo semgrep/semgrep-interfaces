@@ -1735,6 +1735,16 @@ type edit
   replacement_text: string;
 }
 
+type validation_params
+    <python decorator="dataclass(frozen=True)"> = {
+  path: fpath;
+}
+
+type validation_return
+    <python decorator="dataclass(frozen=True)"> = {
+  valid: bool;
+}
+
 type apply_fixes_params
     <python decorator="dataclass(frozen=True)"> = {
   dryrun: bool;
@@ -1803,6 +1813,7 @@ type function_call
   | CallApplyFixes of apply_fixes_params
   | CallSarifFormat of sarif_format_params
   | CallFormatter of (output_format * cli_output)
+  | CallValidate of validation_params
 ]
 
 type function_return
@@ -1812,4 +1823,5 @@ type function_return
   | RetSarifFormat of sarif_format_return
   | RetContributions of contributions
   | RetFormatter of string
+  | RetValidate of validation_return
 ]
