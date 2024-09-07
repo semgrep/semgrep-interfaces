@@ -69,3 +69,72 @@ module ProjectDependsOn = struct
   let restore  (_atd : Yojson.Safe.t) : Yojson.Safe.t =
     failwith "Rule_schema_v2_adapter.ProjectDependsOn.restore not implemented"
 end
+
+(*
+   A generic representation for variants. The parameters, if any, must be
+   an ATD record (JSON object, Yojson assoc).
+
+     type t = [
+       | A <json name="a">
+       | B <json name="b"> of b
+     ]
+
+   1. OCaml A is represented as JSON "A". The adapter doesn't change it.
+   2. OCaml B {k = 42} is represented as JSON {"kind": "B", "k": 42}
+      which the adapter converts to JSON ["kind", {"k", 42}].
+
+   Additionally, the alternate notations {"kind": "A"} and "B" can be
+   supported in addition to "A" and {"kind": "B"}. This requires specifying
+   the constructors for which the alternate notation is supported.
+   Constructors that don't expect an argument must be listed as 'enum'.
+   Constructors that expect an object argument must be listed as 'obj'.
+   This gives us the following call:
+
+     normalize_generic_variant ~enum:["a"] ~obj:["b"] json
+
+   Without specifying 'enum' or 'obj', YAML/JSON interpretation will be
+   stricter by not tolerating the alternate notations {"kind": "A"} or "B".
+
+   TODO: make the ATD tools (atdgen, atdpy, ...) support these alternate
+   formats as well?
+   This would allow us to make adapters generic i.e. without
+   having to specify the 'enum' and 'obj' options. In the example above,
+   atdgen would read "b" as ["b", {}] and would read ["a", {}] or ["a", null]
+   as "a" without complaining.
+*)
+let normalize_variant
+    ?(kind_field_name = "kind")
+    ?(enum = [])
+    ?(obj = [])
+    (orig : Yojson.Safe.t ) : Yojson.Safe.t =
+  match orig with
+  | `Assoc props ->
+      (match List.partition (fun (k, v) -> k = kind_field_name) props with
+       | [_, `String kind], [] when List.mem kind enum -> `String kind
+       | [_, `String kind], other_fields ->
+           `List [`String kind; `Assoc other_fields]
+       | _missing_or_duplicate_kind, _ -> orig
+      )
+  | `String kind when List.mem kind obj -> `List [`String kind; `Assoc []]
+  | _string_or_malformed -> orig
+
+(* See 'normalize_variant' *)
+let restore_variant
+  ?(kind_field_name = "kind")
+  (atd : Yojson.Safe.t ) : Yojson.Safe.t =
+  match atd with
+  | `String _ as str -> str
+  | `List [`String _ as kind; `Assoc fields] ->
+      `Assoc ((kind_field_name, kind) :: fields)
+  | _malformed -> atd
+
+module Analyzer = struct
+  let normalize orig =
+    normalize_generic_variant
+      ~enum:["entropy"; "redos"]
+      ~obj:["entropy_v2"]
+      orig
+
+  let restore (atd : Yojson.Safe.t) : Yojson.Safe.t =
+    restore_variant atd
+end
