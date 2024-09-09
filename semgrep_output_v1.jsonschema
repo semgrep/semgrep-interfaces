@@ -1443,16 +1443,6 @@
         "replacement_text": { "type": "string" }
       }
     },
-    "validation_params": {
-      "type": "object",
-      "required": [ "path" ],
-      "properties": { "path": { "$ref": "#/definitions/fpath" } }
-    },
-    "validation_return": {
-      "type": "object",
-      "required": [ "valid" ],
-      "properties": { "valid": { "type": "boolean" } }
-    },
     "apply_fixes_params": {
       "type": "object",
       "required": [ "dryrun", "edits" ],
@@ -1557,8 +1547,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "CallValidate" },
-            { "$ref": "#/definitions/validation_params" }
+            { "const": "CallValidate" }, { "$ref": "#/definitions/fpath" }
           ]
         }
       ]
@@ -1611,8 +1600,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "RetValidate" },
-            { "$ref": "#/definitions/validation_return" }
+            { "const": "RetValidate" }, { "type": "boolean" }
           ]
         }
       ]
