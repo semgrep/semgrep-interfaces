@@ -878,6 +878,7 @@
         },
         "resolved_url": { "type": "string" },
         "transitivity": { "$ref": "#/definitions/transitivity" },
+        "lockfile_path": { "$ref": "#/definitions/fpath" },
         "line_number": { "type": "integer" },
         "children": {
           "type": "array",
@@ -1541,6 +1542,14 @@
               ]
             }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CallValidate" }, { "$ref": "#/definitions/fpath" }
+          ]
         }
       ]
     },
@@ -1585,6 +1594,14 @@
           "items": false,
           "prefixItems": [
             { "const": "RetFormatter" }, { "type": "string" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "RetValidate" }, { "type": "boolean" }
           ]
         }
       ]

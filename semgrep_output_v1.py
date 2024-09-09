@@ -4454,6 +4454,7 @@ class FoundDependency:
     allowed_hashes: Dict[str, List[str]]
     transitivity: Transitivity
     resolved_url: Optional[str] = None
+    lockfile_path: Optional[Fpath] = None
     line_number: Optional[int] = None
     children: Optional[List[DependencyChild]] = None
     git_ref: Optional[str] = None
@@ -4468,6 +4469,7 @@ class FoundDependency:
                 allowed_hashes=_atd_read_assoc_object_into_dict(_atd_read_list(_atd_read_string))(x['allowed_hashes']) if 'allowed_hashes' in x else _atd_missing_json_field('FoundDependency', 'allowed_hashes'),
                 transitivity=Transitivity.from_json(x['transitivity']) if 'transitivity' in x else _atd_missing_json_field('FoundDependency', 'transitivity'),
                 resolved_url=_atd_read_string(x['resolved_url']) if 'resolved_url' in x else None,
+                lockfile_path=Fpath.from_json(x['lockfile_path']) if 'lockfile_path' in x else None,
                 line_number=_atd_read_int(x['line_number']) if 'line_number' in x else None,
                 children=_atd_read_list(DependencyChild.from_json)(x['children']) if 'children' in x else None,
                 git_ref=_atd_read_string(x['git_ref']) if 'git_ref' in x else None,
@@ -4484,6 +4486,8 @@ class FoundDependency:
         res['transitivity'] = (lambda x: x.to_json())(self.transitivity)
         if self.resolved_url is not None:
             res['resolved_url'] = _atd_write_string(self.resolved_url)
+        if self.lockfile_path is not None:
+            res['lockfile_path'] = (lambda x: x.to_json())(self.lockfile_path)
         if self.line_number is not None:
             res['line_number'] = _atd_write_int(self.line_number)
         if self.children is not None:
@@ -6032,10 +6036,28 @@ class RetFormatter:
 
 
 @dataclass(frozen=True)
+class RetValidate:
+    """Original type: function_return = [ ... | RetValidate of ... | ... ]"""
+
+    value: bool
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetValidate'
+
+    def to_json(self) -> Any:
+        return ['RetValidate', _atd_write_bool(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionReturn:
     """Original type: function_return = [ ... ]"""
 
-    value: Union[RetError, RetApplyFixes, RetSarifFormat, RetContributions, RetFormatter]
+    value: Union[RetError, RetApplyFixes, RetSarifFormat, RetContributions, RetFormatter, RetValidate]
 
     @property
     def kind(self) -> str:
@@ -6056,6 +6078,8 @@ class FunctionReturn:
                 return cls(RetContributions(Contributions.from_json(x[1])))
             if cons == 'RetFormatter':
                 return cls(RetFormatter(_atd_read_string(x[1])))
+            if cons == 'RetValidate':
+                return cls(RetValidate(_atd_read_bool(x[1])))
             _atd_bad_json('FunctionReturn', x)
         _atd_bad_json('FunctionReturn', x)
 
@@ -6271,10 +6295,28 @@ class CallFormatter:
 
 
 @dataclass(frozen=True)
+class CallValidate:
+    """Original type: function_call = [ ... | CallValidate of ... | ... ]"""
+
+    value: Fpath
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallValidate'
+
+    def to_json(self) -> Any:
+        return ['CallValidate', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionCall:
     """Original type: function_call = [ ... ]"""
 
-    value: Union[CallContributions, CallApplyFixes, CallSarifFormat, CallFormatter]
+    value: Union[CallContributions, CallApplyFixes, CallSarifFormat, CallFormatter, CallValidate]
 
     @property
     def kind(self) -> str:
@@ -6295,6 +6337,8 @@ class FunctionCall:
                 return cls(CallSarifFormat(SarifFormatParams.from_json(x[1])))
             if cons == 'CallFormatter':
                 return cls(CallFormatter((lambda x: (OutputFormat.from_json(x[0]), CliOutput.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+            if cons == 'CallValidate':
+                return cls(CallValidate(Fpath.from_json(x[1])))
             _atd_bad_json('FunctionCall', x)
         _atd_bad_json('FunctionCall', x)
 

@@ -481,6 +481,7 @@ export type FoundDependency = {
   allowed_hashes: Map<string, string[]>;
   resolved_url?: string;
   transitivity: Transitivity;
+  lockfile_path?: Fpath;
   line_number?: number /*int*/;
   children?: DependencyChild[];
   git_ref?: string;
@@ -832,6 +833,7 @@ export type FunctionCall =
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
 | { kind: 'CallSarifFormat'; value: SarifFormatParams }
 | { kind: 'CallFormatter'; value: [OutputFormat, CliOutput] }
+| { kind: 'CallValidate'; value: Fpath }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -839,6 +841,7 @@ export type FunctionReturn =
 | { kind: 'RetSarifFormat'; value: SarifFormatReturn }
 | { kind: 'RetContributions'; value: Contributions }
 | { kind: 'RetFormatter'; value: string }
+| { kind: 'RetValidate'; value: boolean }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
@@ -2379,6 +2382,7 @@ export function writeFoundDependency(x: FoundDependency, context: any = x): any 
     'allowed_hashes': _atd_write_required_field('FoundDependency', 'allowed_hashes', _atd_write_assoc_map_to_object(_atd_write_array(_atd_write_string)), x.allowed_hashes, x),
     'resolved_url': _atd_write_optional_field(_atd_write_string, x.resolved_url, x),
     'transitivity': _atd_write_required_field('FoundDependency', 'transitivity', writeTransitivity, x.transitivity, x),
+    'lockfile_path': _atd_write_optional_field(writeFpath, x.lockfile_path, x),
     'line_number': _atd_write_optional_field(_atd_write_int, x.line_number, x),
     'children': _atd_write_optional_field(_atd_write_array(writeDependencyChild), x.children, x),
     'git_ref': _atd_write_optional_field(_atd_write_string, x.git_ref, x),
@@ -2393,6 +2397,7 @@ export function readFoundDependency(x: any, context: any = x): FoundDependency {
     allowed_hashes: _atd_read_required_field('FoundDependency', 'allowed_hashes', _atd_read_assoc_object_into_map(_atd_read_array(_atd_read_string)), x['allowed_hashes'], x),
     resolved_url: _atd_read_optional_field(_atd_read_string, x['resolved_url'], x),
     transitivity: _atd_read_required_field('FoundDependency', 'transitivity', readTransitivity, x['transitivity'], x),
+    lockfile_path: _atd_read_optional_field(readFpath, x['lockfile_path'], x),
     line_number: _atd_read_optional_field(_atd_read_int, x['line_number'], x),
     children: _atd_read_optional_field(_atd_read_array(readDependencyChild), x['children'], x),
     git_ref: _atd_read_optional_field(_atd_read_string, x['git_ref'], x),
@@ -3337,6 +3342,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallSarifFormat', writeSarifFormatParams(x.value, x)]
     case 'CallFormatter':
       return ['CallFormatter', ((x, context) => [writeOutputFormat(x[0], x), writeCliOutput(x[1], x)])(x.value, x)]
+    case 'CallValidate':
+      return ['CallValidate', writeFpath(x.value, x)]
   }
 }
 
@@ -3359,6 +3366,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallSarifFormat', value: readSarifFormatParams(x[1], x) }
       case 'CallFormatter':
         return { kind: 'CallFormatter', value: ((x, context): [OutputFormat, CliOutput] => { _atd_check_json_tuple(2, x, context); return [readOutputFormat(x[0], x), readCliOutput(x[1], x)] })(x[1], x) }
+      case 'CallValidate':
+        return { kind: 'CallValidate', value: readFpath(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -3378,6 +3387,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetContributions', writeContributions(x.value, x)]
     case 'RetFormatter':
       return ['RetFormatter', _atd_write_string(x.value, x)]
+    case 'RetValidate':
+      return ['RetValidate', _atd_write_bool(x.value, x)]
   }
 }
 
@@ -3394,6 +3405,8 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetContributions', value: readContributions(x[1], x) }
     case 'RetFormatter':
       return { kind: 'RetFormatter', value: _atd_read_string(x[1], x) }
+    case 'RetValidate':
+      return { kind: 'RetValidate', value: _atd_read_bool(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')

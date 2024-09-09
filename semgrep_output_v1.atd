@@ -1104,6 +1104,15 @@ type found_dependency = {
     <ts repr="map">;
   ?resolved_url: string option;
   transitivity: transitivity;
+  (* Path to the lockfile that contains this dependency. 
+   *
+   * Examples: package-lock.json, nested/folder/requirements.txt, go.mod
+   * Since 1.87.0
+   *)
+  ?lockfile_path: fpath option;
+  (* The line number of the dependency in the lockfile. When combined with the
+   * lockfile_path, this can identify the location of the dependency in the lockfile.
+   *)
   ?line_number: int option;
   (* store child dependency information for calculating path to transitivity*)
   ?children: dependency_child list option;
@@ -1803,6 +1812,11 @@ type function_call
   | CallApplyFixes of apply_fixes_params
   | CallSarifFormat of sarif_format_params
   | CallFormatter of (output_format * cli_output)
+  (* NOTE: fpath is most likely a temporary file that contains all the rules in
+     JSON format. In the future, we could send the rules via a big string through
+     the RPC pipe.
+  *)
+  | CallValidate of fpath
 ]
 
 type function_return
@@ -1812,4 +1826,5 @@ type function_return
   | RetSarifFormat of sarif_format_return
   | RetContributions of contributions
   | RetFormatter of string
+  | RetValidate of bool
 ]
