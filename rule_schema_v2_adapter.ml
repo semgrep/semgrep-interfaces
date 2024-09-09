@@ -70,6 +70,11 @@ module ProjectDependsOn = struct
     failwith "Rule_schema_v2_adapter.ProjectDependsOn.restore not implemented"
 end
 
+(* This is the name of the field that contains the variant constructor
+   in the user-friendly YAML convention we use to represent variants.
+   See 'normalize_variant'. *)
+let kind_field_name = "kind"
+
 (*
    A generic representation for variants. The parameters, if any, must be
    an ATD record (JSON object, Yojson assoc).
@@ -78,6 +83,11 @@ end
        | A <json name="a">
        | B <json name="b"> of b
      ]
+
+     type b = {
+       (* all the fields are optional *)
+       ?k: int option;
+     }
 
    1. OCaml A is represented as JSON "A". The adapter doesn't change it.
    2. OCaml B {k = 42} is represented as JSON {"kind": "B", "k": 42}
@@ -95,6 +105,22 @@ end
    Without specifying 'enum' or 'obj', YAML/JSON interpretation will be
    stricter by not tolerating the alternate notations {"kind": "A"} or "B".
 
+   YAML example:
+
+     - a
+
+     - kind: b
+       k: 42
+
+     # assuming default properties:
+     - kind: b
+
+     # shorthand for {kind: b}:
+     - b
+
+     # long form for "a":
+     - kind: a
+
    TODO: make the ATD tools (atdgen, atdpy, ...) support these alternate
    formats as well?
    This would allow us to make adapters generic i.e. without
@@ -103,13 +129,12 @@ end
    as "a" without complaining.
 *)
 let normalize_variant
-    ?(kind_field_name = "kind")
     ?(enum = [])
     ?(obj = [])
     (orig : Yojson.Safe.t ) : Yojson.Safe.t =
   match orig with
   | `Assoc props ->
-      (match List.partition (fun (k, v) -> k = kind_field_name) props with
+      (match List.partition (fun (k, _v) -> k = kind_field_name) props with
        | [_, `String kind], [] when List.mem kind enum -> `String kind
        | [_, `String kind], other_fields ->
            `List [`String kind; `Assoc other_fields]
@@ -118,9 +143,9 @@ let normalize_variant
   | `String kind when List.mem kind obj -> `List [`String kind; `Assoc []]
   | _string_or_malformed -> orig
 
-(* See 'normalize_variant' *)
+(* Unlike 'normalize_variant', this if fully generic.
+   (because we're going from a strict format to a looser format) *)
 let restore_variant
-  ?(kind_field_name = "kind")
   (atd : Yojson.Safe.t ) : Yojson.Safe.t =
   match atd with
   | `String _ as str -> str
@@ -130,7 +155,7 @@ let restore_variant
 
 module Analyzer = struct
   let normalize orig =
-    normalize_generic_variant
+    normalize_variant
       ~enum:["entropy"; "redos"]
       ~obj:["entropy_v2"]
       orig
