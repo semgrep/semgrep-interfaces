@@ -1542,6 +1542,14 @@
               ]
             }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CallValidate" }, { "$ref": "#/definitions/fpath" }
+          ]
         }
       ]
     },
@@ -1586,6 +1594,14 @@
           "items": false,
           "prefixItems": [
             { "const": "RetFormatter" }, { "type": "string" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "RetValidate" }, { "type": "boolean" }
           ]
         }
       ]

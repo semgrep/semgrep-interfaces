@@ -833,6 +833,7 @@ export type FunctionCall =
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
 | { kind: 'CallSarifFormat'; value: SarifFormatParams }
 | { kind: 'CallFormatter'; value: [OutputFormat, CliOutput] }
+| { kind: 'CallValidate'; value: Fpath }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -840,6 +841,7 @@ export type FunctionReturn =
 | { kind: 'RetSarifFormat'; value: SarifFormatReturn }
 | { kind: 'RetContributions'; value: Contributions }
 | { kind: 'RetFormatter'; value: string }
+| { kind: 'RetValidate'; value: boolean }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
@@ -3340,6 +3342,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallSarifFormat', writeSarifFormatParams(x.value, x)]
     case 'CallFormatter':
       return ['CallFormatter', ((x, context) => [writeOutputFormat(x[0], x), writeCliOutput(x[1], x)])(x.value, x)]
+    case 'CallValidate':
+      return ['CallValidate', writeFpath(x.value, x)]
   }
 }
 
@@ -3362,6 +3366,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallSarifFormat', value: readSarifFormatParams(x[1], x) }
       case 'CallFormatter':
         return { kind: 'CallFormatter', value: ((x, context): [OutputFormat, CliOutput] => { _atd_check_json_tuple(2, x, context); return [readOutputFormat(x[0], x), readCliOutput(x[1], x)] })(x[1], x) }
+      case 'CallValidate':
+        return { kind: 'CallValidate', value: readFpath(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -3381,6 +3387,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetContributions', writeContributions(x.value, x)]
     case 'RetFormatter':
       return ['RetFormatter', _atd_write_string(x.value, x)]
+    case 'RetValidate':
+      return ['RetValidate', _atd_write_bool(x.value, x)]
   }
 }
 
@@ -3397,6 +3405,8 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetContributions', value: readContributions(x[1], x) }
     case 'RetFormatter':
       return { kind: 'RetFormatter', value: _atd_read_string(x[1], x) }
+    case 'RetValidate':
+      return { kind: 'RetValidate', value: _atd_read_bool(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')

@@ -1812,6 +1812,11 @@ type function_call
   | CallApplyFixes of apply_fixes_params
   | CallSarifFormat of sarif_format_params
   | CallFormatter of (output_format * cli_output)
+  (* NOTE: fpath is most likely a temporary file that contains all the rules in
+     JSON format. In the future, we could send the rules via a big string through
+     the RPC pipe.
+  *)
+  | CallValidate of fpath
 ]
 
 type function_return
@@ -1821,4 +1826,5 @@ type function_return
   | RetSarifFormat of sarif_format_return
   | RetContributions of contributions
   | RetFormatter of string
+  | RetValidate of bool
 ]

@@ -6036,10 +6036,28 @@ class RetFormatter:
 
 
 @dataclass(frozen=True)
+class RetValidate:
+    """Original type: function_return = [ ... | RetValidate of ... | ... ]"""
+
+    value: bool
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetValidate'
+
+    def to_json(self) -> Any:
+        return ['RetValidate', _atd_write_bool(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionReturn:
     """Original type: function_return = [ ... ]"""
 
-    value: Union[RetError, RetApplyFixes, RetSarifFormat, RetContributions, RetFormatter]
+    value: Union[RetError, RetApplyFixes, RetSarifFormat, RetContributions, RetFormatter, RetValidate]
 
     @property
     def kind(self) -> str:
@@ -6060,6 +6078,8 @@ class FunctionReturn:
                 return cls(RetContributions(Contributions.from_json(x[1])))
             if cons == 'RetFormatter':
                 return cls(RetFormatter(_atd_read_string(x[1])))
+            if cons == 'RetValidate':
+                return cls(RetValidate(_atd_read_bool(x[1])))
             _atd_bad_json('FunctionReturn', x)
         _atd_bad_json('FunctionReturn', x)
 
@@ -6275,10 +6295,28 @@ class CallFormatter:
 
 
 @dataclass(frozen=True)
+class CallValidate:
+    """Original type: function_call = [ ... | CallValidate of ... | ... ]"""
+
+    value: Fpath
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallValidate'
+
+    def to_json(self) -> Any:
+        return ['CallValidate', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionCall:
     """Original type: function_call = [ ... ]"""
 
-    value: Union[CallContributions, CallApplyFixes, CallSarifFormat, CallFormatter]
+    value: Union[CallContributions, CallApplyFixes, CallSarifFormat, CallFormatter, CallValidate]
 
     @property
     def kind(self) -> str:
@@ -6299,6 +6337,8 @@ class FunctionCall:
                 return cls(CallSarifFormat(SarifFormatParams.from_json(x[1])))
             if cons == 'CallFormatter':
                 return cls(CallFormatter((lambda x: (OutputFormat.from_json(x[0]), CliOutput.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+            if cons == 'CallValidate':
+                return cls(CallValidate(Fpath.from_json(x[1])))
             _atd_bad_json('FunctionCall', x)
         _atd_bad_json('FunctionCall', x)
 
