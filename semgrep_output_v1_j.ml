@@ -22428,6 +22428,12 @@ let write_function_return = (
           Yojson.Safe.write_string
         ) ob x;
         Buffer.add_char ob ']'
+      | `RetValidate x ->
+        Buffer.add_string ob "[\"RetValidate\",";
+        (
+          Yojson.Safe.write_bool
+        ) ob x;
+        Buffer.add_char ob ']'
 )
 let string_of_function_return ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -22484,6 +22490,15 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `RetFormatter x
+            | "RetValidate" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `RetValidate x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -22549,6 +22564,17 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `RetFormatter x
+            | "RetValidate" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `RetValidate x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -23803,6 +23829,12 @@ let write_function_call = (
             Buffer.add_char ob ']';
         ) ob x;
         Buffer.add_char ob ']'
+      | `CallValidate x ->
+        Buffer.add_string ob "[\"CallValidate\",";
+        (
+          write_fpath
+        ) ob x;
+        Buffer.add_char ob ']'
 )
 let string_of_function_call ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -23886,6 +23918,15 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `CallFormatter x
+            | "CallValidate" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_fpath
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `CallValidate x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -23972,6 +24013,17 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `CallFormatter x
+            | "CallValidate" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_fpath
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `CallValidate x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
