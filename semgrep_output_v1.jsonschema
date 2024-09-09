@@ -878,6 +878,7 @@
         },
         "resolved_url": { "type": "string" },
         "transitivity": { "$ref": "#/definitions/transitivity" },
+        "lockfile_path": { "$ref": "#/definitions/fpath" },
         "line_number": { "type": "integer" },
         "children": {
           "type": "array",
