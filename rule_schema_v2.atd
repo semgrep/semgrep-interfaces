@@ -430,7 +430,6 @@ type metavariable_cond = {
 
 type mvar = string
 
-(* TODO: specify adapter *)
 type analyzer = [
   | Entropy <json name="entropy">
   | EntropyV2 <json name="entropy_v2"> of entropy_analysis_mode
