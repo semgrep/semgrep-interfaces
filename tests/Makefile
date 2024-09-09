@@ -2,6 +2,7 @@
 .PHONY: test
 test:
 	./test-ast
+	$(MAKE) -C jsonschema test
 
 .PHONY: clean
 clean:

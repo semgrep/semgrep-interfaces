@@ -74,6 +74,8 @@ clean:
 # This takes a while but ensures we use the correct versions of the atd tools.
 .PHONY: setup
 setup:
+	# Please install check-jsonschema (Python tool) if this fails:
+	check-jsonschema --version
 	opam update
 	opam install --deps-only .
 
