@@ -5648,31 +5648,141 @@ class RuleIdAndEngineKind:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
-class Manifest:
-    """Original type: manifest = { ... }"""
+@dataclass(frozen=True)
+class ResolutionCmdFailed:
+    """Original type: resolution_cmd_failed = { ... }"""
 
-    ecosystem: Ecosystem
-    path: Fpath
+    command: str
+    message: str
 
     @classmethod
-    def from_json(cls, x: Any) -> 'Manifest':
+    def from_json(cls, x: Any) -> 'ResolutionCmdFailed':
         if isinstance(x, dict):
             return cls(
-                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('Manifest', 'ecosystem'),
-                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('Manifest', 'path'),
+                command=_atd_read_string(x['command']) if 'command' in x else _atd_missing_json_field('ResolutionCmdFailed', 'command'),
+                message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('ResolutionCmdFailed', 'message'),
             )
         else:
-            _atd_bad_json('Manifest', x)
+            _atd_bad_json('ResolutionCmdFailed', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
-        res['path'] = (lambda x: x.to_json())(self.path)
+        res['command'] = _atd_write_string(self.command)
+        res['message'] = _atd_write_string(self.message)
         return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'Manifest':
+    def from_json_string(cls, x: str) -> 'ResolutionCmdFailed':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class UnsupportedManifest:
+    """Original type: resolution_error = [ ... | UnsupportedManifest | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'UnsupportedManifest'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'UnsupportedManifest'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class MissingRequirement:
+    """Original type: resolution_error = [ ... | MissingRequirement of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'MissingRequirement'
+
+    def to_json(self) -> Any:
+        return ['MissingRequirement', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ResolutionCmdFailed_:
+    """Original type: resolution_error = [ ... | ResolutionCmdFailed of ... | ... ]"""
+
+    value: ResolutionCmdFailed
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ResolutionCmdFailed_'
+
+    def to_json(self) -> Any:
+        return ['ResolutionCmdFailed', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ParseDependenciesFailed:
+    """Original type: resolution_error = [ ... | ParseDependenciesFailed of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ParseDependenciesFailed'
+
+    def to_json(self) -> Any:
+        return ['ParseDependenciesFailed', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ResolutionError:
+    """Original type: resolution_error = [ ... ]"""
+
+    value: Union[UnsupportedManifest, MissingRequirement, ResolutionCmdFailed_, ParseDependenciesFailed]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolutionError':
+        if isinstance(x, str):
+            if x == 'UnsupportedManifest':
+                return cls(UnsupportedManifest())
+            _atd_bad_json('ResolutionError', x)
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'MissingRequirement':
+                return cls(MissingRequirement(_atd_read_string(x[1])))
+            if cons == 'ResolutionCmdFailed':
+                return cls(ResolutionCmdFailed_(ResolutionCmdFailed.from_json(x[1])))
+            if cons == 'ParseDependenciesFailed':
+                return cls(ParseDependenciesFailed(_atd_read_string(x[1])))
+            _atd_bad_json('ResolutionError', x)
+        _atd_bad_json('ResolutionError', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolutionError':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -5710,34 +5820,100 @@ class DependencyRelationships:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
-class ResolvedSubproject:
-    """Original type: resolved_subproject = { ... }"""
+@dataclass
+class ResolutionOk:
+    """Original type: resolution_result = [ ... | ResolutionOk of ... | ... ]"""
 
-    manifest: Manifest
-    dependencies: List[FoundDependency]
-    dep_relationships: Optional[List[DependencyRelationships]]
+    value: Tuple[List[FoundDependency], Optional[List[DependencyRelationships]]]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ResolutionOk'
+
+    def to_json(self) -> Any:
+        return ['ResolutionOk', (lambda x: [_atd_write_list((lambda x: x.to_json()))(x[0]), _atd_write_option(_atd_write_list((lambda x: x.to_json())))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ResolutionError_:
+    """Original type: resolution_result = [ ... | ResolutionError of ... | ... ]"""
+
+    value: ResolutionError
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ResolutionError_'
+
+    def to_json(self) -> Any:
+        return ['ResolutionError', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ResolutionResult:
+    """Original type: resolution_result = [ ... ]"""
+
+    value: Union[ResolutionOk, ResolutionError_]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
 
     @classmethod
-    def from_json(cls, x: Any) -> 'ResolvedSubproject':
+    def from_json(cls, x: Any) -> 'ResolutionResult':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'ResolutionOk':
+                return cls(ResolutionOk((lambda x: (_atd_read_list(FoundDependency.from_json)(x[0]), _atd_read_option(_atd_read_list(DependencyRelationships.from_json))(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+            if cons == 'ResolutionError':
+                return cls(ResolutionError_(ResolutionError.from_json(x[1])))
+            _atd_bad_json('ResolutionResult', x)
+        _atd_bad_json('ResolutionResult', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolutionResult':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Manifest:
+    """Original type: manifest = { ... }"""
+
+    ecosystem: Ecosystem
+    path: Fpath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Manifest':
         if isinstance(x, dict):
             return cls(
-                manifest=Manifest.from_json(x['manifest']) if 'manifest' in x else _atd_missing_json_field('ResolvedSubproject', 'manifest'),
-                dependencies=_atd_read_list(FoundDependency.from_json)(x['dependencies']) if 'dependencies' in x else _atd_missing_json_field('ResolvedSubproject', 'dependencies'),
-                dep_relationships=_atd_read_option(_atd_read_list(DependencyRelationships.from_json))(x['dep_relationships']) if 'dep_relationships' in x else _atd_missing_json_field('ResolvedSubproject', 'dep_relationships'),
+                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('Manifest', 'ecosystem'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('Manifest', 'path'),
             )
         else:
-            _atd_bad_json('ResolvedSubproject', x)
+            _atd_bad_json('Manifest', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['manifest'] = (lambda x: x.to_json())(self.manifest)
-        res['dependencies'] = _atd_write_list((lambda x: x.to_json()))(self.dependencies)
-        res['dep_relationships'] = _atd_write_option(_atd_write_list((lambda x: x.to_json())))(self.dep_relationships)
+        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
+        res['path'] = (lambda x: x.to_json())(self.path)
         return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'ResolvedSubproject':
+    def from_json_string(cls, x: str) -> 'Manifest':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -5748,20 +5924,20 @@ class ResolvedSubproject:
 class ResolveDependenciesReturn:
     """Original type: resolve_dependencies_return = { ... }"""
 
-    resolved: List[ResolvedSubproject]
+    resolved: List[Tuple[Manifest, ResolutionResult]]
 
     @classmethod
     def from_json(cls, x: Any) -> 'ResolveDependenciesReturn':
         if isinstance(x, dict):
             return cls(
-                resolved=_atd_read_list(ResolvedSubproject.from_json)(x['resolved']) if 'resolved' in x else _atd_missing_json_field('ResolveDependenciesReturn', 'resolved'),
+                resolved=_atd_read_list((lambda x: (Manifest.from_json(x[0]), ResolutionResult.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['resolved']) if 'resolved' in x else _atd_missing_json_field('ResolveDependenciesReturn', 'resolved'),
             )
         else:
             _atd_bad_json('ResolveDependenciesReturn', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['resolved'] = _atd_write_list((lambda x: x.to_json()))(self.resolved)
+        res['resolved'] = _atd_write_list((lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.resolved)
         return res
 
     @classmethod
@@ -6799,6 +6975,37 @@ class DeploymentResponse:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'DeploymentResponse':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DependencyRelationshipInfo:
+    """Original type: dependency_relationship_info = { ... }"""
+
+    dependency_id: str
+    depends_on_dependency_ids: List[str]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencyRelationshipInfo':
+        if isinstance(x, dict):
+            return cls(
+                dependency_id=_atd_read_string(x['dependency_id']) if 'dependency_id' in x else _atd_missing_json_field('DependencyRelationshipInfo', 'dependency_id'),
+                depends_on_dependency_ids=_atd_read_list(_atd_read_string)(x['depends_on_dependency_ids']) if 'depends_on_dependency_ids' in x else _atd_missing_json_field('DependencyRelationshipInfo', 'depends_on_dependency_ids'),
+            )
+        else:
+            _atd_bad_json('DependencyRelationshipInfo', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['dependency_id'] = _atd_write_string(self.dependency_id)
+        res['depends_on_dependency_ids'] = _atd_write_list(_atd_write_string)(self.depends_on_dependency_ids)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencyRelationshipInfo':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

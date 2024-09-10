@@ -474,6 +474,11 @@ export type DependencyChild = {
   version: string;
 }
 
+export type DependencyRelationshipInfo = {
+  dependency_id: string;
+  depends_on_dependency_ids: string[];
+}
+
 export type FoundDependency = {
   package_: string;
   version: string;
@@ -839,18 +844,27 @@ export type DependencyRelationships = {
   depends_on_dep_ids: string[];
 }
 
-export type ResolvedSubproject = {
-  manifest: Manifest;
-  dependencies: FoundDependency[];
-  dep_relationships: Option<DependencyRelationships[]>;
+export type ResolutionError =
+| { kind: 'UnsupportedManifest' }
+| { kind: 'MissingRequirement'; value: string }
+| { kind: 'ResolutionCmdFailed'; value: ResolutionCmdFailed }
+| { kind: 'ParseDependenciesFailed'; value: string }
+
+export type ResolutionCmdFailed = {
+  command: string;
+  message: string;
 }
+
+export type ResolutionResult =
+| { kind: 'ResolutionOk'; value: [FoundDependency[], Option<DependencyRelationships[]>] }
+| { kind: 'ResolutionError'; value: ResolutionError }
 
 export type ResolveDependenciesParams = {
   to_resolve: Manifest[];
 }
 
 export type ResolveDependenciesReturn = {
-  resolved: ResolvedSubproject[];
+  resolved: [Manifest, ResolutionResult][];
 }
 
 export type FunctionCall =
@@ -2401,6 +2415,20 @@ export function readDependencyChild(x: any, context: any = x): DependencyChild {
   };
 }
 
+export function writeDependencyRelationshipInfo(x: DependencyRelationshipInfo, context: any = x): any {
+  return {
+    'dependency_id': _atd_write_required_field('DependencyRelationshipInfo', 'dependency_id', _atd_write_string, x.dependency_id, x),
+    'depends_on_dependency_ids': _atd_write_required_field('DependencyRelationshipInfo', 'depends_on_dependency_ids', _atd_write_array(_atd_write_string), x.depends_on_dependency_ids, x),
+  };
+}
+
+export function readDependencyRelationshipInfo(x: any, context: any = x): DependencyRelationshipInfo {
+  return {
+    dependency_id: _atd_read_required_field('DependencyRelationshipInfo', 'dependency_id', _atd_read_string, x['dependency_id'], x),
+    depends_on_dependency_ids: _atd_read_required_field('DependencyRelationshipInfo', 'depends_on_dependency_ids', _atd_read_array(_atd_read_string), x['depends_on_dependency_ids'], x),
+  };
+}
+
 export function writeFoundDependency(x: FoundDependency, context: any = x): any {
   return {
     'package': _atd_write_required_field('FoundDependency', 'package', _atd_write_string, x.package_, x),
@@ -3389,20 +3417,79 @@ export function readDependencyRelationships(x: any, context: any = x): Dependenc
   };
 }
 
-export function writeResolvedSubproject(x: ResolvedSubproject, context: any = x): any {
+export function writeResolutionError(x: ResolutionError, context: any = x): any {
+  switch (x.kind) {
+    case 'UnsupportedManifest':
+      return 'UnsupportedManifest'
+    case 'MissingRequirement':
+      return ['MissingRequirement', _atd_write_string(x.value, x)]
+    case 'ResolutionCmdFailed':
+      return ['ResolutionCmdFailed', writeResolutionCmdFailed(x.value, x)]
+    case 'ParseDependenciesFailed':
+      return ['ParseDependenciesFailed', _atd_write_string(x.value, x)]
+  }
+}
+
+export function readResolutionError(x: any, context: any = x): ResolutionError {
+  if (typeof x === 'string') {
+    switch (x) {
+      case 'UnsupportedManifest':
+        return { kind: 'UnsupportedManifest' }
+      default:
+        _atd_bad_json('ResolutionError', x, context)
+        throw new Error('impossible')
+    }
+  }
+  else {
+    _atd_check_json_tuple(2, x, context)
+    switch (x[0]) {
+      case 'MissingRequirement':
+        return { kind: 'MissingRequirement', value: _atd_read_string(x[1], x) }
+      case 'ResolutionCmdFailed':
+        return { kind: 'ResolutionCmdFailed', value: readResolutionCmdFailed(x[1], x) }
+      case 'ParseDependenciesFailed':
+        return { kind: 'ParseDependenciesFailed', value: _atd_read_string(x[1], x) }
+      default:
+        _atd_bad_json('ResolutionError', x, context)
+        throw new Error('impossible')
+    }
+  }
+}
+
+export function writeResolutionCmdFailed(x: ResolutionCmdFailed, context: any = x): any {
   return {
-    'manifest': _atd_write_required_field('ResolvedSubproject', 'manifest', writeManifest, x.manifest, x),
-    'dependencies': _atd_write_required_field('ResolvedSubproject', 'dependencies', _atd_write_array(writeFoundDependency), x.dependencies, x),
-    'dep_relationships': _atd_write_required_field('ResolvedSubproject', 'dep_relationships', _atd_write_option(_atd_write_array(writeDependencyRelationships)), x.dep_relationships, x),
+    'command': _atd_write_required_field('ResolutionCmdFailed', 'command', _atd_write_string, x.command, x),
+    'message': _atd_write_required_field('ResolutionCmdFailed', 'message', _atd_write_string, x.message, x),
   };
 }
 
-export function readResolvedSubproject(x: any, context: any = x): ResolvedSubproject {
+export function readResolutionCmdFailed(x: any, context: any = x): ResolutionCmdFailed {
   return {
-    manifest: _atd_read_required_field('ResolvedSubproject', 'manifest', readManifest, x['manifest'], x),
-    dependencies: _atd_read_required_field('ResolvedSubproject', 'dependencies', _atd_read_array(readFoundDependency), x['dependencies'], x),
-    dep_relationships: _atd_read_required_field('ResolvedSubproject', 'dep_relationships', _atd_read_option(_atd_read_array(readDependencyRelationships)), x['dep_relationships'], x),
+    command: _atd_read_required_field('ResolutionCmdFailed', 'command', _atd_read_string, x['command'], x),
+    message: _atd_read_required_field('ResolutionCmdFailed', 'message', _atd_read_string, x['message'], x),
   };
+}
+
+export function writeResolutionResult(x: ResolutionResult, context: any = x): any {
+  switch (x.kind) {
+    case 'ResolutionOk':
+      return ['ResolutionOk', ((x, context) => [_atd_write_array(writeFoundDependency)(x[0], x), _atd_write_option(_atd_write_array(writeDependencyRelationships))(x[1], x)])(x.value, x)]
+    case 'ResolutionError':
+      return ['ResolutionError', writeResolutionError(x.value, x)]
+  }
+}
+
+export function readResolutionResult(x: any, context: any = x): ResolutionResult {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'ResolutionOk':
+      return { kind: 'ResolutionOk', value: ((x, context): [FoundDependency[], Option<DependencyRelationships[]>] => { _atd_check_json_tuple(2, x, context); return [_atd_read_array(readFoundDependency)(x[0], x), _atd_read_option(_atd_read_array(readDependencyRelationships))(x[1], x)] })(x[1], x) }
+    case 'ResolutionError':
+      return { kind: 'ResolutionError', value: readResolutionError(x[1], x) }
+    default:
+      _atd_bad_json('ResolutionResult', x, context)
+      throw new Error('impossible')
+  }
 }
 
 export function writeResolveDependenciesParams(x: ResolveDependenciesParams, context: any = x): any {
@@ -3419,13 +3506,13 @@ export function readResolveDependenciesParams(x: any, context: any = x): Resolve
 
 export function writeResolveDependenciesReturn(x: ResolveDependenciesReturn, context: any = x): any {
   return {
-    'resolved': _atd_write_required_field('ResolveDependenciesReturn', 'resolved', _atd_write_array(writeResolvedSubproject), x.resolved, x),
+    'resolved': _atd_write_required_field('ResolveDependenciesReturn', 'resolved', _atd_write_array(((x, context) => [writeManifest(x[0], x), writeResolutionResult(x[1], x)])), x.resolved, x),
   };
 }
 
 export function readResolveDependenciesReturn(x: any, context: any = x): ResolveDependenciesReturn {
   return {
-    resolved: _atd_read_required_field('ResolveDependenciesReturn', 'resolved', _atd_read_array(readResolvedSubproject), x['resolved'], x),
+    resolved: _atd_read_required_field('ResolveDependenciesReturn', 'resolved', _atd_read_array(((x, context): [Manifest, ResolutionResult] => { _atd_check_json_tuple(2, x, context); return [readManifest(x[0], x), readResolutionResult(x[1], x)] })), x['resolved'], x),
   };
 }
 

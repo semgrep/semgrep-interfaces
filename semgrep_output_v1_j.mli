@@ -532,10 +532,12 @@ type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
 
-type manifest = Semgrep_output_v1_t.manifest = {
-  ecosystem: ecosystem;
-  path: fpath
+type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
+  command: string;
+  message: string
 }
+
+type resolution_error = Semgrep_output_v1_t.resolution_error
 
 type dependency_relationships =
   Semgrep_output_v1_t.dependency_relationships = {
@@ -543,15 +545,16 @@ type dependency_relationships =
   depends_on_dep_ids: string list
 }
 
-type resolved_subproject = Semgrep_output_v1_t.resolved_subproject = {
-  manifest: manifest;
-  dependencies: found_dependency list;
-  dep_relationships: dependency_relationships list option
+type resolution_result = Semgrep_output_v1_t.resolution_result
+
+type manifest = Semgrep_output_v1_t.manifest = {
+  ecosystem: ecosystem;
+  path: fpath
 }
 
 type resolve_dependencies_return =
   Semgrep_output_v1_t.resolve_dependencies_return = {
-  resolved: resolved_subproject list
+  resolved: (manifest * resolution_result) list
 }
 
 type resolve_dependencies_params =
@@ -686,6 +689,12 @@ type deployment_config = Semgrep_output_v1_t.deployment_config = {
 
 type deployment_response = Semgrep_output_v1_t.deployment_response = {
   deployment: deployment_config
+}
+
+type dependency_relationship_info =
+  Semgrep_output_v1_t.dependency_relationship_info = {
+  dependency_id: string;
+  depends_on_dependency_ids: string list
 }
 
 type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
@@ -2508,25 +2517,45 @@ val rule_id_and_engine_kind_of_string :
   string -> rule_id_and_engine_kind
   (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
 
-val write_manifest :
-  Buffer.t -> manifest -> unit
-  (** Output a JSON value of type {!type:manifest}. *)
+val write_resolution_cmd_failed :
+  Buffer.t -> resolution_cmd_failed -> unit
+  (** Output a JSON value of type {!type:resolution_cmd_failed}. *)
 
-val string_of_manifest :
-  ?len:int -> manifest -> string
-  (** Serialize a value of type {!type:manifest}
+val string_of_resolution_cmd_failed :
+  ?len:int -> resolution_cmd_failed -> string
+  (** Serialize a value of type {!type:resolution_cmd_failed}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_manifest :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> manifest
-  (** Input JSON data of type {!type:manifest}. *)
+val read_resolution_cmd_failed :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_cmd_failed
+  (** Input JSON data of type {!type:resolution_cmd_failed}. *)
 
-val manifest_of_string :
-  string -> manifest
-  (** Deserialize JSON data of type {!type:manifest}. *)
+val resolution_cmd_failed_of_string :
+  string -> resolution_cmd_failed
+  (** Deserialize JSON data of type {!type:resolution_cmd_failed}. *)
+
+val write_resolution_error :
+  Buffer.t -> resolution_error -> unit
+  (** Output a JSON value of type {!type:resolution_error}. *)
+
+val string_of_resolution_error :
+  ?len:int -> resolution_error -> string
+  (** Serialize a value of type {!type:resolution_error}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolution_error :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_error
+  (** Input JSON data of type {!type:resolution_error}. *)
+
+val resolution_error_of_string :
+  string -> resolution_error
+  (** Deserialize JSON data of type {!type:resolution_error}. *)
 
 val write_dependency_relationships :
   Buffer.t -> dependency_relationships -> unit
@@ -2548,25 +2577,45 @@ val dependency_relationships_of_string :
   string -> dependency_relationships
   (** Deserialize JSON data of type {!type:dependency_relationships}. *)
 
-val write_resolved_subproject :
-  Buffer.t -> resolved_subproject -> unit
-  (** Output a JSON value of type {!type:resolved_subproject}. *)
+val write_resolution_result :
+  Buffer.t -> resolution_result -> unit
+  (** Output a JSON value of type {!type:resolution_result}. *)
 
-val string_of_resolved_subproject :
-  ?len:int -> resolved_subproject -> string
-  (** Serialize a value of type {!type:resolved_subproject}
+val string_of_resolution_result :
+  ?len:int -> resolution_result -> string
+  (** Serialize a value of type {!type:resolution_result}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_resolved_subproject :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolved_subproject
-  (** Input JSON data of type {!type:resolved_subproject}. *)
+val read_resolution_result :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_result
+  (** Input JSON data of type {!type:resolution_result}. *)
 
-val resolved_subproject_of_string :
-  string -> resolved_subproject
-  (** Deserialize JSON data of type {!type:resolved_subproject}. *)
+val resolution_result_of_string :
+  string -> resolution_result
+  (** Deserialize JSON data of type {!type:resolution_result}. *)
+
+val write_manifest :
+  Buffer.t -> manifest -> unit
+  (** Output a JSON value of type {!type:manifest}. *)
+
+val string_of_manifest :
+  ?len:int -> manifest -> string
+  (** Serialize a value of type {!type:manifest}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_manifest :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> manifest
+  (** Input JSON data of type {!type:manifest}. *)
+
+val manifest_of_string :
+  string -> manifest
+  (** Deserialize JSON data of type {!type:manifest}. *)
 
 val write_resolve_dependencies_return :
   Buffer.t -> resolve_dependencies_return -> unit
@@ -2967,6 +3016,26 @@ val read_deployment_response :
 val deployment_response_of_string :
   string -> deployment_response
   (** Deserialize JSON data of type {!type:deployment_response}. *)
+
+val write_dependency_relationship_info :
+  Buffer.t -> dependency_relationship_info -> unit
+  (** Output a JSON value of type {!type:dependency_relationship_info}. *)
+
+val string_of_dependency_relationship_info :
+  ?len:int -> dependency_relationship_info -> string
+  (** Serialize a value of type {!type:dependency_relationship_info}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_dependency_relationship_info :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_relationship_info
+  (** Input JSON data of type {!type:dependency_relationship_info}. *)
+
+val dependency_relationship_info_of_string :
+  string -> dependency_relationship_info
+  (** Deserialize JSON data of type {!type:dependency_relationship_info}. *)
 
 val write_dependency_parser_error :
   Buffer.t -> dependency_parser_error -> unit

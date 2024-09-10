@@ -860,6 +860,17 @@
         "version": { "type": "string" }
       }
     },
+    "dependency_relationship_info": {
+      "type": "object",
+      "required": [ "dependency_id", "depends_on_dependency_ids" ],
+      "properties": {
+        "dependency_id": { "type": "string" },
+        "depends_on_dependency_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
     "found_dependency": {
       "type": "object",
       "required": [
@@ -1525,35 +1536,94 @@
         }
       }
     },
-    "resolved_subproject": {
-      "type": "object",
-      "required": [ "manifest", "dependencies", "dep_relationships" ],
-      "properties": {
-        "manifest": { "$ref": "#/definitions/manifest" },
-        "dependencies": {
+    "resolution_error": {
+      "oneOf": [
+        { "const": "UnsupportedManifest" },
+        {
           "type": "array",
-          "items": { "$ref": "#/definitions/found_dependency" }
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "MissingRequirement" }, { "type": "string" }
+          ]
         },
-        "dep_relationships": {
-          "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ResolutionCmdFailed" },
+            { "$ref": "#/definitions/resolution_cmd_failed" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ParseDependenciesFailed" }, { "type": "string" }
+          ]
+        }
+      ]
+    },
+    "resolution_cmd_failed": {
+      "type": "object",
+      "required": [ "command", "message" ],
+      "properties": {
+        "command": { "type": "string" },
+        "message": { "type": "string" }
+      }
+    },
+    "resolution_result": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ResolutionOk" },
             {
               "type": "array",
               "minItems": 2,
               "items": false,
               "prefixItems": [
-                { "const": "Some" },
                 {
                   "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/dependency_relationships"
-                  }
+                  "items": { "$ref": "#/definitions/found_dependency" }
+                },
+                {
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "minItems": 2,
+                      "items": false,
+                      "prefixItems": [
+                        { "const": "Some" },
+                        {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/definitions/dependency_relationships"
+                          }
+                        }
+                      ]
+                    },
+                    { "const": "None" }
+                  ]
                 }
               ]
-            },
-            { "const": "None" }
+            }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ResolutionError" },
+            { "$ref": "#/definitions/resolution_error" }
           ]
         }
-      }
+      ]
     },
     "resolve_dependencies_params": {
       "type": "object",
@@ -1571,7 +1641,15 @@
       "properties": {
         "resolved": {
           "type": "array",
-          "items": { "$ref": "#/definitions/resolved_subproject" }
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "items": false,
+            "prefixItems": [
+              { "$ref": "#/definitions/manifest" },
+              { "$ref": "#/definitions/resolution_result" }
+            ]
+          }
         }
       }
     },

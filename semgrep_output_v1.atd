@@ -1094,6 +1094,14 @@ type dependency_child = {
   version: string;
 }
 
+(* If we have relationship information for a found_dependency, it can be annotated
+ * with a dependency ID and a list of dependency IDs on which it depends. These depends_on_dependency_ids
+ * must reference a dependency_id of another found_dependency in the same returned set. *)
+type dependency_relationship_info = {
+  dependency_id: string;
+  depends_on_dependency_ids: string list;
+}
+
 type found_dependency = {
   package: string;
   version: string;
@@ -1114,12 +1122,14 @@ type found_dependency = {
    * lockfile_path, this can identify the location of the dependency in the lockfile.
    *)
   ?line_number: int option;
-  (* store child dependency information for calculating path to transitivity*)
+  (* store child dependency information for calculating path to transitivity. DEPRECATED *)
   ?children: dependency_child list option;
   (* Git ref of the dependency if the dependency comes directly from a git repo.
    * Examples: refs/heads/main, refs/tags/v1.0.0, e5c704df4d308690fed696faf4c86453b4d88a95
    * since 1.66.0 *)
   ?git_ref: string option;
+  (* If relationship information is available *)
+  (* ?relationship_info: dependency_relationship_info option; *)
   (* ID is used to associate dependencies with each other via depends_on relationships *)
   ?id: string option;
 }
@@ -1820,15 +1830,26 @@ type dependency_relationships
   depends_on_dep_ids: string list;
 }
 
-type resolved_subproject
-    <python decorator="dataclass(frozen=True)"> = {
-  manifest: manifest;
+type resolution_error
+    <python decorator="dataclass(frozen=True)"> = [
+    | UnsupportedManifest
+    | MissingRequirement of string
+    | ResolutionCmdFailed of resolution_cmd_failed
+    | ParseDependenciesFailed of string
+]
 
-  dependencies: found_dependency list;
+type resolution_cmd_failed
+  <python decorator="dataclass(frozen=True)"> = {
+    command: string;
+    message: string;
+}
+
+type resolution_result = [
   (* dependency_relationship items each reference an id from found_dependency.id
     and the IDs of the dependencies that that item depends on *)
-  dep_relationships: dependency_relationships list option;
-}
+  | ResolutionOk of (found_dependency list * dependency_relationships list option)
+  | ResolutionError of resolution_error
+]
 
 type resolve_dependencies_params = {
   to_resolve: manifest list;
@@ -1836,7 +1857,7 @@ type resolve_dependencies_params = {
 
 type resolve_dependencies_return
     <python decorator="dataclass(frozen=True)"> = {
-  resolved: resolved_subproject list;
+  resolved: (manifest * resolution_result) list;
 }
 
 type function_call
