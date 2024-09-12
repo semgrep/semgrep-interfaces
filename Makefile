@@ -79,12 +79,14 @@ setup:
 	opam update
 	opam install --deps-only .
 
-setup-ALPINE:
-	apk add check-jsonschema
+.PHONY: setup-ALPINE
+setup-ALPINE: setup-PYTHON
 
+.PHONY: setup-MACOS
 setup-MACOS:
 	brew install check-jsonschema
 
+.PHONY: setup-PYTHON
 setup-PYTHON:
 	pip install check-jsonschema
 
