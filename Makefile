@@ -79,6 +79,15 @@ setup:
 	opam update
 	opam install --deps-only .
 
+setup-ALPINE:
+	apk add check-jsonschema
+
+setup-MACOS:
+	brew install check-jsonschema
+
+setup-PYTHON:
+	pip install check-jsonschema
+
 # The tests require semgrep-core, among other things.
 #
 .PHONY: test
