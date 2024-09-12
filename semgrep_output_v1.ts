@@ -474,11 +474,6 @@ export type DependencyChild = {
   version: string;
 }
 
-export type DependencyRelationshipInfo = {
-  dependency_id: string;
-  depends_on_dependency_ids: string[];
-}
-
 export type FoundDependency = {
   package_: string;
   version: string;
@@ -490,7 +485,6 @@ export type FoundDependency = {
   line_number?: number /*int*/;
   children?: DependencyChild[];
   git_ref?: string;
-  id?: string;
 }
 
 export type ScaParserName =
@@ -839,11 +833,6 @@ export type Manifest = {
   path: Fpath;
 }
 
-export type DependencyRelationships = {
-  dep_id: string;
-  depends_on_dep_ids: string[];
-}
-
 export type ResolutionError =
 | { kind: 'UnsupportedManifest' }
 | { kind: 'MissingRequirement'; value: string }
@@ -856,7 +845,7 @@ export type ResolutionCmdFailed = {
 }
 
 export type ResolutionResult =
-| { kind: 'ResolutionOk'; value: [FoundDependency[], Option<DependencyRelationships[]>] }
+| { kind: 'ResolutionOk'; value: FoundDependency[] }
 | { kind: 'ResolutionError'; value: ResolutionError }
 
 export type ResolveDependenciesParams = {
@@ -2415,20 +2404,6 @@ export function readDependencyChild(x: any, context: any = x): DependencyChild {
   };
 }
 
-export function writeDependencyRelationshipInfo(x: DependencyRelationshipInfo, context: any = x): any {
-  return {
-    'dependency_id': _atd_write_required_field('DependencyRelationshipInfo', 'dependency_id', _atd_write_string, x.dependency_id, x),
-    'depends_on_dependency_ids': _atd_write_required_field('DependencyRelationshipInfo', 'depends_on_dependency_ids', _atd_write_array(_atd_write_string), x.depends_on_dependency_ids, x),
-  };
-}
-
-export function readDependencyRelationshipInfo(x: any, context: any = x): DependencyRelationshipInfo {
-  return {
-    dependency_id: _atd_read_required_field('DependencyRelationshipInfo', 'dependency_id', _atd_read_string, x['dependency_id'], x),
-    depends_on_dependency_ids: _atd_read_required_field('DependencyRelationshipInfo', 'depends_on_dependency_ids', _atd_read_array(_atd_read_string), x['depends_on_dependency_ids'], x),
-  };
-}
-
 export function writeFoundDependency(x: FoundDependency, context: any = x): any {
   return {
     'package': _atd_write_required_field('FoundDependency', 'package', _atd_write_string, x.package_, x),
@@ -2441,7 +2416,6 @@ export function writeFoundDependency(x: FoundDependency, context: any = x): any 
     'line_number': _atd_write_optional_field(_atd_write_int, x.line_number, x),
     'children': _atd_write_optional_field(_atd_write_array(writeDependencyChild), x.children, x),
     'git_ref': _atd_write_optional_field(_atd_write_string, x.git_ref, x),
-    'id': _atd_write_optional_field(_atd_write_string, x.id, x),
   };
 }
 
@@ -2457,7 +2431,6 @@ export function readFoundDependency(x: any, context: any = x): FoundDependency {
     line_number: _atd_read_optional_field(_atd_read_int, x['line_number'], x),
     children: _atd_read_optional_field(_atd_read_array(readDependencyChild), x['children'], x),
     git_ref: _atd_read_optional_field(_atd_read_string, x['git_ref'], x),
-    id: _atd_read_optional_field(_atd_read_string, x['id'], x),
   };
 }
 
@@ -3403,20 +3376,6 @@ export function readManifest(x: any, context: any = x): Manifest {
   };
 }
 
-export function writeDependencyRelationships(x: DependencyRelationships, context: any = x): any {
-  return {
-    'dep_id': _atd_write_required_field('DependencyRelationships', 'dep_id', _atd_write_string, x.dep_id, x),
-    'depends_on_dep_ids': _atd_write_required_field('DependencyRelationships', 'depends_on_dep_ids', _atd_write_array(_atd_write_string), x.depends_on_dep_ids, x),
-  };
-}
-
-export function readDependencyRelationships(x: any, context: any = x): DependencyRelationships {
-  return {
-    dep_id: _atd_read_required_field('DependencyRelationships', 'dep_id', _atd_read_string, x['dep_id'], x),
-    depends_on_dep_ids: _atd_read_required_field('DependencyRelationships', 'depends_on_dep_ids', _atd_read_array(_atd_read_string), x['depends_on_dep_ids'], x),
-  };
-}
-
 export function writeResolutionError(x: ResolutionError, context: any = x): any {
   switch (x.kind) {
     case 'UnsupportedManifest':
@@ -3473,7 +3432,7 @@ export function readResolutionCmdFailed(x: any, context: any = x): ResolutionCmd
 export function writeResolutionResult(x: ResolutionResult, context: any = x): any {
   switch (x.kind) {
     case 'ResolutionOk':
-      return ['ResolutionOk', ((x, context) => [_atd_write_array(writeFoundDependency)(x[0], x), _atd_write_option(_atd_write_array(writeDependencyRelationships))(x[1], x)])(x.value, x)]
+      return ['ResolutionOk', _atd_write_array(writeFoundDependency)(x.value, x)]
     case 'ResolutionError':
       return ['ResolutionError', writeResolutionError(x.value, x)]
   }
@@ -3483,7 +3442,7 @@ export function readResolutionResult(x: any, context: any = x): ResolutionResult
   _atd_check_json_tuple(2, x, context)
   switch (x[0]) {
     case 'ResolutionOk':
-      return { kind: 'ResolutionOk', value: ((x, context): [FoundDependency[], Option<DependencyRelationships[]>] => { _atd_check_json_tuple(2, x, context); return [_atd_read_array(readFoundDependency)(x[0], x), _atd_read_option(_atd_read_array(readDependencyRelationships))(x[1], x)] })(x[1], x) }
+      return { kind: 'ResolutionOk', value: _atd_read_array(readFoundDependency)(x[1], x) }
     case 'ResolutionError':
       return { kind: 'ResolutionError', value: readResolutionError(x[1], x) }
     default:

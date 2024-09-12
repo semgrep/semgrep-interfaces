@@ -1089,17 +1089,9 @@ type dependency_pattern = {
   semver_range: string;
 }
 
-type dependency_child = {
+type dependency_child <python decorator="dataclass(frozen=True)"> = {
   package: string;
   version: string;
-}
-
-(* If we have relationship information for a found_dependency, it can be annotated
- * with a dependency ID and a list of dependency IDs on which it depends. These depends_on_dependency_ids
- * must reference a dependency_id of another found_dependency in the same returned set. *)
-type dependency_relationship_info = {
-  dependency_id: string;
-  depends_on_dependency_ids: string list;
 }
 
 type found_dependency = {
@@ -1122,16 +1114,15 @@ type found_dependency = {
    * lockfile_path, this can identify the location of the dependency in the lockfile.
    *)
   ?line_number: int option;
-  (* store child dependency information for calculating path to transitivity. DEPRECATED *)
+  (* If we have dependency relationship information for this dependency, this field will include
+   *   the name and version of other found_dependency items that this dependency requires. 
+   *   These fields must match values in `package` and `version` of another `found_dependency`
+   *   in the same set *)
   ?children: dependency_child list option;
   (* Git ref of the dependency if the dependency comes directly from a git repo.
    * Examples: refs/heads/main, refs/tags/v1.0.0, e5c704df4d308690fed696faf4c86453b4d88a95
    * since 1.66.0 *)
   ?git_ref: string option;
-  (* If relationship information is available *)
-  (* ?relationship_info: dependency_relationship_info option; *)
-  (* ID is used to associate dependencies with each other via depends_on relationships *)
-  ?id: string option;
 }
 
 (* json names are to maintain backwards compatibility with the python enum it is replacing *)
@@ -1824,12 +1815,6 @@ type manifest = {
 }
 
 
-type dependency_relationships
-    <python decorator="dataclass(frozen=True)"> = {
-  dep_id: string;
-  depends_on_dep_ids: string list;
-}
-
 type resolution_error
     <python decorator="dataclass(frozen=True)"> = [
     | UnsupportedManifest
@@ -1847,7 +1832,7 @@ type resolution_cmd_failed
 type resolution_result = [
   (* dependency_relationship items each reference an id from found_dependency.id
     and the IDs of the dependencies that that item depends on *)
-  | ResolutionOk of (found_dependency list * dependency_relationships list option)
+  | ResolutionOk of found_dependency list
   | ResolutionError of resolution_error
 ]
 

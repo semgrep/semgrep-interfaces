@@ -400,8 +400,7 @@ type found_dependency = Semgrep_output_v1_t.found_dependency = {
   lockfile_path: fpath option;
   line_number: int option;
   children: dependency_child list option;
-  git_ref: string option;
-  id: string option
+  git_ref: string option
 }
 
 type dependency_pattern = Semgrep_output_v1_t.dependency_pattern = {
@@ -538,12 +537,6 @@ type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
 }
 
 type resolution_error = Semgrep_output_v1_t.resolution_error
-
-type dependency_relationships =
-  Semgrep_output_v1_t.dependency_relationships = {
-  dep_id: string;
-  depends_on_dep_ids: string list
-}
 
 type resolution_result = Semgrep_output_v1_t.resolution_result
 
@@ -689,12 +682,6 @@ type deployment_config = Semgrep_output_v1_t.deployment_config = {
 
 type deployment_response = Semgrep_output_v1_t.deployment_response = {
   deployment: deployment_config
-}
-
-type dependency_relationship_info =
-  Semgrep_output_v1_t.dependency_relationship_info = {
-  dependency_id: string;
-  depends_on_dependency_ids: string list
 }
 
 type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
@@ -15858,17 +15845,6 @@ let write_found_dependency : _ -> found_dependency -> _ = (
       )
         ob x;
     );
-    (match x.id with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"id\":";
-      (
-        Yojson.Safe.write_string
-      )
-        ob x;
-    );
     Buffer.add_char ob '}';
 )
 let string_of_found_dependency ?(len = 1024) x =
@@ -15889,7 +15865,6 @@ let read_found_dependency = (
     let field_line_number = ref (None) in
     let field_children = ref (None) in
     let field_git_ref = ref (None) in
-    let field_id = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -15899,14 +15874,6 @@ let read_found_dependency = (
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
-            | 2 -> (
-                if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'd' then (
-                  10
-                )
-                else (
-                  -1
-                )
-              )
             | 7 -> (
                 match String.unsafe_get s pos with
                   | 'g' -> (
@@ -16097,16 +16064,6 @@ let read_found_dependency = (
                 )
               );
             )
-          | 10 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_id := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -16120,14 +16077,6 @@ let read_found_dependency = (
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
-              | 2 -> (
-                  if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'd' then (
-                    10
-                  )
-                  else (
-                    -1
-                  )
-                )
               | 7 -> (
                   match String.unsafe_get s pos with
                     | 'g' -> (
@@ -16318,16 +16267,6 @@ let read_found_dependency = (
                   )
                 );
               )
-            | 10 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_id := (
-                  Some (
-                    (
-                      Atdgen_runtime.Oj_run.read_string
-                    ) p lb
-                  )
-                );
-              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -16347,7 +16286,6 @@ let read_found_dependency = (
             line_number = !field_line_number;
             children = !field_children;
             git_ref = !field_git_ref;
-            id = !field_id;
           }
          : found_dependency)
       )
@@ -21270,159 +21208,6 @@ let read_resolution_error = (
 )
 let resolution_error_of_string s =
   read_resolution_error (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_dependency_relationships : _ -> dependency_relationships -> _ = (
-  fun ob (x : dependency_relationships) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"dep_id\":";
-    (
-      Yojson.Safe.write_string
-    )
-      ob x.dep_id;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"depends_on_dep_ids\":";
-    (
-      write__string_list
-    )
-      ob x.depends_on_dep_ids;
-    Buffer.add_char ob '}';
-)
-let string_of_dependency_relationships ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_dependency_relationships ob x;
-  Buffer.contents ob
-let read_dependency_relationships = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_dep_id = ref (None) in
-    let field_depends_on_dep_ids = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          match len with
-            | 6 -> (
-                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'd' then (
-                  0
-                )
-                else (
-                  -1
-                )
-              )
-            | 18 -> (
-                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'p' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'i' && String.unsafe_get s (pos+16) = 'd' && String.unsafe_get s (pos+17) = 's' then (
-                  1
-                )
-                else (
-                  -1
-                )
-              )
-            | _ -> (
-                -1
-              )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_dep_id := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              )
-            );
-          | 1 ->
-            field_depends_on_dep_ids := (
-              Some (
-                (
-                  read__string_list
-                ) p lb
-              )
-            );
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            match len with
-              | 6 -> (
-                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'd' then (
-                    0
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 18 -> (
-                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'p' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'i' && String.unsafe_get s (pos+16) = 'd' && String.unsafe_get s (pos+17) = 's' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_dep_id := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            | 1 ->
-              field_depends_on_dep_ids := (
-                Some (
-                  (
-                    read__string_list
-                  ) p lb
-                )
-              );
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            dep_id = (match !field_dep_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "dep_id");
-            depends_on_dep_ids = (match !field_depends_on_dep_ids with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "depends_on_dep_ids");
-          }
-         : dependency_relationships)
-      )
-)
-let dependency_relationships_of_string s =
-  read_dependency_relationships (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__found_dependency_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_found_dependency
@@ -21439,99 +21224,13 @@ let read__found_dependency_list = (
 )
 let _found_dependency_list_of_string s =
   read__found_dependency_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__dependency_relationships_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_dependency_relationships
-  )
-)
-let string_of__dependency_relationships_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__dependency_relationships_list ob x;
-  Buffer.contents ob
-let read__dependency_relationships_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_dependency_relationships
-  )
-)
-let _dependency_relationships_list_of_string s =
-  read__dependency_relationships_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__dependency_relationships_list_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write__dependency_relationships_list
-  )
-)
-let string_of__dependency_relationships_list_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__dependency_relationships_list_option ob x;
-  Buffer.contents ob
-let read__dependency_relationships_list_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__dependency_relationships_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__dependency_relationships_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _dependency_relationships_list_option_of_string s =
-  read__dependency_relationships_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_resolution_result = (
   fun ob x ->
     match x with
       | `ResolutionOk x ->
         Buffer.add_string ob "[\"ResolutionOk\",";
         (
-          fun ob x ->
-            Buffer.add_char ob '[';
-            (let x, _ = x in
-            (
-              write__found_dependency_list
-            ) ob x
-            );
-            Buffer.add_char ob ',';
-            (let _, x = x in
-            (
-              write__dependency_relationships_list_option
-            ) ob x
-            );
-            Buffer.add_char ob ']';
+          write__found_dependency_list
         ) ob x;
         Buffer.add_char ob ']'
       | `ResolutionError x ->
@@ -21554,48 +21253,7 @@ let read_resolution_result = (
             | "ResolutionOk" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  fun p lb ->
-                    Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                    let len = ref 0 in
-                    let end_of_tuple = ref false in
-                    (try
-                      let x0 =
-                        let x =
-                          (
-                            read__found_dependency_list
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x1 =
-                        let x =
-                          (
-                            read__dependency_relationships_list_option
-                          ) p lb
-                        in
-                        incr len;
-                        (try
-                          Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
-                        x
-                      in
-                      if not !end_of_tuple then (
-                        try
-                          while true do
-                            Yojson.Safe.skip_json p lb;
-                            Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                          done
-                        with Yojson.End_of_tuple -> ()
-                      );
-                      (x0, x1)
-                    with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+                  read__found_dependency_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -21625,48 +21283,7 @@ let read_resolution_result = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  fun p lb ->
-                    Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                    let len = ref 0 in
-                    let end_of_tuple = ref false in
-                    (try
-                      let x0 =
-                        let x =
-                          (
-                            read__found_dependency_list
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x1 =
-                        let x =
-                          (
-                            read__dependency_relationships_list_option
-                          ) p lb
-                        in
-                        incr len;
-                        (try
-                          Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
-                        x
-                      in
-                      if not !end_of_tuple then (
-                        try
-                          while true do
-                            Yojson.Safe.skip_json p lb;
-                            Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                          done
-                        with Yojson.End_of_tuple -> ()
-                      );
-                      (x0, x1)
-                    with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+                  read__found_dependency_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -27649,159 +27266,6 @@ let read_deployment_response = (
 )
 let deployment_response_of_string s =
   read_deployment_response (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_dependency_relationship_info : _ -> dependency_relationship_info -> _ = (
-  fun ob (x : dependency_relationship_info) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"dependency_id\":";
-    (
-      Yojson.Safe.write_string
-    )
-      ob x.dependency_id;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"depends_on_dependency_ids\":";
-    (
-      write__string_list
-    )
-      ob x.depends_on_dependency_ids;
-    Buffer.add_char ob '}';
-)
-let string_of_dependency_relationship_info ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_dependency_relationship_info ob x;
-  Buffer.contents ob
-let read_dependency_relationship_info = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_dependency_id = ref (None) in
-    let field_depends_on_dependency_ids = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          match len with
-            | 13 -> (
-                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'd' then (
-                  0
-                )
-                else (
-                  -1
-                )
-              )
-            | 25 -> (
-                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'p' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'n' && String.unsafe_get s (pos+16) = 'd' && String.unsafe_get s (pos+17) = 'e' && String.unsafe_get s (pos+18) = 'n' && String.unsafe_get s (pos+19) = 'c' && String.unsafe_get s (pos+20) = 'y' && String.unsafe_get s (pos+21) = '_' && String.unsafe_get s (pos+22) = 'i' && String.unsafe_get s (pos+23) = 'd' && String.unsafe_get s (pos+24) = 's' then (
-                  1
-                )
-                else (
-                  -1
-                )
-              )
-            | _ -> (
-                -1
-              )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_dependency_id := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              )
-            );
-          | 1 ->
-            field_depends_on_dependency_ids := (
-              Some (
-                (
-                  read__string_list
-                ) p lb
-              )
-            );
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            match len with
-              | 13 -> (
-                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'd' then (
-                    0
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 25 -> (
-                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'p' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'n' && String.unsafe_get s (pos+16) = 'd' && String.unsafe_get s (pos+17) = 'e' && String.unsafe_get s (pos+18) = 'n' && String.unsafe_get s (pos+19) = 'c' && String.unsafe_get s (pos+20) = 'y' && String.unsafe_get s (pos+21) = '_' && String.unsafe_get s (pos+22) = 'i' && String.unsafe_get s (pos+23) = 'd' && String.unsafe_get s (pos+24) = 's' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_dependency_id := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            | 1 ->
-              field_depends_on_dependency_ids := (
-                Some (
-                  (
-                    read__string_list
-                  ) p lb
-                )
-              );
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            dependency_id = (match !field_dependency_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "dependency_id");
-            depends_on_dependency_ids = (match !field_depends_on_dependency_ids with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "depends_on_dependency_ids");
-          }
-         : dependency_relationship_info)
-      )
-)
-let dependency_relationship_info_of_string s =
-  read_dependency_relationship_info (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_dependency_parser_error : _ -> dependency_parser_error -> _ = (
   fun ob (x : dependency_parser_error) ->
     Buffer.add_char ob '{';

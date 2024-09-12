@@ -400,8 +400,7 @@ type found_dependency = Semgrep_output_v1_t.found_dependency = {
   lockfile_path: fpath option;
   line_number: int option;
   children: dependency_child list option;
-  git_ref: string option;
-  id: string option
+  git_ref: string option
 }
 
 type dependency_pattern = Semgrep_output_v1_t.dependency_pattern = {
@@ -538,12 +537,6 @@ type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
 }
 
 type resolution_error = Semgrep_output_v1_t.resolution_error
-
-type dependency_relationships =
-  Semgrep_output_v1_t.dependency_relationships = {
-  dep_id: string;
-  depends_on_dep_ids: string list
-}
 
 type resolution_result = Semgrep_output_v1_t.resolution_result
 
@@ -689,12 +682,6 @@ type deployment_config = Semgrep_output_v1_t.deployment_config = {
 
 type deployment_response = Semgrep_output_v1_t.deployment_response = {
   deployment: deployment_config
-}
-
-type dependency_relationship_info =
-  Semgrep_output_v1_t.dependency_relationship_info = {
-  dependency_id: string;
-  depends_on_dependency_ids: string list
 }
 
 type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
@@ -2557,26 +2544,6 @@ val resolution_error_of_string :
   string -> resolution_error
   (** Deserialize JSON data of type {!type:resolution_error}. *)
 
-val write_dependency_relationships :
-  Buffer.t -> dependency_relationships -> unit
-  (** Output a JSON value of type {!type:dependency_relationships}. *)
-
-val string_of_dependency_relationships :
-  ?len:int -> dependency_relationships -> string
-  (** Serialize a value of type {!type:dependency_relationships}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_dependency_relationships :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_relationships
-  (** Input JSON data of type {!type:dependency_relationships}. *)
-
-val dependency_relationships_of_string :
-  string -> dependency_relationships
-  (** Deserialize JSON data of type {!type:dependency_relationships}. *)
-
 val write_resolution_result :
   Buffer.t -> resolution_result -> unit
   (** Output a JSON value of type {!type:resolution_result}. *)
@@ -3016,26 +2983,6 @@ val read_deployment_response :
 val deployment_response_of_string :
   string -> deployment_response
   (** Deserialize JSON data of type {!type:deployment_response}. *)
-
-val write_dependency_relationship_info :
-  Buffer.t -> dependency_relationship_info -> unit
-  (** Output a JSON value of type {!type:dependency_relationship_info}. *)
-
-val string_of_dependency_relationship_info :
-  ?len:int -> dependency_relationship_info -> string
-  (** Serialize a value of type {!type:dependency_relationship_info}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_dependency_relationship_info :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_relationship_info
-  (** Input JSON data of type {!type:dependency_relationship_info}. *)
-
-val dependency_relationship_info_of_string :
-  string -> dependency_relationship_info
-  (** Deserialize JSON data of type {!type:dependency_relationship_info}. *)
 
 val write_dependency_parser_error :
   Buffer.t -> dependency_parser_error -> unit

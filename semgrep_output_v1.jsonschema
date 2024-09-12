@@ -860,17 +860,6 @@
         "version": { "type": "string" }
       }
     },
-    "dependency_relationship_info": {
-      "type": "object",
-      "required": [ "dependency_id", "depends_on_dependency_ids" ],
-      "properties": {
-        "dependency_id": { "type": "string" },
-        "depends_on_dependency_ids": {
-          "type": "array",
-          "items": { "type": "string" }
-        }
-      }
-    },
     "found_dependency": {
       "type": "object",
       "required": [
@@ -895,8 +884,7 @@
           "type": "array",
           "items": { "$ref": "#/definitions/dependency_child" }
         },
-        "git_ref": { "type": "string" },
-        "id": { "type": "string" }
+        "git_ref": { "type": "string" }
       }
     },
     "sca_parser_name": {
@@ -1525,17 +1513,6 @@
         "path": { "$ref": "#/definitions/fpath" }
       }
     },
-    "dependency_relationships": {
-      "type": "object",
-      "required": [ "dep_id", "depends_on_dep_ids" ],
-      "properties": {
-        "dep_id": { "type": "string" },
-        "depends_on_dep_ids": {
-          "type": "array",
-          "items": { "type": "string" }
-        }
-      }
-    },
     "resolution_error": {
       "oneOf": [
         { "const": "UnsupportedManifest" },
@@ -1584,33 +1561,7 @@
             { "const": "ResolutionOk" },
             {
               "type": "array",
-              "minItems": 2,
-              "items": false,
-              "prefixItems": [
-                {
-                  "type": "array",
-                  "items": { "$ref": "#/definitions/found_dependency" }
-                },
-                {
-                  "oneOf": [
-                    {
-                      "type": "array",
-                      "minItems": 2,
-                      "items": false,
-                      "prefixItems": [
-                        { "const": "Some" },
-                        {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/definitions/dependency_relationships"
-                          }
-                        }
-                      ]
-                    },
-                    { "const": "None" }
-                  ]
-                }
-              ]
+              "items": { "$ref": "#/definitions/found_dependency" }
             }
           ]
         },

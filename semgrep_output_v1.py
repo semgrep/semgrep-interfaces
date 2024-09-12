@@ -4413,7 +4413,7 @@ class Ecosystem:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class DependencyChild:
     """Original type: dependency_child = { ... }"""
 
@@ -4458,7 +4458,6 @@ class FoundDependency:
     line_number: Optional[int] = None
     children: Optional[List[DependencyChild]] = None
     git_ref: Optional[str] = None
-    id: Optional[str] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'FoundDependency':
@@ -4474,7 +4473,6 @@ class FoundDependency:
                 line_number=_atd_read_int(x['line_number']) if 'line_number' in x else None,
                 children=_atd_read_list(DependencyChild.from_json)(x['children']) if 'children' in x else None,
                 git_ref=_atd_read_string(x['git_ref']) if 'git_ref' in x else None,
-                id=_atd_read_string(x['id']) if 'id' in x else None,
             )
         else:
             _atd_bad_json('FoundDependency', x)
@@ -4496,8 +4494,6 @@ class FoundDependency:
             res['children'] = _atd_write_list((lambda x: x.to_json()))(self.children)
         if self.git_ref is not None:
             res['git_ref'] = _atd_write_string(self.git_ref)
-        if self.id is not None:
-            res['id'] = _atd_write_string(self.id)
         return res
 
     @classmethod
@@ -5789,42 +5785,11 @@ class ResolutionError:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
-class DependencyRelationships:
-    """Original type: dependency_relationships = { ... }"""
-
-    dep_id: str
-    depends_on_dep_ids: List[str]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'DependencyRelationships':
-        if isinstance(x, dict):
-            return cls(
-                dep_id=_atd_read_string(x['dep_id']) if 'dep_id' in x else _atd_missing_json_field('DependencyRelationships', 'dep_id'),
-                depends_on_dep_ids=_atd_read_list(_atd_read_string)(x['depends_on_dep_ids']) if 'depends_on_dep_ids' in x else _atd_missing_json_field('DependencyRelationships', 'depends_on_dep_ids'),
-            )
-        else:
-            _atd_bad_json('DependencyRelationships', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['dep_id'] = _atd_write_string(self.dep_id)
-        res['depends_on_dep_ids'] = _atd_write_list(_atd_write_string)(self.depends_on_dep_ids)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'DependencyRelationships':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass
 class ResolutionOk:
     """Original type: resolution_result = [ ... | ResolutionOk of ... | ... ]"""
 
-    value: Tuple[List[FoundDependency], Optional[List[DependencyRelationships]]]
+    value: List[FoundDependency]
 
     @property
     def kind(self) -> str:
@@ -5832,7 +5797,7 @@ class ResolutionOk:
         return 'ResolutionOk'
 
     def to_json(self) -> Any:
-        return ['ResolutionOk', (lambda x: [_atd_write_list((lambda x: x.to_json()))(x[0]), _atd_write_option(_atd_write_list((lambda x: x.to_json())))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
+        return ['ResolutionOk', _atd_write_list((lambda x: x.to_json()))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -5872,7 +5837,7 @@ class ResolutionResult:
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'ResolutionOk':
-                return cls(ResolutionOk((lambda x: (_atd_read_list(FoundDependency.from_json)(x[0]), _atd_read_option(_atd_read_list(DependencyRelationships.from_json))(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+                return cls(ResolutionOk(_atd_read_list(FoundDependency.from_json)(x[1])))
             if cons == 'ResolutionError':
                 return cls(ResolutionError_(ResolutionError.from_json(x[1])))
             _atd_bad_json('ResolutionResult', x)
@@ -6975,37 +6940,6 @@ class DeploymentResponse:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'DeploymentResponse':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class DependencyRelationshipInfo:
-    """Original type: dependency_relationship_info = { ... }"""
-
-    dependency_id: str
-    depends_on_dependency_ids: List[str]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'DependencyRelationshipInfo':
-        if isinstance(x, dict):
-            return cls(
-                dependency_id=_atd_read_string(x['dependency_id']) if 'dependency_id' in x else _atd_missing_json_field('DependencyRelationshipInfo', 'dependency_id'),
-                depends_on_dependency_ids=_atd_read_list(_atd_read_string)(x['depends_on_dependency_ids']) if 'depends_on_dependency_ids' in x else _atd_missing_json_field('DependencyRelationshipInfo', 'depends_on_dependency_ids'),
-            )
-        else:
-            _atd_bad_json('DependencyRelationshipInfo', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['dependency_id'] = _atd_write_string(self.dependency_id)
-        res['depends_on_dependency_ids'] = _atd_write_list(_atd_write_string)(self.depends_on_dependency_ids)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'DependencyRelationshipInfo':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
