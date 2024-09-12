@@ -76,8 +76,19 @@ clean:
 setup:
 	# Please install check-jsonschema (Python tool) if this fails:
 	check-jsonschema --version
-	opam update
-	opam install --deps-only .
+	opam update -y
+	opam install -y --deps-only ./dev.opam
+
+.PHONY: setup-ALPINE
+setup-ALPINE: setup-PYTHON
+
+.PHONY: setup-MACOS
+setup-MACOS:
+	brew install check-jsonschema
+
+.PHONY: setup-PYTHON
+setup-PYTHON:
+	pip install check-jsonschema
 
 # The tests require semgrep-core, among other things.
 #
