@@ -77,7 +77,7 @@ setup:
 	# Please install check-jsonschema (Python tool) if this fails:
 	check-jsonschema --version
 	opam update
-	opam install --deps-only .
+	opam install --deps-only ./dev.opam
 
 .PHONY: setup-ALPINE
 setup-ALPINE: setup-PYTHON
