@@ -828,8 +828,12 @@ export type OutputFormat =
 | { kind: 'Vim' }
 | { kind: 'Emacs' }
 
+export type ManifestKind =
+| { kind: 'PomXml' }
+| { kind: 'BuildGradle' }
+
 export type Manifest = {
-  ecosystem: Ecosystem;
+  kind: ManifestKind;
   path: Fpath;
 }
 
@@ -3362,16 +3366,37 @@ export function readOutputFormat(x: any, context: any = x): OutputFormat {
   }
 }
 
+export function writeManifestKind(x: ManifestKind, context: any = x): any {
+  switch (x.kind) {
+    case 'PomXml':
+      return 'PomXml'
+    case 'BuildGradle':
+      return 'BuildGradle'
+  }
+}
+
+export function readManifestKind(x: any, context: any = x): ManifestKind {
+  switch (x) {
+    case 'PomXml':
+      return { kind: 'PomXml' }
+    case 'BuildGradle':
+      return { kind: 'BuildGradle' }
+    default:
+      _atd_bad_json('ManifestKind', x, context)
+      throw new Error('impossible')
+  }
+}
+
 export function writeManifest(x: Manifest, context: any = x): any {
   return {
-    'ecosystem': _atd_write_required_field('Manifest', 'ecosystem', writeEcosystem, x.ecosystem, x),
+    'kind': _atd_write_required_field('Manifest', 'kind', writeManifestKind, x.kind, x),
     'path': _atd_write_required_field('Manifest', 'path', writeFpath, x.path, x),
   };
 }
 
 export function readManifest(x: any, context: any = x): Manifest {
   return {
-    ecosystem: _atd_read_required_field('Manifest', 'ecosystem', readEcosystem, x['ecosystem'], x),
+    kind: _atd_read_required_field('Manifest', 'kind', readManifestKind, x['kind'], x),
     path: _atd_read_required_field('Manifest', 'path', readFpath, x['path'], x),
   };
 }

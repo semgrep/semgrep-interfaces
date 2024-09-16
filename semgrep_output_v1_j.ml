@@ -540,8 +540,10 @@ type resolution_error = Semgrep_output_v1_t.resolution_error
 
 type resolution_result = Semgrep_output_v1_t.resolution_result
 
+type manifest_kind = Semgrep_output_v1_t.manifest_kind
+
 type manifest = Semgrep_output_v1_t.manifest = {
-  ecosystem: ecosystem;
+  kind: manifest_kind;
   path: fpath
 }
 
@@ -21306,6 +21308,50 @@ let read_resolution_result = (
 )
 let resolution_result_of_string s =
   read_resolution_result (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_manifest_kind = (
+  fun ob x ->
+    match x with
+      | `PomXml -> Buffer.add_string ob "\"PomXml\""
+      | `BuildGradle -> Buffer.add_string ob "\"BuildGradle\""
+)
+let string_of_manifest_kind ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_manifest_kind ob x;
+  Buffer.contents ob
+let read_manifest_kind = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "PomXml" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `PomXml
+            | "BuildGradle" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `BuildGradle
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "PomXml" ->
+              `PomXml
+            | "BuildGradle" ->
+              `BuildGradle
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let manifest_kind_of_string s =
+  read_manifest_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_manifest : _ -> manifest -> _ = (
   fun ob (x : manifest) ->
     Buffer.add_char ob '{';
@@ -21314,11 +21360,11 @@ let write_manifest : _ -> manifest -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"ecosystem\":";
+      Buffer.add_string ob "\"kind\":";
     (
-      write_ecosystem
+      write_manifest_kind
     )
-      ob x.ecosystem;
+      ob x.kind;
     if !is_first then
       is_first := false
     else
@@ -21338,7 +21384,7 @@ let read_manifest = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
-    let field_ecosystem = ref (None) in
+    let field_kind = ref (None) in
     let field_path = ref (None) in
     try
       Yojson.Safe.read_space p lb;
@@ -21348,36 +21394,41 @@ let read_manifest = (
         fun s pos len ->
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          match len with
-            | 4 -> (
-                if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
-                  1
+          if len = 4 then (
+            match String.unsafe_get s pos with
+              | 'k' -> (
+                  if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
                 )
-                else (
+              | 'p' -> (
+                  if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
                   -1
                 )
-              )
-            | 9 -> (
-                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'y' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'm' then (
-                  0
-                )
-                else (
-                  -1
-                )
-              )
-            | _ -> (
-                -1
-              )
+          )
+          else (
+            -1
+          )
       in
       let i = Yojson.Safe.map_ident p f lb in
       Atdgen_runtime.Oj_run.read_until_field_value p lb;
       (
         match i with
           | 0 ->
-            field_ecosystem := (
+            field_kind := (
               Some (
                 (
-                  read_ecosystem
+                  read_manifest_kind
                 ) p lb
               )
             );
@@ -21401,36 +21452,41 @@ let read_manifest = (
           fun s pos len ->
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            match len with
-              | 4 -> (
-                  if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
-                    1
+            if len = 4 then (
+              match String.unsafe_get s pos with
+                | 'k' -> (
+                    if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' then (
+                      0
+                    )
+                    else (
+                      -1
+                    )
                   )
-                  else (
+                | 'p' -> (
+                    if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
+                      1
+                    )
+                    else (
+                      -1
+                    )
+                  )
+                | _ -> (
                     -1
                   )
-                )
-              | 9 -> (
-                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'y' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'm' then (
-                    0
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
+            )
+            else (
+              -1
+            )
         in
         let i = Yojson.Safe.map_ident p f lb in
         Atdgen_runtime.Oj_run.read_until_field_value p lb;
         (
           match i with
             | 0 ->
-              field_ecosystem := (
+              field_kind := (
                 Some (
                   (
-                    read_ecosystem
+                    read_manifest_kind
                   ) p lb
                 )
               );
@@ -21451,7 +21507,7 @@ let read_manifest = (
     with Yojson.End_of_object -> (
         (
           {
-            ecosystem = (match !field_ecosystem with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "ecosystem");
+            kind = (match !field_kind with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "kind");
             path = (match !field_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "path");
           }
          : manifest)

@@ -1809,8 +1809,14 @@ type output_format = [
   | Emacs
 ]
 
+(* TODO: merge with Manifest_kind.ml *)
+type manifest_kind = [
+  | PomXml
+  | BuildGradle
+]
+
 type manifest = {
-  ecosystem: ecosystem;
+  kind: manifest_kind;
   path: fpath;
 }
 

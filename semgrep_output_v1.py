@@ -5855,17 +5855,83 @@ class ResolutionResult:
 
 
 @dataclass
+class PomXml:
+    """Original type: manifest_kind = [ ... | PomXml | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PomXml'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PomXml'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class BuildGradle:
+    """Original type: manifest_kind = [ ... | BuildGradle | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'BuildGradle'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'BuildGradle'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ManifestKind:
+    """Original type: manifest_kind = [ ... ]"""
+
+    value: Union[PomXml, BuildGradle]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ManifestKind':
+        if isinstance(x, str):
+            if x == 'PomXml':
+                return cls(PomXml())
+            if x == 'BuildGradle':
+                return cls(BuildGradle())
+            _atd_bad_json('ManifestKind', x)
+        _atd_bad_json('ManifestKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ManifestKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Manifest:
     """Original type: manifest = { ... }"""
 
-    ecosystem: Ecosystem
+    kind: ManifestKind
     path: Fpath
 
     @classmethod
     def from_json(cls, x: Any) -> 'Manifest':
         if isinstance(x, dict):
             return cls(
-                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('Manifest', 'ecosystem'),
+                kind=ManifestKind.from_json(x['kind']) if 'kind' in x else _atd_missing_json_field('Manifest', 'kind'),
                 path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('Manifest', 'path'),
             )
         else:
@@ -5873,7 +5939,7 @@ class Manifest:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
+        res['kind'] = (lambda x: x.to_json())(self.kind)
         res['path'] = (lambda x: x.to_json())(self.path)
         return res
 

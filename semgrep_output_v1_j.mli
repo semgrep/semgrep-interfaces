@@ -540,8 +540,10 @@ type resolution_error = Semgrep_output_v1_t.resolution_error
 
 type resolution_result = Semgrep_output_v1_t.resolution_result
 
+type manifest_kind = Semgrep_output_v1_t.manifest_kind
+
 type manifest = Semgrep_output_v1_t.manifest = {
-  ecosystem: ecosystem;
+  kind: manifest_kind;
   path: fpath
 }
 
@@ -2563,6 +2565,26 @@ val read_resolution_result :
 val resolution_result_of_string :
   string -> resolution_result
   (** Deserialize JSON data of type {!type:resolution_result}. *)
+
+val write_manifest_kind :
+  Buffer.t -> manifest_kind -> unit
+  (** Output a JSON value of type {!type:manifest_kind}. *)
+
+val string_of_manifest_kind :
+  ?len:int -> manifest_kind -> string
+  (** Serialize a value of type {!type:manifest_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_manifest_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> manifest_kind
+  (** Input JSON data of type {!type:manifest_kind}. *)
+
+val manifest_kind_of_string :
+  string -> manifest_kind
+  (** Deserialize JSON data of type {!type:manifest_kind}. *)
 
 val write_manifest :
   Buffer.t -> manifest -> unit

@@ -1505,11 +1505,14 @@
     "output_format": {
       "oneOf": [ { "const": "Vim" }, { "const": "Emacs" } ]
     },
+    "manifest_kind": {
+      "oneOf": [ { "const": "PomXml" }, { "const": "BuildGradle" } ]
+    },
     "manifest": {
       "type": "object",
-      "required": [ "ecosystem", "path" ],
+      "required": [ "kind", "path" ],
       "properties": {
-        "ecosystem": { "$ref": "#/definitions/ecosystem" },
+        "kind": { "$ref": "#/definitions/manifest_kind" },
         "path": { "$ref": "#/definitions/fpath" }
       }
     },
