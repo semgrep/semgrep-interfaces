@@ -1842,15 +1842,6 @@ type resolution_result = [
   | ResolutionError of resolution_error
 ]
 
-type resolve_dependencies_params = {
-  to_resolve: manifest list;
-}
-
-type resolve_dependencies_return
-    <python decorator="dataclass(frozen=True)"> = {
-  resolved: (manifest * resolution_result) list;
-}
-
 type function_call
     <python decorator="dataclass(frozen=True)"> = [
   | CallContributions
@@ -1862,7 +1853,7 @@ type function_call
      the RPC pipe.
   *)
   | CallValidate of fpath
-  | CallResolveDependencies of resolve_dependencies_params
+  | CallResolveDependencies of manifest list
 ]
 
 type function_return
@@ -1873,5 +1864,5 @@ type function_return
   | RetContributions of contributions
   | RetFormatter of string
   | RetValidate of bool
-  | RetResolveDependencies of resolve_dependencies_return
+  | RetResolveDependencies of (manifest * resolution_result) list
 ]

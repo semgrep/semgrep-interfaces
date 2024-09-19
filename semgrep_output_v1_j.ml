@@ -540,23 +540,6 @@ type resolution_error = Semgrep_output_v1_t.resolution_error
 
 type resolution_result = Semgrep_output_v1_t.resolution_result
 
-type manifest_kind = Semgrep_output_v1_t.manifest_kind
-
-type manifest = Semgrep_output_v1_t.manifest = {
-  kind: manifest_kind;
-  path: fpath
-}
-
-type resolve_dependencies_return =
-  Semgrep_output_v1_t.resolve_dependencies_return = {
-  resolved: (manifest * resolution_result) list
-}
-
-type resolve_dependencies_params =
-  Semgrep_output_v1_t.resolve_dependencies_params = {
-  to_resolve: manifest list
-}
-
 type profile = Semgrep_output_v1_t.profile = {
   rules: rule_id list;
   rules_parse_time: float;
@@ -574,6 +557,13 @@ type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
 }
 
 type output_format = Semgrep_output_v1_t.output_format
+
+type manifest_kind = Semgrep_output_v1_t.manifest_kind
+
+type manifest = Semgrep_output_v1_t.manifest = {
+  kind: manifest_kind;
+  path: fpath
+}
 
 type has_features = Semgrep_output_v1_t.has_features = {
   has_autofix: bool;
@@ -21308,495 +21298,6 @@ let read_resolution_result = (
 )
 let resolution_result_of_string s =
   read_resolution_result (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_manifest_kind = (
-  fun ob x ->
-    match x with
-      | `PomXml -> Buffer.add_string ob "\"PomXml\""
-      | `BuildGradle -> Buffer.add_string ob "\"BuildGradle\""
-)
-let string_of_manifest_kind ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_manifest_kind ob x;
-  Buffer.contents ob
-let read_manifest_kind = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "PomXml" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `PomXml
-            | "BuildGradle" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `BuildGradle
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "PomXml" ->
-              `PomXml
-            | "BuildGradle" ->
-              `BuildGradle
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let manifest_kind_of_string s =
-  read_manifest_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_manifest : _ -> manifest -> _ = (
-  fun ob (x : manifest) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"kind\":";
-    (
-      write_manifest_kind
-    )
-      ob x.kind;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"path\":";
-    (
-      write_fpath
-    )
-      ob x.path;
-    Buffer.add_char ob '}';
-)
-let string_of_manifest ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_manifest ob x;
-  Buffer.contents ob
-let read_manifest = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_kind = ref (None) in
-    let field_path = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          if len = 4 then (
-            match String.unsafe_get s pos with
-              | 'k' -> (
-                  if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' then (
-                    0
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 'p' -> (
-                  if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
-          )
-          else (
-            -1
-          )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_kind := (
-              Some (
-                (
-                  read_manifest_kind
-                ) p lb
-              )
-            );
-          | 1 ->
-            field_path := (
-              Some (
-                (
-                  read_fpath
-                ) p lb
-              )
-            );
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            if len = 4 then (
-              match String.unsafe_get s pos with
-                | 'k' -> (
-                    if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' then (
-                      0
-                    )
-                    else (
-                      -1
-                    )
-                  )
-                | 'p' -> (
-                    if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
-                      1
-                    )
-                    else (
-                      -1
-                    )
-                  )
-                | _ -> (
-                    -1
-                  )
-            )
-            else (
-              -1
-            )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_kind := (
-                Some (
-                  (
-                    read_manifest_kind
-                  ) p lb
-                )
-              );
-            | 1 ->
-              field_path := (
-                Some (
-                  (
-                    read_fpath
-                  ) p lb
-                )
-              );
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            kind = (match !field_kind with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "kind");
-            path = (match !field_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "path");
-          }
-         : manifest)
-      )
-)
-let manifest_of_string s =
-  read_manifest (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__manifest_resolution_result_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    fun ob x ->
-      Buffer.add_char ob '[';
-      (let x, _ = x in
-      (
-        write_manifest
-      ) ob x
-      );
-      Buffer.add_char ob ',';
-      (let _, x = x in
-      (
-        write_resolution_result
-      ) ob x
-      );
-      Buffer.add_char ob ']';
-  )
-)
-let string_of__manifest_resolution_result_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__manifest_resolution_result_list ob x;
-  Buffer.contents ob
-let read__manifest_resolution_result_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    fun p lb ->
-      Yojson.Safe.read_space p lb;
-      let std_tuple = Yojson.Safe.start_any_tuple p lb in
-      let len = ref 0 in
-      let end_of_tuple = ref false in
-      (try
-        let x0 =
-          let x =
-            (
-              read_manifest
-            ) p lb
-          in
-          incr len;
-          Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          x
-        in
-        let x1 =
-          let x =
-            (
-              read_resolution_result
-            ) p lb
-          in
-          incr len;
-          (try
-            Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          with Yojson.End_of_tuple -> end_of_tuple := true);
-          x
-        in
-        if not !end_of_tuple then (
-          try
-            while true do
-              Yojson.Safe.skip_json p lb;
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-            done
-          with Yojson.End_of_tuple -> ()
-        );
-        (x0, x1)
-      with Yojson.End_of_tuple ->
-        Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
-  )
-)
-let _manifest_resolution_result_list_of_string s =
-  read__manifest_resolution_result_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_resolve_dependencies_return : _ -> resolve_dependencies_return -> _ = (
-  fun ob (x : resolve_dependencies_return) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"resolved\":";
-    (
-      write__manifest_resolution_result_list
-    )
-      ob x.resolved;
-    Buffer.add_char ob '}';
-)
-let string_of_resolve_dependencies_return ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_resolve_dependencies_return ob x;
-  Buffer.contents ob
-let read_resolve_dependencies_return = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_resolved = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          if len = 8 && String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'v' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' then (
-            0
-          )
-          else (
-            -1
-          )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_resolved := (
-              Some (
-                (
-                  read__manifest_resolution_result_list
-                ) p lb
-              )
-            );
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            if len = 8 && String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'v' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' then (
-              0
-            )
-            else (
-              -1
-            )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_resolved := (
-                Some (
-                  (
-                    read__manifest_resolution_result_list
-                  ) p lb
-                )
-              );
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            resolved = (match !field_resolved with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "resolved");
-          }
-         : resolve_dependencies_return)
-      )
-)
-let resolve_dependencies_return_of_string s =
-  read_resolve_dependencies_return (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__manifest_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_manifest
-  )
-)
-let string_of__manifest_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__manifest_list ob x;
-  Buffer.contents ob
-let read__manifest_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_manifest
-  )
-)
-let _manifest_list_of_string s =
-  read__manifest_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_resolve_dependencies_params : _ -> resolve_dependencies_params -> _ = (
-  fun ob (x : resolve_dependencies_params) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"to_resolve\":";
-    (
-      write__manifest_list
-    )
-      ob x.to_resolve;
-    Buffer.add_char ob '}';
-)
-let string_of_resolve_dependencies_params ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_resolve_dependencies_params ob x;
-  Buffer.contents ob
-let read_resolve_dependencies_params = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_to_resolve = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          if len = 10 && String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'l' && String.unsafe_get s (pos+8) = 'v' && String.unsafe_get s (pos+9) = 'e' then (
-            0
-          )
-          else (
-            -1
-          )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_to_resolve := (
-              Some (
-                (
-                  read__manifest_list
-                ) p lb
-              )
-            );
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            if len = 10 && String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'l' && String.unsafe_get s (pos+8) = 'v' && String.unsafe_get s (pos+9) = 'e' then (
-              0
-            )
-            else (
-              -1
-            )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_to_resolve := (
-                Some (
-                  (
-                    read__manifest_list
-                  ) p lb
-                )
-              );
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            to_resolve = (match !field_to_resolve with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "to_resolve");
-          }
-         : resolve_dependencies_params)
-      )
-)
-let resolve_dependencies_params_of_string s =
-  read_resolve_dependencies_params (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__x_d81b58a = (
   Atdgen_runtime.Oj_run.write_assoc_list (
     Yojson.Safe.write_string
@@ -22475,6 +21976,213 @@ let read_output_format = (
 )
 let output_format_of_string s =
   read_output_format (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_manifest_kind = (
+  fun ob x ->
+    match x with
+      | `PomXml -> Buffer.add_string ob "\"PomXml\""
+      | `BuildGradle -> Buffer.add_string ob "\"BuildGradle\""
+)
+let string_of_manifest_kind ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_manifest_kind ob x;
+  Buffer.contents ob
+let read_manifest_kind = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "PomXml" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `PomXml
+            | "BuildGradle" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `BuildGradle
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "PomXml" ->
+              `PomXml
+            | "BuildGradle" ->
+              `BuildGradle
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let manifest_kind_of_string s =
+  read_manifest_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_manifest : _ -> manifest -> _ = (
+  fun ob (x : manifest) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"kind\":";
+    (
+      write_manifest_kind
+    )
+      ob x.kind;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"path\":";
+    (
+      write_fpath
+    )
+      ob x.path;
+    Buffer.add_char ob '}';
+)
+let string_of_manifest ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_manifest ob x;
+  Buffer.contents ob
+let read_manifest = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_kind = ref (None) in
+    let field_path = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          if len = 4 then (
+            match String.unsafe_get s pos with
+              | 'k' -> (
+                  if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 'p' -> (
+                  if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+          )
+          else (
+            -1
+          )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_kind := (
+              Some (
+                (
+                  read_manifest_kind
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_path := (
+              Some (
+                (
+                  read_fpath
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            if len = 4 then (
+              match String.unsafe_get s pos with
+                | 'k' -> (
+                    if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' then (
+                      0
+                    )
+                    else (
+                      -1
+                    )
+                  )
+                | 'p' -> (
+                    if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
+                      1
+                    )
+                    else (
+                      -1
+                    )
+                  )
+                | _ -> (
+                    -1
+                  )
+            )
+            else (
+              -1
+            )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_kind := (
+                Some (
+                  (
+                    read_manifest_kind
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_path := (
+                Some (
+                  (
+                    read_fpath
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            kind = (match !field_kind with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "kind");
+            path = (match !field_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "path");
+          }
+         : manifest)
+      )
+)
+let manifest_of_string s =
+  read_manifest (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_has_features : _ -> has_features -> _ = (
   fun ob (x : has_features) ->
     Buffer.add_char ob '{';
@@ -23336,6 +23044,76 @@ let read_apply_fixes_return = (
 )
 let apply_fixes_return_of_string s =
   read_apply_fixes_return (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__manifest_resolution_result_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    fun ob x ->
+      Buffer.add_char ob '[';
+      (let x, _ = x in
+      (
+        write_manifest
+      ) ob x
+      );
+      Buffer.add_char ob ',';
+      (let _, x = x in
+      (
+        write_resolution_result
+      ) ob x
+      );
+      Buffer.add_char ob ']';
+  )
+)
+let string_of__manifest_resolution_result_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__manifest_resolution_result_list ob x;
+  Buffer.contents ob
+let read__manifest_resolution_result_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    fun p lb ->
+      Yojson.Safe.read_space p lb;
+      let std_tuple = Yojson.Safe.start_any_tuple p lb in
+      let len = ref 0 in
+      let end_of_tuple = ref false in
+      (try
+        let x0 =
+          let x =
+            (
+              read_manifest
+            ) p lb
+          in
+          incr len;
+          Yojson.Safe.read_space p lb;
+          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+          x
+        in
+        let x1 =
+          let x =
+            (
+              read_resolution_result
+            ) p lb
+          in
+          incr len;
+          (try
+            Yojson.Safe.read_space p lb;
+            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+          with Yojson.End_of_tuple -> end_of_tuple := true);
+          x
+        in
+        if not !end_of_tuple then (
+          try
+            while true do
+              Yojson.Safe.skip_json p lb;
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+            done
+          with Yojson.End_of_tuple -> ()
+        );
+        (x0, x1)
+      with Yojson.End_of_tuple ->
+        Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+  )
+)
+let _manifest_resolution_result_list_of_string s =
+  read__manifest_resolution_result_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_function_return = (
   fun ob x ->
     match x with
@@ -23378,7 +23156,7 @@ let write_function_return = (
       | `RetResolveDependencies x ->
         Buffer.add_string ob "[\"RetResolveDependencies\",";
         (
-          write_resolve_dependencies_return
+          write__manifest_resolution_result_list
         ) ob x;
         Buffer.add_char ob ']'
 )
@@ -23449,7 +23227,7 @@ let read_function_return = (
             | "RetResolveDependencies" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read_resolve_dependencies_return
+                  read__manifest_resolution_result_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -23536,7 +23314,7 @@ let read_function_return = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read_resolve_dependencies_return
+                  read__manifest_resolution_result_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -24761,6 +24539,22 @@ let read_apply_fixes_params = (
 )
 let apply_fixes_params_of_string s =
   read_apply_fixes_params (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__manifest_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_manifest
+  )
+)
+let string_of__manifest_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__manifest_list ob x;
+  Buffer.contents ob
+let read__manifest_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_manifest
+  )
+)
+let _manifest_list_of_string s =
+  read__manifest_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_function_call = (
   fun ob x ->
     match x with
@@ -24805,7 +24599,7 @@ let write_function_call = (
       | `CallResolveDependencies x ->
         Buffer.add_string ob "[\"CallResolveDependencies\",";
         (
-          write_resolve_dependencies_params
+          write__manifest_list
         ) ob x;
         Buffer.add_char ob ']'
 )
@@ -24903,7 +24697,7 @@ let read_function_call = (
             | "CallResolveDependencies" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read_resolve_dependencies_params
+                  read__manifest_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -25011,7 +24805,7 @@ let read_function_call = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read_resolve_dependencies_params
+                  read__manifest_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;

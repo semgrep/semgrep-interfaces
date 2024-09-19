@@ -1579,34 +1579,6 @@
         }
       ]
     },
-    "resolve_dependencies_params": {
-      "type": "object",
-      "required": [ "to_resolve" ],
-      "properties": {
-        "to_resolve": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/manifest" }
-        }
-      }
-    },
-    "resolve_dependencies_return": {
-      "type": "object",
-      "required": [ "resolved" ],
-      "properties": {
-        "resolved": {
-          "type": "array",
-          "items": {
-            "type": "array",
-            "minItems": 2,
-            "items": false,
-            "prefixItems": [
-              { "$ref": "#/definitions/manifest" },
-              { "$ref": "#/definitions/resolution_result" }
-            ]
-          }
-        }
-      }
-    },
     "function_call": {
       "oneOf": [
         { "const": "CallContributions" },
@@ -1659,7 +1631,10 @@
           "items": false,
           "prefixItems": [
             { "const": "CallResolveDependencies" },
-            { "$ref": "#/definitions/resolve_dependencies_params" }
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/manifest" }
+            }
           ]
         }
       ]
@@ -1721,7 +1696,18 @@
           "items": false,
           "prefixItems": [
             { "const": "RetResolveDependencies" },
-            { "$ref": "#/definitions/resolve_dependencies_return" }
+            {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "minItems": 2,
+                "items": false,
+                "prefixItems": [
+                  { "$ref": "#/definitions/manifest" },
+                  { "$ref": "#/definitions/resolution_result" }
+                ]
+              }
+            }
           ]
         }
       ]

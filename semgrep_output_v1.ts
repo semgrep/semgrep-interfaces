@@ -852,21 +852,13 @@ export type ResolutionResult =
 | { kind: 'ResolutionOk'; value: FoundDependency[] }
 | { kind: 'ResolutionError'; value: ResolutionError }
 
-export type ResolveDependenciesParams = {
-  to_resolve: Manifest[];
-}
-
-export type ResolveDependenciesReturn = {
-  resolved: [Manifest, ResolutionResult][];
-}
-
 export type FunctionCall =
 | { kind: 'CallContributions' }
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
 | { kind: 'CallSarifFormat'; value: SarifFormatParams }
 | { kind: 'CallFormatter'; value: [OutputFormat, CliOutput] }
 | { kind: 'CallValidate'; value: Fpath }
-| { kind: 'CallResolveDependencies'; value: ResolveDependenciesParams }
+| { kind: 'CallResolveDependencies'; value: Manifest[] }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -875,7 +867,7 @@ export type FunctionReturn =
 | { kind: 'RetContributions'; value: Contributions }
 | { kind: 'RetFormatter'; value: string }
 | { kind: 'RetValidate'; value: boolean }
-| { kind: 'RetResolveDependencies'; value: ResolveDependenciesReturn }
+| { kind: 'RetResolveDependencies'; value: [Manifest, ResolutionResult][] }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
@@ -3476,30 +3468,6 @@ export function readResolutionResult(x: any, context: any = x): ResolutionResult
   }
 }
 
-export function writeResolveDependenciesParams(x: ResolveDependenciesParams, context: any = x): any {
-  return {
-    'to_resolve': _atd_write_required_field('ResolveDependenciesParams', 'to_resolve', _atd_write_array(writeManifest), x.to_resolve, x),
-  };
-}
-
-export function readResolveDependenciesParams(x: any, context: any = x): ResolveDependenciesParams {
-  return {
-    to_resolve: _atd_read_required_field('ResolveDependenciesParams', 'to_resolve', _atd_read_array(readManifest), x['to_resolve'], x),
-  };
-}
-
-export function writeResolveDependenciesReturn(x: ResolveDependenciesReturn, context: any = x): any {
-  return {
-    'resolved': _atd_write_required_field('ResolveDependenciesReturn', 'resolved', _atd_write_array(((x, context) => [writeManifest(x[0], x), writeResolutionResult(x[1], x)])), x.resolved, x),
-  };
-}
-
-export function readResolveDependenciesReturn(x: any, context: any = x): ResolveDependenciesReturn {
-  return {
-    resolved: _atd_read_required_field('ResolveDependenciesReturn', 'resolved', _atd_read_array(((x, context): [Manifest, ResolutionResult] => { _atd_check_json_tuple(2, x, context); return [readManifest(x[0], x), readResolutionResult(x[1], x)] })), x['resolved'], x),
-  };
-}
-
 export function writeFunctionCall(x: FunctionCall, context: any = x): any {
   switch (x.kind) {
     case 'CallContributions':
@@ -3513,7 +3481,7 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
     case 'CallValidate':
       return ['CallValidate', writeFpath(x.value, x)]
     case 'CallResolveDependencies':
-      return ['CallResolveDependencies', writeResolveDependenciesParams(x.value, x)]
+      return ['CallResolveDependencies', _atd_write_array(writeManifest)(x.value, x)]
   }
 }
 
@@ -3539,7 +3507,7 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
       case 'CallValidate':
         return { kind: 'CallValidate', value: readFpath(x[1], x) }
       case 'CallResolveDependencies':
-        return { kind: 'CallResolveDependencies', value: readResolveDependenciesParams(x[1], x) }
+        return { kind: 'CallResolveDependencies', value: _atd_read_array(readManifest)(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -3562,7 +3530,7 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
     case 'RetValidate':
       return ['RetValidate', _atd_write_bool(x.value, x)]
     case 'RetResolveDependencies':
-      return ['RetResolveDependencies', writeResolveDependenciesReturn(x.value, x)]
+      return ['RetResolveDependencies', _atd_write_array(((x, context) => [writeManifest(x[0], x), writeResolutionResult(x[1], x)]))(x.value, x)]
   }
 }
 
@@ -3582,7 +3550,7 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
     case 'RetValidate':
       return { kind: 'RetValidate', value: _atd_read_bool(x[1], x) }
     case 'RetResolveDependencies':
-      return { kind: 'RetResolveDependencies', value: readResolveDependenciesReturn(x[1], x) }
+      return { kind: 'RetResolveDependencies', value: _atd_read_array(((x, context): [Manifest, ResolutionResult] => { _atd_check_json_tuple(2, x, context); return [readManifest(x[0], x), readResolutionResult(x[1], x)] }))(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')

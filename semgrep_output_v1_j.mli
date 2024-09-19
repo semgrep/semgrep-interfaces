@@ -540,23 +540,6 @@ type resolution_error = Semgrep_output_v1_t.resolution_error
 
 type resolution_result = Semgrep_output_v1_t.resolution_result
 
-type manifest_kind = Semgrep_output_v1_t.manifest_kind
-
-type manifest = Semgrep_output_v1_t.manifest = {
-  kind: manifest_kind;
-  path: fpath
-}
-
-type resolve_dependencies_return =
-  Semgrep_output_v1_t.resolve_dependencies_return = {
-  resolved: (manifest * resolution_result) list
-}
-
-type resolve_dependencies_params =
-  Semgrep_output_v1_t.resolve_dependencies_params = {
-  to_resolve: manifest list
-}
-
 type profile = Semgrep_output_v1_t.profile = {
   rules: rule_id list;
   rules_parse_time: float;
@@ -574,6 +557,13 @@ type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
 }
 
 type output_format = Semgrep_output_v1_t.output_format
+
+type manifest_kind = Semgrep_output_v1_t.manifest_kind
+
+type manifest = Semgrep_output_v1_t.manifest = {
+  kind: manifest_kind;
+  path: fpath
+}
 
 type has_features = Semgrep_output_v1_t.has_features = {
   has_autofix: bool;
@@ -2566,86 +2556,6 @@ val resolution_result_of_string :
   string -> resolution_result
   (** Deserialize JSON data of type {!type:resolution_result}. *)
 
-val write_manifest_kind :
-  Buffer.t -> manifest_kind -> unit
-  (** Output a JSON value of type {!type:manifest_kind}. *)
-
-val string_of_manifest_kind :
-  ?len:int -> manifest_kind -> string
-  (** Serialize a value of type {!type:manifest_kind}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_manifest_kind :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> manifest_kind
-  (** Input JSON data of type {!type:manifest_kind}. *)
-
-val manifest_kind_of_string :
-  string -> manifest_kind
-  (** Deserialize JSON data of type {!type:manifest_kind}. *)
-
-val write_manifest :
-  Buffer.t -> manifest -> unit
-  (** Output a JSON value of type {!type:manifest}. *)
-
-val string_of_manifest :
-  ?len:int -> manifest -> string
-  (** Serialize a value of type {!type:manifest}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_manifest :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> manifest
-  (** Input JSON data of type {!type:manifest}. *)
-
-val manifest_of_string :
-  string -> manifest
-  (** Deserialize JSON data of type {!type:manifest}. *)
-
-val write_resolve_dependencies_return :
-  Buffer.t -> resolve_dependencies_return -> unit
-  (** Output a JSON value of type {!type:resolve_dependencies_return}. *)
-
-val string_of_resolve_dependencies_return :
-  ?len:int -> resolve_dependencies_return -> string
-  (** Serialize a value of type {!type:resolve_dependencies_return}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_resolve_dependencies_return :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolve_dependencies_return
-  (** Input JSON data of type {!type:resolve_dependencies_return}. *)
-
-val resolve_dependencies_return_of_string :
-  string -> resolve_dependencies_return
-  (** Deserialize JSON data of type {!type:resolve_dependencies_return}. *)
-
-val write_resolve_dependencies_params :
-  Buffer.t -> resolve_dependencies_params -> unit
-  (** Output a JSON value of type {!type:resolve_dependencies_params}. *)
-
-val string_of_resolve_dependencies_params :
-  ?len:int -> resolve_dependencies_params -> string
-  (** Serialize a value of type {!type:resolve_dependencies_params}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_resolve_dependencies_params :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolve_dependencies_params
-  (** Input JSON data of type {!type:resolve_dependencies_params}. *)
-
-val resolve_dependencies_params_of_string :
-  string -> resolve_dependencies_params
-  (** Deserialize JSON data of type {!type:resolve_dependencies_params}. *)
-
 val write_profile :
   Buffer.t -> profile -> unit
   (** Output a JSON value of type {!type:profile}. *)
@@ -2705,6 +2615,46 @@ val read_output_format :
 val output_format_of_string :
   string -> output_format
   (** Deserialize JSON data of type {!type:output_format}. *)
+
+val write_manifest_kind :
+  Buffer.t -> manifest_kind -> unit
+  (** Output a JSON value of type {!type:manifest_kind}. *)
+
+val string_of_manifest_kind :
+  ?len:int -> manifest_kind -> string
+  (** Serialize a value of type {!type:manifest_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_manifest_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> manifest_kind
+  (** Input JSON data of type {!type:manifest_kind}. *)
+
+val manifest_kind_of_string :
+  string -> manifest_kind
+  (** Deserialize JSON data of type {!type:manifest_kind}. *)
+
+val write_manifest :
+  Buffer.t -> manifest -> unit
+  (** Output a JSON value of type {!type:manifest}. *)
+
+val string_of_manifest :
+  ?len:int -> manifest -> string
+  (** Serialize a value of type {!type:manifest}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_manifest :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> manifest
+  (** Input JSON data of type {!type:manifest}. *)
+
+val manifest_of_string :
+  string -> manifest
+  (** Deserialize JSON data of type {!type:manifest}. *)
 
 val write_has_features :
   Buffer.t -> has_features -> unit
