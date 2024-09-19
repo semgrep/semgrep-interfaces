@@ -1089,7 +1089,7 @@ type dependency_pattern = {
   semver_range: string;
 }
 
-type dependency_child = {
+type dependency_child <python decorator="dataclass(frozen=True)"> = {
   package: string;
   version: string;
 }
@@ -1114,12 +1114,15 @@ type found_dependency = {
    * lockfile_path, this can identify the location of the dependency in the lockfile.
    *)
   ?line_number: int option;
-  (* store child dependency information for calculating path to transitivity*)
+  (* If we have dependency relationship information for this dependency, this field will include
+   *   the name and version of other found_dependency items that this dependency requires. 
+   *   These fields must match values in `package` and `version` of another `found_dependency`
+   *   in the same set *)
   ?children: dependency_child list option;
   (* Git ref of the dependency if the dependency comes directly from a git repo.
    * Examples: refs/heads/main, refs/tags/v1.0.0, e5c704df4d308690fed696faf4c86453b4d88a95
    * since 1.66.0 *)
-  ?git_ref: string option
+  ?git_ref: string option;
 }
 
 (* json names are to maintain backwards compatibility with the python enum it is replacing *)
@@ -1806,6 +1809,39 @@ type output_format = [
   | Emacs
 ]
 
+(* TODO: merge with Manifest_kind.ml *)
+type manifest_kind = [
+  | PomXml
+  | BuildGradle
+]
+
+type manifest = {
+  kind: manifest_kind;
+  path: fpath;
+}
+
+
+type resolution_error
+    <python decorator="dataclass(frozen=True)"> = [
+    | UnsupportedManifest
+    | MissingRequirement of string
+    | ResolutionCmdFailed of resolution_cmd_failed
+    | ParseDependenciesFailed of string
+]
+
+type resolution_cmd_failed
+  <python decorator="dataclass(frozen=True)"> = {
+    command: string;
+    message: string;
+}
+
+type resolution_result = [
+  (* dependency_relationship items each reference an id from found_dependency.id
+    and the IDs of the dependencies that that item depends on *)
+  | ResolutionOk of found_dependency list
+  | ResolutionError of resolution_error
+]
+
 type function_call
     <python decorator="dataclass(frozen=True)"> = [
   | CallContributions
@@ -1817,6 +1853,7 @@ type function_call
      the RPC pipe.
   *)
   | CallValidate of fpath
+  | CallResolveDependencies of manifest list
 ]
 
 type function_return
@@ -1827,4 +1864,5 @@ type function_return
   | RetContributions of contributions
   | RetFormatter of string
   | RetValidate of bool
+  | RetResolveDependencies of (manifest * resolution_result) list
 ]

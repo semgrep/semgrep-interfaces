@@ -828,12 +828,37 @@ export type OutputFormat =
 | { kind: 'Vim' }
 | { kind: 'Emacs' }
 
+export type ManifestKind =
+| { kind: 'PomXml' }
+| { kind: 'BuildGradle' }
+
+export type Manifest = {
+  kind: ManifestKind;
+  path: Fpath;
+}
+
+export type ResolutionError =
+| { kind: 'UnsupportedManifest' }
+| { kind: 'MissingRequirement'; value: string }
+| { kind: 'ResolutionCmdFailed'; value: ResolutionCmdFailed }
+| { kind: 'ParseDependenciesFailed'; value: string }
+
+export type ResolutionCmdFailed = {
+  command: string;
+  message: string;
+}
+
+export type ResolutionResult =
+| { kind: 'ResolutionOk'; value: FoundDependency[] }
+| { kind: 'ResolutionError'; value: ResolutionError }
+
 export type FunctionCall =
 | { kind: 'CallContributions' }
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
 | { kind: 'CallSarifFormat'; value: SarifFormatParams }
 | { kind: 'CallFormatter'; value: [OutputFormat, CliOutput] }
 | { kind: 'CallValidate'; value: Fpath }
+| { kind: 'CallResolveDependencies'; value: Manifest[] }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -842,6 +867,7 @@ export type FunctionReturn =
 | { kind: 'RetContributions'; value: Contributions }
 | { kind: 'RetFormatter'; value: string }
 | { kind: 'RetValidate'; value: boolean }
+| { kind: 'RetResolveDependencies'; value: [Manifest, ResolutionResult][] }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
@@ -3332,6 +3358,116 @@ export function readOutputFormat(x: any, context: any = x): OutputFormat {
   }
 }
 
+export function writeManifestKind(x: ManifestKind, context: any = x): any {
+  switch (x.kind) {
+    case 'PomXml':
+      return 'PomXml'
+    case 'BuildGradle':
+      return 'BuildGradle'
+  }
+}
+
+export function readManifestKind(x: any, context: any = x): ManifestKind {
+  switch (x) {
+    case 'PomXml':
+      return { kind: 'PomXml' }
+    case 'BuildGradle':
+      return { kind: 'BuildGradle' }
+    default:
+      _atd_bad_json('ManifestKind', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeManifest(x: Manifest, context: any = x): any {
+  return {
+    'kind': _atd_write_required_field('Manifest', 'kind', writeManifestKind, x.kind, x),
+    'path': _atd_write_required_field('Manifest', 'path', writeFpath, x.path, x),
+  };
+}
+
+export function readManifest(x: any, context: any = x): Manifest {
+  return {
+    kind: _atd_read_required_field('Manifest', 'kind', readManifestKind, x['kind'], x),
+    path: _atd_read_required_field('Manifest', 'path', readFpath, x['path'], x),
+  };
+}
+
+export function writeResolutionError(x: ResolutionError, context: any = x): any {
+  switch (x.kind) {
+    case 'UnsupportedManifest':
+      return 'UnsupportedManifest'
+    case 'MissingRequirement':
+      return ['MissingRequirement', _atd_write_string(x.value, x)]
+    case 'ResolutionCmdFailed':
+      return ['ResolutionCmdFailed', writeResolutionCmdFailed(x.value, x)]
+    case 'ParseDependenciesFailed':
+      return ['ParseDependenciesFailed', _atd_write_string(x.value, x)]
+  }
+}
+
+export function readResolutionError(x: any, context: any = x): ResolutionError {
+  if (typeof x === 'string') {
+    switch (x) {
+      case 'UnsupportedManifest':
+        return { kind: 'UnsupportedManifest' }
+      default:
+        _atd_bad_json('ResolutionError', x, context)
+        throw new Error('impossible')
+    }
+  }
+  else {
+    _atd_check_json_tuple(2, x, context)
+    switch (x[0]) {
+      case 'MissingRequirement':
+        return { kind: 'MissingRequirement', value: _atd_read_string(x[1], x) }
+      case 'ResolutionCmdFailed':
+        return { kind: 'ResolutionCmdFailed', value: readResolutionCmdFailed(x[1], x) }
+      case 'ParseDependenciesFailed':
+        return { kind: 'ParseDependenciesFailed', value: _atd_read_string(x[1], x) }
+      default:
+        _atd_bad_json('ResolutionError', x, context)
+        throw new Error('impossible')
+    }
+  }
+}
+
+export function writeResolutionCmdFailed(x: ResolutionCmdFailed, context: any = x): any {
+  return {
+    'command': _atd_write_required_field('ResolutionCmdFailed', 'command', _atd_write_string, x.command, x),
+    'message': _atd_write_required_field('ResolutionCmdFailed', 'message', _atd_write_string, x.message, x),
+  };
+}
+
+export function readResolutionCmdFailed(x: any, context: any = x): ResolutionCmdFailed {
+  return {
+    command: _atd_read_required_field('ResolutionCmdFailed', 'command', _atd_read_string, x['command'], x),
+    message: _atd_read_required_field('ResolutionCmdFailed', 'message', _atd_read_string, x['message'], x),
+  };
+}
+
+export function writeResolutionResult(x: ResolutionResult, context: any = x): any {
+  switch (x.kind) {
+    case 'ResolutionOk':
+      return ['ResolutionOk', _atd_write_array(writeFoundDependency)(x.value, x)]
+    case 'ResolutionError':
+      return ['ResolutionError', writeResolutionError(x.value, x)]
+  }
+}
+
+export function readResolutionResult(x: any, context: any = x): ResolutionResult {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'ResolutionOk':
+      return { kind: 'ResolutionOk', value: _atd_read_array(readFoundDependency)(x[1], x) }
+    case 'ResolutionError':
+      return { kind: 'ResolutionError', value: readResolutionError(x[1], x) }
+    default:
+      _atd_bad_json('ResolutionResult', x, context)
+      throw new Error('impossible')
+  }
+}
+
 export function writeFunctionCall(x: FunctionCall, context: any = x): any {
   switch (x.kind) {
     case 'CallContributions':
@@ -3344,6 +3480,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallFormatter', ((x, context) => [writeOutputFormat(x[0], x), writeCliOutput(x[1], x)])(x.value, x)]
     case 'CallValidate':
       return ['CallValidate', writeFpath(x.value, x)]
+    case 'CallResolveDependencies':
+      return ['CallResolveDependencies', _atd_write_array(writeManifest)(x.value, x)]
   }
 }
 
@@ -3368,6 +3506,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallFormatter', value: ((x, context): [OutputFormat, CliOutput] => { _atd_check_json_tuple(2, x, context); return [readOutputFormat(x[0], x), readCliOutput(x[1], x)] })(x[1], x) }
       case 'CallValidate':
         return { kind: 'CallValidate', value: readFpath(x[1], x) }
+      case 'CallResolveDependencies':
+        return { kind: 'CallResolveDependencies', value: _atd_read_array(readManifest)(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -3389,6 +3529,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetFormatter', _atd_write_string(x.value, x)]
     case 'RetValidate':
       return ['RetValidate', _atd_write_bool(x.value, x)]
+    case 'RetResolveDependencies':
+      return ['RetResolveDependencies', _atd_write_array(((x, context) => [writeManifest(x[0], x), writeResolutionResult(x[1], x)]))(x.value, x)]
   }
 }
 
@@ -3407,6 +3549,8 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetFormatter', value: _atd_read_string(x[1], x) }
     case 'RetValidate':
       return { kind: 'RetValidate', value: _atd_read_bool(x[1], x) }
+    case 'RetResolveDependencies':
+      return { kind: 'RetResolveDependencies', value: _atd_read_array(((x, context): [Manifest, ResolutionResult] => { _atd_check_json_tuple(2, x, context); return [readManifest(x[0], x), readResolutionResult(x[1], x)] }))(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')

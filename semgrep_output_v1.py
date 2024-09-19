@@ -4413,7 +4413,7 @@ class Ecosystem:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class DependencyChild:
     """Original type: dependency_child = { ... }"""
 
@@ -5644,6 +5644,216 @@ class RuleIdAndEngineKind:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class ResolutionCmdFailed:
+    """Original type: resolution_cmd_failed = { ... }"""
+
+    command: str
+    message: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolutionCmdFailed':
+        if isinstance(x, dict):
+            return cls(
+                command=_atd_read_string(x['command']) if 'command' in x else _atd_missing_json_field('ResolutionCmdFailed', 'command'),
+                message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('ResolutionCmdFailed', 'message'),
+            )
+        else:
+            _atd_bad_json('ResolutionCmdFailed', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['command'] = _atd_write_string(self.command)
+        res['message'] = _atd_write_string(self.message)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolutionCmdFailed':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class UnsupportedManifest:
+    """Original type: resolution_error = [ ... | UnsupportedManifest | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'UnsupportedManifest'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'UnsupportedManifest'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class MissingRequirement:
+    """Original type: resolution_error = [ ... | MissingRequirement of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'MissingRequirement'
+
+    def to_json(self) -> Any:
+        return ['MissingRequirement', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ResolutionCmdFailed_:
+    """Original type: resolution_error = [ ... | ResolutionCmdFailed of ... | ... ]"""
+
+    value: ResolutionCmdFailed
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ResolutionCmdFailed_'
+
+    def to_json(self) -> Any:
+        return ['ResolutionCmdFailed', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ParseDependenciesFailed:
+    """Original type: resolution_error = [ ... | ParseDependenciesFailed of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ParseDependenciesFailed'
+
+    def to_json(self) -> Any:
+        return ['ParseDependenciesFailed', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ResolutionError:
+    """Original type: resolution_error = [ ... ]"""
+
+    value: Union[UnsupportedManifest, MissingRequirement, ResolutionCmdFailed_, ParseDependenciesFailed]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolutionError':
+        if isinstance(x, str):
+            if x == 'UnsupportedManifest':
+                return cls(UnsupportedManifest())
+            _atd_bad_json('ResolutionError', x)
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'MissingRequirement':
+                return cls(MissingRequirement(_atd_read_string(x[1])))
+            if cons == 'ResolutionCmdFailed':
+                return cls(ResolutionCmdFailed_(ResolutionCmdFailed.from_json(x[1])))
+            if cons == 'ParseDependenciesFailed':
+                return cls(ParseDependenciesFailed(_atd_read_string(x[1])))
+            _atd_bad_json('ResolutionError', x)
+        _atd_bad_json('ResolutionError', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolutionError':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ResolutionOk:
+    """Original type: resolution_result = [ ... | ResolutionOk of ... | ... ]"""
+
+    value: List[FoundDependency]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ResolutionOk'
+
+    def to_json(self) -> Any:
+        return ['ResolutionOk', _atd_write_list((lambda x: x.to_json()))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ResolutionError_:
+    """Original type: resolution_result = [ ... | ResolutionError of ... | ... ]"""
+
+    value: ResolutionError
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ResolutionError_'
+
+    def to_json(self) -> Any:
+        return ['ResolutionError', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ResolutionResult:
+    """Original type: resolution_result = [ ... ]"""
+
+    value: Union[ResolutionOk, ResolutionError_]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolutionResult':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'ResolutionOk':
+                return cls(ResolutionOk(_atd_read_list(FoundDependency.from_json)(x[1])))
+            if cons == 'ResolutionError':
+                return cls(ResolutionError_(ResolutionError.from_json(x[1])))
+            _atd_bad_json('ResolutionResult', x)
+        _atd_bad_json('ResolutionResult', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolutionResult':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class Profile:
     """Original type: profile = { ... }"""
@@ -5785,6 +5995,103 @@ class OutputFormat:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'OutputFormat':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PomXml:
+    """Original type: manifest_kind = [ ... | PomXml | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PomXml'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PomXml'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class BuildGradle:
+    """Original type: manifest_kind = [ ... | BuildGradle | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'BuildGradle'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'BuildGradle'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ManifestKind:
+    """Original type: manifest_kind = [ ... ]"""
+
+    value: Union[PomXml, BuildGradle]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ManifestKind':
+        if isinstance(x, str):
+            if x == 'PomXml':
+                return cls(PomXml())
+            if x == 'BuildGradle':
+                return cls(BuildGradle())
+            _atd_bad_json('ManifestKind', x)
+        _atd_bad_json('ManifestKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ManifestKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Manifest:
+    """Original type: manifest = { ... }"""
+
+    kind: ManifestKind
+    path: Fpath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Manifest':
+        if isinstance(x, dict):
+            return cls(
+                kind=ManifestKind.from_json(x['kind']) if 'kind' in x else _atd_missing_json_field('Manifest', 'kind'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('Manifest', 'path'),
+            )
+        else:
+            _atd_bad_json('Manifest', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['kind'] = (lambda x: x.to_json())(self.kind)
+        res['path'] = (lambda x: x.to_json())(self.path)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Manifest':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -6054,10 +6361,28 @@ class RetValidate:
 
 
 @dataclass(frozen=True)
+class RetResolveDependencies:
+    """Original type: function_return = [ ... | RetResolveDependencies of ... | ... ]"""
+
+    value: List[Tuple[Manifest, ResolutionResult]]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetResolveDependencies'
+
+    def to_json(self) -> Any:
+        return ['RetResolveDependencies', _atd_write_list((lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionReturn:
     """Original type: function_return = [ ... ]"""
 
-    value: Union[RetError, RetApplyFixes, RetSarifFormat, RetContributions, RetFormatter, RetValidate]
+    value: Union[RetError, RetApplyFixes, RetSarifFormat, RetContributions, RetFormatter, RetValidate, RetResolveDependencies]
 
     @property
     def kind(self) -> str:
@@ -6080,6 +6405,8 @@ class FunctionReturn:
                 return cls(RetFormatter(_atd_read_string(x[1])))
             if cons == 'RetValidate':
                 return cls(RetValidate(_atd_read_bool(x[1])))
+            if cons == 'RetResolveDependencies':
+                return cls(RetResolveDependencies(_atd_read_list((lambda x: (Manifest.from_json(x[0]), ResolutionResult.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x[1])))
             _atd_bad_json('FunctionReturn', x)
         _atd_bad_json('FunctionReturn', x)
 
@@ -6313,10 +6640,28 @@ class CallValidate:
 
 
 @dataclass(frozen=True)
+class CallResolveDependencies:
+    """Original type: function_call = [ ... | CallResolveDependencies of ... | ... ]"""
+
+    value: List[Manifest]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallResolveDependencies'
+
+    def to_json(self) -> Any:
+        return ['CallResolveDependencies', _atd_write_list((lambda x: x.to_json()))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionCall:
     """Original type: function_call = [ ... ]"""
 
-    value: Union[CallContributions, CallApplyFixes, CallSarifFormat, CallFormatter, CallValidate]
+    value: Union[CallContributions, CallApplyFixes, CallSarifFormat, CallFormatter, CallValidate, CallResolveDependencies]
 
     @property
     def kind(self) -> str:
@@ -6339,6 +6684,8 @@ class FunctionCall:
                 return cls(CallFormatter((lambda x: (OutputFormat.from_json(x[0]), CliOutput.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
             if cons == 'CallValidate':
                 return cls(CallValidate(Fpath.from_json(x[1])))
+            if cons == 'CallResolveDependencies':
+                return cls(CallResolveDependencies(_atd_read_list(Manifest.from_json)(x[1])))
             _atd_bad_json('FunctionCall', x)
         _atd_bad_json('FunctionCall', x)
 

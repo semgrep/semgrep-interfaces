@@ -1505,6 +1505,80 @@
     "output_format": {
       "oneOf": [ { "const": "Vim" }, { "const": "Emacs" } ]
     },
+    "manifest_kind": {
+      "oneOf": [ { "const": "PomXml" }, { "const": "BuildGradle" } ]
+    },
+    "manifest": {
+      "type": "object",
+      "required": [ "kind", "path" ],
+      "properties": {
+        "kind": { "$ref": "#/definitions/manifest_kind" },
+        "path": { "$ref": "#/definitions/fpath" }
+      }
+    },
+    "resolution_error": {
+      "oneOf": [
+        { "const": "UnsupportedManifest" },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "MissingRequirement" }, { "type": "string" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ResolutionCmdFailed" },
+            { "$ref": "#/definitions/resolution_cmd_failed" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ParseDependenciesFailed" }, { "type": "string" }
+          ]
+        }
+      ]
+    },
+    "resolution_cmd_failed": {
+      "type": "object",
+      "required": [ "command", "message" ],
+      "properties": {
+        "command": { "type": "string" },
+        "message": { "type": "string" }
+      }
+    },
+    "resolution_result": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ResolutionOk" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/found_dependency" }
+            }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ResolutionError" },
+            { "$ref": "#/definitions/resolution_error" }
+          ]
+        }
+      ]
+    },
     "function_call": {
       "oneOf": [
         { "const": "CallContributions" },
@@ -1549,6 +1623,18 @@
           "items": false,
           "prefixItems": [
             { "const": "CallValidate" }, { "$ref": "#/definitions/fpath" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CallResolveDependencies" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/manifest" }
+            }
           ]
         }
       ]
@@ -1602,6 +1688,26 @@
           "items": false,
           "prefixItems": [
             { "const": "RetValidate" }, { "type": "boolean" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "RetResolveDependencies" },
+            {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "minItems": 2,
+                "items": false,
+                "prefixItems": [
+                  { "$ref": "#/definitions/manifest" },
+                  { "$ref": "#/definitions/resolution_result" }
+                ]
+              }
+            }
           ]
         }
       ]
