@@ -598,7 +598,7 @@ not ambiguous is welcome here.
         id_="xml",
         name="XML",
         keys=["xml"],
-        exts=[".xml"],
+        exts=[".xml", ".plist"],
         example_ext=".xml",
         maturity=Maturity.ALPHA,
         shebangs=[]
