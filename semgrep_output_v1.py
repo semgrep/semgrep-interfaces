@@ -6379,10 +6379,28 @@ class RetResolveDependencies:
 
 
 @dataclass(frozen=True)
+class RetDumpRulePartitions:
+    """Original type: function_return = [ ... | RetDumpRulePartitions of ... | ... ]"""
+
+    value: bool
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetDumpRulePartitions'
+
+    def to_json(self) -> Any:
+        return ['RetDumpRulePartitions', _atd_write_bool(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionReturn:
     """Original type: function_return = [ ... ]"""
 
-    value: Union[RetError, RetApplyFixes, RetSarifFormat, RetContributions, RetFormatter, RetValidate, RetResolveDependencies]
+    value: Union[RetError, RetApplyFixes, RetSarifFormat, RetContributions, RetFormatter, RetValidate, RetResolveDependencies, RetDumpRulePartitions]
 
     @property
     def kind(self) -> str:
@@ -6407,6 +6425,8 @@ class FunctionReturn:
                 return cls(RetValidate(_atd_read_bool(x[1])))
             if cons == 'RetResolveDependencies':
                 return cls(RetResolveDependencies(_atd_read_list((lambda x: (Manifest.from_json(x[0]), ResolutionResult.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x[1])))
+            if cons == 'RetDumpRulePartitions':
+                return cls(RetDumpRulePartitions(_atd_read_bool(x[1])))
             _atd_bad_json('FunctionReturn', x)
         _atd_bad_json('FunctionReturn', x)
 
@@ -6452,6 +6472,40 @@ class Edit:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Edit':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DumpRulePartitionsParams:
+    """Original type: dump_rule_partitions_params = { ... }"""
+
+    rules: RawJson
+    n_partitions: int
+    output_dir: Fpath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DumpRulePartitionsParams':
+        if isinstance(x, dict):
+            return cls(
+                rules=RawJson.from_json(x['rules']) if 'rules' in x else _atd_missing_json_field('DumpRulePartitionsParams', 'rules'),
+                n_partitions=_atd_read_int(x['n_partitions']) if 'n_partitions' in x else _atd_missing_json_field('DumpRulePartitionsParams', 'n_partitions'),
+                output_dir=Fpath.from_json(x['output_dir']) if 'output_dir' in x else _atd_missing_json_field('DumpRulePartitionsParams', 'output_dir'),
+            )
+        else:
+            _atd_bad_json('DumpRulePartitionsParams', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['rules'] = (lambda x: x.to_json())(self.rules)
+        res['n_partitions'] = _atd_write_int(self.n_partitions)
+        res['output_dir'] = (lambda x: x.to_json())(self.output_dir)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DumpRulePartitionsParams':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -6658,10 +6712,28 @@ class CallResolveDependencies:
 
 
 @dataclass(frozen=True)
+class CallDumpRulePartitions:
+    """Original type: function_call = [ ... | CallDumpRulePartitions of ... | ... ]"""
+
+    value: DumpRulePartitionsParams
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallDumpRulePartitions'
+
+    def to_json(self) -> Any:
+        return ['CallDumpRulePartitions', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionCall:
     """Original type: function_call = [ ... ]"""
 
-    value: Union[CallContributions, CallApplyFixes, CallSarifFormat, CallFormatter, CallValidate, CallResolveDependencies]
+    value: Union[CallContributions, CallApplyFixes, CallSarifFormat, CallFormatter, CallValidate, CallResolveDependencies, CallDumpRulePartitions]
 
     @property
     def kind(self) -> str:
@@ -6686,6 +6758,8 @@ class FunctionCall:
                 return cls(CallValidate(Fpath.from_json(x[1])))
             if cons == 'CallResolveDependencies':
                 return cls(CallResolveDependencies(_atd_read_list(Manifest.from_json)(x[1])))
+            if cons == 'CallDumpRulePartitions':
+                return cls(CallDumpRulePartitions(DumpRulePartitionsParams.from_json(x[1])))
             _atd_bad_json('FunctionCall', x)
         _atd_bad_json('FunctionCall', x)
 

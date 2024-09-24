@@ -852,6 +852,12 @@ export type ResolutionResult =
 | { kind: 'ResolutionOk'; value: FoundDependency[] }
 | { kind: 'ResolutionError'; value: ResolutionError }
 
+export type DumpRulePartitionsParams = {
+  rules: RawJson;
+  n_partitions: number /*int*/;
+  output_dir: Fpath;
+}
+
 export type FunctionCall =
 | { kind: 'CallContributions' }
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
@@ -859,6 +865,7 @@ export type FunctionCall =
 | { kind: 'CallFormatter'; value: [OutputFormat, CliOutput] }
 | { kind: 'CallValidate'; value: Fpath }
 | { kind: 'CallResolveDependencies'; value: Manifest[] }
+| { kind: 'CallDumpRulePartitions'; value: DumpRulePartitionsParams }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -868,6 +875,7 @@ export type FunctionReturn =
 | { kind: 'RetFormatter'; value: string }
 | { kind: 'RetValidate'; value: boolean }
 | { kind: 'RetResolveDependencies'; value: [Manifest, ResolutionResult][] }
+| { kind: 'RetDumpRulePartitions'; value: boolean }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
@@ -3468,6 +3476,22 @@ export function readResolutionResult(x: any, context: any = x): ResolutionResult
   }
 }
 
+export function writeDumpRulePartitionsParams(x: DumpRulePartitionsParams, context: any = x): any {
+  return {
+    'rules': _atd_write_required_field('DumpRulePartitionsParams', 'rules', writeRawJson, x.rules, x),
+    'n_partitions': _atd_write_required_field('DumpRulePartitionsParams', 'n_partitions', _atd_write_int, x.n_partitions, x),
+    'output_dir': _atd_write_required_field('DumpRulePartitionsParams', 'output_dir', writeFpath, x.output_dir, x),
+  };
+}
+
+export function readDumpRulePartitionsParams(x: any, context: any = x): DumpRulePartitionsParams {
+  return {
+    rules: _atd_read_required_field('DumpRulePartitionsParams', 'rules', readRawJson, x['rules'], x),
+    n_partitions: _atd_read_required_field('DumpRulePartitionsParams', 'n_partitions', _atd_read_int, x['n_partitions'], x),
+    output_dir: _atd_read_required_field('DumpRulePartitionsParams', 'output_dir', readFpath, x['output_dir'], x),
+  };
+}
+
 export function writeFunctionCall(x: FunctionCall, context: any = x): any {
   switch (x.kind) {
     case 'CallContributions':
@@ -3482,6 +3506,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallValidate', writeFpath(x.value, x)]
     case 'CallResolveDependencies':
       return ['CallResolveDependencies', _atd_write_array(writeManifest)(x.value, x)]
+    case 'CallDumpRulePartitions':
+      return ['CallDumpRulePartitions', writeDumpRulePartitionsParams(x.value, x)]
   }
 }
 
@@ -3508,6 +3534,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallValidate', value: readFpath(x[1], x) }
       case 'CallResolveDependencies':
         return { kind: 'CallResolveDependencies', value: _atd_read_array(readManifest)(x[1], x) }
+      case 'CallDumpRulePartitions':
+        return { kind: 'CallDumpRulePartitions', value: readDumpRulePartitionsParams(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -3531,6 +3559,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetValidate', _atd_write_bool(x.value, x)]
     case 'RetResolveDependencies':
       return ['RetResolveDependencies', _atd_write_array(((x, context) => [writeManifest(x[0], x), writeResolutionResult(x[1], x)]))(x.value, x)]
+    case 'RetDumpRulePartitions':
+      return ['RetDumpRulePartitions', _atd_write_bool(x.value, x)]
   }
 }
 
@@ -3551,6 +3581,8 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetValidate', value: _atd_read_bool(x[1], x) }
     case 'RetResolveDependencies':
       return { kind: 'RetResolveDependencies', value: _atd_read_array(((x, context): [Manifest, ResolutionResult] => { _atd_check_json_tuple(2, x, context); return [readManifest(x[0], x), readResolutionResult(x[1], x)] }))(x[1], x) }
+    case 'RetDumpRulePartitions':
+      return { kind: 'RetDumpRulePartitions', value: _atd_read_bool(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')

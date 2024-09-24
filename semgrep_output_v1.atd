@@ -1801,7 +1801,7 @@ type sarif_format_return
    * performace when needed.
    *)
   format_time_seconds: float;
-  }
+}
 
 (* TODO: merge with src/osemgrep/reporting/Output_format.ml *)
 type output_format = [
@@ -1819,7 +1819,6 @@ type manifest = {
   kind: manifest_kind;
   path: fpath;
 }
-
 
 type resolution_error
     <python decorator="dataclass(frozen=True)"> = [
@@ -1842,6 +1841,12 @@ type resolution_result = [
   | ResolutionError of resolution_error
 ]
 
+type dump_rule_partitions_params = {
+  rules: raw_json;
+  n_partitions: int;
+  output_dir: fpath;
+}
+
 type function_call
     <python decorator="dataclass(frozen=True)"> = [
   | CallContributions
@@ -1854,6 +1859,7 @@ type function_call
   *)
   | CallValidate of fpath
   | CallResolveDependencies of manifest list
+  | CallDumpRulePartitions of dump_rule_partitions_params
 ]
 
 type function_return
@@ -1865,4 +1871,5 @@ type function_return
   | RetFormatter of string
   | RetValidate of bool
   | RetResolveDependencies of (manifest * resolution_result) list
+  | RetDumpRulePartitions of bool
 ]

@@ -1579,6 +1579,15 @@
         }
       ]
     },
+    "dump_rule_partitions_params": {
+      "type": "object",
+      "required": [ "rules", "n_partitions", "output_dir" ],
+      "properties": {
+        "rules": { "$ref": "#/definitions/raw_json" },
+        "n_partitions": { "type": "integer" },
+        "output_dir": { "$ref": "#/definitions/fpath" }
+      }
+    },
     "function_call": {
       "oneOf": [
         { "const": "CallContributions" },
@@ -1635,6 +1644,15 @@
               "type": "array",
               "items": { "$ref": "#/definitions/manifest" }
             }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CallDumpRulePartitions" },
+            { "$ref": "#/definitions/dump_rule_partitions_params" }
           ]
         }
       ]
@@ -1708,6 +1726,14 @@
                 ]
               }
             }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "RetDumpRulePartitions" }, { "type": "boolean" }
           ]
         }
       ]

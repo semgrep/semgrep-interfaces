@@ -599,6 +599,13 @@ type edit = Semgrep_output_v1_t.edit = {
   replacement_text: string
 }
 
+type dump_rule_partitions_params =
+  Semgrep_output_v1_t.dump_rule_partitions_params = {
+  rules: raw_json;
+  n_partitions: int;
+  output_dir: fpath
+}
+
 type cli_output = Semgrep_output_v1_t.cli_output = {
   version: version option;
   errors: cli_error list;
@@ -2795,6 +2802,26 @@ val read_edit :
 val edit_of_string :
   string -> edit
   (** Deserialize JSON data of type {!type:edit}. *)
+
+val write_dump_rule_partitions_params :
+  Buffer.t -> dump_rule_partitions_params -> unit
+  (** Output a JSON value of type {!type:dump_rule_partitions_params}. *)
+
+val string_of_dump_rule_partitions_params :
+  ?len:int -> dump_rule_partitions_params -> string
+  (** Serialize a value of type {!type:dump_rule_partitions_params}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_dump_rule_partitions_params :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dump_rule_partitions_params
+  (** Input JSON data of type {!type:dump_rule_partitions_params}. *)
+
+val dump_rule_partitions_params_of_string :
+  string -> dump_rule_partitions_params
+  (** Deserialize JSON data of type {!type:dump_rule_partitions_params}. *)
 
 val write_cli_output :
   Buffer.t -> cli_output -> unit
