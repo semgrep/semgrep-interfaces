@@ -6526,6 +6526,7 @@ class CliOutput:
     engine_requested: Optional[EngineKind] = None
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
+    extra_extra: Optional[RawJson] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutput':
@@ -6541,6 +6542,7 @@ class CliOutput:
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
+                extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
             )
         else:
             _atd_bad_json('CliOutput', x)
@@ -6563,6 +6565,8 @@ class CliOutput:
         if self.interfile_languages_used is not None:
             res['interfile_languages_used'] = _atd_write_list(_atd_write_string)(self.interfile_languages_used)
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
+        if self.extra_extra is not None:
+            res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
         return res
 
     @classmethod
@@ -7135,6 +7139,7 @@ class CoreOutput:
     engine_requested: Optional[EngineKind] = None
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
+    extra_extra: Optional[RawJson] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreOutput':
@@ -7150,6 +7155,7 @@ class CoreOutput:
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
+                extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
             )
         else:
             _atd_bad_json('CoreOutput', x)
@@ -7172,6 +7178,8 @@ class CoreOutput:
         if self.interfile_languages_used is not None:
             res['interfile_languages_used'] = _atd_write_list(_atd_write_string)(self.interfile_languages_used)
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
+        if self.extra_extra is not None:
+            res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
         return res
 
     @classmethod
@@ -7193,6 +7201,7 @@ class CliOutputExtra:
     engine_requested: Optional[EngineKind] = None
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
+    extra_extra: Optional[RawJson] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutputExtra':
@@ -7205,6 +7214,7 @@ class CliOutputExtra:
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
+                extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
             )
         else:
             _atd_bad_json('CliOutputExtra', x)
@@ -7223,6 +7233,8 @@ class CliOutputExtra:
         if self.interfile_languages_used is not None:
             res['interfile_languages_used'] = _atd_write_list(_atd_write_string)(self.interfile_languages_used)
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
+        if self.extra_extra is not None:
+            res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
         return res
 
     @classmethod
