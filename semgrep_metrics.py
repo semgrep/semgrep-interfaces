@@ -406,11 +406,45 @@ class SecretsConfig:
 
 
 @dataclass
+class ProNamingStat:
+    """Original type: pro_naming_stat = { ... }"""
+
+    numInterfaceVarResolved: Optional[int] = None
+    numInterfaceMethodResolved: Optional[int] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ProNamingStat':
+        if isinstance(x, dict):
+            return cls(
+                numInterfaceVarResolved=_atd_read_int(x['numInterfaceVarResolved']) if 'numInterfaceVarResolved' in x else None,
+                numInterfaceMethodResolved=_atd_read_int(x['numInterfaceMethodResolved']) if 'numInterfaceMethodResolved' in x else None,
+            )
+        else:
+            _atd_bad_json('ProNamingStat', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        if self.numInterfaceVarResolved is not None:
+            res['numInterfaceVarResolved'] = _atd_write_int(self.numInterfaceVarResolved)
+        if self.numInterfaceMethodResolved is not None:
+            res['numInterfaceMethodResolved'] = _atd_write_int(self.numInterfaceMethodResolved)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ProNamingStat':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class ProFeatures:
     """Original type: pro_features = { ... }"""
 
     diffDepth: Optional[int] = None
     numInterfileDiffScanned: Optional[List[Tuple[str, int]]] = None
+    proNamingStat: Optional[ProNamingStat] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ProFeatures':
@@ -418,6 +452,7 @@ class ProFeatures:
             return cls(
                 diffDepth=_atd_read_int(x['diffDepth']) if 'diffDepth' in x else None,
                 numInterfileDiffScanned=_atd_read_assoc_object_into_list(_atd_read_int)(x['numInterfileDiffScanned']) if 'numInterfileDiffScanned' in x else None,
+                proNamingStat=ProNamingStat.from_json(x['proNamingStat']) if 'proNamingStat' in x else None,
             )
         else:
             _atd_bad_json('ProFeatures', x)
@@ -428,6 +463,8 @@ class ProFeatures:
             res['diffDepth'] = _atd_write_int(self.diffDepth)
         if self.numInterfileDiffScanned is not None:
             res['numInterfileDiffScanned'] = _atd_write_assoc_list_to_object(_atd_write_int)(self.numInterfileDiffScanned)
+        if self.proNamingStat is not None:
+            res['proNamingStat'] = (lambda x: x.to_json())(self.proNamingStat)
         return res
 
     @classmethod

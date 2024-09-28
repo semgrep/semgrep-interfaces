@@ -32,7 +32,8 @@
     "skipped_rules": {
       "type": "array",
       "items": { "$ref": "#/definitions/skipped_rule" }
-    }
+    },
+    "extra_extra": { "$ref": "#/definitions/raw_json" }
   },
   "definitions": {
     "raw_json": {},
@@ -595,7 +596,8 @@
         "skipped_rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
-        }
+        },
+        "extra_extra": { "$ref": "#/definitions/raw_json" }
       }
     },
     "cli_output_extra": {
@@ -620,7 +622,8 @@
         "skipped_rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
-        }
+        },
+        "extra_extra": { "$ref": "#/definitions/raw_json" }
       }
     },
     "matching_diagnosis": {
