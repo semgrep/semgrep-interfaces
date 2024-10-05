@@ -464,7 +464,11 @@
           "items": { "$ref": "#/definitions/target_times" }
         },
         "total_bytes": { "type": "integer" },
-        "max_memory_bytes": { "type": "integer" }
+        "max_memory_bytes": { "type": "integer" },
+        "aggregated_stats": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/stats" }
+        }
       }
     },
     "target_times": {
@@ -478,6 +482,57 @@
         "match_times": { "type": "array", "items": { "type": "number" } },
         "parse_times": { "type": "array", "items": { "type": "number" } },
         "run_time": { "type": "number" }
+      }
+    },
+    "stats": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "Histogram" }, { "$ref": "#/definitions/stat" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "TopN" }, { "$ref": "#/definitions/stat" }
+          ]
+        }
+      ]
+    },
+    "stat": {
+      "type": "object",
+      "required": [ "description", "labeled_data" ],
+      "properties": {
+        "description": { "type": "string" },
+        "labeled_data": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "items": false,
+            "prefixItems": [
+              {
+                "oneOf": [
+                  {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": false,
+                    "prefixItems": [
+                      { "const": "Some" }, { "type": "string" }
+                    ]
+                  },
+                  { "const": "None" }
+                ]
+              },
+              { "type": "number" }
+            ]
+          }
+        }
       }
     },
     "matching_explanation": {

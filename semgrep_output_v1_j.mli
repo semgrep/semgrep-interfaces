@@ -226,6 +226,13 @@ type target_times = Semgrep_output_v1_t.target_times = {
 
 type tag = Semgrep_output_v1_t.tag
 
+type stat = Semgrep_output_v1_t.stat = {
+  description: string;
+  labeled_data: (string option * float) list
+}
+
+type stats = Semgrep_output_v1_t.stats
+
 type skip_reason = Semgrep_output_v1_t.skip_reason = 
     Always_skipped | Semgrepignore_patterns_match
   | Cli_include_flags_do_not_match | Cli_exclude_flags_match
@@ -546,7 +553,8 @@ type profile = Semgrep_output_v1_t.profile = {
   profiling_times: (string * float) list;
   targets: target_times list;
   total_bytes: int;
-  max_memory_bytes: int option
+  max_memory_bytes: int option;
+  aggregated_stats: stats list option
 }
 
 type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
@@ -1722,6 +1730,46 @@ val read_tag :
 val tag_of_string :
   string -> tag
   (** Deserialize JSON data of type {!type:tag}. *)
+
+val write_stat :
+  Buffer.t -> stat -> unit
+  (** Output a JSON value of type {!type:stat}. *)
+
+val string_of_stat :
+  ?len:int -> stat -> string
+  (** Serialize a value of type {!type:stat}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_stat :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> stat
+  (** Input JSON data of type {!type:stat}. *)
+
+val stat_of_string :
+  string -> stat
+  (** Deserialize JSON data of type {!type:stat}. *)
+
+val write_stats :
+  Buffer.t -> stats -> unit
+  (** Output a JSON value of type {!type:stats}. *)
+
+val string_of_stats :
+  ?len:int -> stats -> string
+  (** Serialize a value of type {!type:stats}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_stats :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> stats
+  (** Input JSON data of type {!type:stats}. *)
+
+val stats_of_string :
+  string -> stats
+  (** Deserialize JSON data of type {!type:stats}. *)
 
 val write_skip_reason :
   Buffer.t -> skip_reason -> unit
