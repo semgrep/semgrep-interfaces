@@ -228,7 +228,7 @@ type tag = Semgrep_output_v1_t.tag
 
 type stat = Semgrep_output_v1_t.stat = {
   description: string;
-  labeled_data: (string option * float) list
+  labeled_data: (string * float) list
 }
 
 type stats = Semgrep_output_v1_t.stats
@@ -554,7 +554,7 @@ type profile = Semgrep_output_v1_t.profile = {
   targets: target_times list;
   total_bytes: int;
   max_memory_bytes: int option;
-  aggregated_stats: stats list option
+  aggregated_stats: stats list
 }
 
 type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
@@ -8507,13 +8507,13 @@ let read_tag = (
 )
 let tag_of_string s =
   read_tag (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__string_option_float_list = (
+let write__string_float_list = (
   Atdgen_runtime.Oj_run.write_list (
     fun ob x ->
       Buffer.add_char ob '[';
       (let x, _ = x in
       (
-        write__string_option
+        Yojson.Safe.write_string
       ) ob x
       );
       Buffer.add_char ob ',';
@@ -8525,11 +8525,11 @@ let write__string_option_float_list = (
       Buffer.add_char ob ']';
   )
 )
-let string_of__string_option_float_list ?(len = 1024) x =
+let string_of__string_float_list ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__string_option_float_list ob x;
+  write__string_float_list ob x;
   Buffer.contents ob
-let read__string_option_float_list = (
+let read__string_float_list = (
   Atdgen_runtime.Oj_run.read_list (
     fun p lb ->
       Yojson.Safe.read_space p lb;
@@ -8540,7 +8540,7 @@ let read__string_option_float_list = (
         let x0 =
           let x =
             (
-              read__string_option
+              Atdgen_runtime.Oj_run.read_string
             ) p lb
           in
           incr len;
@@ -8575,8 +8575,8 @@ let read__string_option_float_list = (
         Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
   )
 )
-let _string_option_float_list_of_string s =
-  read__string_option_float_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _string_float_list_of_string s =
+  read__string_float_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_stat : _ -> stat -> _ = (
   fun ob (x : stat) ->
     Buffer.add_char ob '{';
@@ -8596,7 +8596,7 @@ let write_stat : _ -> stat -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"labeled_data\":";
     (
-      write__string_option_float_list
+      write__string_float_list
     )
       ob x.labeled_data;
     Buffer.add_char ob '}';
@@ -8656,7 +8656,7 @@ let read_stat = (
             field_labeled_data := (
               Some (
                 (
-                  read__string_option_float_list
+                  read__string_float_list
                 ) p lb
               )
             );
@@ -8709,7 +8709,7 @@ let read_stat = (
               field_labeled_data := (
                 Some (
                   (
-                    read__string_option_float_list
+                    read__string_float_list
                   ) p lb
                 )
               );
@@ -8733,14 +8733,14 @@ let stat_of_string s =
 let write_stats = (
   fun ob x ->
     match x with
-      | `Histogram x ->
-        Buffer.add_string ob "[\"Histogram\",";
+      | `TopN x ->
+        Buffer.add_string ob "[\"TopN\",";
         (
           write_stat
         ) ob x;
         Buffer.add_char ob ']'
-      | `TopN x ->
-        Buffer.add_string ob "[\"TopN\",";
+      | `Histogram x ->
+        Buffer.add_string ob "[\"Histogram\",";
         (
           write_stat
         ) ob x;
@@ -8756,15 +8756,6 @@ let read_stats = (
     match Yojson.Safe.start_any_variant p lb with
       | `Edgy_bracket -> (
           match Yojson.Safe.read_ident p lb with
-            | "Histogram" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_stat
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Histogram x
             | "TopN" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -8774,6 +8765,15 @@ let read_stats = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `TopN x
+            | "Histogram" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_stat
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Histogram x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -8784,17 +8784,6 @@ let read_stats = (
         )
       | `Square_bracket -> (
           match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Histogram" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_stat
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `Histogram x
             | "TopN" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -8806,6 +8795,17 @@ let read_stats = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `TopN x
+            | "Histogram" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_stat
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `Histogram x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -21670,63 +21670,6 @@ let read__stats_list = (
 )
 let _stats_list_of_string s =
   read__stats_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__stats_list_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write__stats_list
-  )
-)
-let string_of__stats_list_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__stats_list_option ob x;
-  Buffer.contents ob
-let read__stats_list_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__stats_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__stats_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _stats_list_option_of_string s =
-  read__stats_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__rule_id_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_rule_id
@@ -21803,17 +21746,15 @@ let write_profile : _ -> profile -> _ = (
       )
         ob x;
     );
-    (match x.aggregated_stats with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"aggregated_stats\":";
-      (
-        write__stats_list
-      )
-        ob x;
-    );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"aggregated_stats\":";
+    (
+      write__stats_list
+    )
+      ob x.aggregated_stats;
     Buffer.add_char ob '}';
 )
 let string_of_profile ?(len = 1024) x =
@@ -21961,15 +21902,13 @@ let read_profile = (
               );
             )
           | 6 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_aggregated_stats := (
-                Some (
-                  (
-                    read__stats_list
-                  ) p lb
-                )
-              );
-            )
+            field_aggregated_stats := (
+              Some (
+                (
+                  read__stats_list
+                ) p lb
+              )
+            );
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -22104,15 +22043,13 @@ let read_profile = (
                 );
               )
             | 6 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_aggregated_stats := (
-                  Some (
-                    (
-                      read__stats_list
-                    ) p lb
-                  )
-                );
-              )
+              field_aggregated_stats := (
+                Some (
+                  (
+                    read__stats_list
+                  ) p lb
+                )
+              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -22128,7 +22065,7 @@ let read_profile = (
             targets = (match !field_targets with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "targets");
             total_bytes = (match !field_total_bytes with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "total_bytes");
             max_memory_bytes = !field_max_memory_bytes;
-            aggregated_stats = !field_aggregated_stats;
+            aggregated_stats = (match !field_aggregated_stats with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "aggregated_stats");
           }
          : profile)
       )

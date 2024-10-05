@@ -228,7 +228,7 @@ type tag = Semgrep_output_v1_t.tag
 
 type stat = Semgrep_output_v1_t.stat = {
   description: string;
-  labeled_data: (string option * float) list
+  labeled_data: (string * float) list
 }
 
 type stats = Semgrep_output_v1_t.stats
@@ -554,7 +554,7 @@ type profile = Semgrep_output_v1_t.profile = {
   targets: target_times list;
   total_bytes: int;
   max_memory_bytes: int option;
-  aggregated_stats: stats list option
+  aggregated_stats: stats list
 }
 
 type parsing_stats = Semgrep_output_v1_t.parsing_stats = {

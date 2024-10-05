@@ -2522,14 +2522,14 @@ class Stat:
     """Original type: stat = { ... }"""
 
     description: str
-    labeled_data: List[Tuple[Optional[str], float]]
+    labeled_data: List[Tuple[str, float]]
 
     @classmethod
     def from_json(cls, x: Any) -> 'Stat':
         if isinstance(x, dict):
             return cls(
                 description=_atd_read_string(x['description']) if 'description' in x else _atd_missing_json_field('Stat', 'description'),
-                labeled_data=_atd_read_list((lambda x: (_atd_read_option(_atd_read_string)(x[0]), _atd_read_float(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['labeled_data']) if 'labeled_data' in x else _atd_missing_json_field('Stat', 'labeled_data'),
+                labeled_data=_atd_read_list((lambda x: (_atd_read_string(x[0]), _atd_read_float(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['labeled_data']) if 'labeled_data' in x else _atd_missing_json_field('Stat', 'labeled_data'),
             )
         else:
             _atd_bad_json('Stat', x)
@@ -2537,30 +2537,12 @@ class Stat:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['description'] = _atd_write_string(self.description)
-        res['labeled_data'] = _atd_write_list((lambda x: [_atd_write_option(_atd_write_string)(x[0]), _atd_write_float(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.labeled_data)
+        res['labeled_data'] = _atd_write_list((lambda x: [_atd_write_string(x[0]), _atd_write_float(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.labeled_data)
         return res
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Stat':
         return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class Histogram:
-    """Original type: stats = [ ... | Histogram of ... | ... ]"""
-
-    value: Stat
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Histogram'
-
-    def to_json(self) -> Any:
-        return ['Histogram', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -2585,10 +2567,28 @@ class TopN:
 
 
 @dataclass
+class Histogram:
+    """Original type: stats = [ ... | Histogram of ... | ... ]"""
+
+    value: Stat
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Histogram'
+
+    def to_json(self) -> Any:
+        return ['Histogram', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Stats:
     """Original type: stats = [ ... ]"""
 
-    value: Union[Histogram, TopN]
+    value: Union[TopN, Histogram]
 
     @property
     def kind(self) -> str:
@@ -2599,10 +2599,10 @@ class Stats:
     def from_json(cls, x: Any) -> 'Stats':
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
-            if cons == 'Histogram':
-                return cls(Histogram(Stat.from_json(x[1])))
             if cons == 'TopN':
                 return cls(TopN(Stat.from_json(x[1])))
+            if cons == 'Histogram':
+                return cls(Histogram(Stat.from_json(x[1])))
             _atd_bad_json('Stats', x)
         _atd_bad_json('Stats', x)
 
@@ -5963,8 +5963,8 @@ class Profile:
     profiling_times: Dict[str, float]
     targets: List[TargetTimes]
     total_bytes: int
+    aggregated_stats: List[Stats]
     max_memory_bytes: Optional[int] = None
-    aggregated_stats: Optional[List[Stats]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Profile':
@@ -5975,8 +5975,8 @@ class Profile:
                 profiling_times=_atd_read_assoc_object_into_dict(_atd_read_float)(x['profiling_times']) if 'profiling_times' in x else _atd_missing_json_field('Profile', 'profiling_times'),
                 targets=_atd_read_list(TargetTimes.from_json)(x['targets']) if 'targets' in x else _atd_missing_json_field('Profile', 'targets'),
                 total_bytes=_atd_read_int(x['total_bytes']) if 'total_bytes' in x else _atd_missing_json_field('Profile', 'total_bytes'),
+                aggregated_stats=_atd_read_list(Stats.from_json)(x['aggregated_stats']) if 'aggregated_stats' in x else _atd_missing_json_field('Profile', 'aggregated_stats'),
                 max_memory_bytes=_atd_read_int(x['max_memory_bytes']) if 'max_memory_bytes' in x else None,
-                aggregated_stats=_atd_read_list(Stats.from_json)(x['aggregated_stats']) if 'aggregated_stats' in x else None,
             )
         else:
             _atd_bad_json('Profile', x)
@@ -5988,10 +5988,9 @@ class Profile:
         res['profiling_times'] = _atd_write_assoc_dict_to_object(_atd_write_float)(self.profiling_times)
         res['targets'] = _atd_write_list((lambda x: x.to_json()))(self.targets)
         res['total_bytes'] = _atd_write_int(self.total_bytes)
+        res['aggregated_stats'] = _atd_write_list((lambda x: x.to_json()))(self.aggregated_stats)
         if self.max_memory_bytes is not None:
             res['max_memory_bytes'] = _atd_write_int(self.max_memory_bytes)
-        if self.aggregated_stats is not None:
-            res['aggregated_stats'] = _atd_write_list((lambda x: x.to_json()))(self.aggregated_stats)
         return res
 
     @classmethod

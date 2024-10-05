@@ -714,7 +714,7 @@ type profile = {
     (* maximum amount of memory used by Semgrep(-core) during its execution *)
     ?max_memory_bytes : int option;
 
-    ?aggregated_stats: stats list option;
+    aggregated_stats: stats list;
   }
 
 type target_times = {
@@ -734,22 +734,24 @@ type target_times = {
 }
 
 type stats = [
-    | Histogram of stat
-    | TopN of stat
+  | TopN of stat
+  | Histogram of stat
 ]
 
 type stat = {
     (* For example,
      *   "Histogram of scan times"
      *   "Worst 5 rules"
+     *   "Java stats"
      *)
     description: string;
 
-    (* Optionally labeled data, for example,
+    (* For example,
      *   [("<5s", 10.0), ("<10s", 2.0), (>=10s, 1.0)] for a histogram
-     *   [(, 99.9), (, 80.1), (, 10.2)] for a top 3 list without labels
+     *   [("rule1", 99.9), ("rule2", 80.1), ("rule3", 10.2)] for a top 3 list
+     *   [("n_count, 10.0"), ("n_bytes", 222.0), ("n_seconds", 5.5)] for language stats
      *)
-    labeled_data: (string option * float) list;
+    labeled_data: (string * float) list;
 }
 
 (*****************************************************************************)

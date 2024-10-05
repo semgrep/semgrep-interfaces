@@ -447,7 +447,7 @@
       "type": "object",
       "required": [
         "rules", "rules_parse_time", "profiling_times", "targets",
-        "total_bytes"
+        "total_bytes", "aggregated_stats"
       ],
       "properties": {
         "rules": {
@@ -491,7 +491,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "Histogram" }, { "$ref": "#/definitions/stat" }
+            { "const": "TopN" }, { "$ref": "#/definitions/stat" }
           ]
         },
         {
@@ -499,7 +499,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "TopN" }, { "$ref": "#/definitions/stat" }
+            { "const": "Histogram" }, { "$ref": "#/definitions/stat" }
           ]
         }
       ]
@@ -515,22 +515,7 @@
             "type": "array",
             "minItems": 2,
             "items": false,
-            "prefixItems": [
-              {
-                "oneOf": [
-                  {
-                    "type": "array",
-                    "minItems": 2,
-                    "items": false,
-                    "prefixItems": [
-                      { "const": "Some" }, { "type": "string" }
-                    ]
-                  },
-                  { "const": "None" }
-                ]
-              },
-              { "type": "number" }
-            ]
+            "prefixItems": [ { "type": "string" }, { "type": "number" } ]
           }
         }
       }

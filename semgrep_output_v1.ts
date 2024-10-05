@@ -277,7 +277,7 @@ export type Profile = {
   targets: TargetTimes[];
   total_bytes: number /*int*/;
   max_memory_bytes?: number /*int*/;
-  aggregated_stats?: Stats[];
+  aggregated_stats: Stats[];
 }
 
 export type TargetTimes = {
@@ -289,12 +289,12 @@ export type TargetTimes = {
 }
 
 export type Stats =
-| { kind: 'Histogram'; value: Stat }
 | { kind: 'TopN'; value: Stat }
+| { kind: 'Histogram'; value: Stat }
 
 export type Stat = {
   description: string;
-  labeled_data: [Option<string>, number][];
+  labeled_data: [string, number][];
 }
 
 export type MatchingExplanation = {
@@ -1759,7 +1759,7 @@ export function writeProfile(x: Profile, context: any = x): any {
     'targets': _atd_write_required_field('Profile', 'targets', _atd_write_array(writeTargetTimes), x.targets, x),
     'total_bytes': _atd_write_required_field('Profile', 'total_bytes', _atd_write_int, x.total_bytes, x),
     'max_memory_bytes': _atd_write_optional_field(_atd_write_int, x.max_memory_bytes, x),
-    'aggregated_stats': _atd_write_optional_field(_atd_write_array(writeStats), x.aggregated_stats, x),
+    'aggregated_stats': _atd_write_required_field('Profile', 'aggregated_stats', _atd_write_array(writeStats), x.aggregated_stats, x),
   };
 }
 
@@ -1771,7 +1771,7 @@ export function readProfile(x: any, context: any = x): Profile {
     targets: _atd_read_required_field('Profile', 'targets', _atd_read_array(readTargetTimes), x['targets'], x),
     total_bytes: _atd_read_required_field('Profile', 'total_bytes', _atd_read_int, x['total_bytes'], x),
     max_memory_bytes: _atd_read_optional_field(_atd_read_int, x['max_memory_bytes'], x),
-    aggregated_stats: _atd_read_optional_field(_atd_read_array(readStats), x['aggregated_stats'], x),
+    aggregated_stats: _atd_read_required_field('Profile', 'aggregated_stats', _atd_read_array(readStats), x['aggregated_stats'], x),
   };
 }
 
@@ -1797,20 +1797,20 @@ export function readTargetTimes(x: any, context: any = x): TargetTimes {
 
 export function writeStats(x: Stats, context: any = x): any {
   switch (x.kind) {
-    case 'Histogram':
-      return ['Histogram', writeStat(x.value, x)]
     case 'TopN':
       return ['TopN', writeStat(x.value, x)]
+    case 'Histogram':
+      return ['Histogram', writeStat(x.value, x)]
   }
 }
 
 export function readStats(x: any, context: any = x): Stats {
   _atd_check_json_tuple(2, x, context)
   switch (x[0]) {
-    case 'Histogram':
-      return { kind: 'Histogram', value: readStat(x[1], x) }
     case 'TopN':
       return { kind: 'TopN', value: readStat(x[1], x) }
+    case 'Histogram':
+      return { kind: 'Histogram', value: readStat(x[1], x) }
     default:
       _atd_bad_json('Stats', x, context)
       throw new Error('impossible')
@@ -1820,14 +1820,14 @@ export function readStats(x: any, context: any = x): Stats {
 export function writeStat(x: Stat, context: any = x): any {
   return {
     'description': _atd_write_required_field('Stat', 'description', _atd_write_string, x.description, x),
-    'labeled_data': _atd_write_required_field('Stat', 'labeled_data', _atd_write_array(((x, context) => [_atd_write_option(_atd_write_string)(x[0], x), _atd_write_float(x[1], x)])), x.labeled_data, x),
+    'labeled_data': _atd_write_required_field('Stat', 'labeled_data', _atd_write_array(((x, context) => [_atd_write_string(x[0], x), _atd_write_float(x[1], x)])), x.labeled_data, x),
   };
 }
 
 export function readStat(x: any, context: any = x): Stat {
   return {
     description: _atd_read_required_field('Stat', 'description', _atd_read_string, x['description'], x),
-    labeled_data: _atd_read_required_field('Stat', 'labeled_data', _atd_read_array(((x, context): [Option<string>, number] => { _atd_check_json_tuple(2, x, context); return [_atd_read_option(_atd_read_string)(x[0], x), _atd_read_float(x[1], x)] })), x['labeled_data'], x),
+    labeled_data: _atd_read_required_field('Stat', 'labeled_data', _atd_read_array(((x, context): [string, number] => { _atd_check_json_tuple(2, x, context); return [_atd_read_string(x[0], x), _atd_read_float(x[1], x)] })), x['labeled_data'], x),
   };
 }
 
