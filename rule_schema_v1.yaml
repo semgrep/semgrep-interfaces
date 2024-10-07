@@ -659,15 +659,23 @@ $defs:
             title: Kind keyword
             type: string
           module:
-            title: Kind keyword
+            title: A module name
             type: string
+          modules:
+            title: A list of module names
+            type: array
+            items:
+              type: string
         required:
           - metavariable
         anyOf:
         - required:
             - kind
-        - required:
-            - module
+        - oneOf:
+          - required:
+              - module
+          - required:
+              - modules
         additionalProperties: false
     required:
       - semgrep-internal-metavariable-name
