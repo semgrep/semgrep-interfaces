@@ -616,7 +616,8 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
-  skipped_rules: skipped_rule list
+  skipped_rules: skipped_rule list;
+  extra_extra: raw_json option
 }
 
 type apply_fixes_params = Semgrep_output_v1_t.apply_fixes_params = {
@@ -711,7 +712,8 @@ type core_output = Semgrep_output_v1_t.core_output = {
   rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
-  skipped_rules: skipped_rule list
+  skipped_rules: skipped_rule list;
+  extra_extra: raw_json option
 }
 
 type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
@@ -721,7 +723,8 @@ type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
-  skipped_rules: skipped_rule list
+  skipped_rules: skipped_rule list;
+  extra_extra: raw_json option
 }
 
 type ci_scan_results_response_error =
@@ -24160,6 +24163,17 @@ let write_cli_output : _ -> cli_output -> _ = (
       write__skipped_rule_list
     )
       ob x.skipped_rules;
+    (match x.extra_extra with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"extra_extra\":";
+      (
+        write_raw_json
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_cli_output ?(len = 1024) x =
@@ -24180,6 +24194,7 @@ let read_cli_output = (
     let field_engine_requested = ref (None) in
     let field_interfile_languages_used = ref (None) in
     let field_skipped_rules = ref ([]) in
+    let field_extra_extra = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -24234,6 +24249,14 @@ let read_cli_output = (
                   | _ -> (
                       -1
                     )
+              )
+            | 11 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'x' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' then (
+                  10
+                )
+                else (
+                  -1
+                )
               )
             | 12 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
@@ -24375,6 +24398,16 @@ let read_cli_output = (
                 ) p lb
               );
             )
+          | 10 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_extra_extra := (
+                Some (
+                  (
+                    read_raw_json
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -24433,6 +24466,14 @@ let read_cli_output = (
                     | _ -> (
                         -1
                       )
+                )
+              | 11 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'x' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' then (
+                    10
+                  )
+                  else (
+                    -1
+                  )
                 )
               | 12 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
@@ -24574,6 +24615,16 @@ let read_cli_output = (
                   ) p lb
                 );
               )
+            | 10 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_extra_extra := (
+                  Some (
+                    (
+                      read_raw_json
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -24593,6 +24644,7 @@ let read_cli_output = (
             engine_requested = !field_engine_requested;
             interfile_languages_used = !field_interfile_languages_used;
             skipped_rules = !field_skipped_rules;
+            extra_extra = !field_extra_extra;
           }
          : cli_output)
       )
@@ -28221,6 +28273,17 @@ let write_core_output : _ -> core_output -> _ = (
       write__skipped_rule_list
     )
       ob x.skipped_rules;
+    (match x.extra_extra with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"extra_extra\":";
+      (
+        write_raw_json
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_core_output ?(len = 1024) x =
@@ -28241,6 +28304,7 @@ let read_core_output = (
     let field_engine_requested = ref (None) in
     let field_interfile_languages_used = ref (None) in
     let field_skipped_rules = ref ([]) in
+    let field_extra_extra = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -28295,6 +28359,14 @@ let read_core_output = (
                   | _ -> (
                       -1
                     )
+              )
+            | 11 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'x' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' then (
+                  10
+                )
+                else (
+                  -1
+                )
               )
             | 12 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
@@ -28436,6 +28508,16 @@ let read_core_output = (
                 ) p lb
               );
             )
+          | 10 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_extra_extra := (
+                Some (
+                  (
+                    read_raw_json
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -28494,6 +28576,14 @@ let read_core_output = (
                     | _ -> (
                         -1
                       )
+                )
+              | 11 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'x' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' then (
+                    10
+                  )
+                  else (
+                    -1
+                  )
                 )
               | 12 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
@@ -28635,6 +28725,16 @@ let read_core_output = (
                   ) p lb
                 );
               )
+            | 10 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_extra_extra := (
+                  Some (
+                    (
+                      read_raw_json
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -28654,6 +28754,7 @@ let read_core_output = (
             engine_requested = !field_engine_requested;
             interfile_languages_used = !field_interfile_languages_used;
             skipped_rules = !field_skipped_rules;
+            extra_extra = !field_extra_extra;
           }
          : core_output)
       )
@@ -28737,6 +28838,17 @@ let write_cli_output_extra : _ -> cli_output_extra -> _ = (
       write__skipped_rule_list
     )
       ob x.skipped_rules;
+    (match x.extra_extra with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"extra_extra\":";
+      (
+        write_raw_json
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_cli_output_extra ?(len = 1024) x =
@@ -28754,6 +28866,7 @@ let read_cli_output_extra = (
     let field_engine_requested = ref (None) in
     let field_interfile_languages_used = ref (None) in
     let field_skipped_rules = ref ([]) in
+    let field_extra_extra = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -28774,6 +28887,14 @@ let read_cli_output_extra = (
             | 5 -> (
                 if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' && String.unsafe_get s (pos+4) = 's' then (
                   0
+                )
+                else (
+                  -1
+                )
+              )
+            | 11 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'x' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' then (
+                  7
                 )
                 else (
                   -1
@@ -28893,6 +29014,16 @@ let read_cli_output_extra = (
                 ) p lb
               );
             )
+          | 7 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_extra_extra := (
+                Some (
+                  (
+                    read_raw_json
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -28917,6 +29048,14 @@ let read_cli_output_extra = (
               | 5 -> (
                   if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' && String.unsafe_get s (pos+4) = 's' then (
                     0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 11 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'x' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' then (
+                    7
                   )
                   else (
                     -1
@@ -29036,6 +29175,16 @@ let read_cli_output_extra = (
                   ) p lb
                 );
               )
+            | 7 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_extra_extra := (
+                  Some (
+                    (
+                      read_raw_json
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -29052,6 +29201,7 @@ let read_cli_output_extra = (
             engine_requested = !field_engine_requested;
             interfile_languages_used = !field_interfile_languages_used;
             skipped_rules = !field_skipped_rules;
+            extra_extra = !field_extra_extra;
           }
          : cli_output_extra)
       )

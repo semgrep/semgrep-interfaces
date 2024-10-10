@@ -411,6 +411,8 @@ class ProFeatures:
 
     diffDepth: Optional[int] = None
     numInterfileDiffScanned: Optional[List[Tuple[str, int]]] = None
+    numInterfaceVarResolved: Optional[int] = None
+    numInterfaceMethodResolved: Optional[int] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ProFeatures':
@@ -418,6 +420,8 @@ class ProFeatures:
             return cls(
                 diffDepth=_atd_read_int(x['diffDepth']) if 'diffDepth' in x else None,
                 numInterfileDiffScanned=_atd_read_assoc_object_into_list(_atd_read_int)(x['numInterfileDiffScanned']) if 'numInterfileDiffScanned' in x else None,
+                numInterfaceVarResolved=_atd_read_int(x['numInterfaceVarResolved']) if 'numInterfaceVarResolved' in x else None,
+                numInterfaceMethodResolved=_atd_read_int(x['numInterfaceMethodResolved']) if 'numInterfaceMethodResolved' in x else None,
             )
         else:
             _atd_bad_json('ProFeatures', x)
@@ -428,6 +432,10 @@ class ProFeatures:
             res['diffDepth'] = _atd_write_int(self.diffDepth)
         if self.numInterfileDiffScanned is not None:
             res['numInterfileDiffScanned'] = _atd_write_assoc_list_to_object(_atd_write_int)(self.numInterfileDiffScanned)
+        if self.numInterfaceVarResolved is not None:
+            res['numInterfaceVarResolved'] = _atd_write_int(self.numInterfaceVarResolved)
+        if self.numInterfaceMethodResolved is not None:
+            res['numInterfaceMethodResolved'] = _atd_write_int(self.numInterfaceMethodResolved)
         return res
 
     @classmethod

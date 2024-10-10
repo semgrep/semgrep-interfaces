@@ -616,7 +616,8 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
-  skipped_rules: skipped_rule list
+  skipped_rules: skipped_rule list;
+  extra_extra: raw_json option
 }
 
 type apply_fixes_params = Semgrep_output_v1_t.apply_fixes_params = {
@@ -711,7 +712,8 @@ type core_output = Semgrep_output_v1_t.core_output = {
   rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
-  skipped_rules: skipped_rule list
+  skipped_rules: skipped_rule list;
+  extra_extra: raw_json option
 }
 
 type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
@@ -721,7 +723,8 @@ type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
-  skipped_rules: skipped_rule list
+  skipped_rules: skipped_rule list;
+  extra_extra: raw_json option
 }
 
 type ci_scan_results_response_error =

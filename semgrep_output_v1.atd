@@ -868,6 +868,9 @@ type cli_output_extra = {
 
     (* EXPERIMENTAL: since: 1.37.0 *)
     ~skipped_rules: skipped_rule list;
+
+    (* EXPERIMENTAL: since: 1.91.0 *)
+    ?extra_extra: raw_json option;
 }
 
 (*****************************************************************************)
