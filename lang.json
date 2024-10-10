@@ -435,6 +435,24 @@
     "tags": []
   },
   {
+    "comment": "Move language with SUI flavor",
+    "id": "move_on_sui",
+    "name": "Move on Sui",
+    "keys": [
+      "move_on_sui"
+    ],
+    "maturity": "develop",
+    "exts": [
+      ".move"
+    ],
+    "example_ext": null,
+    "excluded_exts": [],
+    "reverse_exts": null,
+    "shebangs": [],
+    "is_target_language": true,
+    "tags": []
+  },
+  {
     "comment": "Move language with Aptos flavor",
     "id": "move_on_aptos",
     "name": "Move on Aptos",
