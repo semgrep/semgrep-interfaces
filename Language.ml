@@ -24,6 +24,7 @@ type t =
 | Kotlin
 | Lisp
 | Lua
+| Move_on_sui
 | Move_on_aptos
 | Ocaml
 | Php
@@ -367,6 +368,22 @@ let list = [
   excluded_exts = [];
   reverse_exts = None;
   shebangs = [{|lua|}];
+  tags = [];
+};
+(*
+  Move language with SUI flavor
+*)
+{
+  id = Move_on_sui;
+  id_string = "move_on_sui";
+  name = "Move on Sui";
+  keys = [{|move_on_sui|}];
+  exts = [{|.move|}];
+  maturity = Develop;
+  example_ext = None;
+  excluded_exts = [];
+  reverse_exts = None;
+  shebangs = [];
   tags = [];
 };
 (*

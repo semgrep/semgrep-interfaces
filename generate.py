@@ -411,6 +411,15 @@ not ambiguous is welcome here.
         shebangs=["lua"]
     ),
     Language(
+        comment="Move language with SUI flavor",
+        id_="move_on_sui" ,
+        name="Move on Sui",
+        keys=["move_on_sui"],
+        exts=[".move"],
+        maturity=Maturity.DEVELOP,
+        shebangs=[]
+    ),
+    Language(
         comment="Move language with Aptos flavor",
         id_="move_on_aptos",
         name="Move on Aptos",
