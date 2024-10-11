@@ -877,6 +877,10 @@ export type FunctionReturn =
 | { kind: 'RetResolveDependencies'; value: [Manifest, ResolutionResult][] }
 | { kind: 'RetDumpRulePartitions'; value: boolean }
 
+export type PartialScanResult =
+| { kind: 'PartialScanOk'; value: [CiScanResults, CiScanComplete] }
+| { kind: 'PartialScanError'; value: CiScanFailure }
+
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
 }
@@ -3585,6 +3589,28 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetDumpRulePartitions', value: _atd_read_bool(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writePartialScanResult(x: PartialScanResult, context: any = x): any {
+  switch (x.kind) {
+    case 'PartialScanOk':
+      return ['PartialScanOk', ((x, context) => [writeCiScanResults(x[0], x), writeCiScanComplete(x[1], x)])(x.value, x)]
+    case 'PartialScanError':
+      return ['PartialScanError', writeCiScanFailure(x.value, x)]
+  }
+}
+
+export function readPartialScanResult(x: any, context: any = x): PartialScanResult {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'PartialScanOk':
+      return { kind: 'PartialScanOk', value: ((x, context): [CiScanResults, CiScanComplete] => { _atd_check_json_tuple(2, x, context); return [readCiScanResults(x[0], x), readCiScanComplete(x[1], x)] })(x[1], x) }
+    case 'PartialScanError':
+      return { kind: 'PartialScanError', value: readCiScanFailure(x[1], x) }
+    default:
+      _atd_bad_json('PartialScanResult', x, context)
       throw new Error('impossible')
   }
 }

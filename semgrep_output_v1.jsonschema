@@ -1737,6 +1737,36 @@
           ]
         }
       ]
+    },
+    "partial_scan_result": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "PartialScanOk" },
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "$ref": "#/definitions/ci_scan_results" },
+                { "$ref": "#/definitions/ci_scan_complete" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "PartialScanError" },
+            { "$ref": "#/definitions/ci_scan_failure" }
+          ]
+        }
+      ]
     }
   }
 }
