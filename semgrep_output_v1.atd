@@ -1873,3 +1873,13 @@ type function_return
   | RetResolveDependencies of (manifest * resolution_result) list
   | RetDumpRulePartitions of bool
 ]
+
+(* ----------------------------- *)
+(* Partial scans. Experimental and for internal use only. *)
+(* ----------------------------- *)
+
+type partial_scan_result
+    <python decorator="dataclass(frozen=True)"> = [
+  | PartialScanOk of (ci_scan_results * ci_scan_complete)
+  | PartialScanError of ci_scan_failure
+]
