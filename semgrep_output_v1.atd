@@ -1472,6 +1472,7 @@ type engine_configuration = {
     ~generic_slow_rollout: bool;
     (* from 1.63.0 *)
     ?historical_config: historical_configuration option;
+    (* from 1.93 *)
     (* for customers to use the app to configure fail open options *)
     ~always_fail_open: bool;
 }
