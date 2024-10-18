@@ -244,8 +244,10 @@ export type SkipReason =
 | { kind: 'Excluded_by_config' /* JSON: "excluded_by_config" */ }
 | { kind: 'Wrong_language' /* JSON: "wrong_language" */ }
 | { kind: 'Too_big' /* JSON: "too_big" */ }
+| { kind: 'Too_long' /* JSON: "too_long" */ }
 | { kind: 'Minified' /* JSON: "minified" */ }
 | { kind: 'Binary' /* JSON: "binary" */ }
+| { kind: 'Excluded_file_type' /* JSON: "excluded_file_type" */ }
 | { kind: 'Irrelevant_rule' /* JSON: "irrelevant_rule" */ }
 | { kind: 'Too_many_matches' /* JSON: "too_many_matches" */ }
 | { kind: 'Gitignore_patterns_match' }
@@ -1636,10 +1638,14 @@ export function writeSkipReason(x: SkipReason, context: any = x): any {
       return 'wrong_language'
     case 'Too_big':
       return 'too_big'
+    case 'Too_long':
+      return 'too_long'
     case 'Minified':
       return 'minified'
     case 'Binary':
       return 'binary'
+    case 'Excluded_file_type':
+      return 'excluded_file_type'
     case 'Irrelevant_rule':
       return 'irrelevant_rule'
     case 'Too_many_matches':
@@ -1673,10 +1679,14 @@ export function readSkipReason(x: any, context: any = x): SkipReason {
       return { kind: 'Wrong_language' }
     case 'too_big':
       return { kind: 'Too_big' }
+    case 'too_long':
+      return { kind: 'Too_long' }
     case 'minified':
       return { kind: 'Minified' }
     case 'binary':
       return { kind: 'Binary' }
+    case 'excluded_file_type':
+      return { kind: 'Excluded_file_type' }
     case 'irrelevant_rule':
       return { kind: 'Irrelevant_rule' }
     case 'too_many_matches':

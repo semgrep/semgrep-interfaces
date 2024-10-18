@@ -230,9 +230,9 @@ type skip_reason = Semgrep_output_v1_t.skip_reason =
     Always_skipped | Semgrepignore_patterns_match
   | Cli_include_flags_do_not_match | Cli_exclude_flags_match
   | Exceeded_size_limit | Analysis_failed_parser_or_internal_error
-  | Excluded_by_config | Wrong_language | Too_big | Minified | Binary
-  | Irrelevant_rule | Too_many_matches | Gitignore_patterns_match | Dotfile
-  | Nonexistent_file
+  | Excluded_by_config | Wrong_language | Too_big | Too_long | Minified
+  | Binary | Excluded_file_type | Irrelevant_rule | Too_many_matches
+  | Gitignore_patterns_match | Dotfile | Nonexistent_file
 
   [@@deriving show]
 
@@ -8511,8 +8511,10 @@ let write_skip_reason : _ -> skip_reason -> _ = (
       | Excluded_by_config -> Buffer.add_string ob "\"excluded_by_config\""
       | Wrong_language -> Buffer.add_string ob "\"wrong_language\""
       | Too_big -> Buffer.add_string ob "\"too_big\""
+      | Too_long -> Buffer.add_string ob "\"too_long\""
       | Minified -> Buffer.add_string ob "\"minified\""
       | Binary -> Buffer.add_string ob "\"binary\""
+      | Excluded_file_type -> Buffer.add_string ob "\"excluded_file_type\""
       | Irrelevant_rule -> Buffer.add_string ob "\"irrelevant_rule\""
       | Too_many_matches -> Buffer.add_string ob "\"too_many_matches\""
       | Gitignore_patterns_match -> Buffer.add_string ob "\"Gitignore_patterns_match\""
@@ -8565,6 +8567,10 @@ let read_skip_reason = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (Too_big : skip_reason)
+            | "too_long" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Too_long : skip_reason)
             | "minified" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -8573,6 +8579,10 @@ let read_skip_reason = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (Binary : skip_reason)
+            | "excluded_file_type" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Excluded_file_type : skip_reason)
             | "irrelevant_rule" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -8616,10 +8626,14 @@ let read_skip_reason = (
               (Wrong_language : skip_reason)
             | "too_big" ->
               (Too_big : skip_reason)
+            | "too_long" ->
+              (Too_long : skip_reason)
             | "minified" ->
               (Minified : skip_reason)
             | "binary" ->
               (Binary : skip_reason)
+            | "excluded_file_type" ->
+              (Excluded_file_type : skip_reason)
             | "irrelevant_rule" ->
               (Irrelevant_rule : skip_reason)
             | "too_many_matches" ->

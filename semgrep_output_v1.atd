@@ -624,8 +624,10 @@ type skip_reason <ocaml attr="deriving show"> = [
   | Excluded_by_config <json name="excluded_by_config">
   | Wrong_language <json name="wrong_language">
   | Too_big <json name="too_big">
+  | Too_long <json name="too_long">
   | Minified <json name="minified">
   | Binary <json name="binary">
+  | Excluded_file_type <json name="excluded_file_type">
   | Irrelevant_rule <json name="irrelevant_rule">
   | Too_many_matches <json name="too_many_matches">
   (* New in osemgrep *)

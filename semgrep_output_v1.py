@@ -2671,6 +2671,23 @@ class TooBig:
 
 
 @dataclass
+class TooLong:
+    """Original type: skip_reason = [ ... | Too_long | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'TooLong'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'too_long'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Minified:
     """Original type: skip_reason = [ ... | Minified | ... ]"""
 
@@ -2699,6 +2716,23 @@ class Binary:
     @staticmethod
     def to_json() -> Any:
         return 'binary'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ExcludedFileType:
+    """Original type: skip_reason = [ ... | Excluded_file_type | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ExcludedFileType'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'excluded_file_type'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -2793,7 +2827,7 @@ class NonexistentFile:
 class SkipReason:
     """Original type: skip_reason = [ ... ]"""
 
-    value: Union[AlwaysSkipped, SemgrepignorePatternsMatch, CliIncludeFlagsDoNotMatch, CliExcludeFlagsMatch, ExceededSizeLimit, AnalysisFailedParserOrInternalError, ExcludedByConfig, WrongLanguage, TooBig, Minified, Binary, IrrelevantRule, TooManyMatches, GitignorePatternsMatch, Dotfile, NonexistentFile]
+    value: Union[AlwaysSkipped, SemgrepignorePatternsMatch, CliIncludeFlagsDoNotMatch, CliExcludeFlagsMatch, ExceededSizeLimit, AnalysisFailedParserOrInternalError, ExcludedByConfig, WrongLanguage, TooBig, TooLong, Minified, Binary, ExcludedFileType, IrrelevantRule, TooManyMatches, GitignorePatternsMatch, Dotfile, NonexistentFile]
 
     @property
     def kind(self) -> str:
@@ -2821,10 +2855,14 @@ class SkipReason:
                 return cls(WrongLanguage())
             if x == 'too_big':
                 return cls(TooBig())
+            if x == 'too_long':
+                return cls(TooLong())
             if x == 'minified':
                 return cls(Minified())
             if x == 'binary':
                 return cls(Binary())
+            if x == 'excluded_file_type':
+                return cls(ExcludedFileType())
             if x == 'irrelevant_rule':
                 return cls(IrrelevantRule())
             if x == 'too_many_matches':
