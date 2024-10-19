@@ -147,6 +147,20 @@ type parse_stat = {
 }
 
 (*****************************************************************************)
+(* Pro Naming stats *)
+(*****************************************************************************)
+
+type pro_naming_stat = {
+     (* The number of interface fields resolved during the Naming_SAST phases.
+      * This is the total count from the naming resolution of all field accesses
+      * in the input source code.
+      * Since semgrep 1.93
+      *)
+    ?numInterfaceVarResolved <ocaml mutable>: int option;
+    ?numInterfaceMethodResolved <ocaml mutable>: int option;
+}
+
+(*****************************************************************************)
 (* Errors *)
 (*****************************************************************************)
 
@@ -204,6 +218,7 @@ type pro_features = {
      * Since semgrep 1.46
      *)
     ?diffDepth <ocaml mutable>: int option;
+
     (* The number of scanned files per language for inter-file diff scan mode.
      * This number represents the count of changed files and their limited
      * dependencies.
@@ -211,6 +226,11 @@ type pro_features = {
      *)
     ?numInterfileDiffScanned <ocaml mutable>: (string (* lang *) * int) list
                                               <json repr="object"> option;
+
+    (* The naming and typing metrics.
+     * Since semgrep 1.93
+     *)
+    ?proNamingStat <ocaml mutable>: pro_naming_stat option;
 }
 
 (* Since v1.55.0 *)
