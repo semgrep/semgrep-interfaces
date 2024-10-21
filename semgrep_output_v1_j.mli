@@ -288,7 +288,7 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   product_ignored_files: product_ignored_files option;
   generic_slow_rollout: bool;
   historical_config: historical_configuration option;
-  always_fail_open: bool
+  always_suppress_errors: bool
 }
 
 type scan_response = Semgrep_output_v1_t.scan_response = {

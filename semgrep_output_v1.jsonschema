@@ -1192,7 +1192,7 @@
         "historical_config": {
           "$ref": "#/definitions/historical_configuration"
         },
-        "always_fail_open": { "type": "boolean" }
+        "always_suppress_errors": { "type": "boolean" }
       }
     },
     "finding": {

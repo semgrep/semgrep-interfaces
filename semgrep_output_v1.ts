@@ -669,7 +669,7 @@ export type EngineConfiguration = {
   product_ignored_files?: ProductIgnoredFiles;
   generic_slow_rollout: boolean;
   historical_config?: HistoricalConfiguration;
-  always_fail_open: boolean;
+  always_suppress_errors: boolean;
 }
 
 export type Finding = {
@@ -2941,7 +2941,7 @@ export function writeEngineConfiguration(x: EngineConfiguration, context: any = 
     'product_ignored_files': _atd_write_optional_field(writeProductIgnoredFiles, x.product_ignored_files, x),
     'generic_slow_rollout': _atd_write_field_with_default(_atd_write_bool, false, x.generic_slow_rollout, x),
     'historical_config': _atd_write_optional_field(writeHistoricalConfiguration, x.historical_config, x),
-    'always_fail_open': _atd_write_field_with_default(_atd_write_bool, false, x.always_fail_open, x),
+    'always_suppress_errors': _atd_write_field_with_default(_atd_write_bool, false, x.always_suppress_errors, x),
   };
 }
 
@@ -2954,7 +2954,7 @@ export function readEngineConfiguration(x: any, context: any = x): EngineConfigu
     product_ignored_files: _atd_read_optional_field(readProductIgnoredFiles, x['product_ignored_files'], x),
     generic_slow_rollout: _atd_read_field_with_default(_atd_read_bool, false, x['generic_slow_rollout'], x),
     historical_config: _atd_read_optional_field(readHistoricalConfiguration, x['historical_config'], x),
-    always_fail_open: _atd_read_field_with_default(_atd_read_bool, false, x['always_fail_open'], x),
+    always_suppress_errors: _atd_read_field_with_default(_atd_read_bool, false, x['always_suppress_errors'], x),
   };
 }
 
