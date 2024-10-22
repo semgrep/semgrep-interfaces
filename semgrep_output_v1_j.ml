@@ -257,12 +257,17 @@ type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
 
 type product = Semgrep_output_v1_t.product [@@deriving show, eq]
 
+type feature_flag = Semgrep_output_v1_t.feature_flag = {
+  name: string;
+  enabled: bool
+}
+
 type scan_info = Semgrep_output_v1_t.scan_info = {
   id: int option;
   enabled_products: product list;
   deployment_id: int;
   deployment_name: string;
-  deployment_feature_flags: string list
+  deployment_feature_flags: feature_flag list
 }
 
 type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
@@ -370,7 +375,7 @@ type ci_config_from_cloud = Semgrep_output_v1_t.ci_config_from_cloud = {
 type scan_config = Semgrep_output_v1_t.scan_config = {
   deployment_id: int;
   deployment_name: string;
-  deployment_feature_flags: string list;
+  deployment_feature_flag: feature_flag list;
   policy_names: string list;
   rule_config: string;
   ci_config_from_cloud: ci_config_from_cloud option;
@@ -9467,6 +9472,159 @@ let read_product = (
 )
 let product_of_string s =
   read_product (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_feature_flag : _ -> feature_flag -> _ = (
+  fun ob (x : feature_flag) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"name\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.name;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"enabled\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.enabled;
+    Buffer.add_char ob '}';
+)
+let string_of_feature_flag ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_feature_flag ob x;
+  Buffer.contents ob
+let read_feature_flag = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_name = ref (None) in
+    let field_enabled = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 4 -> (
+                if String.unsafe_get s pos = 'n' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'e' then (
+                  0
+                )
+                else (
+                  -1
+                )
+              )
+            | 7 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_name := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_enabled := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 4 -> (
+                  if String.unsafe_get s pos = 'n' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'e' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 7 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_name := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_enabled := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            name = (match !field_name with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "name");
+            enabled = (match !field_enabled with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "enabled");
+          }
+         : feature_flag)
+      )
+)
+let feature_flag_of_string s =
+  read_feature_flag (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__product_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_product
@@ -9540,6 +9698,22 @@ let read__int_option = (
 )
 let _int_option_of_string s =
   read__int_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__feature_flag_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_feature_flag
+  )
+)
+let string_of__feature_flag_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__feature_flag_list ob x;
+  Buffer.contents ob
+let read__feature_flag_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_feature_flag
+  )
+)
+let _feature_flag_list_of_string s =
+  read__feature_flag_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_scan_info : _ -> scan_info -> _ = (
   fun ob (x : scan_info) ->
     Buffer.add_char ob '{';
@@ -9588,7 +9762,7 @@ let write_scan_info : _ -> scan_info -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"deployment_feature_flags\":";
     (
-      write__string_list
+      write__feature_flag_list
     )
       ob x.deployment_feature_flags;
     Buffer.add_char ob '}';
@@ -9701,7 +9875,7 @@ let read_scan_info = (
             field_deployment_feature_flags := (
               Some (
                 (
-                  read__string_list
+                  read__feature_flag_list
                 ) p lb
               )
             );
@@ -9804,7 +9978,7 @@ let read_scan_info = (
               field_deployment_feature_flags := (
                 Some (
                   (
-                    read__string_list
+                    read__feature_flag_list
                   ) p lb
                 )
               );
@@ -14564,11 +14738,11 @@ let write_scan_config : _ -> scan_config -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"deployment_feature_flags\":";
+      Buffer.add_string ob "\"deployment_feature_flag\":";
     (
-      write__string_list
+      write__feature_flag_list
     )
-      ob x.deployment_feature_flags;
+      ob x.deployment_feature_flag;
     if !is_first then
       is_first := false
     else
@@ -14684,7 +14858,7 @@ let read_scan_config = (
     Yojson.Safe.read_lcurl p lb;
     let field_deployment_id = ref (None) in
     let field_deployment_name = ref (None) in
-    let field_deployment_feature_flags = ref (None) in
+    let field_deployment_feature_flag = ref (None) in
     let field_policy_names = ref (None) in
     let field_rule_config = ref (None) in
     let field_ci_config_from_cloud = ref (None) in
@@ -14822,8 +14996,8 @@ let read_scan_config = (
                   -1
                 )
               )
-            | 24 -> (
-                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'y' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'f' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'u' && String.unsafe_get s (pos+16) = 'r' && String.unsafe_get s (pos+17) = 'e' && String.unsafe_get s (pos+18) = '_' && String.unsafe_get s (pos+19) = 'f' && String.unsafe_get s (pos+20) = 'l' && String.unsafe_get s (pos+21) = 'a' && String.unsafe_get s (pos+22) = 'g' && String.unsafe_get s (pos+23) = 's' then (
+            | 23 -> (
+                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'y' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'f' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'u' && String.unsafe_get s (pos+16) = 'r' && String.unsafe_get s (pos+17) = 'e' && String.unsafe_get s (pos+18) = '_' && String.unsafe_get s (pos+19) = 'f' && String.unsafe_get s (pos+20) = 'l' && String.unsafe_get s (pos+21) = 'a' && String.unsafe_get s (pos+22) = 'g' then (
                   2
                 )
                 else (
@@ -14871,10 +15045,10 @@ let read_scan_config = (
               )
             );
           | 2 ->
-            field_deployment_feature_flags := (
+            field_deployment_feature_flag := (
               Some (
                 (
-                  read__string_list
+                  read__feature_flag_list
                 ) p lb
               )
             );
@@ -15100,8 +15274,8 @@ let read_scan_config = (
                     -1
                   )
                 )
-              | 24 -> (
-                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'y' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'f' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'u' && String.unsafe_get s (pos+16) = 'r' && String.unsafe_get s (pos+17) = 'e' && String.unsafe_get s (pos+18) = '_' && String.unsafe_get s (pos+19) = 'f' && String.unsafe_get s (pos+20) = 'l' && String.unsafe_get s (pos+21) = 'a' && String.unsafe_get s (pos+22) = 'g' && String.unsafe_get s (pos+23) = 's' then (
+              | 23 -> (
+                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'y' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'f' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'u' && String.unsafe_get s (pos+16) = 'r' && String.unsafe_get s (pos+17) = 'e' && String.unsafe_get s (pos+18) = '_' && String.unsafe_get s (pos+19) = 'f' && String.unsafe_get s (pos+20) = 'l' && String.unsafe_get s (pos+21) = 'a' && String.unsafe_get s (pos+22) = 'g' then (
                     2
                   )
                   else (
@@ -15149,10 +15323,10 @@ let read_scan_config = (
                 )
               );
             | 2 ->
-              field_deployment_feature_flags := (
+              field_deployment_feature_flag := (
                 Some (
                   (
-                    read__string_list
+                    read__feature_flag_list
                   ) p lb
                 )
               );
@@ -15259,7 +15433,7 @@ let read_scan_config = (
           {
             deployment_id = (match !field_deployment_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "deployment_id");
             deployment_name = (match !field_deployment_name with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "deployment_name");
-            deployment_feature_flags = (match !field_deployment_feature_flags with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "deployment_feature_flags");
+            deployment_feature_flag = (match !field_deployment_feature_flag with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "deployment_feature_flag");
             policy_names = (match !field_policy_names with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "policy_names");
             rule_config = (match !field_rule_config with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rule_config");
             ci_config_from_cloud = !field_ci_config_from_cloud;

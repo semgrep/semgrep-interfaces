@@ -951,6 +951,14 @@
         "dependency_query": { "type": "boolean" }
       }
     },
+    "feature_flag": {
+      "type": "object",
+      "required": [ "name", "enabled" ],
+      "properties": {
+        "name": { "type": "string" },
+        "enabled": { "type": "boolean" }
+      }
+    },
     "triage_ignored": {
       "type": "object",
       "required": [],
@@ -1017,15 +1025,15 @@
     "scan_config": {
       "type": "object",
       "required": [
-        "deployment_id", "deployment_name", "deployment_feature_flags",
+        "deployment_id", "deployment_name", "deployment_feature_flag",
         "policy_names", "rule_config"
       ],
       "properties": {
         "deployment_id": { "type": "integer" },
         "deployment_name": { "type": "string" },
-        "deployment_feature_flags": {
+        "deployment_feature_flag": {
           "type": "array",
-          "items": { "type": "string" }
+          "items": { "$ref": "#/definitions/feature_flag" }
         },
         "policy_names": { "type": "array", "items": { "type": "string" } },
         "rule_config": { "type": "string" },
@@ -1149,7 +1157,7 @@
         "deployment_name": { "type": "string" },
         "deployment_feature_flags": {
           "type": "array",
-          "items": { "type": "string" }
+          "items": { "$ref": "#/definitions/feature_flag" }
         }
       }
     },

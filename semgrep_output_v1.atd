@@ -1220,6 +1220,11 @@ type features = {
    ~dependency_query: bool;
 }
 
+type feature_flag = {
+  name: string;
+  enabled: bool;
+}
+
 type triage_ignored = {
     ~triage_ignored_syntactic_ids: string list;
     ~triage_ignored_match_based_ids: string list;
@@ -1294,7 +1299,7 @@ type scan_config = {
     deployment_id: int;
     deployment_name: string;
     (* deployment specific feature flag settings which impact CI behavior *)
-    deployment_feature_flags: string list;
+    deployment_feature_flag: feature_flag list;
     (* ex: "audit", "comment", "block" TODO use enum? TODO: seems dead *)
     policy_names: string list;
     (* rules raw content in JSON format (but still sent as a string) *)
@@ -1440,7 +1445,7 @@ type scan_info = {
     deployment_id: int;
     deployment_name: string;
     (* deployment specific feature flag settings which impact CI behavior *)
-    deployment_feature_flags: string list;
+    deployment_feature_flags: feature_flag list;
 }
 
 

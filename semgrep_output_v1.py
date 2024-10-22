@@ -3040,13 +3040,44 @@ class Product:
 
 
 @dataclass
+class FeatureFlag:
+    """Original type: feature_flag = { ... }"""
+
+    name: str
+    enabled: bool
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FeatureFlag':
+        if isinstance(x, dict):
+            return cls(
+                name=_atd_read_string(x['name']) if 'name' in x else _atd_missing_json_field('FeatureFlag', 'name'),
+                enabled=_atd_read_bool(x['enabled']) if 'enabled' in x else _atd_missing_json_field('FeatureFlag', 'enabled'),
+            )
+        else:
+            _atd_bad_json('FeatureFlag', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['name'] = _atd_write_string(self.name)
+        res['enabled'] = _atd_write_bool(self.enabled)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FeatureFlag':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class ScanInfo:
     """Original type: scan_info = { ... }"""
 
     enabled_products: List[Product]
     deployment_id: int
     deployment_name: str
-    deployment_feature_flags: List[str]
+    deployment_feature_flags: List[FeatureFlag]
     id: Optional[int] = None
 
     @classmethod
@@ -3056,7 +3087,7 @@ class ScanInfo:
                 enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else _atd_missing_json_field('ScanInfo', 'enabled_products'),
                 deployment_id=_atd_read_int(x['deployment_id']) if 'deployment_id' in x else _atd_missing_json_field('ScanInfo', 'deployment_id'),
                 deployment_name=_atd_read_string(x['deployment_name']) if 'deployment_name' in x else _atd_missing_json_field('ScanInfo', 'deployment_name'),
-                deployment_feature_flags=_atd_read_list(_atd_read_string)(x['deployment_feature_flags']) if 'deployment_feature_flags' in x else _atd_missing_json_field('ScanInfo', 'deployment_feature_flags'),
+                deployment_feature_flags=_atd_read_list(FeatureFlag.from_json)(x['deployment_feature_flags']) if 'deployment_feature_flags' in x else _atd_missing_json_field('ScanInfo', 'deployment_feature_flags'),
                 id=_atd_read_int(x['id']) if 'id' in x else None,
             )
         else:
@@ -3067,7 +3098,7 @@ class ScanInfo:
         res['enabled_products'] = _atd_write_list((lambda x: x.to_json()))(self.enabled_products)
         res['deployment_id'] = _atd_write_int(self.deployment_id)
         res['deployment_name'] = _atd_write_string(self.deployment_name)
-        res['deployment_feature_flags'] = _atd_write_list(_atd_write_string)(self.deployment_feature_flags)
+        res['deployment_feature_flags'] = _atd_write_list((lambda x: x.to_json()))(self.deployment_feature_flags)
         if self.id is not None:
             res['id'] = _atd_write_int(self.id)
         return res
@@ -3695,7 +3726,7 @@ class ScanConfig:
 
     deployment_id: int
     deployment_name: str
-    deployment_feature_flags: List[str]
+    deployment_feature_flag: List[FeatureFlag]
     policy_names: List[str]
     rule_config: str
     ci_config_from_cloud: Optional[CiConfigFromCloud] = None
@@ -3714,7 +3745,7 @@ class ScanConfig:
             return cls(
                 deployment_id=_atd_read_int(x['deployment_id']) if 'deployment_id' in x else _atd_missing_json_field('ScanConfig', 'deployment_id'),
                 deployment_name=_atd_read_string(x['deployment_name']) if 'deployment_name' in x else _atd_missing_json_field('ScanConfig', 'deployment_name'),
-                deployment_feature_flags=_atd_read_list(_atd_read_string)(x['deployment_feature_flags']) if 'deployment_feature_flags' in x else _atd_missing_json_field('ScanConfig', 'deployment_feature_flags'),
+                deployment_feature_flag=_atd_read_list(FeatureFlag.from_json)(x['deployment_feature_flag']) if 'deployment_feature_flag' in x else _atd_missing_json_field('ScanConfig', 'deployment_feature_flag'),
                 policy_names=_atd_read_list(_atd_read_string)(x['policy_names']) if 'policy_names' in x else _atd_missing_json_field('ScanConfig', 'policy_names'),
                 rule_config=_atd_read_string(x['rule_config']) if 'rule_config' in x else _atd_missing_json_field('ScanConfig', 'rule_config'),
                 ci_config_from_cloud=CiConfigFromCloud.from_json(x['ci_config_from_cloud']) if 'ci_config_from_cloud' in x else None,
@@ -3734,7 +3765,7 @@ class ScanConfig:
         res: Dict[str, Any] = {}
         res['deployment_id'] = _atd_write_int(self.deployment_id)
         res['deployment_name'] = _atd_write_string(self.deployment_name)
-        res['deployment_feature_flags'] = _atd_write_list(_atd_write_string)(self.deployment_feature_flags)
+        res['deployment_feature_flag'] = _atd_write_list((lambda x: x.to_json()))(self.deployment_feature_flag)
         res['policy_names'] = _atd_write_list(_atd_write_string)(self.policy_names)
         res['rule_config'] = _atd_write_string(self.rule_config)
         if self.ci_config_from_cloud is not None:
