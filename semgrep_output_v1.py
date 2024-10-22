@@ -3196,6 +3196,7 @@ class EngineConfiguration:
     product_ignored_files: Optional[ProductIgnoredFiles] = None
     generic_slow_rollout: bool = field(default_factory=lambda: False)
     historical_config: Optional[HistoricalConfiguration] = None
+    always_suppress_errors: bool = field(default_factory=lambda: False)
 
     @classmethod
     def from_json(cls, x: Any) -> 'EngineConfiguration':
@@ -3208,6 +3209,7 @@ class EngineConfiguration:
                 product_ignored_files=ProductIgnoredFiles.from_json(x['product_ignored_files']) if 'product_ignored_files' in x else None,
                 generic_slow_rollout=_atd_read_bool(x['generic_slow_rollout']) if 'generic_slow_rollout' in x else False,
                 historical_config=HistoricalConfiguration.from_json(x['historical_config']) if 'historical_config' in x else None,
+                always_suppress_errors=_atd_read_bool(x['always_suppress_errors']) if 'always_suppress_errors' in x else False,
             )
         else:
             _atd_bad_json('EngineConfiguration', x)
@@ -3223,6 +3225,7 @@ class EngineConfiguration:
         res['generic_slow_rollout'] = _atd_write_bool(self.generic_slow_rollout)
         if self.historical_config is not None:
             res['historical_config'] = (lambda x: x.to_json())(self.historical_config)
+        res['always_suppress_errors'] = _atd_write_bool(self.always_suppress_errors)
         return res
 
     @classmethod

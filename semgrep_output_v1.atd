@@ -1472,6 +1472,9 @@ type engine_configuration = {
     ~generic_slow_rollout: bool;
     (* from 1.63.0 *)
     ?historical_config: historical_configuration option;
+    (* from 1.93 *)
+    (* sent by the app to indicate that fail open should always be enabled, overriding the CLI flag. coupling: server/semgrep_app/saas/models/deployment_products_mixin.py *)
+    ~always_suppress_errors: bool;
 }
 
 (* ----------------------------- *)

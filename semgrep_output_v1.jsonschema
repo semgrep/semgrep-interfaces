@@ -1191,7 +1191,8 @@
         "generic_slow_rollout": { "type": "boolean" },
         "historical_config": {
           "$ref": "#/definitions/historical_configuration"
-        }
+        },
+        "always_suppress_errors": { "type": "boolean" }
       }
     },
     "finding": {

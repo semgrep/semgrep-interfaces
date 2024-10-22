@@ -287,7 +287,8 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   ignored_files: string list;
   product_ignored_files: product_ignored_files option;
   generic_slow_rollout: bool;
-  historical_config: historical_configuration option
+  historical_config: historical_configuration option;
+  always_suppress_errors: bool
 }
 
 type scan_response = Semgrep_output_v1_t.scan_response = {
@@ -10432,6 +10433,15 @@ let write_engine_configuration : _ -> engine_configuration -> _ = (
       )
         ob x;
     );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"always_suppress_errors\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.always_suppress_errors;
     Buffer.add_char ob '}';
 )
 let string_of_engine_configuration ?(len = 1024) x =
@@ -10449,6 +10459,7 @@ let read_engine_configuration = (
     let field_product_ignored_files = ref (None) in
     let field_generic_slow_rollout = ref (false) in
     let field_historical_config = ref (None) in
+    let field_always_suppress_errors = ref (false) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -10509,6 +10520,14 @@ let read_engine_configuration = (
             | 21 -> (
                 if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'g' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'd' && String.unsafe_get s (pos+15) = '_' && String.unsafe_get s (pos+16) = 'f' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 'l' && String.unsafe_get s (pos+19) = 'e' && String.unsafe_get s (pos+20) = 's' then (
                   4
+                )
+                else (
+                  -1
+                )
+              )
+            | 22 -> (
+                if String.unsafe_get s pos = 'a' && String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'w' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'y' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'p' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 's' && String.unsafe_get s (pos+14) = 's' && String.unsafe_get s (pos+15) = '_' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 'r' && String.unsafe_get s (pos+18) = 'r' && String.unsafe_get s (pos+19) = 'o' && String.unsafe_get s (pos+20) = 'r' && String.unsafe_get s (pos+21) = 's' then (
+                  7
                 )
                 else (
                   -1
@@ -10582,6 +10601,14 @@ let read_engine_configuration = (
                 )
               );
             )
+          | 7 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_always_suppress_errors := (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -10646,6 +10673,14 @@ let read_engine_configuration = (
               | 21 -> (
                   if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'g' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'd' && String.unsafe_get s (pos+15) = '_' && String.unsafe_get s (pos+16) = 'f' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 'l' && String.unsafe_get s (pos+19) = 'e' && String.unsafe_get s (pos+20) = 's' then (
                     4
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 22 -> (
+                  if String.unsafe_get s pos = 'a' && String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'w' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'y' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'p' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 's' && String.unsafe_get s (pos+14) = 's' && String.unsafe_get s (pos+15) = '_' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 'r' && String.unsafe_get s (pos+18) = 'r' && String.unsafe_get s (pos+19) = 'o' && String.unsafe_get s (pos+20) = 'r' && String.unsafe_get s (pos+21) = 's' then (
+                    7
                   )
                   else (
                     -1
@@ -10719,6 +10754,14 @@ let read_engine_configuration = (
                   )
                 );
               )
+            | 7 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_always_suppress_errors := (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -10735,6 +10778,7 @@ let read_engine_configuration = (
             product_ignored_files = !field_product_ignored_files;
             generic_slow_rollout = !field_generic_slow_rollout;
             historical_config = !field_historical_config;
+            always_suppress_errors = !field_always_suppress_errors;
           }
          : engine_configuration)
       )
