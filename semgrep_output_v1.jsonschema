@@ -1017,11 +1017,16 @@
     "scan_config": {
       "type": "object",
       "required": [
-        "deployment_id", "deployment_name", "policy_names", "rule_config"
+        "deployment_id", "deployment_name", "deployment_feature_flags",
+        "policy_names", "rule_config"
       ],
       "properties": {
         "deployment_id": { "type": "integer" },
         "deployment_name": { "type": "string" },
+        "deployment_feature_flags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
         "policy_names": { "type": "array", "items": { "type": "string" } },
         "rule_config": { "type": "string" },
         "ci_config_from_cloud": {
@@ -1130,7 +1135,10 @@
     },
     "scan_info": {
       "type": "object",
-      "required": [ "enabled_products", "deployment_id", "deployment_name" ],
+      "required": [
+        "enabled_products", "deployment_id", "deployment_name",
+        "deployment_feature_flags"
+      ],
       "properties": {
         "id": { "type": "integer" },
         "enabled_products": {
@@ -1138,7 +1146,11 @@
           "items": { "$ref": "#/definitions/product" }
         },
         "deployment_id": { "type": "integer" },
-        "deployment_name": { "type": "string" }
+        "deployment_name": { "type": "string" },
+        "deployment_feature_flags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
       }
     },
     "scan_configuration": {
