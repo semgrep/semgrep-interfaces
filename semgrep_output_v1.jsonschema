@@ -1025,8 +1025,7 @@
     "scan_config": {
       "type": "object",
       "required": [
-        "deployment_id", "deployment_name", "deployment_feature_flag",
-        "policy_names", "rule_config"
+        "deployment_id", "deployment_name", "policy_names", "rule_config"
       ],
       "properties": {
         "deployment_id": { "type": "integer" },
@@ -1143,10 +1142,7 @@
     },
     "scan_info": {
       "type": "object",
-      "required": [
-        "enabled_products", "deployment_id", "deployment_name",
-        "deployment_feature_flags"
-      ],
+      "required": [ "enabled_products", "deployment_id", "deployment_name" ],
       "properties": {
         "id": { "type": "integer" },
         "enabled_products": {

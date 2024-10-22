@@ -577,7 +577,7 @@ export type Tag = string
 export type ScanConfig = {
   deployment_id: number /*int*/;
   deployment_name: string;
-  deployment_feature_flag: FeatureFlag[];
+  deployment_feature_flag?: FeatureFlag[];
   policy_names: string[];
   rule_config: string;
   ci_config_from_cloud?: CiConfigFromCloud;
@@ -650,7 +650,7 @@ export type ScanInfo = {
   enabled_products: Product[];
   deployment_id: number /*int*/;
   deployment_name: string;
-  deployment_feature_flags: FeatureFlag[];
+  deployment_feature_flags?: FeatureFlag[];
 }
 
 export type ScanConfiguration = {
@@ -2729,7 +2729,7 @@ export function writeScanConfig(x: ScanConfig, context: any = x): any {
   return {
     'deployment_id': _atd_write_required_field('ScanConfig', 'deployment_id', _atd_write_int, x.deployment_id, x),
     'deployment_name': _atd_write_required_field('ScanConfig', 'deployment_name', _atd_write_string, x.deployment_name, x),
-    'deployment_feature_flag': _atd_write_required_field('ScanConfig', 'deployment_feature_flag', _atd_write_array(writeFeatureFlag), x.deployment_feature_flag, x),
+    'deployment_feature_flag': _atd_write_optional_field(_atd_write_array(writeFeatureFlag), x.deployment_feature_flag, x),
     'policy_names': _atd_write_required_field('ScanConfig', 'policy_names', _atd_write_array(_atd_write_string), x.policy_names, x),
     'rule_config': _atd_write_required_field('ScanConfig', 'rule_config', _atd_write_string, x.rule_config, x),
     'ci_config_from_cloud': _atd_write_optional_field(writeCiConfigFromCloud, x.ci_config_from_cloud, x),
@@ -2748,7 +2748,7 @@ export function readScanConfig(x: any, context: any = x): ScanConfig {
   return {
     deployment_id: _atd_read_required_field('ScanConfig', 'deployment_id', _atd_read_int, x['deployment_id'], x),
     deployment_name: _atd_read_required_field('ScanConfig', 'deployment_name', _atd_read_string, x['deployment_name'], x),
-    deployment_feature_flag: _atd_read_required_field('ScanConfig', 'deployment_feature_flag', _atd_read_array(readFeatureFlag), x['deployment_feature_flag'], x),
+    deployment_feature_flag: _atd_read_optional_field(_atd_read_array(readFeatureFlag), x['deployment_feature_flag'], x),
     policy_names: _atd_read_required_field('ScanConfig', 'policy_names', _atd_read_array(_atd_read_string), x['policy_names'], x),
     rule_config: _atd_read_required_field('ScanConfig', 'rule_config', _atd_read_string, x['rule_config'], x),
     ci_config_from_cloud: _atd_read_optional_field(readCiConfigFromCloud, x['ci_config_from_cloud'], x),
@@ -2897,7 +2897,7 @@ export function writeScanInfo(x: ScanInfo, context: any = x): any {
     'enabled_products': _atd_write_required_field('ScanInfo', 'enabled_products', _atd_write_array(writeProduct), x.enabled_products, x),
     'deployment_id': _atd_write_required_field('ScanInfo', 'deployment_id', _atd_write_int, x.deployment_id, x),
     'deployment_name': _atd_write_required_field('ScanInfo', 'deployment_name', _atd_write_string, x.deployment_name, x),
-    'deployment_feature_flags': _atd_write_required_field('ScanInfo', 'deployment_feature_flags', _atd_write_array(writeFeatureFlag), x.deployment_feature_flags, x),
+    'deployment_feature_flags': _atd_write_optional_field(_atd_write_array(writeFeatureFlag), x.deployment_feature_flags, x),
   };
 }
 
@@ -2907,7 +2907,7 @@ export function readScanInfo(x: any, context: any = x): ScanInfo {
     enabled_products: _atd_read_required_field('ScanInfo', 'enabled_products', _atd_read_array(readProduct), x['enabled_products'], x),
     deployment_id: _atd_read_required_field('ScanInfo', 'deployment_id', _atd_read_int, x['deployment_id'], x),
     deployment_name: _atd_read_required_field('ScanInfo', 'deployment_name', _atd_read_string, x['deployment_name'], x),
-    deployment_feature_flags: _atd_read_required_field('ScanInfo', 'deployment_feature_flags', _atd_read_array(readFeatureFlag), x['deployment_feature_flags'], x),
+    deployment_feature_flags: _atd_read_optional_field(_atd_read_array(readFeatureFlag), x['deployment_feature_flags'], x),
   };
 }
 

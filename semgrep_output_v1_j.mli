@@ -267,7 +267,7 @@ type scan_info = Semgrep_output_v1_t.scan_info = {
   enabled_products: product list;
   deployment_id: int;
   deployment_name: string;
-  deployment_feature_flags: feature_flag list
+  deployment_feature_flags: feature_flag list option
 }
 
 type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
@@ -375,7 +375,7 @@ type ci_config_from_cloud = Semgrep_output_v1_t.ci_config_from_cloud = {
 type scan_config = Semgrep_output_v1_t.scan_config = {
   deployment_id: int;
   deployment_name: string;
-  deployment_feature_flag: feature_flag list;
+  deployment_feature_flag: feature_flag list option;
   policy_names: string list;
   rule_config: string;
   ci_config_from_cloud: ci_config_from_cloud option;

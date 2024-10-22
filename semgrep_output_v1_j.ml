@@ -267,7 +267,7 @@ type scan_info = Semgrep_output_v1_t.scan_info = {
   enabled_products: product list;
   deployment_id: int;
   deployment_name: string;
-  deployment_feature_flags: feature_flag list
+  deployment_feature_flags: feature_flag list option
 }
 
 type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
@@ -375,7 +375,7 @@ type ci_config_from_cloud = Semgrep_output_v1_t.ci_config_from_cloud = {
 type scan_config = Semgrep_output_v1_t.scan_config = {
   deployment_id: int;
   deployment_name: string;
-  deployment_feature_flag: feature_flag list;
+  deployment_feature_flag: feature_flag list option;
   policy_names: string list;
   rule_config: string;
   ci_config_from_cloud: ci_config_from_cloud option;
@@ -9714,6 +9714,63 @@ let read__feature_flag_list = (
 )
 let _feature_flag_list_of_string s =
   read__feature_flag_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__feature_flag_list_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write__feature_flag_list
+  )
+)
+let string_of__feature_flag_list_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__feature_flag_list_option ob x;
+  Buffer.contents ob
+let read__feature_flag_list_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__feature_flag_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__feature_flag_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _feature_flag_list_option_of_string s =
+  read__feature_flag_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_scan_info : _ -> scan_info -> _ = (
   fun ob (x : scan_info) ->
     Buffer.add_char ob '{';
@@ -9756,15 +9813,17 @@ let write_scan_info : _ -> scan_info -> _ = (
       Yojson.Safe.write_string
     )
       ob x.deployment_name;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"deployment_feature_flags\":";
-    (
-      write__feature_flag_list
-    )
-      ob x.deployment_feature_flags;
+    (match x.deployment_feature_flags with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"deployment_feature_flags\":";
+      (
+        write__feature_flag_list
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_scan_info ?(len = 1024) x =
@@ -9872,13 +9931,15 @@ let read_scan_info = (
               )
             );
           | 4 ->
-            field_deployment_feature_flags := (
-              Some (
-                (
-                  read__feature_flag_list
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_deployment_feature_flags := (
+                Some (
+                  (
+                    read__feature_flag_list
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -9975,13 +10036,15 @@ let read_scan_info = (
                 )
               );
             | 4 ->
-              field_deployment_feature_flags := (
-                Some (
-                  (
-                    read__feature_flag_list
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_deployment_feature_flags := (
+                  Some (
+                    (
+                      read__feature_flag_list
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -9995,7 +10058,7 @@ let read_scan_info = (
             enabled_products = (match !field_enabled_products with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "enabled_products");
             deployment_id = (match !field_deployment_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "deployment_id");
             deployment_name = (match !field_deployment_name with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "deployment_name");
-            deployment_feature_flags = (match !field_deployment_feature_flags with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "deployment_feature_flags");
+            deployment_feature_flags = !field_deployment_feature_flags;
           }
          : scan_info)
       )
@@ -14734,15 +14797,17 @@ let write_scan_config : _ -> scan_config -> _ = (
       Yojson.Safe.write_string
     )
       ob x.deployment_name;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"deployment_feature_flag\":";
-    (
-      write__feature_flag_list
-    )
-      ob x.deployment_feature_flag;
+    (match x.deployment_feature_flag with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"deployment_feature_flag\":";
+      (
+        write__feature_flag_list
+      )
+        ob x;
+    );
     if !is_first then
       is_first := false
     else
@@ -15045,13 +15110,15 @@ let read_scan_config = (
               )
             );
           | 2 ->
-            field_deployment_feature_flag := (
-              Some (
-                (
-                  read__feature_flag_list
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_deployment_feature_flag := (
+                Some (
+                  (
+                    read__feature_flag_list
+                  ) p lb
+                )
+              );
+            )
           | 3 ->
             field_policy_names := (
               Some (
@@ -15323,13 +15390,15 @@ let read_scan_config = (
                 )
               );
             | 2 ->
-              field_deployment_feature_flag := (
-                Some (
-                  (
-                    read__feature_flag_list
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_deployment_feature_flag := (
+                  Some (
+                    (
+                      read__feature_flag_list
+                    ) p lb
+                  )
+                );
+              )
             | 3 ->
               field_policy_names := (
                 Some (
@@ -15433,7 +15502,7 @@ let read_scan_config = (
           {
             deployment_id = (match !field_deployment_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "deployment_id");
             deployment_name = (match !field_deployment_name with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "deployment_name");
-            deployment_feature_flag = (match !field_deployment_feature_flag with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "deployment_feature_flag");
+            deployment_feature_flag = !field_deployment_feature_flag;
             policy_names = (match !field_policy_names with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "policy_names");
             rule_config = (match !field_rule_config with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rule_config");
             ci_config_from_cloud = !field_ci_config_from_cloud;
