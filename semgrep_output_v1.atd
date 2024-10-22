@@ -1218,11 +1218,7 @@ type features = {
    ~autofix: bool;
    ~deepsemgrep: bool;
    ~dependency_query: bool;
-}
-
-type feature_flag = {
-  name: string;
-  enabled: bool;
+   ~path_to_transitivity: bool;
 }
 
 type triage_ignored = {
@@ -1298,8 +1294,6 @@ type scan_config = {
      *)
     deployment_id: int;
     deployment_name: string;
-    (* deployment specific feature flag settings which impact CI behavior *)
-    ?deployment_feature_flag: feature_flag list option;
     (* ex: "audit", "comment", "block" TODO use enum? TODO: seems dead *)
     policy_names: string list;
     (* rules raw content in JSON format (but still sent as a string) *)
@@ -1444,8 +1438,6 @@ type scan_info = {
     enabled_products: product list;
     deployment_id: int;
     deployment_name: string;
-    (* deployment specific feature flag settings which impact CI behavior *)
-    ?deployment_feature_flags: feature_flag list option;
 }
 
 

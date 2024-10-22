@@ -3040,37 +3040,6 @@ class Product:
 
 
 @dataclass
-class FeatureFlag:
-    """Original type: feature_flag = { ... }"""
-
-    name: str
-    enabled: bool
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'FeatureFlag':
-        if isinstance(x, dict):
-            return cls(
-                name=_atd_read_string(x['name']) if 'name' in x else _atd_missing_json_field('FeatureFlag', 'name'),
-                enabled=_atd_read_bool(x['enabled']) if 'enabled' in x else _atd_missing_json_field('FeatureFlag', 'enabled'),
-            )
-        else:
-            _atd_bad_json('FeatureFlag', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['name'] = _atd_write_string(self.name)
-        res['enabled'] = _atd_write_bool(self.enabled)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'FeatureFlag':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class ScanInfo:
     """Original type: scan_info = { ... }"""
 
@@ -3078,7 +3047,6 @@ class ScanInfo:
     deployment_id: int
     deployment_name: str
     id: Optional[int] = None
-    deployment_feature_flags: Optional[List[FeatureFlag]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanInfo':
@@ -3088,7 +3056,6 @@ class ScanInfo:
                 deployment_id=_atd_read_int(x['deployment_id']) if 'deployment_id' in x else _atd_missing_json_field('ScanInfo', 'deployment_id'),
                 deployment_name=_atd_read_string(x['deployment_name']) if 'deployment_name' in x else _atd_missing_json_field('ScanInfo', 'deployment_name'),
                 id=_atd_read_int(x['id']) if 'id' in x else None,
-                deployment_feature_flags=_atd_read_list(FeatureFlag.from_json)(x['deployment_feature_flags']) if 'deployment_feature_flags' in x else None,
             )
         else:
             _atd_bad_json('ScanInfo', x)
@@ -3100,8 +3067,6 @@ class ScanInfo:
         res['deployment_name'] = _atd_write_string(self.deployment_name)
         if self.id is not None:
             res['id'] = _atd_write_int(self.id)
-        if self.deployment_feature_flags is not None:
-            res['deployment_feature_flags'] = _atd_write_list((lambda x: x.to_json()))(self.deployment_feature_flags)
         return res
 
     @classmethod
@@ -3227,6 +3192,7 @@ class EngineConfiguration:
     autofix: bool = field(default_factory=lambda: False)
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
+    path_to_transitivity: bool = field(default_factory=lambda: False)
     ignored_files: List[str] = field(default_factory=lambda: [])
     product_ignored_files: Optional[ProductIgnoredFiles] = None
     generic_slow_rollout: bool = field(default_factory=lambda: False)
@@ -3240,6 +3206,7 @@ class EngineConfiguration:
                 autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
+                path_to_transitivity=_atd_read_bool(x['path_to_transitivity']) if 'path_to_transitivity' in x else False,
                 ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
                 product_ignored_files=ProductIgnoredFiles.from_json(x['product_ignored_files']) if 'product_ignored_files' in x else None,
                 generic_slow_rollout=_atd_read_bool(x['generic_slow_rollout']) if 'generic_slow_rollout' in x else False,
@@ -3254,6 +3221,7 @@ class EngineConfiguration:
         res['autofix'] = _atd_write_bool(self.autofix)
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
+        res['path_to_transitivity'] = _atd_write_bool(self.path_to_transitivity)
         res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
         if self.product_ignored_files is not None:
             res['product_ignored_files'] = (lambda x: x.to_json())(self.product_ignored_files)
@@ -3560,6 +3528,7 @@ class CiConfig:
     autofix: bool = field(default_factory=lambda: False)
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
+    path_to_transitivity: bool = field(default_factory=lambda: False)
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiConfig':
@@ -3571,6 +3540,7 @@ class CiConfig:
                 autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
+                path_to_transitivity=_atd_read_bool(x['path_to_transitivity']) if 'path_to_transitivity' in x else False,
             )
         else:
             _atd_bad_json('CiConfig', x)
@@ -3583,6 +3553,7 @@ class CiConfig:
         res['autofix'] = _atd_write_bool(self.autofix)
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
+        res['path_to_transitivity'] = _atd_write_bool(self.path_to_transitivity)
         return res
 
     @classmethod
@@ -3729,11 +3700,11 @@ class ScanConfig:
     deployment_name: str
     policy_names: List[str]
     rule_config: str
-    deployment_feature_flag: Optional[List[FeatureFlag]] = None
     ci_config_from_cloud: Optional[CiConfigFromCloud] = None
     autofix: bool = field(default_factory=lambda: False)
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
+    path_to_transitivity: bool = field(default_factory=lambda: False)
     triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
     triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
     ignored_files: List[str] = field(default_factory=lambda: [])
@@ -3748,11 +3719,11 @@ class ScanConfig:
                 deployment_name=_atd_read_string(x['deployment_name']) if 'deployment_name' in x else _atd_missing_json_field('ScanConfig', 'deployment_name'),
                 policy_names=_atd_read_list(_atd_read_string)(x['policy_names']) if 'policy_names' in x else _atd_missing_json_field('ScanConfig', 'policy_names'),
                 rule_config=_atd_read_string(x['rule_config']) if 'rule_config' in x else _atd_missing_json_field('ScanConfig', 'rule_config'),
-                deployment_feature_flag=_atd_read_list(FeatureFlag.from_json)(x['deployment_feature_flag']) if 'deployment_feature_flag' in x else None,
                 ci_config_from_cloud=CiConfigFromCloud.from_json(x['ci_config_from_cloud']) if 'ci_config_from_cloud' in x else None,
                 autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
+                path_to_transitivity=_atd_read_bool(x['path_to_transitivity']) if 'path_to_transitivity' in x else False,
                 triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
                 triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
                 ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
@@ -3768,13 +3739,12 @@ class ScanConfig:
         res['deployment_name'] = _atd_write_string(self.deployment_name)
         res['policy_names'] = _atd_write_list(_atd_write_string)(self.policy_names)
         res['rule_config'] = _atd_write_string(self.rule_config)
-        if self.deployment_feature_flag is not None:
-            res['deployment_feature_flag'] = _atd_write_list((lambda x: x.to_json()))(self.deployment_feature_flag)
         if self.ci_config_from_cloud is not None:
             res['ci_config_from_cloud'] = (lambda x: x.to_json())(self.ci_config_from_cloud)
         res['autofix'] = _atd_write_bool(self.autofix)
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
+        res['path_to_transitivity'] = _atd_write_bool(self.path_to_transitivity)
         res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
         res['triage_ignored_match_based_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_match_based_ids)
         res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
@@ -7272,6 +7242,7 @@ class Features:
     autofix: bool = field(default_factory=lambda: False)
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
+    path_to_transitivity: bool = field(default_factory=lambda: False)
 
     @classmethod
     def from_json(cls, x: Any) -> 'Features':
@@ -7280,6 +7251,7 @@ class Features:
                 autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
+                path_to_transitivity=_atd_read_bool(x['path_to_transitivity']) if 'path_to_transitivity' in x else False,
             )
         else:
             _atd_bad_json('Features', x)
@@ -7289,6 +7261,7 @@ class Features:
         res['autofix'] = _atd_write_bool(self.autofix)
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
+        res['path_to_transitivity'] = _atd_write_bool(self.path_to_transitivity)
         return res
 
     @classmethod

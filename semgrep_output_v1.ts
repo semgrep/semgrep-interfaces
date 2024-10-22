@@ -535,11 +535,7 @@ export type Features = {
   autofix: boolean;
   deepsemgrep: boolean;
   dependency_query: boolean;
-}
-
-export type FeatureFlag = {
-  name: string;
-  enabled: boolean;
+  path_to_transitivity: boolean;
 }
 
 export type TriageIgnored = {
@@ -577,13 +573,13 @@ export type Tag = string
 export type ScanConfig = {
   deployment_id: number /*int*/;
   deployment_name: string;
-  deployment_feature_flag?: FeatureFlag[];
   policy_names: string[];
   rule_config: string;
   ci_config_from_cloud?: CiConfigFromCloud;
   autofix: boolean;
   deepsemgrep: boolean;
   dependency_query: boolean;
+  path_to_transitivity: boolean;
   triage_ignored_syntactic_ids: string[];
   triage_ignored_match_based_ids: string[];
   ignored_files: string[];
@@ -650,7 +646,6 @@ export type ScanInfo = {
   enabled_products: Product[];
   deployment_id: number /*int*/;
   deployment_name: string;
-  deployment_feature_flags?: FeatureFlag[];
 }
 
 export type ScanConfiguration = {
@@ -672,6 +667,7 @@ export type EngineConfiguration = {
   autofix: boolean;
   deepsemgrep: boolean;
   dependency_query: boolean;
+  path_to_transitivity: boolean;
   ignored_files: string[];
   product_ignored_files?: ProductIgnoredFiles;
   generic_slow_rollout: boolean;
@@ -797,6 +793,7 @@ export type CiConfig = {
   autofix: boolean;
   deepsemgrep: boolean;
   dependency_query: boolean;
+  path_to_transitivity: boolean;
 }
 
 export type CiEnv = Map<string, string>
@@ -2604,6 +2601,7 @@ export function writeFeatures(x: Features, context: any = x): any {
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
+    'path_to_transitivity': _atd_write_field_with_default(_atd_write_bool, false, x.path_to_transitivity, x),
   };
 }
 
@@ -2612,20 +2610,7 @@ export function readFeatures(x: any, context: any = x): Features {
     autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
-  };
-}
-
-export function writeFeatureFlag(x: FeatureFlag, context: any = x): any {
-  return {
-    'name': _atd_write_required_field('FeatureFlag', 'name', _atd_write_string, x.name, x),
-    'enabled': _atd_write_required_field('FeatureFlag', 'enabled', _atd_write_bool, x.enabled, x),
-  };
-}
-
-export function readFeatureFlag(x: any, context: any = x): FeatureFlag {
-  return {
-    name: _atd_read_required_field('FeatureFlag', 'name', _atd_read_string, x['name'], x),
-    enabled: _atd_read_required_field('FeatureFlag', 'enabled', _atd_read_bool, x['enabled'], x),
+    path_to_transitivity: _atd_read_field_with_default(_atd_read_bool, false, x['path_to_transitivity'], x),
   };
 }
 
@@ -2729,13 +2714,13 @@ export function writeScanConfig(x: ScanConfig, context: any = x): any {
   return {
     'deployment_id': _atd_write_required_field('ScanConfig', 'deployment_id', _atd_write_int, x.deployment_id, x),
     'deployment_name': _atd_write_required_field('ScanConfig', 'deployment_name', _atd_write_string, x.deployment_name, x),
-    'deployment_feature_flag': _atd_write_optional_field(_atd_write_array(writeFeatureFlag), x.deployment_feature_flag, x),
     'policy_names': _atd_write_required_field('ScanConfig', 'policy_names', _atd_write_array(_atd_write_string), x.policy_names, x),
     'rule_config': _atd_write_required_field('ScanConfig', 'rule_config', _atd_write_string, x.rule_config, x),
     'ci_config_from_cloud': _atd_write_optional_field(writeCiConfigFromCloud, x.ci_config_from_cloud, x),
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
+    'path_to_transitivity': _atd_write_field_with_default(_atd_write_bool, false, x.path_to_transitivity, x),
     'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
     'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
     'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
@@ -2748,13 +2733,13 @@ export function readScanConfig(x: any, context: any = x): ScanConfig {
   return {
     deployment_id: _atd_read_required_field('ScanConfig', 'deployment_id', _atd_read_int, x['deployment_id'], x),
     deployment_name: _atd_read_required_field('ScanConfig', 'deployment_name', _atd_read_string, x['deployment_name'], x),
-    deployment_feature_flag: _atd_read_optional_field(_atd_read_array(readFeatureFlag), x['deployment_feature_flag'], x),
     policy_names: _atd_read_required_field('ScanConfig', 'policy_names', _atd_read_array(_atd_read_string), x['policy_names'], x),
     rule_config: _atd_read_required_field('ScanConfig', 'rule_config', _atd_read_string, x['rule_config'], x),
     ci_config_from_cloud: _atd_read_optional_field(readCiConfigFromCloud, x['ci_config_from_cloud'], x),
     autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
+    path_to_transitivity: _atd_read_field_with_default(_atd_read_bool, false, x['path_to_transitivity'], x),
     triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),
     triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
     ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
@@ -2897,7 +2882,6 @@ export function writeScanInfo(x: ScanInfo, context: any = x): any {
     'enabled_products': _atd_write_required_field('ScanInfo', 'enabled_products', _atd_write_array(writeProduct), x.enabled_products, x),
     'deployment_id': _atd_write_required_field('ScanInfo', 'deployment_id', _atd_write_int, x.deployment_id, x),
     'deployment_name': _atd_write_required_field('ScanInfo', 'deployment_name', _atd_write_string, x.deployment_name, x),
-    'deployment_feature_flags': _atd_write_optional_field(_atd_write_array(writeFeatureFlag), x.deployment_feature_flags, x),
   };
 }
 
@@ -2907,7 +2891,6 @@ export function readScanInfo(x: any, context: any = x): ScanInfo {
     enabled_products: _atd_read_required_field('ScanInfo', 'enabled_products', _atd_read_array(readProduct), x['enabled_products'], x),
     deployment_id: _atd_read_required_field('ScanInfo', 'deployment_id', _atd_read_int, x['deployment_id'], x),
     deployment_name: _atd_read_required_field('ScanInfo', 'deployment_name', _atd_read_string, x['deployment_name'], x),
-    deployment_feature_flags: _atd_read_optional_field(_atd_read_array(readFeatureFlag), x['deployment_feature_flags'], x),
   };
 }
 
@@ -2962,6 +2945,7 @@ export function writeEngineConfiguration(x: EngineConfiguration, context: any = 
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
+    'path_to_transitivity': _atd_write_field_with_default(_atd_write_bool, false, x.path_to_transitivity, x),
     'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
     'product_ignored_files': _atd_write_optional_field(writeProductIgnoredFiles, x.product_ignored_files, x),
     'generic_slow_rollout': _atd_write_field_with_default(_atd_write_bool, false, x.generic_slow_rollout, x),
@@ -2975,6 +2959,7 @@ export function readEngineConfiguration(x: any, context: any = x): EngineConfigu
     autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
+    path_to_transitivity: _atd_read_field_with_default(_atd_read_bool, false, x['path_to_transitivity'], x),
     ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
     product_ignored_files: _atd_read_optional_field(readProductIgnoredFiles, x['product_ignored_files'], x),
     generic_slow_rollout: _atd_read_field_with_default(_atd_read_bool, false, x['generic_slow_rollout'], x),
@@ -3273,6 +3258,7 @@ export function writeCiConfig(x: CiConfig, context: any = x): any {
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
+    'path_to_transitivity': _atd_write_field_with_default(_atd_write_bool, false, x.path_to_transitivity, x),
   };
 }
 
@@ -3284,6 +3270,7 @@ export function readCiConfig(x: any, context: any = x): CiConfig {
     autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
+    path_to_transitivity: _atd_read_field_with_default(_atd_read_bool, false, x['path_to_transitivity'], x),
   };
 }
 

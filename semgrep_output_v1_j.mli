@@ -257,17 +257,11 @@ type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
 
 type product = Semgrep_output_v1_t.product [@@deriving show, eq]
 
-type feature_flag = Semgrep_output_v1_t.feature_flag = {
-  name: string;
-  enabled: bool
-}
-
 type scan_info = Semgrep_output_v1_t.scan_info = {
   id: int option;
   enabled_products: product list;
   deployment_id: int;
-  deployment_name: string;
-  deployment_feature_flags: feature_flag list option
+  deployment_name: string
 }
 
 type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
@@ -290,6 +284,7 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
+  path_to_transitivity: bool;
   ignored_files: string list;
   product_ignored_files: product_ignored_files option;
   generic_slow_rollout: bool;
@@ -360,7 +355,8 @@ type ci_config = Semgrep_output_v1_t.ci_config = {
   ignored_files: string list;
   autofix: bool;
   deepsemgrep: bool;
-  dependency_query: bool
+  dependency_query: bool;
+  path_to_transitivity: bool
 }
 
 type action = Semgrep_output_v1_t.action
@@ -375,13 +371,13 @@ type ci_config_from_cloud = Semgrep_output_v1_t.ci_config_from_cloud = {
 type scan_config = Semgrep_output_v1_t.scan_config = {
   deployment_id: int;
   deployment_name: string;
-  deployment_feature_flag: feature_flag list option;
   policy_names: string list;
   rule_config: string;
   ci_config_from_cloud: ci_config_from_cloud option;
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
+  path_to_transitivity: bool;
   triage_ignored_syntactic_ids: string list;
   triage_ignored_match_based_ids: string list;
   ignored_files: string list;
@@ -717,7 +713,8 @@ type function_call = Semgrep_output_v1_t.function_call
 type features = Semgrep_output_v1_t.features = {
   autofix: bool;
   deepsemgrep: bool;
-  dependency_query: bool
+  dependency_query: bool;
+  path_to_transitivity: bool
 }
 
 type deployment_config = Semgrep_output_v1_t.deployment_config = {
@@ -1832,26 +1829,6 @@ val read_product :
 val product_of_string :
   string -> product
   (** Deserialize JSON data of type {!type:product}. *)
-
-val write_feature_flag :
-  Buffer.t -> feature_flag -> unit
-  (** Output a JSON value of type {!type:feature_flag}. *)
-
-val string_of_feature_flag :
-  ?len:int -> feature_flag -> string
-  (** Serialize a value of type {!type:feature_flag}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_feature_flag :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> feature_flag
-  (** Input JSON data of type {!type:feature_flag}. *)
-
-val feature_flag_of_string :
-  string -> feature_flag
-  (** Deserialize JSON data of type {!type:feature_flag}. *)
 
 val write_scan_info :
   Buffer.t -> scan_info -> unit
