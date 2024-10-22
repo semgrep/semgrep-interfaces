@@ -192,6 +192,7 @@ export type ErrorType =
 | { kind: 'IncompatibleRule'; value: IncompatibleRule }
 | { kind: 'PatternParseError0' /* JSON: "Pattern parse error" */ }
 | { kind: 'IncompatibleRule0' /* JSON: "Incompatible rule" */ }
+| { kind: 'DependencyResolutionError'; value: ResolutionError }
 
 export type IncompatibleRule = {
   rule_id: RuleId;
@@ -1469,6 +1470,8 @@ export function writeErrorType(x: ErrorType, context: any = x): any {
       return 'Pattern parse error'
     case 'IncompatibleRule0':
       return 'Incompatible rule'
+    case 'DependencyResolutionError':
+      return ['DependencyResolutionError', writeResolutionError(x.value, x)]
   }
 }
 
@@ -1533,6 +1536,8 @@ export function readErrorType(x: any, context: any = x): ErrorType {
         return { kind: 'PartialParsing', value: _atd_read_array(readLocation)(x[1], x) }
       case 'IncompatibleRule':
         return { kind: 'IncompatibleRule', value: readIncompatibleRule(x[1], x) }
+      case 'DependencyResolutionError':
+        return { kind: 'DependencyResolutionError', value: readResolutionError(x[1], x) }
       default:
         _atd_bad_json('ErrorType', x, context)
         throw new Error('impossible')

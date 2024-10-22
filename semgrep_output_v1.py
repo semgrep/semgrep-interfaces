@@ -4672,6 +4672,147 @@ class SarifFormatReturn:
 
 
 @dataclass(frozen=True)
+class ResolutionCmdFailed:
+    """Original type: resolution_cmd_failed = { ... }"""
+
+    command: str
+    message: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolutionCmdFailed':
+        if isinstance(x, dict):
+            return cls(
+                command=_atd_read_string(x['command']) if 'command' in x else _atd_missing_json_field('ResolutionCmdFailed', 'command'),
+                message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('ResolutionCmdFailed', 'message'),
+            )
+        else:
+            _atd_bad_json('ResolutionCmdFailed', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['command'] = _atd_write_string(self.command)
+        res['message'] = _atd_write_string(self.message)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolutionCmdFailed':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class UnsupportedManifest:
+    """Original type: resolution_error = [ ... | UnsupportedManifest | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'UnsupportedManifest'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'UnsupportedManifest'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class MissingRequirement:
+    """Original type: resolution_error = [ ... | MissingRequirement of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'MissingRequirement'
+
+    def to_json(self) -> Any:
+        return ['MissingRequirement', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ResolutionCmdFailed_:
+    """Original type: resolution_error = [ ... | ResolutionCmdFailed of ... | ... ]"""
+
+    value: ResolutionCmdFailed
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ResolutionCmdFailed_'
+
+    def to_json(self) -> Any:
+        return ['ResolutionCmdFailed', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ParseDependenciesFailed:
+    """Original type: resolution_error = [ ... | ParseDependenciesFailed of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ParseDependenciesFailed'
+
+    def to_json(self) -> Any:
+        return ['ParseDependenciesFailed', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ResolutionError:
+    """Original type: resolution_error = [ ... ]"""
+
+    value: Union[UnsupportedManifest, MissingRequirement, ResolutionCmdFailed_, ParseDependenciesFailed]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolutionError':
+        if isinstance(x, str):
+            if x == 'UnsupportedManifest':
+                return cls(UnsupportedManifest())
+            _atd_bad_json('ResolutionError', x)
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'MissingRequirement':
+                return cls(MissingRequirement(_atd_read_string(x[1])))
+            if cons == 'ResolutionCmdFailed':
+                return cls(ResolutionCmdFailed_(ResolutionCmdFailed.from_json(x[1])))
+            if cons == 'ParseDependenciesFailed':
+                return cls(ParseDependenciesFailed(_atd_read_string(x[1])))
+            _atd_bad_json('ResolutionError', x)
+        _atd_bad_json('ResolutionError', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolutionError':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class IncompatibleRule:
     """Original type: incompatible_rule = { ... }"""
 
@@ -5139,10 +5280,28 @@ class IncompatibleRule0:
 
 
 @dataclass(frozen=True, order=True)
+class DependencyResolutionError:
+    """Original type: error_type = [ ... | DependencyResolutionError of ... | ... ]"""
+
+    value: ResolutionError
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'DependencyResolutionError'
+
+    def to_json(self) -> Any:
+        return ['DependencyResolutionError', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
 class ErrorType:
     """Original type: error_type = [ ... ]"""
 
-    value: Union[LexicalError, ParseError, OtherParseError, AstBuilderError, RuleParseError, SemgrepWarning, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, StackOverflow, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0]
+    value: Union[LexicalError, ParseError, OtherParseError, AstBuilderError, RuleParseError, SemgrepWarning, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, StackOverflow, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0, DependencyResolutionError]
 
     @property
     def kind(self) -> str:
@@ -5205,6 +5364,8 @@ class ErrorType:
                 return cls(PartialParsing(_atd_read_list(Location.from_json)(x[1])))
             if cons == 'IncompatibleRule':
                 return cls(IncompatibleRule_(IncompatibleRule.from_json(x[1])))
+            if cons == 'DependencyResolutionError':
+                return cls(DependencyResolutionError(ResolutionError.from_json(x[1])))
             _atd_bad_json('ErrorType', x)
         _atd_bad_json('ErrorType', x)
 
@@ -5669,147 +5830,6 @@ class RuleIdAndEngineKind:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'RuleIdAndEngineKind':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class ResolutionCmdFailed:
-    """Original type: resolution_cmd_failed = { ... }"""
-
-    command: str
-    message: str
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ResolutionCmdFailed':
-        if isinstance(x, dict):
-            return cls(
-                command=_atd_read_string(x['command']) if 'command' in x else _atd_missing_json_field('ResolutionCmdFailed', 'command'),
-                message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('ResolutionCmdFailed', 'message'),
-            )
-        else:
-            _atd_bad_json('ResolutionCmdFailed', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['command'] = _atd_write_string(self.command)
-        res['message'] = _atd_write_string(self.message)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ResolutionCmdFailed':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class UnsupportedManifest:
-    """Original type: resolution_error = [ ... | UnsupportedManifest | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'UnsupportedManifest'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'UnsupportedManifest'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class MissingRequirement:
-    """Original type: resolution_error = [ ... | MissingRequirement of ... | ... ]"""
-
-    value: str
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'MissingRequirement'
-
-    def to_json(self) -> Any:
-        return ['MissingRequirement', _atd_write_string(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class ResolutionCmdFailed_:
-    """Original type: resolution_error = [ ... | ResolutionCmdFailed of ... | ... ]"""
-
-    value: ResolutionCmdFailed
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'ResolutionCmdFailed_'
-
-    def to_json(self) -> Any:
-        return ['ResolutionCmdFailed', (lambda x: x.to_json())(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class ParseDependenciesFailed:
-    """Original type: resolution_error = [ ... | ParseDependenciesFailed of ... | ... ]"""
-
-    value: str
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'ParseDependenciesFailed'
-
-    def to_json(self) -> Any:
-        return ['ParseDependenciesFailed', _atd_write_string(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class ResolutionError:
-    """Original type: resolution_error = [ ... ]"""
-
-    value: Union[UnsupportedManifest, MissingRequirement, ResolutionCmdFailed_, ParseDependenciesFailed]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ResolutionError':
-        if isinstance(x, str):
-            if x == 'UnsupportedManifest':
-                return cls(UnsupportedManifest())
-            _atd_bad_json('ResolutionError', x)
-        if isinstance(x, List) and len(x) == 2:
-            cons = x[0]
-            if cons == 'MissingRequirement':
-                return cls(MissingRequirement(_atd_read_string(x[1])))
-            if cons == 'ResolutionCmdFailed':
-                return cls(ResolutionCmdFailed_(ResolutionCmdFailed.from_json(x[1])))
-            if cons == 'ParseDependenciesFailed':
-                return cls(ParseDependenciesFailed(_atd_read_string(x[1])))
-            _atd_bad_json('ResolutionError', x)
-        _atd_bad_json('ResolutionError', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ResolutionError':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

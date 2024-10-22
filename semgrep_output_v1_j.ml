@@ -431,6 +431,15 @@ type sarif_format_return = Semgrep_output_v1_t.sarif_format_return = {
   format_time_seconds: float
 }
 
+type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
+  command: string;
+  message: string
+}
+  [@@deriving show]
+
+type resolution_error = Semgrep_output_v1_t.resolution_error
+  [@@deriving show]
+
 type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
   rule_id: rule_id;
   this_version: version;
@@ -465,6 +474,7 @@ type error_type = Semgrep_output_v1_t.error_type =
   | IncompatibleRule of incompatible_rule
   | PatternParseError0
   | IncompatibleRule0
+  | DependencyResolutionError of resolution_error
 
   [@@deriving show]
 
@@ -534,13 +544,6 @@ type sarif_format_params = Semgrep_output_v1_t.sarif_format_params = {
 type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
-
-type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
-  command: string;
-  message: string
-}
-
-type resolution_error = Semgrep_output_v1_t.resolution_error
 
 type resolution_result = Semgrep_output_v1_t.resolution_result
 
@@ -17285,6 +17288,284 @@ let read_sarif_format_return = (
 )
 let sarif_format_return_of_string s =
   read_sarif_format_return (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_resolution_cmd_failed : _ -> resolution_cmd_failed -> _ = (
+  fun ob (x : resolution_cmd_failed) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"command\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.command;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"message\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.message;
+    Buffer.add_char ob '}';
+)
+let string_of_resolution_cmd_failed ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_resolution_cmd_failed ob x;
+  Buffer.contents ob
+let read_resolution_cmd_failed = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_command = ref (None) in
+    let field_message = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          if len = 7 then (
+            match String.unsafe_get s pos with
+              | 'c' -> (
+                  if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'd' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 'm' -> (
+                  if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+          )
+          else (
+            -1
+          )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_command := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_message := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            if len = 7 then (
+              match String.unsafe_get s pos with
+                | 'c' -> (
+                    if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'd' then (
+                      0
+                    )
+                    else (
+                      -1
+                    )
+                  )
+                | 'm' -> (
+                    if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
+                      1
+                    )
+                    else (
+                      -1
+                    )
+                  )
+                | _ -> (
+                    -1
+                  )
+            )
+            else (
+              -1
+            )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_command := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_message := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            command = (match !field_command with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "command");
+            message = (match !field_message with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "message");
+          }
+         : resolution_cmd_failed)
+      )
+)
+let resolution_cmd_failed_of_string s =
+  read_resolution_cmd_failed (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_resolution_error = (
+  fun ob x ->
+    match x with
+      | `UnsupportedManifest -> Buffer.add_string ob "\"UnsupportedManifest\""
+      | `MissingRequirement x ->
+        Buffer.add_string ob "[\"MissingRequirement\",";
+        (
+          Yojson.Safe.write_string
+        ) ob x;
+        Buffer.add_char ob ']'
+      | `ResolutionCmdFailed x ->
+        Buffer.add_string ob "[\"ResolutionCmdFailed\",";
+        (
+          write_resolution_cmd_failed
+        ) ob x;
+        Buffer.add_char ob ']'
+      | `ParseDependenciesFailed x ->
+        Buffer.add_string ob "[\"ParseDependenciesFailed\",";
+        (
+          Yojson.Safe.write_string
+        ) ob x;
+        Buffer.add_char ob ']'
+)
+let string_of_resolution_error ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_resolution_error ob x;
+  Buffer.contents ob
+let read_resolution_error = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "UnsupportedManifest" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `UnsupportedManifest
+            | "MissingRequirement" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `MissingRequirement x
+            | "ResolutionCmdFailed" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_resolution_cmd_failed
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `ResolutionCmdFailed x
+            | "ParseDependenciesFailed" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `ParseDependenciesFailed x
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "UnsupportedManifest" ->
+              `UnsupportedManifest
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "MissingRequirement" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `MissingRequirement x
+            | "ResolutionCmdFailed" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_resolution_cmd_failed
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `ResolutionCmdFailed x
+            | "ParseDependenciesFailed" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `ParseDependenciesFailed x
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let resolution_error_of_string s =
+  read_resolution_error (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__version_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     write_version
@@ -17674,6 +17955,12 @@ let write_error_type : _ -> error_type -> _ = (
         Buffer.add_char ob ']'
       | PatternParseError0 -> Buffer.add_string ob "\"Pattern parse error\""
       | IncompatibleRule0 -> Buffer.add_string ob "\"Incompatible rule\""
+      | DependencyResolutionError x ->
+        Buffer.add_string ob "[\"DependencyResolutionError\",";
+        (
+          write_resolution_error
+        ) ob x;
+        Buffer.add_char ob ']'
 )
 let string_of_error_type ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -17800,6 +18087,15 @@ let read_error_type = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (IncompatibleRule0 : error_type)
+            | "DependencyResolutionError" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_resolution_error
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (DependencyResolutionError x : error_type)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -17887,6 +18183,17 @@ let read_error_type = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               (IncompatibleRule x : error_type)
+            | "DependencyResolutionError" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_resolution_error
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (DependencyResolutionError x : error_type)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -21139,284 +21446,6 @@ let read_rule_id_and_engine_kind = (
 )
 let rule_id_and_engine_kind_of_string s =
   read_rule_id_and_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_resolution_cmd_failed : _ -> resolution_cmd_failed -> _ = (
-  fun ob (x : resolution_cmd_failed) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"command\":";
-    (
-      Yojson.Safe.write_string
-    )
-      ob x.command;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"message\":";
-    (
-      Yojson.Safe.write_string
-    )
-      ob x.message;
-    Buffer.add_char ob '}';
-)
-let string_of_resolution_cmd_failed ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_resolution_cmd_failed ob x;
-  Buffer.contents ob
-let read_resolution_cmd_failed = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_command = ref (None) in
-    let field_message = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          if len = 7 then (
-            match String.unsafe_get s pos with
-              | 'c' -> (
-                  if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'd' then (
-                    0
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 'm' -> (
-                  if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
-          )
-          else (
-            -1
-          )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_command := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              )
-            );
-          | 1 ->
-            field_message := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              )
-            );
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            if len = 7 then (
-              match String.unsafe_get s pos with
-                | 'c' -> (
-                    if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'd' then (
-                      0
-                    )
-                    else (
-                      -1
-                    )
-                  )
-                | 'm' -> (
-                    if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
-                      1
-                    )
-                    else (
-                      -1
-                    )
-                  )
-                | _ -> (
-                    -1
-                  )
-            )
-            else (
-              -1
-            )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_command := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            | 1 ->
-              field_message := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            command = (match !field_command with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "command");
-            message = (match !field_message with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "message");
-          }
-         : resolution_cmd_failed)
-      )
-)
-let resolution_cmd_failed_of_string s =
-  read_resolution_cmd_failed (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_resolution_error = (
-  fun ob x ->
-    match x with
-      | `UnsupportedManifest -> Buffer.add_string ob "\"UnsupportedManifest\""
-      | `MissingRequirement x ->
-        Buffer.add_string ob "[\"MissingRequirement\",";
-        (
-          Yojson.Safe.write_string
-        ) ob x;
-        Buffer.add_char ob ']'
-      | `ResolutionCmdFailed x ->
-        Buffer.add_string ob "[\"ResolutionCmdFailed\",";
-        (
-          write_resolution_cmd_failed
-        ) ob x;
-        Buffer.add_char ob ']'
-      | `ParseDependenciesFailed x ->
-        Buffer.add_string ob "[\"ParseDependenciesFailed\",";
-        (
-          Yojson.Safe.write_string
-        ) ob x;
-        Buffer.add_char ob ']'
-)
-let string_of_resolution_error ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_resolution_error ob x;
-  Buffer.contents ob
-let read_resolution_error = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "UnsupportedManifest" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `UnsupportedManifest
-            | "MissingRequirement" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `MissingRequirement x
-            | "ResolutionCmdFailed" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_resolution_cmd_failed
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `ResolutionCmdFailed x
-            | "ParseDependenciesFailed" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `ParseDependenciesFailed x
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "UnsupportedManifest" ->
-              `UnsupportedManifest
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "MissingRequirement" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `MissingRequirement x
-            | "ResolutionCmdFailed" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_resolution_cmd_failed
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `ResolutionCmdFailed x
-            | "ParseDependenciesFailed" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `ParseDependenciesFailed x
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let resolution_error_of_string s =
-  read_resolution_error (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__found_dependency_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_found_dependency
