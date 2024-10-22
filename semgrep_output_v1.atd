@@ -1218,6 +1218,7 @@ type features = {
    ~autofix: bool;
    ~deepsemgrep: bool;
    ~dependency_query: bool;
+   ~path_to_transitivity: bool;
 }
 
 type triage_ignored = {
