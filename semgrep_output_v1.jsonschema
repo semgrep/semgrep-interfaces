@@ -3,16 +3,16 @@
   "title": "cli_output",
   "description": "Translated by atdcat from 'semgrep_output_v1.atd'.",
   "type": "object",
-  "required": [ "errors", "results", "paths" ],
+  "required": [ "results", "errors", "paths" ],
   "properties": {
     "version": { "$ref": "#/definitions/version" },
-    "errors": {
-      "type": "array",
-      "items": { "$ref": "#/definitions/cli_error" }
-    },
     "results": {
       "type": "array",
       "items": { "$ref": "#/definitions/cli_match" }
+    },
+    "errors": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/cli_error" }
     },
     "paths": { "$ref": "#/definitions/scanned_and_skipped" },
     "time": { "$ref": "#/definitions/profile" },
@@ -343,14 +343,14 @@
     },
     "core_error": {
       "type": "object",
-      "required": [ "error_type", "severity", "location", "message" ],
+      "required": [ "error_type", "severity", "message" ],
       "properties": {
-        "rule_id": { "$ref": "#/definitions/rule_id" },
         "error_type": { "$ref": "#/definitions/error_type" },
         "severity": { "$ref": "#/definitions/error_severity" },
-        "location": { "$ref": "#/definitions/location" },
         "message": { "type": "string" },
-        "details": { "type": "string" }
+        "details": { "type": "string" },
+        "location": { "$ref": "#/definitions/location" },
+        "rule_id": { "$ref": "#/definitions/rule_id" }
       }
     },
     "cli_error": {
@@ -566,7 +566,7 @@
     },
     "core_output": {
       "type": "object",
-      "required": [ "results", "errors", "paths" ],
+      "required": [ "version", "results", "errors", "paths" ],
       "properties": {
         "version": { "$ref": "#/definitions/version" },
         "results": {

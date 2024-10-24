@@ -6977,8 +6977,8 @@ class DumpRulePartitionsParams:
 class CliOutput:
     """Original type: cli_output = { ... }"""
 
-    errors: List[CliError]
     results: List[CliMatch]
+    errors: List[CliError]
     paths: ScannedAndSkipped
     version: Optional[Version] = None
     time: Optional[Profile] = None
@@ -6992,8 +6992,8 @@ class CliOutput:
     def from_json(cls, x: Any) -> 'CliOutput':
         if isinstance(x, dict):
             return cls(
-                errors=_atd_read_list(CliError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CliOutput', 'errors'),
                 results=_atd_read_list(CliMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CliOutput', 'results'),
+                errors=_atd_read_list(CliError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CliOutput', 'errors'),
                 paths=ScannedAndSkipped.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CliOutput', 'paths'),
                 version=Version.from_json(x['version']) if 'version' in x else None,
                 time=Profile.from_json(x['time']) if 'time' in x else None,
@@ -7008,8 +7008,8 @@ class CliOutput:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['results'] = _atd_write_list((lambda x: x.to_json()))(self.results)
+        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['paths'] = (lambda x: x.to_json())(self.paths)
         if self.version is not None:
             res['version'] = (lambda x: x.to_json())(self.version)
@@ -7367,10 +7367,10 @@ class CoreError:
 
     error_type: ErrorType
     severity: ErrorSeverity
-    location: Location
     message: str
-    rule_id: Optional[RuleId] = None
     details: Optional[str] = None
+    location: Optional[Location] = None
+    rule_id: Optional[RuleId] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreError':
@@ -7378,10 +7378,10 @@ class CoreError:
             return cls(
                 error_type=ErrorType.from_json(x['error_type']) if 'error_type' in x else _atd_missing_json_field('CoreError', 'error_type'),
                 severity=ErrorSeverity.from_json(x['severity']) if 'severity' in x else _atd_missing_json_field('CoreError', 'severity'),
-                location=Location.from_json(x['location']) if 'location' in x else _atd_missing_json_field('CoreError', 'location'),
                 message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('CoreError', 'message'),
-                rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else None,
                 details=_atd_read_string(x['details']) if 'details' in x else None,
+                location=Location.from_json(x['location']) if 'location' in x else None,
+                rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else None,
             )
         else:
             _atd_bad_json('CoreError', x)
@@ -7390,12 +7390,13 @@ class CoreError:
         res: Dict[str, Any] = {}
         res['error_type'] = (lambda x: x.to_json())(self.error_type)
         res['severity'] = (lambda x: x.to_json())(self.severity)
-        res['location'] = (lambda x: x.to_json())(self.location)
         res['message'] = _atd_write_string(self.message)
-        if self.rule_id is not None:
-            res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
         if self.details is not None:
             res['details'] = _atd_write_string(self.details)
+        if self.location is not None:
+            res['location'] = (lambda x: x.to_json())(self.location)
+        if self.rule_id is not None:
+            res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
         return res
 
     @classmethod
@@ -7410,10 +7411,10 @@ class CoreError:
 class CoreOutput:
     """Original type: core_output = { ... }"""
 
+    version: Version
     results: List[CoreMatch]
     errors: List[CoreError]
     paths: ScannedAndSkipped
-    version: Optional[Version] = None
     time: Optional[Profile] = None
     explanations: Optional[List[MatchingExplanation]] = None
     rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
@@ -7425,10 +7426,10 @@ class CoreOutput:
     def from_json(cls, x: Any) -> 'CoreOutput':
         if isinstance(x, dict):
             return cls(
+                version=Version.from_json(x['version']) if 'version' in x else _atd_missing_json_field('CoreOutput', 'version'),
                 results=_atd_read_list(CoreMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CoreOutput', 'results'),
                 errors=_atd_read_list(CoreError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CoreOutput', 'errors'),
                 paths=ScannedAndSkipped.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CoreOutput', 'paths'),
-                version=Version.from_json(x['version']) if 'version' in x else None,
                 time=Profile.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
@@ -7441,11 +7442,10 @@ class CoreOutput:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
+        res['version'] = (lambda x: x.to_json())(self.version)
         res['results'] = _atd_write_list((lambda x: x.to_json()))(self.results)
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['paths'] = (lambda x: x.to_json())(self.paths)
-        if self.version is not None:
-            res['version'] = (lambda x: x.to_json())(self.version)
         if self.time is not None:
             res['time'] = (lambda x: x.to_json())(self.time)
         if self.explanations is not None:
