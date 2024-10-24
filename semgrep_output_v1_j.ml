@@ -26246,7 +26246,7 @@ let output_format_of_string s =
 let write_manifest_kind = (
   fun ob x ->
     match x with
-      | `Requirements -> Buffer.add_string ob "\"Requirements\""
+      | `RequirementsIn -> Buffer.add_string ob "\"RequirementsIn\""
       | `PackageJson -> Buffer.add_string ob "\"PackageJson\""
       | `Gemfile -> Buffer.add_string ob "\"Gemfile\""
       | `GoMod -> Buffer.add_string ob "\"GoMod\""
@@ -26271,10 +26271,10 @@ let read_manifest_kind = (
     match Yojson.Safe.start_any_variant p lb with
       | `Edgy_bracket -> (
           match Yojson.Safe.read_ident p lb with
-            | "Requirements" ->
+            | "RequirementsIn" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `Requirements
+              `RequirementsIn
             | "PackageJson" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -26332,8 +26332,8 @@ let read_manifest_kind = (
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
-            | "Requirements" ->
-              `Requirements
+            | "RequirementsIn" ->
+              `RequirementsIn
             | "PackageJson" ->
               `PackageJson
             | "Gemfile" ->

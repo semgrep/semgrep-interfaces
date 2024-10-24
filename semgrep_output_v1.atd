@@ -1815,7 +1815,7 @@ type output_format = [
 
 (* TODO: merge with Manifest_kind.ml *)
 type manifest_kind = [
-  | Requirements
+  | RequirementsIn (* Manifest file for pip *)
   | PackageJson
   | Gemfile
   | GoMod

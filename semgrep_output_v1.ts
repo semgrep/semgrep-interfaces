@@ -834,7 +834,7 @@ export type OutputFormat =
 | { kind: 'Emacs' }
 
 export type ManifestKind =
-| { kind: 'Requirements' }
+| { kind: 'RequirementsIn' }
 | { kind: 'PackageJson' }
 | { kind: 'Gemfile' }
 | { kind: 'GoMod' }
@@ -3399,8 +3399,8 @@ export function readOutputFormat(x: any, context: any = x): OutputFormat {
 
 export function writeManifestKind(x: ManifestKind, context: any = x): any {
   switch (x.kind) {
-    case 'Requirements':
-      return 'Requirements'
+    case 'RequirementsIn':
+      return 'RequirementsIn'
     case 'PackageJson':
       return 'PackageJson'
     case 'Gemfile':
@@ -3432,8 +3432,8 @@ export function writeManifestKind(x: ManifestKind, context: any = x): any {
 
 export function readManifestKind(x: any, context: any = x): ManifestKind {
   switch (x) {
-    case 'Requirements':
-      return { kind: 'Requirements' }
+    case 'RequirementsIn':
+      return { kind: 'RequirementsIn' }
     case 'PackageJson':
       return { kind: 'PackageJson' }
     case 'Gemfile':

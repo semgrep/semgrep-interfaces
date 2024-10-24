@@ -6549,17 +6549,17 @@ class OutputFormat:
 
 
 @dataclass
-class Requirements_:
-    """Original type: manifest_kind = [ ... | Requirements | ... ]"""
+class RequirementsIn:
+    """Original type: manifest_kind = [ ... | RequirementsIn | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'Requirements_'
+        return 'RequirementsIn'
 
     @staticmethod
     def to_json() -> Any:
-        return 'Requirements'
+        return 'RequirementsIn'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -6790,7 +6790,7 @@ class PyprojectToml_:
 class ManifestKind:
     """Original type: manifest_kind = [ ... ]"""
 
-    value: Union[Requirements_, PackageJson, Gemfile, GoMod_, CargoToml, PomXml, BuildGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift_, MixExs, Pipfile_, PyprojectToml_]
+    value: Union[RequirementsIn, PackageJson, Gemfile, GoMod_, CargoToml, PomXml, BuildGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift_, MixExs, Pipfile_, PyprojectToml_]
 
     @property
     def kind(self) -> str:
@@ -6800,8 +6800,8 @@ class ManifestKind:
     @classmethod
     def from_json(cls, x: Any) -> 'ManifestKind':
         if isinstance(x, str):
-            if x == 'Requirements':
-                return cls(Requirements_())
+            if x == 'RequirementsIn':
+                return cls(RequirementsIn())
             if x == 'PackageJson':
                 return cls(PackageJson())
             if x == 'Gemfile':

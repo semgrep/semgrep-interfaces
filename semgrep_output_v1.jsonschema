@@ -1512,7 +1512,7 @@
     },
     "manifest_kind": {
       "oneOf": [
-        { "const": "Requirements" },
+        { "const": "RequirementsIn" },
         { "const": "PackageJson" },
         { "const": "Gemfile" },
         { "const": "GoMod" },
