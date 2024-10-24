@@ -201,12 +201,12 @@ export type IncompatibleRule = {
 }
 
 export type CoreError = {
-  rule_id?: RuleId;
   error_type: ErrorType;
   severity: ErrorSeverity;
-  location: Location;
   message: string;
   details?: string;
+  location?: Location;
+  rule_id?: RuleId;
 }
 
 export type CliError = {
@@ -316,7 +316,7 @@ export type MatchingOperation =
 | { kind: 'ClassHeaderAndElems' }
 
 export type CoreOutput = {
-  version?: Version;
+  version: Version;
   results: CoreMatch[];
   errors: CoreError[];
   paths: ScannedAndSkipped;
@@ -330,8 +330,8 @@ export type CoreOutput = {
 
 export type CliOutput = {
   version?: Version;
-  errors: CliError[];
   results: CliMatch[];
+  errors: CliError[];
   paths: ScannedAndSkipped;
   time?: Profile;
   explanations?: MatchingExplanation[];
@@ -1547,23 +1547,23 @@ export function readIncompatibleRule(x: any, context: any = x): IncompatibleRule
 
 export function writeCoreError(x: CoreError, context: any = x): any {
   return {
-    'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
     'error_type': _atd_write_required_field('CoreError', 'error_type', writeErrorType, x.error_type, x),
     'severity': _atd_write_required_field('CoreError', 'severity', writeErrorSeverity, x.severity, x),
-    'location': _atd_write_required_field('CoreError', 'location', writeLocation, x.location, x),
     'message': _atd_write_required_field('CoreError', 'message', _atd_write_string, x.message, x),
     'details': _atd_write_optional_field(_atd_write_string, x.details, x),
+    'location': _atd_write_optional_field(writeLocation, x.location, x),
+    'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
   };
 }
 
 export function readCoreError(x: any, context: any = x): CoreError {
   return {
-    rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
     error_type: _atd_read_required_field('CoreError', 'error_type', readErrorType, x['error_type'], x),
     severity: _atd_read_required_field('CoreError', 'severity', readErrorSeverity, x['severity'], x),
-    location: _atd_read_required_field('CoreError', 'location', readLocation, x['location'], x),
     message: _atd_read_required_field('CoreError', 'message', _atd_read_string, x['message'], x),
     details: _atd_read_optional_field(_atd_read_string, x['details'], x),
+    location: _atd_read_optional_field(readLocation, x['location'], x),
+    rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
   };
 }
 
@@ -1903,7 +1903,7 @@ export function readMatchingOperation(x: any, context: any = x): MatchingOperati
 
 export function writeCoreOutput(x: CoreOutput, context: any = x): any {
   return {
-    'version': _atd_write_optional_field(writeVersion, x.version, x),
+    'version': _atd_write_required_field('CoreOutput', 'version', writeVersion, x.version, x),
     'results': _atd_write_required_field('CoreOutput', 'results', _atd_write_array(writeCoreMatch), x.results, x),
     'errors': _atd_write_required_field('CoreOutput', 'errors', _atd_write_array(writeCoreError), x.errors, x),
     'paths': _atd_write_required_field('CoreOutput', 'paths', writeScannedAndSkipped, x.paths, x),
@@ -1918,7 +1918,7 @@ export function writeCoreOutput(x: CoreOutput, context: any = x): any {
 
 export function readCoreOutput(x: any, context: any = x): CoreOutput {
   return {
-    version: _atd_read_optional_field(readVersion, x['version'], x),
+    version: _atd_read_required_field('CoreOutput', 'version', readVersion, x['version'], x),
     results: _atd_read_required_field('CoreOutput', 'results', _atd_read_array(readCoreMatch), x['results'], x),
     errors: _atd_read_required_field('CoreOutput', 'errors', _atd_read_array(readCoreError), x['errors'], x),
     paths: _atd_read_required_field('CoreOutput', 'paths', readScannedAndSkipped, x['paths'], x),
@@ -1934,8 +1934,8 @@ export function readCoreOutput(x: any, context: any = x): CoreOutput {
 export function writeCliOutput(x: CliOutput, context: any = x): any {
   return {
     'version': _atd_write_optional_field(writeVersion, x.version, x),
-    'errors': _atd_write_required_field('CliOutput', 'errors', _atd_write_array(writeCliError), x.errors, x),
     'results': _atd_write_required_field('CliOutput', 'results', _atd_write_array(writeCliMatch), x.results, x),
+    'errors': _atd_write_required_field('CliOutput', 'errors', _atd_write_array(writeCliError), x.errors, x),
     'paths': _atd_write_required_field('CliOutput', 'paths', writeScannedAndSkipped, x.paths, x),
     'time': _atd_write_optional_field(writeProfile, x.time, x),
     'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
@@ -1949,8 +1949,8 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
 export function readCliOutput(x: any, context: any = x): CliOutput {
   return {
     version: _atd_read_optional_field(readVersion, x['version'], x),
-    errors: _atd_read_required_field('CliOutput', 'errors', _atd_read_array(readCliError), x['errors'], x),
     results: _atd_read_required_field('CliOutput', 'results', _atd_read_array(readCliMatch), x['results'], x),
+    errors: _atd_read_required_field('CliOutput', 'errors', _atd_read_array(readCliError), x['errors'], x),
     paths: _atd_read_required_field('CliOutput', 'paths', readScannedAndSkipped, x['paths'], x),
     time: _atd_read_optional_field(readProfile, x['time'], x),
     explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),

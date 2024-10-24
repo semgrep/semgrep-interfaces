@@ -692,8 +692,8 @@ type dump_rule_partitions_params =
 
 type cli_output = Semgrep_output_v1_t.cli_output = {
   version: version option;
-  errors: cli_error list;
   results: cli_match list;
+  errors: cli_error list;
   paths: scanned_and_skipped;
   time: profile option;
   explanations: matching_explanation list option;
@@ -738,16 +738,16 @@ type deployment_response = Semgrep_output_v1_t.deployment_response = {
 }
 
 type core_error = Semgrep_output_v1_t.core_error = {
-  rule_id: rule_id option;
   error_type: error_type;
   severity: error_severity;
-  location: location;
   message: string;
-  details: string option
+  details: string option;
+  location: location option;
+  rule_id: rule_id option
 }
 
 type core_output = Semgrep_output_v1_t.core_output = {
-  version: version option;
+  version: version;
   results: core_match list;
   errors: core_error list;
   paths: scanned_and_skipped;
