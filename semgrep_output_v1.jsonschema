@@ -1511,7 +1511,22 @@
       "oneOf": [ { "const": "Vim" }, { "const": "Emacs" } ]
     },
     "manifest_kind": {
-      "oneOf": [ { "const": "PomXml" }, { "const": "BuildGradle" } ]
+      "oneOf": [
+        { "const": "RequirementsIn" },
+        { "const": "PackageJson" },
+        { "const": "Gemfile" },
+        { "const": "GoMod" },
+        { "const": "CargoToml" },
+        { "const": "PomXml" },
+        { "const": "BuildGradle" },
+        { "const": "ComposerJson" },
+        { "const": "NugetManifestJson" },
+        { "const": "PubspecYaml" },
+        { "const": "PackageSwift" },
+        { "const": "MixExs" },
+        { "const": "Pipfile" },
+        { "const": "PyprojectToml" }
+      ]
     },
     "manifest": {
       "type": "object",

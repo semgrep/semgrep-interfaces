@@ -26246,8 +26246,20 @@ let output_format_of_string s =
 let write_manifest_kind = (
   fun ob x ->
     match x with
+      | `RequirementsIn -> Buffer.add_string ob "\"RequirementsIn\""
+      | `PackageJson -> Buffer.add_string ob "\"PackageJson\""
+      | `Gemfile -> Buffer.add_string ob "\"Gemfile\""
+      | `GoMod -> Buffer.add_string ob "\"GoMod\""
+      | `CargoToml -> Buffer.add_string ob "\"CargoToml\""
       | `PomXml -> Buffer.add_string ob "\"PomXml\""
       | `BuildGradle -> Buffer.add_string ob "\"BuildGradle\""
+      | `ComposerJson -> Buffer.add_string ob "\"ComposerJson\""
+      | `NugetManifestJson -> Buffer.add_string ob "\"NugetManifestJson\""
+      | `PubspecYaml -> Buffer.add_string ob "\"PubspecYaml\""
+      | `PackageSwift -> Buffer.add_string ob "\"PackageSwift\""
+      | `MixExs -> Buffer.add_string ob "\"MixExs\""
+      | `Pipfile -> Buffer.add_string ob "\"Pipfile\""
+      | `PyprojectToml -> Buffer.add_string ob "\"PyprojectToml\""
 )
 let string_of_manifest_kind ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -26259,6 +26271,26 @@ let read_manifest_kind = (
     match Yojson.Safe.start_any_variant p lb with
       | `Edgy_bracket -> (
           match Yojson.Safe.read_ident p lb with
+            | "RequirementsIn" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `RequirementsIn
+            | "PackageJson" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `PackageJson
+            | "Gemfile" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Gemfile
+            | "GoMod" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `GoMod
+            | "CargoToml" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `CargoToml
             | "PomXml" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -26267,15 +26299,67 @@ let read_manifest_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `BuildGradle
+            | "ComposerJson" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `ComposerJson
+            | "NugetManifestJson" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `NugetManifestJson
+            | "PubspecYaml" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `PubspecYaml
+            | "PackageSwift" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `PackageSwift
+            | "MixExs" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `MixExs
+            | "Pipfile" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Pipfile
+            | "PyprojectToml" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `PyprojectToml
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
+            | "RequirementsIn" ->
+              `RequirementsIn
+            | "PackageJson" ->
+              `PackageJson
+            | "Gemfile" ->
+              `Gemfile
+            | "GoMod" ->
+              `GoMod
+            | "CargoToml" ->
+              `CargoToml
             | "PomXml" ->
               `PomXml
             | "BuildGradle" ->
               `BuildGradle
+            | "ComposerJson" ->
+              `ComposerJson
+            | "NugetManifestJson" ->
+              `NugetManifestJson
+            | "PubspecYaml" ->
+              `PubspecYaml
+            | "PackageSwift" ->
+              `PackageSwift
+            | "MixExs" ->
+              `MixExs
+            | "Pipfile" ->
+              `Pipfile
+            | "PyprojectToml" ->
+              `PyprojectToml
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

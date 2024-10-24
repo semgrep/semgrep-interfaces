@@ -6549,6 +6549,91 @@ class OutputFormat:
 
 
 @dataclass
+class RequirementsIn:
+    """Original type: manifest_kind = [ ... | RequirementsIn | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RequirementsIn'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'RequirementsIn'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PackageJson:
+    """Original type: manifest_kind = [ ... | PackageJson | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PackageJson'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PackageJson'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Gemfile:
+    """Original type: manifest_kind = [ ... | Gemfile | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Gemfile'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Gemfile'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class GoMod_:
+    """Original type: manifest_kind = [ ... | GoMod | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'GoMod_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'GoMod'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CargoToml:
+    """Original type: manifest_kind = [ ... | CargoToml | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CargoToml'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'CargoToml'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class PomXml:
     """Original type: manifest_kind = [ ... | PomXml | ... ]"""
 
@@ -6583,10 +6668,129 @@ class BuildGradle:
 
 
 @dataclass
+class ComposerJson:
+    """Original type: manifest_kind = [ ... | ComposerJson | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ComposerJson'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'ComposerJson'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class NugetManifestJson:
+    """Original type: manifest_kind = [ ... | NugetManifestJson | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'NugetManifestJson'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'NugetManifestJson'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PubspecYaml:
+    """Original type: manifest_kind = [ ... | PubspecYaml | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PubspecYaml'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PubspecYaml'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PackageSwift_:
+    """Original type: manifest_kind = [ ... | PackageSwift | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PackageSwift_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PackageSwift'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class MixExs:
+    """Original type: manifest_kind = [ ... | MixExs | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'MixExs'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'MixExs'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Pipfile_:
+    """Original type: manifest_kind = [ ... | Pipfile | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Pipfile_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Pipfile'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PyprojectToml_:
+    """Original type: manifest_kind = [ ... | PyprojectToml | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PyprojectToml_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PyprojectToml'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class ManifestKind:
     """Original type: manifest_kind = [ ... ]"""
 
-    value: Union[PomXml, BuildGradle]
+    value: Union[RequirementsIn, PackageJson, Gemfile, GoMod_, CargoToml, PomXml, BuildGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift_, MixExs, Pipfile_, PyprojectToml_]
 
     @property
     def kind(self) -> str:
@@ -6596,10 +6800,34 @@ class ManifestKind:
     @classmethod
     def from_json(cls, x: Any) -> 'ManifestKind':
         if isinstance(x, str):
+            if x == 'RequirementsIn':
+                return cls(RequirementsIn())
+            if x == 'PackageJson':
+                return cls(PackageJson())
+            if x == 'Gemfile':
+                return cls(Gemfile())
+            if x == 'GoMod':
+                return cls(GoMod_())
+            if x == 'CargoToml':
+                return cls(CargoToml())
             if x == 'PomXml':
                 return cls(PomXml())
             if x == 'BuildGradle':
                 return cls(BuildGradle())
+            if x == 'ComposerJson':
+                return cls(ComposerJson())
+            if x == 'NugetManifestJson':
+                return cls(NugetManifestJson())
+            if x == 'PubspecYaml':
+                return cls(PubspecYaml())
+            if x == 'PackageSwift':
+                return cls(PackageSwift_())
+            if x == 'MixExs':
+                return cls(MixExs())
+            if x == 'Pipfile':
+                return cls(Pipfile_())
+            if x == 'PyprojectToml':
+                return cls(PyprojectToml_())
             _atd_bad_json('ManifestKind', x)
         _atd_bad_json('ManifestKind', x)
 
