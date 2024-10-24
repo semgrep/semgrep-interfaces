@@ -1815,8 +1815,20 @@ type output_format = [
 
 (* TODO: merge with Manifest_kind.ml *)
 type manifest_kind = [
+  | Requirements
+  | PackageJson
+  | Gemfile
+  | GoMod
+  | CargoToml
   | PomXml
   | BuildGradle
+  | ComposerJson
+  | NugetManifestJson
+  | PubspecYaml
+  | PackageSwift
+  | MixExs
+  | Pipfile
+  | PyprojectToml
 ]
 
 type manifest = {

@@ -834,8 +834,20 @@ export type OutputFormat =
 | { kind: 'Emacs' }
 
 export type ManifestKind =
+| { kind: 'Requirements' }
+| { kind: 'PackageJson' }
+| { kind: 'Gemfile' }
+| { kind: 'GoMod' }
+| { kind: 'CargoToml' }
 | { kind: 'PomXml' }
 | { kind: 'BuildGradle' }
+| { kind: 'ComposerJson' }
+| { kind: 'NugetManifestJson' }
+| { kind: 'PubspecYaml' }
+| { kind: 'PackageSwift' }
+| { kind: 'MixExs' }
+| { kind: 'Pipfile' }
+| { kind: 'PyprojectToml' }
 
 export type Manifest = {
   kind: ManifestKind;
@@ -3387,19 +3399,67 @@ export function readOutputFormat(x: any, context: any = x): OutputFormat {
 
 export function writeManifestKind(x: ManifestKind, context: any = x): any {
   switch (x.kind) {
+    case 'Requirements':
+      return 'Requirements'
+    case 'PackageJson':
+      return 'PackageJson'
+    case 'Gemfile':
+      return 'Gemfile'
+    case 'GoMod':
+      return 'GoMod'
+    case 'CargoToml':
+      return 'CargoToml'
     case 'PomXml':
       return 'PomXml'
     case 'BuildGradle':
       return 'BuildGradle'
+    case 'ComposerJson':
+      return 'ComposerJson'
+    case 'NugetManifestJson':
+      return 'NugetManifestJson'
+    case 'PubspecYaml':
+      return 'PubspecYaml'
+    case 'PackageSwift':
+      return 'PackageSwift'
+    case 'MixExs':
+      return 'MixExs'
+    case 'Pipfile':
+      return 'Pipfile'
+    case 'PyprojectToml':
+      return 'PyprojectToml'
   }
 }
 
 export function readManifestKind(x: any, context: any = x): ManifestKind {
   switch (x) {
+    case 'Requirements':
+      return { kind: 'Requirements' }
+    case 'PackageJson':
+      return { kind: 'PackageJson' }
+    case 'Gemfile':
+      return { kind: 'Gemfile' }
+    case 'GoMod':
+      return { kind: 'GoMod' }
+    case 'CargoToml':
+      return { kind: 'CargoToml' }
     case 'PomXml':
       return { kind: 'PomXml' }
     case 'BuildGradle':
       return { kind: 'BuildGradle' }
+    case 'ComposerJson':
+      return { kind: 'ComposerJson' }
+    case 'NugetManifestJson':
+      return { kind: 'NugetManifestJson' }
+    case 'PubspecYaml':
+      return { kind: 'PubspecYaml' }
+    case 'PackageSwift':
+      return { kind: 'PackageSwift' }
+    case 'MixExs':
+      return { kind: 'MixExs' }
+    case 'Pipfile':
+      return { kind: 'Pipfile' }
+    case 'PyprojectToml':
+      return { kind: 'PyprojectToml' }
     default:
       _atd_bad_json('ManifestKind', x, context)
       throw new Error('impossible')
