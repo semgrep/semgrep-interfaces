@@ -1817,7 +1817,7 @@ type output_format = [
 ]
 
 (* TODO: merge with Manifest_kind.ml *)
-type manifest_kind = [
+type manifest_kind <python decorator="dataclass(frozen=True)"> = [
   | RequirementsIn (* Manifest file for pip *)
   | PackageJson
   | Gemfile

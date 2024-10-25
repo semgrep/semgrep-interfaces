@@ -6548,7 +6548,7 @@ class OutputFormat:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class RequirementsIn:
     """Original type: manifest_kind = [ ... | RequirementsIn | ... ]"""
 
@@ -6565,7 +6565,7 @@ class RequirementsIn:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class PackageJson:
     """Original type: manifest_kind = [ ... | PackageJson | ... ]"""
 
@@ -6582,7 +6582,7 @@ class PackageJson:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Gemfile:
     """Original type: manifest_kind = [ ... | Gemfile | ... ]"""
 
@@ -6599,7 +6599,7 @@ class Gemfile:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class GoMod_:
     """Original type: manifest_kind = [ ... | GoMod | ... ]"""
 
@@ -6616,7 +6616,7 @@ class GoMod_:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class CargoToml:
     """Original type: manifest_kind = [ ... | CargoToml | ... ]"""
 
@@ -6633,7 +6633,7 @@ class CargoToml:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class PomXml:
     """Original type: manifest_kind = [ ... | PomXml | ... ]"""
 
@@ -6650,7 +6650,7 @@ class PomXml:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class BuildGradle:
     """Original type: manifest_kind = [ ... | BuildGradle | ... ]"""
 
@@ -6667,7 +6667,7 @@ class BuildGradle:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class ComposerJson:
     """Original type: manifest_kind = [ ... | ComposerJson | ... ]"""
 
@@ -6684,7 +6684,7 @@ class ComposerJson:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class NugetManifestJson:
     """Original type: manifest_kind = [ ... | NugetManifestJson | ... ]"""
 
@@ -6701,7 +6701,7 @@ class NugetManifestJson:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class PubspecYaml:
     """Original type: manifest_kind = [ ... | PubspecYaml | ... ]"""
 
@@ -6718,7 +6718,7 @@ class PubspecYaml:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class PackageSwift_:
     """Original type: manifest_kind = [ ... | PackageSwift | ... ]"""
 
@@ -6735,7 +6735,7 @@ class PackageSwift_:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class MixExs:
     """Original type: manifest_kind = [ ... | MixExs | ... ]"""
 
@@ -6752,7 +6752,7 @@ class MixExs:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Pipfile_:
     """Original type: manifest_kind = [ ... | Pipfile | ... ]"""
 
@@ -6769,7 +6769,7 @@ class Pipfile_:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class PyprojectToml_:
     """Original type: manifest_kind = [ ... | PyprojectToml | ... ]"""
 
@@ -6786,7 +6786,7 @@ class PyprojectToml_:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class ManifestKind:
     """Original type: manifest_kind = [ ... ]"""
 
