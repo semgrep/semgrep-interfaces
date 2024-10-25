@@ -7,7 +7,7 @@
  * This file specifies the JSON format of the 'semgrep scan --json' command,
  * as well as the JSON format of messages sent to the Semgrep backend by the
  * 'semgrep ci' command, and the format of 'semgrep test --json'.
- * For the definition of the Semgrep input, see rule_schema_v2.atd
+ * For the definition of the Semgrep input (the rules), see rule_schema_v2.atd
  *
  * This file has the _v1 suffix to explicitely represent the
  * version of this JSON format. If you need to extend this file, please
@@ -534,14 +534,16 @@ type incompatible_rule
 (* TODO: try to make it as close as possible to 'cli_error' above, possibly
  * extending cli_error with more fields (but those fields must be optional
  * to remain backward compatible
+ * LATER: use a proper variant in error_type so we would need less
+ * of those ?xxx types below (like a ParseError should always have a location)
  *)
 type core_error <python decorator="dataclass(frozen=True)"> = {
-  ?rule_id: rule_id option;
   error_type: error_type;
   severity: error_severity;
-  location: location;
   message: string;
   ?details: string option;
+  ?location: location option;
+  ?rule_id: rule_id option;
   }
 
 (* ----------------------------- *)
@@ -563,7 +565,6 @@ type cli_error = {
   type_ <json name="type">: error_type;
 
   (* LATER: use a variant instead of all those ?xxx types *)
-
   ?rule_id: rule_id option;
 
   (* for most parsing errors those are set *)
@@ -814,7 +815,7 @@ type matching_operation <ocaml attr="deriving show { with_path = false}"> = [
 
 (* TODO: merge with cli_output *)
 type core_output = {
-  ?version: version option;
+  version: version;
   results: core_match list;
   (* errors are guaranteed to be duplicate free; see also Report.ml *)
   errors: core_error list;
@@ -831,8 +832,8 @@ type cli_output = {
     (* since: 0.92 *)
     ?version: version option;
 
-    errors: cli_error list;
     results: cli_match list;
+    errors: cli_error list;
 
     inherit cli_output_extra;
 }
@@ -1473,8 +1474,10 @@ type engine_configuration = {
     ~generic_slow_rollout: bool;
     (* from 1.63.0 *)
     ?historical_config: historical_configuration option;
-    (* from 1.93 *)
-    (* sent by the app to indicate that fail open should always be enabled, overriding the CLI flag. coupling: server/semgrep_app/saas/models/deployment_products_mixin.py *)
+    (* from 1.93.
+     * Indicate that fail-open should always be enabled, overriding the CLI flag.
+     * coupling: server/semgrep_app/saas/models/deployment_products_mixin.py
+     *)
     ~always_suppress_errors: bool;
 }
 
