@@ -407,7 +407,8 @@
         { "const": "too_many_matches" },
         { "const": "Gitignore_patterns_match" },
         { "const": "Dotfile" },
-        { "const": "Nonexistent_file" }
+        { "const": "Nonexistent_file" },
+        { "const": "insufficient_permissions" }
       ]
     },
     "skipped_target": {
