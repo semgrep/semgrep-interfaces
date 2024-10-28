@@ -609,9 +609,13 @@ type error_span = {
 (*****************************************************************************)
 
 (* A reason for skipping a target file or a pair (target, rule).
- * Note that this type is also used in Report.ml hence the need
- * for deriving show here.
- *)
+   Note that this type is also used in Report.ml hence the need
+   for deriving show here.
+
+   For consistency, please make sure all the JSON constructors use the
+   same case rules (lowercase, underscores). This is hard to fix later!
+   Please review your code carefully before committing to interface changes.
+*)
 type skip_reason <ocaml attr="deriving show"> = [
   (* Originally returned by the Python CLI *)
   | Always_skipped <json name="always_skipped">
@@ -630,11 +634,13 @@ type skip_reason <ocaml attr="deriving show"> = [
   | Irrelevant_rule <json name="irrelevant_rule">
   | Too_many_matches <json name="too_many_matches">
   (* New in osemgrep *)
-  | Gitignore_patterns_match
+  | Gitignore_patterns_match (* TODO: use JSON lowercase for consistency *)
   (* since 1.40.0 (dotfiles were always ignored, but not shown in the skip report *)
-  | Dotfile
+  | Dotfile (* TODO: use JSON lowercase for consistency *)
   (* since 1.44.0 *)
-  | Nonexistent_file
+  | Nonexistent_file (* TODO: use JSON lowercase for consistency *)
+  (* since 1.94.0 *)
+  | Insufficient_permissions <json name="insufficient_permissions">
 ] <ocaml repr="classic">
 
 (* coupling: ugly: with yield_json_objects() in target_manager.py *)
