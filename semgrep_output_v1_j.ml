@@ -232,7 +232,7 @@ type skip_reason = Semgrep_output_v1_t.skip_reason =
   | Exceeded_size_limit | Analysis_failed_parser_or_internal_error
   | Excluded_by_config | Wrong_language | Too_big | Minified | Binary
   | Irrelevant_rule | Too_many_matches | Gitignore_patterns_match | Dotfile
-  | Nonexistent_file
+  | Nonexistent_file | Insufficient_permissions
 
   [@@deriving show]
 
@@ -8525,6 +8525,7 @@ let write_skip_reason : _ -> skip_reason -> _ = (
       | Gitignore_patterns_match -> Buffer.add_string ob "\"Gitignore_patterns_match\""
       | Dotfile -> Buffer.add_string ob "\"Dotfile\""
       | Nonexistent_file -> Buffer.add_string ob "\"Nonexistent_file\""
+      | Insufficient_permissions -> Buffer.add_string ob "\"insufficient_permissions\""
 )
 let string_of_skip_reason ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -8600,6 +8601,10 @@ let read_skip_reason = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (Nonexistent_file : skip_reason)
+            | "insufficient_permissions" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Insufficient_permissions : skip_reason)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -8637,6 +8642,8 @@ let read_skip_reason = (
               (Dotfile : skip_reason)
             | "Nonexistent_file" ->
               (Nonexistent_file : skip_reason)
+            | "insufficient_permissions" ->
+              (Insufficient_permissions : skip_reason)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

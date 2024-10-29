@@ -2790,10 +2790,27 @@ class NonexistentFile:
 
 
 @dataclass
+class InsufficientPermissions:
+    """Original type: skip_reason = [ ... | Insufficient_permissions | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'InsufficientPermissions'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'insufficient_permissions'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class SkipReason:
     """Original type: skip_reason = [ ... ]"""
 
-    value: Union[AlwaysSkipped, SemgrepignorePatternsMatch, CliIncludeFlagsDoNotMatch, CliExcludeFlagsMatch, ExceededSizeLimit, AnalysisFailedParserOrInternalError, ExcludedByConfig, WrongLanguage, TooBig, Minified, Binary, IrrelevantRule, TooManyMatches, GitignorePatternsMatch, Dotfile, NonexistentFile]
+    value: Union[AlwaysSkipped, SemgrepignorePatternsMatch, CliIncludeFlagsDoNotMatch, CliExcludeFlagsMatch, ExceededSizeLimit, AnalysisFailedParserOrInternalError, ExcludedByConfig, WrongLanguage, TooBig, Minified, Binary, IrrelevantRule, TooManyMatches, GitignorePatternsMatch, Dotfile, NonexistentFile, InsufficientPermissions]
 
     @property
     def kind(self) -> str:
@@ -2835,6 +2852,8 @@ class SkipReason:
                 return cls(Dotfile())
             if x == 'Nonexistent_file':
                 return cls(NonexistentFile())
+            if x == 'insufficient_permissions':
+                return cls(InsufficientPermissions())
             _atd_bad_json('SkipReason', x)
         _atd_bad_json('SkipReason', x)
 

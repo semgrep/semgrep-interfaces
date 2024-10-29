@@ -251,6 +251,7 @@ export type SkipReason =
 | { kind: 'Gitignore_patterns_match' }
 | { kind: 'Dotfile' }
 | { kind: 'Nonexistent_file' }
+| { kind: 'Insufficient_permissions' /* JSON: "insufficient_permissions" */ }
 
 export type SkippedTarget = {
   path: Fpath;
@@ -1671,6 +1672,8 @@ export function writeSkipReason(x: SkipReason, context: any = x): any {
       return 'Dotfile'
     case 'Nonexistent_file':
       return 'Nonexistent_file'
+    case 'Insufficient_permissions':
+      return 'insufficient_permissions'
   }
 }
 
@@ -1708,6 +1711,8 @@ export function readSkipReason(x: any, context: any = x): SkipReason {
       return { kind: 'Dotfile' }
     case 'Nonexistent_file':
       return { kind: 'Nonexistent_file' }
+    case 'insufficient_permissions':
+      return { kind: 'Insufficient_permissions' }
     default:
       _atd_bad_json('SkipReason', x, context)
       throw new Error('impossible')

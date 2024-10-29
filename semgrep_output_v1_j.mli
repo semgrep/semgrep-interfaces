@@ -232,7 +232,7 @@ type skip_reason = Semgrep_output_v1_t.skip_reason =
   | Exceeded_size_limit | Analysis_failed_parser_or_internal_error
   | Excluded_by_config | Wrong_language | Too_big | Minified | Binary
   | Irrelevant_rule | Too_many_matches | Gitignore_patterns_match | Dotfile
-  | Nonexistent_file
+  | Nonexistent_file | Insufficient_permissions
 
   [@@deriving show]
 
