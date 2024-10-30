@@ -511,6 +511,7 @@ type error_type
    * *)
   | PatternParseError0 <json name="Pattern parse error">
   | IncompatibleRule0 <json name="Incompatible rule">
+  (* since semgrep 1.94.0 *)
   | DependencyResolutionError of resolution_error
 ] <ocaml repr="classic">
 
