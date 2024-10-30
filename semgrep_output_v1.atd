@@ -1825,10 +1825,9 @@ type output_format = [
 ]
 
 type manifest_kind 
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> 
-  = [
-| RequirementsIn
+  <ocaml attr="deriving show, eq, yojson">
+  <python decorator="dataclass(frozen=True)">   = [
+  | RequirementsIn
     (* A Pip Requirements.in in file, which follows the format of requirements.txt - https://pip.pypa.io/en/stable/reference/requirements-file-format/ *)
   | PackageJson
     (* An NPM package.json manifest file - https://docs.npmjs.com/cli/v10/configuring-npm/package-json *)

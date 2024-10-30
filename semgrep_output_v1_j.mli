@@ -658,7 +658,8 @@ type partial_scan_result = Semgrep_output_v1_t.partial_scan_result
 
 type output_format = Semgrep_output_v1_t.output_format
 
-type manifest_kind = Semgrep_output_v1_t.manifest_kind [@@deriving show]
+type manifest_kind = Semgrep_output_v1_t.manifest_kind
+  [@@deriving show, eq, yojson]
 
 type manifest = Semgrep_output_v1_t.manifest = {
   kind: manifest_kind;
