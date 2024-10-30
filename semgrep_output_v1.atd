@@ -511,6 +511,8 @@ type error_type
    * *)
   | PatternParseError0 <json name="Pattern parse error">
   | IncompatibleRule0 <json name="Incompatible rule">
+  (* since semgrep 1.94.0 *)
+  | DependencyResolutionError of resolution_error
 ] <ocaml repr="classic">
 
 type incompatible_rule
@@ -1846,6 +1848,7 @@ type manifest = {
 }
 
 type resolution_error
+    <ocaml attr="deriving show">
     <python decorator="dataclass(frozen=True)"> = [
     | UnsupportedManifest
     | MissingRequirement of string
@@ -1854,6 +1857,7 @@ type resolution_error
 ]
 
 type resolution_cmd_failed
+  <ocaml attr="deriving show">
   <python decorator="dataclass(frozen=True)"> = {
     command: string;
     message: string;

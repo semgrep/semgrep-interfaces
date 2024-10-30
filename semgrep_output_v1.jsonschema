@@ -328,7 +328,16 @@
           ]
         },
         { "const": "Pattern parse error" },
-        { "const": "Incompatible rule" }
+        { "const": "Incompatible rule" },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "DependencyResolutionError" },
+            { "$ref": "#/definitions/resolution_error" }
+          ]
+        }
       ]
     },
     "incompatible_rule": {

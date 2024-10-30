@@ -431,6 +431,15 @@ type sarif_format_return = Semgrep_output_v1_t.sarif_format_return = {
   format_time_seconds: float
 }
 
+type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
+  command: string;
+  message: string
+}
+  [@@deriving show]
+
+type resolution_error = Semgrep_output_v1_t.resolution_error
+  [@@deriving show]
+
 type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
   rule_id: rule_id;
   this_version: version;
@@ -465,6 +474,7 @@ type error_type = Semgrep_output_v1_t.error_type =
   | IncompatibleRule of incompatible_rule
   | PatternParseError0
   | IncompatibleRule0
+  | DependencyResolutionError of resolution_error
 
   [@@deriving show]
 
@@ -534,13 +544,6 @@ type sarif_format_params = Semgrep_output_v1_t.sarif_format_params = {
 type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
-
-type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
-  command: string;
-  message: string
-}
-
-type resolution_error = Semgrep_output_v1_t.resolution_error
 
 type resolution_result = Semgrep_output_v1_t.resolution_result
 
@@ -2310,6 +2313,46 @@ val sarif_format_return_of_string :
   string -> sarif_format_return
   (** Deserialize JSON data of type {!type:sarif_format_return}. *)
 
+val write_resolution_cmd_failed :
+  Buffer.t -> resolution_cmd_failed -> unit
+  (** Output a JSON value of type {!type:resolution_cmd_failed}. *)
+
+val string_of_resolution_cmd_failed :
+  ?len:int -> resolution_cmd_failed -> string
+  (** Serialize a value of type {!type:resolution_cmd_failed}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolution_cmd_failed :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_cmd_failed
+  (** Input JSON data of type {!type:resolution_cmd_failed}. *)
+
+val resolution_cmd_failed_of_string :
+  string -> resolution_cmd_failed
+  (** Deserialize JSON data of type {!type:resolution_cmd_failed}. *)
+
+val write_resolution_error :
+  Buffer.t -> resolution_error -> unit
+  (** Output a JSON value of type {!type:resolution_error}. *)
+
+val string_of_resolution_error :
+  ?len:int -> resolution_error -> string
+  (** Serialize a value of type {!type:resolution_error}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolution_error :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_error
+  (** Input JSON data of type {!type:resolution_error}. *)
+
+val resolution_error_of_string :
+  string -> resolution_error
+  (** Deserialize JSON data of type {!type:resolution_error}. *)
+
 val write_incompatible_rule :
   Buffer.t -> incompatible_rule -> unit
   (** Output a JSON value of type {!type:incompatible_rule}. *)
@@ -2509,46 +2552,6 @@ val read_rule_id_and_engine_kind :
 val rule_id_and_engine_kind_of_string :
   string -> rule_id_and_engine_kind
   (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
-
-val write_resolution_cmd_failed :
-  Buffer.t -> resolution_cmd_failed -> unit
-  (** Output a JSON value of type {!type:resolution_cmd_failed}. *)
-
-val string_of_resolution_cmd_failed :
-  ?len:int -> resolution_cmd_failed -> string
-  (** Serialize a value of type {!type:resolution_cmd_failed}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_resolution_cmd_failed :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_cmd_failed
-  (** Input JSON data of type {!type:resolution_cmd_failed}. *)
-
-val resolution_cmd_failed_of_string :
-  string -> resolution_cmd_failed
-  (** Deserialize JSON data of type {!type:resolution_cmd_failed}. *)
-
-val write_resolution_error :
-  Buffer.t -> resolution_error -> unit
-  (** Output a JSON value of type {!type:resolution_error}. *)
-
-val string_of_resolution_error :
-  ?len:int -> resolution_error -> string
-  (** Serialize a value of type {!type:resolution_error}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_resolution_error :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_error
-  (** Input JSON data of type {!type:resolution_error}. *)
-
-val resolution_error_of_string :
-  string -> resolution_error
-  (** Deserialize JSON data of type {!type:resolution_error}. *)
 
 val write_resolution_result :
   Buffer.t -> resolution_result -> unit
