@@ -1824,22 +1824,34 @@ type output_format = [
   | Emacs
 ]
 
-(* TODO: merge with Manifest_kind.ml *)
-type manifest_kind <python decorator="dataclass(frozen=True)"> = [
-  | RequirementsIn (* Manifest file for pip *)
+type manifest_kind 
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> 
+  = [
+| RequirementsIn
+    (* A Pip Requirements.in in file, which follows the format of requirements.txt - https://pip.pypa.io/en/stable/reference/requirements-file-format/ *)
   | PackageJson
+    (* An NPM package.json manifest file - https://docs.npmjs.com/cli/v10/configuring-npm/package-json *)
   | Gemfile
-  | GoMod
+    (* A Ruby Gemfile manifest - https://bundler.io/v2.5/man/gemfile.5.html *)
+  | GoMod (* go.mod - https://go.dev/doc/modules/gomod-ref *)
   | CargoToml
+    (* cargo.toml - https://doc.rust-lang.org/cargo/reference/manifest.html *)
   | PomXml
+    (* A Maven pom.xml manifest file - https://maven.apache.org/guides/introduction/introduction-to-the-pom.html *)
   | BuildGradle
-  | ComposerJson
+    (* A Gradle build.gradle build file  - https://docs.gradle.org/current/userguide/build_file_basics.html *)
+  | ComposerJson (* composer.json - https://getcomposer.org/doc/04-schema.md *)
   | NugetManifestJson
-  | PubspecYaml
+    (* manifest for nuget - could not find a reference; this may not actually exist *)
+  | PubspecYaml (* pubspec.yaml - https://dart.dev/tools/pub/pubspec *)
   | PackageSwift
+    (* Package.swift - https://docs.swift.org/package-manager/PackageDescription/PackageDescription.html *)
   | MixExs
-  | Pipfile
+    (* mix.exs - https://hexdocs.pm/elixir/introduction-to-mix.html#project-compilation *)
+  | Pipfile (* Pipfile - https://pipenv.pypa.io/en/latest/pipfile.html *)
   | PyprojectToml
+    (* pyproject.toml - https://packaging.python.org/en/latest/guides/writing-pyproject-toml/ *)
 ]
 
 type manifest = {
