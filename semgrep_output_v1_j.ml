@@ -302,7 +302,8 @@ type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
   cli_version: version;
   unique_id: uuid;
   requested_products: product list;
-  dry_run: bool
+  dry_run: bool;
+  scm_run_id: string option
 }
 
 type project_metadata = Semgrep_output_v1_t.project_metadata = {
@@ -11091,6 +11092,17 @@ let write_scan_metadata : _ -> scan_metadata -> _ = (
       Yojson.Safe.write_bool
     )
       ob x.dry_run;
+    (match x.scm_run_id with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"scm_run_id\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_scan_metadata ?(len = 1024) x =
@@ -11105,6 +11117,7 @@ let read_scan_metadata = (
     let field_unique_id = ref (None) in
     let field_requested_products = ref (None) in
     let field_dry_run = ref (false) in
+    let field_scm_run_id = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -11125,6 +11138,14 @@ let read_scan_metadata = (
             | 9 -> (
                 if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'q' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'd' then (
                   1
+                )
+                else (
+                  -1
+                )
+              )
+            | 10 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'u' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'd' then (
+                  4
                 )
                 else (
                   -1
@@ -11186,6 +11207,16 @@ let read_scan_metadata = (
                 ) p lb
               );
             )
+          | 4 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_scm_run_id := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -11210,6 +11241,14 @@ let read_scan_metadata = (
               | 9 -> (
                   if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'q' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'd' then (
                     1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 10 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'u' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'd' then (
+                    4
                   )
                   else (
                     -1
@@ -11271,6 +11310,16 @@ let read_scan_metadata = (
                   ) p lb
                 );
               )
+            | 4 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_scm_run_id := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -11284,6 +11333,7 @@ let read_scan_metadata = (
             unique_id = (match !field_unique_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "unique_id");
             requested_products = (match !field_requested_products with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "requested_products");
             dry_run = !field_dry_run;
+            scm_run_id = !field_scm_run_id;
           }
          : scan_metadata)
       )

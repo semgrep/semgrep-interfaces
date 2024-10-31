@@ -1422,6 +1422,8 @@ type scan_metadata = {
   unique_id: uuid; (* client generated uuid for the scan *)
   requested_products: product list;
   ~dry_run: bool; (* from 1.47.0 *)
+  (* since 1.95.0 *)
+  ?scm_run_id: string option;
 }
 
 (* Sent by the CLI to the POST /api/cli/scans to create a scan. *)

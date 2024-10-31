@@ -302,7 +302,8 @@ type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
   cli_version: version;
   unique_id: uuid;
   requested_products: product list;
-  dry_run: bool
+  dry_run: bool;
+  scm_run_id: string option
 }
 
 type project_metadata = Semgrep_output_v1_t.project_metadata = {
