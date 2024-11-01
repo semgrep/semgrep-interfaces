@@ -3300,6 +3300,7 @@ class ScanMetadata:
     unique_id: Uuid
     requested_products: List[Product]
     dry_run: bool = field(default_factory=lambda: False)
+    scm_run_id: Optional[str] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanMetadata':
@@ -3309,6 +3310,7 @@ class ScanMetadata:
                 unique_id=Uuid.from_json(x['unique_id']) if 'unique_id' in x else _atd_missing_json_field('ScanMetadata', 'unique_id'),
                 requested_products=_atd_read_list(Product.from_json)(x['requested_products']) if 'requested_products' in x else _atd_missing_json_field('ScanMetadata', 'requested_products'),
                 dry_run=_atd_read_bool(x['dry_run']) if 'dry_run' in x else False,
+                scm_run_id=_atd_read_string(x['scm_run_id']) if 'scm_run_id' in x else None,
             )
         else:
             _atd_bad_json('ScanMetadata', x)
@@ -3319,6 +3321,8 @@ class ScanMetadata:
         res['unique_id'] = (lambda x: x.to_json())(self.unique_id)
         res['requested_products'] = _atd_write_list((lambda x: x.to_json()))(self.requested_products)
         res['dry_run'] = _atd_write_bool(self.dry_run)
+        if self.scm_run_id is not None:
+            res['scm_run_id'] = _atd_write_string(self.scm_run_id)
         return res
 
     @classmethod
