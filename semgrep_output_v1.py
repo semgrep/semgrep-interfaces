@@ -281,7 +281,7 @@ class Datetime:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Fpath:
     """Original type: fpath"""
 
@@ -6881,7 +6881,7 @@ class ManifestKind:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Manifest:
     """Original type: manifest = { ... }"""
 
