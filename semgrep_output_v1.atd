@@ -71,7 +71,7 @@ type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
 (*****************************************************************************)
 
 (* File path. less: could convert directly to Path class of pathlib library for Python *)
-type fpath <ocaml attr="deriving show"> = string wrap <ocaml module="ATD_string_wrap.Fpath">
+type fpath <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True)">= string wrap <ocaml module="ATD_string_wrap.Fpath">
 
 type uri = string wrap <ocaml module="ATD_string_wrap.Uri">
 
@@ -1856,7 +1856,8 @@ type manifest_kind
     (* pyproject.toml - https://packaging.python.org/en/latest/guides/writing-pyproject-toml/ *)
 ]
 
-type manifest = {
+type manifest
+  <python decorator="dataclass(frozen=True)">   = {
   kind: manifest_kind;
   path: fpath;
 }
