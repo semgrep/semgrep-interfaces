@@ -1119,7 +1119,7 @@
           "items": { "$ref": "#/definitions/product" }
         },
         "dry_run": { "type": "boolean" },
-        "scm_run_id": { "type": "string" }
+        "sms_scan_id": { "type": "string" }
       }
     },
     "scan_request": {
