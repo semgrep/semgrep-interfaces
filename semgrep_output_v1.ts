@@ -628,7 +628,7 @@ export type ScanMetadata = {
   unique_id: Uuid;
   requested_products: Product[];
   dry_run: boolean;
-  scm_run_id?: string;
+  sms_scan_id?: string;
 }
 
 export type ScanRequest = {
@@ -2853,7 +2853,7 @@ export function writeScanMetadata(x: ScanMetadata, context: any = x): any {
     'unique_id': _atd_write_required_field('ScanMetadata', 'unique_id', writeUuid, x.unique_id, x),
     'requested_products': _atd_write_required_field('ScanMetadata', 'requested_products', _atd_write_array(writeProduct), x.requested_products, x),
     'dry_run': _atd_write_field_with_default(_atd_write_bool, false, x.dry_run, x),
-    'scm_run_id': _atd_write_optional_field(_atd_write_string, x.scm_run_id, x),
+    'sms_scan_id': _atd_write_optional_field(_atd_write_string, x.sms_scan_id, x),
   };
 }
 
@@ -2863,7 +2863,7 @@ export function readScanMetadata(x: any, context: any = x): ScanMetadata {
     unique_id: _atd_read_required_field('ScanMetadata', 'unique_id', readUuid, x['unique_id'], x),
     requested_products: _atd_read_required_field('ScanMetadata', 'requested_products', _atd_read_array(readProduct), x['requested_products'], x),
     dry_run: _atd_read_field_with_default(_atd_read_bool, false, x['dry_run'], x),
-    scm_run_id: _atd_read_optional_field(_atd_read_string, x['scm_run_id'], x),
+    sms_scan_id: _atd_read_optional_field(_atd_read_string, x['sms_scan_id'], x),
   };
 }
 
