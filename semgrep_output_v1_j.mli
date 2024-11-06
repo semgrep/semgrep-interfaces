@@ -657,7 +657,11 @@ type ci_scan_complete = Semgrep_output_v1_t.ci_scan_complete = {
 
 type partial_scan_result = Semgrep_output_v1_t.partial_scan_result
 
-type output_format = Semgrep_output_v1_t.output_format
+type output_format = Semgrep_output_v1_t.output_format = 
+    Text | Json | Emacs | Vim | Sarif | Gitlab_sast | Gitlab_secrets
+  | Junit_xml | Files_with_matches | Incremental
+
+  [@@deriving show]
 
 type manifest_kind = Semgrep_output_v1_t.manifest_kind
   [@@deriving show, eq, yojson]
@@ -680,6 +684,13 @@ type apply_fixes_return = Semgrep_output_v1_t.apply_fixes_return = {
 }
 
 type function_return = Semgrep_output_v1_t.function_return
+
+type format_context = Semgrep_output_v1_t.format_context = {
+  is_ci_invocation: bool;
+  is_logged_in: bool;
+  is_using_registry: bool
+}
+  [@@deriving show]
 
 type edit = Semgrep_output_v1_t.edit = {
   path: fpath;
@@ -2974,6 +2985,26 @@ val read_function_return :
 val function_return_of_string :
   string -> function_return
   (** Deserialize JSON data of type {!type:function_return}. *)
+
+val write_format_context :
+  Buffer.t -> format_context -> unit
+  (** Output a JSON value of type {!type:format_context}. *)
+
+val string_of_format_context :
+  ?len:int -> format_context -> string
+  (** Serialize a value of type {!type:format_context}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_format_context :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> format_context
+  (** Input JSON data of type {!type:format_context}. *)
+
+val format_context_of_string :
+  string -> format_context
+  (** Deserialize JSON data of type {!type:format_context}. *)
 
 val write_edit :
   Buffer.t -> edit -> unit

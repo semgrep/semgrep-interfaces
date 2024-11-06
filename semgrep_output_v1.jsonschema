@@ -1519,7 +1519,27 @@
       }
     },
     "output_format": {
-      "oneOf": [ { "const": "Vim" }, { "const": "Emacs" } ]
+      "oneOf": [
+        { "const": "Text" },
+        { "const": "Json" },
+        { "const": "Emacs" },
+        { "const": "Vim" },
+        { "const": "Sarif" },
+        { "const": "Gitlab_sast" },
+        { "const": "Gitlab_secrets" },
+        { "const": "Junit_xml" },
+        { "const": "Files_with_matches" },
+        { "const": "Incremental" }
+      ]
+    },
+    "format_context": {
+      "type": "object",
+      "required": [ "is_ci_invocation", "is_logged_in", "is_using_registry" ],
+      "properties": {
+        "is_ci_invocation": { "type": "boolean" },
+        "is_logged_in": { "type": "boolean" },
+        "is_using_registry": { "type": "boolean" }
+      }
     },
     "manifest_kind": {
       "oneOf": [
@@ -1648,10 +1668,11 @@
             { "const": "CallFormatter" },
             {
               "type": "array",
-              "minItems": 2,
+              "minItems": 3,
               "items": false,
               "prefixItems": [
                 { "$ref": "#/definitions/output_format" },
+                { "$ref": "#/definitions/format_context" },
                 { "$ref": "#/definitions/cli_output" }
               ]
             }
