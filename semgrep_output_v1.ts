@@ -833,8 +833,22 @@ export type SarifFormatReturn = {
 }
 
 export type OutputFormat =
-| { kind: 'Vim' }
+| { kind: 'Text' }
+| { kind: 'Json' }
 | { kind: 'Emacs' }
+| { kind: 'Vim' }
+| { kind: 'Sarif' }
+| { kind: 'Gitlab_sast' }
+| { kind: 'Gitlab_secrets' }
+| { kind: 'Junit_xml' }
+| { kind: 'Files_with_matches' }
+| { kind: 'Incremental' }
+
+export type FormatContext = {
+  is_ci_invocation: boolean;
+  is_logged_in: boolean;
+  is_using_registry: boolean;
+}
 
 export type ManifestKind =
 | { kind: 'RequirementsIn' }
@@ -882,7 +896,7 @@ export type FunctionCall =
 | { kind: 'CallContributions' }
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
 | { kind: 'CallSarifFormat'; value: SarifFormatParams }
-| { kind: 'CallFormatter'; value: [OutputFormat, CliOutput] }
+| { kind: 'CallFormatter'; value: [OutputFormat, FormatContext, CliOutput] }
 | { kind: 'CallValidate'; value: Fpath }
 | { kind: 'CallResolveDependencies'; value: Manifest[] }
 | { kind: 'CallDumpRulePartitions'; value: DumpRulePartitionsParams }
@@ -3391,23 +3405,71 @@ export function readSarifFormatReturn(x: any, context: any = x): SarifFormatRetu
 
 export function writeOutputFormat(x: OutputFormat, context: any = x): any {
   switch (x.kind) {
-    case 'Vim':
-      return 'Vim'
+    case 'Text':
+      return 'Text'
+    case 'Json':
+      return 'Json'
     case 'Emacs':
       return 'Emacs'
+    case 'Vim':
+      return 'Vim'
+    case 'Sarif':
+      return 'Sarif'
+    case 'Gitlab_sast':
+      return 'Gitlab_sast'
+    case 'Gitlab_secrets':
+      return 'Gitlab_secrets'
+    case 'Junit_xml':
+      return 'Junit_xml'
+    case 'Files_with_matches':
+      return 'Files_with_matches'
+    case 'Incremental':
+      return 'Incremental'
   }
 }
 
 export function readOutputFormat(x: any, context: any = x): OutputFormat {
   switch (x) {
-    case 'Vim':
-      return { kind: 'Vim' }
+    case 'Text':
+      return { kind: 'Text' }
+    case 'Json':
+      return { kind: 'Json' }
     case 'Emacs':
       return { kind: 'Emacs' }
+    case 'Vim':
+      return { kind: 'Vim' }
+    case 'Sarif':
+      return { kind: 'Sarif' }
+    case 'Gitlab_sast':
+      return { kind: 'Gitlab_sast' }
+    case 'Gitlab_secrets':
+      return { kind: 'Gitlab_secrets' }
+    case 'Junit_xml':
+      return { kind: 'Junit_xml' }
+    case 'Files_with_matches':
+      return { kind: 'Files_with_matches' }
+    case 'Incremental':
+      return { kind: 'Incremental' }
     default:
       _atd_bad_json('OutputFormat', x, context)
       throw new Error('impossible')
   }
+}
+
+export function writeFormatContext(x: FormatContext, context: any = x): any {
+  return {
+    'is_ci_invocation': _atd_write_required_field('FormatContext', 'is_ci_invocation', _atd_write_bool, x.is_ci_invocation, x),
+    'is_logged_in': _atd_write_required_field('FormatContext', 'is_logged_in', _atd_write_bool, x.is_logged_in, x),
+    'is_using_registry': _atd_write_required_field('FormatContext', 'is_using_registry', _atd_write_bool, x.is_using_registry, x),
+  };
+}
+
+export function readFormatContext(x: any, context: any = x): FormatContext {
+  return {
+    is_ci_invocation: _atd_read_required_field('FormatContext', 'is_ci_invocation', _atd_read_bool, x['is_ci_invocation'], x),
+    is_logged_in: _atd_read_required_field('FormatContext', 'is_logged_in', _atd_read_bool, x['is_logged_in'], x),
+    is_using_registry: _atd_read_required_field('FormatContext', 'is_using_registry', _atd_read_bool, x['is_using_registry'], x),
+  };
 }
 
 export function writeManifestKind(x: ManifestKind, context: any = x): any {
@@ -3593,7 +3655,7 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
     case 'CallSarifFormat':
       return ['CallSarifFormat', writeSarifFormatParams(x.value, x)]
     case 'CallFormatter':
-      return ['CallFormatter', ((x, context) => [writeOutputFormat(x[0], x), writeCliOutput(x[1], x)])(x.value, x)]
+      return ['CallFormatter', ((x, context) => [writeOutputFormat(x[0], x), writeFormatContext(x[1], x), writeCliOutput(x[2], x)])(x.value, x)]
     case 'CallValidate':
       return ['CallValidate', writeFpath(x.value, x)]
     case 'CallResolveDependencies':
@@ -3621,7 +3683,7 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
       case 'CallSarifFormat':
         return { kind: 'CallSarifFormat', value: readSarifFormatParams(x[1], x) }
       case 'CallFormatter':
-        return { kind: 'CallFormatter', value: ((x, context): [OutputFormat, CliOutput] => { _atd_check_json_tuple(2, x, context); return [readOutputFormat(x[0], x), readCliOutput(x[1], x)] })(x[1], x) }
+        return { kind: 'CallFormatter', value: ((x, context): [OutputFormat, FormatContext, CliOutput] => { _atd_check_json_tuple(3, x, context); return [readOutputFormat(x[0], x), readFormatContext(x[1], x), readCliOutput(x[2], x)] })(x[1], x) }
       case 'CallValidate':
         return { kind: 'CallValidate', value: readFpath(x[1], x) }
       case 'CallResolveDependencies':
