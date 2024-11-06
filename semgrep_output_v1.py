@@ -6525,24 +6525,41 @@ class PartialScanResult:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
-class Vim:
-    """Original type: output_format = [ ... | Vim | ... ]"""
+@dataclass(frozen=True)
+class Text:
+    """Original type: output_format = [ ... | Text | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'Vim'
+        return 'Text'
 
     @staticmethod
     def to_json() -> Any:
-        return 'Vim'
+        return 'Text'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
+class Json:
+    """Original type: output_format = [ ... | Json | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Json'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Json'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class Emacs:
     """Original type: output_format = [ ... | Emacs | ... ]"""
 
@@ -6559,11 +6576,130 @@ class Emacs:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
+class Vim:
+    """Original type: output_format = [ ... | Vim | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Vim'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Vim'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Sarif:
+    """Original type: output_format = [ ... | Sarif | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Sarif'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Sarif'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class GitlabSast:
+    """Original type: output_format = [ ... | Gitlab_sast | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'GitlabSast'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Gitlab_sast'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class GitlabSecrets:
+    """Original type: output_format = [ ... | Gitlab_secrets | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'GitlabSecrets'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Gitlab_secrets'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class JunitXml:
+    """Original type: output_format = [ ... | Junit_xml | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'JunitXml'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Junit_xml'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class FilesWithMatches:
+    """Original type: output_format = [ ... | Files_with_matches | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'FilesWithMatches'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Files_with_matches'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Incremental:
+    """Original type: output_format = [ ... | Incremental | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Incremental'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Incremental'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class OutputFormat:
     """Original type: output_format = [ ... ]"""
 
-    value: Union[Vim, Emacs]
+    value: Union[Text, Json, Emacs, Vim, Sarif, GitlabSast, GitlabSecrets, JunitXml, FilesWithMatches, Incremental]
 
     @property
     def kind(self) -> str:
@@ -6573,10 +6709,26 @@ class OutputFormat:
     @classmethod
     def from_json(cls, x: Any) -> 'OutputFormat':
         if isinstance(x, str):
-            if x == 'Vim':
-                return cls(Vim())
+            if x == 'Text':
+                return cls(Text())
+            if x == 'Json':
+                return cls(Json())
             if x == 'Emacs':
                 return cls(Emacs())
+            if x == 'Vim':
+                return cls(Vim())
+            if x == 'Sarif':
+                return cls(Sarif())
+            if x == 'Gitlab_sast':
+                return cls(GitlabSast())
+            if x == 'Gitlab_secrets':
+                return cls(GitlabSecrets())
+            if x == 'Junit_xml':
+                return cls(JunitXml())
+            if x == 'Files_with_matches':
+                return cls(FilesWithMatches())
+            if x == 'Incremental':
+                return cls(Incremental())
             _atd_bad_json('OutputFormat', x)
         _atd_bad_json('OutputFormat', x)
 
@@ -7174,6 +7326,40 @@ class FunctionReturn:
 
 
 @dataclass(frozen=True)
+class FormatContext:
+    """Original type: format_context = { ... }"""
+
+    is_ci_invocation: bool
+    is_logged_in: bool
+    is_using_registry: bool
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FormatContext':
+        if isinstance(x, dict):
+            return cls(
+                is_ci_invocation=_atd_read_bool(x['is_ci_invocation']) if 'is_ci_invocation' in x else _atd_missing_json_field('FormatContext', 'is_ci_invocation'),
+                is_logged_in=_atd_read_bool(x['is_logged_in']) if 'is_logged_in' in x else _atd_missing_json_field('FormatContext', 'is_logged_in'),
+                is_using_registry=_atd_read_bool(x['is_using_registry']) if 'is_using_registry' in x else _atd_missing_json_field('FormatContext', 'is_using_registry'),
+            )
+        else:
+            _atd_bad_json('FormatContext', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['is_ci_invocation'] = _atd_write_bool(self.is_ci_invocation)
+        res['is_logged_in'] = _atd_write_bool(self.is_logged_in)
+        res['is_using_registry'] = _atd_write_bool(self.is_using_registry)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FormatContext':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class Edit:
     """Original type: edit = { ... }"""
 
@@ -7393,7 +7579,7 @@ class CallSarifFormat:
 class CallFormatter:
     """Original type: function_call = [ ... | CallFormatter of ... | ... ]"""
 
-    value: Tuple[OutputFormat, CliOutput]
+    value: Tuple[OutputFormat, FormatContext, CliOutput]
 
     @property
     def kind(self) -> str:
@@ -7401,7 +7587,7 @@ class CallFormatter:
         return 'CallFormatter'
 
     def to_json(self) -> Any:
-        return ['CallFormatter', (lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
+        return ['CallFormatter', (lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1]), (lambda x: x.to_json())(x[2])] if isinstance(x, tuple) and len(x) == 3 else _atd_bad_python('tuple of length 3', x))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -7485,7 +7671,7 @@ class FunctionCall:
             if cons == 'CallSarifFormat':
                 return cls(CallSarifFormat(SarifFormatParams.from_json(x[1])))
             if cons == 'CallFormatter':
-                return cls(CallFormatter((lambda x: (OutputFormat.from_json(x[0]), CliOutput.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+                return cls(CallFormatter((lambda x: (OutputFormat.from_json(x[0]), FormatContext.from_json(x[1]), CliOutput.from_json(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
             if cons == 'CallValidate':
                 return cls(CallValidate(Fpath.from_json(x[1])))
             if cons == 'CallResolveDependencies':
