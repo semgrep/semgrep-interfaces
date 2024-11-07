@@ -21604,6 +21604,22 @@ let read_rule_id_and_engine_kind = (
 )
 let rule_id_and_engine_kind_of_string s =
   read_rule_id_and_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__resolution_error_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_resolution_error
+  )
+)
+let string_of__resolution_error_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__resolution_error_list ob x;
+  Buffer.contents ob
+let read__resolution_error_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_resolution_error
+  )
+)
+let _resolution_error_list_of_string s =
+  read__resolution_error_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__found_dependency_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_found_dependency
@@ -21626,13 +21642,26 @@ let write_resolution_result = (
       | `ResolutionOk x ->
         Buffer.add_string ob "[\"ResolutionOk\",";
         (
-          write__found_dependency_list
+          fun ob x ->
+            Buffer.add_char ob '[';
+            (let x, _ = x in
+            (
+              write__found_dependency_list
+            ) ob x
+            );
+            Buffer.add_char ob ',';
+            (let _, x = x in
+            (
+              write__resolution_error_list
+            ) ob x
+            );
+            Buffer.add_char ob ']';
         ) ob x;
         Buffer.add_char ob ']'
       | `ResolutionError x ->
         Buffer.add_string ob "[\"ResolutionError\",";
         (
-          write_resolution_error
+          write__resolution_error_list
         ) ob x;
         Buffer.add_char ob ']'
 )
@@ -21649,7 +21678,48 @@ let read_resolution_result = (
             | "ResolutionOk" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read__found_dependency_list
+                  fun p lb ->
+                    Yojson.Safe.read_space p lb;
+                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    let len = ref 0 in
+                    let end_of_tuple = ref false in
+                    (try
+                      let x0 =
+                        let x =
+                          (
+                            read__found_dependency_list
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x1 =
+                        let x =
+                          (
+                            read__resolution_error_list
+                          ) p lb
+                        in
+                        incr len;
+                        (try
+                          Yojson.Safe.read_space p lb;
+                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                        x
+                      in
+                      if not !end_of_tuple then (
+                        try
+                          while true do
+                            Yojson.Safe.skip_json p lb;
+                            Yojson.Safe.read_space p lb;
+                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                          done
+                        with Yojson.End_of_tuple -> ()
+                      );
+                      (x0, x1)
+                    with Yojson.End_of_tuple ->
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -21658,7 +21728,7 @@ let read_resolution_result = (
             | "ResolutionError" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read_resolution_error
+                  read__resolution_error_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -21679,7 +21749,48 @@ let read_resolution_result = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read__found_dependency_list
+                  fun p lb ->
+                    Yojson.Safe.read_space p lb;
+                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    let len = ref 0 in
+                    let end_of_tuple = ref false in
+                    (try
+                      let x0 =
+                        let x =
+                          (
+                            read__found_dependency_list
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x1 =
+                        let x =
+                          (
+                            read__resolution_error_list
+                          ) p lb
+                        in
+                        incr len;
+                        (try
+                          Yojson.Safe.read_space p lb;
+                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                        x
+                      in
+                      if not !end_of_tuple then (
+                        try
+                          while true do
+                            Yojson.Safe.skip_json p lb;
+                            Yojson.Safe.read_space p lb;
+                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                          done
+                        with Yojson.End_of_tuple -> ()
+                      );
+                      (x0, x1)
+                    with Yojson.End_of_tuple ->
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -21690,7 +21801,7 @@ let read_resolution_result = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read_resolution_error
+                  read__resolution_error_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;

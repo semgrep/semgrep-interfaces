@@ -912,8 +912,8 @@ export type ResolutionCmdFailed = {
 }
 
 export type ResolutionResult =
-| { kind: 'ResolutionOk'; value: FoundDependency[] }
-| { kind: 'ResolutionError'; value: ResolutionError }
+| { kind: 'ResolutionOk'; value: [FoundDependency[], ResolutionError[]] }
+| { kind: 'ResolutionError'; value: ResolutionError[] }
 
 export type DumpRulePartitionsParams = {
   rules: RawJson;
@@ -3759,9 +3759,9 @@ export function readResolutionCmdFailed(x: any, context: any = x): ResolutionCmd
 export function writeResolutionResult(x: ResolutionResult, context: any = x): any {
   switch (x.kind) {
     case 'ResolutionOk':
-      return ['ResolutionOk', _atd_write_array(writeFoundDependency)(x.value, x)]
+      return ['ResolutionOk', ((x, context) => [_atd_write_array(writeFoundDependency)(x[0], x), _atd_write_array(writeResolutionError)(x[1], x)])(x.value, x)]
     case 'ResolutionError':
-      return ['ResolutionError', writeResolutionError(x.value, x)]
+      return ['ResolutionError', _atd_write_array(writeResolutionError)(x.value, x)]
   }
 }
 
@@ -3769,9 +3769,9 @@ export function readResolutionResult(x: any, context: any = x): ResolutionResult
   _atd_check_json_tuple(2, x, context)
   switch (x[0]) {
     case 'ResolutionOk':
-      return { kind: 'ResolutionOk', value: _atd_read_array(readFoundDependency)(x[1], x) }
+      return { kind: 'ResolutionOk', value: ((x, context): [FoundDependency[], ResolutionError[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_array(readFoundDependency)(x[0], x), _atd_read_array(readResolutionError)(x[1], x)] })(x[1], x) }
     case 'ResolutionError':
-      return { kind: 'ResolutionError', value: readResolutionError(x[1], x) }
+      return { kind: 'ResolutionError', value: _atd_read_array(readResolutionError)(x[1], x) }
     default:
       _atd_bad_json('ResolutionResult', x, context)
       throw new Error('impossible')

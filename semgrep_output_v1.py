@@ -5848,7 +5848,7 @@ class RuleIdAndEngineKind:
 class ResolutionOk:
     """Original type: resolution_result = [ ... | ResolutionOk of ... | ... ]"""
 
-    value: List[FoundDependency]
+    value: Tuple[List[FoundDependency], List[ResolutionError]]
 
     @property
     def kind(self) -> str:
@@ -5856,7 +5856,7 @@ class ResolutionOk:
         return 'ResolutionOk'
 
     def to_json(self) -> Any:
-        return ['ResolutionOk', _atd_write_list((lambda x: x.to_json()))(self.value)]
+        return ['ResolutionOk', (lambda x: [_atd_write_list((lambda x: x.to_json()))(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -5866,7 +5866,7 @@ class ResolutionOk:
 class ResolutionError_:
     """Original type: resolution_result = [ ... | ResolutionError of ... | ... ]"""
 
-    value: ResolutionError
+    value: List[ResolutionError]
 
     @property
     def kind(self) -> str:
@@ -5874,7 +5874,7 @@ class ResolutionError_:
         return 'ResolutionError_'
 
     def to_json(self) -> Any:
-        return ['ResolutionError', (lambda x: x.to_json())(self.value)]
+        return ['ResolutionError', _atd_write_list((lambda x: x.to_json()))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -5896,9 +5896,9 @@ class ResolutionResult:
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'ResolutionOk':
-                return cls(ResolutionOk(_atd_read_list(FoundDependency.from_json)(x[1])))
+                return cls(ResolutionOk((lambda x: (_atd_read_list(FoundDependency.from_json)(x[0]), _atd_read_list(ResolutionError.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
             if cons == 'ResolutionError':
-                return cls(ResolutionError_(ResolutionError.from_json(x[1])))
+                return cls(ResolutionError_(_atd_read_list(ResolutionError.from_json)(x[1])))
             _atd_bad_json('ResolutionResult', x)
         _atd_bad_json('ResolutionResult', x)
 

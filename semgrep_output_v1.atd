@@ -1945,11 +1945,13 @@ type resolution_cmd_failed
     message: string;
 }
 
+(* Resolution can either succeed or fail, but in either case errors can be produced
+   (e.g. one resolution method might fail while a worse one succeeds, lockfile parsing
+   might partially fail but recover and still produce results)
+*)
 type resolution_result = [
-  (* dependency_relationship items each reference an id from found_dependency.id
-    and the IDs of the dependencies that that item depends on *)
-  | ResolutionOk of found_dependency list
-  | ResolutionError of resolution_error
+  | ResolutionOk of (found_dependency list * resolution_error list)
+  | ResolutionError of resolution_error list
 ]
 
 type dump_rule_partitions_params = {

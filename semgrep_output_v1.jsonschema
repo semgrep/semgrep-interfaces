@@ -1683,7 +1683,18 @@
             { "const": "ResolutionOk" },
             {
               "type": "array",
-              "items": { "$ref": "#/definitions/found_dependency" }
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "array",
+                  "items": { "$ref": "#/definitions/found_dependency" }
+                },
+                {
+                  "type": "array",
+                  "items": { "$ref": "#/definitions/resolution_error" }
+                }
+              ]
             }
           ]
         },
@@ -1693,7 +1704,10 @@
           "items": false,
           "prefixItems": [
             { "const": "ResolutionError" },
-            { "$ref": "#/definitions/resolution_error" }
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/resolution_error" }
+            }
           ]
         }
       ]
