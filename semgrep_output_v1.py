@@ -4489,6 +4489,7 @@ class FoundDependency:
     allowed_hashes: Dict[str, List[str]]
     transitivity: Transitivity
     resolved_url: Optional[str] = None
+    manifest_path: Optional[Fpath] = None
     lockfile_path: Optional[Fpath] = None
     line_number: Optional[int] = None
     children: Optional[List[DependencyChild]] = None
@@ -4504,6 +4505,7 @@ class FoundDependency:
                 allowed_hashes=_atd_read_assoc_object_into_dict(_atd_read_list(_atd_read_string))(x['allowed_hashes']) if 'allowed_hashes' in x else _atd_missing_json_field('FoundDependency', 'allowed_hashes'),
                 transitivity=Transitivity.from_json(x['transitivity']) if 'transitivity' in x else _atd_missing_json_field('FoundDependency', 'transitivity'),
                 resolved_url=_atd_read_string(x['resolved_url']) if 'resolved_url' in x else None,
+                manifest_path=Fpath.from_json(x['manifest_path']) if 'manifest_path' in x else None,
                 lockfile_path=Fpath.from_json(x['lockfile_path']) if 'lockfile_path' in x else None,
                 line_number=_atd_read_int(x['line_number']) if 'line_number' in x else None,
                 children=_atd_read_list(DependencyChild.from_json)(x['children']) if 'children' in x else None,
@@ -4521,6 +4523,8 @@ class FoundDependency:
         res['transitivity'] = (lambda x: x.to_json())(self.transitivity)
         if self.resolved_url is not None:
             res['resolved_url'] = _atd_write_string(self.resolved_url)
+        if self.manifest_path is not None:
+            res['manifest_path'] = (lambda x: x.to_json())(self.manifest_path)
         if self.lockfile_path is not None:
             res['lockfile_path'] = (lambda x: x.to_json())(self.lockfile_path)
         if self.line_number is not None:

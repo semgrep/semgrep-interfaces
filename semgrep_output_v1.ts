@@ -483,6 +483,7 @@ export type FoundDependency = {
   allowed_hashes: Map<string, string[]>;
   resolved_url?: string;
   transitivity: Transitivity;
+  manifest_path?: Fpath;
   lockfile_path?: Fpath;
   line_number?: number /*int*/;
   children?: DependencyChild[];
@@ -2462,6 +2463,7 @@ export function writeFoundDependency(x: FoundDependency, context: any = x): any 
     'allowed_hashes': _atd_write_required_field('FoundDependency', 'allowed_hashes', _atd_write_assoc_map_to_object(_atd_write_array(_atd_write_string)), x.allowed_hashes, x),
     'resolved_url': _atd_write_optional_field(_atd_write_string, x.resolved_url, x),
     'transitivity': _atd_write_required_field('FoundDependency', 'transitivity', writeTransitivity, x.transitivity, x),
+    'manifest_path': _atd_write_optional_field(writeFpath, x.manifest_path, x),
     'lockfile_path': _atd_write_optional_field(writeFpath, x.lockfile_path, x),
     'line_number': _atd_write_optional_field(_atd_write_int, x.line_number, x),
     'children': _atd_write_optional_field(_atd_write_array(writeDependencyChild), x.children, x),
@@ -2477,6 +2479,7 @@ export function readFoundDependency(x: any, context: any = x): FoundDependency {
     allowed_hashes: _atd_read_required_field('FoundDependency', 'allowed_hashes', _atd_read_assoc_object_into_map(_atd_read_array(_atd_read_string)), x['allowed_hashes'], x),
     resolved_url: _atd_read_optional_field(_atd_read_string, x['resolved_url'], x),
     transitivity: _atd_read_required_field('FoundDependency', 'transitivity', readTransitivity, x['transitivity'], x),
+    manifest_path: _atd_read_optional_field(readFpath, x['manifest_path'], x),
     lockfile_path: _atd_read_optional_field(readFpath, x['lockfile_path'], x),
     line_number: _atd_read_optional_field(_atd_read_int, x['line_number'], x),
     children: _atd_read_optional_field(_atd_read_array(readDependencyChild), x['children'], x),
