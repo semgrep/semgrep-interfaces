@@ -1113,6 +1113,11 @@ type found_dependency = {
     <ts repr="map">;
   ?resolved_url: string option;
   transitivity: transitivity;
+  (* Path to the manifest file which the lockfile can be associated with
+   *
+   * Examples: package.json, nested/folder/pom.xml, 
+   *)
+  ?manifest_path: fpath option;
   (* Path to the lockfile that contains this dependency. 
    *
    * Examples: package-lock.json, nested/folder/requirements.txt, go.mod
