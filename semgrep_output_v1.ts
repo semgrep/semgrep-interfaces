@@ -851,6 +851,24 @@ export type FormatContext = {
   is_using_registry: boolean;
 }
 
+export type LockfileKind =
+| { kind: 'PipRequirementsTxt' }
+| { kind: 'PoetryLock' }
+| { kind: 'PipfileLock' }
+| { kind: 'NpmPackageLockJson' }
+| { kind: 'YarnLock' }
+| { kind: 'PnpmLock' }
+| { kind: 'GemfileLock' }
+| { kind: 'GoMod' }
+| { kind: 'CargoLock' }
+| { kind: 'MavenDepTree' }
+| { kind: 'GradleLockfile' }
+| { kind: 'ComposerLock' }
+| { kind: 'NugetPackageLockJson' }
+| { kind: 'PubspecLock' }
+| { kind: 'SwiftPackageResolved' }
+| { kind: 'MixLock' }
+
 export type ManifestKind =
 | { kind: 'RequirementsIn' }
 | { kind: 'PackageJson' }
@@ -871,6 +889,16 @@ export type Manifest = {
   kind: ManifestKind;
   path: Fpath;
 }
+
+export type Lockfile = {
+  kind: LockfileKind;
+  path: Fpath;
+}
+
+export type DependencySource =
+| { kind: 'ManifestOnlyDependencySource'; value: Manifest }
+| { kind: 'LockfileOnlyDependencySource'; value: Lockfile }
+| { kind: 'ManifestLockfileDependencySource'; value: [Manifest, Lockfile] }
 
 export type ResolutionError =
 | { kind: 'UnsupportedManifest' }
@@ -899,7 +927,7 @@ export type FunctionCall =
 | { kind: 'CallSarifFormat'; value: SarifFormatParams }
 | { kind: 'CallFormatter'; value: [OutputFormat, FormatContext, CliOutput] }
 | { kind: 'CallValidate'; value: Fpath }
-| { kind: 'CallResolveDependencies'; value: Manifest[] }
+| { kind: 'CallResolveDependencies'; value: DependencySource[] }
 | { kind: 'CallDumpRulePartitions'; value: DumpRulePartitionsParams }
 
 export type FunctionReturn =
@@ -909,7 +937,7 @@ export type FunctionReturn =
 | { kind: 'RetContributions'; value: Contributions }
 | { kind: 'RetFormatter'; value: string }
 | { kind: 'RetValidate'; value: boolean }
-| { kind: 'RetResolveDependencies'; value: [Manifest, ResolutionResult][] }
+| { kind: 'RetResolveDependencies'; value: [DependencySource, ResolutionResult][] }
 | { kind: 'RetDumpRulePartitions'; value: boolean }
 
 export type PartialScanResult =
@@ -3475,6 +3503,83 @@ export function readFormatContext(x: any, context: any = x): FormatContext {
   };
 }
 
+export function writeLockfileKind(x: LockfileKind, context: any = x): any {
+  switch (x.kind) {
+    case 'PipRequirementsTxt':
+      return 'PipRequirementsTxt'
+    case 'PoetryLock':
+      return 'PoetryLock'
+    case 'PipfileLock':
+      return 'PipfileLock'
+    case 'NpmPackageLockJson':
+      return 'NpmPackageLockJson'
+    case 'YarnLock':
+      return 'YarnLock'
+    case 'PnpmLock':
+      return 'PnpmLock'
+    case 'GemfileLock':
+      return 'GemfileLock'
+    case 'GoMod':
+      return 'GoMod'
+    case 'CargoLock':
+      return 'CargoLock'
+    case 'MavenDepTree':
+      return 'MavenDepTree'
+    case 'GradleLockfile':
+      return 'GradleLockfile'
+    case 'ComposerLock':
+      return 'ComposerLock'
+    case 'NugetPackageLockJson':
+      return 'NugetPackageLockJson'
+    case 'PubspecLock':
+      return 'PubspecLock'
+    case 'SwiftPackageResolved':
+      return 'SwiftPackageResolved'
+    case 'MixLock':
+      return 'MixLock'
+  }
+}
+
+export function readLockfileKind(x: any, context: any = x): LockfileKind {
+  switch (x) {
+    case 'PipRequirementsTxt':
+      return { kind: 'PipRequirementsTxt' }
+    case 'PoetryLock':
+      return { kind: 'PoetryLock' }
+    case 'PipfileLock':
+      return { kind: 'PipfileLock' }
+    case 'NpmPackageLockJson':
+      return { kind: 'NpmPackageLockJson' }
+    case 'YarnLock':
+      return { kind: 'YarnLock' }
+    case 'PnpmLock':
+      return { kind: 'PnpmLock' }
+    case 'GemfileLock':
+      return { kind: 'GemfileLock' }
+    case 'GoMod':
+      return { kind: 'GoMod' }
+    case 'CargoLock':
+      return { kind: 'CargoLock' }
+    case 'MavenDepTree':
+      return { kind: 'MavenDepTree' }
+    case 'GradleLockfile':
+      return { kind: 'GradleLockfile' }
+    case 'ComposerLock':
+      return { kind: 'ComposerLock' }
+    case 'NugetPackageLockJson':
+      return { kind: 'NugetPackageLockJson' }
+    case 'PubspecLock':
+      return { kind: 'PubspecLock' }
+    case 'SwiftPackageResolved':
+      return { kind: 'SwiftPackageResolved' }
+    case 'MixLock':
+      return { kind: 'MixLock' }
+    default:
+      _atd_bad_json('LockfileKind', x, context)
+      throw new Error('impossible')
+  }
+}
+
 export function writeManifestKind(x: ManifestKind, context: any = x): any {
   switch (x.kind) {
     case 'RequirementsIn':
@@ -3556,6 +3661,46 @@ export function readManifest(x: any, context: any = x): Manifest {
     kind: _atd_read_required_field('Manifest', 'kind', readManifestKind, x['kind'], x),
     path: _atd_read_required_field('Manifest', 'path', readFpath, x['path'], x),
   };
+}
+
+export function writeLockfile(x: Lockfile, context: any = x): any {
+  return {
+    'kind': _atd_write_required_field('Lockfile', 'kind', writeLockfileKind, x.kind, x),
+    'path': _atd_write_required_field('Lockfile', 'path', writeFpath, x.path, x),
+  };
+}
+
+export function readLockfile(x: any, context: any = x): Lockfile {
+  return {
+    kind: _atd_read_required_field('Lockfile', 'kind', readLockfileKind, x['kind'], x),
+    path: _atd_read_required_field('Lockfile', 'path', readFpath, x['path'], x),
+  };
+}
+
+export function writeDependencySource(x: DependencySource, context: any = x): any {
+  switch (x.kind) {
+    case 'ManifestOnlyDependencySource':
+      return ['ManifestOnlyDependencySource', writeManifest(x.value, x)]
+    case 'LockfileOnlyDependencySource':
+      return ['LockfileOnlyDependencySource', writeLockfile(x.value, x)]
+    case 'ManifestLockfileDependencySource':
+      return ['ManifestLockfileDependencySource', ((x, context) => [writeManifest(x[0], x), writeLockfile(x[1], x)])(x.value, x)]
+  }
+}
+
+export function readDependencySource(x: any, context: any = x): DependencySource {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'ManifestOnlyDependencySource':
+      return { kind: 'ManifestOnlyDependencySource', value: readManifest(x[1], x) }
+    case 'LockfileOnlyDependencySource':
+      return { kind: 'LockfileOnlyDependencySource', value: readLockfile(x[1], x) }
+    case 'ManifestLockfileDependencySource':
+      return { kind: 'ManifestLockfileDependencySource', value: ((x, context): [Manifest, Lockfile] => { _atd_check_json_tuple(2, x, context); return [readManifest(x[0], x), readLockfile(x[1], x)] })(x[1], x) }
+    default:
+      _atd_bad_json('DependencySource', x, context)
+      throw new Error('impossible')
+  }
 }
 
 export function writeResolutionError(x: ResolutionError, context: any = x): any {
@@ -3662,7 +3807,7 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
     case 'CallValidate':
       return ['CallValidate', writeFpath(x.value, x)]
     case 'CallResolveDependencies':
-      return ['CallResolveDependencies', _atd_write_array(writeManifest)(x.value, x)]
+      return ['CallResolveDependencies', _atd_write_array(writeDependencySource)(x.value, x)]
     case 'CallDumpRulePartitions':
       return ['CallDumpRulePartitions', writeDumpRulePartitionsParams(x.value, x)]
   }
@@ -3690,7 +3835,7 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
       case 'CallValidate':
         return { kind: 'CallValidate', value: readFpath(x[1], x) }
       case 'CallResolveDependencies':
-        return { kind: 'CallResolveDependencies', value: _atd_read_array(readManifest)(x[1], x) }
+        return { kind: 'CallResolveDependencies', value: _atd_read_array(readDependencySource)(x[1], x) }
       case 'CallDumpRulePartitions':
         return { kind: 'CallDumpRulePartitions', value: readDumpRulePartitionsParams(x[1], x) }
       default:
@@ -3715,7 +3860,7 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
     case 'RetValidate':
       return ['RetValidate', _atd_write_bool(x.value, x)]
     case 'RetResolveDependencies':
-      return ['RetResolveDependencies', _atd_write_array(((x, context) => [writeManifest(x[0], x), writeResolutionResult(x[1], x)]))(x.value, x)]
+      return ['RetResolveDependencies', _atd_write_array(((x, context) => [writeDependencySource(x[0], x), writeResolutionResult(x[1], x)]))(x.value, x)]
     case 'RetDumpRulePartitions':
       return ['RetDumpRulePartitions', _atd_write_bool(x.value, x)]
   }
@@ -3737,7 +3882,7 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
     case 'RetValidate':
       return { kind: 'RetValidate', value: _atd_read_bool(x[1], x) }
     case 'RetResolveDependencies':
-      return { kind: 'RetResolveDependencies', value: _atd_read_array(((x, context): [Manifest, ResolutionResult] => { _atd_check_json_tuple(2, x, context); return [readManifest(x[0], x), readResolutionResult(x[1], x)] }))(x[1], x) }
+      return { kind: 'RetResolveDependencies', value: _atd_read_array(((x, context): [DependencySource, ResolutionResult] => { _atd_check_json_tuple(2, x, context); return [readDependencySource(x[0], x), readResolutionResult(x[1], x)] }))(x[1], x) }
     case 'RetDumpRulePartitions':
       return { kind: 'RetDumpRulePartitions', value: _atd_read_bool(x[1], x) }
     default:

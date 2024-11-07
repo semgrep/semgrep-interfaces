@@ -1542,6 +1542,26 @@
         "is_using_registry": { "type": "boolean" }
       }
     },
+    "lockfile_kind": {
+      "oneOf": [
+        { "const": "PipRequirementsTxt" },
+        { "const": "PoetryLock" },
+        { "const": "PipfileLock" },
+        { "const": "NpmPackageLockJson" },
+        { "const": "YarnLock" },
+        { "const": "PnpmLock" },
+        { "const": "GemfileLock" },
+        { "const": "GoMod" },
+        { "const": "CargoLock" },
+        { "const": "MavenDepTree" },
+        { "const": "GradleLockfile" },
+        { "const": "ComposerLock" },
+        { "const": "NugetPackageLockJson" },
+        { "const": "PubspecLock" },
+        { "const": "SwiftPackageResolved" },
+        { "const": "MixLock" }
+      ]
+    },
     "manifest_kind": {
       "oneOf": [
         { "const": "RequirementsIn" },
@@ -1567,6 +1587,53 @@
         "kind": { "$ref": "#/definitions/manifest_kind" },
         "path": { "$ref": "#/definitions/fpath" }
       }
+    },
+    "lockfile": {
+      "type": "object",
+      "required": [ "kind", "path" ],
+      "properties": {
+        "kind": { "$ref": "#/definitions/lockfile_kind" },
+        "path": { "$ref": "#/definitions/fpath" }
+      }
+    },
+    "dependency_source": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ManifestOnlyDependencySource" },
+            { "$ref": "#/definitions/manifest" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "LockfileOnlyDependencySource" },
+            { "$ref": "#/definitions/lockfile" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ManifestLockfileDependencySource" },
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "$ref": "#/definitions/manifest" },
+                { "$ref": "#/definitions/lockfile" }
+              ]
+            }
+          ]
+        }
+      ]
     },
     "resolution_error": {
       "oneOf": [
@@ -1695,7 +1762,7 @@
             { "const": "CallResolveDependencies" },
             {
               "type": "array",
-              "items": { "$ref": "#/definitions/manifest" }
+              "items": { "$ref": "#/definitions/dependency_source" }
             }
           ]
         },
@@ -1774,7 +1841,7 @@
                 "minItems": 2,
                 "items": false,
                 "prefixItems": [
-                  { "$ref": "#/definitions/manifest" },
+                  { "$ref": "#/definitions/dependency_source" },
                   { "$ref": "#/definitions/resolution_result" }
                 ]
               }

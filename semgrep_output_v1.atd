@@ -71,7 +71,7 @@ type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
 (*****************************************************************************)
 
 (* File path. less: could convert directly to Path class of pathlib library for Python *)
-type fpath <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True)">= string wrap <ocaml module="ATD_string_wrap.Fpath">
+type fpath <ocaml attr="deriving show, eq, yojson"> <python decorator="dataclass(frozen=True)">= string wrap <ocaml module="ATD_string_wrap.Fpath">
 
 type uri = string wrap <ocaml module="ATD_string_wrap.Uri">
 
@@ -1857,6 +1857,27 @@ type format_context
    is_using_registry: bool;
 }
 
+type lockfile_kind
+  <ocaml attr="deriving show, eq, yojson">
+  <python decorator="dataclass(frozen=True)">   = [
+    | PipRequirementsTxt
+    | PoetryLock
+    | PipfileLock
+    | NpmPackageLockJson
+    | YarnLock
+    | PnpmLock
+    | GemfileLock
+    | GoMod
+    | CargoLock
+    | MavenDepTree (* Not a real lockfile *)
+    | GradleLockfile
+    | ComposerLock
+    | NugetPackageLockJson
+    | PubspecLock (* https://dart.dev/tools/pub/glossary#lockfile *)
+    | SwiftPackageResolved (* not a real lockfile *)
+    | MixLock
+] <ocaml repr="classic">
+
 type manifest_kind 
   <ocaml attr="deriving show, eq, yojson">
   <python decorator="dataclass(frozen=True)">   = [
@@ -1887,10 +1908,26 @@ type manifest_kind
 ]
 
 type manifest
+  <ocaml attr="deriving show, eq, yojson">
   <python decorator="dataclass(frozen=True)">   = {
   kind: manifest_kind;
   path: fpath;
 }
+
+type lockfile
+  <ocaml attr="deriving show, eq, yojson">
+  <python decorator="dataclass(frozen=True)">   = {
+    kind: lockfile_kind;
+    path: fpath;
+}
+
+type dependency_source
+    <ocaml attr="deriving show">
+    <python decorator="dataclass(frozen=True)"> = [
+    | ManifestOnlyDependencySource of manifest
+    | LockfileOnlyDependencySource of lockfile
+    | ManifestLockfileDependencySource of (manifest * lockfile)
+] <ocaml repr="classic">
 
 type resolution_error
     <ocaml attr="deriving show">
@@ -1936,7 +1973,7 @@ type function_call
      the RPC pipe.
   *)
   | CallValidate of fpath
-  | CallResolveDependencies of manifest list
+  | CallResolveDependencies of dependency_source list
   | CallDumpRulePartitions of dump_rule_partitions_params
 ]
 
@@ -1952,7 +1989,7 @@ type function_return
   | RetContributions of contributions
   | RetFormatter of string
   | RetValidate of bool
-  | RetResolveDependencies of (manifest * resolution_result) list
+  | RetResolveDependencies of (dependency_source * resolution_result) list
   | RetDumpRulePartitions of bool
 ]
 
