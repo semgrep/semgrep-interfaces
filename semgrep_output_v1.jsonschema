@@ -888,6 +888,7 @@
         },
         "resolved_url": { "type": "string" },
         "transitivity": { "$ref": "#/definitions/transitivity" },
+        "manifest_path": { "$ref": "#/definitions/fpath" },
         "lockfile_path": { "$ref": "#/definitions/fpath" },
         "line_number": { "type": "integer" },
         "children": {
