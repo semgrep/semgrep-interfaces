@@ -76,6 +76,8 @@ $defs:
         type: string
       region:
         type: string
+      session_token:
+        type: string
     required: [ access_key_id, secret_access_key, region ]
   # EXPERIMENTAL
   http-request-content:
