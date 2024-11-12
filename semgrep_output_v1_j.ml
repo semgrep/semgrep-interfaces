@@ -9266,7 +9266,7 @@ let supply_chain_stats_of_string s =
 let write_stats_schema_version = (
   fun ob x ->
     match x with
-      | `V1_0_0 -> Buffer.add_string ob "\"1.0.0\""
+      | `SSV20241112 -> Buffer.add_string ob "\"SSV20241112\""
 )
 let string_of_stats_schema_version ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -9278,17 +9278,17 @@ let read_stats_schema_version = (
     match Yojson.Safe.start_any_variant p lb with
       | `Edgy_bracket -> (
           match Yojson.Safe.read_ident p lb with
-            | "1.0.0" ->
+            | "SSV20241112" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `V1_0_0
+              `SSV20241112
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
-            | "1.0.0" ->
-              `V1_0_0
+            | "SSV20241112" ->
+              `SSV20241112
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

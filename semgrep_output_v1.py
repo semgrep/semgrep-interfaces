@@ -2936,17 +2936,17 @@ class SupplyChainStats:
 
 
 @dataclass(frozen=True)
-class V100:
-    """Original type: stats_schema_version = [ ... | V1_0_0 | ... ]"""
+class SSV20241112:
+    """Original type: stats_schema_version = [ ... | SSV20241112 | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'V100'
+        return 'SSV20241112'
 
     @staticmethod
     def to_json() -> Any:
-        return '1.0.0'
+        return 'SSV20241112'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -2956,7 +2956,7 @@ class V100:
 class StatsSchemaVersion:
     """Original type: stats_schema_version = [ ... ]"""
 
-    value: Union[V100]
+    value: Union[SSV20241112]
 
     @property
     def kind(self) -> str:
@@ -2966,8 +2966,8 @@ class StatsSchemaVersion:
     @classmethod
     def from_json(cls, x: Any) -> 'StatsSchemaVersion':
         if isinstance(x, str):
-            if x == '1.0.0':
-                return cls(V100())
+            if x == 'SSV20241112':
+                return cls(SSV20241112())
             _atd_bad_json('StatsSchemaVersion', x)
         _atd_bad_json('StatsSchemaVersion', x)
 

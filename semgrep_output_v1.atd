@@ -1696,7 +1696,7 @@ type ci_scan_complete_stats = {
 
 (* Valid schema versions. Update when making breaking changes. *)
 type stats_schema_version <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True)"> = [
-  | V1_0_0 <json name="1.0.0"> (* initial version *)
+  | SSV20241112 (* initial version *)
 ] 
 
 type resolution_method <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True, order=True)"> = [
@@ -1711,6 +1711,7 @@ type dependency_resolution_stats = {
 }
 
 type subproject_stats = {
+  (* Files used to determine the subproject's dependencies (lockfiles, manifest files, etc) *)
   dependency_source_files: string list;
   (* Results of dependency resolution, null if resolution failed *)
   resolved_stats: dependency_resolution_stats nullable;

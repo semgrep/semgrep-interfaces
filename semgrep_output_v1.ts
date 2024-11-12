@@ -768,7 +768,7 @@ export type CiScanCompleteStats = {
 }
 
 export type StatsSchemaVersion =
-| { kind: 'V1_0_0' /* JSON: "1.0.0" */ }
+| { kind: 'SSV20241112' }
 
 export type ResolutionMethod =
 | { kind: 'LockfileParsing' }
@@ -3257,15 +3257,15 @@ export function readCiScanCompleteStats(x: any, context: any = x): CiScanComplet
 
 export function writeStatsSchemaVersion(x: StatsSchemaVersion, context: any = x): any {
   switch (x.kind) {
-    case 'V1_0_0':
-      return '1.0.0'
+    case 'SSV20241112':
+      return 'SSV20241112'
   }
 }
 
 export function readStatsSchemaVersion(x: any, context: any = x): StatsSchemaVersion {
   switch (x) {
-    case '1.0.0':
-      return { kind: 'V1_0_0' }
+    case 'SSV20241112':
+      return { kind: 'SSV20241112' }
     default:
       _atd_bad_json('StatsSchemaVersion', x, context)
       throw new Error('impossible')
