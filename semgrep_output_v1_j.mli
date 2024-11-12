@@ -248,6 +248,9 @@ type supply_chain_stats = Semgrep_output_v1_t.supply_chain_stats = {
   lockfile_scan_info: (string * int) list
 }
 
+type stats_schema_version = Semgrep_output_v1_t.stats_schema_version
+  [@@deriving show]
+
 type skip_reason = Semgrep_output_v1_t.skip_reason = 
     Always_skipped | Semgrepignore_patterns_match
   | Cli_include_flags_do_not_match | Cli_exclude_flags_match
@@ -657,6 +660,7 @@ type ci_scan_failure = Semgrep_output_v1_t.ci_scan_failure = {
 }
 
 type ci_scan_complete_stats = Semgrep_output_v1_t.ci_scan_complete_stats = {
+  stats_schema_version: stats_schema_version option;
   findings: int;
   errors: cli_error list;
   total_time: float;
@@ -1867,6 +1871,26 @@ val read_supply_chain_stats :
 val supply_chain_stats_of_string :
   string -> supply_chain_stats
   (** Deserialize JSON data of type {!type:supply_chain_stats}. *)
+
+val write_stats_schema_version :
+  Buffer.t -> stats_schema_version -> unit
+  (** Output a JSON value of type {!type:stats_schema_version}. *)
+
+val string_of_stats_schema_version :
+  ?len:int -> stats_schema_version -> string
+  (** Serialize a value of type {!type:stats_schema_version}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_stats_schema_version :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> stats_schema_version
+  (** Input JSON data of type {!type:stats_schema_version}. *)
+
+val stats_schema_version_of_string :
+  string -> stats_schema_version
+  (** Deserialize JSON data of type {!type:stats_schema_version}. *)
 
 val write_skip_reason :
   Buffer.t -> skip_reason -> unit

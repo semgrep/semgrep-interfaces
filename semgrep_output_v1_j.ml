@@ -248,6 +248,9 @@ type supply_chain_stats = Semgrep_output_v1_t.supply_chain_stats = {
   lockfile_scan_info: (string * int) list
 }
 
+type stats_schema_version = Semgrep_output_v1_t.stats_schema_version
+  [@@deriving show]
+
 type skip_reason = Semgrep_output_v1_t.skip_reason = 
     Always_skipped | Semgrepignore_patterns_match
   | Cli_include_flags_do_not_match | Cli_exclude_flags_match
@@ -657,6 +660,7 @@ type ci_scan_failure = Semgrep_output_v1_t.ci_scan_failure = {
 }
 
 type ci_scan_complete_stats = Semgrep_output_v1_t.ci_scan_complete_stats = {
+  stats_schema_version: stats_schema_version option;
   findings: int;
   errors: cli_error list;
   total_time: float;
@@ -9259,6 +9263,43 @@ let read_supply_chain_stats = (
 )
 let supply_chain_stats_of_string s =
   read_supply_chain_stats (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_stats_schema_version = (
+  fun ob x ->
+    match x with
+      | `V1_0_0 -> Buffer.add_string ob "\"1.0.0\""
+)
+let string_of_stats_schema_version ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_stats_schema_version ob x;
+  Buffer.contents ob
+let read_stats_schema_version = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "1.0.0" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `V1_0_0
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "1.0.0" ->
+              `V1_0_0
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let stats_schema_version_of_string s =
+  read_stats_schema_version (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_skip_reason : _ -> skip_reason -> _ = (
   fun ob (x : skip_reason) ->
     match x with
@@ -25984,10 +26025,78 @@ let read__supply_chain_stats_option = (
 )
 let _supply_chain_stats_option_of_string s =
   read__supply_chain_stats_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__stats_schema_version_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_stats_schema_version
+  )
+)
+let string_of__stats_schema_version_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__stats_schema_version_option ob x;
+  Buffer.contents ob
+let read__stats_schema_version_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_stats_schema_version
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_stats_schema_version
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _stats_schema_version_option_of_string s =
+  read__stats_schema_version_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_ci_scan_complete_stats : _ -> ci_scan_complete_stats -> _ = (
   fun ob (x : ci_scan_complete_stats) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
+    (match x.stats_schema_version with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"stats_schema_version\":";
+      (
+        write_stats_schema_version
+      )
+        ob x;
+    );
     if !is_first then
       is_first := false
     else
@@ -26085,6 +26194,7 @@ let read_ci_scan_complete_stats = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
+    let field_stats_schema_version = ref (None) in
     let field_findings = ref (None) in
     let field_errors = ref (None) in
     let field_total_time = ref (None) in
@@ -26105,7 +26215,7 @@ let read_ci_scan_complete_stats = (
           match len with
             | 6 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 's' then (
-                  1
+                  2
                 )
                 else (
                   -1
@@ -26113,7 +26223,7 @@ let read_ci_scan_complete_stats = (
               )
             | 8 -> (
                 if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = 's' then (
-                  0
+                  1
                 )
                 else (
                   -1
@@ -26123,7 +26233,7 @@ let read_ci_scan_complete_stats = (
                 match String.unsafe_get s pos with
                   | 'p' -> (
                       if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'e' then (
-                        5
+                        6
                       )
                       else (
                         -1
@@ -26131,7 +26241,7 @@ let read_ci_scan_complete_stats = (
                     )
                   | 't' -> (
                       if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'm' && String.unsafe_get s (pos+9) = 'e' then (
-                        2
+                        3
                       )
                       else (
                         -1
@@ -26145,7 +26255,7 @@ let read_ci_scan_complete_stats = (
                 match String.unsafe_get s pos with
                   | 'e' -> (
                       if String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
-                        6
+                        7
                       )
                       else (
                         -1
@@ -26153,7 +26263,7 @@ let read_ci_scan_complete_stats = (
                     )
                   | 'u' -> (
                       if String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'p' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'd' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'x' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 's' then (
-                        3
+                        4
                       )
                       else (
                         -1
@@ -26167,7 +26277,7 @@ let read_ci_scan_complete_stats = (
                 match String.unsafe_get s pos with
                   | 'l' -> (
                       if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'k' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'c' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 'n' && String.unsafe_get s (pos+16) = 'f' && String.unsafe_get s (pos+17) = 'o' then (
-                        4
+                        5
                       )
                       else (
                         -1
@@ -26175,7 +26285,7 @@ let read_ci_scan_complete_stats = (
                     )
                   | 's' -> (
                       if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'y' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 's' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'a' && String.unsafe_get s (pos+16) = 't' && String.unsafe_get s (pos+17) = 's' then (
-                        8
+                        9
                       )
                       else (
                         -1
@@ -26187,7 +26297,15 @@ let read_ci_scan_complete_stats = (
               )
             | 19 -> (
                 if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'b' && String.unsafe_get s (pos+10) = 'y' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'p' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'o' && String.unsafe_get s (pos+15) = 'd' && String.unsafe_get s (pos+16) = 'u' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 't' then (
-                  7
+                  8
+                )
+                else (
+                  -1
+                )
+              )
+            | 20 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'm' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 'v' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'r' && String.unsafe_get s (pos+16) = 's' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 'o' && String.unsafe_get s (pos+19) = 'n' then (
+                  0
                 )
                 else (
                   -1
@@ -26202,6 +26320,16 @@ let read_ci_scan_complete_stats = (
       (
         match i with
           | 0 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_stats_schema_version := (
+                Some (
+                  (
+                    read_stats_schema_version
+                  ) p lb
+                )
+              );
+            )
+          | 1 ->
             field_findings := (
               Some (
                 (
@@ -26209,7 +26337,7 @@ let read_ci_scan_complete_stats = (
                 ) p lb
               )
             );
-          | 1 ->
+          | 2 ->
             field_errors := (
               Some (
                 (
@@ -26217,7 +26345,7 @@ let read_ci_scan_complete_stats = (
                 ) p lb
               )
             );
-          | 2 ->
+          | 3 ->
             field_total_time := (
               Some (
                 (
@@ -26225,7 +26353,7 @@ let read_ci_scan_complete_stats = (
                 ) p lb
               )
             );
-          | 3 ->
+          | 4 ->
             field_unsupported_exts := (
               Some (
                 (
@@ -26233,7 +26361,7 @@ let read_ci_scan_complete_stats = (
                 ) p lb
               )
             );
-          | 4 ->
+          | 5 ->
             field_lockfile_scan_info := (
               Some (
                 (
@@ -26241,7 +26369,7 @@ let read_ci_scan_complete_stats = (
                 ) p lb
               )
             );
-          | 5 ->
+          | 6 ->
             field_parse_rate := (
               Some (
                 (
@@ -26249,7 +26377,7 @@ let read_ci_scan_complete_stats = (
                 ) p lb
               )
             );
-          | 6 ->
+          | 7 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_engine_requested := (
                 Some (
@@ -26259,7 +26387,7 @@ let read_ci_scan_complete_stats = (
                 )
               );
             )
-          | 7 ->
+          | 8 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_findings_by_product := (
                 Some (
@@ -26269,7 +26397,7 @@ let read_ci_scan_complete_stats = (
                 )
               );
             )
-          | 8 ->
+          | 9 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_supply_chain_stats := (
                 Some (
@@ -26294,7 +26422,7 @@ let read_ci_scan_complete_stats = (
             match len with
               | 6 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 's' then (
-                    1
+                    2
                   )
                   else (
                     -1
@@ -26302,7 +26430,7 @@ let read_ci_scan_complete_stats = (
                 )
               | 8 -> (
                   if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = 's' then (
-                    0
+                    1
                   )
                   else (
                     -1
@@ -26312,7 +26440,7 @@ let read_ci_scan_complete_stats = (
                   match String.unsafe_get s pos with
                     | 'p' -> (
                         if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'e' then (
-                          5
+                          6
                         )
                         else (
                           -1
@@ -26320,7 +26448,7 @@ let read_ci_scan_complete_stats = (
                       )
                     | 't' -> (
                         if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'm' && String.unsafe_get s (pos+9) = 'e' then (
-                          2
+                          3
                         )
                         else (
                           -1
@@ -26334,7 +26462,7 @@ let read_ci_scan_complete_stats = (
                   match String.unsafe_get s pos with
                     | 'e' -> (
                         if String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
-                          6
+                          7
                         )
                         else (
                           -1
@@ -26342,7 +26470,7 @@ let read_ci_scan_complete_stats = (
                       )
                     | 'u' -> (
                         if String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'p' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'd' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'x' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 's' then (
-                          3
+                          4
                         )
                         else (
                           -1
@@ -26356,7 +26484,7 @@ let read_ci_scan_complete_stats = (
                   match String.unsafe_get s pos with
                     | 'l' -> (
                         if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'k' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'c' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 'n' && String.unsafe_get s (pos+16) = 'f' && String.unsafe_get s (pos+17) = 'o' then (
-                          4
+                          5
                         )
                         else (
                           -1
@@ -26364,7 +26492,7 @@ let read_ci_scan_complete_stats = (
                       )
                     | 's' -> (
                         if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'y' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 's' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'a' && String.unsafe_get s (pos+16) = 't' && String.unsafe_get s (pos+17) = 's' then (
-                          8
+                          9
                         )
                         else (
                           -1
@@ -26376,7 +26504,15 @@ let read_ci_scan_complete_stats = (
                 )
               | 19 -> (
                   if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'b' && String.unsafe_get s (pos+10) = 'y' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'p' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'o' && String.unsafe_get s (pos+15) = 'd' && String.unsafe_get s (pos+16) = 'u' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 't' then (
-                    7
+                    8
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 20 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'm' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 'v' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'r' && String.unsafe_get s (pos+16) = 's' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 'o' && String.unsafe_get s (pos+19) = 'n' then (
+                    0
                   )
                   else (
                     -1
@@ -26391,6 +26527,16 @@ let read_ci_scan_complete_stats = (
         (
           match i with
             | 0 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_stats_schema_version := (
+                  Some (
+                    (
+                      read_stats_schema_version
+                    ) p lb
+                  )
+                );
+              )
+            | 1 ->
               field_findings := (
                 Some (
                   (
@@ -26398,7 +26544,7 @@ let read_ci_scan_complete_stats = (
                   ) p lb
                 )
               );
-            | 1 ->
+            | 2 ->
               field_errors := (
                 Some (
                   (
@@ -26406,7 +26552,7 @@ let read_ci_scan_complete_stats = (
                   ) p lb
                 )
               );
-            | 2 ->
+            | 3 ->
               field_total_time := (
                 Some (
                   (
@@ -26414,7 +26560,7 @@ let read_ci_scan_complete_stats = (
                   ) p lb
                 )
               );
-            | 3 ->
+            | 4 ->
               field_unsupported_exts := (
                 Some (
                   (
@@ -26422,7 +26568,7 @@ let read_ci_scan_complete_stats = (
                   ) p lb
                 )
               );
-            | 4 ->
+            | 5 ->
               field_lockfile_scan_info := (
                 Some (
                   (
@@ -26430,7 +26576,7 @@ let read_ci_scan_complete_stats = (
                   ) p lb
                 )
               );
-            | 5 ->
+            | 6 ->
               field_parse_rate := (
                 Some (
                   (
@@ -26438,7 +26584,7 @@ let read_ci_scan_complete_stats = (
                   ) p lb
                 )
               );
-            | 6 ->
+            | 7 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_engine_requested := (
                   Some (
@@ -26448,7 +26594,7 @@ let read_ci_scan_complete_stats = (
                   )
                 );
               )
-            | 7 ->
+            | 8 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_findings_by_product := (
                   Some (
@@ -26458,7 +26604,7 @@ let read_ci_scan_complete_stats = (
                   )
                 );
               )
-            | 8 ->
+            | 9 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_supply_chain_stats := (
                   Some (
@@ -26477,6 +26623,7 @@ let read_ci_scan_complete_stats = (
     with Yojson.End_of_object -> (
         (
           {
+            stats_schema_version = !field_stats_schema_version;
             findings = (match !field_findings with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "findings");
             errors = (match !field_errors with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "errors");
             total_time = (match !field_total_time with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "total_time");

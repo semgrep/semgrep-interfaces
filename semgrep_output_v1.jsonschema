@@ -1351,6 +1351,9 @@
         "lockfile_scan_info", "parse_rate"
       ],
       "properties": {
+        "stats_schema_version": {
+          "$ref": "#/definitions/stats_schema_version"
+        },
         "findings": { "type": "integer" },
         "errors": {
           "type": "array",
@@ -1377,6 +1380,7 @@
         "supply_chain_stats": { "$ref": "#/definitions/supply_chain_stats" }
       }
     },
+    "stats_schema_version": { "oneOf": [ { "const": "1.0.0" } ] },
     "resolution_method": {
       "oneOf": [
         { "const": "LockfileParsing" }, { "const": "DynamicResolution" }

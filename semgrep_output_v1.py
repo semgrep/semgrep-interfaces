@@ -2935,6 +2935,53 @@ class SupplyChainStats:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class V100:
+    """Original type: stats_schema_version = [ ... | V1_0_0 | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'V100'
+
+    @staticmethod
+    def to_json() -> Any:
+        return '1.0.0'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class StatsSchemaVersion:
+    """Original type: stats_schema_version = [ ... ]"""
+
+    value: Union[V100]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'StatsSchemaVersion':
+        if isinstance(x, str):
+            if x == '1.0.0':
+                return cls(V100())
+            _atd_bad_json('StatsSchemaVersion', x)
+        _atd_bad_json('StatsSchemaVersion', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'StatsSchemaVersion':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class AlwaysSkipped:
     """Original type: skip_reason = [ ... | Always_skipped | ... ]"""
@@ -6534,6 +6581,7 @@ class CiScanCompleteStats:
     unsupported_exts: Dict[str, int]
     lockfile_scan_info: Dict[str, int]
     parse_rate: Dict[str, ParsingStats]
+    stats_schema_version: Optional[StatsSchemaVersion] = None
     engine_requested: Optional[str] = None
     findings_by_product: Optional[Dict[str, int]] = None
     supply_chain_stats: Optional[SupplyChainStats] = None
@@ -6548,6 +6596,7 @@ class CiScanCompleteStats:
                 unsupported_exts=_atd_read_assoc_object_into_dict(_atd_read_int)(x['unsupported_exts']) if 'unsupported_exts' in x else _atd_missing_json_field('CiScanCompleteStats', 'unsupported_exts'),
                 lockfile_scan_info=_atd_read_assoc_object_into_dict(_atd_read_int)(x['lockfile_scan_info']) if 'lockfile_scan_info' in x else _atd_missing_json_field('CiScanCompleteStats', 'lockfile_scan_info'),
                 parse_rate=_atd_read_assoc_object_into_dict(ParsingStats.from_json)(x['parse_rate']) if 'parse_rate' in x else _atd_missing_json_field('CiScanCompleteStats', 'parse_rate'),
+                stats_schema_version=StatsSchemaVersion.from_json(x['stats_schema_version']) if 'stats_schema_version' in x else None,
                 engine_requested=_atd_read_string(x['engine_requested']) if 'engine_requested' in x else None,
                 findings_by_product=_atd_read_assoc_object_into_dict(_atd_read_int)(x['findings_by_product']) if 'findings_by_product' in x else None,
                 supply_chain_stats=SupplyChainStats.from_json(x['supply_chain_stats']) if 'supply_chain_stats' in x else None,
@@ -6563,6 +6612,8 @@ class CiScanCompleteStats:
         res['unsupported_exts'] = _atd_write_assoc_dict_to_object(_atd_write_int)(self.unsupported_exts)
         res['lockfile_scan_info'] = _atd_write_assoc_dict_to_object(_atd_write_int)(self.lockfile_scan_info)
         res['parse_rate'] = _atd_write_assoc_dict_to_object((lambda x: x.to_json()))(self.parse_rate)
+        if self.stats_schema_version is not None:
+            res['stats_schema_version'] = (lambda x: x.to_json())(self.stats_schema_version)
         if self.engine_requested is not None:
             res['engine_requested'] = _atd_write_string(self.engine_requested)
         if self.findings_by_product is not None:

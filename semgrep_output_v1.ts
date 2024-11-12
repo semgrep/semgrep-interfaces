@@ -755,6 +755,7 @@ export type CiScanComplete = {
 }
 
 export type CiScanCompleteStats = {
+  stats_schema_version?: StatsSchemaVersion;
   findings: number /*int*/;
   errors: CliError[];
   total_time: number;
@@ -765,6 +766,9 @@ export type CiScanCompleteStats = {
   findings_by_product?: Map<string, number /*int*/>;
   supply_chain_stats?: SupplyChainStats;
 }
+
+export type StatsSchemaVersion =
+| { kind: 'V1_0_0' /* JSON: "1.0.0" */ }
 
 export type ResolutionMethod =
 | { kind: 'LockfileParsing' }
@@ -3223,6 +3227,7 @@ export function readCiScanComplete(x: any, context: any = x): CiScanComplete {
 
 export function writeCiScanCompleteStats(x: CiScanCompleteStats, context: any = x): any {
   return {
+    'stats_schema_version': _atd_write_optional_field(writeStatsSchemaVersion, x.stats_schema_version, x),
     'findings': _atd_write_required_field('CiScanCompleteStats', 'findings', _atd_write_int, x.findings, x),
     'errors': _atd_write_required_field('CiScanCompleteStats', 'errors', _atd_write_array(writeCliError), x.errors, x),
     'total_time': _atd_write_required_field('CiScanCompleteStats', 'total_time', _atd_write_float, x.total_time, x),
@@ -3237,6 +3242,7 @@ export function writeCiScanCompleteStats(x: CiScanCompleteStats, context: any = 
 
 export function readCiScanCompleteStats(x: any, context: any = x): CiScanCompleteStats {
   return {
+    stats_schema_version: _atd_read_optional_field(readStatsSchemaVersion, x['stats_schema_version'], x),
     findings: _atd_read_required_field('CiScanCompleteStats', 'findings', _atd_read_int, x['findings'], x),
     errors: _atd_read_required_field('CiScanCompleteStats', 'errors', _atd_read_array(readCliError), x['errors'], x),
     total_time: _atd_read_required_field('CiScanCompleteStats', 'total_time', _atd_read_float, x['total_time'], x),
@@ -3247,6 +3253,23 @@ export function readCiScanCompleteStats(x: any, context: any = x): CiScanComplet
     findings_by_product: _atd_read_optional_field(_atd_read_assoc_object_into_map(_atd_read_int), x['findings_by_product'], x),
     supply_chain_stats: _atd_read_optional_field(readSupplyChainStats, x['supply_chain_stats'], x),
   };
+}
+
+export function writeStatsSchemaVersion(x: StatsSchemaVersion, context: any = x): any {
+  switch (x.kind) {
+    case 'V1_0_0':
+      return '1.0.0'
+  }
+}
+
+export function readStatsSchemaVersion(x: any, context: any = x): StatsSchemaVersion {
+  switch (x) {
+    case '1.0.0':
+      return { kind: 'V1_0_0' }
+    default:
+      _atd_bad_json('StatsSchemaVersion', x, context)
+      throw new Error('impossible')
+  }
 }
 
 export function writeResolutionMethod(x: ResolutionMethod, context: any = x): any {

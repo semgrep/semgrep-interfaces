@@ -1647,7 +1647,12 @@ type ci_scan_complete = {
   ?final_attempt: bool option; (* always optional *)
   }
 
+(* Update the stats_schema_version if you are changing this type.
+ * Usually you do not need to update the version if it's a non-breaking
+ * change. 
+ *)
 type ci_scan_complete_stats = {
+  ?stats_schema_version: stats_schema_version option;
   findings: int;
   errors: cli_error list;
   total_time: float;
@@ -1688,6 +1693,11 @@ type ci_scan_complete_stats = {
    *)
   ?supply_chain_stats: supply_chain_stats option;
 }
+
+(* Valid schema versions. Update when making breaking changes. *)
+type stats_schema_version <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True)"> = [
+  | V1_0_0 <json name="1.0.0"> (* initial version *)
+] 
 
 type resolution_method <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True, order=True)"> = [
   | LockfileParsing 
