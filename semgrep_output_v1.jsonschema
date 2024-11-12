@@ -1410,15 +1410,11 @@
     },
     "supply_chain_stats": {
       "type": "object",
-      "required": [ "subproject_stats", "lockfile_scan_info" ],
+      "required": [ "subproject_stats" ],
       "properties": {
         "subproject_stats": {
           "type": "array",
           "items": { "$ref": "#/definitions/subproject_stats" }
-        },
-        "lockfile_scan_info": {
-          "type": "object",
-          "additionalProperties": { "type": "integer" }
         }
       }
     },

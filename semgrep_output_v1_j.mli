@@ -244,8 +244,7 @@ type subproject_stats = Semgrep_output_v1_t.subproject_stats = {
 }
 
 type supply_chain_stats = Semgrep_output_v1_t.supply_chain_stats = {
-  subproject_stats: subproject_stats list;
-  lockfile_scan_info: (string * int) list
+  subproject_stats: subproject_stats list
 }
 
 type stats_schema_version = Semgrep_output_v1_t.stats_schema_version

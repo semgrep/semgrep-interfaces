@@ -2909,14 +2909,12 @@ class SupplyChainStats:
     """Original type: supply_chain_stats = { ... }"""
 
     subproject_stats: List[SubprojectStats]
-    lockfile_scan_info: Dict[str, int]
 
     @classmethod
     def from_json(cls, x: Any) -> 'SupplyChainStats':
         if isinstance(x, dict):
             return cls(
                 subproject_stats=_atd_read_list(SubprojectStats.from_json)(x['subproject_stats']) if 'subproject_stats' in x else _atd_missing_json_field('SupplyChainStats', 'subproject_stats'),
-                lockfile_scan_info=_atd_read_assoc_object_into_dict(_atd_read_int)(x['lockfile_scan_info']) if 'lockfile_scan_info' in x else _atd_missing_json_field('SupplyChainStats', 'lockfile_scan_info'),
             )
         else:
             _atd_bad_json('SupplyChainStats', x)
@@ -2924,7 +2922,6 @@ class SupplyChainStats:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['subproject_stats'] = _atd_write_list((lambda x: x.to_json()))(self.subproject_stats)
-        res['lockfile_scan_info'] = _atd_write_assoc_dict_to_object(_atd_write_int)(self.lockfile_scan_info)
         return res
 
     @classmethod

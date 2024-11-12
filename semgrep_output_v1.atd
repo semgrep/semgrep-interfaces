@@ -1719,10 +1719,6 @@ type subproject_stats = {
 
 type supply_chain_stats = {
   subproject_stats: subproject_stats list;
-  lockfile_scan_info: (string * int) list
-    <json repr="object">
-    <python repr="dict">
-    <ts repr="map">;
 }
 
 type parsing_stats = {

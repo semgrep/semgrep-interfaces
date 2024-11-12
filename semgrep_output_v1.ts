@@ -787,7 +787,6 @@ export type SubprojectStats = {
 
 export type SupplyChainStats = {
   subproject_stats: SubprojectStats[];
-  lockfile_scan_info: Map<string, number /*int*/>;
 }
 
 export type ParsingStats = {
@@ -3326,14 +3325,12 @@ export function readSubprojectStats(x: any, context: any = x): SubprojectStats {
 export function writeSupplyChainStats(x: SupplyChainStats, context: any = x): any {
   return {
     'subproject_stats': _atd_write_required_field('SupplyChainStats', 'subproject_stats', _atd_write_array(writeSubprojectStats), x.subproject_stats, x),
-    'lockfile_scan_info': _atd_write_required_field('SupplyChainStats', 'lockfile_scan_info', _atd_write_assoc_map_to_object(_atd_write_int), x.lockfile_scan_info, x),
   };
 }
 
 export function readSupplyChainStats(x: any, context: any = x): SupplyChainStats {
   return {
     subproject_stats: _atd_read_required_field('SupplyChainStats', 'subproject_stats', _atd_read_array(readSubprojectStats), x['subproject_stats'], x),
-    lockfile_scan_info: _atd_read_required_field('SupplyChainStats', 'lockfile_scan_info', _atd_read_assoc_object_into_map(_atd_read_int), x['lockfile_scan_info'], x),
   };
 }
 
