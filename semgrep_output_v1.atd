@@ -1656,6 +1656,7 @@ type ci_scan_complete_stats = {
     <json repr="object">
     <python repr="dict">
     <ts repr="map">;
+  (* Deprecated - subproject_stats is used instead *)
   lockfile_scan_info: (string * int) list
     <json repr="object">
     <python repr="dict">
@@ -1680,6 +1681,37 @@ type ci_scan_complete_stats = {
     <python repr="dict">
     <ts repr="map">
     option;
+
+  (* since 1.98.0 *)
+  (* In collaboration with the Data Science team, it was suggested
+   * that we start to group stats by product for organizational purposes.
+   *)
+  ?supply_chain_stats: supply_chain_stats option;
+}
+
+type resolution_method <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True, order=True)"> = [
+  | LockfileParsing 
+  | DynamicResolution 
+]
+
+type dependency_resolution_stats = {
+  resolution_method: resolution_method;
+  dependency_count: int;
+  ecosystem: ecosystem;
+}
+
+type subproject_stats = {
+  dependency_source_files: string list;
+  (* Results of dependency resolution, null if resolution failed *)
+  resolved_stats: dependency_resolution_stats nullable;
+}
+
+type supply_chain_stats = {
+  subproject_stats: subproject_stats list;
+  lockfile_scan_info: (string * int) list
+    <json repr="object">
+    <python repr="dict">
+    <ts repr="map">;
 }
 
 type parsing_stats = {

@@ -763,6 +763,27 @@ export type CiScanCompleteStats = {
   parse_rate: Map<string, ParsingStats>;
   engine_requested?: string;
   findings_by_product?: Map<string, number /*int*/>;
+  supply_chain_stats?: SupplyChainStats;
+}
+
+export type ResolutionMethod =
+| { kind: 'LockfileParsing' }
+| { kind: 'DynamicResolution' }
+
+export type DependencyResolutionStats = {
+  resolution_method: ResolutionMethod;
+  dependency_count: number /*int*/;
+  ecosystem: Ecosystem;
+}
+
+export type SubprojectStats = {
+  dependency_source_files: string[];
+  resolved_stats: (DependencyResolutionStats | null);
+}
+
+export type SupplyChainStats = {
+  subproject_stats: SubprojectStats[];
+  lockfile_scan_info: Map<string, number /*int*/>;
 }
 
 export type ParsingStats = {
@@ -3210,6 +3231,7 @@ export function writeCiScanCompleteStats(x: CiScanCompleteStats, context: any = 
     'parse_rate': _atd_write_required_field('CiScanCompleteStats', 'parse_rate', _atd_write_assoc_map_to_object(writeParsingStats), x.parse_rate, x),
     'engine_requested': _atd_write_optional_field(_atd_write_string, x.engine_requested, x),
     'findings_by_product': _atd_write_optional_field(_atd_write_assoc_map_to_object(_atd_write_int), x.findings_by_product, x),
+    'supply_chain_stats': _atd_write_optional_field(writeSupplyChainStats, x.supply_chain_stats, x),
   };
 }
 
@@ -3223,6 +3245,72 @@ export function readCiScanCompleteStats(x: any, context: any = x): CiScanComplet
     parse_rate: _atd_read_required_field('CiScanCompleteStats', 'parse_rate', _atd_read_assoc_object_into_map(readParsingStats), x['parse_rate'], x),
     engine_requested: _atd_read_optional_field(_atd_read_string, x['engine_requested'], x),
     findings_by_product: _atd_read_optional_field(_atd_read_assoc_object_into_map(_atd_read_int), x['findings_by_product'], x),
+    supply_chain_stats: _atd_read_optional_field(readSupplyChainStats, x['supply_chain_stats'], x),
+  };
+}
+
+export function writeResolutionMethod(x: ResolutionMethod, context: any = x): any {
+  switch (x.kind) {
+    case 'LockfileParsing':
+      return 'LockfileParsing'
+    case 'DynamicResolution':
+      return 'DynamicResolution'
+  }
+}
+
+export function readResolutionMethod(x: any, context: any = x): ResolutionMethod {
+  switch (x) {
+    case 'LockfileParsing':
+      return { kind: 'LockfileParsing' }
+    case 'DynamicResolution':
+      return { kind: 'DynamicResolution' }
+    default:
+      _atd_bad_json('ResolutionMethod', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeDependencyResolutionStats(x: DependencyResolutionStats, context: any = x): any {
+  return {
+    'resolution_method': _atd_write_required_field('DependencyResolutionStats', 'resolution_method', writeResolutionMethod, x.resolution_method, x),
+    'dependency_count': _atd_write_required_field('DependencyResolutionStats', 'dependency_count', _atd_write_int, x.dependency_count, x),
+    'ecosystem': _atd_write_required_field('DependencyResolutionStats', 'ecosystem', writeEcosystem, x.ecosystem, x),
+  };
+}
+
+export function readDependencyResolutionStats(x: any, context: any = x): DependencyResolutionStats {
+  return {
+    resolution_method: _atd_read_required_field('DependencyResolutionStats', 'resolution_method', readResolutionMethod, x['resolution_method'], x),
+    dependency_count: _atd_read_required_field('DependencyResolutionStats', 'dependency_count', _atd_read_int, x['dependency_count'], x),
+    ecosystem: _atd_read_required_field('DependencyResolutionStats', 'ecosystem', readEcosystem, x['ecosystem'], x),
+  };
+}
+
+export function writeSubprojectStats(x: SubprojectStats, context: any = x): any {
+  return {
+    'dependency_source_files': _atd_write_required_field('SubprojectStats', 'dependency_source_files', _atd_write_array(_atd_write_string), x.dependency_source_files, x),
+    'resolved_stats': _atd_write_required_field('SubprojectStats', 'resolved_stats', _atd_write_nullable(writeDependencyResolutionStats), x.resolved_stats, x),
+  };
+}
+
+export function readSubprojectStats(x: any, context: any = x): SubprojectStats {
+  return {
+    dependency_source_files: _atd_read_required_field('SubprojectStats', 'dependency_source_files', _atd_read_array(_atd_read_string), x['dependency_source_files'], x),
+    resolved_stats: _atd_read_required_field('SubprojectStats', 'resolved_stats', _atd_read_nullable(readDependencyResolutionStats), x['resolved_stats'], x),
+  };
+}
+
+export function writeSupplyChainStats(x: SupplyChainStats, context: any = x): any {
+  return {
+    'subproject_stats': _atd_write_required_field('SupplyChainStats', 'subproject_stats', _atd_write_array(writeSubprojectStats), x.subproject_stats, x),
+    'lockfile_scan_info': _atd_write_required_field('SupplyChainStats', 'lockfile_scan_info', _atd_write_assoc_map_to_object(_atd_write_int), x.lockfile_scan_info, x),
+  };
+}
+
+export function readSupplyChainStats(x: any, context: any = x): SupplyChainStats {
+  return {
+    subproject_stats: _atd_read_required_field('SupplyChainStats', 'subproject_stats', _atd_read_array(readSubprojectStats), x['subproject_stats'], x),
+    lockfile_scan_info: _atd_read_required_field('SupplyChainStats', 'lockfile_scan_info', _atd_read_assoc_object_into_map(_atd_read_int), x['lockfile_scan_info'], x),
   };
 }
 

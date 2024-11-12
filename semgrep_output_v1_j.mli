@@ -226,6 +226,28 @@ type target_times = Semgrep_output_v1_t.target_times = {
 
 type tag = Semgrep_output_v1_t.tag
 
+type resolution_method = Semgrep_output_v1_t.resolution_method
+  [@@deriving show]
+
+type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show,eq]
+
+type dependency_resolution_stats =
+  Semgrep_output_v1_t.dependency_resolution_stats = {
+  resolution_method: resolution_method;
+  dependency_count: int;
+  ecosystem: ecosystem
+}
+
+type subproject_stats = Semgrep_output_v1_t.subproject_stats = {
+  dependency_source_files: string list;
+  resolved_stats: dependency_resolution_stats option
+}
+
+type supply_chain_stats = Semgrep_output_v1_t.supply_chain_stats = {
+  subproject_stats: subproject_stats list;
+  lockfile_scan_info: (string * int) list
+}
+
 type skip_reason = Semgrep_output_v1_t.skip_reason = 
     Always_skipped | Semgrepignore_patterns_match
   | Cli_include_flags_do_not_match | Cli_exclude_flags_match
@@ -387,8 +409,6 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
 }
 
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
-
-type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show,eq]
 
 type dependency_child = Semgrep_output_v1_t.dependency_child = {
   package: string;
@@ -644,7 +664,8 @@ type ci_scan_complete_stats = Semgrep_output_v1_t.ci_scan_complete_stats = {
   lockfile_scan_info: (string * int) list;
   parse_rate: (string * parsing_stats) list;
   engine_requested: string option;
-  findings_by_product: (string * int) list option
+  findings_by_product: (string * int) list option;
+  supply_chain_stats: supply_chain_stats option
 }
 
 type ci_scan_complete = Semgrep_output_v1_t.ci_scan_complete = {
@@ -1747,6 +1768,106 @@ val tag_of_string :
   string -> tag
   (** Deserialize JSON data of type {!type:tag}. *)
 
+val write_resolution_method :
+  Buffer.t -> resolution_method -> unit
+  (** Output a JSON value of type {!type:resolution_method}. *)
+
+val string_of_resolution_method :
+  ?len:int -> resolution_method -> string
+  (** Serialize a value of type {!type:resolution_method}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolution_method :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_method
+  (** Input JSON data of type {!type:resolution_method}. *)
+
+val resolution_method_of_string :
+  string -> resolution_method
+  (** Deserialize JSON data of type {!type:resolution_method}. *)
+
+val write_ecosystem :
+  Buffer.t -> ecosystem -> unit
+  (** Output a JSON value of type {!type:ecosystem}. *)
+
+val string_of_ecosystem :
+  ?len:int -> ecosystem -> string
+  (** Serialize a value of type {!type:ecosystem}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_ecosystem :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ecosystem
+  (** Input JSON data of type {!type:ecosystem}. *)
+
+val ecosystem_of_string :
+  string -> ecosystem
+  (** Deserialize JSON data of type {!type:ecosystem}. *)
+
+val write_dependency_resolution_stats :
+  Buffer.t -> dependency_resolution_stats -> unit
+  (** Output a JSON value of type {!type:dependency_resolution_stats}. *)
+
+val string_of_dependency_resolution_stats :
+  ?len:int -> dependency_resolution_stats -> string
+  (** Serialize a value of type {!type:dependency_resolution_stats}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_dependency_resolution_stats :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_resolution_stats
+  (** Input JSON data of type {!type:dependency_resolution_stats}. *)
+
+val dependency_resolution_stats_of_string :
+  string -> dependency_resolution_stats
+  (** Deserialize JSON data of type {!type:dependency_resolution_stats}. *)
+
+val write_subproject_stats :
+  Buffer.t -> subproject_stats -> unit
+  (** Output a JSON value of type {!type:subproject_stats}. *)
+
+val string_of_subproject_stats :
+  ?len:int -> subproject_stats -> string
+  (** Serialize a value of type {!type:subproject_stats}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_subproject_stats :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> subproject_stats
+  (** Input JSON data of type {!type:subproject_stats}. *)
+
+val subproject_stats_of_string :
+  string -> subproject_stats
+  (** Deserialize JSON data of type {!type:subproject_stats}. *)
+
+val write_supply_chain_stats :
+  Buffer.t -> supply_chain_stats -> unit
+  (** Output a JSON value of type {!type:supply_chain_stats}. *)
+
+val string_of_supply_chain_stats :
+  ?len:int -> supply_chain_stats -> string
+  (** Serialize a value of type {!type:supply_chain_stats}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_supply_chain_stats :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> supply_chain_stats
+  (** Input JSON data of type {!type:supply_chain_stats}. *)
+
+val supply_chain_stats_of_string :
+  string -> supply_chain_stats
+  (** Deserialize JSON data of type {!type:supply_chain_stats}. *)
+
 val write_skip_reason :
   Buffer.t -> skip_reason -> unit
   (** Output a JSON value of type {!type:skip_reason}. *)
@@ -2186,26 +2307,6 @@ val read_sca_parser_name :
 val sca_parser_name_of_string :
   string -> sca_parser_name
   (** Deserialize JSON data of type {!type:sca_parser_name}. *)
-
-val write_ecosystem :
-  Buffer.t -> ecosystem -> unit
-  (** Output a JSON value of type {!type:ecosystem}. *)
-
-val string_of_ecosystem :
-  ?len:int -> ecosystem -> string
-  (** Serialize a value of type {!type:ecosystem}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_ecosystem :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ecosystem
-  (** Input JSON data of type {!type:ecosystem}. *)
-
-val ecosystem_of_string :
-  string -> ecosystem
-  (** Deserialize JSON data of type {!type:ecosystem}. *)
 
 val write_dependency_child :
   Buffer.t -> dependency_child -> unit

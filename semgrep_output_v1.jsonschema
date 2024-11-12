@@ -1373,6 +1373,48 @@
         "findings_by_product": {
           "type": "object",
           "additionalProperties": { "type": "integer" }
+        },
+        "supply_chain_stats": { "$ref": "#/definitions/supply_chain_stats" }
+      }
+    },
+    "resolution_method": {
+      "oneOf": [
+        { "const": "LockfileParsing" }, { "const": "DynamicResolution" }
+      ]
+    },
+    "dependency_resolution_stats": {
+      "type": "object",
+      "required": [ "resolution_method", "dependency_count", "ecosystem" ],
+      "properties": {
+        "resolution_method": { "$ref": "#/definitions/resolution_method" },
+        "dependency_count": { "type": "integer" },
+        "ecosystem": { "$ref": "#/definitions/ecosystem" }
+      }
+    },
+    "subproject_stats": {
+      "type": "object",
+      "required": [ "dependency_source_files", "resolved_stats" ],
+      "properties": {
+        "dependency_source_files": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "resolved_stats": {
+          "$ref": "#/definitions/dependency_resolution_stats"
+        }
+      }
+    },
+    "supply_chain_stats": {
+      "type": "object",
+      "required": [ "subproject_stats", "lockfile_scan_info" ],
+      "properties": {
+        "subproject_stats": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/subproject_stats" }
+        },
+        "lockfile_scan_info": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
         }
       }
     },
