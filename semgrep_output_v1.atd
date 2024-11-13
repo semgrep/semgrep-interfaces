@@ -1872,8 +1872,8 @@ type lockfile_kind
     | MavenDepTree (* Not a real lockfile *)
     | GradleLockfile
     | ComposerLock
-    | NugetPackageLockJson
-    | PubspecLock (* https://dart.dev/tools/pub/glossary#lockfile *)
+    | NugetPackagesLockJson
+    | PubspecLock
     | SwiftPackageResolved (* not a real lockfile *)
     | MixLock
 ] <ocaml repr="classic">

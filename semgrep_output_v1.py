@@ -7277,17 +7277,17 @@ class ComposerLock_:
 
 
 @dataclass(frozen=True)
-class NugetPackageLockJson:
-    """Original type: lockfile_kind = [ ... | NugetPackageLockJson | ... ]"""
+class NugetPackagesLockJson:
+    """Original type: lockfile_kind = [ ... | NugetPackagesLockJson | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'NugetPackageLockJson'
+        return 'NugetPackagesLockJson'
 
     @staticmethod
     def to_json() -> Any:
-        return 'NugetPackageLockJson'
+        return 'NugetPackagesLockJson'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -7348,7 +7348,7 @@ class MixLock_:
 class LockfileKind:
     """Original type: lockfile_kind = [ ... ]"""
 
-    value: Union[PipRequirementsTxt, PoetryLock_, PipfileLock, NpmPackageLockJson, YarnLock, PnpmLock_, GemfileLock_, GoMod2, CargoLock, MavenDepTree, GradleLockfile_, ComposerLock_, NugetPackageLockJson, PubspecLock_, SwiftPackageResolved, MixLock_]
+    value: Union[PipRequirementsTxt, PoetryLock_, PipfileLock, NpmPackageLockJson, YarnLock, PnpmLock_, GemfileLock_, GoMod2, CargoLock, MavenDepTree, GradleLockfile_, ComposerLock_, NugetPackagesLockJson, PubspecLock_, SwiftPackageResolved, MixLock_]
 
     @property
     def kind(self) -> str:
@@ -7382,8 +7382,8 @@ class LockfileKind:
                 return cls(GradleLockfile_())
             if x == 'ComposerLock':
                 return cls(ComposerLock_())
-            if x == 'NugetPackageLockJson':
-                return cls(NugetPackageLockJson())
+            if x == 'NugetPackagesLockJson':
+                return cls(NugetPackagesLockJson())
             if x == 'PubspecLock':
                 return cls(PubspecLock_())
             if x == 'SwiftPackageResolved':

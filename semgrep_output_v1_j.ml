@@ -676,7 +676,7 @@ type manifest = Semgrep_output_v1_t.manifest = {
 type lockfile_kind = Semgrep_output_v1_t.lockfile_kind = 
     PipRequirementsTxt | PoetryLock | PipfileLock | NpmPackageLockJson
   | YarnLock | PnpmLock | GemfileLock | GoMod | CargoLock | MavenDepTree
-  | GradleLockfile | ComposerLock | NugetPackageLockJson | PubspecLock
+  | GradleLockfile | ComposerLock | NugetPackagesLockJson | PubspecLock
   | SwiftPackageResolved | MixLock
 
   [@@deriving show, eq, yojson]
@@ -26910,7 +26910,7 @@ let write_lockfile_kind : _ -> lockfile_kind -> _ = (
       | MavenDepTree -> Buffer.add_string ob "\"MavenDepTree\""
       | GradleLockfile -> Buffer.add_string ob "\"GradleLockfile\""
       | ComposerLock -> Buffer.add_string ob "\"ComposerLock\""
-      | NugetPackageLockJson -> Buffer.add_string ob "\"NugetPackageLockJson\""
+      | NugetPackagesLockJson -> Buffer.add_string ob "\"NugetPackagesLockJson\""
       | PubspecLock -> Buffer.add_string ob "\"PubspecLock\""
       | SwiftPackageResolved -> Buffer.add_string ob "\"SwiftPackageResolved\""
       | MixLock -> Buffer.add_string ob "\"MixLock\""
@@ -26973,10 +26973,10 @@ let read_lockfile_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (ComposerLock : lockfile_kind)
-            | "NugetPackageLockJson" ->
+            | "NugetPackagesLockJson" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              (NugetPackageLockJson : lockfile_kind)
+              (NugetPackagesLockJson : lockfile_kind)
             | "PubspecLock" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -27018,8 +27018,8 @@ let read_lockfile_kind = (
               (GradleLockfile : lockfile_kind)
             | "ComposerLock" ->
               (ComposerLock : lockfile_kind)
-            | "NugetPackageLockJson" ->
-              (NugetPackageLockJson : lockfile_kind)
+            | "NugetPackagesLockJson" ->
+              (NugetPackagesLockJson : lockfile_kind)
             | "PubspecLock" ->
               (PubspecLock : lockfile_kind)
             | "SwiftPackageResolved" ->

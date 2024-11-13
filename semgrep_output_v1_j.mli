@@ -676,7 +676,7 @@ type manifest = Semgrep_output_v1_t.manifest = {
 type lockfile_kind = Semgrep_output_v1_t.lockfile_kind = 
     PipRequirementsTxt | PoetryLock | PipfileLock | NpmPackageLockJson
   | YarnLock | PnpmLock | GemfileLock | GoMod | CargoLock | MavenDepTree
-  | GradleLockfile | ComposerLock | NugetPackageLockJson | PubspecLock
+  | GradleLockfile | ComposerLock | NugetPackagesLockJson | PubspecLock
   | SwiftPackageResolved | MixLock
 
   [@@deriving show, eq, yojson]

@@ -864,7 +864,7 @@ export type LockfileKind =
 | { kind: 'MavenDepTree' }
 | { kind: 'GradleLockfile' }
 | { kind: 'ComposerLock' }
-| { kind: 'NugetPackageLockJson' }
+| { kind: 'NugetPackagesLockJson' }
 | { kind: 'PubspecLock' }
 | { kind: 'SwiftPackageResolved' }
 | { kind: 'MixLock' }
@@ -3529,8 +3529,8 @@ export function writeLockfileKind(x: LockfileKind, context: any = x): any {
       return 'GradleLockfile'
     case 'ComposerLock':
       return 'ComposerLock'
-    case 'NugetPackageLockJson':
-      return 'NugetPackageLockJson'
+    case 'NugetPackagesLockJson':
+      return 'NugetPackagesLockJson'
     case 'PubspecLock':
       return 'PubspecLock'
     case 'SwiftPackageResolved':
@@ -3566,8 +3566,8 @@ export function readLockfileKind(x: any, context: any = x): LockfileKind {
       return { kind: 'GradleLockfile' }
     case 'ComposerLock':
       return { kind: 'ComposerLock' }
-    case 'NugetPackageLockJson':
-      return { kind: 'NugetPackageLockJson' }
+    case 'NugetPackagesLockJson':
+      return { kind: 'NugetPackagesLockJson' }
     case 'PubspecLock':
       return { kind: 'PubspecLock' }
     case 'SwiftPackageResolved':

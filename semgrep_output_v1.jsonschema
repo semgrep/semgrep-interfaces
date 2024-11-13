@@ -1556,7 +1556,7 @@
         { "const": "MavenDepTree" },
         { "const": "GradleLockfile" },
         { "const": "ComposerLock" },
-        { "const": "NugetPackageLockJson" },
+        { "const": "NugetPackagesLockJson" },
         { "const": "PubspecLock" },
         { "const": "SwiftPackageResolved" },
         { "const": "MixLock" }
