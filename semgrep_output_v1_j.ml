@@ -26614,6 +26614,7 @@ let write_manifest_kind = (
       | `CargoToml -> Buffer.add_string ob "\"CargoToml\""
       | `PomXml -> Buffer.add_string ob "\"PomXml\""
       | `BuildGradle -> Buffer.add_string ob "\"BuildGradle\""
+      | `SettingsGradle -> Buffer.add_string ob "\"SettingsGradle\""
       | `ComposerJson -> Buffer.add_string ob "\"ComposerJson\""
       | `NugetManifestJson -> Buffer.add_string ob "\"NugetManifestJson\""
       | `PubspecYaml -> Buffer.add_string ob "\"PubspecYaml\""
@@ -26660,6 +26661,10 @@ let read_manifest_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `BuildGradle
+            | "SettingsGradle" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `SettingsGradle
             | "ComposerJson" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -26707,6 +26712,8 @@ let read_manifest_kind = (
               `PomXml
             | "BuildGradle" ->
               `BuildGradle
+            | "SettingsGradle" ->
+              `SettingsGradle
             | "ComposerJson" ->
               `ComposerJson
             | "NugetManifestJson" ->

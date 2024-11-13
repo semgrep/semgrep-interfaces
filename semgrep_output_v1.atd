@@ -1893,7 +1893,10 @@ type manifest_kind
   | PomXml
     (* A Maven pom.xml manifest file - https://maven.apache.org/guides/introduction/introduction-to-the-pom.html *)
   | BuildGradle
-    (* A Gradle build.gradle build file  - https://docs.gradle.org/current/userguide/build_file_basics.html *)
+    (* A Gradle build.gradle build file - https://docs.gradle.org/current/userguide/build_file_basics.html *)
+  | SettingsGradle
+    (* A Gradle settings.gradle file - https://docs.gradle.org/current/userguide/settings_file_basics.html. 
+     * Multi-project builds are defined by settings.gradle rather than build.gradle: https://docs.gradle.org/current/userguide/multi_project_builds.html#multi_project_builds *)
   | ComposerJson (* composer.json - https://getcomposer.org/doc/04-schema.md *)
   | NugetManifestJson
     (* manifest for nuget - could not find a reference; this may not actually exist *)

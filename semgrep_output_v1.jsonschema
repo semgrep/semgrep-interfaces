@@ -1571,6 +1571,7 @@
         { "const": "CargoToml" },
         { "const": "PomXml" },
         { "const": "BuildGradle" },
+        { "const": "SettingsGradle" },
         { "const": "ComposerJson" },
         { "const": "NugetManifestJson" },
         { "const": "PubspecYaml" },
