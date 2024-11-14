@@ -3,7 +3,7 @@
 
 type datetime = Semgrep_output_v1_t.datetime
 
-type fpath = Semgrep_output_v1_t.fpath [@@deriving show, eq, yojson]
+type fpath = Semgrep_output_v1_t.fpath [@@deriving show, eq]
 
 type match_severity = Semgrep_output_v1_t.match_severity
   [@@deriving show, eq]
@@ -671,7 +671,7 @@ type manifest = Semgrep_output_v1_t.manifest = {
   kind: manifest_kind;
   path: fpath
 }
-  [@@deriving show, eq, yojson]
+  [@@deriving show, eq]
 
 type lockfile_kind = Semgrep_output_v1_t.lockfile_kind = 
     PipRequirementsTxt | PoetryLock | PipfileLock | NpmPackageLockJson
@@ -685,7 +685,7 @@ type lockfile = Semgrep_output_v1_t.lockfile = {
   kind: lockfile_kind;
   path: fpath
 }
-  [@@deriving show, eq, yojson]
+  [@@deriving show, eq]
 
 type has_features = Semgrep_output_v1_t.has_features = {
   has_autofix: bool;

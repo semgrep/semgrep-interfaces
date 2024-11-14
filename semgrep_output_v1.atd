@@ -71,7 +71,7 @@ type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
 (*****************************************************************************)
 
 (* File path. less: could convert directly to Path class of pathlib library for Python *)
-type fpath <ocaml attr="deriving show, eq, yojson"> <python decorator="dataclass(frozen=True)">= string wrap <ocaml module="ATD_string_wrap.Fpath">
+type fpath <ocaml attr="deriving show, eq"> <python decorator="dataclass(frozen=True)">= string wrap <ocaml module="ATD_string_wrap.Fpath">
 
 type uri = string wrap <ocaml module="ATD_string_wrap.Uri">
 
@@ -1911,14 +1911,14 @@ type manifest_kind
 ]
 
 type manifest
-  <ocaml attr="deriving show, eq, yojson">
+  <ocaml attr="deriving show, eq">
   <python decorator="dataclass(frozen=True)">   = {
   kind: manifest_kind;
   path: fpath;
 }
 
 type lockfile
-  <ocaml attr="deriving show, eq, yojson">
+  <ocaml attr="deriving show, eq">
   <python decorator="dataclass(frozen=True)">   = {
     kind: lockfile_kind;
     path: fpath;
