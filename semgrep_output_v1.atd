@@ -71,7 +71,7 @@ type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
 (*****************************************************************************)
 
 (* File path. less: could convert directly to Path class of pathlib library for Python *)
-type fpath <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True)">= string wrap <ocaml module="ATD_string_wrap.Fpath">
+type fpath <ocaml attr="deriving show, eq"> <python decorator="dataclass(frozen=True)">= string wrap <ocaml module="ATD_string_wrap.Fpath">
 
 type uri = string wrap <ocaml module="ATD_string_wrap.Uri">
 
@@ -1896,6 +1896,27 @@ type format_context
    is_using_registry: bool;
 }
 
+type lockfile_kind
+  <ocaml attr="deriving show, eq, yojson">
+  <python decorator="dataclass(frozen=True)">   = [
+    | PipRequirementsTxt
+    | PoetryLock
+    | PipfileLock
+    | NpmPackageLockJson
+    | YarnLock
+    | PnpmLock
+    | GemfileLock
+    | GoMod
+    | CargoLock
+    | MavenDepTree (* Not a real lockfile *)
+    | GradleLockfile
+    | ComposerLock
+    | NugetPackagesLockJson
+    | PubspecLock
+    | SwiftPackageResolved (* not a real lockfile *)
+    | MixLock
+] <ocaml repr="classic">
+
 type manifest_kind 
   <ocaml attr="deriving show, eq, yojson">
   <python decorator="dataclass(frozen=True)">   = [
@@ -1911,7 +1932,10 @@ type manifest_kind
   | PomXml
     (* A Maven pom.xml manifest file - https://maven.apache.org/guides/introduction/introduction-to-the-pom.html *)
   | BuildGradle
-    (* A Gradle build.gradle build file  - https://docs.gradle.org/current/userguide/build_file_basics.html *)
+    (* A Gradle build.gradle build file - https://docs.gradle.org/current/userguide/build_file_basics.html *)
+  | SettingsGradle
+    (* A Gradle settings.gradle file - https://docs.gradle.org/current/userguide/settings_file_basics.html. 
+     * Multi-project builds are defined by settings.gradle rather than build.gradle: https://docs.gradle.org/current/userguide/multi_project_builds.html#multi_project_builds *)
   | ComposerJson (* composer.json - https://getcomposer.org/doc/04-schema.md *)
   | NugetManifestJson
     (* manifest for nuget - could not find a reference; this may not actually exist *)
@@ -1926,10 +1950,26 @@ type manifest_kind
 ]
 
 type manifest
+  <ocaml attr="deriving show, eq">
   <python decorator="dataclass(frozen=True)">   = {
   kind: manifest_kind;
   path: fpath;
 }
+
+type lockfile
+  <ocaml attr="deriving show, eq">
+  <python decorator="dataclass(frozen=True)">   = {
+    kind: lockfile_kind;
+    path: fpath;
+}
+
+type dependency_source
+    <ocaml attr="deriving show">
+    <python decorator="dataclass(frozen=True)"> = [
+    | ManifestOnlyDependencySource of manifest
+    | LockfileOnlyDependencySource of lockfile
+    | ManifestLockfileDependencySource of (manifest * lockfile)
+] <ocaml repr="classic">
 
 type resolution_error
     <ocaml attr="deriving show">
@@ -1947,11 +1987,13 @@ type resolution_cmd_failed
     message: string;
 }
 
+(* Resolution can either succeed or fail, but in either case errors can be produced
+   (e.g. one resolution method might fail while a worse one succeeds, lockfile parsing
+   might partially fail but recover and still produce results)
+*)
 type resolution_result = [
-  (* dependency_relationship items each reference an id from found_dependency.id
-    and the IDs of the dependencies that that item depends on *)
-  | ResolutionOk of found_dependency list
-  | ResolutionError of resolution_error
+  | ResolutionOk of (found_dependency list * resolution_error list)
+  | ResolutionError of resolution_error list
 ]
 
 type dump_rule_partitions_params = {
@@ -1975,7 +2017,7 @@ type function_call
      the RPC pipe.
   *)
   | CallValidate of fpath
-  | CallResolveDependencies of manifest list
+  | CallResolveDependencies of dependency_source list
   | CallDumpRulePartitions of dump_rule_partitions_params
 ]
 
@@ -1991,7 +2033,7 @@ type function_return
   | RetContributions of contributions
   | RetFormatter of string
   | RetValidate of bool
-  | RetResolveDependencies of (manifest * resolution_result) list
+  | RetResolveDependencies of (dependency_source * resolution_result) list
   | RetDumpRulePartitions of bool
 ]
 
