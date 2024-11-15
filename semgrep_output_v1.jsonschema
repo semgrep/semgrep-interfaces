@@ -1401,18 +1401,29 @@
       "properties": {
         "dependency_source_files": {
           "type": "array",
-          "items": { "type": "string" }
+          "items": { "$ref": "#/definitions/fpath" }
         },
         "resolved_stats": {
-          "$ref": "#/definitions/dependency_resolution_stats"
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" },
+                { "$ref": "#/definitions/dependency_resolution_stats" }
+              ]
+            },
+            { "const": "None" }
+          ]
         }
       }
     },
     "supply_chain_stats": {
       "type": "object",
-      "required": [ "subproject_stats" ],
+      "required": [ "subprojects_stats" ],
       "properties": {
-        "subproject_stats": {
+        "subprojects_stats": {
           "type": "array",
           "items": { "$ref": "#/definitions/subproject_stats" }
         }

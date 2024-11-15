@@ -781,12 +781,12 @@ export type DependencyResolutionStats = {
 }
 
 export type SubprojectStats = {
-  dependency_source_files: string[];
-  resolved_stats: (DependencyResolutionStats | null);
+  dependency_source_files: Fpath[];
+  resolved_stats: Option<DependencyResolutionStats>;
 }
 
 export type SupplyChainStats = {
-  subproject_stats: SubprojectStats[];
+  subprojects_stats: SubprojectStats[];
 }
 
 export type ParsingStats = {
@@ -3339,27 +3339,27 @@ export function readDependencyResolutionStats(x: any, context: any = x): Depende
 
 export function writeSubprojectStats(x: SubprojectStats, context: any = x): any {
   return {
-    'dependency_source_files': _atd_write_required_field('SubprojectStats', 'dependency_source_files', _atd_write_array(_atd_write_string), x.dependency_source_files, x),
-    'resolved_stats': _atd_write_required_field('SubprojectStats', 'resolved_stats', _atd_write_nullable(writeDependencyResolutionStats), x.resolved_stats, x),
+    'dependency_source_files': _atd_write_required_field('SubprojectStats', 'dependency_source_files', _atd_write_array(writeFpath), x.dependency_source_files, x),
+    'resolved_stats': _atd_write_required_field('SubprojectStats', 'resolved_stats', _atd_write_option(writeDependencyResolutionStats), x.resolved_stats, x),
   };
 }
 
 export function readSubprojectStats(x: any, context: any = x): SubprojectStats {
   return {
-    dependency_source_files: _atd_read_required_field('SubprojectStats', 'dependency_source_files', _atd_read_array(_atd_read_string), x['dependency_source_files'], x),
-    resolved_stats: _atd_read_required_field('SubprojectStats', 'resolved_stats', _atd_read_nullable(readDependencyResolutionStats), x['resolved_stats'], x),
+    dependency_source_files: _atd_read_required_field('SubprojectStats', 'dependency_source_files', _atd_read_array(readFpath), x['dependency_source_files'], x),
+    resolved_stats: _atd_read_required_field('SubprojectStats', 'resolved_stats', _atd_read_option(readDependencyResolutionStats), x['resolved_stats'], x),
   };
 }
 
 export function writeSupplyChainStats(x: SupplyChainStats, context: any = x): any {
   return {
-    'subproject_stats': _atd_write_required_field('SupplyChainStats', 'subproject_stats', _atd_write_array(writeSubprojectStats), x.subproject_stats, x),
+    'subprojects_stats': _atd_write_required_field('SupplyChainStats', 'subprojects_stats', _atd_write_array(writeSubprojectStats), x.subprojects_stats, x),
   };
 }
 
 export function readSupplyChainStats(x: any, context: any = x): SupplyChainStats {
   return {
-    subproject_stats: _atd_read_required_field('SupplyChainStats', 'subproject_stats', _atd_read_array(readSubprojectStats), x['subproject_stats'], x),
+    subprojects_stats: _atd_read_required_field('SupplyChainStats', 'subprojects_stats', _atd_read_array(readSubprojectStats), x['subprojects_stats'], x),
   };
 }
 

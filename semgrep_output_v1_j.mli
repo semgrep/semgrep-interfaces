@@ -239,12 +239,12 @@ type dependency_resolution_stats =
 }
 
 type subproject_stats = Semgrep_output_v1_t.subproject_stats = {
-  dependency_source_files: string list;
+  dependency_source_files: fpath list;
   resolved_stats: dependency_resolution_stats option
 }
 
 type supply_chain_stats = Semgrep_output_v1_t.supply_chain_stats = {
-  subproject_stats: subproject_stats list
+  subprojects_stats: subproject_stats list
 }
 
 type stats_schema_version = Semgrep_output_v1_t.stats_schema_version

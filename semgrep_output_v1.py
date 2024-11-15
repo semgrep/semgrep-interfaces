@@ -2877,23 +2877,23 @@ class DependencyResolutionStats:
 class SubprojectStats:
     """Original type: subproject_stats = { ... }"""
 
-    dependency_source_files: List[str]
+    dependency_source_files: List[Fpath]
     resolved_stats: Optional[DependencyResolutionStats]
 
     @classmethod
     def from_json(cls, x: Any) -> 'SubprojectStats':
         if isinstance(x, dict):
             return cls(
-                dependency_source_files=_atd_read_list(_atd_read_string)(x['dependency_source_files']) if 'dependency_source_files' in x else _atd_missing_json_field('SubprojectStats', 'dependency_source_files'),
-                resolved_stats=_atd_read_nullable(DependencyResolutionStats.from_json)(x['resolved_stats']) if 'resolved_stats' in x else _atd_missing_json_field('SubprojectStats', 'resolved_stats'),
+                dependency_source_files=_atd_read_list(Fpath.from_json)(x['dependency_source_files']) if 'dependency_source_files' in x else _atd_missing_json_field('SubprojectStats', 'dependency_source_files'),
+                resolved_stats=_atd_read_option(DependencyResolutionStats.from_json)(x['resolved_stats']) if 'resolved_stats' in x else _atd_missing_json_field('SubprojectStats', 'resolved_stats'),
             )
         else:
             _atd_bad_json('SubprojectStats', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['dependency_source_files'] = _atd_write_list(_atd_write_string)(self.dependency_source_files)
-        res['resolved_stats'] = _atd_write_nullable((lambda x: x.to_json()))(self.resolved_stats)
+        res['dependency_source_files'] = _atd_write_list((lambda x: x.to_json()))(self.dependency_source_files)
+        res['resolved_stats'] = _atd_write_option((lambda x: x.to_json()))(self.resolved_stats)
         return res
 
     @classmethod
@@ -2908,20 +2908,20 @@ class SubprojectStats:
 class SupplyChainStats:
     """Original type: supply_chain_stats = { ... }"""
 
-    subproject_stats: List[SubprojectStats]
+    subprojects_stats: List[SubprojectStats]
 
     @classmethod
     def from_json(cls, x: Any) -> 'SupplyChainStats':
         if isinstance(x, dict):
             return cls(
-                subproject_stats=_atd_read_list(SubprojectStats.from_json)(x['subproject_stats']) if 'subproject_stats' in x else _atd_missing_json_field('SupplyChainStats', 'subproject_stats'),
+                subprojects_stats=_atd_read_list(SubprojectStats.from_json)(x['subprojects_stats']) if 'subprojects_stats' in x else _atd_missing_json_field('SupplyChainStats', 'subprojects_stats'),
             )
         else:
             _atd_bad_json('SupplyChainStats', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['subproject_stats'] = _atd_write_list((lambda x: x.to_json()))(self.subproject_stats)
+        res['subprojects_stats'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects_stats)
         return res
 
     @classmethod
