@@ -3,7 +3,7 @@
 
 type datetime = Semgrep_output_v1_t.datetime
 
-type fpath = Semgrep_output_v1_t.fpath [@@deriving show]
+type fpath = Semgrep_output_v1_t.fpath [@@deriving show, eq]
 
 type match_severity = Semgrep_output_v1_t.match_severity
   [@@deriving show, eq]
@@ -671,6 +671,21 @@ type manifest = Semgrep_output_v1_t.manifest = {
   kind: manifest_kind;
   path: fpath
 }
+  [@@deriving show, eq]
+
+type lockfile_kind = Semgrep_output_v1_t.lockfile_kind = 
+    PipRequirementsTxt | PoetryLock | PipfileLock | NpmPackageLockJson
+  | YarnLock | PnpmLock | GemfileLock | GoMod | CargoLock | MavenDepTree
+  | GradleLockfile | ComposerLock | NugetPackagesLockJson | PubspecLock
+  | SwiftPackageResolved | MixLock
+
+  [@@deriving show, eq, yojson]
+
+type lockfile = Semgrep_output_v1_t.lockfile = {
+  kind: lockfile_kind;
+  path: fpath
+}
+  [@@deriving show, eq]
 
 type has_features = Semgrep_output_v1_t.has_features = {
   has_autofix: bool;
@@ -678,6 +693,13 @@ type has_features = Semgrep_output_v1_t.has_features = {
   has_triage_via_comment: bool;
   has_dependency_query: bool
 }
+
+type dependency_source = Semgrep_output_v1_t.dependency_source = 
+    ManifestOnlyDependencySource of manifest
+  | LockfileOnlyDependencySource of lockfile
+  | ManifestLockfileDependencySource of (manifest * lockfile)
+
+  [@@deriving show]
 
 type apply_fixes_return = Semgrep_output_v1_t.apply_fixes_return = {
   modified_file_count: int;
@@ -2927,6 +2949,46 @@ val manifest_of_string :
   string -> manifest
   (** Deserialize JSON data of type {!type:manifest}. *)
 
+val write_lockfile_kind :
+  Buffer.t -> lockfile_kind -> unit
+  (** Output a JSON value of type {!type:lockfile_kind}. *)
+
+val string_of_lockfile_kind :
+  ?len:int -> lockfile_kind -> string
+  (** Serialize a value of type {!type:lockfile_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_lockfile_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> lockfile_kind
+  (** Input JSON data of type {!type:lockfile_kind}. *)
+
+val lockfile_kind_of_string :
+  string -> lockfile_kind
+  (** Deserialize JSON data of type {!type:lockfile_kind}. *)
+
+val write_lockfile :
+  Buffer.t -> lockfile -> unit
+  (** Output a JSON value of type {!type:lockfile}. *)
+
+val string_of_lockfile :
+  ?len:int -> lockfile -> string
+  (** Serialize a value of type {!type:lockfile}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_lockfile :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> lockfile
+  (** Input JSON data of type {!type:lockfile}. *)
+
+val lockfile_of_string :
+  string -> lockfile
+  (** Deserialize JSON data of type {!type:lockfile}. *)
+
 val write_has_features :
   Buffer.t -> has_features -> unit
   (** Output a JSON value of type {!type:has_features}. *)
@@ -2946,6 +3008,26 @@ val read_has_features :
 val has_features_of_string :
   string -> has_features
   (** Deserialize JSON data of type {!type:has_features}. *)
+
+val write_dependency_source :
+  Buffer.t -> dependency_source -> unit
+  (** Output a JSON value of type {!type:dependency_source}. *)
+
+val string_of_dependency_source :
+  ?len:int -> dependency_source -> string
+  (** Serialize a value of type {!type:dependency_source}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_dependency_source :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_source
+  (** Input JSON data of type {!type:dependency_source}. *)
+
+val dependency_source_of_string :
+  string -> dependency_source
+  (** Deserialize JSON data of type {!type:dependency_source}. *)
 
 val write_apply_fixes_return :
   Buffer.t -> apply_fixes_return -> unit

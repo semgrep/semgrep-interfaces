@@ -3,7 +3,7 @@
 
 type datetime = Semgrep_output_v1_t.datetime
 
-type fpath = Semgrep_output_v1_t.fpath [@@deriving show]
+type fpath = Semgrep_output_v1_t.fpath [@@deriving show, eq]
 
 type match_severity = Semgrep_output_v1_t.match_severity
   [@@deriving show, eq]
@@ -671,6 +671,21 @@ type manifest = Semgrep_output_v1_t.manifest = {
   kind: manifest_kind;
   path: fpath
 }
+  [@@deriving show, eq]
+
+type lockfile_kind = Semgrep_output_v1_t.lockfile_kind = 
+    PipRequirementsTxt | PoetryLock | PipfileLock | NpmPackageLockJson
+  | YarnLock | PnpmLock | GemfileLock | GoMod | CargoLock | MavenDepTree
+  | GradleLockfile | ComposerLock | NugetPackagesLockJson | PubspecLock
+  | SwiftPackageResolved | MixLock
+
+  [@@deriving show, eq, yojson]
+
+type lockfile = Semgrep_output_v1_t.lockfile = {
+  kind: lockfile_kind;
+  path: fpath
+}
+  [@@deriving show, eq]
 
 type has_features = Semgrep_output_v1_t.has_features = {
   has_autofix: bool;
@@ -678,6 +693,13 @@ type has_features = Semgrep_output_v1_t.has_features = {
   has_triage_via_comment: bool;
   has_dependency_query: bool
 }
+
+type dependency_source = Semgrep_output_v1_t.dependency_source = 
+    ManifestOnlyDependencySource of manifest
+  | LockfileOnlyDependencySource of lockfile
+  | ManifestLockfileDependencySource of (manifest * lockfile)
+
+  [@@deriving show]
 
 type apply_fixes_return = Semgrep_output_v1_t.apply_fixes_return = {
   modified_file_count: int;
@@ -21582,6 +21604,22 @@ let read_rule_id_and_engine_kind = (
 )
 let rule_id_and_engine_kind_of_string s =
   read_rule_id_and_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__resolution_error_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_resolution_error
+  )
+)
+let string_of__resolution_error_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__resolution_error_list ob x;
+  Buffer.contents ob
+let read__resolution_error_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_resolution_error
+  )
+)
+let _resolution_error_list_of_string s =
+  read__resolution_error_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__found_dependency_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_found_dependency
@@ -21604,13 +21642,26 @@ let write_resolution_result = (
       | `ResolutionOk x ->
         Buffer.add_string ob "[\"ResolutionOk\",";
         (
-          write__found_dependency_list
+          fun ob x ->
+            Buffer.add_char ob '[';
+            (let x, _ = x in
+            (
+              write__found_dependency_list
+            ) ob x
+            );
+            Buffer.add_char ob ',';
+            (let _, x = x in
+            (
+              write__resolution_error_list
+            ) ob x
+            );
+            Buffer.add_char ob ']';
         ) ob x;
         Buffer.add_char ob ']'
       | `ResolutionError x ->
         Buffer.add_string ob "[\"ResolutionError\",";
         (
-          write_resolution_error
+          write__resolution_error_list
         ) ob x;
         Buffer.add_char ob ']'
 )
@@ -21627,7 +21678,48 @@ let read_resolution_result = (
             | "ResolutionOk" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read__found_dependency_list
+                  fun p lb ->
+                    Yojson.Safe.read_space p lb;
+                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    let len = ref 0 in
+                    let end_of_tuple = ref false in
+                    (try
+                      let x0 =
+                        let x =
+                          (
+                            read__found_dependency_list
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x1 =
+                        let x =
+                          (
+                            read__resolution_error_list
+                          ) p lb
+                        in
+                        incr len;
+                        (try
+                          Yojson.Safe.read_space p lb;
+                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                        x
+                      in
+                      if not !end_of_tuple then (
+                        try
+                          while true do
+                            Yojson.Safe.skip_json p lb;
+                            Yojson.Safe.read_space p lb;
+                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                          done
+                        with Yojson.End_of_tuple -> ()
+                      );
+                      (x0, x1)
+                    with Yojson.End_of_tuple ->
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -21636,7 +21728,7 @@ let read_resolution_result = (
             | "ResolutionError" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read_resolution_error
+                  read__resolution_error_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -21657,7 +21749,48 @@ let read_resolution_result = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read__found_dependency_list
+                  fun p lb ->
+                    Yojson.Safe.read_space p lb;
+                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    let len = ref 0 in
+                    let end_of_tuple = ref false in
+                    (try
+                      let x0 =
+                        let x =
+                          (
+                            read__found_dependency_list
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x1 =
+                        let x =
+                          (
+                            read__resolution_error_list
+                          ) p lb
+                        in
+                        incr len;
+                        (try
+                          Yojson.Safe.read_space p lb;
+                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                        x
+                      in
+                      if not !end_of_tuple then (
+                        try
+                          while true do
+                            Yojson.Safe.skip_json p lb;
+                            Yojson.Safe.read_space p lb;
+                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                          done
+                        with Yojson.End_of_tuple -> ()
+                      );
+                      (x0, x1)
+                    with Yojson.End_of_tuple ->
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -21668,7 +21801,7 @@ let read_resolution_result = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read_resolution_error
+                  read__resolution_error_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -26481,6 +26614,7 @@ let write_manifest_kind = (
       | `CargoToml -> Buffer.add_string ob "\"CargoToml\""
       | `PomXml -> Buffer.add_string ob "\"PomXml\""
       | `BuildGradle -> Buffer.add_string ob "\"BuildGradle\""
+      | `SettingsGradle -> Buffer.add_string ob "\"SettingsGradle\""
       | `ComposerJson -> Buffer.add_string ob "\"ComposerJson\""
       | `NugetManifestJson -> Buffer.add_string ob "\"NugetManifestJson\""
       | `PubspecYaml -> Buffer.add_string ob "\"PubspecYaml\""
@@ -26527,6 +26661,10 @@ let read_manifest_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `BuildGradle
+            | "SettingsGradle" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `SettingsGradle
             | "ComposerJson" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -26574,6 +26712,8 @@ let read_manifest_kind = (
               `PomXml
             | "BuildGradle" ->
               `BuildGradle
+            | "SettingsGradle" ->
+              `SettingsGradle
             | "ComposerJson" ->
               `ComposerJson
             | "NugetManifestJson" ->
@@ -26762,6 +26902,311 @@ let read_manifest = (
 )
 let manifest_of_string s =
   read_manifest (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_lockfile_kind : _ -> lockfile_kind -> _ = (
+  fun ob (x : lockfile_kind) ->
+    match x with
+      | PipRequirementsTxt -> Buffer.add_string ob "\"PipRequirementsTxt\""
+      | PoetryLock -> Buffer.add_string ob "\"PoetryLock\""
+      | PipfileLock -> Buffer.add_string ob "\"PipfileLock\""
+      | NpmPackageLockJson -> Buffer.add_string ob "\"NpmPackageLockJson\""
+      | YarnLock -> Buffer.add_string ob "\"YarnLock\""
+      | PnpmLock -> Buffer.add_string ob "\"PnpmLock\""
+      | GemfileLock -> Buffer.add_string ob "\"GemfileLock\""
+      | GoMod -> Buffer.add_string ob "\"GoMod\""
+      | CargoLock -> Buffer.add_string ob "\"CargoLock\""
+      | MavenDepTree -> Buffer.add_string ob "\"MavenDepTree\""
+      | GradleLockfile -> Buffer.add_string ob "\"GradleLockfile\""
+      | ComposerLock -> Buffer.add_string ob "\"ComposerLock\""
+      | NugetPackagesLockJson -> Buffer.add_string ob "\"NugetPackagesLockJson\""
+      | PubspecLock -> Buffer.add_string ob "\"PubspecLock\""
+      | SwiftPackageResolved -> Buffer.add_string ob "\"SwiftPackageResolved\""
+      | MixLock -> Buffer.add_string ob "\"MixLock\""
+)
+let string_of_lockfile_kind ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_lockfile_kind ob x;
+  Buffer.contents ob
+let read_lockfile_kind = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "PipRequirementsTxt" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PipRequirementsTxt : lockfile_kind)
+            | "PoetryLock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PoetryLock : lockfile_kind)
+            | "PipfileLock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PipfileLock : lockfile_kind)
+            | "NpmPackageLockJson" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (NpmPackageLockJson : lockfile_kind)
+            | "YarnLock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (YarnLock : lockfile_kind)
+            | "PnpmLock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PnpmLock : lockfile_kind)
+            | "GemfileLock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (GemfileLock : lockfile_kind)
+            | "GoMod" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (GoMod : lockfile_kind)
+            | "CargoLock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (CargoLock : lockfile_kind)
+            | "MavenDepTree" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (MavenDepTree : lockfile_kind)
+            | "GradleLockfile" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (GradleLockfile : lockfile_kind)
+            | "ComposerLock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (ComposerLock : lockfile_kind)
+            | "NugetPackagesLockJson" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (NugetPackagesLockJson : lockfile_kind)
+            | "PubspecLock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PubspecLock : lockfile_kind)
+            | "SwiftPackageResolved" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (SwiftPackageResolved : lockfile_kind)
+            | "MixLock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (MixLock : lockfile_kind)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "PipRequirementsTxt" ->
+              (PipRequirementsTxt : lockfile_kind)
+            | "PoetryLock" ->
+              (PoetryLock : lockfile_kind)
+            | "PipfileLock" ->
+              (PipfileLock : lockfile_kind)
+            | "NpmPackageLockJson" ->
+              (NpmPackageLockJson : lockfile_kind)
+            | "YarnLock" ->
+              (YarnLock : lockfile_kind)
+            | "PnpmLock" ->
+              (PnpmLock : lockfile_kind)
+            | "GemfileLock" ->
+              (GemfileLock : lockfile_kind)
+            | "GoMod" ->
+              (GoMod : lockfile_kind)
+            | "CargoLock" ->
+              (CargoLock : lockfile_kind)
+            | "MavenDepTree" ->
+              (MavenDepTree : lockfile_kind)
+            | "GradleLockfile" ->
+              (GradleLockfile : lockfile_kind)
+            | "ComposerLock" ->
+              (ComposerLock : lockfile_kind)
+            | "NugetPackagesLockJson" ->
+              (NugetPackagesLockJson : lockfile_kind)
+            | "PubspecLock" ->
+              (PubspecLock : lockfile_kind)
+            | "SwiftPackageResolved" ->
+              (SwiftPackageResolved : lockfile_kind)
+            | "MixLock" ->
+              (MixLock : lockfile_kind)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let lockfile_kind_of_string s =
+  read_lockfile_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_lockfile : _ -> lockfile -> _ = (
+  fun ob (x : lockfile) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"kind\":";
+    (
+      write_lockfile_kind
+    )
+      ob x.kind;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"path\":";
+    (
+      write_fpath
+    )
+      ob x.path;
+    Buffer.add_char ob '}';
+)
+let string_of_lockfile ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_lockfile ob x;
+  Buffer.contents ob
+let read_lockfile = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_kind = ref (None) in
+    let field_path = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          if len = 4 then (
+            match String.unsafe_get s pos with
+              | 'k' -> (
+                  if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 'p' -> (
+                  if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+          )
+          else (
+            -1
+          )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_kind := (
+              Some (
+                (
+                  read_lockfile_kind
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_path := (
+              Some (
+                (
+                  read_fpath
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            if len = 4 then (
+              match String.unsafe_get s pos with
+                | 'k' -> (
+                    if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' then (
+                      0
+                    )
+                    else (
+                      -1
+                    )
+                  )
+                | 'p' -> (
+                    if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
+                      1
+                    )
+                    else (
+                      -1
+                    )
+                  )
+                | _ -> (
+                    -1
+                  )
+            )
+            else (
+              -1
+            )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_kind := (
+                Some (
+                  (
+                    read_lockfile_kind
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_path := (
+                Some (
+                  (
+                    read_fpath
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            kind = (match !field_kind with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "kind");
+            path = (match !field_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "path");
+          }
+         : lockfile)
+      )
+)
+let lockfile_of_string s =
+  read_lockfile (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_has_features : _ -> has_features -> _ = (
   fun ob (x : has_features) ->
     Buffer.add_char ob '{';
@@ -27001,6 +27446,209 @@ let read_has_features = (
 )
 let has_features_of_string s =
   read_has_features (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_dependency_source : _ -> dependency_source -> _ = (
+  fun ob (x : dependency_source) ->
+    match x with
+      | ManifestOnlyDependencySource x ->
+        Buffer.add_string ob "[\"ManifestOnlyDependencySource\",";
+        (
+          write_manifest
+        ) ob x;
+        Buffer.add_char ob ']'
+      | LockfileOnlyDependencySource x ->
+        Buffer.add_string ob "[\"LockfileOnlyDependencySource\",";
+        (
+          write_lockfile
+        ) ob x;
+        Buffer.add_char ob ']'
+      | ManifestLockfileDependencySource x ->
+        Buffer.add_string ob "[\"ManifestLockfileDependencySource\",";
+        (
+          fun ob x ->
+            Buffer.add_char ob '[';
+            (let x, _ = x in
+            (
+              write_manifest
+            ) ob x
+            );
+            Buffer.add_char ob ',';
+            (let _, x = x in
+            (
+              write_lockfile
+            ) ob x
+            );
+            Buffer.add_char ob ']';
+        ) ob x;
+        Buffer.add_char ob ']'
+)
+let string_of_dependency_source ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_dependency_source ob x;
+  Buffer.contents ob
+let read_dependency_source = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "ManifestOnlyDependencySource" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_manifest
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (ManifestOnlyDependencySource x : dependency_source)
+            | "LockfileOnlyDependencySource" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_lockfile
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (LockfileOnlyDependencySource x : dependency_source)
+            | "ManifestLockfileDependencySource" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  fun p lb ->
+                    Yojson.Safe.read_space p lb;
+                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    let len = ref 0 in
+                    let end_of_tuple = ref false in
+                    (try
+                      let x0 =
+                        let x =
+                          (
+                            read_manifest
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x1 =
+                        let x =
+                          (
+                            read_lockfile
+                          ) p lb
+                        in
+                        incr len;
+                        (try
+                          Yojson.Safe.read_space p lb;
+                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                        x
+                      in
+                      if not !end_of_tuple then (
+                        try
+                          while true do
+                            Yojson.Safe.skip_json p lb;
+                            Yojson.Safe.read_space p lb;
+                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                          done
+                        with Yojson.End_of_tuple -> ()
+                      );
+                      (x0, x1)
+                    with Yojson.End_of_tuple ->
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (ManifestLockfileDependencySource x : dependency_source)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "ManifestOnlyDependencySource" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_manifest
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (ManifestOnlyDependencySource x : dependency_source)
+            | "LockfileOnlyDependencySource" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_lockfile
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (LockfileOnlyDependencySource x : dependency_source)
+            | "ManifestLockfileDependencySource" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  fun p lb ->
+                    Yojson.Safe.read_space p lb;
+                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    let len = ref 0 in
+                    let end_of_tuple = ref false in
+                    (try
+                      let x0 =
+                        let x =
+                          (
+                            read_manifest
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x1 =
+                        let x =
+                          (
+                            read_lockfile
+                          ) p lb
+                        in
+                        incr len;
+                        (try
+                          Yojson.Safe.read_space p lb;
+                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                        x
+                      in
+                      if not !end_of_tuple then (
+                        try
+                          while true do
+                            Yojson.Safe.skip_json p lb;
+                            Yojson.Safe.read_space p lb;
+                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                          done
+                        with Yojson.End_of_tuple -> ()
+                      );
+                      (x0, x1)
+                    with Yojson.End_of_tuple ->
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (ManifestLockfileDependencySource x : dependency_source)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let dependency_source_of_string s =
+  read_dependency_source (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__int_string_list_list = (
   Atdgen_runtime.Oj_run.write_list (
     fun ob x ->
@@ -27224,13 +27872,13 @@ let read_apply_fixes_return = (
 )
 let apply_fixes_return_of_string s =
   read_apply_fixes_return (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__manifest_resolution_result_list = (
+let write__dependency_source_resolution_result_list = (
   Atdgen_runtime.Oj_run.write_list (
     fun ob x ->
       Buffer.add_char ob '[';
       (let x, _ = x in
       (
-        write_manifest
+        write_dependency_source
       ) ob x
       );
       Buffer.add_char ob ',';
@@ -27242,11 +27890,11 @@ let write__manifest_resolution_result_list = (
       Buffer.add_char ob ']';
   )
 )
-let string_of__manifest_resolution_result_list ?(len = 1024) x =
+let string_of__dependency_source_resolution_result_list ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__manifest_resolution_result_list ob x;
+  write__dependency_source_resolution_result_list ob x;
   Buffer.contents ob
-let read__manifest_resolution_result_list = (
+let read__dependency_source_resolution_result_list = (
   Atdgen_runtime.Oj_run.read_list (
     fun p lb ->
       Yojson.Safe.read_space p lb;
@@ -27257,7 +27905,7 @@ let read__manifest_resolution_result_list = (
         let x0 =
           let x =
             (
-              read_manifest
+              read_dependency_source
             ) p lb
           in
           incr len;
@@ -27292,8 +27940,8 @@ let read__manifest_resolution_result_list = (
         Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
   )
 )
-let _manifest_resolution_result_list_of_string s =
-  read__manifest_resolution_result_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _dependency_source_resolution_result_list_of_string s =
+  read__dependency_source_resolution_result_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_function_return = (
   fun ob x ->
     match x with
@@ -27336,7 +27984,7 @@ let write_function_return = (
       | `RetResolveDependencies x ->
         Buffer.add_string ob "[\"RetResolveDependencies\",";
         (
-          write__manifest_resolution_result_list
+          write__dependency_source_resolution_result_list
         ) ob x;
         Buffer.add_char ob ']'
       | `RetDumpRulePartitions x ->
@@ -27413,7 +28061,7 @@ let read_function_return = (
             | "RetResolveDependencies" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read__manifest_resolution_result_list
+                  read__dependency_source_resolution_result_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -27509,7 +28157,7 @@ let read_function_return = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read__manifest_resolution_result_list
+                  read__dependency_source_resolution_result_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -29137,22 +29785,22 @@ let read_apply_fixes_params = (
 )
 let apply_fixes_params_of_string s =
   read_apply_fixes_params (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__manifest_list = (
+let write__dependency_source_list = (
   Atdgen_runtime.Oj_run.write_list (
-    write_manifest
+    write_dependency_source
   )
 )
-let string_of__manifest_list ?(len = 1024) x =
+let string_of__dependency_source_list ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__manifest_list ob x;
+  write__dependency_source_list ob x;
   Buffer.contents ob
-let read__manifest_list = (
+let read__dependency_source_list = (
   Atdgen_runtime.Oj_run.read_list (
-    read_manifest
+    read_dependency_source
   )
 )
-let _manifest_list_of_string s =
-  read__manifest_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _dependency_source_list_of_string s =
+  read__dependency_source_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_function_call = (
   fun ob x ->
     match x with
@@ -29203,7 +29851,7 @@ let write_function_call = (
       | `CallResolveDependencies x ->
         Buffer.add_string ob "[\"CallResolveDependencies\",";
         (
-          write__manifest_list
+          write__dependency_source_list
         ) ob x;
         Buffer.add_char ob ']'
       | `CallDumpRulePartitions x ->
@@ -29318,7 +29966,7 @@ let read_function_call = (
             | "CallResolveDependencies" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read__manifest_list
+                  read__dependency_source_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -29446,7 +30094,7 @@ let read_function_call = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read__manifest_list
+                  read__dependency_source_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
