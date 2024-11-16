@@ -1393,9 +1393,12 @@
     },
     "subproject_stats": {
       "type": "object",
-      "required": [ "dependency_source", "resolved_stats" ],
+      "required": [ "dependency_sources", "resolved_stats" ],
       "properties": {
-        "dependency_source": { "$ref": "#/definitions/dependency_source" },
+        "dependency_sources": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/dependency_source" }
+        },
         "resolved_stats": {
           "oneOf": [
             {

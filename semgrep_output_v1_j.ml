@@ -269,7 +269,7 @@ type dependency_resolution_stats =
 }
 
 type subproject_stats = Semgrep_output_v1_t.subproject_stats = {
-  dependency_source: dependency_source;
+  dependency_sources: dependency_source list;
   resolved_stats: dependency_resolution_stats option
 }
 
@@ -9725,6 +9725,22 @@ let read_dependency_resolution_stats = (
 )
 let dependency_resolution_stats_of_string s =
   read_dependency_resolution_stats (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__dependency_source_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_dependency_source
+  )
+)
+let string_of__dependency_source_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__dependency_source_list ob x;
+  Buffer.contents ob
+let read__dependency_source_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_dependency_source
+  )
+)
+let _dependency_source_list_of_string s =
+  read__dependency_source_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__dependency_resolution_stats_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     write_dependency_resolution_stats
@@ -9790,11 +9806,11 @@ let write_subproject_stats : _ -> subproject_stats -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"dependency_source\":";
+      Buffer.add_string ob "\"dependency_sources\":";
     (
-      write_dependency_source
+      write__dependency_source_list
     )
-      ob x.dependency_source;
+      ob x.dependency_sources;
     if !is_first then
       is_first := false
     else
@@ -9814,7 +9830,7 @@ let read_subproject_stats = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
-    let field_dependency_source = ref (None) in
+    let field_dependency_sources = ref (None) in
     let field_resolved_stats = ref (None) in
     try
       Yojson.Safe.read_space p lb;
@@ -9833,8 +9849,8 @@ let read_subproject_stats = (
                   -1
                 )
               )
-            | 17 -> (
-                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'u' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 'e' then (
+            | 18 -> (
+                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'u' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 's' then (
                   0
                 )
                 else (
@@ -9850,10 +9866,10 @@ let read_subproject_stats = (
       (
         match i with
           | 0 ->
-            field_dependency_source := (
+            field_dependency_sources := (
               Some (
                 (
-                  read_dependency_source
+                  read__dependency_source_list
                 ) p lb
               )
             );
@@ -9886,8 +9902,8 @@ let read_subproject_stats = (
                     -1
                   )
                 )
-              | 17 -> (
-                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'u' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 'e' then (
+              | 18 -> (
+                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'u' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 's' then (
                     0
                   )
                   else (
@@ -9903,10 +9919,10 @@ let read_subproject_stats = (
         (
           match i with
             | 0 ->
-              field_dependency_source := (
+              field_dependency_sources := (
                 Some (
                   (
-                    read_dependency_source
+                    read__dependency_source_list
                   ) p lb
                 )
               );
@@ -9927,7 +9943,7 @@ let read_subproject_stats = (
     with Yojson.End_of_object -> (
         (
           {
-            dependency_source = (match !field_dependency_source with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "dependency_source");
+            dependency_sources = (match !field_dependency_sources with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "dependency_sources");
             resolved_stats = (match !field_resolved_stats with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "resolved_stats");
           }
          : subproject_stats)
@@ -30487,22 +30503,6 @@ let read_apply_fixes_params = (
 )
 let apply_fixes_params_of_string s =
   read_apply_fixes_params (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__dependency_source_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_dependency_source
-  )
-)
-let string_of__dependency_source_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__dependency_source_list ob x;
-  Buffer.contents ob
-let read__dependency_source_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_dependency_source
-  )
-)
-let _dependency_source_list_of_string s =
-  read__dependency_source_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_function_call = (
   fun ob x ->
     match x with

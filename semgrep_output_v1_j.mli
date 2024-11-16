@@ -269,7 +269,7 @@ type dependency_resolution_stats =
 }
 
 type subproject_stats = Semgrep_output_v1_t.subproject_stats = {
-  dependency_source: dependency_source;
+  dependency_sources: dependency_source list;
   resolved_stats: dependency_resolution_stats option
 }
 

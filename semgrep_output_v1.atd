@@ -1705,7 +1705,7 @@ type dependency_resolution_stats = {
 
 type subproject_stats = {
   (* Files used to determine the subproject's dependencies (lockfiles, manifest files, etc) *)
-  dependency_source: dependency_source;
+  dependency_sources: dependency_source list;
   (* Results of dependency resolution, null if resolution failed *)
   resolved_stats: dependency_resolution_stats option;
 }
