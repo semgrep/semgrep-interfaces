@@ -1660,7 +1660,6 @@ type ci_scan_complete_stats = {
     <json repr="object">
     <python repr="dict">
     <ts repr="map">;
-  (* Deprecated - subproject_stats is used instead *)
   lockfile_scan_info: (string * int) list
     <json repr="object">
     <python repr="dict">
