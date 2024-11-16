@@ -1351,9 +1351,6 @@
         "lockfile_scan_info", "parse_rate"
       ],
       "properties": {
-        "stats_schema_version": {
-          "$ref": "#/definitions/stats_schema_version"
-        },
         "findings": { "type": "integer" },
         "errors": {
           "type": "array",
@@ -1380,7 +1377,6 @@
         "supply_chain_stats": { "$ref": "#/definitions/supply_chain_stats" }
       }
     },
-    "stats_schema_version": { "oneOf": [ { "const": "SSV20241112" } ] },
     "resolution_method": {
       "oneOf": [
         { "const": "LockfileParsing" }, { "const": "DynamicResolution" }
@@ -1397,11 +1393,11 @@
     },
     "subproject_stats": {
       "type": "object",
-      "required": [ "dependency_source_files", "resolved_stats" ],
+      "required": [ "dependency_sources", "resolved_stats" ],
       "properties": {
-        "dependency_source_files": {
+        "dependency_sources": {
           "type": "array",
-          "items": { "$ref": "#/definitions/fpath" }
+          "items": { "$ref": "#/definitions/dependency_source" }
         },
         "resolved_stats": {
           "oneOf": [

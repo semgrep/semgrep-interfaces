@@ -1652,7 +1652,6 @@ type ci_scan_complete = {
  * change. 
  *)
 type ci_scan_complete_stats = {
-  ?stats_schema_version: stats_schema_version option;
   findings: int;
   errors: cli_error list;
   total_time: float;
@@ -1694,11 +1693,6 @@ type ci_scan_complete_stats = {
   ?supply_chain_stats: supply_chain_stats option;
 }
 
-(* Valid schema versions. Update when making breaking changes. *)
-type stats_schema_version <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True)"> = [
-  | SSV20241112 (* initial version *)
-] 
-
 type resolution_method <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True, order=True)"> = [
   | LockfileParsing 
   | DynamicResolution 
@@ -1712,7 +1706,7 @@ type dependency_resolution_stats = {
 
 type subproject_stats = {
   (* Files used to determine the subproject's dependencies (lockfiles, manifest files, etc) *)
-  dependency_source_files: fpath list;
+  dependency_sources: dependency_source list;
   (* Results of dependency resolution, null if resolution failed *)
   resolved_stats: dependency_resolution_stats option;
 }

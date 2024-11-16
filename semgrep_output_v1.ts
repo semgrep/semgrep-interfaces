@@ -755,7 +755,6 @@ export type CiScanComplete = {
 }
 
 export type CiScanCompleteStats = {
-  stats_schema_version?: StatsSchemaVersion;
   findings: number /*int*/;
   errors: CliError[];
   total_time: number;
@@ -766,9 +765,6 @@ export type CiScanCompleteStats = {
   findings_by_product?: Map<string, number /*int*/>;
   supply_chain_stats?: SupplyChainStats;
 }
-
-export type StatsSchemaVersion =
-| { kind: 'SSV20241112' }
 
 export type ResolutionMethod =
 | { kind: 'LockfileParsing' }
@@ -781,7 +777,7 @@ export type DependencyResolutionStats = {
 }
 
 export type SubprojectStats = {
-  dependency_source_files: Fpath[];
+  dependency_sources: DependencySource[];
   resolved_stats: Option<DependencyResolutionStats>;
 }
 
@@ -3255,7 +3251,6 @@ export function readCiScanComplete(x: any, context: any = x): CiScanComplete {
 
 export function writeCiScanCompleteStats(x: CiScanCompleteStats, context: any = x): any {
   return {
-    'stats_schema_version': _atd_write_optional_field(writeStatsSchemaVersion, x.stats_schema_version, x),
     'findings': _atd_write_required_field('CiScanCompleteStats', 'findings', _atd_write_int, x.findings, x),
     'errors': _atd_write_required_field('CiScanCompleteStats', 'errors', _atd_write_array(writeCliError), x.errors, x),
     'total_time': _atd_write_required_field('CiScanCompleteStats', 'total_time', _atd_write_float, x.total_time, x),
@@ -3270,7 +3265,6 @@ export function writeCiScanCompleteStats(x: CiScanCompleteStats, context: any = 
 
 export function readCiScanCompleteStats(x: any, context: any = x): CiScanCompleteStats {
   return {
-    stats_schema_version: _atd_read_optional_field(readStatsSchemaVersion, x['stats_schema_version'], x),
     findings: _atd_read_required_field('CiScanCompleteStats', 'findings', _atd_read_int, x['findings'], x),
     errors: _atd_read_required_field('CiScanCompleteStats', 'errors', _atd_read_array(readCliError), x['errors'], x),
     total_time: _atd_read_required_field('CiScanCompleteStats', 'total_time', _atd_read_float, x['total_time'], x),
@@ -3281,23 +3275,6 @@ export function readCiScanCompleteStats(x: any, context: any = x): CiScanComplet
     findings_by_product: _atd_read_optional_field(_atd_read_assoc_object_into_map(_atd_read_int), x['findings_by_product'], x),
     supply_chain_stats: _atd_read_optional_field(readSupplyChainStats, x['supply_chain_stats'], x),
   };
-}
-
-export function writeStatsSchemaVersion(x: StatsSchemaVersion, context: any = x): any {
-  switch (x.kind) {
-    case 'SSV20241112':
-      return 'SSV20241112'
-  }
-}
-
-export function readStatsSchemaVersion(x: any, context: any = x): StatsSchemaVersion {
-  switch (x) {
-    case 'SSV20241112':
-      return { kind: 'SSV20241112' }
-    default:
-      _atd_bad_json('StatsSchemaVersion', x, context)
-      throw new Error('impossible')
-  }
 }
 
 export function writeResolutionMethod(x: ResolutionMethod, context: any = x): any {
@@ -3339,14 +3316,14 @@ export function readDependencyResolutionStats(x: any, context: any = x): Depende
 
 export function writeSubprojectStats(x: SubprojectStats, context: any = x): any {
   return {
-    'dependency_source_files': _atd_write_required_field('SubprojectStats', 'dependency_source_files', _atd_write_array(writeFpath), x.dependency_source_files, x),
+    'dependency_sources': _atd_write_required_field('SubprojectStats', 'dependency_sources', _atd_write_array(writeDependencySource), x.dependency_sources, x),
     'resolved_stats': _atd_write_required_field('SubprojectStats', 'resolved_stats', _atd_write_option(writeDependencyResolutionStats), x.resolved_stats, x),
   };
 }
 
 export function readSubprojectStats(x: any, context: any = x): SubprojectStats {
   return {
-    dependency_source_files: _atd_read_required_field('SubprojectStats', 'dependency_source_files', _atd_read_array(readFpath), x['dependency_source_files'], x),
+    dependency_sources: _atd_read_required_field('SubprojectStats', 'dependency_sources', _atd_read_array(readDependencySource), x['dependency_sources'], x),
     resolved_stats: _atd_read_required_field('SubprojectStats', 'resolved_stats', _atd_read_option(readDependencyResolutionStats), x['resolved_stats'], x),
   };
 }
