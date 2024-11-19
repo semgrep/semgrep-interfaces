@@ -242,23 +242,13 @@ type lockfile_kind = Semgrep_output_v1_t.lockfile_kind =
 
 type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show,eq]
 
-type dependency_source_stats_type =
-  Semgrep_output_v1_t.dependency_source_stats_type
+type dependency_source_file_kind =
+  Semgrep_output_v1_t.dependency_source_file_kind
   [@@deriving show]
 
-type dependency_source_stats_file_kind =
-  Semgrep_output_v1_t.dependency_source_stats_file_kind
-  [@@deriving show]
-
-type dependency_source_stats_file =
-  Semgrep_output_v1_t.dependency_source_stats_file = {
-  kind: dependency_source_stats_file_kind;
+type dependency_source_file = Semgrep_output_v1_t.dependency_source_file = {
+  kind: dependency_source_file_kind;
   path: fpath
-}
-
-type dependency_source_stats = Semgrep_output_v1_t.dependency_source_stats = {
-  source_type: dependency_source_stats_type;
-  files: dependency_source_stats_file list
 }
 
 type dependency_resolution_stats =
@@ -270,7 +260,7 @@ type dependency_resolution_stats =
 
 type subproject_stats = Semgrep_output_v1_t.subproject_stats = {
   subproject_id: string;
-  dependency_sources: dependency_source_stats list;
+  dependency_sources: dependency_source_file list;
   resolved_stats: dependency_resolution_stats option
 }
 
@@ -1889,85 +1879,45 @@ val ecosystem_of_string :
   string -> ecosystem
   (** Deserialize JSON data of type {!type:ecosystem}. *)
 
-val write_dependency_source_stats_type :
-  Buffer.t -> dependency_source_stats_type -> unit
-  (** Output a JSON value of type {!type:dependency_source_stats_type}. *)
+val write_dependency_source_file_kind :
+  Buffer.t -> dependency_source_file_kind -> unit
+  (** Output a JSON value of type {!type:dependency_source_file_kind}. *)
 
-val string_of_dependency_source_stats_type :
-  ?len:int -> dependency_source_stats_type -> string
-  (** Serialize a value of type {!type:dependency_source_stats_type}
+val string_of_dependency_source_file_kind :
+  ?len:int -> dependency_source_file_kind -> string
+  (** Serialize a value of type {!type:dependency_source_file_kind}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_dependency_source_stats_type :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_source_stats_type
-  (** Input JSON data of type {!type:dependency_source_stats_type}. *)
+val read_dependency_source_file_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_source_file_kind
+  (** Input JSON data of type {!type:dependency_source_file_kind}. *)
 
-val dependency_source_stats_type_of_string :
-  string -> dependency_source_stats_type
-  (** Deserialize JSON data of type {!type:dependency_source_stats_type}. *)
+val dependency_source_file_kind_of_string :
+  string -> dependency_source_file_kind
+  (** Deserialize JSON data of type {!type:dependency_source_file_kind}. *)
 
-val write_dependency_source_stats_file_kind :
-  Buffer.t -> dependency_source_stats_file_kind -> unit
-  (** Output a JSON value of type {!type:dependency_source_stats_file_kind}. *)
+val write_dependency_source_file :
+  Buffer.t -> dependency_source_file -> unit
+  (** Output a JSON value of type {!type:dependency_source_file}. *)
 
-val string_of_dependency_source_stats_file_kind :
-  ?len:int -> dependency_source_stats_file_kind -> string
-  (** Serialize a value of type {!type:dependency_source_stats_file_kind}
+val string_of_dependency_source_file :
+  ?len:int -> dependency_source_file -> string
+  (** Serialize a value of type {!type:dependency_source_file}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_dependency_source_stats_file_kind :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_source_stats_file_kind
-  (** Input JSON data of type {!type:dependency_source_stats_file_kind}. *)
+val read_dependency_source_file :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_source_file
+  (** Input JSON data of type {!type:dependency_source_file}. *)
 
-val dependency_source_stats_file_kind_of_string :
-  string -> dependency_source_stats_file_kind
-  (** Deserialize JSON data of type {!type:dependency_source_stats_file_kind}. *)
-
-val write_dependency_source_stats_file :
-  Buffer.t -> dependency_source_stats_file -> unit
-  (** Output a JSON value of type {!type:dependency_source_stats_file}. *)
-
-val string_of_dependency_source_stats_file :
-  ?len:int -> dependency_source_stats_file -> string
-  (** Serialize a value of type {!type:dependency_source_stats_file}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_dependency_source_stats_file :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_source_stats_file
-  (** Input JSON data of type {!type:dependency_source_stats_file}. *)
-
-val dependency_source_stats_file_of_string :
-  string -> dependency_source_stats_file
-  (** Deserialize JSON data of type {!type:dependency_source_stats_file}. *)
-
-val write_dependency_source_stats :
-  Buffer.t -> dependency_source_stats -> unit
-  (** Output a JSON value of type {!type:dependency_source_stats}. *)
-
-val string_of_dependency_source_stats :
-  ?len:int -> dependency_source_stats -> string
-  (** Serialize a value of type {!type:dependency_source_stats}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_dependency_source_stats :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_source_stats
-  (** Input JSON data of type {!type:dependency_source_stats}. *)
-
-val dependency_source_stats_of_string :
-  string -> dependency_source_stats
-  (** Deserialize JSON data of type {!type:dependency_source_stats}. *)
+val dependency_source_file_of_string :
+  string -> dependency_source_file
+  (** Deserialize JSON data of type {!type:dependency_source_file}. *)
 
 val write_dependency_resolution_stats :
   Buffer.t -> dependency_resolution_stats -> unit

@@ -242,23 +242,13 @@ type lockfile_kind = Semgrep_output_v1_t.lockfile_kind =
 
 type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show,eq]
 
-type dependency_source_stats_type =
-  Semgrep_output_v1_t.dependency_source_stats_type
+type dependency_source_file_kind =
+  Semgrep_output_v1_t.dependency_source_file_kind
   [@@deriving show]
 
-type dependency_source_stats_file_kind =
-  Semgrep_output_v1_t.dependency_source_stats_file_kind
-  [@@deriving show]
-
-type dependency_source_stats_file =
-  Semgrep_output_v1_t.dependency_source_stats_file = {
-  kind: dependency_source_stats_file_kind;
+type dependency_source_file = Semgrep_output_v1_t.dependency_source_file = {
+  kind: dependency_source_file_kind;
   path: fpath
-}
-
-type dependency_source_stats = Semgrep_output_v1_t.dependency_source_stats = {
-  source_type: dependency_source_stats_type;
-  files: dependency_source_stats_file list
 }
 
 type dependency_resolution_stats =
@@ -270,7 +260,7 @@ type dependency_resolution_stats =
 
 type subproject_stats = Semgrep_output_v1_t.subproject_stats = {
   subproject_id: string;
-  dependency_sources: dependency_source_stats list;
+  dependency_sources: dependency_source_file list;
   resolved_stats: dependency_resolution_stats option
 }
 
@@ -9020,58 +9010,7 @@ let read_ecosystem = (
 )
 let ecosystem_of_string s =
   read_ecosystem (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_dependency_source_stats_type = (
-  fun ob x ->
-    match x with
-      | `LockfileOnly -> Buffer.add_string ob "\"lockfile_only\""
-      | `ManifestOnly -> Buffer.add_string ob "\"manifest_only\""
-      | `ManifestAndLockfile -> Buffer.add_string ob "\"manifest_and_lockfile\""
-)
-let string_of_dependency_source_stats_type ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_dependency_source_stats_type ob x;
-  Buffer.contents ob
-let read_dependency_source_stats_type = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "lockfile_only" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `LockfileOnly
-            | "manifest_only" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `ManifestOnly
-            | "manifest_and_lockfile" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `ManifestAndLockfile
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "lockfile_only" ->
-              `LockfileOnly
-            | "manifest_only" ->
-              `ManifestOnly
-            | "manifest_and_lockfile" ->
-              `ManifestAndLockfile
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let dependency_source_stats_type_of_string s =
-  read_dependency_source_stats_type (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_dependency_source_stats_file_kind = (
+let write_dependency_source_file_kind = (
   fun ob x ->
     match x with
       | `Lockfile x ->
@@ -9087,11 +9026,11 @@ let write_dependency_source_stats_file_kind = (
         ) ob x;
         Buffer.add_char ob ']'
 )
-let string_of_dependency_source_stats_file_kind ?(len = 1024) x =
+let string_of_dependency_source_file_kind ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_dependency_source_stats_file_kind ob x;
+  write_dependency_source_file_kind ob x;
   Buffer.contents ob
-let read_dependency_source_stats_file_kind = (
+let read_dependency_source_file_kind = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     match Yojson.Safe.start_any_variant p lb with
@@ -9151,10 +9090,10 @@ let read_dependency_source_stats_file_kind = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-let dependency_source_stats_file_kind_of_string s =
-  read_dependency_source_stats_file_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_dependency_source_stats_file : _ -> dependency_source_stats_file -> _ = (
-  fun ob (x : dependency_source_stats_file) ->
+let dependency_source_file_kind_of_string s =
+  read_dependency_source_file_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_dependency_source_file : _ -> dependency_source_file -> _ = (
+  fun ob (x : dependency_source_file) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
     if !is_first then
@@ -9163,7 +9102,7 @@ let write_dependency_source_stats_file : _ -> dependency_source_stats_file -> _ 
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"kind\":";
     (
-      write_dependency_source_stats_file_kind
+      write_dependency_source_file_kind
     )
       ob x.kind;
     if !is_first then
@@ -9177,11 +9116,11 @@ let write_dependency_source_stats_file : _ -> dependency_source_stats_file -> _ 
       ob x.path;
     Buffer.add_char ob '}';
 )
-let string_of_dependency_source_stats_file ?(len = 1024) x =
+let string_of_dependency_source_file ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_dependency_source_stats_file ob x;
+  write_dependency_source_file ob x;
   Buffer.contents ob
-let read_dependency_source_stats_file = (
+let read_dependency_source_file = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
@@ -9229,7 +9168,7 @@ let read_dependency_source_stats_file = (
             field_kind := (
               Some (
                 (
-                  read_dependency_source_stats_file_kind
+                  read_dependency_source_file_kind
                 ) p lb
               )
             );
@@ -9287,7 +9226,7 @@ let read_dependency_source_stats_file = (
               field_kind := (
                 Some (
                   (
-                    read_dependency_source_stats_file_kind
+                    read_dependency_source_file_kind
                   ) p lb
                 )
               );
@@ -9311,180 +9250,11 @@ let read_dependency_source_stats_file = (
             kind = (match !field_kind with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "kind");
             path = (match !field_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "path");
           }
-         : dependency_source_stats_file)
+         : dependency_source_file)
       )
 )
-let dependency_source_stats_file_of_string s =
-  read_dependency_source_stats_file (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__dependency_source_stats_file_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_dependency_source_stats_file
-  )
-)
-let string_of__dependency_source_stats_file_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__dependency_source_stats_file_list ob x;
-  Buffer.contents ob
-let read__dependency_source_stats_file_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_dependency_source_stats_file
-  )
-)
-let _dependency_source_stats_file_list_of_string s =
-  read__dependency_source_stats_file_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_dependency_source_stats : _ -> dependency_source_stats -> _ = (
-  fun ob (x : dependency_source_stats) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"source_type\":";
-    (
-      write_dependency_source_stats_type
-    )
-      ob x.source_type;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"files\":";
-    (
-      write__dependency_source_stats_file_list
-    )
-      ob x.files;
-    Buffer.add_char ob '}';
-)
-let string_of_dependency_source_stats ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_dependency_source_stats ob x;
-  Buffer.contents ob
-let read_dependency_source_stats = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_source_type = ref (None) in
-    let field_files = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          match len with
-            | 5 -> (
-                if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
-                  1
-                )
-                else (
-                  -1
-                )
-              )
-            | 11 -> (
-                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'u' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'y' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'e' then (
-                  0
-                )
-                else (
-                  -1
-                )
-              )
-            | _ -> (
-                -1
-              )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_source_type := (
-              Some (
-                (
-                  read_dependency_source_stats_type
-                ) p lb
-              )
-            );
-          | 1 ->
-            field_files := (
-              Some (
-                (
-                  read__dependency_source_stats_file_list
-                ) p lb
-              )
-            );
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            match len with
-              | 5 -> (
-                  if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 11 -> (
-                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'u' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'y' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'e' then (
-                    0
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_source_type := (
-                Some (
-                  (
-                    read_dependency_source_stats_type
-                  ) p lb
-                )
-              );
-            | 1 ->
-              field_files := (
-                Some (
-                  (
-                    read__dependency_source_stats_file_list
-                  ) p lb
-                )
-              );
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            source_type = (match !field_source_type with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "source_type");
-            files = (match !field_files with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "files");
-          }
-         : dependency_source_stats)
-      )
-)
-let dependency_source_stats_of_string s =
-  read_dependency_source_stats (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let dependency_source_file_of_string s =
+  read_dependency_source_file (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_dependency_resolution_stats : _ -> dependency_resolution_stats -> _ = (
   fun ob (x : dependency_resolution_stats) ->
     Buffer.add_char ob '{';
@@ -9681,22 +9451,22 @@ let read_dependency_resolution_stats = (
 )
 let dependency_resolution_stats_of_string s =
   read_dependency_resolution_stats (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__dependency_source_stats_list = (
+let write__dependency_source_file_list = (
   Atdgen_runtime.Oj_run.write_list (
-    write_dependency_source_stats
+    write_dependency_source_file
   )
 )
-let string_of__dependency_source_stats_list ?(len = 1024) x =
+let string_of__dependency_source_file_list ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__dependency_source_stats_list ob x;
+  write__dependency_source_file_list ob x;
   Buffer.contents ob
-let read__dependency_source_stats_list = (
+let read__dependency_source_file_list = (
   Atdgen_runtime.Oj_run.read_list (
-    read_dependency_source_stats
+    read_dependency_source_file
   )
 )
-let _dependency_source_stats_list_of_string s =
-  read__dependency_source_stats_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _dependency_source_file_list_of_string s =
+  read__dependency_source_file_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__dependency_resolution_stats_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     write_dependency_resolution_stats
@@ -9773,7 +9543,7 @@ let write_subproject_stats : _ -> subproject_stats -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"dependency_sources\":";
     (
-      write__dependency_source_stats_list
+      write__dependency_source_file_list
     )
       ob x.dependency_sources;
     if !is_first then
@@ -9851,7 +9621,7 @@ let read_subproject_stats = (
             field_dependency_sources := (
               Some (
                 (
-                  read__dependency_source_stats_list
+                  read__dependency_source_file_list
                 ) p lb
               )
             );
@@ -9920,7 +9690,7 @@ let read_subproject_stats = (
               field_dependency_sources := (
                 Some (
                   (
-                    read__dependency_source_stats_list
+                    read__dependency_source_file_list
                   ) p lb
                 )
               );

@@ -3485,93 +3485,8 @@ class Ecosystem:
 
 
 @dataclass(frozen=True)
-class LockfileOnly:
-    """Original type: dependency_source_stats_type = [ ... | LockfileOnly | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'LockfileOnly'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'lockfile_only'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class ManifestOnly:
-    """Original type: dependency_source_stats_type = [ ... | ManifestOnly | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'ManifestOnly'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'manifest_only'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class ManifestAndLockfile:
-    """Original type: dependency_source_stats_type = [ ... | ManifestAndLockfile | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'ManifestAndLockfile'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'manifest_and_lockfile'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class DependencySourceStatsType:
-    """Original type: dependency_source_stats_type = [ ... ]"""
-
-    value: Union[LockfileOnly, ManifestOnly, ManifestAndLockfile]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'DependencySourceStatsType':
-        if isinstance(x, str):
-            if x == 'lockfile_only':
-                return cls(LockfileOnly())
-            if x == 'manifest_only':
-                return cls(ManifestOnly())
-            if x == 'manifest_and_lockfile':
-                return cls(ManifestAndLockfile())
-            _atd_bad_json('DependencySourceStatsType', x)
-        _atd_bad_json('DependencySourceStatsType', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'DependencySourceStatsType':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
 class Lockfile_:
-    """Original type: dependency_source_stats_file_kind = [ ... | Lockfile of ... | ... ]"""
+    """Original type: dependency_source_file_kind = [ ... | Lockfile of ... | ... ]"""
 
     value: LockfileKind
 
@@ -3589,7 +3504,7 @@ class Lockfile_:
 
 @dataclass(frozen=True)
 class Manifest_:
-    """Original type: dependency_source_stats_file_kind = [ ... | Manifest of ... | ... ]"""
+    """Original type: dependency_source_file_kind = [ ... | Manifest of ... | ... ]"""
 
     value: ManifestKind
 
@@ -3606,8 +3521,8 @@ class Manifest_:
 
 
 @dataclass(frozen=True)
-class DependencySourceStatsFileKind:
-    """Original type: dependency_source_stats_file_kind = [ ... ]"""
+class DependencySourceFileKind:
+    """Original type: dependency_source_file_kind = [ ... ]"""
 
     value: Union[Lockfile_, Manifest_]
 
@@ -3617,21 +3532,21 @@ class DependencySourceStatsFileKind:
         return self.value.kind
 
     @classmethod
-    def from_json(cls, x: Any) -> 'DependencySourceStatsFileKind':
+    def from_json(cls, x: Any) -> 'DependencySourceFileKind':
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'Lockfile':
                 return cls(Lockfile_(LockfileKind.from_json(x[1])))
             if cons == 'Manifest':
                 return cls(Manifest_(ManifestKind.from_json(x[1])))
-            _atd_bad_json('DependencySourceStatsFileKind', x)
-        _atd_bad_json('DependencySourceStatsFileKind', x)
+            _atd_bad_json('DependencySourceFileKind', x)
+        _atd_bad_json('DependencySourceFileKind', x)
 
     def to_json(self) -> Any:
         return self.value.to_json()
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'DependencySourceStatsFileKind':
+    def from_json_string(cls, x: str) -> 'DependencySourceFileKind':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -3639,21 +3554,21 @@ class DependencySourceStatsFileKind:
 
 
 @dataclass
-class DependencySourceStatsFile:
-    """Original type: dependency_source_stats_file = { ... }"""
+class DependencySourceFile:
+    """Original type: dependency_source_file = { ... }"""
 
-    kind: DependencySourceStatsFileKind
+    kind: DependencySourceFileKind
     path: Fpath
 
     @classmethod
-    def from_json(cls, x: Any) -> 'DependencySourceStatsFile':
+    def from_json(cls, x: Any) -> 'DependencySourceFile':
         if isinstance(x, dict):
             return cls(
-                kind=DependencySourceStatsFileKind.from_json(x['kind']) if 'kind' in x else _atd_missing_json_field('DependencySourceStatsFile', 'kind'),
-                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('DependencySourceStatsFile', 'path'),
+                kind=DependencySourceFileKind.from_json(x['kind']) if 'kind' in x else _atd_missing_json_field('DependencySourceFile', 'kind'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('DependencySourceFile', 'path'),
             )
         else:
-            _atd_bad_json('DependencySourceStatsFile', x)
+            _atd_bad_json('DependencySourceFile', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
@@ -3662,38 +3577,7 @@ class DependencySourceStatsFile:
         return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'DependencySourceStatsFile':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class DependencySourceStats:
-    """Original type: dependency_source_stats = { ... }"""
-
-    source_type: DependencySourceStatsType
-    files: List[DependencySourceStatsFile]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'DependencySourceStats':
-        if isinstance(x, dict):
-            return cls(
-                source_type=DependencySourceStatsType.from_json(x['source_type']) if 'source_type' in x else _atd_missing_json_field('DependencySourceStats', 'source_type'),
-                files=_atd_read_list(DependencySourceStatsFile.from_json)(x['files']) if 'files' in x else _atd_missing_json_field('DependencySourceStats', 'files'),
-            )
-        else:
-            _atd_bad_json('DependencySourceStats', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['source_type'] = (lambda x: x.to_json())(self.source_type)
-        res['files'] = _atd_write_list((lambda x: x.to_json()))(self.files)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'DependencySourceStats':
+    def from_json_string(cls, x: str) -> 'DependencySourceFile':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -3739,7 +3623,7 @@ class SubprojectStats:
     """Original type: subproject_stats = { ... }"""
 
     subproject_id: str
-    dependency_sources: List[DependencySourceStats]
+    dependency_sources: List[DependencySourceFile]
     resolved_stats: Optional[DependencyResolutionStats]
 
     @classmethod
@@ -3747,7 +3631,7 @@ class SubprojectStats:
         if isinstance(x, dict):
             return cls(
                 subproject_id=_atd_read_string(x['subproject_id']) if 'subproject_id' in x else _atd_missing_json_field('SubprojectStats', 'subproject_id'),
-                dependency_sources=_atd_read_list(DependencySourceStats.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('SubprojectStats', 'dependency_sources'),
+                dependency_sources=_atd_read_list(DependencySourceFile.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('SubprojectStats', 'dependency_sources'),
                 resolved_stats=_atd_read_option(DependencyResolutionStats.from_json)(x['resolved_stats']) if 'resolved_stats' in x else _atd_missing_json_field('SubprojectStats', 'resolved_stats'),
             )
         else:
