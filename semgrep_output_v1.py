@@ -3738,6 +3738,7 @@ class DependencyResolutionStats:
 class SubprojectStats:
     """Original type: subproject_stats = { ... }"""
 
+    subproject_id: str
     dependency_sources: List[DependencySourceStats]
     resolved_stats: Optional[DependencyResolutionStats]
 
@@ -3745,6 +3746,7 @@ class SubprojectStats:
     def from_json(cls, x: Any) -> 'SubprojectStats':
         if isinstance(x, dict):
             return cls(
+                subproject_id=_atd_read_string(x['subproject_id']) if 'subproject_id' in x else _atd_missing_json_field('SubprojectStats', 'subproject_id'),
                 dependency_sources=_atd_read_list(DependencySourceStats.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('SubprojectStats', 'dependency_sources'),
                 resolved_stats=_atd_read_option(DependencyResolutionStats.from_json)(x['resolved_stats']) if 'resolved_stats' in x else _atd_missing_json_field('SubprojectStats', 'resolved_stats'),
             )
@@ -3753,6 +3755,7 @@ class SubprojectStats:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
+        res['subproject_id'] = _atd_write_string(self.subproject_id)
         res['dependency_sources'] = _atd_write_list((lambda x: x.to_json()))(self.dependency_sources)
         res['resolved_stats'] = _atd_write_option((lambda x: x.to_json()))(self.resolved_stats)
         return res

@@ -1725,6 +1725,8 @@ type dependency_source_stats = {
 }
 
 type subproject_stats = {
+  (* Unique identifier for the subproject *)
+  subproject_id: string;
   (* Files used to determine the subproject's dependencies (lockfiles, manifest files, etc) *)
   dependency_sources: dependency_source_stats list;
   (* Results of dependency resolution, null if resolution failed *)
