@@ -2517,6 +2517,1170 @@ class Tag:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True, order=True)
+class LockfileParsing:
+    """Original type: resolution_method = [ ... | LockfileParsing | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'LockfileParsing'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'LockfileParsing'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class DynamicResolution:
+    """Original type: resolution_method = [ ... | DynamicResolution | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'DynamicResolution'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'DynamicResolution'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class ResolutionMethod:
+    """Original type: resolution_method = [ ... ]"""
+
+    value: Union[LockfileParsing, DynamicResolution]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolutionMethod':
+        if isinstance(x, str):
+            if x == 'LockfileParsing':
+                return cls(LockfileParsing())
+            if x == 'DynamicResolution':
+                return cls(DynamicResolution())
+            _atd_bad_json('ResolutionMethod', x)
+        _atd_bad_json('ResolutionMethod', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolutionMethod':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class RequirementsIn:
+    """Original type: manifest_kind = [ ... | RequirementsIn | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RequirementsIn'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'RequirementsIn'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PackageJson:
+    """Original type: manifest_kind = [ ... | PackageJson | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PackageJson'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PackageJson'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Gemfile:
+    """Original type: manifest_kind = [ ... | Gemfile | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Gemfile'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Gemfile'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class GoMod:
+    """Original type: manifest_kind = [ ... | GoMod | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'GoMod'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'GoMod'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class CargoToml:
+    """Original type: manifest_kind = [ ... | CargoToml | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CargoToml'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'CargoToml'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PomXml:
+    """Original type: manifest_kind = [ ... | PomXml | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PomXml'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PomXml'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class BuildGradle:
+    """Original type: manifest_kind = [ ... | BuildGradle | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'BuildGradle'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'BuildGradle'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class SettingsGradle:
+    """Original type: manifest_kind = [ ... | SettingsGradle | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SettingsGradle'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'SettingsGradle'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ComposerJson:
+    """Original type: manifest_kind = [ ... | ComposerJson | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ComposerJson'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'ComposerJson'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class NugetManifestJson:
+    """Original type: manifest_kind = [ ... | NugetManifestJson | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'NugetManifestJson'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'NugetManifestJson'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PubspecYaml:
+    """Original type: manifest_kind = [ ... | PubspecYaml | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PubspecYaml'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PubspecYaml'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PackageSwift:
+    """Original type: manifest_kind = [ ... | PackageSwift | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PackageSwift'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PackageSwift'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class MixExs:
+    """Original type: manifest_kind = [ ... | MixExs | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'MixExs'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'MixExs'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Pipfile:
+    """Original type: manifest_kind = [ ... | Pipfile | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Pipfile'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Pipfile'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PyprojectToml:
+    """Original type: manifest_kind = [ ... | PyprojectToml | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PyprojectToml'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PyprojectToml'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ManifestKind:
+    """Original type: manifest_kind = [ ... ]"""
+
+    value: Union[RequirementsIn, PackageJson, Gemfile, GoMod, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, MixExs, Pipfile, PyprojectToml]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ManifestKind':
+        if isinstance(x, str):
+            if x == 'RequirementsIn':
+                return cls(RequirementsIn())
+            if x == 'PackageJson':
+                return cls(PackageJson())
+            if x == 'Gemfile':
+                return cls(Gemfile())
+            if x == 'GoMod':
+                return cls(GoMod())
+            if x == 'CargoToml':
+                return cls(CargoToml())
+            if x == 'PomXml':
+                return cls(PomXml())
+            if x == 'BuildGradle':
+                return cls(BuildGradle())
+            if x == 'SettingsGradle':
+                return cls(SettingsGradle())
+            if x == 'ComposerJson':
+                return cls(ComposerJson())
+            if x == 'NugetManifestJson':
+                return cls(NugetManifestJson())
+            if x == 'PubspecYaml':
+                return cls(PubspecYaml())
+            if x == 'PackageSwift':
+                return cls(PackageSwift())
+            if x == 'MixExs':
+                return cls(MixExs())
+            if x == 'Pipfile':
+                return cls(Pipfile())
+            if x == 'PyprojectToml':
+                return cls(PyprojectToml())
+            _atd_bad_json('ManifestKind', x)
+        _atd_bad_json('ManifestKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ManifestKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PipRequirementsTxt:
+    """Original type: lockfile_kind = [ ... | PipRequirementsTxt | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PipRequirementsTxt'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PipRequirementsTxt'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PoetryLock:
+    """Original type: lockfile_kind = [ ... | PoetryLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PoetryLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PoetryLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PipfileLock:
+    """Original type: lockfile_kind = [ ... | PipfileLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PipfileLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PipfileLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class NpmPackageLockJson:
+    """Original type: lockfile_kind = [ ... | NpmPackageLockJson | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'NpmPackageLockJson'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'NpmPackageLockJson'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class YarnLock:
+    """Original type: lockfile_kind = [ ... | YarnLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'YarnLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'YarnLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PnpmLock:
+    """Original type: lockfile_kind = [ ... | PnpmLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PnpmLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PnpmLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class GemfileLock:
+    """Original type: lockfile_kind = [ ... | GemfileLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'GemfileLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'GemfileLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class GoMod_:
+    """Original type: lockfile_kind = [ ... | GoMod | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'GoMod_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'GoMod'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class CargoLock:
+    """Original type: lockfile_kind = [ ... | CargoLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CargoLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'CargoLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class MavenDepTree:
+    """Original type: lockfile_kind = [ ... | MavenDepTree | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'MavenDepTree'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'MavenDepTree'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class GradleLockfile:
+    """Original type: lockfile_kind = [ ... | GradleLockfile | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'GradleLockfile'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'GradleLockfile'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ComposerLock:
+    """Original type: lockfile_kind = [ ... | ComposerLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ComposerLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'ComposerLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class NugetPackagesLockJson:
+    """Original type: lockfile_kind = [ ... | NugetPackagesLockJson | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'NugetPackagesLockJson'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'NugetPackagesLockJson'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PubspecLock:
+    """Original type: lockfile_kind = [ ... | PubspecLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PubspecLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PubspecLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class SwiftPackageResolved:
+    """Original type: lockfile_kind = [ ... | SwiftPackageResolved | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SwiftPackageResolved'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'SwiftPackageResolved'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class MixLock:
+    """Original type: lockfile_kind = [ ... | MixLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'MixLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'MixLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class LockfileKind:
+    """Original type: lockfile_kind = [ ... ]"""
+
+    value: Union[PipRequirementsTxt, PoetryLock, PipfileLock, NpmPackageLockJson, YarnLock, PnpmLock, GemfileLock, GoMod_, CargoLock, MavenDepTree, GradleLockfile, ComposerLock, NugetPackagesLockJson, PubspecLock, SwiftPackageResolved, MixLock]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'LockfileKind':
+        if isinstance(x, str):
+            if x == 'PipRequirementsTxt':
+                return cls(PipRequirementsTxt())
+            if x == 'PoetryLock':
+                return cls(PoetryLock())
+            if x == 'PipfileLock':
+                return cls(PipfileLock())
+            if x == 'NpmPackageLockJson':
+                return cls(NpmPackageLockJson())
+            if x == 'YarnLock':
+                return cls(YarnLock())
+            if x == 'PnpmLock':
+                return cls(PnpmLock())
+            if x == 'GemfileLock':
+                return cls(GemfileLock())
+            if x == 'GoMod':
+                return cls(GoMod_())
+            if x == 'CargoLock':
+                return cls(CargoLock())
+            if x == 'MavenDepTree':
+                return cls(MavenDepTree())
+            if x == 'GradleLockfile':
+                return cls(GradleLockfile())
+            if x == 'ComposerLock':
+                return cls(ComposerLock())
+            if x == 'NugetPackagesLockJson':
+                return cls(NugetPackagesLockJson())
+            if x == 'PubspecLock':
+                return cls(PubspecLock())
+            if x == 'SwiftPackageResolved':
+                return cls(SwiftPackageResolved())
+            if x == 'MixLock':
+                return cls(MixLock())
+            _atd_bad_json('LockfileKind', x)
+        _atd_bad_json('LockfileKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'LockfileKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Npm:
+    """Original type: ecosystem = [ ... | Npm | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Npm'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'npm'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Pypi:
+    """Original type: ecosystem = [ ... | Pypi | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Pypi'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'pypi'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Gem:
+    """Original type: ecosystem = [ ... | Gem | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Gem'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'gem'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Gomod:
+    """Original type: ecosystem = [ ... | Gomod | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Gomod'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'gomod'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Cargo:
+    """Original type: ecosystem = [ ... | Cargo | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Cargo'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'cargo'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Maven:
+    """Original type: ecosystem = [ ... | Maven | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Maven'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'maven'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Composer:
+    """Original type: ecosystem = [ ... | Composer | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Composer'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'composer'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Nuget:
+    """Original type: ecosystem = [ ... | Nuget | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Nuget'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'nuget'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Pub:
+    """Original type: ecosystem = [ ... | Pub | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Pub'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'pub'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class SwiftPM:
+    """Original type: ecosystem = [ ... | SwiftPM | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SwiftPM'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'swiftpm'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Mix:
+    """Original type: ecosystem = [ ... | Mix | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Mix'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'mix'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Hex:
+    """Original type: ecosystem = [ ... | Hex | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Hex'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'hex'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Ecosystem:
+    """Original type: ecosystem = [ ... ]"""
+
+    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub, SwiftPM, Mix, Hex]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Ecosystem':
+        if isinstance(x, str):
+            if x == 'npm':
+                return cls(Npm())
+            if x == 'pypi':
+                return cls(Pypi())
+            if x == 'gem':
+                return cls(Gem())
+            if x == 'gomod':
+                return cls(Gomod())
+            if x == 'cargo':
+                return cls(Cargo())
+            if x == 'maven':
+                return cls(Maven())
+            if x == 'composer':
+                return cls(Composer())
+            if x == 'nuget':
+                return cls(Nuget())
+            if x == 'pub':
+                return cls(Pub())
+            if x == 'swiftpm':
+                return cls(SwiftPM())
+            if x == 'mix':
+                return cls(Mix())
+            if x == 'hex':
+                return cls(Hex())
+            _atd_bad_json('Ecosystem', x)
+        _atd_bad_json('Ecosystem', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Ecosystem':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Lockfile_:
+    """Original type: dependency_source_file_kind = [ ... | Lockfile of ... | ... ]"""
+
+    value: LockfileKind
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Lockfile_'
+
+    def to_json(self) -> Any:
+        return ['Lockfile', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Manifest_:
+    """Original type: dependency_source_file_kind = [ ... | Manifest of ... | ... ]"""
+
+    value: ManifestKind
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Manifest_'
+
+    def to_json(self) -> Any:
+        return ['Manifest', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class DependencySourceFileKind:
+    """Original type: dependency_source_file_kind = [ ... ]"""
+
+    value: Union[Lockfile_, Manifest_]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencySourceFileKind':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'Lockfile':
+                return cls(Lockfile_(LockfileKind.from_json(x[1])))
+            if cons == 'Manifest':
+                return cls(Manifest_(ManifestKind.from_json(x[1])))
+            _atd_bad_json('DependencySourceFileKind', x)
+        _atd_bad_json('DependencySourceFileKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencySourceFileKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DependencySourceFile:
+    """Original type: dependency_source_file = { ... }"""
+
+    kind: DependencySourceFileKind
+    path: Fpath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencySourceFile':
+        if isinstance(x, dict):
+            return cls(
+                kind=DependencySourceFileKind.from_json(x['kind']) if 'kind' in x else _atd_missing_json_field('DependencySourceFile', 'kind'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('DependencySourceFile', 'path'),
+            )
+        else:
+            _atd_bad_json('DependencySourceFile', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['kind'] = (lambda x: x.to_json())(self.kind)
+        res['path'] = (lambda x: x.to_json())(self.path)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencySourceFile':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DependencyResolutionStats:
+    """Original type: dependency_resolution_stats = { ... }"""
+
+    resolution_method: ResolutionMethod
+    dependency_count: int
+    ecosystem: Ecosystem
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencyResolutionStats':
+        if isinstance(x, dict):
+            return cls(
+                resolution_method=ResolutionMethod.from_json(x['resolution_method']) if 'resolution_method' in x else _atd_missing_json_field('DependencyResolutionStats', 'resolution_method'),
+                dependency_count=_atd_read_int(x['dependency_count']) if 'dependency_count' in x else _atd_missing_json_field('DependencyResolutionStats', 'dependency_count'),
+                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('DependencyResolutionStats', 'ecosystem'),
+            )
+        else:
+            _atd_bad_json('DependencyResolutionStats', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['resolution_method'] = (lambda x: x.to_json())(self.resolution_method)
+        res['dependency_count'] = _atd_write_int(self.dependency_count)
+        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencyResolutionStats':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class SubprojectStats:
+    """Original type: subproject_stats = { ... }"""
+
+    subproject_id: str
+    dependency_sources: List[DependencySourceFile]
+    resolved_stats: Optional[DependencyResolutionStats] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SubprojectStats':
+        if isinstance(x, dict):
+            return cls(
+                subproject_id=_atd_read_string(x['subproject_id']) if 'subproject_id' in x else _atd_missing_json_field('SubprojectStats', 'subproject_id'),
+                dependency_sources=_atd_read_list(DependencySourceFile.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('SubprojectStats', 'dependency_sources'),
+                resolved_stats=DependencyResolutionStats.from_json(x['resolved_stats']) if 'resolved_stats' in x else None,
+            )
+        else:
+            _atd_bad_json('SubprojectStats', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['subproject_id'] = _atd_write_string(self.subproject_id)
+        res['dependency_sources'] = _atd_write_list((lambda x: x.to_json()))(self.dependency_sources)
+        if self.resolved_stats is not None:
+            res['resolved_stats'] = (lambda x: x.to_json())(self.resolved_stats)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SubprojectStats':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class SupplyChainStats:
+    """Original type: supply_chain_stats = { ... }"""
+
+    subprojects_stats: List[SubprojectStats]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SupplyChainStats':
+        if isinstance(x, dict):
+            return cls(
+                subprojects_stats=_atd_read_list(SubprojectStats.from_json)(x['subprojects_stats']) if 'subprojects_stats' in x else _atd_missing_json_field('SupplyChainStats', 'subprojects_stats'),
+            )
+        else:
+            _atd_bad_json('SupplyChainStats', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['subprojects_stats'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects_stats)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SupplyChainStats':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class AlwaysSkipped:
     """Original type: skip_reason = [ ... | Always_skipped | ... ]"""
@@ -3785,13 +4949,13 @@ class ScanConfig:
 
 
 @dataclass
-class GemfileLock:
+class GemfileLock_:
     """Original type: sca_parser_name = [ ... | Gemfile_lock | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'GemfileLock'
+        return 'GemfileLock_'
 
     @staticmethod
     def to_json() -> Any:
@@ -3802,13 +4966,13 @@ class GemfileLock:
 
 
 @dataclass
-class GoMod:
+class GoMod2:
     """Original type: sca_parser_name = [ ... | Go_mod | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'GoMod'
+        return 'GoMod2'
 
     @staticmethod
     def to_json() -> Any:
@@ -3836,13 +5000,13 @@ class GoSum:
 
 
 @dataclass
-class GradleLockfile:
+class GradleLockfile_:
     """Original type: sca_parser_name = [ ... | Gradle_lockfile | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'GradleLockfile'
+        return 'GradleLockfile_'
 
     @staticmethod
     def to_json() -> Any:
@@ -3887,13 +5051,13 @@ class Jsondoc:
 
 
 @dataclass
-class Pipfile:
+class Pipfile_:
     """Original type: sca_parser_name = [ ... | Pipfile | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'Pipfile'
+        return 'Pipfile_'
 
     @staticmethod
     def to_json() -> Any:
@@ -3904,13 +5068,13 @@ class Pipfile:
 
 
 @dataclass
-class PnpmLock:
+class PnpmLock_:
     """Original type: sca_parser_name = [ ... | Pnpm_lock | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'PnpmLock'
+        return 'PnpmLock_'
 
     @staticmethod
     def to_json() -> Any:
@@ -3921,13 +5085,13 @@ class PnpmLock:
 
 
 @dataclass
-class PoetryLock:
+class PoetryLock_:
     """Original type: sca_parser_name = [ ... | Poetry_lock | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'PoetryLock'
+        return 'PoetryLock_'
 
     @staticmethod
     def to_json() -> Any:
@@ -3938,13 +5102,13 @@ class PoetryLock:
 
 
 @dataclass
-class PyprojectToml:
+class PyprojectToml_:
     """Original type: sca_parser_name = [ ... | Pyproject_toml | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'PyprojectToml'
+        return 'PyprojectToml_'
 
     @staticmethod
     def to_json() -> Any:
@@ -4040,13 +5204,13 @@ class CargoParser:
 
 
 @dataclass
-class ComposerLock:
+class ComposerLock_:
     """Original type: sca_parser_name = [ ... | Composer_lock | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'ComposerLock'
+        return 'ComposerLock_'
 
     @staticmethod
     def to_json() -> Any:
@@ -4057,13 +5221,13 @@ class ComposerLock:
 
 
 @dataclass
-class PubspecLock:
+class PubspecLock_:
     """Original type: sca_parser_name = [ ... | Pubspec_lock | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'PubspecLock'
+        return 'PubspecLock_'
 
     @staticmethod
     def to_json() -> Any:
@@ -4074,13 +5238,13 @@ class PubspecLock:
 
 
 @dataclass
-class PackageSwift:
+class PackageSwift_:
     """Original type: sca_parser_name = [ ... | Package_swift | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'PackageSwift'
+        return 'PackageSwift_'
 
     @staticmethod
     def to_json() -> Any:
@@ -4108,13 +5272,13 @@ class PackageResolved:
 
 
 @dataclass
-class MixLock:
+class MixLock_:
     """Original type: sca_parser_name = [ ... | Mix_lock | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'MixLock'
+        return 'MixLock_'
 
     @staticmethod
     def to_json() -> Any:
@@ -4128,7 +5292,7 @@ class MixLock:
 class ScaParserName:
     """Original type: sca_parser_name = [ ... ]"""
 
-    value: Union[GemfileLock, GoMod, GoSum, GradleLockfile, GradleBuild, Jsondoc, Pipfile, PnpmLock, PoetryLock, PyprojectToml, Requirements, Yarn1, Yarn2, Pomtree, CargoParser, ComposerLock, PubspecLock, PackageSwift, PackageResolved, MixLock]
+    value: Union[GemfileLock_, GoMod2, GoSum, GradleLockfile_, GradleBuild, Jsondoc, Pipfile_, PnpmLock_, PoetryLock_, PyprojectToml_, Requirements, Yarn1, Yarn2, Pomtree, CargoParser, ComposerLock_, PubspecLock_, PackageSwift_, PackageResolved, MixLock_]
 
     @property
     def kind(self) -> str:
@@ -4139,25 +5303,25 @@ class ScaParserName:
     def from_json(cls, x: Any) -> 'ScaParserName':
         if isinstance(x, str):
             if x == 'gemfile_lock':
-                return cls(GemfileLock())
+                return cls(GemfileLock_())
             if x == 'go_mod':
-                return cls(GoMod())
+                return cls(GoMod2())
             if x == 'go_sum':
                 return cls(GoSum())
             if x == 'gradle_lockfile':
-                return cls(GradleLockfile())
+                return cls(GradleLockfile_())
             if x == 'gradle_build':
                 return cls(GradleBuild())
             if x == 'jsondoc':
                 return cls(Jsondoc())
             if x == 'pipfile':
-                return cls(Pipfile())
+                return cls(Pipfile_())
             if x == 'pnpm_lock':
-                return cls(PnpmLock())
+                return cls(PnpmLock_())
             if x == 'poetry_lock':
-                return cls(PoetryLock())
+                return cls(PoetryLock_())
             if x == 'pyproject_toml':
-                return cls(PyprojectToml())
+                return cls(PyprojectToml_())
             if x == 'requirements':
                 return cls(Requirements())
             if x == 'yarn_1':
@@ -4169,15 +5333,15 @@ class ScaParserName:
             if x == 'cargo':
                 return cls(CargoParser())
             if x == 'composer_lock':
-                return cls(ComposerLock())
+                return cls(ComposerLock_())
             if x == 'pubspec_lock':
-                return cls(PubspecLock())
+                return cls(PubspecLock_())
             if x == 'package_swift':
-                return cls(PackageSwift())
+                return cls(PackageSwift_())
             if x == 'package_resolved':
                 return cls(PackageResolved())
             if x == 'mix_lock':
-                return cls(MixLock())
+                return cls(MixLock_())
             _atd_bad_json('ScaParserName', x)
         _atd_bad_json('ScaParserName', x)
 
@@ -4186,262 +5350,6 @@ class ScaParserName:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ScaParserName':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Npm:
-    """Original type: ecosystem = [ ... | Npm | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Npm'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'npm'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Pypi:
-    """Original type: ecosystem = [ ... | Pypi | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Pypi'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'pypi'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Gem:
-    """Original type: ecosystem = [ ... | Gem | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Gem'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'gem'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Gomod:
-    """Original type: ecosystem = [ ... | Gomod | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Gomod'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'gomod'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Cargo:
-    """Original type: ecosystem = [ ... | Cargo | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Cargo'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'cargo'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Maven:
-    """Original type: ecosystem = [ ... | Maven | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Maven'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'maven'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Composer:
-    """Original type: ecosystem = [ ... | Composer | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Composer'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'composer'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Nuget:
-    """Original type: ecosystem = [ ... | Nuget | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Nuget'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'nuget'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Pub:
-    """Original type: ecosystem = [ ... | Pub | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Pub'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'pub'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class SwiftPM:
-    """Original type: ecosystem = [ ... | SwiftPM | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'SwiftPM'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'swiftpm'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Mix:
-    """Original type: ecosystem = [ ... | Mix | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Mix'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'mix'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Hex:
-    """Original type: ecosystem = [ ... | Hex | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Hex'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'hex'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Ecosystem:
-    """Original type: ecosystem = [ ... ]"""
-
-    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub, SwiftPM, Mix, Hex]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Ecosystem':
-        if isinstance(x, str):
-            if x == 'npm':
-                return cls(Npm())
-            if x == 'pypi':
-                return cls(Pypi())
-            if x == 'gem':
-                return cls(Gem())
-            if x == 'gomod':
-                return cls(Gomod())
-            if x == 'cargo':
-                return cls(Cargo())
-            if x == 'maven':
-                return cls(Maven())
-            if x == 'composer':
-                return cls(Composer())
-            if x == 'nuget':
-                return cls(Nuget())
-            if x == 'pub':
-                return cls(Pub())
-            if x == 'swiftpm':
-                return cls(SwiftPM())
-            if x == 'mix':
-                return cls(Mix())
-            if x == 'hex':
-                return cls(Hex())
-            _atd_bad_json('Ecosystem', x)
-        _atd_bad_json('Ecosystem', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Ecosystem':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -6374,6 +7282,7 @@ class CiScanCompleteStats:
     parse_rate: Dict[str, ParsingStats]
     engine_requested: Optional[str] = None
     findings_by_product: Optional[Dict[str, int]] = None
+    supply_chain_stats: Optional[SupplyChainStats] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanCompleteStats':
@@ -6387,6 +7296,7 @@ class CiScanCompleteStats:
                 parse_rate=_atd_read_assoc_object_into_dict(ParsingStats.from_json)(x['parse_rate']) if 'parse_rate' in x else _atd_missing_json_field('CiScanCompleteStats', 'parse_rate'),
                 engine_requested=_atd_read_string(x['engine_requested']) if 'engine_requested' in x else None,
                 findings_by_product=_atd_read_assoc_object_into_dict(_atd_read_int)(x['findings_by_product']) if 'findings_by_product' in x else None,
+                supply_chain_stats=SupplyChainStats.from_json(x['supply_chain_stats']) if 'supply_chain_stats' in x else None,
             )
         else:
             _atd_bad_json('CiScanCompleteStats', x)
@@ -6403,6 +7313,8 @@ class CiScanCompleteStats:
             res['engine_requested'] = _atd_write_string(self.engine_requested)
         if self.findings_by_product is not None:
             res['findings_by_product'] = _atd_write_assoc_dict_to_object(_atd_write_int)(self.findings_by_product)
+        if self.supply_chain_stats is not None:
+            res['supply_chain_stats'] = (lambda x: x.to_json())(self.supply_chain_stats)
         return res
 
     @classmethod
@@ -6748,319 +7660,6 @@ class OutputFormat:
 
 
 @dataclass(frozen=True)
-class RequirementsIn:
-    """Original type: manifest_kind = [ ... | RequirementsIn | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'RequirementsIn'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'RequirementsIn'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PackageJson:
-    """Original type: manifest_kind = [ ... | PackageJson | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PackageJson'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PackageJson'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Gemfile:
-    """Original type: manifest_kind = [ ... | Gemfile | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Gemfile'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Gemfile'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class GoMod_:
-    """Original type: manifest_kind = [ ... | GoMod | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'GoMod_'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'GoMod'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class CargoToml:
-    """Original type: manifest_kind = [ ... | CargoToml | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'CargoToml'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'CargoToml'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PomXml:
-    """Original type: manifest_kind = [ ... | PomXml | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PomXml'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PomXml'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class BuildGradle:
-    """Original type: manifest_kind = [ ... | BuildGradle | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'BuildGradle'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'BuildGradle'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class SettingsGradle:
-    """Original type: manifest_kind = [ ... | SettingsGradle | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'SettingsGradle'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'SettingsGradle'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class ComposerJson:
-    """Original type: manifest_kind = [ ... | ComposerJson | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'ComposerJson'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'ComposerJson'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class NugetManifestJson:
-    """Original type: manifest_kind = [ ... | NugetManifestJson | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'NugetManifestJson'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'NugetManifestJson'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PubspecYaml:
-    """Original type: manifest_kind = [ ... | PubspecYaml | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PubspecYaml'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PubspecYaml'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PackageSwift_:
-    """Original type: manifest_kind = [ ... | PackageSwift | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PackageSwift_'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PackageSwift'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class MixExs:
-    """Original type: manifest_kind = [ ... | MixExs | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'MixExs'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'MixExs'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Pipfile_:
-    """Original type: manifest_kind = [ ... | Pipfile | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Pipfile_'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'Pipfile'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PyprojectToml_:
-    """Original type: manifest_kind = [ ... | PyprojectToml | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PyprojectToml_'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PyprojectToml'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class ManifestKind:
-    """Original type: manifest_kind = [ ... ]"""
-
-    value: Union[RequirementsIn, PackageJson, Gemfile, GoMod_, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift_, MixExs, Pipfile_, PyprojectToml_]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ManifestKind':
-        if isinstance(x, str):
-            if x == 'RequirementsIn':
-                return cls(RequirementsIn())
-            if x == 'PackageJson':
-                return cls(PackageJson())
-            if x == 'Gemfile':
-                return cls(Gemfile())
-            if x == 'GoMod':
-                return cls(GoMod_())
-            if x == 'CargoToml':
-                return cls(CargoToml())
-            if x == 'PomXml':
-                return cls(PomXml())
-            if x == 'BuildGradle':
-                return cls(BuildGradle())
-            if x == 'SettingsGradle':
-                return cls(SettingsGradle())
-            if x == 'ComposerJson':
-                return cls(ComposerJson())
-            if x == 'NugetManifestJson':
-                return cls(NugetManifestJson())
-            if x == 'PubspecYaml':
-                return cls(PubspecYaml())
-            if x == 'PackageSwift':
-                return cls(PackageSwift_())
-            if x == 'MixExs':
-                return cls(MixExs())
-            if x == 'Pipfile':
-                return cls(Pipfile_())
-            if x == 'PyprojectToml':
-                return cls(PyprojectToml_())
-            _atd_bad_json('ManifestKind', x)
-        _atd_bad_json('ManifestKind', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ManifestKind':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
 class Manifest:
     """Original type: manifest = { ... }"""
 
@@ -7085,338 +7684,6 @@ class Manifest:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Manifest':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PipRequirementsTxt:
-    """Original type: lockfile_kind = [ ... | PipRequirementsTxt | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PipRequirementsTxt'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PipRequirementsTxt'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PoetryLock_:
-    """Original type: lockfile_kind = [ ... | PoetryLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PoetryLock_'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PoetryLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PipfileLock:
-    """Original type: lockfile_kind = [ ... | PipfileLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PipfileLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PipfileLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class NpmPackageLockJson:
-    """Original type: lockfile_kind = [ ... | NpmPackageLockJson | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'NpmPackageLockJson'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'NpmPackageLockJson'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class YarnLock:
-    """Original type: lockfile_kind = [ ... | YarnLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'YarnLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'YarnLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PnpmLock_:
-    """Original type: lockfile_kind = [ ... | PnpmLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PnpmLock_'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PnpmLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class GemfileLock_:
-    """Original type: lockfile_kind = [ ... | GemfileLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'GemfileLock_'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'GemfileLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class GoMod2:
-    """Original type: lockfile_kind = [ ... | GoMod | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'GoMod2'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'GoMod'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class CargoLock:
-    """Original type: lockfile_kind = [ ... | CargoLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'CargoLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'CargoLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class MavenDepTree:
-    """Original type: lockfile_kind = [ ... | MavenDepTree | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'MavenDepTree'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'MavenDepTree'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class GradleLockfile_:
-    """Original type: lockfile_kind = [ ... | GradleLockfile | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'GradleLockfile_'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'GradleLockfile'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class ComposerLock_:
-    """Original type: lockfile_kind = [ ... | ComposerLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'ComposerLock_'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'ComposerLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class NugetPackagesLockJson:
-    """Original type: lockfile_kind = [ ... | NugetPackagesLockJson | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'NugetPackagesLockJson'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'NugetPackagesLockJson'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PubspecLock_:
-    """Original type: lockfile_kind = [ ... | PubspecLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PubspecLock_'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PubspecLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class SwiftPackageResolved:
-    """Original type: lockfile_kind = [ ... | SwiftPackageResolved | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'SwiftPackageResolved'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'SwiftPackageResolved'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class MixLock_:
-    """Original type: lockfile_kind = [ ... | MixLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'MixLock_'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'MixLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class LockfileKind:
-    """Original type: lockfile_kind = [ ... ]"""
-
-    value: Union[PipRequirementsTxt, PoetryLock_, PipfileLock, NpmPackageLockJson, YarnLock, PnpmLock_, GemfileLock_, GoMod2, CargoLock, MavenDepTree, GradleLockfile_, ComposerLock_, NugetPackagesLockJson, PubspecLock_, SwiftPackageResolved, MixLock_]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'LockfileKind':
-        if isinstance(x, str):
-            if x == 'PipRequirementsTxt':
-                return cls(PipRequirementsTxt())
-            if x == 'PoetryLock':
-                return cls(PoetryLock_())
-            if x == 'PipfileLock':
-                return cls(PipfileLock())
-            if x == 'NpmPackageLockJson':
-                return cls(NpmPackageLockJson())
-            if x == 'YarnLock':
-                return cls(YarnLock())
-            if x == 'PnpmLock':
-                return cls(PnpmLock_())
-            if x == 'GemfileLock':
-                return cls(GemfileLock_())
-            if x == 'GoMod':
-                return cls(GoMod2())
-            if x == 'CargoLock':
-                return cls(CargoLock())
-            if x == 'MavenDepTree':
-                return cls(MavenDepTree())
-            if x == 'GradleLockfile':
-                return cls(GradleLockfile_())
-            if x == 'ComposerLock':
-                return cls(ComposerLock_())
-            if x == 'NugetPackagesLockJson':
-                return cls(NugetPackagesLockJson())
-            if x == 'PubspecLock':
-                return cls(PubspecLock_())
-            if x == 'SwiftPackageResolved':
-                return cls(SwiftPackageResolved())
-            if x == 'MixLock':
-                return cls(MixLock_())
-            _atd_bad_json('LockfileKind', x)
-        _atd_bad_json('LockfileKind', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'LockfileKind':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

@@ -1687,6 +1687,50 @@ type ci_scan_complete_stats = {
     <python repr="dict">
     <ts repr="map">
     option;
+
+  (* since 1.98.0 *)
+  (* In collaboration with the Data Science team, it was suggested
+   * that we start to group stats by product for organizational purposes.
+   * 
+   * This field will only be defined for SCA scans.
+   *)
+  ?supply_chain_stats: supply_chain_stats option;
+}
+
+type resolution_method <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True, order=True)"> = [
+  | LockfileParsing 
+  | DynamicResolution 
+]
+
+type dependency_resolution_stats = {
+  resolution_method: resolution_method;
+  dependency_count: int;
+  ecosystem: ecosystem;
+}
+
+type dependency_source_file_kind <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True)"> = [
+  | Lockfile of lockfile_kind
+  | Manifest of manifest_kind
+] 
+
+type dependency_source_file = {
+  kind: dependency_source_file_kind;
+  path: fpath;
+}
+
+type subproject_stats = {
+  (* The `subproject_id` is derived as a stable hash of the sorted paths of `dependency_source_file`s. 
+   Any change to the set of dependency sources (addition, removal, or modification) results in a new 
+   `subproject_id`, as different dependency sources indicate a different subproject context. *)
+  subproject_id: string;
+  (* Files used to determine the subproject's dependencies (lockfiles, manifest files, etc) *)
+  dependency_sources: dependency_source_file list;
+  (* Results of dependency resolution, empty if resolution failed *)
+  ?resolved_stats: dependency_resolution_stats option;
+}
+
+type supply_chain_stats = {
+  subprojects_stats: subproject_stats list;
 }
 
 type parsing_stats = {

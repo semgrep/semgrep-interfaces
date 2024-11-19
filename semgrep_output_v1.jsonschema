@@ -1373,6 +1373,75 @@
         "findings_by_product": {
           "type": "object",
           "additionalProperties": { "type": "integer" }
+        },
+        "supply_chain_stats": { "$ref": "#/definitions/supply_chain_stats" }
+      }
+    },
+    "resolution_method": {
+      "oneOf": [
+        { "const": "LockfileParsing" }, { "const": "DynamicResolution" }
+      ]
+    },
+    "dependency_resolution_stats": {
+      "type": "object",
+      "required": [ "resolution_method", "dependency_count", "ecosystem" ],
+      "properties": {
+        "resolution_method": { "$ref": "#/definitions/resolution_method" },
+        "dependency_count": { "type": "integer" },
+        "ecosystem": { "$ref": "#/definitions/ecosystem" }
+      }
+    },
+    "dependency_source_file_kind": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "Lockfile" },
+            { "$ref": "#/definitions/lockfile_kind" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "Manifest" },
+            { "$ref": "#/definitions/manifest_kind" }
+          ]
+        }
+      ]
+    },
+    "dependency_source_file": {
+      "type": "object",
+      "required": [ "kind", "path" ],
+      "properties": {
+        "kind": { "$ref": "#/definitions/dependency_source_file_kind" },
+        "path": { "$ref": "#/definitions/fpath" }
+      }
+    },
+    "subproject_stats": {
+      "type": "object",
+      "required": [ "subproject_id", "dependency_sources" ],
+      "properties": {
+        "subproject_id": { "type": "string" },
+        "dependency_sources": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/dependency_source_file" }
+        },
+        "resolved_stats": {
+          "$ref": "#/definitions/dependency_resolution_stats"
+        }
+      }
+    },
+    "supply_chain_stats": {
+      "type": "object",
+      "required": [ "subprojects_stats" ],
+      "properties": {
+        "subprojects_stats": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/subproject_stats" }
         }
       }
     },
