@@ -788,7 +788,7 @@ export type DependencySourceFile = {
 export type SubprojectStats = {
   subproject_id: string;
   dependency_sources: DependencySourceFile[];
-  resolved_stats: Option<DependencyResolutionStats>;
+  resolved_stats?: DependencyResolutionStats;
 }
 
 export type SupplyChainStats = {
@@ -3364,7 +3364,7 @@ export function writeSubprojectStats(x: SubprojectStats, context: any = x): any 
   return {
     'subproject_id': _atd_write_required_field('SubprojectStats', 'subproject_id', _atd_write_string, x.subproject_id, x),
     'dependency_sources': _atd_write_required_field('SubprojectStats', 'dependency_sources', _atd_write_array(writeDependencySourceFile), x.dependency_sources, x),
-    'resolved_stats': _atd_write_required_field('SubprojectStats', 'resolved_stats', _atd_write_option(writeDependencyResolutionStats), x.resolved_stats, x),
+    'resolved_stats': _atd_write_optional_field(writeDependencyResolutionStats, x.resolved_stats, x),
   };
 }
 
@@ -3372,7 +3372,7 @@ export function readSubprojectStats(x: any, context: any = x): SubprojectStats {
   return {
     subproject_id: _atd_read_required_field('SubprojectStats', 'subproject_id', _atd_read_string, x['subproject_id'], x),
     dependency_sources: _atd_read_required_field('SubprojectStats', 'dependency_sources', _atd_read_array(readDependencySourceFile), x['dependency_sources'], x),
-    resolved_stats: _atd_read_required_field('SubprojectStats', 'resolved_stats', _atd_read_option(readDependencyResolutionStats), x['resolved_stats'], x),
+    resolved_stats: _atd_read_optional_field(readDependencyResolutionStats, x['resolved_stats'], x),
   };
 }
 

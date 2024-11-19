@@ -3624,7 +3624,7 @@ class SubprojectStats:
 
     subproject_id: str
     dependency_sources: List[DependencySourceFile]
-    resolved_stats: Optional[DependencyResolutionStats]
+    resolved_stats: Optional[DependencyResolutionStats] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'SubprojectStats':
@@ -3632,7 +3632,7 @@ class SubprojectStats:
             return cls(
                 subproject_id=_atd_read_string(x['subproject_id']) if 'subproject_id' in x else _atd_missing_json_field('SubprojectStats', 'subproject_id'),
                 dependency_sources=_atd_read_list(DependencySourceFile.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('SubprojectStats', 'dependency_sources'),
-                resolved_stats=_atd_read_option(DependencyResolutionStats.from_json)(x['resolved_stats']) if 'resolved_stats' in x else _atd_missing_json_field('SubprojectStats', 'resolved_stats'),
+                resolved_stats=DependencyResolutionStats.from_json(x['resolved_stats']) if 'resolved_stats' in x else None,
             )
         else:
             _atd_bad_json('SubprojectStats', x)
@@ -3641,7 +3641,8 @@ class SubprojectStats:
         res: Dict[str, Any] = {}
         res['subproject_id'] = _atd_write_string(self.subproject_id)
         res['dependency_sources'] = _atd_write_list((lambda x: x.to_json()))(self.dependency_sources)
-        res['resolved_stats'] = _atd_write_option((lambda x: x.to_json()))(self.resolved_stats)
+        if self.resolved_stats is not None:
+            res['resolved_stats'] = (lambda x: x.to_json())(self.resolved_stats)
         return res
 
     @classmethod

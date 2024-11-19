@@ -9546,15 +9546,17 @@ let write_subproject_stats : _ -> subproject_stats -> _ = (
       write__dependency_source_file_list
     )
       ob x.dependency_sources;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"resolved_stats\":";
-    (
-      write__dependency_resolution_stats_option
-    )
-      ob x.resolved_stats;
+    (match x.resolved_stats with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"resolved_stats\":";
+      (
+        write_dependency_resolution_stats
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_subproject_stats ?(len = 1024) x =
@@ -9626,13 +9628,15 @@ let read_subproject_stats = (
               )
             );
           | 2 ->
-            field_resolved_stats := (
-              Some (
-                (
-                  read__dependency_resolution_stats_option
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_resolved_stats := (
+                Some (
+                  (
+                    read_dependency_resolution_stats
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -9695,13 +9699,15 @@ let read_subproject_stats = (
                 )
               );
             | 2 ->
-              field_resolved_stats := (
-                Some (
-                  (
-                    read__dependency_resolution_stats_option
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_resolved_stats := (
+                  Some (
+                    (
+                      read_dependency_resolution_stats
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -9713,7 +9719,7 @@ let read_subproject_stats = (
           {
             subproject_id = (match !field_subproject_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "subproject_id");
             dependency_sources = (match !field_dependency_sources with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "dependency_sources");
-            resolved_stats = (match !field_resolved_stats with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "resolved_stats");
+            resolved_stats = !field_resolved_stats;
           }
          : subproject_stats)
       )
