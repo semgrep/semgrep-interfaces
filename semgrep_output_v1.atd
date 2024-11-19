@@ -1647,10 +1647,6 @@ type ci_scan_complete = {
   ?final_attempt: bool option; (* always optional *)
   }
 
-(* Update the stats_schema_version if you are changing this type.
- * Usually you do not need to update the version if it's a non-breaking
- * change. 
- *)
 type ci_scan_complete_stats = {
   findings: int;
   errors: cli_error list;
