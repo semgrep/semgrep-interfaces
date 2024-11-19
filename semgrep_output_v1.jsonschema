@@ -1391,13 +1391,63 @@
         "ecosystem": { "$ref": "#/definitions/ecosystem" }
       }
     },
+    "dependency_source_stats_type": {
+      "oneOf": [
+        { "const": "lockfile_only" },
+        { "const": "manifest_only" },
+        { "const": "manifest_and_lockfile" }
+      ]
+    },
+    "dependency_source_stats_file_kind": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "Lockfile" },
+            { "$ref": "#/definitions/lockfile_kind" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "Manifest" },
+            { "$ref": "#/definitions/manifest_kind" }
+          ]
+        }
+      ]
+    },
+    "dependency_source_stats_file": {
+      "type": "object",
+      "required": [ "kind", "path" ],
+      "properties": {
+        "kind": { "$ref": "#/definitions/dependency_source_stats_file_kind" },
+        "path": { "$ref": "#/definitions/fpath" }
+      }
+    },
+    "dependency_source_stats": {
+      "type": "object",
+      "required": [ "source_type", "files" ],
+      "properties": {
+        "source_type": {
+          "$ref": "#/definitions/dependency_source_stats_type"
+        },
+        "files": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/dependency_source_stats_file" }
+        }
+      }
+    },
     "subproject_stats": {
       "type": "object",
       "required": [ "dependency_sources", "resolved_stats" ],
       "properties": {
         "dependency_sources": {
           "type": "array",
-          "items": { "$ref": "#/definitions/dependency_source" }
+          "items": { "$ref": "#/definitions/dependency_source_stats" }
         },
         "resolved_stats": {
           "oneOf": [

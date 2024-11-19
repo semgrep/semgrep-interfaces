@@ -2897,37 +2897,6 @@ class ManifestKind:
 
 
 @dataclass(frozen=True)
-class Manifest:
-    """Original type: manifest = { ... }"""
-
-    kind: ManifestKind
-    path: Fpath
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Manifest':
-        if isinstance(x, dict):
-            return cls(
-                kind=ManifestKind.from_json(x['kind']) if 'kind' in x else _atd_missing_json_field('Manifest', 'kind'),
-                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('Manifest', 'path'),
-            )
-        else:
-            _atd_bad_json('Manifest', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['kind'] = (lambda x: x.to_json())(self.kind)
-        res['path'] = (lambda x: x.to_json())(self.path)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Manifest':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
 class PipRequirementsTxt:
     """Original type: lockfile_kind = [ ... | PipRequirementsTxt | ... ]"""
 
@@ -3260,37 +3229,6 @@ class LockfileKind:
 
 
 @dataclass(frozen=True)
-class Lockfile:
-    """Original type: lockfile = { ... }"""
-
-    kind: LockfileKind
-    path: Fpath
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Lockfile':
-        if isinstance(x, dict):
-            return cls(
-                kind=LockfileKind.from_json(x['kind']) if 'kind' in x else _atd_missing_json_field('Lockfile', 'kind'),
-                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('Lockfile', 'path'),
-            )
-        else:
-            _atd_bad_json('Lockfile', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['kind'] = (lambda x: x.to_json())(self.kind)
-        res['path'] = (lambda x: x.to_json())(self.path)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Lockfile':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
 class Npm:
     """Original type: ecosystem = [ ... | Npm | ... ]"""
 
@@ -3547,64 +3485,61 @@ class Ecosystem:
 
 
 @dataclass(frozen=True)
-class ManifestOnlyDependencySource:
-    """Original type: dependency_source = [ ... | ManifestOnlyDependencySource of ... | ... ]"""
-
-    value: Manifest
+class LockfileOnly:
+    """Original type: dependency_source_stats_type = [ ... | LockfileOnly | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'ManifestOnlyDependencySource'
+        return 'LockfileOnly'
 
-    def to_json(self) -> Any:
-        return ['ManifestOnlyDependencySource', (lambda x: x.to_json())(self.value)]
+    @staticmethod
+    def to_json() -> Any:
+        return 'lockfile_only'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
 @dataclass(frozen=True)
-class LockfileOnlyDependencySource:
-    """Original type: dependency_source = [ ... | LockfileOnlyDependencySource of ... | ... ]"""
-
-    value: Lockfile
+class ManifestOnly:
+    """Original type: dependency_source_stats_type = [ ... | ManifestOnly | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'LockfileOnlyDependencySource'
+        return 'ManifestOnly'
 
-    def to_json(self) -> Any:
-        return ['LockfileOnlyDependencySource', (lambda x: x.to_json())(self.value)]
+    @staticmethod
+    def to_json() -> Any:
+        return 'manifest_only'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
 @dataclass(frozen=True)
-class ManifestLockfileDependencySource:
-    """Original type: dependency_source = [ ... | ManifestLockfileDependencySource of ... | ... ]"""
-
-    value: Tuple[Manifest, Lockfile]
+class ManifestAndLockfile:
+    """Original type: dependency_source_stats_type = [ ... | ManifestAndLockfile | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'ManifestLockfileDependencySource'
+        return 'ManifestAndLockfile'
 
-    def to_json(self) -> Any:
-        return ['ManifestLockfileDependencySource', (lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
+    @staticmethod
+    def to_json() -> Any:
+        return 'manifest_and_lockfile'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
 @dataclass(frozen=True)
-class DependencySource:
-    """Original type: dependency_source = [ ... ]"""
+class DependencySourceStatsType:
+    """Original type: dependency_source_stats_type = [ ... ]"""
 
-    value: Union[ManifestOnlyDependencySource, LockfileOnlyDependencySource, ManifestLockfileDependencySource]
+    value: Union[LockfileOnly, ManifestOnly, ManifestAndLockfile]
 
     @property
     def kind(self) -> str:
@@ -3612,23 +3547,153 @@ class DependencySource:
         return self.value.kind
 
     @classmethod
-    def from_json(cls, x: Any) -> 'DependencySource':
-        if isinstance(x, List) and len(x) == 2:
-            cons = x[0]
-            if cons == 'ManifestOnlyDependencySource':
-                return cls(ManifestOnlyDependencySource(Manifest.from_json(x[1])))
-            if cons == 'LockfileOnlyDependencySource':
-                return cls(LockfileOnlyDependencySource(Lockfile.from_json(x[1])))
-            if cons == 'ManifestLockfileDependencySource':
-                return cls(ManifestLockfileDependencySource((lambda x: (Manifest.from_json(x[0]), Lockfile.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
-            _atd_bad_json('DependencySource', x)
-        _atd_bad_json('DependencySource', x)
+    def from_json(cls, x: Any) -> 'DependencySourceStatsType':
+        if isinstance(x, str):
+            if x == 'lockfile_only':
+                return cls(LockfileOnly())
+            if x == 'manifest_only':
+                return cls(ManifestOnly())
+            if x == 'manifest_and_lockfile':
+                return cls(ManifestAndLockfile())
+            _atd_bad_json('DependencySourceStatsType', x)
+        _atd_bad_json('DependencySourceStatsType', x)
 
     def to_json(self) -> Any:
         return self.value.to_json()
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'DependencySource':
+    def from_json_string(cls, x: str) -> 'DependencySourceStatsType':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Lockfile_:
+    """Original type: dependency_source_stats_file_kind = [ ... | Lockfile of ... | ... ]"""
+
+    value: LockfileKind
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Lockfile_'
+
+    def to_json(self) -> Any:
+        return ['Lockfile', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Manifest_:
+    """Original type: dependency_source_stats_file_kind = [ ... | Manifest of ... | ... ]"""
+
+    value: ManifestKind
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Manifest_'
+
+    def to_json(self) -> Any:
+        return ['Manifest', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class DependencySourceStatsFileKind:
+    """Original type: dependency_source_stats_file_kind = [ ... ]"""
+
+    value: Union[Lockfile_, Manifest_]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencySourceStatsFileKind':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'Lockfile':
+                return cls(Lockfile_(LockfileKind.from_json(x[1])))
+            if cons == 'Manifest':
+                return cls(Manifest_(ManifestKind.from_json(x[1])))
+            _atd_bad_json('DependencySourceStatsFileKind', x)
+        _atd_bad_json('DependencySourceStatsFileKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencySourceStatsFileKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DependencySourceStatsFile:
+    """Original type: dependency_source_stats_file = { ... }"""
+
+    kind: DependencySourceStatsFileKind
+    path: Fpath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencySourceStatsFile':
+        if isinstance(x, dict):
+            return cls(
+                kind=DependencySourceStatsFileKind.from_json(x['kind']) if 'kind' in x else _atd_missing_json_field('DependencySourceStatsFile', 'kind'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('DependencySourceStatsFile', 'path'),
+            )
+        else:
+            _atd_bad_json('DependencySourceStatsFile', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['kind'] = (lambda x: x.to_json())(self.kind)
+        res['path'] = (lambda x: x.to_json())(self.path)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencySourceStatsFile':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DependencySourceStats:
+    """Original type: dependency_source_stats = { ... }"""
+
+    source_type: DependencySourceStatsType
+    files: List[DependencySourceStatsFile]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencySourceStats':
+        if isinstance(x, dict):
+            return cls(
+                source_type=DependencySourceStatsType.from_json(x['source_type']) if 'source_type' in x else _atd_missing_json_field('DependencySourceStats', 'source_type'),
+                files=_atd_read_list(DependencySourceStatsFile.from_json)(x['files']) if 'files' in x else _atd_missing_json_field('DependencySourceStats', 'files'),
+            )
+        else:
+            _atd_bad_json('DependencySourceStats', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['source_type'] = (lambda x: x.to_json())(self.source_type)
+        res['files'] = _atd_write_list((lambda x: x.to_json()))(self.files)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencySourceStats':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -3673,14 +3738,14 @@ class DependencyResolutionStats:
 class SubprojectStats:
     """Original type: subproject_stats = { ... }"""
 
-    dependency_sources: List[DependencySource]
+    dependency_sources: List[DependencySourceStats]
     resolved_stats: Optional[DependencyResolutionStats]
 
     @classmethod
     def from_json(cls, x: Any) -> 'SubprojectStats':
         if isinstance(x, dict):
             return cls(
-                dependency_sources=_atd_read_list(DependencySource.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('SubprojectStats', 'dependency_sources'),
+                dependency_sources=_atd_read_list(DependencySourceStats.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('SubprojectStats', 'dependency_sources'),
                 resolved_stats=_atd_read_option(DependencyResolutionStats.from_json)(x['resolved_stats']) if 'resolved_stats' in x else _atd_missing_json_field('SubprojectStats', 'resolved_stats'),
             )
         else:
@@ -7706,6 +7771,68 @@ class OutputFormat:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class Manifest:
+    """Original type: manifest = { ... }"""
+
+    kind: ManifestKind
+    path: Fpath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Manifest':
+        if isinstance(x, dict):
+            return cls(
+                kind=ManifestKind.from_json(x['kind']) if 'kind' in x else _atd_missing_json_field('Manifest', 'kind'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('Manifest', 'path'),
+            )
+        else:
+            _atd_bad_json('Manifest', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['kind'] = (lambda x: x.to_json())(self.kind)
+        res['path'] = (lambda x: x.to_json())(self.path)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Manifest':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Lockfile:
+    """Original type: lockfile = { ... }"""
+
+    kind: LockfileKind
+    path: Fpath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Lockfile':
+        if isinstance(x, dict):
+            return cls(
+                kind=LockfileKind.from_json(x['kind']) if 'kind' in x else _atd_missing_json_field('Lockfile', 'kind'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('Lockfile', 'path'),
+            )
+        else:
+            _atd_bad_json('Lockfile', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['kind'] = (lambda x: x.to_json())(self.kind)
+        res['path'] = (lambda x: x.to_json())(self.path)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Lockfile':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class HasFeatures:
     """Original type: has_features = { ... }"""
@@ -7737,6 +7864,95 @@ class HasFeatures:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'HasFeatures':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ManifestOnlyDependencySource:
+    """Original type: dependency_source = [ ... | ManifestOnlyDependencySource of ... | ... ]"""
+
+    value: Manifest
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ManifestOnlyDependencySource'
+
+    def to_json(self) -> Any:
+        return ['ManifestOnlyDependencySource', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class LockfileOnlyDependencySource:
+    """Original type: dependency_source = [ ... | LockfileOnlyDependencySource of ... | ... ]"""
+
+    value: Lockfile
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'LockfileOnlyDependencySource'
+
+    def to_json(self) -> Any:
+        return ['LockfileOnlyDependencySource', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ManifestLockfileDependencySource:
+    """Original type: dependency_source = [ ... | ManifestLockfileDependencySource of ... | ... ]"""
+
+    value: Tuple[Manifest, Lockfile]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ManifestLockfileDependencySource'
+
+    def to_json(self) -> Any:
+        return ['ManifestLockfileDependencySource', (lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class DependencySource:
+    """Original type: dependency_source = [ ... ]"""
+
+    value: Union[ManifestOnlyDependencySource, LockfileOnlyDependencySource, ManifestLockfileDependencySource]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencySource':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'ManifestOnlyDependencySource':
+                return cls(ManifestOnlyDependencySource(Manifest.from_json(x[1])))
+            if cons == 'LockfileOnlyDependencySource':
+                return cls(LockfileOnlyDependencySource(Lockfile.from_json(x[1])))
+            if cons == 'ManifestLockfileDependencySource':
+                return cls(ManifestLockfileDependencySource((lambda x: (Manifest.from_json(x[0]), Lockfile.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+            _atd_bad_json('DependencySource', x)
+        _atd_bad_json('DependencySource', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencySource':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

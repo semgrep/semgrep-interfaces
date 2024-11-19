@@ -776,8 +776,27 @@ export type DependencyResolutionStats = {
   ecosystem: Ecosystem;
 }
 
+export type DependencySourceStatsType =
+| { kind: 'LockfileOnly' /* JSON: "lockfile_only" */ }
+| { kind: 'ManifestOnly' /* JSON: "manifest_only" */ }
+| { kind: 'ManifestAndLockfile' /* JSON: "manifest_and_lockfile" */ }
+
+export type DependencySourceStatsFileKind =
+| { kind: 'Lockfile'; value: LockfileKind }
+| { kind: 'Manifest'; value: ManifestKind }
+
+export type DependencySourceStatsFile = {
+  kind: DependencySourceStatsFileKind;
+  path: Fpath;
+}
+
+export type DependencySourceStats = {
+  source_type: DependencySourceStatsType;
+  files: DependencySourceStatsFile[];
+}
+
 export type SubprojectStats = {
-  dependency_sources: DependencySource[];
+  dependency_sources: DependencySourceStats[];
   resolved_stats: Option<DependencyResolutionStats>;
 }
 
@@ -3314,16 +3333,91 @@ export function readDependencyResolutionStats(x: any, context: any = x): Depende
   };
 }
 
+export function writeDependencySourceStatsType(x: DependencySourceStatsType, context: any = x): any {
+  switch (x.kind) {
+    case 'LockfileOnly':
+      return 'lockfile_only'
+    case 'ManifestOnly':
+      return 'manifest_only'
+    case 'ManifestAndLockfile':
+      return 'manifest_and_lockfile'
+  }
+}
+
+export function readDependencySourceStatsType(x: any, context: any = x): DependencySourceStatsType {
+  switch (x) {
+    case 'lockfile_only':
+      return { kind: 'LockfileOnly' }
+    case 'manifest_only':
+      return { kind: 'ManifestOnly' }
+    case 'manifest_and_lockfile':
+      return { kind: 'ManifestAndLockfile' }
+    default:
+      _atd_bad_json('DependencySourceStatsType', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeDependencySourceStatsFileKind(x: DependencySourceStatsFileKind, context: any = x): any {
+  switch (x.kind) {
+    case 'Lockfile':
+      return ['Lockfile', writeLockfileKind(x.value, x)]
+    case 'Manifest':
+      return ['Manifest', writeManifestKind(x.value, x)]
+  }
+}
+
+export function readDependencySourceStatsFileKind(x: any, context: any = x): DependencySourceStatsFileKind {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'Lockfile':
+      return { kind: 'Lockfile', value: readLockfileKind(x[1], x) }
+    case 'Manifest':
+      return { kind: 'Manifest', value: readManifestKind(x[1], x) }
+    default:
+      _atd_bad_json('DependencySourceStatsFileKind', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeDependencySourceStatsFile(x: DependencySourceStatsFile, context: any = x): any {
+  return {
+    'kind': _atd_write_required_field('DependencySourceStatsFile', 'kind', writeDependencySourceStatsFileKind, x.kind, x),
+    'path': _atd_write_required_field('DependencySourceStatsFile', 'path', writeFpath, x.path, x),
+  };
+}
+
+export function readDependencySourceStatsFile(x: any, context: any = x): DependencySourceStatsFile {
+  return {
+    kind: _atd_read_required_field('DependencySourceStatsFile', 'kind', readDependencySourceStatsFileKind, x['kind'], x),
+    path: _atd_read_required_field('DependencySourceStatsFile', 'path', readFpath, x['path'], x),
+  };
+}
+
+export function writeDependencySourceStats(x: DependencySourceStats, context: any = x): any {
+  return {
+    'source_type': _atd_write_required_field('DependencySourceStats', 'source_type', writeDependencySourceStatsType, x.source_type, x),
+    'files': _atd_write_required_field('DependencySourceStats', 'files', _atd_write_array(writeDependencySourceStatsFile), x.files, x),
+  };
+}
+
+export function readDependencySourceStats(x: any, context: any = x): DependencySourceStats {
+  return {
+    source_type: _atd_read_required_field('DependencySourceStats', 'source_type', readDependencySourceStatsType, x['source_type'], x),
+    files: _atd_read_required_field('DependencySourceStats', 'files', _atd_read_array(readDependencySourceStatsFile), x['files'], x),
+  };
+}
+
 export function writeSubprojectStats(x: SubprojectStats, context: any = x): any {
   return {
-    'dependency_sources': _atd_write_required_field('SubprojectStats', 'dependency_sources', _atd_write_array(writeDependencySource), x.dependency_sources, x),
+    'dependency_sources': _atd_write_required_field('SubprojectStats', 'dependency_sources', _atd_write_array(writeDependencySourceStats), x.dependency_sources, x),
     'resolved_stats': _atd_write_required_field('SubprojectStats', 'resolved_stats', _atd_write_option(writeDependencyResolutionStats), x.resolved_stats, x),
   };
 }
 
 export function readSubprojectStats(x: any, context: any = x): SubprojectStats {
   return {
-    dependency_sources: _atd_read_required_field('SubprojectStats', 'dependency_sources', _atd_read_array(readDependencySource), x['dependency_sources'], x),
+    dependency_sources: _atd_read_required_field('SubprojectStats', 'dependency_sources', _atd_read_array(readDependencySourceStats), x['dependency_sources'], x),
     resolved_stats: _atd_read_required_field('SubprojectStats', 'resolved_stats', _atd_read_option(readDependencyResolutionStats), x['resolved_stats'], x),
   };
 }

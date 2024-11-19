@@ -1703,9 +1703,30 @@ type dependency_resolution_stats = {
   ecosystem: ecosystem;
 }
 
+type dependency_source_stats_type <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True)"> = [
+  | LockfileOnly <json name="lockfile_only">
+  | ManifestOnly <json name="manifest_only"> 
+  | ManifestAndLockfile <json name="manifest_and_lockfile">
+]
+
+type dependency_source_stats_file_kind <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True)"> = [
+  | Lockfile of lockfile_kind
+  | Manifest of manifest_kind
+] 
+
+type dependency_source_stats_file = {
+  kind: dependency_source_stats_file_kind;
+  path: fpath;
+}
+
+type dependency_source_stats = {
+  source_type: dependency_source_stats_type;
+  files: dependency_source_stats_file list;
+}
+
 type subproject_stats = {
   (* Files used to determine the subproject's dependencies (lockfiles, manifest files, etc) *)
-  dependency_sources: dependency_source list;
+  dependency_sources: dependency_source_stats list;
   (* Results of dependency resolution, null if resolution failed *)
   resolved_stats: dependency_resolution_stats option;
 }
