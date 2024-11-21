@@ -2839,10 +2839,44 @@ class PyprojectToml:
 
 
 @dataclass(frozen=True)
+class ConanFileTxt:
+    """Original type: manifest_kind = [ ... | ConanFileTxt | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ConanFileTxt'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'ConanFileTxt'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ConanFilePy:
+    """Original type: manifest_kind = [ ... | ConanFilePy | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ConanFilePy'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'ConanFilePy'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class ManifestKind:
     """Original type: manifest_kind = [ ... ]"""
 
-    value: Union[RequirementsIn, PackageJson, Gemfile, GoMod, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, MixExs, Pipfile, PyprojectToml]
+    value: Union[RequirementsIn, PackageJson, Gemfile, GoMod, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy]
 
     @property
     def kind(self) -> str:
@@ -2882,6 +2916,10 @@ class ManifestKind:
                 return cls(Pipfile())
             if x == 'PyprojectToml':
                 return cls(PyprojectToml())
+            if x == 'ConanFileTxt':
+                return cls(ConanFileTxt())
+            if x == 'ConanFilePy':
+                return cls(ConanFilePy())
             _atd_bad_json('ManifestKind', x)
         _atd_bad_json('ManifestKind', x)
 
@@ -2942,6 +2980,23 @@ class PipfileLock:
     @staticmethod
     def to_json() -> Any:
         return 'PipfileLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class UVLock:
+    """Original type: lockfile_kind = [ ... | UVLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'UVLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'UVLock'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -3169,10 +3224,27 @@ class MixLock:
 
 
 @dataclass(frozen=True)
+class ConanLock:
+    """Original type: lockfile_kind = [ ... | ConanLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ConanLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'ConanLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class LockfileKind:
     """Original type: lockfile_kind = [ ... ]"""
 
-    value: Union[PipRequirementsTxt, PoetryLock, PipfileLock, NpmPackageLockJson, YarnLock, PnpmLock, GemfileLock, GoMod_, CargoLock, MavenDepTree, GradleLockfile, ComposerLock, NugetPackagesLockJson, PubspecLock, SwiftPackageResolved, MixLock]
+    value: Union[PipRequirementsTxt, PoetryLock, PipfileLock, UVLock, NpmPackageLockJson, YarnLock, PnpmLock, GemfileLock, GoMod_, CargoLock, MavenDepTree, GradleLockfile, ComposerLock, NugetPackagesLockJson, PubspecLock, SwiftPackageResolved, MixLock, ConanLock]
 
     @property
     def kind(self) -> str:
@@ -3188,6 +3260,8 @@ class LockfileKind:
                 return cls(PoetryLock())
             if x == 'PipfileLock':
                 return cls(PipfileLock())
+            if x == 'UVLock':
+                return cls(UVLock())
             if x == 'NpmPackageLockJson':
                 return cls(NpmPackageLockJson())
             if x == 'YarnLock':
@@ -3214,6 +3288,8 @@ class LockfileKind:
                 return cls(SwiftPackageResolved())
             if x == 'MixLock':
                 return cls(MixLock())
+            if x == 'ConanLock':
+                return cls(ConanLock())
             _atd_bad_json('LockfileKind', x)
         _atd_bad_json('LockfileKind', x)
 

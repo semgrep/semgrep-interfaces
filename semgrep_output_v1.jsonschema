@@ -1616,6 +1616,7 @@
         { "const": "PipRequirementsTxt" },
         { "const": "PoetryLock" },
         { "const": "PipfileLock" },
+        { "const": "UVLock" },
         { "const": "NpmPackageLockJson" },
         { "const": "YarnLock" },
         { "const": "PnpmLock" },
@@ -1628,7 +1629,8 @@
         { "const": "NugetPackagesLockJson" },
         { "const": "PubspecLock" },
         { "const": "SwiftPackageResolved" },
-        { "const": "MixLock" }
+        { "const": "MixLock" },
+        { "const": "ConanLock" }
       ]
     },
     "manifest_kind": {
@@ -1647,7 +1649,9 @@
         { "const": "PackageSwift" },
         { "const": "MixExs" },
         { "const": "Pipfile" },
-        { "const": "PyprojectToml" }
+        { "const": "PyprojectToml" },
+        { "const": "ConanFileTxt" },
+        { "const": "ConanFilePy" }
       ]
     },
     "manifest": {
