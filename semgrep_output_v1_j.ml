@@ -233,7 +233,7 @@ type manifest_kind = Semgrep_output_v1_t.manifest_kind
   [@@deriving show, eq, yojson]
 
 type lockfile_kind = Semgrep_output_v1_t.lockfile_kind = 
-    PipRequirementsTxt | PoetryLock | PipfileLock | UVLock
+    PipRequirementsTxt | PoetryLock | PipfileLock | UvLock
   | NpmPackageLockJson | YarnLock | PnpmLock | GemfileLock | GoMod
   | CargoLock | MavenDepTree | GradleLockfile | ComposerLock
   | NugetPackagesLockJson | PubspecLock | SwiftPackageResolved | MixLock
@@ -8775,7 +8775,7 @@ let write_lockfile_kind : _ -> lockfile_kind -> _ = (
       | PipRequirementsTxt -> Buffer.add_string ob "\"PipRequirementsTxt\""
       | PoetryLock -> Buffer.add_string ob "\"PoetryLock\""
       | PipfileLock -> Buffer.add_string ob "\"PipfileLock\""
-      | UVLock -> Buffer.add_string ob "\"UVLock\""
+      | UvLock -> Buffer.add_string ob "\"UvLock\""
       | NpmPackageLockJson -> Buffer.add_string ob "\"NpmPackageLockJson\""
       | YarnLock -> Buffer.add_string ob "\"YarnLock\""
       | PnpmLock -> Buffer.add_string ob "\"PnpmLock\""
@@ -8813,10 +8813,10 @@ let read_lockfile_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (PipfileLock : lockfile_kind)
-            | "UVLock" ->
+            | "UvLock" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              (UVLock : lockfile_kind)
+              (UvLock : lockfile_kind)
             | "NpmPackageLockJson" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -8884,8 +8884,8 @@ let read_lockfile_kind = (
               (PoetryLock : lockfile_kind)
             | "PipfileLock" ->
               (PipfileLock : lockfile_kind)
-            | "UVLock" ->
-              (UVLock : lockfile_kind)
+            | "UvLock" ->
+              (UvLock : lockfile_kind)
             | "NpmPackageLockJson" ->
               (NpmPackageLockJson : lockfile_kind)
             | "YarnLock" ->

@@ -885,7 +885,7 @@ export type LockfileKind =
 | { kind: 'PipRequirementsTxt' }
 | { kind: 'PoetryLock' }
 | { kind: 'PipfileLock' }
-| { kind: 'UVLock' }
+| { kind: 'UvLock' }
 | { kind: 'NpmPackageLockJson' }
 | { kind: 'YarnLock' }
 | { kind: 'PnpmLock' }
@@ -3649,8 +3649,8 @@ export function writeLockfileKind(x: LockfileKind, context: any = x): any {
       return 'PoetryLock'
     case 'PipfileLock':
       return 'PipfileLock'
-    case 'UVLock':
-      return 'UVLock'
+    case 'UvLock':
+      return 'UvLock'
     case 'NpmPackageLockJson':
       return 'NpmPackageLockJson'
     case 'YarnLock':
@@ -3690,8 +3690,8 @@ export function readLockfileKind(x: any, context: any = x): LockfileKind {
       return { kind: 'PoetryLock' }
     case 'PipfileLock':
       return { kind: 'PipfileLock' }
-    case 'UVLock':
-      return { kind: 'UVLock' }
+    case 'UvLock':
+      return { kind: 'UvLock' }
     case 'NpmPackageLockJson':
       return { kind: 'NpmPackageLockJson' }
     case 'YarnLock':

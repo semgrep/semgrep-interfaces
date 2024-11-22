@@ -2986,17 +2986,17 @@ class PipfileLock:
 
 
 @dataclass(frozen=True)
-class UVLock:
-    """Original type: lockfile_kind = [ ... | UVLock | ... ]"""
+class UvLock:
+    """Original type: lockfile_kind = [ ... | UvLock | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'UVLock'
+        return 'UvLock'
 
     @staticmethod
     def to_json() -> Any:
-        return 'UVLock'
+        return 'UvLock'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -3244,7 +3244,7 @@ class ConanLock:
 class LockfileKind:
     """Original type: lockfile_kind = [ ... ]"""
 
-    value: Union[PipRequirementsTxt, PoetryLock, PipfileLock, UVLock, NpmPackageLockJson, YarnLock, PnpmLock, GemfileLock, GoMod_, CargoLock, MavenDepTree, GradleLockfile, ComposerLock, NugetPackagesLockJson, PubspecLock, SwiftPackageResolved, MixLock, ConanLock]
+    value: Union[PipRequirementsTxt, PoetryLock, PipfileLock, UvLock, NpmPackageLockJson, YarnLock, PnpmLock, GemfileLock, GoMod_, CargoLock, MavenDepTree, GradleLockfile, ComposerLock, NugetPackagesLockJson, PubspecLock, SwiftPackageResolved, MixLock, ConanLock]
 
     @property
     def kind(self) -> str:
@@ -3260,8 +3260,8 @@ class LockfileKind:
                 return cls(PoetryLock())
             if x == 'PipfileLock':
                 return cls(PipfileLock())
-            if x == 'UVLock':
-                return cls(UVLock())
+            if x == 'UvLock':
+                return cls(UvLock())
             if x == 'NpmPackageLockJson':
                 return cls(NpmPackageLockJson())
             if x == 'YarnLock':

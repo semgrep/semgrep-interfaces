@@ -1914,7 +1914,7 @@ type lockfile_kind
     | PipRequirementsTxt
     | PoetryLock
     | PipfileLock
-    | UVLock
+    | UvLock
     | NpmPackageLockJson
     | YarnLock
     | PnpmLock

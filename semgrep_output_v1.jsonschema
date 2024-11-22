@@ -1616,7 +1616,7 @@
         { "const": "PipRequirementsTxt" },
         { "const": "PoetryLock" },
         { "const": "PipfileLock" },
-        { "const": "UVLock" },
+        { "const": "UvLock" },
         { "const": "NpmPackageLockJson" },
         { "const": "YarnLock" },
         { "const": "PnpmLock" },
