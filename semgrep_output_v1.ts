@@ -885,6 +885,7 @@ export type LockfileKind =
 | { kind: 'PipRequirementsTxt' }
 | { kind: 'PoetryLock' }
 | { kind: 'PipfileLock' }
+| { kind: 'UvLock' }
 | { kind: 'NpmPackageLockJson' }
 | { kind: 'YarnLock' }
 | { kind: 'PnpmLock' }
@@ -898,6 +899,7 @@ export type LockfileKind =
 | { kind: 'PubspecLock' }
 | { kind: 'SwiftPackageResolved' }
 | { kind: 'MixLock' }
+| { kind: 'ConanLock' }
 
 export type ManifestKind =
 | { kind: 'RequirementsIn' }
@@ -915,6 +917,8 @@ export type ManifestKind =
 | { kind: 'MixExs' }
 | { kind: 'Pipfile' }
 | { kind: 'PyprojectToml' }
+| { kind: 'ConanFileTxt' }
+| { kind: 'ConanFilePy' }
 
 export type Manifest = {
   kind: ManifestKind;
@@ -3645,6 +3649,8 @@ export function writeLockfileKind(x: LockfileKind, context: any = x): any {
       return 'PoetryLock'
     case 'PipfileLock':
       return 'PipfileLock'
+    case 'UvLock':
+      return 'UvLock'
     case 'NpmPackageLockJson':
       return 'NpmPackageLockJson'
     case 'YarnLock':
@@ -3671,6 +3677,8 @@ export function writeLockfileKind(x: LockfileKind, context: any = x): any {
       return 'SwiftPackageResolved'
     case 'MixLock':
       return 'MixLock'
+    case 'ConanLock':
+      return 'ConanLock'
   }
 }
 
@@ -3682,6 +3690,8 @@ export function readLockfileKind(x: any, context: any = x): LockfileKind {
       return { kind: 'PoetryLock' }
     case 'PipfileLock':
       return { kind: 'PipfileLock' }
+    case 'UvLock':
+      return { kind: 'UvLock' }
     case 'NpmPackageLockJson':
       return { kind: 'NpmPackageLockJson' }
     case 'YarnLock':
@@ -3708,6 +3718,8 @@ export function readLockfileKind(x: any, context: any = x): LockfileKind {
       return { kind: 'SwiftPackageResolved' }
     case 'MixLock':
       return { kind: 'MixLock' }
+    case 'ConanLock':
+      return { kind: 'ConanLock' }
     default:
       _atd_bad_json('LockfileKind', x, context)
       throw new Error('impossible')
@@ -3746,6 +3758,10 @@ export function writeManifestKind(x: ManifestKind, context: any = x): any {
       return 'Pipfile'
     case 'PyprojectToml':
       return 'PyprojectToml'
+    case 'ConanFileTxt':
+      return 'ConanFileTxt'
+    case 'ConanFilePy':
+      return 'ConanFilePy'
   }
 }
 
@@ -3781,6 +3797,10 @@ export function readManifestKind(x: any, context: any = x): ManifestKind {
       return { kind: 'Pipfile' }
     case 'PyprojectToml':
       return { kind: 'PyprojectToml' }
+    case 'ConanFileTxt':
+      return { kind: 'ConanFileTxt' }
+    case 'ConanFilePy':
+      return { kind: 'ConanFilePy' }
     default:
       _atd_bad_json('ManifestKind', x, context)
       throw new Error('impossible')

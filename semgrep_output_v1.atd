@@ -1914,6 +1914,7 @@ type lockfile_kind
     | PipRequirementsTxt
     | PoetryLock
     | PipfileLock
+    | UvLock
     | NpmPackageLockJson
     | YarnLock
     | PnpmLock
@@ -1927,6 +1928,7 @@ type lockfile_kind
     | PubspecLock
     | SwiftPackageResolved (* not a real lockfile *)
     | MixLock
+    | ConanLock
 ] <ocaml repr="classic">
 
 type manifest_kind 
@@ -1959,6 +1961,8 @@ type manifest_kind
   | Pipfile (* Pipfile - https://pipenv.pypa.io/en/latest/pipfile.html *)
   | PyprojectToml
     (* pyproject.toml - https://packaging.python.org/en/latest/guides/writing-pyproject-toml/ *)
+  | ConanFileTxt (* conanfile.txt - https://docs.conan.io/2.9/reference/conanfile_txt.html#conanfile-txt *)
+  | ConanFilePy (* conanfile.py - https://docs.conan.io/2.9/reference/conanfile.html *)  
 ]
 
 type manifest

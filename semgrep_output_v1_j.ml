@@ -233,10 +233,11 @@ type manifest_kind = Semgrep_output_v1_t.manifest_kind
   [@@deriving show, eq, yojson]
 
 type lockfile_kind = Semgrep_output_v1_t.lockfile_kind = 
-    PipRequirementsTxt | PoetryLock | PipfileLock | NpmPackageLockJson
-  | YarnLock | PnpmLock | GemfileLock | GoMod | CargoLock | MavenDepTree
-  | GradleLockfile | ComposerLock | NugetPackagesLockJson | PubspecLock
-  | SwiftPackageResolved | MixLock
+    PipRequirementsTxt | PoetryLock | PipfileLock | UvLock
+  | NpmPackageLockJson | YarnLock | PnpmLock | GemfileLock | GoMod
+  | CargoLock | MavenDepTree | GradleLockfile | ComposerLock
+  | NugetPackagesLockJson | PubspecLock | SwiftPackageResolved | MixLock
+  | ConanLock
 
   [@@deriving show, eq, yojson]
 
@@ -8637,6 +8638,8 @@ let write_manifest_kind = (
       | `MixExs -> Buffer.add_string ob "\"MixExs\""
       | `Pipfile -> Buffer.add_string ob "\"Pipfile\""
       | `PyprojectToml -> Buffer.add_string ob "\"PyprojectToml\""
+      | `ConanFileTxt -> Buffer.add_string ob "\"ConanFileTxt\""
+      | `ConanFilePy -> Buffer.add_string ob "\"ConanFilePy\""
 )
 let string_of_manifest_kind ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -8708,6 +8711,14 @@ let read_manifest_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `PyprojectToml
+            | "ConanFileTxt" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `ConanFileTxt
+            | "ConanFilePy" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `ConanFilePy
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -8743,6 +8754,10 @@ let read_manifest_kind = (
               `Pipfile
             | "PyprojectToml" ->
               `PyprojectToml
+            | "ConanFileTxt" ->
+              `ConanFileTxt
+            | "ConanFilePy" ->
+              `ConanFilePy
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -8760,6 +8775,7 @@ let write_lockfile_kind : _ -> lockfile_kind -> _ = (
       | PipRequirementsTxt -> Buffer.add_string ob "\"PipRequirementsTxt\""
       | PoetryLock -> Buffer.add_string ob "\"PoetryLock\""
       | PipfileLock -> Buffer.add_string ob "\"PipfileLock\""
+      | UvLock -> Buffer.add_string ob "\"UvLock\""
       | NpmPackageLockJson -> Buffer.add_string ob "\"NpmPackageLockJson\""
       | YarnLock -> Buffer.add_string ob "\"YarnLock\""
       | PnpmLock -> Buffer.add_string ob "\"PnpmLock\""
@@ -8773,6 +8789,7 @@ let write_lockfile_kind : _ -> lockfile_kind -> _ = (
       | PubspecLock -> Buffer.add_string ob "\"PubspecLock\""
       | SwiftPackageResolved -> Buffer.add_string ob "\"SwiftPackageResolved\""
       | MixLock -> Buffer.add_string ob "\"MixLock\""
+      | ConanLock -> Buffer.add_string ob "\"ConanLock\""
 )
 let string_of_lockfile_kind ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -8796,6 +8813,10 @@ let read_lockfile_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (PipfileLock : lockfile_kind)
+            | "UvLock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (UvLock : lockfile_kind)
             | "NpmPackageLockJson" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -8848,6 +8869,10 @@ let read_lockfile_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (MixLock : lockfile_kind)
+            | "ConanLock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (ConanLock : lockfile_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -8859,6 +8884,8 @@ let read_lockfile_kind = (
               (PoetryLock : lockfile_kind)
             | "PipfileLock" ->
               (PipfileLock : lockfile_kind)
+            | "UvLock" ->
+              (UvLock : lockfile_kind)
             | "NpmPackageLockJson" ->
               (NpmPackageLockJson : lockfile_kind)
             | "YarnLock" ->
@@ -8885,6 +8912,8 @@ let read_lockfile_kind = (
               (SwiftPackageResolved : lockfile_kind)
             | "MixLock" ->
               (MixLock : lockfile_kind)
+            | "ConanLock" ->
+              (ConanLock : lockfile_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
