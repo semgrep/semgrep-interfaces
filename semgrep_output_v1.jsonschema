@@ -1125,7 +1125,9 @@
     },
     "scan_request": {
       "type": "object",
-      "required": [ "meta" ],
+      "required": [
+        "meta", "project_metadata", "project_config", "scan_metadata"
+      ],
       "properties": {
         "meta": { "$ref": "#/definitions/raw_json" },
         "project_metadata": { "$ref": "#/definitions/project_metadata" },

@@ -386,9 +386,9 @@ type ci_config_from_repo = Semgrep_output_v1_t.ci_config_from_repo = {
 
 type scan_request = Semgrep_output_v1_t.scan_request = {
   meta: raw_json;
-  project_metadata: project_metadata option;
-  project_config: ci_config_from_repo option;
-  scan_metadata: scan_metadata option
+  project_metadata: project_metadata;
+  project_config: ci_config_from_repo;
+  scan_metadata: scan_metadata
 }
 
 type ci_env = Semgrep_output_v1_t.ci_env

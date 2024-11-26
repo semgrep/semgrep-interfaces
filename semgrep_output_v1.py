@@ -4725,18 +4725,18 @@ class ScanRequest:
     """Original type: scan_request = { ... }"""
 
     meta: RawJson
-    project_metadata: Optional[ProjectMetadata] = None
-    project_config: Optional[CiConfigFromRepo] = None
-    scan_metadata: Optional[ScanMetadata] = None
+    project_metadata: ProjectMetadata
+    project_config: CiConfigFromRepo
+    scan_metadata: ScanMetadata
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanRequest':
         if isinstance(x, dict):
             return cls(
                 meta=RawJson.from_json(x['meta']) if 'meta' in x else _atd_missing_json_field('ScanRequest', 'meta'),
-                project_metadata=ProjectMetadata.from_json(x['project_metadata']) if 'project_metadata' in x else None,
-                project_config=CiConfigFromRepo.from_json(x['project_config']) if 'project_config' in x else None,
-                scan_metadata=ScanMetadata.from_json(x['scan_metadata']) if 'scan_metadata' in x else None,
+                project_metadata=ProjectMetadata.from_json(x['project_metadata']) if 'project_metadata' in x else _atd_missing_json_field('ScanRequest', 'project_metadata'),
+                project_config=CiConfigFromRepo.from_json(x['project_config']) if 'project_config' in x else _atd_missing_json_field('ScanRequest', 'project_config'),
+                scan_metadata=ScanMetadata.from_json(x['scan_metadata']) if 'scan_metadata' in x else _atd_missing_json_field('ScanRequest', 'scan_metadata'),
             )
         else:
             _atd_bad_json('ScanRequest', x)
@@ -4744,12 +4744,9 @@ class ScanRequest:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['meta'] = (lambda x: x.to_json())(self.meta)
-        if self.project_metadata is not None:
-            res['project_metadata'] = (lambda x: x.to_json())(self.project_metadata)
-        if self.project_config is not None:
-            res['project_config'] = (lambda x: x.to_json())(self.project_config)
-        if self.scan_metadata is not None:
-            res['scan_metadata'] = (lambda x: x.to_json())(self.scan_metadata)
+        res['project_metadata'] = (lambda x: x.to_json())(self.project_metadata)
+        res['project_config'] = (lambda x: x.to_json())(self.project_config)
+        res['scan_metadata'] = (lambda x: x.to_json())(self.scan_metadata)
         return res
 
     @classmethod

@@ -386,9 +386,9 @@ type ci_config_from_repo = Semgrep_output_v1_t.ci_config_from_repo = {
 
 type scan_request = Semgrep_output_v1_t.scan_request = {
   meta: raw_json;
-  project_metadata: project_metadata option;
-  project_config: ci_config_from_repo option;
-  scan_metadata: scan_metadata option
+  project_metadata: project_metadata;
+  project_config: ci_config_from_repo;
+  scan_metadata: scan_metadata
 }
 
 type ci_env = Semgrep_output_v1_t.ci_env
@@ -14501,177 +14501,6 @@ let read_ci_config_from_repo = (
 )
 let ci_config_from_repo_of_string s =
   read_ci_config_from_repo (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__scan_metadata_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_scan_metadata
-  )
-)
-let string_of__scan_metadata_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__scan_metadata_option ob x;
-  Buffer.contents ob
-let read__scan_metadata_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_scan_metadata
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_scan_metadata
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _scan_metadata_option_of_string s =
-  read__scan_metadata_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__project_metadata_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_project_metadata
-  )
-)
-let string_of__project_metadata_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__project_metadata_option ob x;
-  Buffer.contents ob
-let read__project_metadata_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_project_metadata
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_project_metadata
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _project_metadata_option_of_string s =
-  read__project_metadata_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__ci_config_from_repo_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_ci_config_from_repo
-  )
-)
-let string_of__ci_config_from_repo_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__ci_config_from_repo_option ob x;
-  Buffer.contents ob
-let read__ci_config_from_repo_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_ci_config_from_repo
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_ci_config_from_repo
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _ci_config_from_repo_option_of_string s =
-  read__ci_config_from_repo_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_scan_request : _ -> scan_request -> _ = (
   fun ob (x : scan_request) ->
     Buffer.add_char ob '{';
@@ -14685,39 +14514,33 @@ let write_scan_request : _ -> scan_request -> _ = (
       write_raw_json
     )
       ob x.meta;
-    (match x.project_metadata with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"project_metadata\":";
-      (
-        write_project_metadata
-      )
-        ob x;
-    );
-    (match x.project_config with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"project_config\":";
-      (
-        write_ci_config_from_repo
-      )
-        ob x;
-    );
-    (match x.scan_metadata with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"scan_metadata\":";
-      (
-        write_scan_metadata
-      )
-        ob x;
-    );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"project_metadata\":";
+    (
+      write_project_metadata
+    )
+      ob x.project_metadata;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"project_config\":";
+    (
+      write_ci_config_from_repo
+    )
+      ob x.project_config;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"scan_metadata\":";
+    (
+      write_scan_metadata
+    )
+      ob x.scan_metadata;
     Buffer.add_char ob '}';
 )
 let string_of_scan_request ?(len = 1024) x =
@@ -14790,35 +14613,29 @@ let read_scan_request = (
               )
             );
           | 1 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_project_metadata := (
-                Some (
-                  (
-                    read_project_metadata
-                  ) p lb
-                )
-              );
-            )
+            field_project_metadata := (
+              Some (
+                (
+                  read_project_metadata
+                ) p lb
+              )
+            );
           | 2 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_project_config := (
-                Some (
-                  (
-                    read_ci_config_from_repo
-                  ) p lb
-                )
-              );
-            )
+            field_project_config := (
+              Some (
+                (
+                  read_ci_config_from_repo
+                ) p lb
+              )
+            );
           | 3 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_scan_metadata := (
-                Some (
-                  (
-                    read_scan_metadata
-                  ) p lb
-                )
-              );
-            )
+            field_scan_metadata := (
+              Some (
+                (
+                  read_scan_metadata
+                ) p lb
+              )
+            );
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -14881,35 +14698,29 @@ let read_scan_request = (
                 )
               );
             | 1 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_project_metadata := (
-                  Some (
-                    (
-                      read_project_metadata
-                    ) p lb
-                  )
-                );
-              )
+              field_project_metadata := (
+                Some (
+                  (
+                    read_project_metadata
+                  ) p lb
+                )
+              );
             | 2 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_project_config := (
-                  Some (
-                    (
-                      read_ci_config_from_repo
-                    ) p lb
-                  )
-                );
-              )
+              field_project_config := (
+                Some (
+                  (
+                    read_ci_config_from_repo
+                  ) p lb
+                )
+              );
             | 3 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_scan_metadata := (
-                  Some (
-                    (
-                      read_scan_metadata
-                    ) p lb
-                  )
-                );
-              )
+              field_scan_metadata := (
+                Some (
+                  (
+                    read_scan_metadata
+                  ) p lb
+                )
+              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -14920,9 +14731,9 @@ let read_scan_request = (
         (
           {
             meta = (match !field_meta with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "meta");
-            project_metadata = !field_project_metadata;
-            project_config = !field_project_config;
-            scan_metadata = !field_scan_metadata;
+            project_metadata = (match !field_project_metadata with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "project_metadata");
+            project_config = (match !field_project_config with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "project_config");
+            scan_metadata = (match !field_scan_metadata with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "scan_metadata");
           }
          : scan_request)
       )

@@ -1444,9 +1444,9 @@ type scan_request = {
     (* until 1.43ish, was 'meta: project_metadata;' before *)
     meta: raw_json;
     (* from 1.43 *)
-    ?project_metadata: project_metadata option; (* replacing meta *)
-    ?project_config: ci_config_from_repo option;
-    ?scan_metadata: scan_metadata option;
+    project_metadata: project_metadata; (* replacing meta *)
+    project_config: ci_config_from_repo;
+    scan_metadata: scan_metadata;
 }
 
 (* Response from the backend to the CLI to the POST /api/cli/scans *)
