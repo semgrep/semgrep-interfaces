@@ -7,7 +7,7 @@
  * This file specifies the JSON formats of:
  *  - the output of the 'semgrep scan --json' command
  *  - the output of the 'semgrep test --json' command
- *  - the messages sent (and received) to the Semgrep backend by the
+ *  - the messages exchanged with the Semgrep backend by the
  *    'semgrep ci' command
  *
  * There are other important form of outputs which are not specified here:
@@ -77,7 +77,10 @@ type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
  * less: could convert directly to Path class of pathlib library for Python
  * See libs/commons/ATD_string_wrap.ml for more info on those ATD_string_wrap.
  *)
-type fpath <ocaml attr="deriving show, eq"> <python decorator="dataclass(frozen=True)">= string wrap <ocaml module="ATD_string_wrap.Fpath">
+type fpath
+     <ocaml attr="deriving show, eq">
+     <python decorator="dataclass(frozen=True)"> =
+   string wrap <ocaml module="ATD_string_wrap.Fpath">
 
 type uri = string wrap <ocaml module="ATD_string_wrap.Uri">
 
@@ -104,10 +107,8 @@ type position
   col: int; (* starts from 1 *)
   (* Byte position from the beginning of the file, starts at 0.
    * OCaml code sets it correctly. Python code sets it to a dummy value (-1).
-   * This uses '~' because semgrep < 1.30? was *producing* positions without
-   * offset sometimes, and we want the backend to still *consume* such positions.
    *)
-  ~offset: int;
+  offset: int;
 }
 
 (* a.k.a range *)
@@ -553,7 +554,7 @@ type core_error <python decorator="dataclass(frozen=True)"> = {
   ?details: string option;
   ?location: location option;
   ?rule_id: rule_id option;
-  }
+}
 
 (* ----------------------------- *)
 (* CLI *)
@@ -869,8 +870,8 @@ type cli_output_extra = {
      *)
     ?explanations: matching_explanation list option;
 
-    (* These rules, classified by engine used, will let us be transparent in the CLI
-     * output over what rules were run with what.
+    (* These rules, classified by engine used, will let us be transparent in
+     * the CLI output over what rules were run with what.
      * EXPERIMENTAL: since: 1.11.0
      *)
     ?rules_by_engine: rule_id_and_engine_kind list option;
@@ -1441,12 +1442,14 @@ type scan_metadata = {
 
 (* Sent by the CLI to the POST /api/cli/scans to create a scan. *)
 type scan_request = {
-    (* until 1.43ish, was 'meta: project_metadata;' before *)
-    meta: raw_json;
-    (* from 1.43 *)
-    project_metadata: project_metadata; (* replacing meta *)
+    (* added in 1.43 as options, and made mandatory since 1.98.0 *)
+    project_metadata: project_metadata; (* replacing meta below *)
     project_config: ci_config_from_repo;
     scan_metadata: scan_metadata;
+    (* deprecated: moved as an option in 1.98.0 and was used until 1.43ish
+     * old: 'meta: project_metadata;' before 1.43
+     *)
+    ?meta: raw_json option;
 }
 
 (* Response from the backend to the CLI to the POST /api/cli/scans *)
