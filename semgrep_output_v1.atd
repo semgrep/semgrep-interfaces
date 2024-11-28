@@ -107,8 +107,12 @@ type position
   col: int; (* starts from 1 *)
   (* Byte position from the beginning of the file, starts at 0.
    * OCaml code sets it correctly. Python code sets it to a dummy value (-1).
+   * This uses '~' because pysemgrep < 1.30? was *producing* positions without
+   * offset sometimes, and we want the backend to still *consume* such positions.
+   * Note that pysemgrep 1.97 was still producing dummy positions without
+   * an offset so we might need this ~offset longer than expected?
    *)
-  offset: int;
+  ~offset: int;
 }
 
 (* a.k.a range *)

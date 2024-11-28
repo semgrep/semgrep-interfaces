@@ -787,7 +787,7 @@ class Position:
 
     line: int
     col: int
-    offset: int
+    offset: int = field(default_factory=lambda: 0)
 
     @classmethod
     def from_json(cls, x: Any) -> 'Position':
@@ -795,7 +795,7 @@ class Position:
             return cls(
                 line=_atd_read_int(x['line']) if 'line' in x else _atd_missing_json_field('Position', 'line'),
                 col=_atd_read_int(x['col']) if 'col' in x else _atd_missing_json_field('Position', 'col'),
-                offset=_atd_read_int(x['offset']) if 'offset' in x else _atd_missing_json_field('Position', 'offset'),
+                offset=_atd_read_int(x['offset']) if 'offset' in x else 0,
             )
         else:
             _atd_bad_json('Position', x)
