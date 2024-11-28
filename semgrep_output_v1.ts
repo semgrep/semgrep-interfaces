@@ -446,6 +446,12 @@ export type DependencyMatch = {
   lockfile: string;
 }
 
+export type DependencyPattern = {
+  ecosystem: Ecosystem;
+  package_: string;
+  semver_range: string;
+}
+
 export type Ecosystem =
 | { kind: 'Npm' /* JSON: "npm" */ }
 | { kind: 'Pypi' /* JSON: "pypi" */ }
@@ -460,22 +466,6 @@ export type Ecosystem =
 | { kind: 'Mix' /* JSON: "mix" */ }
 | { kind: 'Hex' /* JSON: "hex" */ }
 
-export type Transitivity =
-| { kind: 'Direct' /* JSON: "direct" */ }
-| { kind: 'Transitive' /* JSON: "transitive" */ }
-| { kind: 'Unknown' /* JSON: "unknown" */ }
-
-export type DependencyPattern = {
-  ecosystem: Ecosystem;
-  package_: string;
-  semver_range: string;
-}
-
-export type DependencyChild = {
-  package_: string;
-  version: string;
-}
-
 export type FoundDependency = {
   package_: string;
   version: string;
@@ -488,6 +478,25 @@ export type FoundDependency = {
   line_number?: number /*int*/;
   children?: DependencyChild[];
   git_ref?: string;
+}
+
+export type Transitivity =
+| { kind: 'Direct' /* JSON: "direct" */ }
+| { kind: 'Transitive' /* JSON: "transitive" */ }
+| { kind: 'Unknown' /* JSON: "unknown" */ }
+
+export type DependencyChild = {
+  package_: string;
+  version: string;
+}
+
+export type DependencyParserError = {
+  path: string;
+  parser: ScaParserName;
+  reason: string;
+  line?: number /*int*/;
+  col?: number /*int*/;
+  text?: string;
 }
 
 export type ScaParserName =
@@ -511,15 +520,6 @@ export type ScaParserName =
 | { kind: 'Package_swift' /* JSON: "package_swift" */ }
 | { kind: 'Package_resolved' /* JSON: "package_resolved" */ }
 | { kind: 'Mix_lock' /* JSON: "mix_lock" */ }
-
-export type DependencyParserError = {
-  path: string;
-  parser: ScaParserName;
-  reason: string;
-  line?: number /*int*/;
-  col?: number /*int*/;
-  text?: string;
-}
 
 export type HistoricalInfo = {
   git_commit: Sha1;
@@ -633,10 +633,10 @@ export type ScanMetadata = {
 }
 
 export type ScanRequest = {
-  meta: RawJson;
   project_metadata: ProjectMetadata;
-  project_config: CiConfigFromRepo;
   scan_metadata: ScanMetadata;
+  project_config?: CiConfigFromRepo;
+  meta?: RawJson;
 }
 
 export type ScanResponse = {
@@ -1039,7 +1039,7 @@ export function writePosition(x: Position, context: any = x): any {
   return {
     'line': _atd_write_required_field('Position', 'line', _atd_write_int, x.line, x),
     'col': _atd_write_required_field('Position', 'col', _atd_write_int, x.col, x),
-    'offset': _atd_write_field_with_default(_atd_write_int, 0, x.offset, x),
+    'offset': _atd_write_required_field('Position', 'offset', _atd_write_int, x.offset, x),
   };
 }
 
@@ -1047,7 +1047,7 @@ export function readPosition(x: any, context: any = x): Position {
   return {
     line: _atd_read_required_field('Position', 'line', _atd_read_int, x['line'], x),
     col: _atd_read_required_field('Position', 'col', _atd_read_int, x['col'], x),
-    offset: _atd_read_field_with_default(_atd_read_int, 0, x['offset'], x),
+    offset: _atd_read_required_field('Position', 'offset', _atd_read_int, x['offset'], x),
   };
 }
 
@@ -2402,6 +2402,22 @@ export function readDependencyMatch(x: any, context: any = x): DependencyMatch {
   };
 }
 
+export function writeDependencyPattern(x: DependencyPattern, context: any = x): any {
+  return {
+    'ecosystem': _atd_write_required_field('DependencyPattern', 'ecosystem', writeEcosystem, x.ecosystem, x),
+    'package': _atd_write_required_field('DependencyPattern', 'package', _atd_write_string, x.package_, x),
+    'semver_range': _atd_write_required_field('DependencyPattern', 'semver_range', _atd_write_string, x.semver_range, x),
+  };
+}
+
+export function readDependencyPattern(x: any, context: any = x): DependencyPattern {
+  return {
+    ecosystem: _atd_read_required_field('DependencyPattern', 'ecosystem', readEcosystem, x['ecosystem'], x),
+    package_: _atd_read_required_field('DependencyPattern', 'package', _atd_read_string, x['package'], x),
+    semver_range: _atd_read_required_field('DependencyPattern', 'semver_range', _atd_read_string, x['semver_range'], x),
+  };
+}
+
 export function writeEcosystem(x: Ecosystem, context: any = x): any {
   switch (x.kind) {
     case 'Npm':
@@ -2463,61 +2479,6 @@ export function readEcosystem(x: any, context: any = x): Ecosystem {
   }
 }
 
-export function writeTransitivity(x: Transitivity, context: any = x): any {
-  switch (x.kind) {
-    case 'Direct':
-      return 'direct'
-    case 'Transitive':
-      return 'transitive'
-    case 'Unknown':
-      return 'unknown'
-  }
-}
-
-export function readTransitivity(x: any, context: any = x): Transitivity {
-  switch (x) {
-    case 'direct':
-      return { kind: 'Direct' }
-    case 'transitive':
-      return { kind: 'Transitive' }
-    case 'unknown':
-      return { kind: 'Unknown' }
-    default:
-      _atd_bad_json('Transitivity', x, context)
-      throw new Error('impossible')
-  }
-}
-
-export function writeDependencyPattern(x: DependencyPattern, context: any = x): any {
-  return {
-    'ecosystem': _atd_write_required_field('DependencyPattern', 'ecosystem', writeEcosystem, x.ecosystem, x),
-    'package': _atd_write_required_field('DependencyPattern', 'package', _atd_write_string, x.package_, x),
-    'semver_range': _atd_write_required_field('DependencyPattern', 'semver_range', _atd_write_string, x.semver_range, x),
-  };
-}
-
-export function readDependencyPattern(x: any, context: any = x): DependencyPattern {
-  return {
-    ecosystem: _atd_read_required_field('DependencyPattern', 'ecosystem', readEcosystem, x['ecosystem'], x),
-    package_: _atd_read_required_field('DependencyPattern', 'package', _atd_read_string, x['package'], x),
-    semver_range: _atd_read_required_field('DependencyPattern', 'semver_range', _atd_read_string, x['semver_range'], x),
-  };
-}
-
-export function writeDependencyChild(x: DependencyChild, context: any = x): any {
-  return {
-    'package': _atd_write_required_field('DependencyChild', 'package', _atd_write_string, x.package_, x),
-    'version': _atd_write_required_field('DependencyChild', 'version', _atd_write_string, x.version, x),
-  };
-}
-
-export function readDependencyChild(x: any, context: any = x): DependencyChild {
-  return {
-    package_: _atd_read_required_field('DependencyChild', 'package', _atd_read_string, x['package'], x),
-    version: _atd_read_required_field('DependencyChild', 'version', _atd_read_string, x['version'], x),
-  };
-}
-
 export function writeFoundDependency(x: FoundDependency, context: any = x): any {
   return {
     'package': _atd_write_required_field('FoundDependency', 'package', _atd_write_string, x.package_, x),
@@ -2547,6 +2508,67 @@ export function readFoundDependency(x: any, context: any = x): FoundDependency {
     line_number: _atd_read_optional_field(_atd_read_int, x['line_number'], x),
     children: _atd_read_optional_field(_atd_read_array(readDependencyChild), x['children'], x),
     git_ref: _atd_read_optional_field(_atd_read_string, x['git_ref'], x),
+  };
+}
+
+export function writeTransitivity(x: Transitivity, context: any = x): any {
+  switch (x.kind) {
+    case 'Direct':
+      return 'direct'
+    case 'Transitive':
+      return 'transitive'
+    case 'Unknown':
+      return 'unknown'
+  }
+}
+
+export function readTransitivity(x: any, context: any = x): Transitivity {
+  switch (x) {
+    case 'direct':
+      return { kind: 'Direct' }
+    case 'transitive':
+      return { kind: 'Transitive' }
+    case 'unknown':
+      return { kind: 'Unknown' }
+    default:
+      _atd_bad_json('Transitivity', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeDependencyChild(x: DependencyChild, context: any = x): any {
+  return {
+    'package': _atd_write_required_field('DependencyChild', 'package', _atd_write_string, x.package_, x),
+    'version': _atd_write_required_field('DependencyChild', 'version', _atd_write_string, x.version, x),
+  };
+}
+
+export function readDependencyChild(x: any, context: any = x): DependencyChild {
+  return {
+    package_: _atd_read_required_field('DependencyChild', 'package', _atd_read_string, x['package'], x),
+    version: _atd_read_required_field('DependencyChild', 'version', _atd_read_string, x['version'], x),
+  };
+}
+
+export function writeDependencyParserError(x: DependencyParserError, context: any = x): any {
+  return {
+    'path': _atd_write_required_field('DependencyParserError', 'path', _atd_write_string, x.path, x),
+    'parser': _atd_write_required_field('DependencyParserError', 'parser', writeScaParserName, x.parser, x),
+    'reason': _atd_write_required_field('DependencyParserError', 'reason', _atd_write_string, x.reason, x),
+    'line': _atd_write_optional_field(_atd_write_int, x.line, x),
+    'col': _atd_write_optional_field(_atd_write_int, x.col, x),
+    'text': _atd_write_optional_field(_atd_write_string, x.text, x),
+  };
+}
+
+export function readDependencyParserError(x: any, context: any = x): DependencyParserError {
+  return {
+    path: _atd_read_required_field('DependencyParserError', 'path', _atd_read_string, x['path'], x),
+    parser: _atd_read_required_field('DependencyParserError', 'parser', readScaParserName, x['parser'], x),
+    reason: _atd_read_required_field('DependencyParserError', 'reason', _atd_read_string, x['reason'], x),
+    line: _atd_read_optional_field(_atd_read_int, x['line'], x),
+    col: _atd_read_optional_field(_atd_read_int, x['col'], x),
+    text: _atd_read_optional_field(_atd_read_string, x['text'], x),
   };
 }
 
@@ -2641,28 +2663,6 @@ export function readScaParserName(x: any, context: any = x): ScaParserName {
       _atd_bad_json('ScaParserName', x, context)
       throw new Error('impossible')
   }
-}
-
-export function writeDependencyParserError(x: DependencyParserError, context: any = x): any {
-  return {
-    'path': _atd_write_required_field('DependencyParserError', 'path', _atd_write_string, x.path, x),
-    'parser': _atd_write_required_field('DependencyParserError', 'parser', writeScaParserName, x.parser, x),
-    'reason': _atd_write_required_field('DependencyParserError', 'reason', _atd_write_string, x.reason, x),
-    'line': _atd_write_optional_field(_atd_write_int, x.line, x),
-    'col': _atd_write_optional_field(_atd_write_int, x.col, x),
-    'text': _atd_write_optional_field(_atd_write_string, x.text, x),
-  };
-}
-
-export function readDependencyParserError(x: any, context: any = x): DependencyParserError {
-  return {
-    path: _atd_read_required_field('DependencyParserError', 'path', _atd_read_string, x['path'], x),
-    parser: _atd_read_required_field('DependencyParserError', 'parser', readScaParserName, x['parser'], x),
-    reason: _atd_read_required_field('DependencyParserError', 'reason', _atd_read_string, x['reason'], x),
-    line: _atd_read_optional_field(_atd_read_int, x['line'], x),
-    col: _atd_read_optional_field(_atd_read_int, x['col'], x),
-    text: _atd_read_optional_field(_atd_read_string, x['text'], x),
-  };
 }
 
 export function writeHistoricalInfo(x: HistoricalInfo, context: any = x): any {
@@ -2949,19 +2949,19 @@ export function readScanMetadata(x: any, context: any = x): ScanMetadata {
 
 export function writeScanRequest(x: ScanRequest, context: any = x): any {
   return {
-    'meta': _atd_write_required_field('ScanRequest', 'meta', writeRawJson, x.meta, x),
     'project_metadata': _atd_write_required_field('ScanRequest', 'project_metadata', writeProjectMetadata, x.project_metadata, x),
-    'project_config': _atd_write_required_field('ScanRequest', 'project_config', writeCiConfigFromRepo, x.project_config, x),
     'scan_metadata': _atd_write_required_field('ScanRequest', 'scan_metadata', writeScanMetadata, x.scan_metadata, x),
+    'project_config': _atd_write_optional_field(writeCiConfigFromRepo, x.project_config, x),
+    'meta': _atd_write_optional_field(writeRawJson, x.meta, x),
   };
 }
 
 export function readScanRequest(x: any, context: any = x): ScanRequest {
   return {
-    meta: _atd_read_required_field('ScanRequest', 'meta', readRawJson, x['meta'], x),
     project_metadata: _atd_read_required_field('ScanRequest', 'project_metadata', readProjectMetadata, x['project_metadata'], x),
-    project_config: _atd_read_required_field('ScanRequest', 'project_config', readCiConfigFromRepo, x['project_config'], x),
     scan_metadata: _atd_read_required_field('ScanRequest', 'scan_metadata', readScanMetadata, x['scan_metadata'], x),
+    project_config: _atd_read_optional_field(readCiConfigFromRepo, x['project_config'], x),
+    meta: _atd_read_optional_field(readRawJson, x['meta'], x),
   };
 }
 

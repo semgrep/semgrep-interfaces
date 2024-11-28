@@ -787,7 +787,7 @@ class Position:
 
     line: int
     col: int
-    offset: int = field(default_factory=lambda: 0)
+    offset: int
 
     @classmethod
     def from_json(cls, x: Any) -> 'Position':
@@ -795,7 +795,7 @@ class Position:
             return cls(
                 line=_atd_read_int(x['line']) if 'line' in x else _atd_missing_json_field('Position', 'line'),
                 col=_atd_read_int(x['col']) if 'col' in x else _atd_missing_json_field('Position', 'col'),
-                offset=_atd_read_int(x['offset']) if 'offset' in x else 0,
+                offset=_atd_read_int(x['offset']) if 'offset' in x else _atd_missing_json_field('Position', 'offset'),
             )
         else:
             _atd_bad_json('Position', x)
@@ -4724,29 +4724,31 @@ class CiConfigFromRepo:
 class ScanRequest:
     """Original type: scan_request = { ... }"""
 
-    meta: RawJson
     project_metadata: ProjectMetadata
-    project_config: CiConfigFromRepo
     scan_metadata: ScanMetadata
+    project_config: Optional[CiConfigFromRepo] = None
+    meta: Optional[RawJson] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanRequest':
         if isinstance(x, dict):
             return cls(
-                meta=RawJson.from_json(x['meta']) if 'meta' in x else _atd_missing_json_field('ScanRequest', 'meta'),
                 project_metadata=ProjectMetadata.from_json(x['project_metadata']) if 'project_metadata' in x else _atd_missing_json_field('ScanRequest', 'project_metadata'),
-                project_config=CiConfigFromRepo.from_json(x['project_config']) if 'project_config' in x else _atd_missing_json_field('ScanRequest', 'project_config'),
                 scan_metadata=ScanMetadata.from_json(x['scan_metadata']) if 'scan_metadata' in x else _atd_missing_json_field('ScanRequest', 'scan_metadata'),
+                project_config=CiConfigFromRepo.from_json(x['project_config']) if 'project_config' in x else None,
+                meta=RawJson.from_json(x['meta']) if 'meta' in x else None,
             )
         else:
             _atd_bad_json('ScanRequest', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['meta'] = (lambda x: x.to_json())(self.meta)
         res['project_metadata'] = (lambda x: x.to_json())(self.project_metadata)
-        res['project_config'] = (lambda x: x.to_json())(self.project_config)
         res['scan_metadata'] = (lambda x: x.to_json())(self.scan_metadata)
+        if self.project_config is not None:
+            res['project_config'] = (lambda x: x.to_json())(self.project_config)
+        if self.meta is not None:
+            res['meta'] = (lambda x: x.to_json())(self.meta)
         return res
 
     @classmethod

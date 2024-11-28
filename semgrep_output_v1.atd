@@ -144,8 +144,8 @@ type rule_id
    coupling: with 'severity' in 'rule_schema_v2.atd'
 *)
 type match_severity
-    <ocaml attr="deriving show, eq">
-    <python decorator="dataclass(frozen=True)"> = [
+  <ocaml attr="deriving show, eq">
+  <python decorator="dataclass(frozen=True)"> = [
   | Error <json name="ERROR">
   | Warning <json name="WARNING">
   | Experiment <json name="EXPERIMENT">
@@ -174,8 +174,8 @@ type match_severity
    alt: could reuse match_severity but seems cleaner to define its own type
 *)
 type error_severity
-    <ocaml attr="deriving show, eq">
-    <python decorator="dataclass(frozen=True)"> = [
+  <ocaml attr="deriving show, eq">
+  <python decorator="dataclass(frozen=True)"> = [
   | Error <json name="error">
   | Warning <json name="warn">
   | Info <json name="info">
@@ -188,11 +188,11 @@ type error_severity
    Interfile_taint = requires interfile taint
    Other_pro_feature = requires some non-taint pro feature *)
 type pro_feature
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = {
-    interproc_taint: bool;
-    interfile_taint: bool;
-    proprietary_language: bool;
+    <ocaml attr="deriving show">
+    <python decorator="dataclass(frozen=True)"> = {
+  interproc_taint: bool;
+  interfile_taint: bool;
+  proprietary_language: bool;
 }
 
 (* Report the engine used to detect each finding. Additionally, if we are able
@@ -209,8 +209,8 @@ type pro_feature
    we're leaving them as is
 *)
 type engine_of_finding
-     <ocaml attr="deriving show">
-     <python decorator="dataclass(frozen=True)"> = [
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = [
   | OSS
   | PRO
    (* Semgrep 1.64.0 or later *)
@@ -218,8 +218,8 @@ type engine_of_finding
 ]
 
 type engine_kind
-     <ocaml attr="deriving show">
-     <python decorator="dataclass(frozen=True)"> = [
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True)"> = [
   | OSS
   | PRO
 ]
@@ -467,8 +467,8 @@ type match_intermediate_var <python decorator="dataclass(frozen=True)"> = {
  * Error.string_of_error_type() for osemgrep.
  *)
 type error_type
-    <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True, order=True)"> = [
+  <ocaml attr="deriving show">
+  <python decorator="dataclass(frozen=True, order=True)"> = [
   (* File parsing related errors;
      coupling: if you add a target parse error then metrics for
      cli need to be updated. See cli/src/semgrep/parsing_data.py.
@@ -1061,6 +1061,7 @@ type todo = int
 (* This is also known as Software Composition Analysis (SCA) *)
 
 (* EXPERIMENTAL *)
+(* part of cli_match_extra *)
 type sca_info = {
   reachable: bool;
   reachability_rule: bool;
@@ -1074,11 +1075,19 @@ type dependency_match = {
   lockfile: string;
 }
 
+type dependency_pattern = {
+  ecosystem: ecosystem;
+  package: string;
+  semver_range: string;
+}
+
 (* both ecosystem and transitivity below have frozen=True so the generated
  * classes can be hashed and put in sets (see calls to reachable_deps.add()
  * in semgrep SCA code)
  *)
-type ecosystem <python decorator="dataclass(frozen=True)"> <ocaml attr="deriving show,eq"> = [
+type ecosystem
+  <python decorator="dataclass(frozen=True)">
+  <ocaml attr="deriving show,eq"> = [
   | Npm <json name="npm">
   | Pypi  <json name="pypi">
   | Gem <json name="gem">
@@ -1093,23 +1102,6 @@ type ecosystem <python decorator="dataclass(frozen=True)"> <ocaml attr="deriving
   | Mix <json name="mix">
   | Hex <json name="hex">
 ]
-
-type transitivity <python decorator="dataclass(frozen=True)"> <ocaml attr="deriving show,eq"> = [
-  | Direct <json name="direct">
-  | Transitive <json name="transitive">
-  | Unknown <json name="unknown">
-]
-
-type dependency_pattern = {
-  ecosystem: ecosystem;
-  package: string;
-  semver_range: string;
-}
-
-type dependency_child <python decorator="dataclass(frozen=True)"> = {
-  package: string;
-  version: string;
-}
 
 type found_dependency = {
   package: string;
@@ -1147,7 +1139,35 @@ type found_dependency = {
   ?git_ref: string option;
 }
 
-(* json names are to maintain backwards compatibility with the python enum it is replacing *)
+type transitivity
+  <python decorator="dataclass(frozen=True)">
+  <ocaml attr="deriving show,eq"> = [
+  | Direct <json name="direct">
+  | Transitive <json name="transitive">
+  | Unknown <json name="unknown">
+]
+
+
+type dependency_child <python decorator="dataclass(frozen=True)"> = {
+  package: string;
+  version: string;
+}
+
+(* Used in ci_scan_complete *)
+type dependency_parser_error = {
+  path: string;
+  parser: sca_parser_name;
+  reason: string;
+  (* Not using `position` because this type must be backwards compatible with the python
+   * class it is replacing.
+   *)
+  ?line: int option;
+  ?col: int option;
+  ?text: string option;
+}
+
+(* json names are to maintain backwards compatibility with the python enum it is
+ * replacing *)
 type sca_parser_name = [
   | Gemfile_lock <json name="gemfile_lock">
   | Go_mod <json name="go_mod">
@@ -1171,17 +1191,6 @@ type sca_parser_name = [
   | Mix_lock <json name="mix_lock">
 ]
 
-type dependency_parser_error = {
-  path: string;
-  parser: sca_parser_name;
-  reason: string;
-  (* Not using `position` because this type must be backwards compatible with the python
-   * class it is replacing.
-   *)
-  ?line: int option;
-  ?col: int option;
-  ?text: string option;
-}
 
 (*****************************************************************************)
 (* Semgrep Secrets *)
@@ -1205,8 +1214,8 @@ type historical_info = {
 (*****************************************************************************)
 
 (* EXPERIMENTAL: do not rely on the types in this section; those are internal
- * types used to communicate with the Semgrep backend and are not meant
- * to be consumed directly by Semgrep users or tools wrapping up Semgrep.
+ * types used to communicate with the Semgrep App backend and are not meant
+ * to be consumed directly by Semgrep users or tools wrapping Semgrep.
  *
  * The sequence of HTTP requests is mostly:
  *  - /deployments/current with token
@@ -1294,7 +1303,7 @@ type deployment_config <ocaml attr="deriving show"> = {
   inherit has_features;
 }
 
-(* Content of the .semgrepconfig.yml in the repository.
+(* Content of a possible .semgrepconfig.yml in the repository.
  *
  * This config allows to configure Semgrep per repo, e.g., to store
  * a category/tag like "webapp" in a repo so that the Semgrep WebApp can
@@ -1302,11 +1311,11 @@ type deployment_config <ocaml attr="deriving show"> = {
  * later when given this ci_config_from_repo in the scan_request.
  *)
 type ci_config_from_repo = {
-    (* version of the .semgrepconfig.yml format. "V1" right now (useful?) *)
+    (* version of the .semgrepconfig.yml format. "v1" right now (useful?) *)
     ~version <python default="Version('v1')"> <ts default="'v1'">: version;
     ?tags: tag list option;
 }
-(* ?? ex? *)
+(* ex: "webapp"  *)
 type tag = string
 
 (* Response by the backend to the CLI to the POST /scans/<scan_id>/config *)
@@ -1320,7 +1329,7 @@ type scan_config = {
     policy_names: string list;
     (* rules raw content in JSON format (but still sent as a string) *)
     rule_config: string;
-    (* since 1.47.0 *)
+    (* since 1.47.0 but not created by the backend (nor used by the CLI) *)
     ?ci_config_from_cloud: ci_config_from_cloud option;
 
     (* Deprecated: should rely on ci_config_from_cloud instead *)
@@ -1442,10 +1451,11 @@ type scan_metadata = {
 
 (* Sent by the CLI to the POST /api/cli/scans to create a scan. *)
 type scan_request = {
-    (* added in 1.43 as options, and made mandatory since 1.98.0 *)
-    project_metadata: project_metadata; (* replacing meta below *)
-    project_config: ci_config_from_repo;
+    (* added in 1.43 as options, and mandatory since 1.98.0 (replacing meta) *)
+    project_metadata: project_metadata;
     scan_metadata: scan_metadata;
+    (* added in 1.43 (used to be in meta) *)
+    ?project_config: ci_config_from_repo option;
     (* deprecated: moved as an option in 1.98.0 and was used until 1.43ish
      * old: 'meta: project_metadata;' before 1.43
      *)
@@ -1650,7 +1660,8 @@ type ci_scan_results_response_error <ocaml attr="deriving show"> = {
 type ci_scan_complete = {
   exit_code: int;
   stats: ci_scan_complete_stats;
-  ?dependencies: ci_scan_dependencies option; (* remove when min version is 1.38.0 *)
+  (* TODO: remove dependencies when min version is 1.38.0 *)
+  ?dependencies: ci_scan_dependencies option; 
   ?dependency_parser_errors: dependency_parser_error list option;
   (* since 1.31.0 *)
   ?task_id: string option;

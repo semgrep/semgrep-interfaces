@@ -44,7 +44,7 @@
     "version": { "type": "string" },
     "position": {
       "type": "object",
-      "required": [ "line", "col" ],
+      "required": [ "line", "col", "offset" ],
       "properties": {
         "line": { "type": "integer" },
         "col": { "type": "integer" },
@@ -830,6 +830,15 @@
         "lockfile": { "type": "string" }
       }
     },
+    "dependency_pattern": {
+      "type": "object",
+      "required": [ "ecosystem", "package", "semver_range" ],
+      "properties": {
+        "ecosystem": { "$ref": "#/definitions/ecosystem" },
+        "package": { "type": "string" },
+        "semver_range": { "type": "string" }
+      }
+    },
     "ecosystem": {
       "oneOf": [
         { "const": "npm" },
@@ -845,30 +854,6 @@
         { "const": "mix" },
         { "const": "hex" }
       ]
-    },
-    "transitivity": {
-      "oneOf": [
-        { "const": "direct" },
-        { "const": "transitive" },
-        { "const": "unknown" }
-      ]
-    },
-    "dependency_pattern": {
-      "type": "object",
-      "required": [ "ecosystem", "package", "semver_range" ],
-      "properties": {
-        "ecosystem": { "$ref": "#/definitions/ecosystem" },
-        "package": { "type": "string" },
-        "semver_range": { "type": "string" }
-      }
-    },
-    "dependency_child": {
-      "type": "object",
-      "required": [ "package", "version" ],
-      "properties": {
-        "package": { "type": "string" },
-        "version": { "type": "string" }
-      }
     },
     "found_dependency": {
       "type": "object",
@@ -898,6 +883,33 @@
         "git_ref": { "type": "string" }
       }
     },
+    "transitivity": {
+      "oneOf": [
+        { "const": "direct" },
+        { "const": "transitive" },
+        { "const": "unknown" }
+      ]
+    },
+    "dependency_child": {
+      "type": "object",
+      "required": [ "package", "version" ],
+      "properties": {
+        "package": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
+    "dependency_parser_error": {
+      "type": "object",
+      "required": [ "path", "parser", "reason" ],
+      "properties": {
+        "path": { "type": "string" },
+        "parser": { "$ref": "#/definitions/sca_parser_name" },
+        "reason": { "type": "string" },
+        "line": { "type": "integer" },
+        "col": { "type": "integer" },
+        "text": { "type": "string" }
+      }
+    },
     "sca_parser_name": {
       "oneOf": [
         { "const": "gemfile_lock" },
@@ -921,18 +933,6 @@
         { "const": "package_resolved" },
         { "const": "mix_lock" }
       ]
-    },
-    "dependency_parser_error": {
-      "type": "object",
-      "required": [ "path", "parser", "reason" ],
-      "properties": {
-        "path": { "type": "string" },
-        "parser": { "$ref": "#/definitions/sca_parser_name" },
-        "reason": { "type": "string" },
-        "line": { "type": "integer" },
-        "col": { "type": "integer" },
-        "text": { "type": "string" }
-      }
     },
     "historical_info": {
       "type": "object",
@@ -1125,14 +1125,12 @@
     },
     "scan_request": {
       "type": "object",
-      "required": [
-        "meta", "project_metadata", "project_config", "scan_metadata"
-      ],
+      "required": [ "project_metadata", "scan_metadata" ],
       "properties": {
-        "meta": { "$ref": "#/definitions/raw_json" },
         "project_metadata": { "$ref": "#/definitions/project_metadata" },
+        "scan_metadata": { "$ref": "#/definitions/scan_metadata" },
         "project_config": { "$ref": "#/definitions/ci_config_from_repo" },
-        "scan_metadata": { "$ref": "#/definitions/scan_metadata" }
+        "meta": { "$ref": "#/definitions/raw_json" }
       }
     },
     "scan_response": {
