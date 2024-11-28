@@ -13,6 +13,8 @@
  *   `pysemgrep`. Currently, we try to fit the tests and don't update the
  *   JSON output.
  * - specify the schema for the answer from https://metrics.semgrep.dev
+ * - document also what we send via open telemetry in our traces when
+ *   using --trace?
 *)
 
 <python text="from dataclasses import field">
@@ -71,12 +73,6 @@ type payload = {
     errors: errors;
     value: value;
     extension: extension;
-
-    (* Metrics related to osemgrep migration. It's intentionally made optional
-     * so that it's easier to remove the field without breaking backward
-     * compatibility once the migration is complete.
-     *)
-    ?osemgrep <ocaml mutable>: osemgrep_metrics option;
 }
 
 (*****************************************************************************)
@@ -270,36 +266,6 @@ type extension = {
     ?autofixCount <ocaml mutable>: int option;
     (* how many findings have been ignored *)
     ?ignoreCount <ocaml mutable>: int option;
-}
-
-(*****************************************************************************)
-(* Osemgrep specific metrics *)
-(*****************************************************************************)
-
-type osemgrep_metrics = {
-  ?format_output: osemgrep_format_output option;
-}
-
-type osemgrep_format_output = {
-  (* Whether the RPC succeeded. *)
-  ?succeeded: bool option;
-  (* Name of the output format. *)
-  ?format: string option;
-  (* Time in seconds to call osemgrep through RPC and get its result back. *)
-  ?osemgrep_rpc_response_time_seconds: float option;
-  (* Time in seconds for osemgrep to format the output, excluding RPC. *)
-  ?osemgrep_format_time_seconds: float option;
-
-  (* We also validate whether osemgrep and pysemgrep return the same output or not.
-   * The fields below help us keep track of this information.
-   *)
-
-  (* Time in seconds for pysemgrep to format the output. *)
-  ?pysemgrep_format_time_seconds: float option;
-  (* Time in seconds to validate whether the output from osemgrep matches pysemgrep. *)
-  ?validation_time_seconds: float option;
-  (* Whether the osemgrep output matched the pysemgrep output. *)
-  ?is_match: bool option;
 }
 
 (*****************************************************************************)
