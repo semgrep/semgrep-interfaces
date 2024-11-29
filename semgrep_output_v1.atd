@@ -1963,6 +1963,7 @@ type manifest_kind
     (* pyproject.toml - https://packaging.python.org/en/latest/guides/writing-pyproject-toml/ *)
   | ConanFileTxt (* conanfile.txt - https://docs.conan.io/2.9/reference/conanfile_txt.html#conanfile-txt *)
   | ConanFilePy (* conanfile.py - https://docs.conan.io/2.9/reference/conanfile.html *)  
+  | Csproj (* .csproj - https://docs.microsoft.com/en-us/dotnet/core/tools/csproj *)
 ]
 
 type manifest

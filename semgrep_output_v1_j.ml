@@ -8640,6 +8640,7 @@ let write_manifest_kind = (
       | `PyprojectToml -> Buffer.add_string ob "\"PyprojectToml\""
       | `ConanFileTxt -> Buffer.add_string ob "\"ConanFileTxt\""
       | `ConanFilePy -> Buffer.add_string ob "\"ConanFilePy\""
+      | `Csproj -> Buffer.add_string ob "\"Csproj\""
 )
 let string_of_manifest_kind ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -8719,6 +8720,10 @@ let read_manifest_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `ConanFilePy
+            | "Csproj" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Csproj
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -8758,6 +8763,8 @@ let read_manifest_kind = (
               `ConanFileTxt
             | "ConanFilePy" ->
               `ConanFilePy
+            | "Csproj" ->
+              `Csproj
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
