@@ -459,6 +459,7 @@ export type Ecosystem =
 | { kind: 'SwiftPM' /* JSON: "swiftpm" */ }
 | { kind: 'Mix' /* JSON: "mix" */ }
 | { kind: 'Hex' /* JSON: "hex" */ }
+| { kind: 'Conan' /* JSON: "conan" */ }
 
 export type Transitivity =
 | { kind: 'Direct' /* JSON: "direct" */ }
@@ -2428,6 +2429,8 @@ export function writeEcosystem(x: Ecosystem, context: any = x): any {
       return 'mix'
     case 'Hex':
       return 'hex'
+    case 'Conan':
+      return 'conan'
   }
 }
 
@@ -2457,6 +2460,8 @@ export function readEcosystem(x: any, context: any = x): Ecosystem {
       return { kind: 'Mix' }
     case 'hex':
       return { kind: 'Hex' }
+    case 'conan':
+      return { kind: 'Conan' }
     default:
       _atd_bad_json('Ecosystem', x, context)
       throw new Error('impossible')

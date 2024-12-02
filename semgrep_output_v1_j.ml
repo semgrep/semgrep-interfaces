@@ -8940,6 +8940,7 @@ let write_ecosystem = (
       | `SwiftPM -> Buffer.add_string ob "\"swiftpm\""
       | `Mix -> Buffer.add_string ob "\"mix\""
       | `Hex -> Buffer.add_string ob "\"hex\""
+      | `Conan -> Buffer.add_string ob "\"conan\""
 )
 let string_of_ecosystem ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -8999,6 +9000,10 @@ let read_ecosystem = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Hex
+            | "conan" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Conan
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -9028,6 +9033,8 @@ let read_ecosystem = (
               `Mix
             | "hex" ->
               `Hex
+            | "conan" ->
+              `Conan
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

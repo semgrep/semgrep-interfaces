@@ -3509,10 +3509,27 @@ class Hex:
 
 
 @dataclass(frozen=True)
+class Conan:
+    """Original type: ecosystem = [ ... | Conan | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Conan'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'conan'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class Ecosystem:
     """Original type: ecosystem = [ ... ]"""
 
-    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub, SwiftPM, Mix, Hex]
+    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub, SwiftPM, Mix, Hex, Conan]
 
     @property
     def kind(self) -> str:
@@ -3546,6 +3563,8 @@ class Ecosystem:
                 return cls(Mix())
             if x == 'hex':
                 return cls(Hex())
+            if x == 'conan':
+                return cls(Conan())
             _atd_bad_json('Ecosystem', x)
         _atd_bad_json('Ecosystem', x)
 

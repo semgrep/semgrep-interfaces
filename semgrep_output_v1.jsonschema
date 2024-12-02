@@ -843,7 +843,8 @@
         { "const": "pub" },
         { "const": "swiftpm" },
         { "const": "mix" },
-        { "const": "hex" }
+        { "const": "hex" },
+        { "const": "conan" }
       ]
     },
     "transitivity": {

@@ -1091,6 +1091,7 @@ type ecosystem <python decorator="dataclass(frozen=True)"> <ocaml attr="deriving
   (* Deprecated: Mix is a build system, should use Hex, which is the ecosystem *)
   | Mix <json name="mix">
   | Hex <json name="hex">
+  | Conan <json name="conan">
 ]
 
 type transitivity <python decorator="dataclass(frozen=True)"> <ocaml attr="deriving show,eq"> = [
