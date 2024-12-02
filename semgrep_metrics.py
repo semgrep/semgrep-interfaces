@@ -865,88 +865,6 @@ class ParseStat:
 
 
 @dataclass
-class OsemgrepFormatOutput:
-    """Original type: osemgrep_format_output = { ... }"""
-
-    succeeded: Optional[bool] = None
-    format: Optional[str] = None
-    osemgrep_rpc_response_time_seconds: Optional[float] = None
-    osemgrep_format_time_seconds: Optional[float] = None
-    pysemgrep_format_time_seconds: Optional[float] = None
-    validation_time_seconds: Optional[float] = None
-    is_match: Optional[bool] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'OsemgrepFormatOutput':
-        if isinstance(x, dict):
-            return cls(
-                succeeded=_atd_read_bool(x['succeeded']) if 'succeeded' in x else None,
-                format=_atd_read_string(x['format']) if 'format' in x else None,
-                osemgrep_rpc_response_time_seconds=_atd_read_float(x['osemgrep_rpc_response_time_seconds']) if 'osemgrep_rpc_response_time_seconds' in x else None,
-                osemgrep_format_time_seconds=_atd_read_float(x['osemgrep_format_time_seconds']) if 'osemgrep_format_time_seconds' in x else None,
-                pysemgrep_format_time_seconds=_atd_read_float(x['pysemgrep_format_time_seconds']) if 'pysemgrep_format_time_seconds' in x else None,
-                validation_time_seconds=_atd_read_float(x['validation_time_seconds']) if 'validation_time_seconds' in x else None,
-                is_match=_atd_read_bool(x['is_match']) if 'is_match' in x else None,
-            )
-        else:
-            _atd_bad_json('OsemgrepFormatOutput', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        if self.succeeded is not None:
-            res['succeeded'] = _atd_write_bool(self.succeeded)
-        if self.format is not None:
-            res['format'] = _atd_write_string(self.format)
-        if self.osemgrep_rpc_response_time_seconds is not None:
-            res['osemgrep_rpc_response_time_seconds'] = _atd_write_float(self.osemgrep_rpc_response_time_seconds)
-        if self.osemgrep_format_time_seconds is not None:
-            res['osemgrep_format_time_seconds'] = _atd_write_float(self.osemgrep_format_time_seconds)
-        if self.pysemgrep_format_time_seconds is not None:
-            res['pysemgrep_format_time_seconds'] = _atd_write_float(self.pysemgrep_format_time_seconds)
-        if self.validation_time_seconds is not None:
-            res['validation_time_seconds'] = _atd_write_float(self.validation_time_seconds)
-        if self.is_match is not None:
-            res['is_match'] = _atd_write_bool(self.is_match)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'OsemgrepFormatOutput':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class OsemgrepMetrics:
-    """Original type: osemgrep_metrics = { ... }"""
-
-    format_output: Optional[OsemgrepFormatOutput] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'OsemgrepMetrics':
-        if isinstance(x, dict):
-            return cls(
-                format_output=OsemgrepFormatOutput.from_json(x['format_output']) if 'format_output' in x else None,
-            )
-        else:
-            _atd_bad_json('OsemgrepMetrics', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        if self.format_output is not None:
-            res['format_output'] = (lambda x: x.to_json())(self.format_output)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'OsemgrepMetrics':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class Extension:
     """Original type: extension = { ... }"""
 
@@ -1149,7 +1067,6 @@ class Payload:
     value: Value
     extension: Extension
     parse_rate: List[Tuple[str, ParseStat]] = field(default_factory=lambda: [])
-    osemgrep: Optional[OsemgrepMetrics] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Payload':
@@ -1165,7 +1082,6 @@ class Payload:
                 value=Value.from_json(x['value']) if 'value' in x else _atd_missing_json_field('Payload', 'value'),
                 extension=Extension.from_json(x['extension']) if 'extension' in x else _atd_missing_json_field('Payload', 'extension'),
                 parse_rate=_atd_read_assoc_object_into_list(ParseStat.from_json)(x['parse_rate']) if 'parse_rate' in x else [],
-                osemgrep=OsemgrepMetrics.from_json(x['osemgrep']) if 'osemgrep' in x else None,
             )
         else:
             _atd_bad_json('Payload', x)
@@ -1182,8 +1098,6 @@ class Payload:
         res['value'] = (lambda x: x.to_json())(self.value)
         res['extension'] = (lambda x: x.to_json())(self.extension)
         res['parse_rate'] = _atd_write_assoc_list_to_object((lambda x: x.to_json()))(self.parse_rate)
-        if self.osemgrep is not None:
-            res['osemgrep'] = (lambda x: x.to_json())(self.osemgrep)
         return res
 
     @classmethod
