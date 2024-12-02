@@ -576,12 +576,12 @@ type cli_error = Semgrep_output_v1_t.cli_error = {
 }
 
 type sarif_format_params = Semgrep_output_v1_t.sarif_format_params = {
-  hide_nudge: bool;
-  engine_label: string;
   rules: fpath;
   cli_matches: cli_match list;
   cli_errors: cli_error list;
-  show_dataflow_traces: bool option
+  hide_nudge: bool;
+  engine_label: string;
+  show_dataflow_traces: bool
 }
 
 type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
@@ -22369,24 +22369,6 @@ let write_sarif_format_params : _ -> sarif_format_params -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"hide_nudge\":";
-    (
-      Yojson.Safe.write_bool
-    )
-      ob x.hide_nudge;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"engine_label\":";
-    (
-      Yojson.Safe.write_string
-    )
-      ob x.engine_label;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
       Buffer.add_string ob "\"rules\":";
     (
       write_fpath
@@ -22410,17 +22392,33 @@ let write_sarif_format_params : _ -> sarif_format_params -> _ = (
       write__cli_error_list
     )
       ob x.cli_errors;
-    (match x.show_dataflow_traces with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"show_dataflow_traces\":";
-      (
-        Yojson.Safe.write_bool
-      )
-        ob x;
-    );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"hide_nudge\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.hide_nudge;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"engine_label\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.engine_label;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"show_dataflow_traces\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.show_dataflow_traces;
     Buffer.add_char ob '}';
 )
 let string_of_sarif_format_params ?(len = 1024) x =
@@ -22431,11 +22429,11 @@ let read_sarif_format_params = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
-    let field_hide_nudge = ref (None) in
-    let field_engine_label = ref (None) in
     let field_rules = ref (None) in
     let field_cli_matches = ref (None) in
     let field_cli_errors = ref (None) in
+    let field_hide_nudge = ref (None) in
+    let field_engine_label = ref (None) in
     let field_show_dataflow_traces = ref (None) in
     try
       Yojson.Safe.read_space p lb;
@@ -22448,7 +22446,7 @@ let read_sarif_format_params = (
           match len with
             | 5 -> (
                 if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
-                  2
+                  0
                 )
                 else (
                   -1
@@ -22458,7 +22456,7 @@ let read_sarif_format_params = (
                 match String.unsafe_get s pos with
                   | 'c' -> (
                       if String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 's' then (
-                        4
+                        2
                       )
                       else (
                         -1
@@ -22466,7 +22464,7 @@ let read_sarif_format_params = (
                     )
                   | 'h' -> (
                       if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'u' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'e' then (
-                        0
+                        3
                       )
                       else (
                         -1
@@ -22478,7 +22476,7 @@ let read_sarif_format_params = (
               )
             | 11 -> (
                 if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' then (
-                  3
+                  1
                 )
                 else (
                   -1
@@ -22486,7 +22484,7 @@ let read_sarif_format_params = (
               )
             | 12 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'l' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'b' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 'l' then (
-                  1
+                  4
                 )
                 else (
                   -1
@@ -22509,22 +22507,6 @@ let read_sarif_format_params = (
       (
         match i with
           | 0 ->
-            field_hide_nudge := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_bool
-                ) p lb
-              )
-            );
-          | 1 ->
-            field_engine_label := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              )
-            );
-          | 2 ->
             field_rules := (
               Some (
                 (
@@ -22532,7 +22514,7 @@ let read_sarif_format_params = (
                 ) p lb
               )
             );
-          | 3 ->
+          | 1 ->
             field_cli_matches := (
               Some (
                 (
@@ -22540,7 +22522,7 @@ let read_sarif_format_params = (
                 ) p lb
               )
             );
-          | 4 ->
+          | 2 ->
             field_cli_errors := (
               Some (
                 (
@@ -22548,16 +22530,30 @@ let read_sarif_format_params = (
                 ) p lb
               )
             );
+          | 3 ->
+            field_hide_nudge := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              )
+            );
+          | 4 ->
+            field_engine_label := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
           | 5 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_show_dataflow_traces := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_bool
-                  ) p lb
-                )
-              );
-            )
+            field_show_dataflow_traces := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              )
+            );
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -22573,7 +22569,7 @@ let read_sarif_format_params = (
             match len with
               | 5 -> (
                   if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
-                    2
+                    0
                   )
                   else (
                     -1
@@ -22583,7 +22579,7 @@ let read_sarif_format_params = (
                   match String.unsafe_get s pos with
                     | 'c' -> (
                         if String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 's' then (
-                          4
+                          2
                         )
                         else (
                           -1
@@ -22591,7 +22587,7 @@ let read_sarif_format_params = (
                       )
                     | 'h' -> (
                         if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'u' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'e' then (
-                          0
+                          3
                         )
                         else (
                           -1
@@ -22603,7 +22599,7 @@ let read_sarif_format_params = (
                 )
               | 11 -> (
                   if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' then (
-                    3
+                    1
                   )
                   else (
                     -1
@@ -22611,7 +22607,7 @@ let read_sarif_format_params = (
                 )
               | 12 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'l' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'b' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 'l' then (
-                    1
+                    4
                   )
                   else (
                     -1
@@ -22634,22 +22630,6 @@ let read_sarif_format_params = (
         (
           match i with
             | 0 ->
-              field_hide_nudge := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_bool
-                  ) p lb
-                )
-              );
-            | 1 ->
-              field_engine_label := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            | 2 ->
               field_rules := (
                 Some (
                   (
@@ -22657,7 +22637,7 @@ let read_sarif_format_params = (
                   ) p lb
                 )
               );
-            | 3 ->
+            | 1 ->
               field_cli_matches := (
                 Some (
                   (
@@ -22665,7 +22645,7 @@ let read_sarif_format_params = (
                   ) p lb
                 )
               );
-            | 4 ->
+            | 2 ->
               field_cli_errors := (
                 Some (
                   (
@@ -22673,16 +22653,30 @@ let read_sarif_format_params = (
                   ) p lb
                 )
               );
+            | 3 ->
+              field_hide_nudge := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            | 4 ->
+              field_engine_label := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
             | 5 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_show_dataflow_traces := (
-                  Some (
-                    (
-                      Atdgen_runtime.Oj_run.read_bool
-                    ) p lb
-                  )
-                );
-              )
+              field_show_dataflow_traces := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -22692,12 +22686,12 @@ let read_sarif_format_params = (
     with Yojson.End_of_object -> (
         (
           {
-            hide_nudge = (match !field_hide_nudge with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "hide_nudge");
-            engine_label = (match !field_engine_label with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "engine_label");
             rules = (match !field_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rules");
             cli_matches = (match !field_cli_matches with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "cli_matches");
             cli_errors = (match !field_cli_errors with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "cli_errors");
-            show_dataflow_traces = !field_show_dataflow_traces;
+            hide_nudge = (match !field_hide_nudge with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "hide_nudge");
+            engine_label = (match !field_engine_label with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "engine_label");
+            show_dataflow_traces = (match !field_show_dataflow_traces with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "show_dataflow_traces");
           }
          : sarif_format_params)
       )
@@ -29008,16 +29002,16 @@ let write_function_return = (
           write_apply_fixes_return
         ) ob x;
         Buffer.add_char ob ']'
-      | `RetSarifFormat x ->
-        Buffer.add_string ob "[\"RetSarifFormat\",";
-        (
-          write_sarif_format_return
-        ) ob x;
-        Buffer.add_char ob ']'
       | `RetContributions x ->
         Buffer.add_string ob "[\"RetContributions\",";
         (
           write_contributions
+        ) ob x;
+        Buffer.add_char ob ']'
+      | `RetSarifFormat x ->
+        Buffer.add_string ob "[\"RetSarifFormat\",";
+        (
+          write_sarif_format_return
         ) ob x;
         Buffer.add_char ob ']'
       | `RetFormatter x ->
@@ -29073,15 +29067,6 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `RetApplyFixes x
-            | "RetSarifFormat" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_sarif_format_return
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `RetSarifFormat x
             | "RetContributions" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -29091,6 +29076,15 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `RetContributions x
+            | "RetSarifFormat" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_sarif_format_return
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `RetSarifFormat x
             | "RetFormatter" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -29159,17 +29153,6 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `RetApplyFixes x
-            | "RetSarifFormat" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_sarif_format_return
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `RetSarifFormat x
             | "RetContributions" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -29181,6 +29164,17 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `RetContributions x
+            | "RetSarifFormat" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_sarif_format_return
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `RetSarifFormat x
             | "RetFormatter" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -30865,7 +30859,20 @@ let write_function_call = (
       | `CallSarifFormat x ->
         Buffer.add_string ob "[\"CallSarifFormat\",";
         (
-          write_sarif_format_params
+          fun ob x ->
+            Buffer.add_char ob '[';
+            (let x, _ = x in
+            (
+              write_format_context
+            ) ob x
+            );
+            Buffer.add_char ob ',';
+            (let _, x = x in
+            (
+              write_sarif_format_params
+            ) ob x
+            );
+            Buffer.add_char ob ']';
         ) ob x;
         Buffer.add_char ob ']'
       | `CallFormatter x ->
@@ -30938,7 +30945,48 @@ let read_function_call = (
             | "CallSarifFormat" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read_sarif_format_params
+                  fun p lb ->
+                    Yojson.Safe.read_space p lb;
+                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    let len = ref 0 in
+                    let end_of_tuple = ref false in
+                    (try
+                      let x0 =
+                        let x =
+                          (
+                            read_format_context
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x1 =
+                        let x =
+                          (
+                            read_sarif_format_params
+                          ) p lb
+                        in
+                        incr len;
+                        (try
+                          Yojson.Safe.read_space p lb;
+                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                        x
+                      in
+                      if not !end_of_tuple then (
+                        try
+                          while true do
+                            Yojson.Safe.skip_json p lb;
+                            Yojson.Safe.read_space p lb;
+                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                          done
+                        with Yojson.End_of_tuple -> ()
+                      );
+                      (x0, x1)
+                    with Yojson.End_of_tuple ->
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -31060,7 +31108,48 @@ let read_function_call = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read_sarif_format_params
+                  fun p lb ->
+                    Yojson.Safe.read_space p lb;
+                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    let len = ref 0 in
+                    let end_of_tuple = ref false in
+                    (try
+                      let x0 =
+                        let x =
+                          (
+                            read_format_context
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x1 =
+                        let x =
+                          (
+                            read_sarif_format_params
+                          ) p lb
+                        in
+                        incr len;
+                        (try
+                          Yojson.Safe.read_space p lb;
+                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                        x
+                      in
+                      if not !end_of_tuple then (
+                        try
+                          while true do
+                            Yojson.Safe.skip_json p lb;
+                            Yojson.Safe.read_space p lb;
+                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                          done
+                        with Yojson.End_of_tuple -> ()
+                      );
+                      (x0, x1)
+                    with Yojson.End_of_tuple ->
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
                 ) p lb
               in
               Yojson.Safe.read_space p lb;

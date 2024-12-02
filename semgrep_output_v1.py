@@ -6701,36 +6701,35 @@ class CliError:
 class SarifFormatParams:
     """Original type: sarif_format_params = { ... }"""
 
-    hide_nudge: bool
-    engine_label: str
     rules: Fpath
     cli_matches: List[CliMatch]
     cli_errors: List[CliError]
-    show_dataflow_traces: Optional[bool] = None
+    hide_nudge: bool
+    engine_label: str
+    show_dataflow_traces: bool
 
     @classmethod
     def from_json(cls, x: Any) -> 'SarifFormatParams':
         if isinstance(x, dict):
             return cls(
-                hide_nudge=_atd_read_bool(x['hide_nudge']) if 'hide_nudge' in x else _atd_missing_json_field('SarifFormatParams', 'hide_nudge'),
-                engine_label=_atd_read_string(x['engine_label']) if 'engine_label' in x else _atd_missing_json_field('SarifFormatParams', 'engine_label'),
                 rules=Fpath.from_json(x['rules']) if 'rules' in x else _atd_missing_json_field('SarifFormatParams', 'rules'),
                 cli_matches=_atd_read_list(CliMatch.from_json)(x['cli_matches']) if 'cli_matches' in x else _atd_missing_json_field('SarifFormatParams', 'cli_matches'),
                 cli_errors=_atd_read_list(CliError.from_json)(x['cli_errors']) if 'cli_errors' in x else _atd_missing_json_field('SarifFormatParams', 'cli_errors'),
-                show_dataflow_traces=_atd_read_bool(x['show_dataflow_traces']) if 'show_dataflow_traces' in x else None,
+                hide_nudge=_atd_read_bool(x['hide_nudge']) if 'hide_nudge' in x else _atd_missing_json_field('SarifFormatParams', 'hide_nudge'),
+                engine_label=_atd_read_string(x['engine_label']) if 'engine_label' in x else _atd_missing_json_field('SarifFormatParams', 'engine_label'),
+                show_dataflow_traces=_atd_read_bool(x['show_dataflow_traces']) if 'show_dataflow_traces' in x else _atd_missing_json_field('SarifFormatParams', 'show_dataflow_traces'),
             )
         else:
             _atd_bad_json('SarifFormatParams', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['hide_nudge'] = _atd_write_bool(self.hide_nudge)
-        res['engine_label'] = _atd_write_string(self.engine_label)
         res['rules'] = (lambda x: x.to_json())(self.rules)
         res['cli_matches'] = _atd_write_list((lambda x: x.to_json()))(self.cli_matches)
         res['cli_errors'] = _atd_write_list((lambda x: x.to_json()))(self.cli_errors)
-        if self.show_dataflow_traces is not None:
-            res['show_dataflow_traces'] = _atd_write_bool(self.show_dataflow_traces)
+        res['hide_nudge'] = _atd_write_bool(self.hide_nudge)
+        res['engine_label'] = _atd_write_string(self.engine_label)
+        res['show_dataflow_traces'] = _atd_write_bool(self.show_dataflow_traces)
         return res
 
     @classmethod
@@ -7991,24 +7990,6 @@ class RetApplyFixes:
 
 
 @dataclass(frozen=True)
-class RetSarifFormat:
-    """Original type: function_return = [ ... | RetSarifFormat of ... | ... ]"""
-
-    value: SarifFormatReturn
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'RetSarifFormat'
-
-    def to_json(self) -> Any:
-        return ['RetSarifFormat', (lambda x: x.to_json())(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
 class RetContributions:
     """Original type: function_return = [ ... | RetContributions of ... | ... ]"""
 
@@ -8021,6 +8002,24 @@ class RetContributions:
 
     def to_json(self) -> Any:
         return ['RetContributions', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class RetSarifFormat:
+    """Original type: function_return = [ ... | RetSarifFormat of ... | ... ]"""
+
+    value: SarifFormatReturn
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetSarifFormat'
+
+    def to_json(self) -> Any:
+        return ['RetSarifFormat', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -8102,7 +8101,7 @@ class RetDumpRulePartitions:
 class FunctionReturn:
     """Original type: function_return = [ ... ]"""
 
-    value: Union[RetError, RetApplyFixes, RetSarifFormat, RetContributions, RetFormatter, RetValidate, RetResolveDependencies, RetDumpRulePartitions]
+    value: Union[RetError, RetApplyFixes, RetContributions, RetSarifFormat, RetFormatter, RetValidate, RetResolveDependencies, RetDumpRulePartitions]
 
     @property
     def kind(self) -> str:
@@ -8117,10 +8116,10 @@ class FunctionReturn:
                 return cls(RetError(_atd_read_string(x[1])))
             if cons == 'RetApplyFixes':
                 return cls(RetApplyFixes(ApplyFixesReturn.from_json(x[1])))
-            if cons == 'RetSarifFormat':
-                return cls(RetSarifFormat(SarifFormatReturn.from_json(x[1])))
             if cons == 'RetContributions':
                 return cls(RetContributions(Contributions.from_json(x[1])))
+            if cons == 'RetSarifFormat':
+                return cls(RetSarifFormat(SarifFormatReturn.from_json(x[1])))
             if cons == 'RetFormatter':
                 return cls(RetFormatter(_atd_read_string(x[1])))
             if cons == 'RetValidate':
@@ -8379,7 +8378,7 @@ class CallApplyFixes:
 class CallSarifFormat:
     """Original type: function_call = [ ... | CallSarifFormat of ... | ... ]"""
 
-    value: SarifFormatParams
+    value: Tuple[FormatContext, SarifFormatParams]
 
     @property
     def kind(self) -> str:
@@ -8387,7 +8386,7 @@ class CallSarifFormat:
         return 'CallSarifFormat'
 
     def to_json(self) -> Any:
-        return ['CallSarifFormat', (lambda x: x.to_json())(self.value)]
+        return ['CallSarifFormat', (lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -8487,7 +8486,7 @@ class FunctionCall:
             if cons == 'CallApplyFixes':
                 return cls(CallApplyFixes(ApplyFixesParams.from_json(x[1])))
             if cons == 'CallSarifFormat':
-                return cls(CallSarifFormat(SarifFormatParams.from_json(x[1])))
+                return cls(CallSarifFormat((lambda x: (FormatContext.from_json(x[0]), SarifFormatParams.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
             if cons == 'CallFormatter':
                 return cls(CallFormatter((lambda x: (OutputFormat.from_json(x[0]), FormatContext.from_json(x[1]), CliOutput.from_json(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
             if cons == 'CallValidate':
