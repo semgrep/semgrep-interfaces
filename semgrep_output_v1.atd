@@ -1088,6 +1088,7 @@ type ecosystem <python decorator="dataclass(frozen=True)"> <ocaml attr="deriving
   | Nuget <json name="nuget">
   | Pub <json name="pub">
   | SwiftPM <json name="swiftpm">
+  | Cocoapods <json name="cocoapods">
   (* Deprecated: Mix is a build system, should use Hex, which is the ecosystem *)
   | Mix <json name="mix">
   | Hex <json name="hex">
@@ -1166,6 +1167,7 @@ type sca_parser_name = [
   | Composer_lock <json name="composer_lock">
   | Pubspec_lock <json name="pubspec_lock">
   | Package_swift <json name="package_swift">
+  | Cocoapods_lock <json name="cocoapods_lockfile">
   | Package_resolved <json name="package_resolved">
   | Mix_lock <json name="mix_lock">
 ]
@@ -1927,6 +1929,7 @@ type lockfile_kind
     | NugetPackagesLockJson
     | PubspecLock
     | SwiftPackageResolved (* not a real lockfile *)
+    | PodfileLock
     | MixLock
     | ConanLock
 ] <ocaml repr="classic">
@@ -1956,6 +1959,7 @@ type manifest_kind
   | PubspecYaml (* pubspec.yaml - https://dart.dev/tools/pub/pubspec *)
   | PackageSwift
     (* Package.swift - https://docs.swift.org/package-manager/PackageDescription/PackageDescription.html *)
+  | Podfile (* Podfile - https://guides.cocoapods.org/using/the-podfile.html *)
   | MixExs
     (* mix.exs - https://hexdocs.pm/elixir/introduction-to-mix.html#project-compilation *)
   | Pipfile (* Pipfile - https://pipenv.pypa.io/en/latest/pipfile.html *)
