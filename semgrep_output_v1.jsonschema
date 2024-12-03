@@ -1975,6 +1975,65 @@
           ]
         }
       ]
+    },
+    "xlang": { "type": "string" },
+    "target": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CodeTarget" },
+            { "$ref": "#/definitions/code_target" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "LockfileTarget" },
+            { "$ref": "#/definitions/lockfile" }
+          ]
+        }
+      ]
+    },
+    "code_target": {
+      "type": "object",
+      "required": [ "path", "analyzer", "products" ],
+      "properties": {
+        "path": { "$ref": "#/definitions/fpath" },
+        "analyzer": { "$ref": "#/definitions/xlang" },
+        "products": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/product" }
+        },
+        "lockfile_target": { "$ref": "#/definitions/lockfile" }
+      }
+    },
+    "targets": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/target" }
+    },
+    "diff_file": {
+      "type": "object",
+      "required": [ "filename", "diffs", "url" ],
+      "properties": {
+        "filename": { "type": "string" },
+        "diffs": { "type": "array", "items": { "type": "string" } },
+        "url": { "type": "string" }
+      }
+    },
+    "diff_files": {
+      "type": "object",
+      "required": [ "cve_diffs" ],
+      "properties": {
+        "cve_diffs": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/diff_file" }
+        }
+      }
     }
   }
 }

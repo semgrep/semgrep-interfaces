@@ -979,6 +979,31 @@ export type PartialScanResult =
 | { kind: 'PartialScanOk'; value: [CiScanResults, CiScanComplete] }
 | { kind: 'PartialScanError'; value: CiScanFailure }
 
+export type Xlang = string
+
+export type Target =
+| { kind: 'CodeTarget'; value: CodeTarget }
+| { kind: 'LockfileTarget'; value: Lockfile }
+
+export type CodeTarget = {
+  path: Fpath;
+  analyzer: Xlang;
+  products: Product[];
+  lockfile_target?: Lockfile;
+}
+
+export type Targets = Target[]
+
+export type DiffFile = {
+  filename: string;
+  diffs: string[];
+  url: string;
+}
+
+export type DiffFiles = {
+  cve_diffs: DiffFile[];
+}
+
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
 }
@@ -4069,6 +4094,90 @@ export function readPartialScanResult(x: any, context: any = x): PartialScanResu
       _atd_bad_json('PartialScanResult', x, context)
       throw new Error('impossible')
   }
+}
+
+export function writeXlang(x: Xlang, context: any = x): any {
+  return _atd_write_string(x, context);
+}
+
+export function readXlang(x: any, context: any = x): Xlang {
+  return _atd_read_string(x, context);
+}
+
+export function writeTarget(x: Target, context: any = x): any {
+  switch (x.kind) {
+    case 'CodeTarget':
+      return ['CodeTarget', writeCodeTarget(x.value, x)]
+    case 'LockfileTarget':
+      return ['LockfileTarget', writeLockfile(x.value, x)]
+  }
+}
+
+export function readTarget(x: any, context: any = x): Target {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'CodeTarget':
+      return { kind: 'CodeTarget', value: readCodeTarget(x[1], x) }
+    case 'LockfileTarget':
+      return { kind: 'LockfileTarget', value: readLockfile(x[1], x) }
+    default:
+      _atd_bad_json('Target', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeCodeTarget(x: CodeTarget, context: any = x): any {
+  return {
+    'path': _atd_write_required_field('CodeTarget', 'path', writeFpath, x.path, x),
+    'analyzer': _atd_write_required_field('CodeTarget', 'analyzer', writeXlang, x.analyzer, x),
+    'products': _atd_write_required_field('CodeTarget', 'products', _atd_write_array(writeProduct), x.products, x),
+    'lockfile_target': _atd_write_optional_field(writeLockfile, x.lockfile_target, x),
+  };
+}
+
+export function readCodeTarget(x: any, context: any = x): CodeTarget {
+  return {
+    path: _atd_read_required_field('CodeTarget', 'path', readFpath, x['path'], x),
+    analyzer: _atd_read_required_field('CodeTarget', 'analyzer', readXlang, x['analyzer'], x),
+    products: _atd_read_required_field('CodeTarget', 'products', _atd_read_array(readProduct), x['products'], x),
+    lockfile_target: _atd_read_optional_field(readLockfile, x['lockfile_target'], x),
+  };
+}
+
+export function writeTargets(x: Targets, context: any = x): any {
+  return _atd_write_array(writeTarget)(x, context);
+}
+
+export function readTargets(x: any, context: any = x): Targets {
+  return _atd_read_array(readTarget)(x, context);
+}
+
+export function writeDiffFile(x: DiffFile, context: any = x): any {
+  return {
+    'filename': _atd_write_required_field('DiffFile', 'filename', _atd_write_string, x.filename, x),
+    'diffs': _atd_write_required_field('DiffFile', 'diffs', _atd_write_array(_atd_write_string), x.diffs, x),
+    'url': _atd_write_required_field('DiffFile', 'url', _atd_write_string, x.url, x),
+  };
+}
+
+export function readDiffFile(x: any, context: any = x): DiffFile {
+  return {
+    filename: _atd_read_required_field('DiffFile', 'filename', _atd_read_string, x['filename'], x),
+    diffs: _atd_read_required_field('DiffFile', 'diffs', _atd_read_array(_atd_read_string), x['diffs'], x),
+    url: _atd_read_required_field('DiffFile', 'url', _atd_read_string, x['url'], x),
+  };
+}
+
+export function writeDiffFiles(x: DiffFiles, context: any = x): any {
+  return {
+    'cve_diffs': _atd_write_required_field('DiffFiles', 'cve_diffs', _atd_write_array(writeDiffFile), x.cve_diffs, x),
+  };
+}
+
+export function readDiffFiles(x: any, context: any = x): DiffFiles {
+  return {
+    cve_diffs: _atd_read_required_field('DiffFiles', 'cve_diffs', _atd_read_array(readDiffFile), x['cve_diffs'], x),
+  };
 }
 
 

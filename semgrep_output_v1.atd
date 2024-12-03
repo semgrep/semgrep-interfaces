@@ -226,7 +226,6 @@ type engine_kind
 type rule_id_and_engine_kind <python decorator="dataclass(frozen=True)"> =
   (rule_id * engine_kind)
 
-(* Need to maintain pairity between this and Inputs_to_core.product. *)
 type product
   <ocaml attr="deriving show, eq">
   <python decorator="dataclass(frozen=True)"> = [
@@ -2066,3 +2065,77 @@ type partial_scan_result
   | PartialScanOk of (ci_scan_results * ci_scan_complete)
   | PartialScanError of ci_scan_failure
 ]
+
+
+(*****************************************************************************)
+(* Type definitions for semgrep-core's JSON input via -targets from pysemgrep *)
+(*****************************************************************************)
+(* coupling: if you change the types below, you probably also want to change
+   tests/default/e2e/target
+
+   There are other very important form of inputs which are not specified here:
+    - The rule syntax and schema (see rule_schema_v1.yaml; only the
+      semgrep matching engine options are specified in Config_semgrep.atd)
+    - The syntax for all the target files (see the grammar for the different
+      tree-sitter and pfff parsers)
+
+   history: those definitions used to be in a separate Input_to_core.atd
+   but this file has been merged with semgrep_output_v1.atd because
+   we were copy-pasting definitions (e.g., product, lockfile_kind) in
+   those different files (because ATD does not have a proper module system yet).
+*)
+
+type xlang <ocaml attr="deriving show"> = string wrap <ocaml module="Xlang">
+
+(* A target can either be a traditional code target (now with optional
+   associated lockfile) or it can be a lockfile target, which will be used to
+   generate lockfile-only findings.
+   Currently *ALL TARGETS FROM OSEMGREP AND PYSEMGREP ARE CODETARGETS*
+   coupling: with src/target/Target.mli
+*)
+type target <ocaml attr="deriving show"> = [
+  | CodeTarget of code_target
+  | LockfileTarget of lockfile
+]
+
+(*
+  A normal semgrep target, optionally with an associated [lockfile]
+  The lockfile means: the code in this file has its dependencies
+  specified by this lockfile
+  We dont' want to commit to a specific way of associating these in
+  semgrep-core, so we leave it up to the caller (pysemgrep or osemgrep) to do it.
+*)
+type code_target <ocaml attr="deriving show"> = {
+  path: fpath (* source file *);
+  (* Must be a valid target analyzer as defined in Xlang.mli.
+     examples: "ocaml", "python", but also "spacegrep" or "regexp".
+  *)
+  analyzer: xlang;
+  products: product list;
+  ?lockfile_target: lockfile option;
+}
+
+(* The same path can be present multiple times in targets below, with
+ * different languages each time, so a Python file can be both analyzed
+ * with Python rules, but also with generic/regexp rules.
+ *
+ * alt: we could have a list of languages instead in target above, but
+ * because of the way semgrep-core is designed (with its file_and_more type),
+ * you could have at most one PL language, and then possibly
+ * "generic" and "regexp".
+ *)
+type targets <ocaml attr="deriving show"> = target list
+
+(*****************************************************************************)
+(* Synthesizing from diffs (see locate_patched_functions in Synthesizing.mli) *)
+(*****************************************************************************)
+
+type diff_file <ocaml attr="deriving show"> = {
+  filename : string;
+  diffs : string (* start_line-end_line *) list;
+  url : string (* metadata to help SCA rule generation *)
+}
+
+type diff_files <ocaml attr="deriving show"> = {
+  cve_diffs : diff_file list;
+}

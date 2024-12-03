@@ -134,6 +134,8 @@ type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
   extra: matching_explanation_extra option
 }
 
+type xlang = Semgrep_output_v1_t.xlang [@@deriving show]
+
 type version = Semgrep_output_v1_t.version [@@deriving show]
 
 type uuid = Semgrep_output_v1_t.uuid
@@ -216,6 +218,35 @@ type tests_result = Semgrep_output_v1_t.tests_result = {
   config_with_errors: config_error list
 }
 
+type product = Semgrep_output_v1_t.product [@@deriving show, eq]
+
+type lockfile_kind = Semgrep_output_v1_t.lockfile_kind = 
+    PipRequirementsTxt | PoetryLock | PipfileLock | UvLock
+  | NpmPackageLockJson | YarnLock | PnpmLock | GemfileLock | GoMod
+  | CargoLock | MavenDepTree | GradleLockfile | ComposerLock
+  | NugetPackagesLockJson | PubspecLock | SwiftPackageResolved | MixLock
+  | ConanLock
+
+  [@@deriving show, eq, yojson]
+
+type lockfile = Semgrep_output_v1_t.lockfile = {
+  kind: lockfile_kind;
+  path: fpath
+}
+  [@@deriving show, eq]
+
+type code_target = Semgrep_output_v1_t.code_target = {
+  path: fpath;
+  analyzer: xlang;
+  products: product list;
+  lockfile_target: lockfile option
+}
+  [@@deriving show]
+
+type target = Semgrep_output_v1_t.target [@@deriving show]
+
+type targets = Semgrep_output_v1_t.targets [@@deriving show]
+
 type target_times = Semgrep_output_v1_t.target_times = {
   path: fpath;
   num_bytes: int;
@@ -230,15 +261,6 @@ type resolution_method = Semgrep_output_v1_t.resolution_method
   [@@deriving show]
 
 type manifest_kind = Semgrep_output_v1_t.manifest_kind [@@deriving show, eq]
-
-type lockfile_kind = Semgrep_output_v1_t.lockfile_kind = 
-    PipRequirementsTxt | PoetryLock | PipfileLock | UvLock
-  | NpmPackageLockJson | YarnLock | PnpmLock | GemfileLock | GoMod
-  | CargoLock | MavenDepTree | GradleLockfile | ComposerLock
-  | NugetPackagesLockJson | PubspecLock | SwiftPackageResolved | MixLock
-  | ConanLock
-
-  [@@deriving show, eq, yojson]
 
 type ecosystem = Semgrep_output_v1_t.ecosystem [@@deriving show,eq]
 
@@ -296,8 +318,6 @@ type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
   scanned: fpath list;
   skipped: skipped_target list option
 }
-
-type product = Semgrep_output_v1_t.product [@@deriving show, eq]
 
 type scan_info = Semgrep_output_v1_t.scan_info = {
   id: int option;
@@ -711,12 +731,6 @@ type manifest = Semgrep_output_v1_t.manifest = {
 }
   [@@deriving show, eq]
 
-type lockfile = Semgrep_output_v1_t.lockfile = {
-  kind: lockfile_kind;
-  path: fpath
-}
-  [@@deriving show, eq]
-
 type has_features = Semgrep_output_v1_t.has_features = {
   has_autofix: bool;
   has_deepsemgrep: bool;
@@ -785,6 +799,18 @@ type features = Semgrep_output_v1_t.features = {
   dependency_query: bool;
   path_to_transitivity: bool
 }
+
+type diff_file = Semgrep_output_v1_t.diff_file = {
+  filename: string;
+  diffs: string list;
+  url: string
+}
+  [@@deriving show]
+
+type diff_files = Semgrep_output_v1_t.diff_files = {
+  cve_diffs: diff_file list
+}
+  [@@deriving show]
 
 type deployment_config = Semgrep_output_v1_t.deployment_config = {
   id: int;
@@ -1339,6 +1365,26 @@ val matching_explanation_of_string :
   string -> matching_explanation
   (** Deserialize JSON data of type {!type:matching_explanation}. *)
 
+val write_xlang :
+  Buffer.t -> xlang -> unit
+  (** Output a JSON value of type {!type:xlang}. *)
+
+val string_of_xlang :
+  ?len:int -> xlang -> string
+  (** Serialize a value of type {!type:xlang}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_xlang :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> xlang
+  (** Input JSON data of type {!type:xlang}. *)
+
+val xlang_of_string :
+  string -> xlang
+  (** Deserialize JSON data of type {!type:xlang}. *)
+
 val write_version :
   Buffer.t -> version -> unit
   (** Output a JSON value of type {!type:version}. *)
@@ -1759,6 +1805,126 @@ val tests_result_of_string :
   string -> tests_result
   (** Deserialize JSON data of type {!type:tests_result}. *)
 
+val write_product :
+  Buffer.t -> product -> unit
+  (** Output a JSON value of type {!type:product}. *)
+
+val string_of_product :
+  ?len:int -> product -> string
+  (** Serialize a value of type {!type:product}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_product :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> product
+  (** Input JSON data of type {!type:product}. *)
+
+val product_of_string :
+  string -> product
+  (** Deserialize JSON data of type {!type:product}. *)
+
+val write_lockfile_kind :
+  Buffer.t -> lockfile_kind -> unit
+  (** Output a JSON value of type {!type:lockfile_kind}. *)
+
+val string_of_lockfile_kind :
+  ?len:int -> lockfile_kind -> string
+  (** Serialize a value of type {!type:lockfile_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_lockfile_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> lockfile_kind
+  (** Input JSON data of type {!type:lockfile_kind}. *)
+
+val lockfile_kind_of_string :
+  string -> lockfile_kind
+  (** Deserialize JSON data of type {!type:lockfile_kind}. *)
+
+val write_lockfile :
+  Buffer.t -> lockfile -> unit
+  (** Output a JSON value of type {!type:lockfile}. *)
+
+val string_of_lockfile :
+  ?len:int -> lockfile -> string
+  (** Serialize a value of type {!type:lockfile}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_lockfile :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> lockfile
+  (** Input JSON data of type {!type:lockfile}. *)
+
+val lockfile_of_string :
+  string -> lockfile
+  (** Deserialize JSON data of type {!type:lockfile}. *)
+
+val write_code_target :
+  Buffer.t -> code_target -> unit
+  (** Output a JSON value of type {!type:code_target}. *)
+
+val string_of_code_target :
+  ?len:int -> code_target -> string
+  (** Serialize a value of type {!type:code_target}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_code_target :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> code_target
+  (** Input JSON data of type {!type:code_target}. *)
+
+val code_target_of_string :
+  string -> code_target
+  (** Deserialize JSON data of type {!type:code_target}. *)
+
+val write_target :
+  Buffer.t -> target -> unit
+  (** Output a JSON value of type {!type:target}. *)
+
+val string_of_target :
+  ?len:int -> target -> string
+  (** Serialize a value of type {!type:target}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_target :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> target
+  (** Input JSON data of type {!type:target}. *)
+
+val target_of_string :
+  string -> target
+  (** Deserialize JSON data of type {!type:target}. *)
+
+val write_targets :
+  Buffer.t -> targets -> unit
+  (** Output a JSON value of type {!type:targets}. *)
+
+val string_of_targets :
+  ?len:int -> targets -> string
+  (** Serialize a value of type {!type:targets}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_targets :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> targets
+  (** Input JSON data of type {!type:targets}. *)
+
+val targets_of_string :
+  string -> targets
+  (** Deserialize JSON data of type {!type:targets}. *)
+
 val write_target_times :
   Buffer.t -> target_times -> unit
   (** Output a JSON value of type {!type:target_times}. *)
@@ -1838,26 +2004,6 @@ val read_manifest_kind :
 val manifest_kind_of_string :
   string -> manifest_kind
   (** Deserialize JSON data of type {!type:manifest_kind}. *)
-
-val write_lockfile_kind :
-  Buffer.t -> lockfile_kind -> unit
-  (** Output a JSON value of type {!type:lockfile_kind}. *)
-
-val string_of_lockfile_kind :
-  ?len:int -> lockfile_kind -> string
-  (** Serialize a value of type {!type:lockfile_kind}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_lockfile_kind :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> lockfile_kind
-  (** Input JSON data of type {!type:lockfile_kind}. *)
-
-val lockfile_kind_of_string :
-  string -> lockfile_kind
-  (** Deserialize JSON data of type {!type:lockfile_kind}. *)
 
 val write_ecosystem :
   Buffer.t -> ecosystem -> unit
@@ -2058,26 +2204,6 @@ val read_scanned_and_skipped :
 val scanned_and_skipped_of_string :
   string -> scanned_and_skipped
   (** Deserialize JSON data of type {!type:scanned_and_skipped}. *)
-
-val write_product :
-  Buffer.t -> product -> unit
-  (** Output a JSON value of type {!type:product}. *)
-
-val string_of_product :
-  ?len:int -> product -> string
-  (** Serialize a value of type {!type:product}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_product :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> product
-  (** Input JSON data of type {!type:product}. *)
-
-val product_of_string :
-  string -> product
-  (** Deserialize JSON data of type {!type:product}. *)
 
 val write_scan_info :
   Buffer.t -> scan_info -> unit
@@ -3119,26 +3245,6 @@ val manifest_of_string :
   string -> manifest
   (** Deserialize JSON data of type {!type:manifest}. *)
 
-val write_lockfile :
-  Buffer.t -> lockfile -> unit
-  (** Output a JSON value of type {!type:lockfile}. *)
-
-val string_of_lockfile :
-  ?len:int -> lockfile -> string
-  (** Serialize a value of type {!type:lockfile}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_lockfile :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> lockfile
-  (** Input JSON data of type {!type:lockfile}. *)
-
-val lockfile_of_string :
-  string -> lockfile
-  (** Deserialize JSON data of type {!type:lockfile}. *)
-
 val write_has_features :
   Buffer.t -> has_features -> unit
   (** Output a JSON value of type {!type:has_features}. *)
@@ -3358,6 +3464,46 @@ val read_features :
 val features_of_string :
   string -> features
   (** Deserialize JSON data of type {!type:features}. *)
+
+val write_diff_file :
+  Buffer.t -> diff_file -> unit
+  (** Output a JSON value of type {!type:diff_file}. *)
+
+val string_of_diff_file :
+  ?len:int -> diff_file -> string
+  (** Serialize a value of type {!type:diff_file}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_diff_file :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> diff_file
+  (** Input JSON data of type {!type:diff_file}. *)
+
+val diff_file_of_string :
+  string -> diff_file
+  (** Deserialize JSON data of type {!type:diff_file}. *)
+
+val write_diff_files :
+  Buffer.t -> diff_files -> unit
+  (** Output a JSON value of type {!type:diff_files}. *)
+
+val string_of_diff_files :
+  ?len:int -> diff_files -> string
+  (** Serialize a value of type {!type:diff_files}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_diff_files :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> diff_files
+  (** Input JSON data of type {!type:diff_files}. *)
+
+val diff_files_of_string :
+  string -> diff_files
+  (** Deserialize JSON data of type {!type:diff_files}. *)
 
 val write_deployment_config :
   Buffer.t -> deployment_config -> unit
