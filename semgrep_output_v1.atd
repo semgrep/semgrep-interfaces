@@ -1932,7 +1932,7 @@ type lockfile_kind
 ] <ocaml repr="classic">
 
 type manifest_kind 
-  <ocaml attr="deriving show, eq, yojson">
+  <ocaml attr="deriving show, eq">
   <python decorator="dataclass(frozen=True)">   = [
   | RequirementsIn
     (* A Pip Requirements.in in file, which follows the format of requirements.txt - https://pip.pypa.io/en/stable/reference/requirements-file-format/ *)
