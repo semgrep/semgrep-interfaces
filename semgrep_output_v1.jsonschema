@@ -1563,11 +1563,10 @@
     "sarif_format_params": {
       "type": "object",
       "required": [
-        "hide_nudge", "engine_label", "rules", "cli_matches", "cli_errors"
+        "rules", "cli_matches", "cli_errors", "hide_nudge", "engine_label",
+        "show_dataflow_traces"
       ],
       "properties": {
-        "hide_nudge": { "type": "boolean" },
-        "engine_label": { "type": "string" },
         "rules": { "$ref": "#/definitions/fpath" },
         "cli_matches": {
           "type": "array",
@@ -1577,6 +1576,8 @@
           "type": "array",
           "items": { "$ref": "#/definitions/cli_error" }
         },
+        "hide_nudge": { "type": "boolean" },
+        "engine_label": { "type": "string" },
         "show_dataflow_traces": { "type": "boolean" }
       }
     },
@@ -1813,7 +1814,15 @@
           "items": false,
           "prefixItems": [
             { "const": "CallSarifFormat" },
-            { "$ref": "#/definitions/sarif_format_params" }
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "$ref": "#/definitions/format_context" },
+                { "$ref": "#/definitions/sarif_format_params" }
+              ]
+            }
           ]
         },
         {
@@ -1887,8 +1896,8 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "RetSarifFormat" },
-            { "$ref": "#/definitions/sarif_format_return" }
+            { "const": "RetContributions" },
+            { "$ref": "#/definitions/contributions" }
           ]
         },
         {
@@ -1896,8 +1905,8 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "RetContributions" },
-            { "$ref": "#/definitions/contributions" }
+            { "const": "RetSarifFormat" },
+            { "$ref": "#/definitions/sarif_format_return" }
           ]
         },
         {
