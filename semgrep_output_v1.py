@@ -5747,7 +5747,7 @@ class DependencyMatch:
 
     dependency_pattern: DependencyPattern
     found_dependency: FoundDependency
-    lockfile: str
+    lockfile: Fpath
 
     @classmethod
     def from_json(cls, x: Any) -> 'DependencyMatch':
@@ -5755,7 +5755,7 @@ class DependencyMatch:
             return cls(
                 dependency_pattern=DependencyPattern.from_json(x['dependency_pattern']) if 'dependency_pattern' in x else _atd_missing_json_field('DependencyMatch', 'dependency_pattern'),
                 found_dependency=FoundDependency.from_json(x['found_dependency']) if 'found_dependency' in x else _atd_missing_json_field('DependencyMatch', 'found_dependency'),
-                lockfile=_atd_read_string(x['lockfile']) if 'lockfile' in x else _atd_missing_json_field('DependencyMatch', 'lockfile'),
+                lockfile=Fpath.from_json(x['lockfile']) if 'lockfile' in x else _atd_missing_json_field('DependencyMatch', 'lockfile'),
             )
         else:
             _atd_bad_json('DependencyMatch', x)
@@ -5764,7 +5764,7 @@ class DependencyMatch:
         res: Dict[str, Any] = {}
         res['dependency_pattern'] = (lambda x: x.to_json())(self.dependency_pattern)
         res['found_dependency'] = (lambda x: x.to_json())(self.found_dependency)
-        res['lockfile'] = _atd_write_string(self.lockfile)
+        res['lockfile'] = (lambda x: x.to_json())(self.lockfile)
         return res
 
     @classmethod
@@ -6709,10 +6709,10 @@ class CliMatchExtra:
     fixed_lines: Optional[List[str]] = None
     is_ignored: Optional[bool] = None
     sca_info: Optional[ScaInfo] = None
-    dataflow_trace: Optional[MatchDataflowTrace] = None
-    engine_kind: Optional[EngineOfFinding] = None
     validation_state: Optional[ValidationState] = None
     historical_info: Optional[HistoricalInfo] = None
+    dataflow_trace: Optional[MatchDataflowTrace] = None
+    engine_kind: Optional[EngineOfFinding] = None
     extra_extra: Optional[RawJson] = None
 
     @classmethod
@@ -6729,10 +6729,10 @@ class CliMatchExtra:
                 fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
                 is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else None,
                 sca_info=ScaInfo.from_json(x['sca_info']) if 'sca_info' in x else None,
-                dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
-                engine_kind=EngineOfFinding.from_json(x['engine_kind']) if 'engine_kind' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
                 historical_info=HistoricalInfo.from_json(x['historical_info']) if 'historical_info' in x else None,
+                dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
+                engine_kind=EngineOfFinding.from_json(x['engine_kind']) if 'engine_kind' in x else None,
                 extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
             )
         else:
@@ -6755,14 +6755,14 @@ class CliMatchExtra:
             res['is_ignored'] = _atd_write_bool(self.is_ignored)
         if self.sca_info is not None:
             res['sca_info'] = (lambda x: x.to_json())(self.sca_info)
-        if self.dataflow_trace is not None:
-            res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
-        if self.engine_kind is not None:
-            res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
         if self.validation_state is not None:
             res['validation_state'] = (lambda x: x.to_json())(self.validation_state)
         if self.historical_info is not None:
             res['historical_info'] = (lambda x: x.to_json())(self.historical_info)
+        if self.dataflow_trace is not None:
+            res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
+        if self.engine_kind is not None:
+            res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
         if self.extra_extra is not None:
             res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
         return res
@@ -7295,7 +7295,7 @@ class Finding:
 class DependencyParserError:
     """Original type: dependency_parser_error = { ... }"""
 
-    path: str
+    path: Fpath
     parser: ScaParserName
     reason: str
     line: Optional[int] = None
@@ -7306,7 +7306,7 @@ class DependencyParserError:
     def from_json(cls, x: Any) -> 'DependencyParserError':
         if isinstance(x, dict):
             return cls(
-                path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('DependencyParserError', 'path'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('DependencyParserError', 'path'),
                 parser=ScaParserName.from_json(x['parser']) if 'parser' in x else _atd_missing_json_field('DependencyParserError', 'parser'),
                 reason=_atd_read_string(x['reason']) if 'reason' in x else _atd_missing_json_field('DependencyParserError', 'reason'),
                 line=_atd_read_int(x['line']) if 'line' in x else None,
@@ -7318,7 +7318,7 @@ class DependencyParserError:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['path'] = _atd_write_string(self.path)
+        res['path'] = (lambda x: x.to_json())(self.path)
         res['parser'] = (lambda x: x.to_json())(self.parser)
         res['reason'] = _atd_write_string(self.reason)
         if self.line is not None:
@@ -8700,7 +8700,7 @@ class Features:
 class DiffFile:
     """Original type: diff_file = { ... }"""
 
-    filename: str
+    filename: Fpath
     diffs: List[str]
     url: str
 
@@ -8708,7 +8708,7 @@ class DiffFile:
     def from_json(cls, x: Any) -> 'DiffFile':
         if isinstance(x, dict):
             return cls(
-                filename=_atd_read_string(x['filename']) if 'filename' in x else _atd_missing_json_field('DiffFile', 'filename'),
+                filename=Fpath.from_json(x['filename']) if 'filename' in x else _atd_missing_json_field('DiffFile', 'filename'),
                 diffs=_atd_read_list(_atd_read_string)(x['diffs']) if 'diffs' in x else _atd_missing_json_field('DiffFile', 'diffs'),
                 url=_atd_read_string(x['url']) if 'url' in x else _atd_missing_json_field('DiffFile', 'url'),
             )
@@ -8717,7 +8717,7 @@ class DiffFile:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['filename'] = _atd_write_string(self.filename)
+        res['filename'] = (lambda x: x.to_json())(self.filename)
         res['diffs'] = _atd_write_list(_atd_write_string)(self.diffs)
         res['url'] = _atd_write_string(self.url)
         return res

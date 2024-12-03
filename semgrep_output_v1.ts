@@ -80,34 +80,6 @@ export type Product =
 | { kind: 'SCA' /* JSON: "sca" */ }
 | { kind: 'Secrets' /* JSON: "secrets" */ }
 
-export type ValidationState =
-| { kind: 'Confirmed_valid' /* JSON: "CONFIRMED_VALID" */ }
-| { kind: 'Confirmed_invalid' /* JSON: "CONFIRMED_INVALID" */ }
-| { kind: 'Validation_error' /* JSON: "VALIDATION_ERROR" */ }
-| { kind: 'No_validator' /* JSON: "NO_VALIDATOR" */ }
-
-export type CoreMatch = {
-  check_id: RuleId;
-  path: Fpath;
-  start: Position;
-  end: Position;
-  extra: CoreMatchExtra;
-}
-
-export type CoreMatchExtra = {
-  message?: string;
-  metadata?: RawJson;
-  severity?: MatchSeverity;
-  metavars: Metavars;
-  fix?: string;
-  dataflow_trace?: MatchDataflowTrace;
-  engine_kind: EngineOfFinding;
-  is_ignored: boolean;
-  validation_state?: ValidationState;
-  historical_info?: HistoricalInfo;
-  extra_extra?: RawJson;
-}
-
 export type CliMatch = {
   check_id: RuleId;
   path: Fpath;
@@ -127,10 +99,10 @@ export type CliMatchExtra = {
   lines: string;
   is_ignored?: boolean;
   sca_info?: ScaInfo;
-  dataflow_trace?: MatchDataflowTrace;
-  engine_kind?: EngineOfFinding;
   validation_state?: ValidationState;
   historical_info?: HistoricalInfo;
+  dataflow_trace?: MatchDataflowTrace;
+  engine_kind?: EngineOfFinding;
   extra_extra?: RawJson;
 }
 
@@ -149,6 +121,34 @@ export type SvalueValue = {
   svalue_abstract_content: string;
 }
 
+export type MatchingExplanation = {
+  op: MatchingOperation;
+  children: MatchingExplanation[];
+  matches: CoreMatch[];
+  loc: Location;
+  extra?: MatchingExplanationExtra;
+}
+
+export type MatchingExplanationExtra = {
+  before_negation_matches: Option<CoreMatch[]>;
+  before_filter_matches: Option<CoreMatch[]>;
+}
+
+export type MatchingOperation =
+| { kind: 'And' }
+| { kind: 'Or' }
+| { kind: 'Inside' }
+| { kind: 'Anywhere' }
+| { kind: 'XPat'; value: string }
+| { kind: 'Negation' }
+| { kind: 'Filter'; value: string }
+| { kind: 'Taint' }
+| { kind: 'TaintSource' }
+| { kind: 'TaintSink' }
+| { kind: 'TaintSanitizer' }
+| { kind: 'EllipsisAndStmts' }
+| { kind: 'ClassHeaderAndElems' }
+
 export type MatchDataflowTrace = {
   taint_source?: MatchCallTrace;
   intermediate_vars?: MatchIntermediateVar[];
@@ -164,6 +164,75 @@ export type MatchCallTrace =
 export type MatchIntermediateVar = {
   location: Location;
   content: string;
+}
+
+export type Ecosystem =
+| { kind: 'Npm' /* JSON: "npm" */ }
+| { kind: 'Pypi' /* JSON: "pypi" */ }
+| { kind: 'Gem' /* JSON: "gem" */ }
+| { kind: 'Gomod' /* JSON: "gomod" */ }
+| { kind: 'Cargo' /* JSON: "cargo" */ }
+| { kind: 'Maven' /* JSON: "maven" */ }
+| { kind: 'Composer' /* JSON: "composer" */ }
+| { kind: 'Nuget' /* JSON: "nuget" */ }
+| { kind: 'Pub' /* JSON: "pub" */ }
+| { kind: 'SwiftPM' /* JSON: "swiftpm" */ }
+| { kind: 'Mix' /* JSON: "mix" */ }
+| { kind: 'Hex' /* JSON: "hex" */ }
+
+export type Transitivity =
+| { kind: 'Direct' /* JSON: "direct" */ }
+| { kind: 'Transitive' /* JSON: "transitive" */ }
+| { kind: 'Unknown' /* JSON: "unknown" */ }
+
+export type ScaInfo = {
+  reachable: boolean;
+  reachability_rule: boolean;
+  sca_finding_schema: number /*int*/;
+  dependency_match: DependencyMatch;
+}
+
+export type DependencyMatch = {
+  dependency_pattern: DependencyPattern;
+  found_dependency: FoundDependency;
+  lockfile: Fpath;
+}
+
+export type DependencyPattern = {
+  ecosystem: Ecosystem;
+  package_: string;
+  semver_range: string;
+}
+
+export type FoundDependency = {
+  package_: string;
+  version: string;
+  ecosystem: Ecosystem;
+  allowed_hashes: Map<string, string[]>;
+  resolved_url?: string;
+  transitivity: Transitivity;
+  manifest_path?: Fpath;
+  lockfile_path?: Fpath;
+  line_number?: number /*int*/;
+  children?: DependencyChild[];
+  git_ref?: string;
+}
+
+export type DependencyChild = {
+  package_: string;
+  version: string;
+}
+
+export type ValidationState =
+| { kind: 'Confirmed_valid' /* JSON: "CONFIRMED_VALID" */ }
+| { kind: 'Confirmed_invalid' /* JSON: "CONFIRMED_INVALID" */ }
+| { kind: 'Validation_error' /* JSON: "VALIDATION_ERROR" */ }
+| { kind: 'No_validator' /* JSON: "NO_VALIDATOR" */ }
+
+export type HistoricalInfo = {
+  git_commit: Sha1;
+  git_blob?: Sha1;
+  git_commit_timestamp: Datetime;
 }
 
 export type ErrorType =
@@ -199,15 +268,6 @@ export type IncompatibleRule = {
   this_version: Version;
   min_version?: Version;
   max_version?: Version;
-}
-
-export type CoreError = {
-  error_type: ErrorType;
-  severity: ErrorSeverity;
-  message: string;
-  details?: string;
-  location?: Location;
-  rule_id?: RuleId;
 }
 
 export type CliError = {
@@ -289,47 +349,6 @@ export type TargetTimes = {
   run_time: number;
 }
 
-export type MatchingExplanation = {
-  op: MatchingOperation;
-  children: MatchingExplanation[];
-  matches: CoreMatch[];
-  loc: Location;
-  extra?: MatchingExplanationExtra;
-}
-
-export type MatchingExplanationExtra = {
-  before_negation_matches: Option<CoreMatch[]>;
-  before_filter_matches: Option<CoreMatch[]>;
-}
-
-export type MatchingOperation =
-| { kind: 'And' }
-| { kind: 'Or' }
-| { kind: 'Inside' }
-| { kind: 'Anywhere' }
-| { kind: 'XPat'; value: string }
-| { kind: 'Negation' }
-| { kind: 'Filter'; value: string }
-| { kind: 'Taint' }
-| { kind: 'TaintSource' }
-| { kind: 'TaintSink' }
-| { kind: 'TaintSanitizer' }
-| { kind: 'EllipsisAndStmts' }
-| { kind: 'ClassHeaderAndElems' }
-
-export type CoreOutput = {
-  version: Version;
-  results: CoreMatch[];
-  errors: CoreError[];
-  paths: ScannedAndSkipped;
-  time?: Profile;
-  explanations?: MatchingExplanation[];
-  rules_by_engine?: RuleIdAndEngineKind[];
-  engine_requested?: EngineKind;
-  interfile_languages_used?: string[];
-  skipped_rules: SkippedRule[];
-}
-
 export type CliOutput = {
   version?: Version;
   results: CliMatch[];
@@ -352,6 +371,44 @@ export type CliOutputExtra = {
   interfile_languages_used?: string[];
   skipped_rules: SkippedRule[];
 }
+
+export type ConfigErrorReason =
+| { kind: 'UnparsableRule' /* JSON: "unparsable_rule" */ }
+
+export type ConfigError = {
+  file: Fpath;
+  reason: ConfigErrorReason;
+}
+
+export type TestsResult = {
+  results: [string, Checks][];
+  fixtest_results: [string, FixtestResult][];
+  config_missing_tests: Fpath[];
+  config_missing_fixtests: Fpath[];
+  config_with_errors: ConfigError[];
+}
+
+export type Checks = {
+  checks: [string, RuleResult][];
+}
+
+export type RuleResult = {
+  passed: boolean;
+  matches: [string, ExpectedReported][];
+  errors: Todo[];
+  diagnosis?: MatchingDiagnosis;
+}
+
+export type ExpectedReported = {
+  expected_lines: number /*int*/[];
+  reported_lines: number /*int*/[];
+}
+
+export type FixtestResult = {
+  passed: boolean;
+}
+
+export type Todo = number /*int*/
 
 export type MatchingDiagnosis = {
   target: Fpath;
@@ -393,138 +450,6 @@ export type Snippet = {
 export type KillingParent = {
   killing_parent_kind: KillingParentKind;
   snippet: Snippet;
-}
-
-export type ConfigErrorReason =
-| { kind: 'UnparsableRule' /* JSON: "unparsable_rule" */ }
-
-export type ConfigError = {
-  file: Fpath;
-  reason: ConfigErrorReason;
-}
-
-export type TestsResult = {
-  results: [string, Checks][];
-  fixtest_results: [string, FixtestResult][];
-  config_missing_tests: Fpath[];
-  config_missing_fixtests: Fpath[];
-  config_with_errors: ConfigError[];
-}
-
-export type Checks = {
-  checks: [string, RuleResult][];
-}
-
-export type RuleResult = {
-  passed: boolean;
-  matches: [string, ExpectedReported][];
-  errors: Todo[];
-  diagnosis?: MatchingDiagnosis;
-}
-
-export type ExpectedReported = {
-  expected_lines: number /*int*/[];
-  reported_lines: number /*int*/[];
-}
-
-export type FixtestResult = {
-  passed: boolean;
-}
-
-export type Todo = number /*int*/
-
-export type ScaInfo = {
-  reachable: boolean;
-  reachability_rule: boolean;
-  sca_finding_schema: number /*int*/;
-  dependency_match: DependencyMatch;
-}
-
-export type DependencyMatch = {
-  dependency_pattern: DependencyPattern;
-  found_dependency: FoundDependency;
-  lockfile: string;
-}
-
-export type Ecosystem =
-| { kind: 'Npm' /* JSON: "npm" */ }
-| { kind: 'Pypi' /* JSON: "pypi" */ }
-| { kind: 'Gem' /* JSON: "gem" */ }
-| { kind: 'Gomod' /* JSON: "gomod" */ }
-| { kind: 'Cargo' /* JSON: "cargo" */ }
-| { kind: 'Maven' /* JSON: "maven" */ }
-| { kind: 'Composer' /* JSON: "composer" */ }
-| { kind: 'Nuget' /* JSON: "nuget" */ }
-| { kind: 'Pub' /* JSON: "pub" */ }
-| { kind: 'SwiftPM' /* JSON: "swiftpm" */ }
-| { kind: 'Mix' /* JSON: "mix" */ }
-| { kind: 'Hex' /* JSON: "hex" */ }
-
-export type Transitivity =
-| { kind: 'Direct' /* JSON: "direct" */ }
-| { kind: 'Transitive' /* JSON: "transitive" */ }
-| { kind: 'Unknown' /* JSON: "unknown" */ }
-
-export type DependencyPattern = {
-  ecosystem: Ecosystem;
-  package_: string;
-  semver_range: string;
-}
-
-export type DependencyChild = {
-  package_: string;
-  version: string;
-}
-
-export type FoundDependency = {
-  package_: string;
-  version: string;
-  ecosystem: Ecosystem;
-  allowed_hashes: Map<string, string[]>;
-  resolved_url?: string;
-  transitivity: Transitivity;
-  manifest_path?: Fpath;
-  lockfile_path?: Fpath;
-  line_number?: number /*int*/;
-  children?: DependencyChild[];
-  git_ref?: string;
-}
-
-export type ScaParserName =
-| { kind: 'Gemfile_lock' /* JSON: "gemfile_lock" */ }
-| { kind: 'Go_mod' /* JSON: "go_mod" */ }
-| { kind: 'Go_sum' /* JSON: "go_sum" */ }
-| { kind: 'Gradle_lockfile' /* JSON: "gradle_lockfile" */ }
-| { kind: 'Gradle_build' /* JSON: "gradle_build" */ }
-| { kind: 'Jsondoc' /* JSON: "jsondoc" */ }
-| { kind: 'Pipfile' /* JSON: "pipfile" */ }
-| { kind: 'Pnpm_lock' /* JSON: "pnpm_lock" */ }
-| { kind: 'Poetry_lock' /* JSON: "poetry_lock" */ }
-| { kind: 'Pyproject_toml' /* JSON: "pyproject_toml" */ }
-| { kind: 'Requirements' /* JSON: "requirements" */ }
-| { kind: 'Yarn_1' /* JSON: "yarn_1" */ }
-| { kind: 'Yarn_2' /* JSON: "yarn_2" */ }
-| { kind: 'Pomtree' /* JSON: "pomtree" */ }
-| { kind: 'Cargo_parser' /* JSON: "cargo" */ }
-| { kind: 'Composer_lock' /* JSON: "composer_lock" */ }
-| { kind: 'Pubspec_lock' /* JSON: "pubspec_lock" */ }
-| { kind: 'Package_swift' /* JSON: "package_swift" */ }
-| { kind: 'Package_resolved' /* JSON: "package_resolved" */ }
-| { kind: 'Mix_lock' /* JSON: "mix_lock" */ }
-
-export type DependencyParserError = {
-  path: string;
-  parser: ScaParserName;
-  reason: string;
-  line?: number /*int*/;
-  col?: number /*int*/;
-  text?: string;
-}
-
-export type HistoricalInfo = {
-  git_commit: Sha1;
-  git_blob?: Sha1;
-  git_commit_timestamp: Datetime;
 }
 
 export type HasFeatures = {
@@ -734,8 +659,6 @@ export type Contribution = {
 
 export type Contributions = Contribution[]
 
-export type CiScanDependencies = Map<string, FoundDependency[]>
-
 export type CiScanResultsResponse = {
   errors: CiScanResultsResponseError[];
   task_id?: string;
@@ -766,35 +689,6 @@ export type CiScanCompleteStats = {
   supply_chain_stats?: SupplyChainStats;
 }
 
-export type ResolutionMethod =
-| { kind: 'LockfileParsing' }
-| { kind: 'DynamicResolution' }
-
-export type DependencyResolutionStats = {
-  resolution_method: ResolutionMethod;
-  dependency_count: number /*int*/;
-  ecosystem: Ecosystem;
-}
-
-export type DependencySourceFileKind =
-| { kind: 'Lockfile'; value: LockfileKind }
-| { kind: 'Manifest'; value: ManifestKind }
-
-export type DependencySourceFile = {
-  kind: DependencySourceFileKind;
-  path: Fpath;
-}
-
-export type SubprojectStats = {
-  subproject_id: string;
-  dependency_sources: DependencySourceFile[];
-  resolved_stats?: DependencyResolutionStats;
-}
-
-export type SupplyChainStats = {
-  subprojects_stats: SubprojectStats[];
-}
-
 export type ParsingStats = {
   targets_parsed: number /*int*/;
   num_targets: number /*int*/;
@@ -807,6 +701,68 @@ export type CiScanCompleteResponse = {
   app_block_override: boolean;
   app_block_reason: string;
 }
+
+export type CiScanDependencies = Map<string, FoundDependency[]>
+
+export type DependencyParserError = {
+  path: Fpath;
+  parser: ScaParserName;
+  reason: string;
+  line?: number /*int*/;
+  col?: number /*int*/;
+  text?: string;
+}
+
+export type ScaParserName =
+| { kind: 'Gemfile_lock' /* JSON: "gemfile_lock" */ }
+| { kind: 'Go_mod' /* JSON: "go_mod" */ }
+| { kind: 'Go_sum' /* JSON: "go_sum" */ }
+| { kind: 'Gradle_lockfile' /* JSON: "gradle_lockfile" */ }
+| { kind: 'Gradle_build' /* JSON: "gradle_build" */ }
+| { kind: 'Jsondoc' /* JSON: "jsondoc" */ }
+| { kind: 'Pipfile' /* JSON: "pipfile" */ }
+| { kind: 'Pnpm_lock' /* JSON: "pnpm_lock" */ }
+| { kind: 'Poetry_lock' /* JSON: "poetry_lock" */ }
+| { kind: 'Pyproject_toml' /* JSON: "pyproject_toml" */ }
+| { kind: 'Requirements' /* JSON: "requirements" */ }
+| { kind: 'Yarn_1' /* JSON: "yarn_1" */ }
+| { kind: 'Yarn_2' /* JSON: "yarn_2" */ }
+| { kind: 'Pomtree' /* JSON: "pomtree" */ }
+| { kind: 'Cargo_parser' /* JSON: "cargo" */ }
+| { kind: 'Composer_lock' /* JSON: "composer_lock" */ }
+| { kind: 'Pubspec_lock' /* JSON: "pubspec_lock" */ }
+| { kind: 'Package_swift' /* JSON: "package_swift" */ }
+| { kind: 'Package_resolved' /* JSON: "package_resolved" */ }
+| { kind: 'Mix_lock' /* JSON: "mix_lock" */ }
+
+export type SupplyChainStats = {
+  subprojects_stats: SubprojectStats[];
+}
+
+export type SubprojectStats = {
+  subproject_id: string;
+  dependency_sources: DependencySourceFile[];
+  resolved_stats?: DependencyResolutionStats;
+}
+
+export type DependencySourceFile = {
+  kind: DependencySourceFileKind;
+  path: Fpath;
+}
+
+export type DependencySourceFileKind =
+| { kind: 'Lockfile'; value: LockfileKind }
+| { kind: 'Manifest'; value: ManifestKind }
+
+export type DependencyResolutionStats = {
+  resolution_method: ResolutionMethod;
+  dependency_count: number /*int*/;
+  ecosystem: Ecosystem;
+}
+
+export type ResolutionMethod =
+| { kind: 'LockfileParsing' }
+| { kind: 'DynamicResolution' }
 
 export type CiScanFailure = {
   exit_code: number /*int*/;
@@ -831,6 +787,65 @@ export type CiConfig = {
 }
 
 export type CiEnv = Map<string, string>
+
+export type CoreOutput = {
+  version: Version;
+  results: CoreMatch[];
+  errors: CoreError[];
+  paths: ScannedAndSkipped;
+  time?: Profile;
+  explanations?: MatchingExplanation[];
+  rules_by_engine?: RuleIdAndEngineKind[];
+  engine_requested?: EngineKind;
+  interfile_languages_used?: string[];
+  skipped_rules: SkippedRule[];
+}
+
+export type CoreMatch = {
+  check_id: RuleId;
+  path: Fpath;
+  start: Position;
+  end: Position;
+  extra: CoreMatchExtra;
+}
+
+export type CoreMatchExtra = {
+  message?: string;
+  metadata?: RawJson;
+  severity?: MatchSeverity;
+  metavars: Metavars;
+  fix?: string;
+  dataflow_trace?: MatchDataflowTrace;
+  engine_kind: EngineOfFinding;
+  is_ignored: boolean;
+  validation_state?: ValidationState;
+  historical_info?: HistoricalInfo;
+  extra_extra?: RawJson;
+}
+
+export type CoreError = {
+  error_type: ErrorType;
+  severity: ErrorSeverity;
+  message: string;
+  details?: string;
+  location?: Location;
+  rule_id?: RuleId;
+}
+
+export type Xlang = string
+
+export type Target =
+| { kind: 'CodeTarget'; value: CodeTarget }
+| { kind: 'LockfileTarget'; value: Lockfile }
+
+export type CodeTarget = {
+  path: Fpath;
+  analyzer: Xlang;
+  products: Product[];
+  lockfile_target?: Lockfile;
+}
+
+export type Targets = Target[]
 
 export type Edit = {
   path: Fpath;
@@ -879,6 +894,12 @@ export type FormatContext = {
   is_ci_invocation: boolean;
   is_logged_in: boolean;
   is_using_registry: boolean;
+}
+
+export type DumpRulePartitionsParams = {
+  rules: RawJson;
+  n_partitions: number /*int*/;
+  output_dir: Fpath;
 }
 
 export type LockfileKind =
@@ -950,12 +971,6 @@ export type ResolutionResult =
 | { kind: 'ResolutionOk'; value: [FoundDependency[], ResolutionError[]] }
 | { kind: 'ResolutionError'; value: ResolutionError[] }
 
-export type DumpRulePartitionsParams = {
-  rules: RawJson;
-  n_partitions: number /*int*/;
-  output_dir: Fpath;
-}
-
 export type FunctionCall =
 | { kind: 'CallContributions' }
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
@@ -979,23 +994,8 @@ export type PartialScanResult =
 | { kind: 'PartialScanOk'; value: [CiScanResults, CiScanComplete] }
 | { kind: 'PartialScanError'; value: CiScanFailure }
 
-export type Xlang = string
-
-export type Target =
-| { kind: 'CodeTarget'; value: CodeTarget }
-| { kind: 'LockfileTarget'; value: Lockfile }
-
-export type CodeTarget = {
-  path: Fpath;
-  analyzer: Xlang;
-  products: Product[];
-  lockfile_target?: Lockfile;
-}
-
-export type Targets = Target[]
-
 export type DiffFile = {
-  filename: string;
+  filename: Fpath;
   diffs: string[];
   url: string;
 }
@@ -1279,87 +1279,6 @@ export function readProduct(x: any, context: any = x): Product {
   }
 }
 
-export function writeValidationState(x: ValidationState, context: any = x): any {
-  switch (x.kind) {
-    case 'Confirmed_valid':
-      return 'CONFIRMED_VALID'
-    case 'Confirmed_invalid':
-      return 'CONFIRMED_INVALID'
-    case 'Validation_error':
-      return 'VALIDATION_ERROR'
-    case 'No_validator':
-      return 'NO_VALIDATOR'
-  }
-}
-
-export function readValidationState(x: any, context: any = x): ValidationState {
-  switch (x) {
-    case 'CONFIRMED_VALID':
-      return { kind: 'Confirmed_valid' }
-    case 'CONFIRMED_INVALID':
-      return { kind: 'Confirmed_invalid' }
-    case 'VALIDATION_ERROR':
-      return { kind: 'Validation_error' }
-    case 'NO_VALIDATOR':
-      return { kind: 'No_validator' }
-    default:
-      _atd_bad_json('ValidationState', x, context)
-      throw new Error('impossible')
-  }
-}
-
-export function writeCoreMatch(x: CoreMatch, context: any = x): any {
-  return {
-    'check_id': _atd_write_required_field('CoreMatch', 'check_id', writeRuleId, x.check_id, x),
-    'path': _atd_write_required_field('CoreMatch', 'path', writeFpath, x.path, x),
-    'start': _atd_write_required_field('CoreMatch', 'start', writePosition, x.start, x),
-    'end': _atd_write_required_field('CoreMatch', 'end', writePosition, x.end, x),
-    'extra': _atd_write_required_field('CoreMatch', 'extra', writeCoreMatchExtra, x.extra, x),
-  };
-}
-
-export function readCoreMatch(x: any, context: any = x): CoreMatch {
-  return {
-    check_id: _atd_read_required_field('CoreMatch', 'check_id', readRuleId, x['check_id'], x),
-    path: _atd_read_required_field('CoreMatch', 'path', readFpath, x['path'], x),
-    start: _atd_read_required_field('CoreMatch', 'start', readPosition, x['start'], x),
-    end: _atd_read_required_field('CoreMatch', 'end', readPosition, x['end'], x),
-    extra: _atd_read_required_field('CoreMatch', 'extra', readCoreMatchExtra, x['extra'], x),
-  };
-}
-
-export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
-  return {
-    'message': _atd_write_optional_field(_atd_write_string, x.message, x),
-    'metadata': _atd_write_optional_field(writeRawJson, x.metadata, x),
-    'severity': _atd_write_optional_field(writeMatchSeverity, x.severity, x),
-    'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
-    'fix': _atd_write_optional_field(_atd_write_string, x.fix, x),
-    'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
-    'engine_kind': _atd_write_required_field('CoreMatchExtra', 'engine_kind', writeEngineOfFinding, x.engine_kind, x),
-    'is_ignored': _atd_write_required_field('CoreMatchExtra', 'is_ignored', _atd_write_bool, x.is_ignored, x),
-    'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
-    'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
-    'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
-  };
-}
-
-export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
-  return {
-    message: _atd_read_optional_field(_atd_read_string, x['message'], x),
-    metadata: _atd_read_optional_field(readRawJson, x['metadata'], x),
-    severity: _atd_read_optional_field(readMatchSeverity, x['severity'], x),
-    metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
-    fix: _atd_read_optional_field(_atd_read_string, x['fix'], x),
-    dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
-    engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineOfFinding, x['engine_kind'], x),
-    is_ignored: _atd_read_required_field('CoreMatchExtra', 'is_ignored', _atd_read_bool, x['is_ignored'], x),
-    validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
-    historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),
-    extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
-  };
-}
-
 export function writeCliMatch(x: CliMatch, context: any = x): any {
   return {
     'check_id': _atd_write_required_field('CliMatch', 'check_id', writeRuleId, x.check_id, x),
@@ -1392,10 +1311,10 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'lines': _atd_write_required_field('CliMatchExtra', 'lines', _atd_write_string, x.lines, x),
     'is_ignored': _atd_write_optional_field(_atd_write_bool, x.is_ignored, x),
     'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
-    'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
-    'engine_kind': _atd_write_optional_field(writeEngineOfFinding, x.engine_kind, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
+    'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
+    'engine_kind': _atd_write_optional_field(writeEngineOfFinding, x.engine_kind, x),
     'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
   };
 }
@@ -1412,10 +1331,10 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     lines: _atd_read_required_field('CliMatchExtra', 'lines', _atd_read_string, x['lines'], x),
     is_ignored: _atd_read_optional_field(_atd_read_bool, x['is_ignored'], x),
     sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
-    dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
-    engine_kind: _atd_read_optional_field(readEngineOfFinding, x['engine_kind'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),
+    dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
+    engine_kind: _atd_read_optional_field(readEngineOfFinding, x['engine_kind'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
   };
 }
@@ -1460,6 +1379,115 @@ export function readSvalueValue(x: any, context: any = x): SvalueValue {
     svalue_end: _atd_read_optional_field(readPosition, x['svalue_end'], x),
     svalue_abstract_content: _atd_read_required_field('SvalueValue', 'svalue_abstract_content', _atd_read_string, x['svalue_abstract_content'], x),
   };
+}
+
+export function writeMatchingExplanation(x: MatchingExplanation, context: any = x): any {
+  return {
+    'op': _atd_write_required_field('MatchingExplanation', 'op', writeMatchingOperation, x.op, x),
+    'children': _atd_write_required_field('MatchingExplanation', 'children', _atd_write_array(writeMatchingExplanation), x.children, x),
+    'matches': _atd_write_required_field('MatchingExplanation', 'matches', _atd_write_array(writeCoreMatch), x.matches, x),
+    'loc': _atd_write_required_field('MatchingExplanation', 'loc', writeLocation, x.loc, x),
+    'extra': _atd_write_optional_field(writeMatchingExplanationExtra, x.extra, x),
+  };
+}
+
+export function readMatchingExplanation(x: any, context: any = x): MatchingExplanation {
+  return {
+    op: _atd_read_required_field('MatchingExplanation', 'op', readMatchingOperation, x['op'], x),
+    children: _atd_read_required_field('MatchingExplanation', 'children', _atd_read_array(readMatchingExplanation), x['children'], x),
+    matches: _atd_read_required_field('MatchingExplanation', 'matches', _atd_read_array(readCoreMatch), x['matches'], x),
+    loc: _atd_read_required_field('MatchingExplanation', 'loc', readLocation, x['loc'], x),
+    extra: _atd_read_optional_field(readMatchingExplanationExtra, x['extra'], x),
+  };
+}
+
+export function writeMatchingExplanationExtra(x: MatchingExplanationExtra, context: any = x): any {
+  return {
+    'before_negation_matches': _atd_write_required_field('MatchingExplanationExtra', 'before_negation_matches', _atd_write_option(_atd_write_array(writeCoreMatch)), x.before_negation_matches, x),
+    'before_filter_matches': _atd_write_required_field('MatchingExplanationExtra', 'before_filter_matches', _atd_write_option(_atd_write_array(writeCoreMatch)), x.before_filter_matches, x),
+  };
+}
+
+export function readMatchingExplanationExtra(x: any, context: any = x): MatchingExplanationExtra {
+  return {
+    before_negation_matches: _atd_read_required_field('MatchingExplanationExtra', 'before_negation_matches', _atd_read_option(_atd_read_array(readCoreMatch)), x['before_negation_matches'], x),
+    before_filter_matches: _atd_read_required_field('MatchingExplanationExtra', 'before_filter_matches', _atd_read_option(_atd_read_array(readCoreMatch)), x['before_filter_matches'], x),
+  };
+}
+
+export function writeMatchingOperation(x: MatchingOperation, context: any = x): any {
+  switch (x.kind) {
+    case 'And':
+      return 'And'
+    case 'Or':
+      return 'Or'
+    case 'Inside':
+      return 'Inside'
+    case 'Anywhere':
+      return 'Anywhere'
+    case 'XPat':
+      return ['XPat', _atd_write_string(x.value, x)]
+    case 'Negation':
+      return 'Negation'
+    case 'Filter':
+      return ['Filter', _atd_write_string(x.value, x)]
+    case 'Taint':
+      return 'Taint'
+    case 'TaintSource':
+      return 'TaintSource'
+    case 'TaintSink':
+      return 'TaintSink'
+    case 'TaintSanitizer':
+      return 'TaintSanitizer'
+    case 'EllipsisAndStmts':
+      return 'EllipsisAndStmts'
+    case 'ClassHeaderAndElems':
+      return 'ClassHeaderAndElems'
+  }
+}
+
+export function readMatchingOperation(x: any, context: any = x): MatchingOperation {
+  if (typeof x === 'string') {
+    switch (x) {
+      case 'And':
+        return { kind: 'And' }
+      case 'Or':
+        return { kind: 'Or' }
+      case 'Inside':
+        return { kind: 'Inside' }
+      case 'Anywhere':
+        return { kind: 'Anywhere' }
+      case 'Negation':
+        return { kind: 'Negation' }
+      case 'Taint':
+        return { kind: 'Taint' }
+      case 'TaintSource':
+        return { kind: 'TaintSource' }
+      case 'TaintSink':
+        return { kind: 'TaintSink' }
+      case 'TaintSanitizer':
+        return { kind: 'TaintSanitizer' }
+      case 'EllipsisAndStmts':
+        return { kind: 'EllipsisAndStmts' }
+      case 'ClassHeaderAndElems':
+        return { kind: 'ClassHeaderAndElems' }
+      default:
+        _atd_bad_json('MatchingOperation', x, context)
+        throw new Error('impossible')
+    }
+  }
+  else {
+    _atd_check_json_tuple(2, x, context)
+    switch (x[0]) {
+      case 'XPat':
+        return { kind: 'XPat', value: _atd_read_string(x[1], x) }
+      case 'Filter':
+        return { kind: 'Filter', value: _atd_read_string(x[1], x) }
+      default:
+        _atd_bad_json('MatchingOperation', x, context)
+        throw new Error('impossible')
+    }
+  }
 }
 
 export function writeMatchDataflowTrace(x: MatchDataflowTrace, context: any = x): any {
@@ -1519,6 +1547,233 @@ export function readMatchIntermediateVar(x: any, context: any = x): MatchInterme
   return {
     location: _atd_read_required_field('MatchIntermediateVar', 'location', readLocation, x['location'], x),
     content: _atd_read_required_field('MatchIntermediateVar', 'content', _atd_read_string, x['content'], x),
+  };
+}
+
+export function writeEcosystem(x: Ecosystem, context: any = x): any {
+  switch (x.kind) {
+    case 'Npm':
+      return 'npm'
+    case 'Pypi':
+      return 'pypi'
+    case 'Gem':
+      return 'gem'
+    case 'Gomod':
+      return 'gomod'
+    case 'Cargo':
+      return 'cargo'
+    case 'Maven':
+      return 'maven'
+    case 'Composer':
+      return 'composer'
+    case 'Nuget':
+      return 'nuget'
+    case 'Pub':
+      return 'pub'
+    case 'SwiftPM':
+      return 'swiftpm'
+    case 'Mix':
+      return 'mix'
+    case 'Hex':
+      return 'hex'
+  }
+}
+
+export function readEcosystem(x: any, context: any = x): Ecosystem {
+  switch (x) {
+    case 'npm':
+      return { kind: 'Npm' }
+    case 'pypi':
+      return { kind: 'Pypi' }
+    case 'gem':
+      return { kind: 'Gem' }
+    case 'gomod':
+      return { kind: 'Gomod' }
+    case 'cargo':
+      return { kind: 'Cargo' }
+    case 'maven':
+      return { kind: 'Maven' }
+    case 'composer':
+      return { kind: 'Composer' }
+    case 'nuget':
+      return { kind: 'Nuget' }
+    case 'pub':
+      return { kind: 'Pub' }
+    case 'swiftpm':
+      return { kind: 'SwiftPM' }
+    case 'mix':
+      return { kind: 'Mix' }
+    case 'hex':
+      return { kind: 'Hex' }
+    default:
+      _atd_bad_json('Ecosystem', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeTransitivity(x: Transitivity, context: any = x): any {
+  switch (x.kind) {
+    case 'Direct':
+      return 'direct'
+    case 'Transitive':
+      return 'transitive'
+    case 'Unknown':
+      return 'unknown'
+  }
+}
+
+export function readTransitivity(x: any, context: any = x): Transitivity {
+  switch (x) {
+    case 'direct':
+      return { kind: 'Direct' }
+    case 'transitive':
+      return { kind: 'Transitive' }
+    case 'unknown':
+      return { kind: 'Unknown' }
+    default:
+      _atd_bad_json('Transitivity', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeScaInfo(x: ScaInfo, context: any = x): any {
+  return {
+    'reachable': _atd_write_required_field('ScaInfo', 'reachable', _atd_write_bool, x.reachable, x),
+    'reachability_rule': _atd_write_required_field('ScaInfo', 'reachability_rule', _atd_write_bool, x.reachability_rule, x),
+    'sca_finding_schema': _atd_write_required_field('ScaInfo', 'sca_finding_schema', _atd_write_int, x.sca_finding_schema, x),
+    'dependency_match': _atd_write_required_field('ScaInfo', 'dependency_match', writeDependencyMatch, x.dependency_match, x),
+  };
+}
+
+export function readScaInfo(x: any, context: any = x): ScaInfo {
+  return {
+    reachable: _atd_read_required_field('ScaInfo', 'reachable', _atd_read_bool, x['reachable'], x),
+    reachability_rule: _atd_read_required_field('ScaInfo', 'reachability_rule', _atd_read_bool, x['reachability_rule'], x),
+    sca_finding_schema: _atd_read_required_field('ScaInfo', 'sca_finding_schema', _atd_read_int, x['sca_finding_schema'], x),
+    dependency_match: _atd_read_required_field('ScaInfo', 'dependency_match', readDependencyMatch, x['dependency_match'], x),
+  };
+}
+
+export function writeDependencyMatch(x: DependencyMatch, context: any = x): any {
+  return {
+    'dependency_pattern': _atd_write_required_field('DependencyMatch', 'dependency_pattern', writeDependencyPattern, x.dependency_pattern, x),
+    'found_dependency': _atd_write_required_field('DependencyMatch', 'found_dependency', writeFoundDependency, x.found_dependency, x),
+    'lockfile': _atd_write_required_field('DependencyMatch', 'lockfile', writeFpath, x.lockfile, x),
+  };
+}
+
+export function readDependencyMatch(x: any, context: any = x): DependencyMatch {
+  return {
+    dependency_pattern: _atd_read_required_field('DependencyMatch', 'dependency_pattern', readDependencyPattern, x['dependency_pattern'], x),
+    found_dependency: _atd_read_required_field('DependencyMatch', 'found_dependency', readFoundDependency, x['found_dependency'], x),
+    lockfile: _atd_read_required_field('DependencyMatch', 'lockfile', readFpath, x['lockfile'], x),
+  };
+}
+
+export function writeDependencyPattern(x: DependencyPattern, context: any = x): any {
+  return {
+    'ecosystem': _atd_write_required_field('DependencyPattern', 'ecosystem', writeEcosystem, x.ecosystem, x),
+    'package': _atd_write_required_field('DependencyPattern', 'package', _atd_write_string, x.package_, x),
+    'semver_range': _atd_write_required_field('DependencyPattern', 'semver_range', _atd_write_string, x.semver_range, x),
+  };
+}
+
+export function readDependencyPattern(x: any, context: any = x): DependencyPattern {
+  return {
+    ecosystem: _atd_read_required_field('DependencyPattern', 'ecosystem', readEcosystem, x['ecosystem'], x),
+    package_: _atd_read_required_field('DependencyPattern', 'package', _atd_read_string, x['package'], x),
+    semver_range: _atd_read_required_field('DependencyPattern', 'semver_range', _atd_read_string, x['semver_range'], x),
+  };
+}
+
+export function writeFoundDependency(x: FoundDependency, context: any = x): any {
+  return {
+    'package': _atd_write_required_field('FoundDependency', 'package', _atd_write_string, x.package_, x),
+    'version': _atd_write_required_field('FoundDependency', 'version', _atd_write_string, x.version, x),
+    'ecosystem': _atd_write_required_field('FoundDependency', 'ecosystem', writeEcosystem, x.ecosystem, x),
+    'allowed_hashes': _atd_write_required_field('FoundDependency', 'allowed_hashes', _atd_write_assoc_map_to_object(_atd_write_array(_atd_write_string)), x.allowed_hashes, x),
+    'resolved_url': _atd_write_optional_field(_atd_write_string, x.resolved_url, x),
+    'transitivity': _atd_write_required_field('FoundDependency', 'transitivity', writeTransitivity, x.transitivity, x),
+    'manifest_path': _atd_write_optional_field(writeFpath, x.manifest_path, x),
+    'lockfile_path': _atd_write_optional_field(writeFpath, x.lockfile_path, x),
+    'line_number': _atd_write_optional_field(_atd_write_int, x.line_number, x),
+    'children': _atd_write_optional_field(_atd_write_array(writeDependencyChild), x.children, x),
+    'git_ref': _atd_write_optional_field(_atd_write_string, x.git_ref, x),
+  };
+}
+
+export function readFoundDependency(x: any, context: any = x): FoundDependency {
+  return {
+    package_: _atd_read_required_field('FoundDependency', 'package', _atd_read_string, x['package'], x),
+    version: _atd_read_required_field('FoundDependency', 'version', _atd_read_string, x['version'], x),
+    ecosystem: _atd_read_required_field('FoundDependency', 'ecosystem', readEcosystem, x['ecosystem'], x),
+    allowed_hashes: _atd_read_required_field('FoundDependency', 'allowed_hashes', _atd_read_assoc_object_into_map(_atd_read_array(_atd_read_string)), x['allowed_hashes'], x),
+    resolved_url: _atd_read_optional_field(_atd_read_string, x['resolved_url'], x),
+    transitivity: _atd_read_required_field('FoundDependency', 'transitivity', readTransitivity, x['transitivity'], x),
+    manifest_path: _atd_read_optional_field(readFpath, x['manifest_path'], x),
+    lockfile_path: _atd_read_optional_field(readFpath, x['lockfile_path'], x),
+    line_number: _atd_read_optional_field(_atd_read_int, x['line_number'], x),
+    children: _atd_read_optional_field(_atd_read_array(readDependencyChild), x['children'], x),
+    git_ref: _atd_read_optional_field(_atd_read_string, x['git_ref'], x),
+  };
+}
+
+export function writeDependencyChild(x: DependencyChild, context: any = x): any {
+  return {
+    'package': _atd_write_required_field('DependencyChild', 'package', _atd_write_string, x.package_, x),
+    'version': _atd_write_required_field('DependencyChild', 'version', _atd_write_string, x.version, x),
+  };
+}
+
+export function readDependencyChild(x: any, context: any = x): DependencyChild {
+  return {
+    package_: _atd_read_required_field('DependencyChild', 'package', _atd_read_string, x['package'], x),
+    version: _atd_read_required_field('DependencyChild', 'version', _atd_read_string, x['version'], x),
+  };
+}
+
+export function writeValidationState(x: ValidationState, context: any = x): any {
+  switch (x.kind) {
+    case 'Confirmed_valid':
+      return 'CONFIRMED_VALID'
+    case 'Confirmed_invalid':
+      return 'CONFIRMED_INVALID'
+    case 'Validation_error':
+      return 'VALIDATION_ERROR'
+    case 'No_validator':
+      return 'NO_VALIDATOR'
+  }
+}
+
+export function readValidationState(x: any, context: any = x): ValidationState {
+  switch (x) {
+    case 'CONFIRMED_VALID':
+      return { kind: 'Confirmed_valid' }
+    case 'CONFIRMED_INVALID':
+      return { kind: 'Confirmed_invalid' }
+    case 'VALIDATION_ERROR':
+      return { kind: 'Validation_error' }
+    case 'NO_VALIDATOR':
+      return { kind: 'No_validator' }
+    default:
+      _atd_bad_json('ValidationState', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeHistoricalInfo(x: HistoricalInfo, context: any = x): any {
+  return {
+    'git_commit': _atd_write_required_field('HistoricalInfo', 'git_commit', writeSha1, x.git_commit, x),
+    'git_blob': _atd_write_optional_field(writeSha1, x.git_blob, x),
+    'git_commit_timestamp': _atd_write_required_field('HistoricalInfo', 'git_commit_timestamp', writeDatetime, x.git_commit_timestamp, x),
+  };
+}
+
+export function readHistoricalInfo(x: any, context: any = x): HistoricalInfo {
+  return {
+    git_commit: _atd_read_required_field('HistoricalInfo', 'git_commit', readSha1, x['git_commit'], x),
+    git_blob: _atd_read_optional_field(readSha1, x['git_blob'], x),
+    git_commit_timestamp: _atd_read_required_field('HistoricalInfo', 'git_commit_timestamp', readDatetime, x['git_commit_timestamp'], x),
   };
 }
 
@@ -1664,28 +1919,6 @@ export function readIncompatibleRule(x: any, context: any = x): IncompatibleRule
     this_version: _atd_read_required_field('IncompatibleRule', 'this_version', readVersion, x['this_version'], x),
     min_version: _atd_read_optional_field(readVersion, x['min_version'], x),
     max_version: _atd_read_optional_field(readVersion, x['max_version'], x),
-  };
-}
-
-export function writeCoreError(x: CoreError, context: any = x): any {
-  return {
-    'error_type': _atd_write_required_field('CoreError', 'error_type', writeErrorType, x.error_type, x),
-    'severity': _atd_write_required_field('CoreError', 'severity', writeErrorSeverity, x.severity, x),
-    'message': _atd_write_required_field('CoreError', 'message', _atd_write_string, x.message, x),
-    'details': _atd_write_optional_field(_atd_write_string, x.details, x),
-    'location': _atd_write_optional_field(writeLocation, x.location, x),
-    'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
-  };
-}
-
-export function readCoreError(x: any, context: any = x): CoreError {
-  return {
-    error_type: _atd_read_required_field('CoreError', 'error_type', readErrorType, x['error_type'], x),
-    severity: _atd_read_required_field('CoreError', 'severity', readErrorSeverity, x['severity'], x),
-    message: _atd_read_required_field('CoreError', 'message', _atd_read_string, x['message'], x),
-    details: _atd_read_optional_field(_atd_read_string, x['details'], x),
-    location: _atd_read_optional_field(readLocation, x['location'], x),
-    rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
   };
 }
 
@@ -1918,145 +2151,6 @@ export function readTargetTimes(x: any, context: any = x): TargetTimes {
   };
 }
 
-export function writeMatchingExplanation(x: MatchingExplanation, context: any = x): any {
-  return {
-    'op': _atd_write_required_field('MatchingExplanation', 'op', writeMatchingOperation, x.op, x),
-    'children': _atd_write_required_field('MatchingExplanation', 'children', _atd_write_array(writeMatchingExplanation), x.children, x),
-    'matches': _atd_write_required_field('MatchingExplanation', 'matches', _atd_write_array(writeCoreMatch), x.matches, x),
-    'loc': _atd_write_required_field('MatchingExplanation', 'loc', writeLocation, x.loc, x),
-    'extra': _atd_write_optional_field(writeMatchingExplanationExtra, x.extra, x),
-  };
-}
-
-export function readMatchingExplanation(x: any, context: any = x): MatchingExplanation {
-  return {
-    op: _atd_read_required_field('MatchingExplanation', 'op', readMatchingOperation, x['op'], x),
-    children: _atd_read_required_field('MatchingExplanation', 'children', _atd_read_array(readMatchingExplanation), x['children'], x),
-    matches: _atd_read_required_field('MatchingExplanation', 'matches', _atd_read_array(readCoreMatch), x['matches'], x),
-    loc: _atd_read_required_field('MatchingExplanation', 'loc', readLocation, x['loc'], x),
-    extra: _atd_read_optional_field(readMatchingExplanationExtra, x['extra'], x),
-  };
-}
-
-export function writeMatchingExplanationExtra(x: MatchingExplanationExtra, context: any = x): any {
-  return {
-    'before_negation_matches': _atd_write_required_field('MatchingExplanationExtra', 'before_negation_matches', _atd_write_option(_atd_write_array(writeCoreMatch)), x.before_negation_matches, x),
-    'before_filter_matches': _atd_write_required_field('MatchingExplanationExtra', 'before_filter_matches', _atd_write_option(_atd_write_array(writeCoreMatch)), x.before_filter_matches, x),
-  };
-}
-
-export function readMatchingExplanationExtra(x: any, context: any = x): MatchingExplanationExtra {
-  return {
-    before_negation_matches: _atd_read_required_field('MatchingExplanationExtra', 'before_negation_matches', _atd_read_option(_atd_read_array(readCoreMatch)), x['before_negation_matches'], x),
-    before_filter_matches: _atd_read_required_field('MatchingExplanationExtra', 'before_filter_matches', _atd_read_option(_atd_read_array(readCoreMatch)), x['before_filter_matches'], x),
-  };
-}
-
-export function writeMatchingOperation(x: MatchingOperation, context: any = x): any {
-  switch (x.kind) {
-    case 'And':
-      return 'And'
-    case 'Or':
-      return 'Or'
-    case 'Inside':
-      return 'Inside'
-    case 'Anywhere':
-      return 'Anywhere'
-    case 'XPat':
-      return ['XPat', _atd_write_string(x.value, x)]
-    case 'Negation':
-      return 'Negation'
-    case 'Filter':
-      return ['Filter', _atd_write_string(x.value, x)]
-    case 'Taint':
-      return 'Taint'
-    case 'TaintSource':
-      return 'TaintSource'
-    case 'TaintSink':
-      return 'TaintSink'
-    case 'TaintSanitizer':
-      return 'TaintSanitizer'
-    case 'EllipsisAndStmts':
-      return 'EllipsisAndStmts'
-    case 'ClassHeaderAndElems':
-      return 'ClassHeaderAndElems'
-  }
-}
-
-export function readMatchingOperation(x: any, context: any = x): MatchingOperation {
-  if (typeof x === 'string') {
-    switch (x) {
-      case 'And':
-        return { kind: 'And' }
-      case 'Or':
-        return { kind: 'Or' }
-      case 'Inside':
-        return { kind: 'Inside' }
-      case 'Anywhere':
-        return { kind: 'Anywhere' }
-      case 'Negation':
-        return { kind: 'Negation' }
-      case 'Taint':
-        return { kind: 'Taint' }
-      case 'TaintSource':
-        return { kind: 'TaintSource' }
-      case 'TaintSink':
-        return { kind: 'TaintSink' }
-      case 'TaintSanitizer':
-        return { kind: 'TaintSanitizer' }
-      case 'EllipsisAndStmts':
-        return { kind: 'EllipsisAndStmts' }
-      case 'ClassHeaderAndElems':
-        return { kind: 'ClassHeaderAndElems' }
-      default:
-        _atd_bad_json('MatchingOperation', x, context)
-        throw new Error('impossible')
-    }
-  }
-  else {
-    _atd_check_json_tuple(2, x, context)
-    switch (x[0]) {
-      case 'XPat':
-        return { kind: 'XPat', value: _atd_read_string(x[1], x) }
-      case 'Filter':
-        return { kind: 'Filter', value: _atd_read_string(x[1], x) }
-      default:
-        _atd_bad_json('MatchingOperation', x, context)
-        throw new Error('impossible')
-    }
-  }
-}
-
-export function writeCoreOutput(x: CoreOutput, context: any = x): any {
-  return {
-    'version': _atd_write_required_field('CoreOutput', 'version', writeVersion, x.version, x),
-    'results': _atd_write_required_field('CoreOutput', 'results', _atd_write_array(writeCoreMatch), x.results, x),
-    'errors': _atd_write_required_field('CoreOutput', 'errors', _atd_write_array(writeCoreError), x.errors, x),
-    'paths': _atd_write_required_field('CoreOutput', 'paths', writeScannedAndSkipped, x.paths, x),
-    'time': _atd_write_optional_field(writeProfile, x.time, x),
-    'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
-    'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
-    'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
-    'interfile_languages_used': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.interfile_languages_used, x),
-    'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
-  };
-}
-
-export function readCoreOutput(x: any, context: any = x): CoreOutput {
-  return {
-    version: _atd_read_required_field('CoreOutput', 'version', readVersion, x['version'], x),
-    results: _atd_read_required_field('CoreOutput', 'results', _atd_read_array(readCoreMatch), x['results'], x),
-    errors: _atd_read_required_field('CoreOutput', 'errors', _atd_read_array(readCoreError), x['errors'], x),
-    paths: _atd_read_required_field('CoreOutput', 'paths', readScannedAndSkipped, x['paths'], x),
-    time: _atd_read_optional_field(readProfile, x['time'], x),
-    explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
-    rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
-    engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
-    interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
-    skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
-  };
-}
-
 export function writeCliOutput(x: CliOutput, context: any = x): any {
   return {
     'version': _atd_write_optional_field(writeVersion, x.version, x),
@@ -2109,6 +2203,121 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
     interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
   };
+}
+
+export function writeConfigErrorReason(x: ConfigErrorReason, context: any = x): any {
+  switch (x.kind) {
+    case 'UnparsableRule':
+      return 'unparsable_rule'
+  }
+}
+
+export function readConfigErrorReason(x: any, context: any = x): ConfigErrorReason {
+  switch (x) {
+    case 'unparsable_rule':
+      return { kind: 'UnparsableRule' }
+    default:
+      _atd_bad_json('ConfigErrorReason', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeConfigError(x: ConfigError, context: any = x): any {
+  return {
+    'file': _atd_write_required_field('ConfigError', 'file', writeFpath, x.file, x),
+    'reason': _atd_write_required_field('ConfigError', 'reason', writeConfigErrorReason, x.reason, x),
+  };
+}
+
+export function readConfigError(x: any, context: any = x): ConfigError {
+  return {
+    file: _atd_read_required_field('ConfigError', 'file', readFpath, x['file'], x),
+    reason: _atd_read_required_field('ConfigError', 'reason', readConfigErrorReason, x['reason'], x),
+  };
+}
+
+export function writeTestsResult(x: TestsResult, context: any = x): any {
+  return {
+    'results': _atd_write_required_field('TestsResult', 'results', _atd_write_assoc_array_to_object(writeChecks), x.results, x),
+    'fixtest_results': _atd_write_required_field('TestsResult', 'fixtest_results', _atd_write_assoc_array_to_object(writeFixtestResult), x.fixtest_results, x),
+    'config_missing_tests': _atd_write_required_field('TestsResult', 'config_missing_tests', _atd_write_array(writeFpath), x.config_missing_tests, x),
+    'config_missing_fixtests': _atd_write_required_field('TestsResult', 'config_missing_fixtests', _atd_write_array(writeFpath), x.config_missing_fixtests, x),
+    'config_with_errors': _atd_write_required_field('TestsResult', 'config_with_errors', _atd_write_array(writeConfigError), x.config_with_errors, x),
+  };
+}
+
+export function readTestsResult(x: any, context: any = x): TestsResult {
+  return {
+    results: _atd_read_required_field('TestsResult', 'results', _atd_read_assoc_object_into_array(readChecks), x['results'], x),
+    fixtest_results: _atd_read_required_field('TestsResult', 'fixtest_results', _atd_read_assoc_object_into_array(readFixtestResult), x['fixtest_results'], x),
+    config_missing_tests: _atd_read_required_field('TestsResult', 'config_missing_tests', _atd_read_array(readFpath), x['config_missing_tests'], x),
+    config_missing_fixtests: _atd_read_required_field('TestsResult', 'config_missing_fixtests', _atd_read_array(readFpath), x['config_missing_fixtests'], x),
+    config_with_errors: _atd_read_required_field('TestsResult', 'config_with_errors', _atd_read_array(readConfigError), x['config_with_errors'], x),
+  };
+}
+
+export function writeChecks(x: Checks, context: any = x): any {
+  return {
+    'checks': _atd_write_required_field('Checks', 'checks', _atd_write_assoc_array_to_object(writeRuleResult), x.checks, x),
+  };
+}
+
+export function readChecks(x: any, context: any = x): Checks {
+  return {
+    checks: _atd_read_required_field('Checks', 'checks', _atd_read_assoc_object_into_array(readRuleResult), x['checks'], x),
+  };
+}
+
+export function writeRuleResult(x: RuleResult, context: any = x): any {
+  return {
+    'passed': _atd_write_required_field('RuleResult', 'passed', _atd_write_bool, x.passed, x),
+    'matches': _atd_write_required_field('RuleResult', 'matches', _atd_write_assoc_array_to_object(writeExpectedReported), x.matches, x),
+    'errors': _atd_write_required_field('RuleResult', 'errors', _atd_write_array(writeTodo), x.errors, x),
+    'diagnosis': _atd_write_optional_field(writeMatchingDiagnosis, x.diagnosis, x),
+  };
+}
+
+export function readRuleResult(x: any, context: any = x): RuleResult {
+  return {
+    passed: _atd_read_required_field('RuleResult', 'passed', _atd_read_bool, x['passed'], x),
+    matches: _atd_read_required_field('RuleResult', 'matches', _atd_read_assoc_object_into_array(readExpectedReported), x['matches'], x),
+    errors: _atd_read_required_field('RuleResult', 'errors', _atd_read_array(readTodo), x['errors'], x),
+    diagnosis: _atd_read_optional_field(readMatchingDiagnosis, x['diagnosis'], x),
+  };
+}
+
+export function writeExpectedReported(x: ExpectedReported, context: any = x): any {
+  return {
+    'expected_lines': _atd_write_required_field('ExpectedReported', 'expected_lines', _atd_write_array(_atd_write_int), x.expected_lines, x),
+    'reported_lines': _atd_write_required_field('ExpectedReported', 'reported_lines', _atd_write_array(_atd_write_int), x.reported_lines, x),
+  };
+}
+
+export function readExpectedReported(x: any, context: any = x): ExpectedReported {
+  return {
+    expected_lines: _atd_read_required_field('ExpectedReported', 'expected_lines', _atd_read_array(_atd_read_int), x['expected_lines'], x),
+    reported_lines: _atd_read_required_field('ExpectedReported', 'reported_lines', _atd_read_array(_atd_read_int), x['reported_lines'], x),
+  };
+}
+
+export function writeFixtestResult(x: FixtestResult, context: any = x): any {
+  return {
+    'passed': _atd_write_required_field('FixtestResult', 'passed', _atd_write_bool, x.passed, x),
+  };
+}
+
+export function readFixtestResult(x: any, context: any = x): FixtestResult {
+  return {
+    passed: _atd_read_required_field('FixtestResult', 'passed', _atd_read_bool, x['passed'], x),
+  };
+}
+
+export function writeTodo(x: Todo, context: any = x): any {
+  return _atd_write_int(x, context);
+}
+
+export function readTodo(x: any, context: any = x): Todo {
+  return _atd_read_int(x, context);
 }
 
 export function writeMatchingDiagnosis(x: MatchingDiagnosis, context: any = x): any {
@@ -2275,434 +2484,6 @@ export function readKillingParent(x: any, context: any = x): KillingParent {
   return {
     killing_parent_kind: _atd_read_required_field('KillingParent', 'killing_parent_kind', readKillingParentKind, x['killing_parent_kind'], x),
     snippet: _atd_read_required_field('KillingParent', 'snippet', readSnippet, x['snippet'], x),
-  };
-}
-
-export function writeConfigErrorReason(x: ConfigErrorReason, context: any = x): any {
-  switch (x.kind) {
-    case 'UnparsableRule':
-      return 'unparsable_rule'
-  }
-}
-
-export function readConfigErrorReason(x: any, context: any = x): ConfigErrorReason {
-  switch (x) {
-    case 'unparsable_rule':
-      return { kind: 'UnparsableRule' }
-    default:
-      _atd_bad_json('ConfigErrorReason', x, context)
-      throw new Error('impossible')
-  }
-}
-
-export function writeConfigError(x: ConfigError, context: any = x): any {
-  return {
-    'file': _atd_write_required_field('ConfigError', 'file', writeFpath, x.file, x),
-    'reason': _atd_write_required_field('ConfigError', 'reason', writeConfigErrorReason, x.reason, x),
-  };
-}
-
-export function readConfigError(x: any, context: any = x): ConfigError {
-  return {
-    file: _atd_read_required_field('ConfigError', 'file', readFpath, x['file'], x),
-    reason: _atd_read_required_field('ConfigError', 'reason', readConfigErrorReason, x['reason'], x),
-  };
-}
-
-export function writeTestsResult(x: TestsResult, context: any = x): any {
-  return {
-    'results': _atd_write_required_field('TestsResult', 'results', _atd_write_assoc_array_to_object(writeChecks), x.results, x),
-    'fixtest_results': _atd_write_required_field('TestsResult', 'fixtest_results', _atd_write_assoc_array_to_object(writeFixtestResult), x.fixtest_results, x),
-    'config_missing_tests': _atd_write_required_field('TestsResult', 'config_missing_tests', _atd_write_array(writeFpath), x.config_missing_tests, x),
-    'config_missing_fixtests': _atd_write_required_field('TestsResult', 'config_missing_fixtests', _atd_write_array(writeFpath), x.config_missing_fixtests, x),
-    'config_with_errors': _atd_write_required_field('TestsResult', 'config_with_errors', _atd_write_array(writeConfigError), x.config_with_errors, x),
-  };
-}
-
-export function readTestsResult(x: any, context: any = x): TestsResult {
-  return {
-    results: _atd_read_required_field('TestsResult', 'results', _atd_read_assoc_object_into_array(readChecks), x['results'], x),
-    fixtest_results: _atd_read_required_field('TestsResult', 'fixtest_results', _atd_read_assoc_object_into_array(readFixtestResult), x['fixtest_results'], x),
-    config_missing_tests: _atd_read_required_field('TestsResult', 'config_missing_tests', _atd_read_array(readFpath), x['config_missing_tests'], x),
-    config_missing_fixtests: _atd_read_required_field('TestsResult', 'config_missing_fixtests', _atd_read_array(readFpath), x['config_missing_fixtests'], x),
-    config_with_errors: _atd_read_required_field('TestsResult', 'config_with_errors', _atd_read_array(readConfigError), x['config_with_errors'], x),
-  };
-}
-
-export function writeChecks(x: Checks, context: any = x): any {
-  return {
-    'checks': _atd_write_required_field('Checks', 'checks', _atd_write_assoc_array_to_object(writeRuleResult), x.checks, x),
-  };
-}
-
-export function readChecks(x: any, context: any = x): Checks {
-  return {
-    checks: _atd_read_required_field('Checks', 'checks', _atd_read_assoc_object_into_array(readRuleResult), x['checks'], x),
-  };
-}
-
-export function writeRuleResult(x: RuleResult, context: any = x): any {
-  return {
-    'passed': _atd_write_required_field('RuleResult', 'passed', _atd_write_bool, x.passed, x),
-    'matches': _atd_write_required_field('RuleResult', 'matches', _atd_write_assoc_array_to_object(writeExpectedReported), x.matches, x),
-    'errors': _atd_write_required_field('RuleResult', 'errors', _atd_write_array(writeTodo), x.errors, x),
-    'diagnosis': _atd_write_optional_field(writeMatchingDiagnosis, x.diagnosis, x),
-  };
-}
-
-export function readRuleResult(x: any, context: any = x): RuleResult {
-  return {
-    passed: _atd_read_required_field('RuleResult', 'passed', _atd_read_bool, x['passed'], x),
-    matches: _atd_read_required_field('RuleResult', 'matches', _atd_read_assoc_object_into_array(readExpectedReported), x['matches'], x),
-    errors: _atd_read_required_field('RuleResult', 'errors', _atd_read_array(readTodo), x['errors'], x),
-    diagnosis: _atd_read_optional_field(readMatchingDiagnosis, x['diagnosis'], x),
-  };
-}
-
-export function writeExpectedReported(x: ExpectedReported, context: any = x): any {
-  return {
-    'expected_lines': _atd_write_required_field('ExpectedReported', 'expected_lines', _atd_write_array(_atd_write_int), x.expected_lines, x),
-    'reported_lines': _atd_write_required_field('ExpectedReported', 'reported_lines', _atd_write_array(_atd_write_int), x.reported_lines, x),
-  };
-}
-
-export function readExpectedReported(x: any, context: any = x): ExpectedReported {
-  return {
-    expected_lines: _atd_read_required_field('ExpectedReported', 'expected_lines', _atd_read_array(_atd_read_int), x['expected_lines'], x),
-    reported_lines: _atd_read_required_field('ExpectedReported', 'reported_lines', _atd_read_array(_atd_read_int), x['reported_lines'], x),
-  };
-}
-
-export function writeFixtestResult(x: FixtestResult, context: any = x): any {
-  return {
-    'passed': _atd_write_required_field('FixtestResult', 'passed', _atd_write_bool, x.passed, x),
-  };
-}
-
-export function readFixtestResult(x: any, context: any = x): FixtestResult {
-  return {
-    passed: _atd_read_required_field('FixtestResult', 'passed', _atd_read_bool, x['passed'], x),
-  };
-}
-
-export function writeTodo(x: Todo, context: any = x): any {
-  return _atd_write_int(x, context);
-}
-
-export function readTodo(x: any, context: any = x): Todo {
-  return _atd_read_int(x, context);
-}
-
-export function writeScaInfo(x: ScaInfo, context: any = x): any {
-  return {
-    'reachable': _atd_write_required_field('ScaInfo', 'reachable', _atd_write_bool, x.reachable, x),
-    'reachability_rule': _atd_write_required_field('ScaInfo', 'reachability_rule', _atd_write_bool, x.reachability_rule, x),
-    'sca_finding_schema': _atd_write_required_field('ScaInfo', 'sca_finding_schema', _atd_write_int, x.sca_finding_schema, x),
-    'dependency_match': _atd_write_required_field('ScaInfo', 'dependency_match', writeDependencyMatch, x.dependency_match, x),
-  };
-}
-
-export function readScaInfo(x: any, context: any = x): ScaInfo {
-  return {
-    reachable: _atd_read_required_field('ScaInfo', 'reachable', _atd_read_bool, x['reachable'], x),
-    reachability_rule: _atd_read_required_field('ScaInfo', 'reachability_rule', _atd_read_bool, x['reachability_rule'], x),
-    sca_finding_schema: _atd_read_required_field('ScaInfo', 'sca_finding_schema', _atd_read_int, x['sca_finding_schema'], x),
-    dependency_match: _atd_read_required_field('ScaInfo', 'dependency_match', readDependencyMatch, x['dependency_match'], x),
-  };
-}
-
-export function writeDependencyMatch(x: DependencyMatch, context: any = x): any {
-  return {
-    'dependency_pattern': _atd_write_required_field('DependencyMatch', 'dependency_pattern', writeDependencyPattern, x.dependency_pattern, x),
-    'found_dependency': _atd_write_required_field('DependencyMatch', 'found_dependency', writeFoundDependency, x.found_dependency, x),
-    'lockfile': _atd_write_required_field('DependencyMatch', 'lockfile', _atd_write_string, x.lockfile, x),
-  };
-}
-
-export function readDependencyMatch(x: any, context: any = x): DependencyMatch {
-  return {
-    dependency_pattern: _atd_read_required_field('DependencyMatch', 'dependency_pattern', readDependencyPattern, x['dependency_pattern'], x),
-    found_dependency: _atd_read_required_field('DependencyMatch', 'found_dependency', readFoundDependency, x['found_dependency'], x),
-    lockfile: _atd_read_required_field('DependencyMatch', 'lockfile', _atd_read_string, x['lockfile'], x),
-  };
-}
-
-export function writeEcosystem(x: Ecosystem, context: any = x): any {
-  switch (x.kind) {
-    case 'Npm':
-      return 'npm'
-    case 'Pypi':
-      return 'pypi'
-    case 'Gem':
-      return 'gem'
-    case 'Gomod':
-      return 'gomod'
-    case 'Cargo':
-      return 'cargo'
-    case 'Maven':
-      return 'maven'
-    case 'Composer':
-      return 'composer'
-    case 'Nuget':
-      return 'nuget'
-    case 'Pub':
-      return 'pub'
-    case 'SwiftPM':
-      return 'swiftpm'
-    case 'Mix':
-      return 'mix'
-    case 'Hex':
-      return 'hex'
-  }
-}
-
-export function readEcosystem(x: any, context: any = x): Ecosystem {
-  switch (x) {
-    case 'npm':
-      return { kind: 'Npm' }
-    case 'pypi':
-      return { kind: 'Pypi' }
-    case 'gem':
-      return { kind: 'Gem' }
-    case 'gomod':
-      return { kind: 'Gomod' }
-    case 'cargo':
-      return { kind: 'Cargo' }
-    case 'maven':
-      return { kind: 'Maven' }
-    case 'composer':
-      return { kind: 'Composer' }
-    case 'nuget':
-      return { kind: 'Nuget' }
-    case 'pub':
-      return { kind: 'Pub' }
-    case 'swiftpm':
-      return { kind: 'SwiftPM' }
-    case 'mix':
-      return { kind: 'Mix' }
-    case 'hex':
-      return { kind: 'Hex' }
-    default:
-      _atd_bad_json('Ecosystem', x, context)
-      throw new Error('impossible')
-  }
-}
-
-export function writeTransitivity(x: Transitivity, context: any = x): any {
-  switch (x.kind) {
-    case 'Direct':
-      return 'direct'
-    case 'Transitive':
-      return 'transitive'
-    case 'Unknown':
-      return 'unknown'
-  }
-}
-
-export function readTransitivity(x: any, context: any = x): Transitivity {
-  switch (x) {
-    case 'direct':
-      return { kind: 'Direct' }
-    case 'transitive':
-      return { kind: 'Transitive' }
-    case 'unknown':
-      return { kind: 'Unknown' }
-    default:
-      _atd_bad_json('Transitivity', x, context)
-      throw new Error('impossible')
-  }
-}
-
-export function writeDependencyPattern(x: DependencyPattern, context: any = x): any {
-  return {
-    'ecosystem': _atd_write_required_field('DependencyPattern', 'ecosystem', writeEcosystem, x.ecosystem, x),
-    'package': _atd_write_required_field('DependencyPattern', 'package', _atd_write_string, x.package_, x),
-    'semver_range': _atd_write_required_field('DependencyPattern', 'semver_range', _atd_write_string, x.semver_range, x),
-  };
-}
-
-export function readDependencyPattern(x: any, context: any = x): DependencyPattern {
-  return {
-    ecosystem: _atd_read_required_field('DependencyPattern', 'ecosystem', readEcosystem, x['ecosystem'], x),
-    package_: _atd_read_required_field('DependencyPattern', 'package', _atd_read_string, x['package'], x),
-    semver_range: _atd_read_required_field('DependencyPattern', 'semver_range', _atd_read_string, x['semver_range'], x),
-  };
-}
-
-export function writeDependencyChild(x: DependencyChild, context: any = x): any {
-  return {
-    'package': _atd_write_required_field('DependencyChild', 'package', _atd_write_string, x.package_, x),
-    'version': _atd_write_required_field('DependencyChild', 'version', _atd_write_string, x.version, x),
-  };
-}
-
-export function readDependencyChild(x: any, context: any = x): DependencyChild {
-  return {
-    package_: _atd_read_required_field('DependencyChild', 'package', _atd_read_string, x['package'], x),
-    version: _atd_read_required_field('DependencyChild', 'version', _atd_read_string, x['version'], x),
-  };
-}
-
-export function writeFoundDependency(x: FoundDependency, context: any = x): any {
-  return {
-    'package': _atd_write_required_field('FoundDependency', 'package', _atd_write_string, x.package_, x),
-    'version': _atd_write_required_field('FoundDependency', 'version', _atd_write_string, x.version, x),
-    'ecosystem': _atd_write_required_field('FoundDependency', 'ecosystem', writeEcosystem, x.ecosystem, x),
-    'allowed_hashes': _atd_write_required_field('FoundDependency', 'allowed_hashes', _atd_write_assoc_map_to_object(_atd_write_array(_atd_write_string)), x.allowed_hashes, x),
-    'resolved_url': _atd_write_optional_field(_atd_write_string, x.resolved_url, x),
-    'transitivity': _atd_write_required_field('FoundDependency', 'transitivity', writeTransitivity, x.transitivity, x),
-    'manifest_path': _atd_write_optional_field(writeFpath, x.manifest_path, x),
-    'lockfile_path': _atd_write_optional_field(writeFpath, x.lockfile_path, x),
-    'line_number': _atd_write_optional_field(_atd_write_int, x.line_number, x),
-    'children': _atd_write_optional_field(_atd_write_array(writeDependencyChild), x.children, x),
-    'git_ref': _atd_write_optional_field(_atd_write_string, x.git_ref, x),
-  };
-}
-
-export function readFoundDependency(x: any, context: any = x): FoundDependency {
-  return {
-    package_: _atd_read_required_field('FoundDependency', 'package', _atd_read_string, x['package'], x),
-    version: _atd_read_required_field('FoundDependency', 'version', _atd_read_string, x['version'], x),
-    ecosystem: _atd_read_required_field('FoundDependency', 'ecosystem', readEcosystem, x['ecosystem'], x),
-    allowed_hashes: _atd_read_required_field('FoundDependency', 'allowed_hashes', _atd_read_assoc_object_into_map(_atd_read_array(_atd_read_string)), x['allowed_hashes'], x),
-    resolved_url: _atd_read_optional_field(_atd_read_string, x['resolved_url'], x),
-    transitivity: _atd_read_required_field('FoundDependency', 'transitivity', readTransitivity, x['transitivity'], x),
-    manifest_path: _atd_read_optional_field(readFpath, x['manifest_path'], x),
-    lockfile_path: _atd_read_optional_field(readFpath, x['lockfile_path'], x),
-    line_number: _atd_read_optional_field(_atd_read_int, x['line_number'], x),
-    children: _atd_read_optional_field(_atd_read_array(readDependencyChild), x['children'], x),
-    git_ref: _atd_read_optional_field(_atd_read_string, x['git_ref'], x),
-  };
-}
-
-export function writeScaParserName(x: ScaParserName, context: any = x): any {
-  switch (x.kind) {
-    case 'Gemfile_lock':
-      return 'gemfile_lock'
-    case 'Go_mod':
-      return 'go_mod'
-    case 'Go_sum':
-      return 'go_sum'
-    case 'Gradle_lockfile':
-      return 'gradle_lockfile'
-    case 'Gradle_build':
-      return 'gradle_build'
-    case 'Jsondoc':
-      return 'jsondoc'
-    case 'Pipfile':
-      return 'pipfile'
-    case 'Pnpm_lock':
-      return 'pnpm_lock'
-    case 'Poetry_lock':
-      return 'poetry_lock'
-    case 'Pyproject_toml':
-      return 'pyproject_toml'
-    case 'Requirements':
-      return 'requirements'
-    case 'Yarn_1':
-      return 'yarn_1'
-    case 'Yarn_2':
-      return 'yarn_2'
-    case 'Pomtree':
-      return 'pomtree'
-    case 'Cargo_parser':
-      return 'cargo'
-    case 'Composer_lock':
-      return 'composer_lock'
-    case 'Pubspec_lock':
-      return 'pubspec_lock'
-    case 'Package_swift':
-      return 'package_swift'
-    case 'Package_resolved':
-      return 'package_resolved'
-    case 'Mix_lock':
-      return 'mix_lock'
-  }
-}
-
-export function readScaParserName(x: any, context: any = x): ScaParserName {
-  switch (x) {
-    case 'gemfile_lock':
-      return { kind: 'Gemfile_lock' }
-    case 'go_mod':
-      return { kind: 'Go_mod' }
-    case 'go_sum':
-      return { kind: 'Go_sum' }
-    case 'gradle_lockfile':
-      return { kind: 'Gradle_lockfile' }
-    case 'gradle_build':
-      return { kind: 'Gradle_build' }
-    case 'jsondoc':
-      return { kind: 'Jsondoc' }
-    case 'pipfile':
-      return { kind: 'Pipfile' }
-    case 'pnpm_lock':
-      return { kind: 'Pnpm_lock' }
-    case 'poetry_lock':
-      return { kind: 'Poetry_lock' }
-    case 'pyproject_toml':
-      return { kind: 'Pyproject_toml' }
-    case 'requirements':
-      return { kind: 'Requirements' }
-    case 'yarn_1':
-      return { kind: 'Yarn_1' }
-    case 'yarn_2':
-      return { kind: 'Yarn_2' }
-    case 'pomtree':
-      return { kind: 'Pomtree' }
-    case 'cargo':
-      return { kind: 'Cargo_parser' }
-    case 'composer_lock':
-      return { kind: 'Composer_lock' }
-    case 'pubspec_lock':
-      return { kind: 'Pubspec_lock' }
-    case 'package_swift':
-      return { kind: 'Package_swift' }
-    case 'package_resolved':
-      return { kind: 'Package_resolved' }
-    case 'mix_lock':
-      return { kind: 'Mix_lock' }
-    default:
-      _atd_bad_json('ScaParserName', x, context)
-      throw new Error('impossible')
-  }
-}
-
-export function writeDependencyParserError(x: DependencyParserError, context: any = x): any {
-  return {
-    'path': _atd_write_required_field('DependencyParserError', 'path', _atd_write_string, x.path, x),
-    'parser': _atd_write_required_field('DependencyParserError', 'parser', writeScaParserName, x.parser, x),
-    'reason': _atd_write_required_field('DependencyParserError', 'reason', _atd_write_string, x.reason, x),
-    'line': _atd_write_optional_field(_atd_write_int, x.line, x),
-    'col': _atd_write_optional_field(_atd_write_int, x.col, x),
-    'text': _atd_write_optional_field(_atd_write_string, x.text, x),
-  };
-}
-
-export function readDependencyParserError(x: any, context: any = x): DependencyParserError {
-  return {
-    path: _atd_read_required_field('DependencyParserError', 'path', _atd_read_string, x['path'], x),
-    parser: _atd_read_required_field('DependencyParserError', 'parser', readScaParserName, x['parser'], x),
-    reason: _atd_read_required_field('DependencyParserError', 'reason', _atd_read_string, x['reason'], x),
-    line: _atd_read_optional_field(_atd_read_int, x['line'], x),
-    col: _atd_read_optional_field(_atd_read_int, x['col'], x),
-    text: _atd_read_optional_field(_atd_read_string, x['text'], x),
-  };
-}
-
-export function writeHistoricalInfo(x: HistoricalInfo, context: any = x): any {
-  return {
-    'git_commit': _atd_write_required_field('HistoricalInfo', 'git_commit', writeSha1, x.git_commit, x),
-    'git_blob': _atd_write_optional_field(writeSha1, x.git_blob, x),
-    'git_commit_timestamp': _atd_write_required_field('HistoricalInfo', 'git_commit_timestamp', writeDatetime, x.git_commit_timestamp, x),
-  };
-}
-
-export function readHistoricalInfo(x: any, context: any = x): HistoricalInfo {
-  return {
-    git_commit: _atd_read_required_field('HistoricalInfo', 'git_commit', readSha1, x['git_commit'], x),
-    git_blob: _atd_read_optional_field(readSha1, x['git_blob'], x),
-    git_commit_timestamp: _atd_read_required_field('HistoricalInfo', 'git_commit_timestamp', readDatetime, x['git_commit_timestamp'], x),
   };
 }
 
@@ -3232,14 +3013,6 @@ export function readContributions(x: any, context: any = x): Contributions {
   return _atd_read_array(readContribution)(x, context);
 }
 
-export function writeCiScanDependencies(x: CiScanDependencies, context: any = x): any {
-  return _atd_write_assoc_map_to_object(_atd_write_array(writeFoundDependency))(x, context);
-}
-
-export function readCiScanDependencies(x: any, context: any = x): CiScanDependencies {
-  return _atd_read_assoc_object_into_map(_atd_read_array(readFoundDependency))(x, context);
-}
-
 export function writeCiScanResultsResponse(x: CiScanResultsResponse, context: any = x): any {
   return {
     'errors': _atd_write_required_field('CiScanResultsResponse', 'errors', _atd_write_array(writeCiScanResultsResponseError), x.errors, x),
@@ -3316,107 +3089,6 @@ export function readCiScanCompleteStats(x: any, context: any = x): CiScanComplet
   };
 }
 
-export function writeResolutionMethod(x: ResolutionMethod, context: any = x): any {
-  switch (x.kind) {
-    case 'LockfileParsing':
-      return 'LockfileParsing'
-    case 'DynamicResolution':
-      return 'DynamicResolution'
-  }
-}
-
-export function readResolutionMethod(x: any, context: any = x): ResolutionMethod {
-  switch (x) {
-    case 'LockfileParsing':
-      return { kind: 'LockfileParsing' }
-    case 'DynamicResolution':
-      return { kind: 'DynamicResolution' }
-    default:
-      _atd_bad_json('ResolutionMethod', x, context)
-      throw new Error('impossible')
-  }
-}
-
-export function writeDependencyResolutionStats(x: DependencyResolutionStats, context: any = x): any {
-  return {
-    'resolution_method': _atd_write_required_field('DependencyResolutionStats', 'resolution_method', writeResolutionMethod, x.resolution_method, x),
-    'dependency_count': _atd_write_required_field('DependencyResolutionStats', 'dependency_count', _atd_write_int, x.dependency_count, x),
-    'ecosystem': _atd_write_required_field('DependencyResolutionStats', 'ecosystem', writeEcosystem, x.ecosystem, x),
-  };
-}
-
-export function readDependencyResolutionStats(x: any, context: any = x): DependencyResolutionStats {
-  return {
-    resolution_method: _atd_read_required_field('DependencyResolutionStats', 'resolution_method', readResolutionMethod, x['resolution_method'], x),
-    dependency_count: _atd_read_required_field('DependencyResolutionStats', 'dependency_count', _atd_read_int, x['dependency_count'], x),
-    ecosystem: _atd_read_required_field('DependencyResolutionStats', 'ecosystem', readEcosystem, x['ecosystem'], x),
-  };
-}
-
-export function writeDependencySourceFileKind(x: DependencySourceFileKind, context: any = x): any {
-  switch (x.kind) {
-    case 'Lockfile':
-      return ['Lockfile', writeLockfileKind(x.value, x)]
-    case 'Manifest':
-      return ['Manifest', writeManifestKind(x.value, x)]
-  }
-}
-
-export function readDependencySourceFileKind(x: any, context: any = x): DependencySourceFileKind {
-  _atd_check_json_tuple(2, x, context)
-  switch (x[0]) {
-    case 'Lockfile':
-      return { kind: 'Lockfile', value: readLockfileKind(x[1], x) }
-    case 'Manifest':
-      return { kind: 'Manifest', value: readManifestKind(x[1], x) }
-    default:
-      _atd_bad_json('DependencySourceFileKind', x, context)
-      throw new Error('impossible')
-  }
-}
-
-export function writeDependencySourceFile(x: DependencySourceFile, context: any = x): any {
-  return {
-    'kind': _atd_write_required_field('DependencySourceFile', 'kind', writeDependencySourceFileKind, x.kind, x),
-    'path': _atd_write_required_field('DependencySourceFile', 'path', writeFpath, x.path, x),
-  };
-}
-
-export function readDependencySourceFile(x: any, context: any = x): DependencySourceFile {
-  return {
-    kind: _atd_read_required_field('DependencySourceFile', 'kind', readDependencySourceFileKind, x['kind'], x),
-    path: _atd_read_required_field('DependencySourceFile', 'path', readFpath, x['path'], x),
-  };
-}
-
-export function writeSubprojectStats(x: SubprojectStats, context: any = x): any {
-  return {
-    'subproject_id': _atd_write_required_field('SubprojectStats', 'subproject_id', _atd_write_string, x.subproject_id, x),
-    'dependency_sources': _atd_write_required_field('SubprojectStats', 'dependency_sources', _atd_write_array(writeDependencySourceFile), x.dependency_sources, x),
-    'resolved_stats': _atd_write_optional_field(writeDependencyResolutionStats, x.resolved_stats, x),
-  };
-}
-
-export function readSubprojectStats(x: any, context: any = x): SubprojectStats {
-  return {
-    subproject_id: _atd_read_required_field('SubprojectStats', 'subproject_id', _atd_read_string, x['subproject_id'], x),
-    dependency_sources: _atd_read_required_field('SubprojectStats', 'dependency_sources', _atd_read_array(readDependencySourceFile), x['dependency_sources'], x),
-    resolved_stats: _atd_read_optional_field(readDependencyResolutionStats, x['resolved_stats'], x),
-  };
-}
-
-export function writeSupplyChainStats(x: SupplyChainStats, context: any = x): any {
-  return {
-    'subprojects_stats': _atd_write_required_field('SupplyChainStats', 'subprojects_stats', _atd_write_array(writeSubprojectStats), x.subprojects_stats, x),
-  };
-}
-
-export function readSupplyChainStats(x: any, context: any = x): SupplyChainStats {
-  return {
-    subprojects_stats: _atd_read_required_field('SupplyChainStats', 'subprojects_stats', _atd_read_array(readSubprojectStats), x['subprojects_stats'], x),
-  };
-}
-
 export function writeParsingStats(x: ParsingStats, context: any = x): any {
   return {
     'targets_parsed': _atd_write_required_field('ParsingStats', 'targets_parsed', _atd_write_int, x.targets_parsed, x),
@@ -3449,6 +3121,230 @@ export function readCiScanCompleteResponse(x: any, context: any = x): CiScanComp
     app_block_override: _atd_read_field_with_default(_atd_read_bool, false, x['app_block_override'], x),
     app_block_reason: _atd_read_field_with_default(_atd_read_string, "", x['app_block_reason'], x),
   };
+}
+
+export function writeCiScanDependencies(x: CiScanDependencies, context: any = x): any {
+  return _atd_write_assoc_map_to_object(_atd_write_array(writeFoundDependency))(x, context);
+}
+
+export function readCiScanDependencies(x: any, context: any = x): CiScanDependencies {
+  return _atd_read_assoc_object_into_map(_atd_read_array(readFoundDependency))(x, context);
+}
+
+export function writeDependencyParserError(x: DependencyParserError, context: any = x): any {
+  return {
+    'path': _atd_write_required_field('DependencyParserError', 'path', writeFpath, x.path, x),
+    'parser': _atd_write_required_field('DependencyParserError', 'parser', writeScaParserName, x.parser, x),
+    'reason': _atd_write_required_field('DependencyParserError', 'reason', _atd_write_string, x.reason, x),
+    'line': _atd_write_optional_field(_atd_write_int, x.line, x),
+    'col': _atd_write_optional_field(_atd_write_int, x.col, x),
+    'text': _atd_write_optional_field(_atd_write_string, x.text, x),
+  };
+}
+
+export function readDependencyParserError(x: any, context: any = x): DependencyParserError {
+  return {
+    path: _atd_read_required_field('DependencyParserError', 'path', readFpath, x['path'], x),
+    parser: _atd_read_required_field('DependencyParserError', 'parser', readScaParserName, x['parser'], x),
+    reason: _atd_read_required_field('DependencyParserError', 'reason', _atd_read_string, x['reason'], x),
+    line: _atd_read_optional_field(_atd_read_int, x['line'], x),
+    col: _atd_read_optional_field(_atd_read_int, x['col'], x),
+    text: _atd_read_optional_field(_atd_read_string, x['text'], x),
+  };
+}
+
+export function writeScaParserName(x: ScaParserName, context: any = x): any {
+  switch (x.kind) {
+    case 'Gemfile_lock':
+      return 'gemfile_lock'
+    case 'Go_mod':
+      return 'go_mod'
+    case 'Go_sum':
+      return 'go_sum'
+    case 'Gradle_lockfile':
+      return 'gradle_lockfile'
+    case 'Gradle_build':
+      return 'gradle_build'
+    case 'Jsondoc':
+      return 'jsondoc'
+    case 'Pipfile':
+      return 'pipfile'
+    case 'Pnpm_lock':
+      return 'pnpm_lock'
+    case 'Poetry_lock':
+      return 'poetry_lock'
+    case 'Pyproject_toml':
+      return 'pyproject_toml'
+    case 'Requirements':
+      return 'requirements'
+    case 'Yarn_1':
+      return 'yarn_1'
+    case 'Yarn_2':
+      return 'yarn_2'
+    case 'Pomtree':
+      return 'pomtree'
+    case 'Cargo_parser':
+      return 'cargo'
+    case 'Composer_lock':
+      return 'composer_lock'
+    case 'Pubspec_lock':
+      return 'pubspec_lock'
+    case 'Package_swift':
+      return 'package_swift'
+    case 'Package_resolved':
+      return 'package_resolved'
+    case 'Mix_lock':
+      return 'mix_lock'
+  }
+}
+
+export function readScaParserName(x: any, context: any = x): ScaParserName {
+  switch (x) {
+    case 'gemfile_lock':
+      return { kind: 'Gemfile_lock' }
+    case 'go_mod':
+      return { kind: 'Go_mod' }
+    case 'go_sum':
+      return { kind: 'Go_sum' }
+    case 'gradle_lockfile':
+      return { kind: 'Gradle_lockfile' }
+    case 'gradle_build':
+      return { kind: 'Gradle_build' }
+    case 'jsondoc':
+      return { kind: 'Jsondoc' }
+    case 'pipfile':
+      return { kind: 'Pipfile' }
+    case 'pnpm_lock':
+      return { kind: 'Pnpm_lock' }
+    case 'poetry_lock':
+      return { kind: 'Poetry_lock' }
+    case 'pyproject_toml':
+      return { kind: 'Pyproject_toml' }
+    case 'requirements':
+      return { kind: 'Requirements' }
+    case 'yarn_1':
+      return { kind: 'Yarn_1' }
+    case 'yarn_2':
+      return { kind: 'Yarn_2' }
+    case 'pomtree':
+      return { kind: 'Pomtree' }
+    case 'cargo':
+      return { kind: 'Cargo_parser' }
+    case 'composer_lock':
+      return { kind: 'Composer_lock' }
+    case 'pubspec_lock':
+      return { kind: 'Pubspec_lock' }
+    case 'package_swift':
+      return { kind: 'Package_swift' }
+    case 'package_resolved':
+      return { kind: 'Package_resolved' }
+    case 'mix_lock':
+      return { kind: 'Mix_lock' }
+    default:
+      _atd_bad_json('ScaParserName', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeSupplyChainStats(x: SupplyChainStats, context: any = x): any {
+  return {
+    'subprojects_stats': _atd_write_required_field('SupplyChainStats', 'subprojects_stats', _atd_write_array(writeSubprojectStats), x.subprojects_stats, x),
+  };
+}
+
+export function readSupplyChainStats(x: any, context: any = x): SupplyChainStats {
+  return {
+    subprojects_stats: _atd_read_required_field('SupplyChainStats', 'subprojects_stats', _atd_read_array(readSubprojectStats), x['subprojects_stats'], x),
+  };
+}
+
+export function writeSubprojectStats(x: SubprojectStats, context: any = x): any {
+  return {
+    'subproject_id': _atd_write_required_field('SubprojectStats', 'subproject_id', _atd_write_string, x.subproject_id, x),
+    'dependency_sources': _atd_write_required_field('SubprojectStats', 'dependency_sources', _atd_write_array(writeDependencySourceFile), x.dependency_sources, x),
+    'resolved_stats': _atd_write_optional_field(writeDependencyResolutionStats, x.resolved_stats, x),
+  };
+}
+
+export function readSubprojectStats(x: any, context: any = x): SubprojectStats {
+  return {
+    subproject_id: _atd_read_required_field('SubprojectStats', 'subproject_id', _atd_read_string, x['subproject_id'], x),
+    dependency_sources: _atd_read_required_field('SubprojectStats', 'dependency_sources', _atd_read_array(readDependencySourceFile), x['dependency_sources'], x),
+    resolved_stats: _atd_read_optional_field(readDependencyResolutionStats, x['resolved_stats'], x),
+  };
+}
+
+export function writeDependencySourceFile(x: DependencySourceFile, context: any = x): any {
+  return {
+    'kind': _atd_write_required_field('DependencySourceFile', 'kind', writeDependencySourceFileKind, x.kind, x),
+    'path': _atd_write_required_field('DependencySourceFile', 'path', writeFpath, x.path, x),
+  };
+}
+
+export function readDependencySourceFile(x: any, context: any = x): DependencySourceFile {
+  return {
+    kind: _atd_read_required_field('DependencySourceFile', 'kind', readDependencySourceFileKind, x['kind'], x),
+    path: _atd_read_required_field('DependencySourceFile', 'path', readFpath, x['path'], x),
+  };
+}
+
+export function writeDependencySourceFileKind(x: DependencySourceFileKind, context: any = x): any {
+  switch (x.kind) {
+    case 'Lockfile':
+      return ['Lockfile', writeLockfileKind(x.value, x)]
+    case 'Manifest':
+      return ['Manifest', writeManifestKind(x.value, x)]
+  }
+}
+
+export function readDependencySourceFileKind(x: any, context: any = x): DependencySourceFileKind {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'Lockfile':
+      return { kind: 'Lockfile', value: readLockfileKind(x[1], x) }
+    case 'Manifest':
+      return { kind: 'Manifest', value: readManifestKind(x[1], x) }
+    default:
+      _atd_bad_json('DependencySourceFileKind', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeDependencyResolutionStats(x: DependencyResolutionStats, context: any = x): any {
+  return {
+    'resolution_method': _atd_write_required_field('DependencyResolutionStats', 'resolution_method', writeResolutionMethod, x.resolution_method, x),
+    'dependency_count': _atd_write_required_field('DependencyResolutionStats', 'dependency_count', _atd_write_int, x.dependency_count, x),
+    'ecosystem': _atd_write_required_field('DependencyResolutionStats', 'ecosystem', writeEcosystem, x.ecosystem, x),
+  };
+}
+
+export function readDependencyResolutionStats(x: any, context: any = x): DependencyResolutionStats {
+  return {
+    resolution_method: _atd_read_required_field('DependencyResolutionStats', 'resolution_method', readResolutionMethod, x['resolution_method'], x),
+    dependency_count: _atd_read_required_field('DependencyResolutionStats', 'dependency_count', _atd_read_int, x['dependency_count'], x),
+    ecosystem: _atd_read_required_field('DependencyResolutionStats', 'ecosystem', readEcosystem, x['ecosystem'], x),
+  };
+}
+
+export function writeResolutionMethod(x: ResolutionMethod, context: any = x): any {
+  switch (x.kind) {
+    case 'LockfileParsing':
+      return 'LockfileParsing'
+    case 'DynamicResolution':
+      return 'DynamicResolution'
+  }
+}
+
+export function readResolutionMethod(x: any, context: any = x): ResolutionMethod {
+  switch (x) {
+    case 'LockfileParsing':
+      return { kind: 'LockfileParsing' }
+    case 'DynamicResolution':
+      return { kind: 'DynamicResolution' }
+    default:
+      _atd_bad_json('ResolutionMethod', x, context)
+      throw new Error('impossible')
+  }
 }
 
 export function writeCiScanFailure(x: CiScanFailure, context: any = x): any {
@@ -3513,6 +3409,166 @@ export function writeCiEnv(x: CiEnv, context: any = x): any {
 
 export function readCiEnv(x: any, context: any = x): CiEnv {
   return _atd_read_assoc_object_into_map(_atd_read_string)(x, context);
+}
+
+export function writeCoreOutput(x: CoreOutput, context: any = x): any {
+  return {
+    'version': _atd_write_required_field('CoreOutput', 'version', writeVersion, x.version, x),
+    'results': _atd_write_required_field('CoreOutput', 'results', _atd_write_array(writeCoreMatch), x.results, x),
+    'errors': _atd_write_required_field('CoreOutput', 'errors', _atd_write_array(writeCoreError), x.errors, x),
+    'paths': _atd_write_required_field('CoreOutput', 'paths', writeScannedAndSkipped, x.paths, x),
+    'time': _atd_write_optional_field(writeProfile, x.time, x),
+    'explanations': _atd_write_optional_field(_atd_write_array(writeMatchingExplanation), x.explanations, x),
+    'rules_by_engine': _atd_write_optional_field(_atd_write_array(writeRuleIdAndEngineKind), x.rules_by_engine, x),
+    'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
+    'interfile_languages_used': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.interfile_languages_used, x),
+    'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
+  };
+}
+
+export function readCoreOutput(x: any, context: any = x): CoreOutput {
+  return {
+    version: _atd_read_required_field('CoreOutput', 'version', readVersion, x['version'], x),
+    results: _atd_read_required_field('CoreOutput', 'results', _atd_read_array(readCoreMatch), x['results'], x),
+    errors: _atd_read_required_field('CoreOutput', 'errors', _atd_read_array(readCoreError), x['errors'], x),
+    paths: _atd_read_required_field('CoreOutput', 'paths', readScannedAndSkipped, x['paths'], x),
+    time: _atd_read_optional_field(readProfile, x['time'], x),
+    explanations: _atd_read_optional_field(_atd_read_array(readMatchingExplanation), x['explanations'], x),
+    rules_by_engine: _atd_read_optional_field(_atd_read_array(readRuleIdAndEngineKind), x['rules_by_engine'], x),
+    engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
+    interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
+    skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
+  };
+}
+
+export function writeCoreMatch(x: CoreMatch, context: any = x): any {
+  return {
+    'check_id': _atd_write_required_field('CoreMatch', 'check_id', writeRuleId, x.check_id, x),
+    'path': _atd_write_required_field('CoreMatch', 'path', writeFpath, x.path, x),
+    'start': _atd_write_required_field('CoreMatch', 'start', writePosition, x.start, x),
+    'end': _atd_write_required_field('CoreMatch', 'end', writePosition, x.end, x),
+    'extra': _atd_write_required_field('CoreMatch', 'extra', writeCoreMatchExtra, x.extra, x),
+  };
+}
+
+export function readCoreMatch(x: any, context: any = x): CoreMatch {
+  return {
+    check_id: _atd_read_required_field('CoreMatch', 'check_id', readRuleId, x['check_id'], x),
+    path: _atd_read_required_field('CoreMatch', 'path', readFpath, x['path'], x),
+    start: _atd_read_required_field('CoreMatch', 'start', readPosition, x['start'], x),
+    end: _atd_read_required_field('CoreMatch', 'end', readPosition, x['end'], x),
+    extra: _atd_read_required_field('CoreMatch', 'extra', readCoreMatchExtra, x['extra'], x),
+  };
+}
+
+export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
+  return {
+    'message': _atd_write_optional_field(_atd_write_string, x.message, x),
+    'metadata': _atd_write_optional_field(writeRawJson, x.metadata, x),
+    'severity': _atd_write_optional_field(writeMatchSeverity, x.severity, x),
+    'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
+    'fix': _atd_write_optional_field(_atd_write_string, x.fix, x),
+    'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
+    'engine_kind': _atd_write_required_field('CoreMatchExtra', 'engine_kind', writeEngineOfFinding, x.engine_kind, x),
+    'is_ignored': _atd_write_required_field('CoreMatchExtra', 'is_ignored', _atd_write_bool, x.is_ignored, x),
+    'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
+    'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
+    'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
+  };
+}
+
+export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
+  return {
+    message: _atd_read_optional_field(_atd_read_string, x['message'], x),
+    metadata: _atd_read_optional_field(readRawJson, x['metadata'], x),
+    severity: _atd_read_optional_field(readMatchSeverity, x['severity'], x),
+    metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
+    fix: _atd_read_optional_field(_atd_read_string, x['fix'], x),
+    dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
+    engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineOfFinding, x['engine_kind'], x),
+    is_ignored: _atd_read_required_field('CoreMatchExtra', 'is_ignored', _atd_read_bool, x['is_ignored'], x),
+    validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
+    historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),
+    extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
+  };
+}
+
+export function writeCoreError(x: CoreError, context: any = x): any {
+  return {
+    'error_type': _atd_write_required_field('CoreError', 'error_type', writeErrorType, x.error_type, x),
+    'severity': _atd_write_required_field('CoreError', 'severity', writeErrorSeverity, x.severity, x),
+    'message': _atd_write_required_field('CoreError', 'message', _atd_write_string, x.message, x),
+    'details': _atd_write_optional_field(_atd_write_string, x.details, x),
+    'location': _atd_write_optional_field(writeLocation, x.location, x),
+    'rule_id': _atd_write_optional_field(writeRuleId, x.rule_id, x),
+  };
+}
+
+export function readCoreError(x: any, context: any = x): CoreError {
+  return {
+    error_type: _atd_read_required_field('CoreError', 'error_type', readErrorType, x['error_type'], x),
+    severity: _atd_read_required_field('CoreError', 'severity', readErrorSeverity, x['severity'], x),
+    message: _atd_read_required_field('CoreError', 'message', _atd_read_string, x['message'], x),
+    details: _atd_read_optional_field(_atd_read_string, x['details'], x),
+    location: _atd_read_optional_field(readLocation, x['location'], x),
+    rule_id: _atd_read_optional_field(readRuleId, x['rule_id'], x),
+  };
+}
+
+export function writeXlang(x: Xlang, context: any = x): any {
+  return _atd_write_string(x, context);
+}
+
+export function readXlang(x: any, context: any = x): Xlang {
+  return _atd_read_string(x, context);
+}
+
+export function writeTarget(x: Target, context: any = x): any {
+  switch (x.kind) {
+    case 'CodeTarget':
+      return ['CodeTarget', writeCodeTarget(x.value, x)]
+    case 'LockfileTarget':
+      return ['LockfileTarget', writeLockfile(x.value, x)]
+  }
+}
+
+export function readTarget(x: any, context: any = x): Target {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'CodeTarget':
+      return { kind: 'CodeTarget', value: readCodeTarget(x[1], x) }
+    case 'LockfileTarget':
+      return { kind: 'LockfileTarget', value: readLockfile(x[1], x) }
+    default:
+      _atd_bad_json('Target', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeCodeTarget(x: CodeTarget, context: any = x): any {
+  return {
+    'path': _atd_write_required_field('CodeTarget', 'path', writeFpath, x.path, x),
+    'analyzer': _atd_write_required_field('CodeTarget', 'analyzer', writeXlang, x.analyzer, x),
+    'products': _atd_write_required_field('CodeTarget', 'products', _atd_write_array(writeProduct), x.products, x),
+    'lockfile_target': _atd_write_optional_field(writeLockfile, x.lockfile_target, x),
+  };
+}
+
+export function readCodeTarget(x: any, context: any = x): CodeTarget {
+  return {
+    path: _atd_read_required_field('CodeTarget', 'path', readFpath, x['path'], x),
+    analyzer: _atd_read_required_field('CodeTarget', 'analyzer', readXlang, x['analyzer'], x),
+    products: _atd_read_required_field('CodeTarget', 'products', _atd_read_array(readProduct), x['products'], x),
+    lockfile_target: _atd_read_optional_field(readLockfile, x['lockfile_target'], x),
+  };
+}
+
+export function writeTargets(x: Targets, context: any = x): any {
+  return _atd_write_array(writeTarget)(x, context);
+}
+
+export function readTargets(x: any, context: any = x): Targets {
+  return _atd_read_array(readTarget)(x, context);
 }
 
 export function writeEdit(x: Edit, context: any = x): any {
@@ -3663,6 +3719,22 @@ export function readFormatContext(x: any, context: any = x): FormatContext {
     is_ci_invocation: _atd_read_required_field('FormatContext', 'is_ci_invocation', _atd_read_bool, x['is_ci_invocation'], x),
     is_logged_in: _atd_read_required_field('FormatContext', 'is_logged_in', _atd_read_bool, x['is_logged_in'], x),
     is_using_registry: _atd_read_required_field('FormatContext', 'is_using_registry', _atd_read_bool, x['is_using_registry'], x),
+  };
+}
+
+export function writeDumpRulePartitionsParams(x: DumpRulePartitionsParams, context: any = x): any {
+  return {
+    'rules': _atd_write_required_field('DumpRulePartitionsParams', 'rules', writeRawJson, x.rules, x),
+    'n_partitions': _atd_write_required_field('DumpRulePartitionsParams', 'n_partitions', _atd_write_int, x.n_partitions, x),
+    'output_dir': _atd_write_required_field('DumpRulePartitionsParams', 'output_dir', writeFpath, x.output_dir, x),
+  };
+}
+
+export function readDumpRulePartitionsParams(x: any, context: any = x): DumpRulePartitionsParams {
+  return {
+    rules: _atd_read_required_field('DumpRulePartitionsParams', 'rules', readRawJson, x['rules'], x),
+    n_partitions: _atd_read_required_field('DumpRulePartitionsParams', 'n_partitions', _atd_read_int, x['n_partitions'], x),
+    output_dir: _atd_read_required_field('DumpRulePartitionsParams', 'output_dir', readFpath, x['output_dir'], x),
   };
 }
 
@@ -3961,22 +4033,6 @@ export function readResolutionResult(x: any, context: any = x): ResolutionResult
   }
 }
 
-export function writeDumpRulePartitionsParams(x: DumpRulePartitionsParams, context: any = x): any {
-  return {
-    'rules': _atd_write_required_field('DumpRulePartitionsParams', 'rules', writeRawJson, x.rules, x),
-    'n_partitions': _atd_write_required_field('DumpRulePartitionsParams', 'n_partitions', _atd_write_int, x.n_partitions, x),
-    'output_dir': _atd_write_required_field('DumpRulePartitionsParams', 'output_dir', writeFpath, x.output_dir, x),
-  };
-}
-
-export function readDumpRulePartitionsParams(x: any, context: any = x): DumpRulePartitionsParams {
-  return {
-    rules: _atd_read_required_field('DumpRulePartitionsParams', 'rules', readRawJson, x['rules'], x),
-    n_partitions: _atd_read_required_field('DumpRulePartitionsParams', 'n_partitions', _atd_read_int, x['n_partitions'], x),
-    output_dir: _atd_read_required_field('DumpRulePartitionsParams', 'output_dir', readFpath, x['output_dir'], x),
-  };
-}
-
 export function writeFunctionCall(x: FunctionCall, context: any = x): any {
   switch (x.kind) {
     case 'CallContributions':
@@ -4096,65 +4152,9 @@ export function readPartialScanResult(x: any, context: any = x): PartialScanResu
   }
 }
 
-export function writeXlang(x: Xlang, context: any = x): any {
-  return _atd_write_string(x, context);
-}
-
-export function readXlang(x: any, context: any = x): Xlang {
-  return _atd_read_string(x, context);
-}
-
-export function writeTarget(x: Target, context: any = x): any {
-  switch (x.kind) {
-    case 'CodeTarget':
-      return ['CodeTarget', writeCodeTarget(x.value, x)]
-    case 'LockfileTarget':
-      return ['LockfileTarget', writeLockfile(x.value, x)]
-  }
-}
-
-export function readTarget(x: any, context: any = x): Target {
-  _atd_check_json_tuple(2, x, context)
-  switch (x[0]) {
-    case 'CodeTarget':
-      return { kind: 'CodeTarget', value: readCodeTarget(x[1], x) }
-    case 'LockfileTarget':
-      return { kind: 'LockfileTarget', value: readLockfile(x[1], x) }
-    default:
-      _atd_bad_json('Target', x, context)
-      throw new Error('impossible')
-  }
-}
-
-export function writeCodeTarget(x: CodeTarget, context: any = x): any {
-  return {
-    'path': _atd_write_required_field('CodeTarget', 'path', writeFpath, x.path, x),
-    'analyzer': _atd_write_required_field('CodeTarget', 'analyzer', writeXlang, x.analyzer, x),
-    'products': _atd_write_required_field('CodeTarget', 'products', _atd_write_array(writeProduct), x.products, x),
-    'lockfile_target': _atd_write_optional_field(writeLockfile, x.lockfile_target, x),
-  };
-}
-
-export function readCodeTarget(x: any, context: any = x): CodeTarget {
-  return {
-    path: _atd_read_required_field('CodeTarget', 'path', readFpath, x['path'], x),
-    analyzer: _atd_read_required_field('CodeTarget', 'analyzer', readXlang, x['analyzer'], x),
-    products: _atd_read_required_field('CodeTarget', 'products', _atd_read_array(readProduct), x['products'], x),
-    lockfile_target: _atd_read_optional_field(readLockfile, x['lockfile_target'], x),
-  };
-}
-
-export function writeTargets(x: Targets, context: any = x): any {
-  return _atd_write_array(writeTarget)(x, context);
-}
-
-export function readTargets(x: any, context: any = x): Targets {
-  return _atd_read_array(readTarget)(x, context);
-}
-
 export function writeDiffFile(x: DiffFile, context: any = x): any {
   return {
-    'filename': _atd_write_required_field('DiffFile', 'filename', _atd_write_string, x.filename, x),
+    'filename': _atd_write_required_field('DiffFile', 'filename', writeFpath, x.filename, x),
     'diffs': _atd_write_required_field('DiffFile', 'diffs', _atd_write_array(_atd_write_string), x.diffs, x),
     'url': _atd_write_required_field('DiffFile', 'url', _atd_write_string, x.url, x),
   };
@@ -4162,7 +4162,7 @@ export function writeDiffFile(x: DiffFile, context: any = x): any {
 
 export function readDiffFile(x: any, context: any = x): DiffFile {
   return {
-    filename: _atd_read_required_field('DiffFile', 'filename', _atd_read_string, x['filename'], x),
+    filename: _atd_read_required_field('DiffFile', 'filename', readFpath, x['filename'], x),
     diffs: _atd_read_required_field('DiffFile', 'diffs', _atd_read_array(_atd_read_string), x['diffs'], x),
     url: _atd_read_required_field('DiffFile', 'url', _atd_read_string, x['url'], x),
   };
