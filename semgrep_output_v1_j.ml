@@ -478,7 +478,7 @@ type dependency_pattern = Semgrep_output_v1_t.dependency_pattern = {
 type dependency_match = Semgrep_output_v1_t.dependency_match = {
   dependency_pattern: dependency_pattern;
   found_dependency: found_dependency;
-  lockfile: string
+  lockfile: fpath
 }
 
 type sca_info = Semgrep_output_v1_t.sca_info = {
@@ -566,10 +566,10 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   lines: string;
   is_ignored: bool option;
   sca_info: sca_info option;
-  dataflow_trace: match_dataflow_trace option;
-  engine_kind: engine_of_finding option;
   validation_state: validation_state option;
   historical_info: historical_info option;
+  dataflow_trace: match_dataflow_trace option;
+  engine_kind: engine_of_finding option;
   extra_extra: raw_json option
 }
 
@@ -657,7 +657,7 @@ type finding = Semgrep_output_v1_t.finding = {
 }
 
 type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
-  path: string;
+  path: fpath;
   parser: sca_parser_name;
   reason: string;
   line: int option;
@@ -801,7 +801,7 @@ type features = Semgrep_output_v1_t.features = {
 }
 
 type diff_file = Semgrep_output_v1_t.diff_file = {
-  filename: string;
+  filename: fpath;
   diffs: string list;
   url: string
 }
@@ -18739,7 +18739,7 @@ let write_dependency_match : _ -> dependency_match -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"lockfile\":";
     (
-      Yojson.Safe.write_string
+      write_fpath
     )
       ob x.lockfile;
     Buffer.add_char ob '}';
@@ -18816,7 +18816,7 @@ let read_dependency_match = (
             field_lockfile := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_fpath
                 ) p lb
               )
             );
@@ -18885,7 +18885,7 @@ let read_dependency_match = (
               field_lockfile := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_fpath
                   ) p lb
                 )
               );
@@ -21270,28 +21270,6 @@ let write_cli_match_extra : _ -> cli_match_extra -> _ = (
       )
         ob x;
     );
-    (match x.dataflow_trace with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"dataflow_trace\":";
-      (
-        write_match_dataflow_trace
-      )
-        ob x;
-    );
-    (match x.engine_kind with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"engine_kind\":";
-      (
-        write_engine_of_finding
-      )
-        ob x;
-    );
     (match x.validation_state with None -> () | Some x ->
       if !is_first then
         is_first := false
@@ -21311,6 +21289,28 @@ let write_cli_match_extra : _ -> cli_match_extra -> _ = (
         Buffer.add_string ob "\"historical_info\":";
       (
         write_historical_info
+      )
+        ob x;
+    );
+    (match x.dataflow_trace with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"dataflow_trace\":";
+      (
+        write_match_dataflow_trace
+      )
+        ob x;
+    );
+    (match x.engine_kind with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"engine_kind\":";
+      (
+        write_engine_of_finding
       )
         ob x;
     );
@@ -21345,10 +21345,10 @@ let read_cli_match_extra = (
     let field_lines = ref (None) in
     let field_is_ignored = ref (None) in
     let field_sca_info = ref (None) in
-    let field_dataflow_trace = ref (None) in
-    let field_engine_kind = ref (None) in
     let field_validation_state = ref (None) in
     let field_historical_info = ref (None) in
+    let field_dataflow_trace = ref (None) in
+    let field_engine_kind = ref (None) in
     let field_extra_extra = ref (None) in
     try
       Yojson.Safe.read_space p lb;
@@ -21452,7 +21452,7 @@ let read_cli_match_extra = (
                       match String.unsafe_get s (pos+1) with
                         | 'n' -> (
                             if String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'k' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'd' then (
-                              11
+                              13
                             )
                             else (
                               -1
@@ -21503,7 +21503,7 @@ let read_cli_match_extra = (
               )
             | 14 -> (
                 if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'e' then (
-                  10
+                  12
                 )
                 else (
                   -1
@@ -21511,7 +21511,7 @@ let read_cli_match_extra = (
               )
             | 15 -> (
                 if String.unsafe_get s pos = 'h' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'l' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 'f' && String.unsafe_get s (pos+14) = 'o' then (
-                  13
+                  11
                 )
                 else (
                   -1
@@ -21519,7 +21519,7 @@ let read_cli_match_extra = (
               )
             | 16 -> (
                 if String.unsafe_get s pos = 'v' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'e' then (
-                  12
+                  10
                 )
                 else (
                   -1
@@ -21625,26 +21625,6 @@ let read_cli_match_extra = (
             )
           | 10 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_dataflow_trace := (
-                Some (
-                  (
-                    read_match_dataflow_trace
-                  ) p lb
-                )
-              );
-            )
-          | 11 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_engine_kind := (
-                Some (
-                  (
-                    read_engine_of_finding
-                  ) p lb
-                )
-              );
-            )
-          | 12 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_validation_state := (
                 Some (
                   (
@@ -21653,12 +21633,32 @@ let read_cli_match_extra = (
                 )
               );
             )
-          | 13 ->
+          | 11 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_historical_info := (
                 Some (
                   (
                     read_historical_info
+                  ) p lb
+                )
+              );
+            )
+          | 12 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_dataflow_trace := (
+                Some (
+                  (
+                    read_match_dataflow_trace
+                  ) p lb
+                )
+              );
+            )
+          | 13 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_engine_kind := (
+                Some (
+                  (
+                    read_engine_of_finding
                   ) p lb
                 )
               );
@@ -21779,7 +21779,7 @@ let read_cli_match_extra = (
                         match String.unsafe_get s (pos+1) with
                           | 'n' -> (
                               if String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'k' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'd' then (
-                                11
+                                13
                               )
                               else (
                                 -1
@@ -21830,7 +21830,7 @@ let read_cli_match_extra = (
                 )
               | 14 -> (
                   if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'e' then (
-                    10
+                    12
                   )
                   else (
                     -1
@@ -21838,7 +21838,7 @@ let read_cli_match_extra = (
                 )
               | 15 -> (
                   if String.unsafe_get s pos = 'h' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'l' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 'f' && String.unsafe_get s (pos+14) = 'o' then (
-                    13
+                    11
                   )
                   else (
                     -1
@@ -21846,7 +21846,7 @@ let read_cli_match_extra = (
                 )
               | 16 -> (
                   if String.unsafe_get s pos = 'v' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'e' then (
-                    12
+                    10
                   )
                   else (
                     -1
@@ -21952,26 +21952,6 @@ let read_cli_match_extra = (
               )
             | 10 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_dataflow_trace := (
-                  Some (
-                    (
-                      read_match_dataflow_trace
-                    ) p lb
-                  )
-                );
-              )
-            | 11 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_engine_kind := (
-                  Some (
-                    (
-                      read_engine_of_finding
-                    ) p lb
-                  )
-                );
-              )
-            | 12 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_validation_state := (
                   Some (
                     (
@@ -21980,12 +21960,32 @@ let read_cli_match_extra = (
                   )
                 );
               )
-            | 13 ->
+            | 11 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_historical_info := (
                   Some (
                     (
                       read_historical_info
+                    ) p lb
+                  )
+                );
+              )
+            | 12 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_dataflow_trace := (
+                  Some (
+                    (
+                      read_match_dataflow_trace
+                    ) p lb
+                  )
+                );
+              )
+            | 13 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_engine_kind := (
+                  Some (
+                    (
+                      read_engine_of_finding
                     ) p lb
                   )
                 );
@@ -22019,10 +22019,10 @@ let read_cli_match_extra = (
             lines = (match !field_lines with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "lines");
             is_ignored = !field_is_ignored;
             sca_info = !field_sca_info;
-            dataflow_trace = !field_dataflow_trace;
-            engine_kind = !field_engine_kind;
             validation_state = !field_validation_state;
             historical_info = !field_historical_info;
+            dataflow_trace = !field_dataflow_trace;
+            engine_kind = !field_engine_kind;
             extra_extra = !field_extra_extra;
           }
          : cli_match_extra)
@@ -25696,7 +25696,7 @@ let write_dependency_parser_error : _ -> dependency_parser_error -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"path\":";
     (
-      Yojson.Safe.write_string
+      write_fpath
     )
       ob x.path;
     if !is_first then
@@ -25847,7 +25847,7 @@ let read_dependency_parser_error = (
             field_path := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_fpath
                 ) p lb
               )
             );
@@ -25982,7 +25982,7 @@ let read_dependency_parser_error = (
               field_path := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_fpath
                   ) p lb
                 )
               );
@@ -31897,7 +31897,7 @@ let write_diff_file : _ -> diff_file -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"filename\":";
     (
-      Yojson.Safe.write_string
+      write_fpath
     )
       ob x.filename;
     if !is_first then
@@ -31976,7 +31976,7 @@ let read_diff_file = (
             field_filename := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_fpath
                 ) p lb
               )
             );
@@ -32045,7 +32045,7 @@ let read_diff_file = (
               field_filename := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_fpath
                   ) p lb
                 )
               );

@@ -478,7 +478,7 @@ type dependency_pattern = Semgrep_output_v1_t.dependency_pattern = {
 type dependency_match = Semgrep_output_v1_t.dependency_match = {
   dependency_pattern: dependency_pattern;
   found_dependency: found_dependency;
-  lockfile: string
+  lockfile: fpath
 }
 
 type sca_info = Semgrep_output_v1_t.sca_info = {
@@ -566,10 +566,10 @@ type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
   lines: string;
   is_ignored: bool option;
   sca_info: sca_info option;
-  dataflow_trace: match_dataflow_trace option;
-  engine_kind: engine_of_finding option;
   validation_state: validation_state option;
   historical_info: historical_info option;
+  dataflow_trace: match_dataflow_trace option;
+  engine_kind: engine_of_finding option;
   extra_extra: raw_json option
 }
 
@@ -657,7 +657,7 @@ type finding = Semgrep_output_v1_t.finding = {
 }
 
 type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
-  path: string;
+  path: fpath;
   parser: sca_parser_name;
   reason: string;
   line: int option;
@@ -801,7 +801,7 @@ type features = Semgrep_output_v1_t.features = {
 }
 
 type diff_file = Semgrep_output_v1_t.diff_file = {
-  filename: string;
+  filename: fpath;
   diffs: string list;
   url: string
 }
