@@ -3508,10 +3508,27 @@ class ConanFilePy:
 
 
 @dataclass(frozen=True)
+class Csproj:
+    """Original type: manifest_kind = [ ... | Csproj | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Csproj'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Csproj'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class ManifestKind:
     """Original type: manifest_kind = [ ... ]"""
 
-    value: Union[RequirementsIn, PackageJson, Gemfile, GoMod_, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy]
+    value: Union[RequirementsIn, PackageJson, Gemfile, GoMod_, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj]
 
     @property
     def kind(self) -> str:
@@ -3555,6 +3572,8 @@ class ManifestKind:
                 return cls(ConanFileTxt())
             if x == 'ConanFilePy':
                 return cls(ConanFilePy())
+            if x == 'Csproj':
+                return cls(Csproj())
             _atd_bad_json('ManifestKind', x)
         _atd_bad_json('ManifestKind', x)
 
