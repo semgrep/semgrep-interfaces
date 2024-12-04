@@ -7,7 +7,7 @@
  * This file specifies mainly the JSON formats of:
  *  - the output of the 'semgrep scan --json' command
  *  - the output of the 'semgrep test --json' command
- *  - the messages sent (and received) to the Semgrep backend by the
+ *  - the messages exchanged with the Semgrep backend by the
  *    'semgrep ci' command
  *
  * It's also (ab)used to specify the JSON input and output of semgrep-core,
@@ -86,7 +86,10 @@ type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
  * less: could convert directly to Path class of pathlib library for Python
  * See libs/commons/ATD_string_wrap.ml for more info on those ATD_string_wrap.
  *)
-type fpath <ocaml attr="deriving show, eq"> <python decorator="dataclass(frozen=True)">= string wrap <ocaml module="ATD_string_wrap.Fpath">
+type fpath
+     <ocaml attr="deriving show, eq">
+     <python decorator="dataclass(frozen=True)"> =
+   string wrap <ocaml module="ATD_string_wrap.Fpath">
 
 type uri = string wrap <ocaml module="ATD_string_wrap.Uri">
 
@@ -108,21 +111,25 @@ type version <ocaml attr="deriving show"> = string (* e.g., "1.1.0" *)
 (* Note that there is no filename here like in 'location' below *)
 type position
     <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True, order=True)"> = {
+    <python decorator="dataclass(frozen=True, order=True)"> =
+{
   line: int; (* starts from 1 *)
   col: int; (* starts from 1 *)
   (* Byte position from the beginning of the file, starts at 0.
    * OCaml code sets it correctly. Python code sets it to a dummy value (-1).
-   * This uses '~' because semgrep < 1.30? was *producing* positions without
+   * This uses '~' because pysemgrep < 1.30? was *producing* positions without
    * offset sometimes, and we want the backend to still *consume* such positions.
-   *)
+   * Note that pysemgrep 1.97 was still producing dummy positions without
+   * an offset so we might need this ~offset longer than expected?
+  *)
   ~offset: int;
 }
 
 (* a.k.a range *)
 type location
      <ocaml attr="deriving show">
-     <python decorator="dataclass(frozen=True)"> = {
+     <python decorator="dataclass(frozen=True)"> =
+{
   path: fpath;
   start: position;
   end <ocaml name="end_">: position;
@@ -153,7 +160,8 @@ type rule_id
 *)
 type match_severity
     <ocaml attr="deriving show, eq">
-    <python decorator="dataclass(frozen=True)"> = [
+    <python decorator="dataclass(frozen=True)"> =
+[
   | Error <json name="ERROR">
   | Warning <json name="WARNING">
   | Experiment <json name="EXPERIMENT">
@@ -183,7 +191,8 @@ type match_severity
 *)
 type error_severity
     <ocaml attr="deriving show, eq">
-    <python decorator="dataclass(frozen=True)"> = [
+    <python decorator="dataclass(frozen=True)"> =
+[
   | Error <json name="error">
   | Warning <json name="warn">
   | Info <json name="info">
@@ -196,11 +205,12 @@ type error_severity
    Interfile_taint = requires interfile taint
    Other_pro_feature = requires some non-taint pro feature *)
 type pro_feature
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = {
-    interproc_taint: bool;
-    interfile_taint: bool;
-    proprietary_language: bool;
+    <ocaml attr="deriving show">
+    <python decorator="dataclass(frozen=True)"> =
+{
+  interproc_taint: bool;
+  interfile_taint: bool;
+  proprietary_language: bool;
 }
 
 (* Report the engine used to detect each finding. Additionally, if we are able
@@ -217,8 +227,9 @@ type pro_feature
    we're leaving them as is
 *)
 type engine_of_finding
-     <ocaml attr="deriving show">
-     <python decorator="dataclass(frozen=True)"> = [
+   <ocaml attr="deriving show">
+   <python decorator="dataclass(frozen=True)"> =
+[
   | OSS
   | PRO
    (* Semgrep 1.64.0 or later *)
@@ -226,8 +237,9 @@ type engine_of_finding
 ]
 
 type engine_kind
-     <ocaml attr="deriving show">
-     <python decorator="dataclass(frozen=True)"> = [
+   <ocaml attr="deriving show">
+   <python decorator="dataclass(frozen=True)"> =
+[
   | OSS
   | PRO
 ]
@@ -236,8 +248,9 @@ type rule_id_and_engine_kind <python decorator="dataclass(frozen=True)"> =
   (rule_id * engine_kind)
 
 type product
-  <ocaml attr="deriving show, eq">
-  <python decorator="dataclass(frozen=True)"> = [
+    <ocaml attr="deriving show, eq">
+    <python decorator="dataclass(frozen=True)"> =
+[
   | SAST (* a.k.a. Code *) <json name="sast">
   | SCA <json name="sca">
   | Secrets <json name="secrets">
@@ -315,9 +328,7 @@ type cli_match_extra = {
  * The leading '$' must be included in the metavariable name.
 *)
 type metavars = (string * metavar_value) list
-  <json repr="object">
-  <python repr="dict">
-  <ts repr="map">
+  <json repr="object"> <python repr="dict"> <ts repr="map">
 
 (* TODO: should just inherit location. Maybe it was optimized to not contain
  * the filename, which might be redundant with the information in core_match,
@@ -390,7 +401,9 @@ type matching_explanation_extra = {
  * Note that this type is used in Matching_explanation.ml hence the need
  * for deriving show below.
  *)
-type matching_operation <ocaml attr="deriving show { with_path = false}"> = [
+type matching_operation
+    <ocaml attr="deriving show { with_path = false}"> =
+[
   | And
   | Or
   | Inside
@@ -458,7 +471,8 @@ type match_dataflow_trace <python decorator="dataclass(frozen=True)"> = {
  *)
 type loc_and_content = (location * string)
 
-type match_call_trace <python decorator="dataclass(frozen=True, order=True)"> = [
+type match_call_trace <python decorator="dataclass(frozen=True, order=True)"> =
+[
   | CliLoc of loc_and_content
   | CliCall of (loc_and_content * match_intermediate_var list * match_call_trace)
 ] <ocaml repr="classic">
@@ -485,7 +499,10 @@ type match_intermediate_var <python decorator="dataclass(frozen=True)"> = {
  * classes can be hashed and put in sets (see calls to reachable_deps.add()
  * in semgrep SCA code)
  *)
-type ecosystem <python decorator="dataclass(frozen=True)"> <ocaml attr="deriving show,eq"> = [
+type ecosystem
+    <python decorator="dataclass(frozen=True)">
+    <ocaml attr="deriving show,eq"> =
+[
   | Npm <json name="npm">
   | Pypi  <json name="pypi">
   | Gem <json name="gem">
@@ -501,7 +518,10 @@ type ecosystem <python decorator="dataclass(frozen=True)"> <ocaml attr="deriving
   | Hex <json name="hex">
 ]
 
-type transitivity <python decorator="dataclass(frozen=True)"> <ocaml attr="deriving show,eq"> = [
+type transitivity
+    <python decorator="dataclass(frozen=True)">
+    <ocaml attr="deriving show,eq"> =
+[
   | Direct <json name="direct">
   | Transitive <json name="transitive">
   | Unknown <json name="unknown">
@@ -581,8 +601,9 @@ type dependency_child <python decorator="dataclass(frozen=True)"> = {
  * could adjust that, by adding another state.
 *)
 type validation_state
-  <ocaml attr="deriving show, eq">
-  <python decorator="dataclass(frozen=True)"> = [
+    <ocaml attr="deriving show, eq">
+    <python decorator="dataclass(frozen=True)"> =
+[
   | Confirmed_valid <json name="CONFIRMED_VALID">
   | Confirmed_invalid <json name="CONFIRMED_INVALID">
   | Validation_error <json name="VALIDATION_ERROR">
@@ -613,7 +634,8 @@ type historical_info = {
  *)
 type error_type
     <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True, order=True)"> = [
+    <python decorator="dataclass(frozen=True, order=True)"> =
+[
   (* File parsing related errors;
      coupling: if you add a target parse error then metrics for
      cli need to be updated. See cli/src/semgrep/parsing_data.py.
@@ -628,15 +650,17 @@ type error_type
    * TODO? should we move invalid_rule_error_kind here?
    *)
   | RuleParseError <json name="Rule parse error">
-  (* generated in pysemgrep only. TODO: some should take error_span in parameter *)
+  (* generated in pysemgrep only. TODO: some should take error_span in param *)
   | SemgrepWarning <json name="SemgrepWarning">
   | SemgrepError <json name="SemgrepError">
   | InvalidRuleSchemaError <json name="InvalidRuleSchemaError">
   | UnknownLanguageError <json name="UnknownLanguageError">
   | InvalidYaml <json name="Invalid YAML">
   (* matching (semgrep) related *)
-  | MatchingError (* internal error, e.g., NoTokenLocation *) <json name="Internal matching error">
-  | SemgrepMatchFound (* TODO of string (* check_id *) *) <json name="Semgrep match found">
+  | MatchingError (* internal error, e.g., NoTokenLocation *)
+    <json name="Internal matching error">
+  | SemgrepMatchFound (* TODO of string (* check_id *) *)
+    <json name="Semgrep match found">
   | TooManyMatches <json name="Too many matches">
   (* other *)
   | FatalError (* missing file, OCaml errors, etc. *) <json name="Fatal error">
@@ -660,8 +684,9 @@ type error_type
    * are here so that our backend can read the cli_error.type_ from old semgrep
    * versions that were translating the PatternParseError _ and IncompatibleRule _
    * above as a single string (instead of a list ["PatternParseError", ...] now).
-   * There is no PartialParsing0 because this was encoded as a ParseError instead.
-   * *)
+   * There is no PartialParsing0 because this was encoded as a ParseError
+   * instead.
+   *)
   | PatternParseError0 <json name="Pattern parse error">
   | IncompatibleRule0 <json name="Incompatible rule">
   (* since semgrep 1.94.0 *)
@@ -670,7 +695,8 @@ type error_type
 
 type incompatible_rule
      <ocaml attr="deriving show">
-     <python decorator="dataclass(frozen=True)"> = {
+     <python decorator="dataclass(frozen=True)"> =
+{
   rule_id: rule_id;
   this_version: version;
   ?min_version: version option;
@@ -764,7 +790,7 @@ type skip_reason <ocaml attr="deriving show"> = [
   | Too_many_matches <json name="too_many_matches">
   (* New in osemgrep *)
   | Gitignore_patterns_match (* TODO: use JSON lowercase for consistency *)
-  (* since 1.40.0 (dotfiles were always ignored, but not shown in the skip report *)
+  (* since 1.40.0. There were always ignored, but not shown in the skip report *)
   | Dotfile (* TODO: use JSON lowercase for consistency *)
   (* since 1.44.0 *)
   | Nonexistent_file (* TODO: use JSON lowercase for consistency *)
@@ -859,7 +885,8 @@ type target_times = {
     (* emma: "when we were first diagnosing performance, I recorded every time
      * the file was read (including the later times that were just reloading
      * the parsed file) to make sure reading the file wasn't taking a significant
-     * amount of time. Now that we know it isn't, we don't need to record this anymore.
+     * amount of time. Now that we know it isn't, we don't need to record this
+     * anymore.
      * TODO: just use a single float instead."
      *)
     parse_times: float list;
@@ -899,17 +926,19 @@ type cli_output_extra = {
      *)
     ?explanations: matching_explanation list option;
 
-    (* These rules, classified by engine used, will let us be transparent in the CLI
-     * output over what rules were run with what.
+    (* These rules, classified by engine used, will let us be transparent in
+     * the CLI output over what rules were run with what.
      * EXPERIMENTAL: since: 1.11.0
      *)
     ?rules_by_engine: rule_id_and_engine_kind list option;
     ?engine_requested: engine_kind option;
 
-    (* Reporting just the requested engine isn't granular enough. We want to know
-       what languages had rules that invoked interfile. This is particularly important
-       for tracking the performance impact of new interfile languages *)
-    (* EXPERIMENTAL: since 1.49.0 *)
+    (* Reporting just the requested engine isn't granular enough. We want to
+     * know what languages had rules that invoked interfile. This is
+     * particularly important for tracking the performance impact of new
+     * interfile languages
+     * EXPERIMENTAL: since 1.49.0
+    *)
     ?interfile_languages_used: string list option;
 
     (* EXPERIMENTAL: since: 1.37.0 *)
@@ -932,7 +961,8 @@ type config_error = {
 type tests_result = {
   (* would like to use rule_id here but then can't use json repr *)
    results: (string (* rule file *) * checks) list <json repr="object">;
-   fixtest_results: (string (* target file *) * fixtest_result) list <json repr="object">;
+   fixtest_results: (string (* target file *) * fixtest_result) list
+      <json repr="object">;
    config_missing_tests: fpath list;
    config_missing_fixtests: fpath list;
    config_with_errors: config_error list;
@@ -1091,7 +1121,7 @@ type killing_parent = {
 
 (* EXPERIMENTAL: do not rely on the types in this section; those are internal
  * types used to communicate with the Semgrep backend and are not meant
- * to be consumed directly by Semgrep users or tools wrapping up Semgrep.
+ * to be consumed directly by Semgrep users or tools wrapping Semgrep.
  *
  * The sequence of HTTP requests is mostly:
  *  - /deployments/current with token
@@ -1179,7 +1209,7 @@ type deployment_config <ocaml attr="deriving show"> = {
   inherit has_features;
 }
 
-(* Content of the .semgrepconfig.yml in the repository.
+(* Content of a possible .semgrepconfig.yml in the repository.
  *
  * This config allows to configure Semgrep per repo, e.g., to store
  * a category/tag like "webapp" in a repo so that the Semgrep WebApp can
@@ -1187,11 +1217,11 @@ type deployment_config <ocaml attr="deriving show"> = {
  * later when given this ci_config_from_repo in the scan_request.
  *)
 type ci_config_from_repo = {
-    (* version of the .semgrepconfig.yml format. "V1" right now (useful?) *)
+    (* version of the .semgrepconfig.yml format. "v1" right now (useful?) *)
     ~version <python default="Version('v1')"> <ts default="'v1'">: version;
     ?tags: tag list option;
 }
-(* ?? ex? *)
+(* ex: "webapp" *)
 type tag = string
 
 (* Response by the backend to the CLI to the POST /scans/<scan_id>/config *)
@@ -1205,7 +1235,7 @@ type scan_config = {
     policy_names: string list;
     (* rules raw content in JSON format (but still sent as a string) *)
     rule_config: string;
-    (* since 1.47.0 *)
+    (* since 1.47.0 but not created by the backend (nor used by the CLI) *)
     ?ci_config_from_cloud: ci_config_from_cloud option;
 
     (* Deprecated: should rely on ci_config_from_cloud instead *)
@@ -1369,9 +1399,9 @@ type historical_configuration = {
 type glob = string
 
 type product_ignored_files = (product * glob list) list
-  (* We omit the usual <json repr="object"> else we get a "keys must be strings" error *)
-  <python repr="dict">
-  <ts repr="map">
+  (* We omit the usual <json repr="object"> otherwise we get a
+   * "keys must be strings" error *)
+  <python repr="dict"> <ts repr="map">
 
 (* settings for the cli *)
 type engine_configuration = {
@@ -1459,7 +1489,8 @@ type finding = {
 type finding_hashes = {
   start_line_hash: string;
   end_line_hash: string;
-  (* hash of the syntactic_context/code contents from start_line through end_line *)
+  (* hash of the syntactic_context/code contents from start_line through
+   * end_line *)
   code_hash: string;
   (* hash of the rule pattern with metavariables substituted in *)
   pattern_hash: string;
@@ -1528,7 +1559,8 @@ type ci_scan_results_response_error <ocaml attr="deriving show"> = {
 type ci_scan_complete = {
   exit_code: int;
   stats: ci_scan_complete_stats;
-  ?dependencies: ci_scan_dependencies option; (* remove when min version is 1.38.0 *)
+  (* TODO: remove when min version is 1.38.0 *)
+  ?dependencies: ci_scan_dependencies option; 
   ?dependency_parser_errors: dependency_parser_error list option;
   (* since 1.31.0 *)
   ?task_id: string option;
@@ -1613,7 +1645,9 @@ type dependency_parser_error = {
   ?text: string option;
 }
 
-(* json names are to maintain backwards compatibility with the python enum it is replacing *)
+(* json names are to maintain backwards compatibility with the python enum it
+ * is replacing
+ *)
 type sca_parser_name = [
   | Gemfile_lock <json name="gemfile_lock">
   | Go_mod <json name="go_mod">
@@ -1661,7 +1695,10 @@ type dependency_source_file = {
   path: fpath;
 }
 
-type dependency_source_file_kind <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True)"> = [
+type dependency_source_file_kind
+     <ocaml attr="deriving show">
+     <python decorator="dataclass(frozen=True)"> =
+[
   | Lockfile of lockfile_kind
   | Manifest of manifest_kind
 ] 
@@ -1672,7 +1709,10 @@ type dependency_resolution_stats = {
   ecosystem: ecosystem;
 }
 
-type resolution_method <ocaml attr="deriving show"> <python decorator="dataclass(frozen=True, order=True)"> = [
+type resolution_method
+     <ocaml attr="deriving show">
+     <python decorator="dataclass(frozen=True, order=True)"> =
+[
   | LockfileParsing 
   | DynamicResolution 
 ]
@@ -1876,22 +1916,19 @@ type targets <ocaml attr="deriving show"> = target list
 (* ----------------------------- *)
 
 (* coupling: Textedit.ml *)
-type edit
-    <python decorator="dataclass(frozen=True)"> = {
+type edit <python decorator="dataclass(frozen=True)"> = {
   path: fpath;
   start_offset: int;
   end_offset: int;
   replacement_text: string;
 }
 
-type apply_fixes_params
-    <python decorator="dataclass(frozen=True)"> = {
+type apply_fixes_params <python decorator="dataclass(frozen=True)"> = {
   dryrun: bool;
   edits: edit list;
 }
 
-type apply_fixes_return
-    <python decorator="dataclass(frozen=True)"> = {
+type apply_fixes_return <python decorator="dataclass(frozen=True)"> = {
   (* Number of files modified *)
   modified_file_count: int;
   (* Each item is a pair, where the first item is the index of the associated
@@ -1901,8 +1938,7 @@ type apply_fixes_return
 }
 
 (* The parameters here pretty much match what's needed by Sarif_output.sarif_output. *)
-type sarif_format_params
-    <python decorator="dataclass(frozen=True)"> = {
+type sarif_format_params <python decorator="dataclass(frozen=True)"> = {
   hide_nudge: bool;
   engine_label: string;
 
@@ -1928,8 +1964,7 @@ type sarif_format_params
   ?show_dataflow_traces: bool option;
 }
 
-type sarif_format_return
-    <python decorator="dataclass(frozen=True)"> = {
+type sarif_format_return <python decorator="dataclass(frozen=True)"> = {
   (* The formatted output. *)
   output: string;
   (* Time (in seconds) it took to format the output.
@@ -1941,8 +1976,9 @@ type sarif_format_return
 }
 
 type output_format
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)">   = [
+    <ocaml attr="deriving show">
+    <python decorator="dataclass(frozen=True)"> =
+[
   | Text
   | Json
   | Emacs
@@ -1961,7 +1997,8 @@ type output_format
 
 type format_context
      <ocaml attr="deriving show">
-     <python decorator="dataclass(frozen=True)">   = {
+     <python decorator="dataclass(frozen=True)"> =
+{
    is_ci_invocation: bool;
    is_logged_in: bool;
    is_using_registry: bool;
@@ -1978,8 +2015,9 @@ type dump_rule_partitions_params = {
 (* ----------------------------- *)
 
 type lockfile_kind
-  <ocaml attr="deriving show, eq, yojson">
-  <python decorator="dataclass(frozen=True)">   = [
+     <ocaml attr="deriving show, eq, yojson">
+     <python decorator="dataclass(frozen=True)"> =
+[
     | PipRequirementsTxt
     | PoetryLock
     | PipfileLock
@@ -2002,72 +2040,96 @@ type lockfile_kind
 
 type manifest_kind 
   <ocaml attr="deriving show, eq">
-  <python decorator="dataclass(frozen=True)">   = [
+  <python decorator="dataclass(frozen=True)"> =
+[
+  (* A Pip Requirements.in in file, which follows the format of requirements.txt
+   * https://pip.pypa.io/en/stable/reference/requirements-file-format/ *)
   | RequirementsIn
-    (* A Pip Requirements.in in file, which follows the format of requirements.txt - https://pip.pypa.io/en/stable/reference/requirements-file-format/ *)
+  (* An NPM package.json manifest file
+   * https://docs.npmjs.com/cli/v10/configuring-npm/package-json *)
   | PackageJson
-    (* An NPM package.json manifest file - https://docs.npmjs.com/cli/v10/configuring-npm/package-json *)
+  (* A Ruby Gemfile manifest https://bundler.io/v2.5/man/gemfile.5.html *)
   | Gemfile
-    (* A Ruby Gemfile manifest - https://bundler.io/v2.5/man/gemfile.5.html *)
-  | GoMod (* go.mod - https://go.dev/doc/modules/gomod-ref *)
+  (* go.modhttps://go.dev/doc/modules/gomod-ref *)
+  | GoMod 
+  (* cargo.toml - https://doc.rust-lang.org/cargo/reference/manifest.html *)
   | CargoToml
-    (* cargo.toml - https://doc.rust-lang.org/cargo/reference/manifest.html *)
+  (* A Maven pom.xml manifest file
+   * https://maven.apache.org/guides/introduction/introduction-to-the-pom.html *)
   | PomXml
-    (* A Maven pom.xml manifest file - https://maven.apache.org/guides/introduction/introduction-to-the-pom.html *)
+  (* A Gradle build.gradle build file
+   * https://docs.gradle.org/current/userguide/build_file_basics.html *)
   | BuildGradle
-    (* A Gradle build.gradle build file - https://docs.gradle.org/current/userguide/build_file_basics.html *)
-  | SettingsGradle
-    (* A Gradle settings.gradle file - https://docs.gradle.org/current/userguide/settings_file_basics.html. 
-     * Multi-project builds are defined by settings.gradle rather than build.gradle: https://docs.gradle.org/current/userguide/multi_project_builds.html#multi_project_builds *)
-  | ComposerJson (* composer.json - https://getcomposer.org/doc/04-schema.md *)
+  (* A Gradle settings.gradle file
+   * https://docs.gradle.org/current/userguide/settings_file_basics.html. 
+   * Multi-project builds are defined by settings.gradle rather than
+   * build.gradle:
+   * https://docs.gradle.org/current/userguide/multi_project_builds.html#multi_project_builds *)
+   | SettingsGradle
+  (* composer.json - https://getcomposer.org/doc/04-schema.md *)
+  | ComposerJson
+  (* manifest for nuget
+   * could not find a reference; this may not actually exist *)
   | NugetManifestJson
-    (* manifest for nuget - could not find a reference; this may not actually exist *)
-  | PubspecYaml (* pubspec.yaml - https://dart.dev/tools/pub/pubspec *)
+  (* pubspec.yaml - https://dart.dev/tools/pub/pubspec *)
+  | PubspecYaml
+  (* Package.swift
+   * https://docs.swift.org/package-manager/PackageDescription/PackageDescription.html *)
   | PackageSwift
-    (* Package.swift - https://docs.swift.org/package-manager/PackageDescription/PackageDescription.html *)
+  (* mix.exs
+   * https://hexdocs.pm/elixir/introduction-to-mix.html#project-compilation *)
   | MixExs
-    (* mix.exs - https://hexdocs.pm/elixir/introduction-to-mix.html#project-compilation *)
-  | Pipfile (* Pipfile - https://pipenv.pypa.io/en/latest/pipfile.html *)
+  (* Pipfile - https://pipenv.pypa.io/en/latest/pipfile.html *)
+  | Pipfile
+  (* pyproject.toml
+   * https://packaging.python.org/en/latest/guides/writing-pyproject-toml/ *)
   | PyprojectToml
-    (* pyproject.toml - https://packaging.python.org/en/latest/guides/writing-pyproject-toml/ *)
-  | ConanFileTxt (* conanfile.txt - https://docs.conan.io/2.9/reference/conanfile_txt.html#conanfile-txt *)
-  | ConanFilePy (* conanfile.py - https://docs.conan.io/2.9/reference/conanfile.html *)  
+  (* conanfile.txt
+   * https://docs.conan.io/2.9/reference/conanfile_txt.html#conanfile-txt *)    
+  | ConanFileTxt
+  (* conanfile.py - https://docs.conan.io/2.9/reference/conanfile.html *)  
+  | ConanFilePy
 ]
 
 type manifest
-  <ocaml attr="deriving show, eq">
-  <python decorator="dataclass(frozen=True)">   = {
+    <ocaml attr="deriving show, eq">
+    <python decorator="dataclass(frozen=True)"> =
+{
   kind: manifest_kind;
   path: fpath;
 }
 
 type lockfile
-  <ocaml attr="deriving show, eq">
-  <python decorator="dataclass(frozen=True)">   = {
+    <ocaml attr="deriving show, eq">
+    <python decorator="dataclass(frozen=True)"> =
+{
     kind: lockfile_kind;
     path: fpath;
 }
 
 type dependency_source
     <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = [
-    | ManifestOnlyDependencySource of manifest
-    | LockfileOnlyDependencySource of lockfile
-    | ManifestLockfileDependencySource of (manifest * lockfile)
+    <python decorator="dataclass(frozen=True)"> =
+[
+  | ManifestOnlyDependencySource of manifest
+  | LockfileOnlyDependencySource of lockfile
+  | ManifestLockfileDependencySource of (manifest * lockfile)
 ] <ocaml repr="classic">
 
 type resolution_error
     <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True)"> = [
-    | UnsupportedManifest
-    | MissingRequirement of string
-    | ResolutionCmdFailed of resolution_cmd_failed
-    | ParseDependenciesFailed of string
+    <python decorator="dataclass(frozen=True)"> =
+[
+  | UnsupportedManifest
+  | MissingRequirement of string
+  | ResolutionCmdFailed of resolution_cmd_failed
+  | ParseDependenciesFailed of string
 ]
 
 type resolution_cmd_failed
-  <ocaml attr="deriving show">
-  <python decorator="dataclass(frozen=True)"> = {
+    <ocaml attr="deriving show">
+    <python decorator="dataclass(frozen=True)"> =
+{
     command: string;
     message: string;
 }
@@ -2085,8 +2147,7 @@ type resolution_result = [
 (* The call *)
 (* ----------------------------- *)
 
-type function_call
-    <python decorator="dataclass(frozen=True)"> = [
+type function_call <python decorator="dataclass(frozen=True)"> = [
   | CallContributions
   | CallApplyFixes of apply_fixes_params
   | CallSarifFormat of sarif_format_params
@@ -2104,8 +2165,7 @@ type function_call
 (* The return *)
 (* ----------------------------- *)
 
-type function_return
-    <python decorator="dataclass(frozen=True)"> = [
+type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetError of string
   | RetApplyFixes of apply_fixes_return
   | RetSarifFormat of sarif_format_return
@@ -2121,8 +2181,7 @@ type function_return
 (*****************************************************************************)
 
 (* Partial scans. Experimental and for internal use only. *)
-type partial_scan_result
-    <python decorator="dataclass(frozen=True)"> = [
+type partial_scan_result <python decorator="dataclass(frozen=True)"> = [
   | PartialScanOk of (ci_scan_results * ci_scan_complete)
   | PartialScanError of ci_scan_failure
 ]
