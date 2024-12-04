@@ -1364,7 +1364,7 @@ type scan_request = {
     (* added in 1.43 (used to be in meta) *)
     ?project_config: ci_config_from_repo option;
     
-    (* deprecated: moved as an option in 1.98.0 and was used until 1.43ish
+    (* deprecated: moved as an option in 1.99.0 and was duplicative of information in project_metadata and scan_metadata since 1.43.0
      * old: 'meta: project_metadata;' before 1.43
      *)
     ?meta: raw_json option;
