@@ -1617,12 +1617,31 @@ type parsing_stats = {
   num_bytes: int;
 }
 
+(* 
+Policy/automation related data the app wants the CLI to know about 
+certain findings. Right now this is only used for the app to cause
+a CI scan to block, so 'kind' can only ever be "block". The list
+of match_based_ids are the MIDs of the findings that the action
+relates to.
+
+This a record with a 'kind' field instead
+instead of a sum type because ATD doesn't have convenient support for
+adding new constructors to sum types without breaking backwards compatibility.
+Right now we only have one kind of action ("block"), but in the future we may add more.
+e.g. we could inform the CLI that a certain list of findings triggered a PR comment
+*)
+type app_finding_action = {
+  kind : string;
+  match_based_ids : string list;
+}
+
 (* Response by the backend to the CLI to the POST /complete *)
 type ci_scan_complete_response <ocaml attr="deriving show"> = {
    success: bool;
    ~app_block_override: bool;
    (* only when app_block_override is true *)
    ~app_block_reason: string;
+   ~app_finding_actions : app_finding_action list;
 }
 
 (* ----------------------------- *)

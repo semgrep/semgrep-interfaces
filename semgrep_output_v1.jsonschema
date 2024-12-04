@@ -1272,13 +1272,25 @@
         "num_bytes": { "type": "integer" }
       }
     },
+    "app_finding_action": {
+      "type": "object",
+      "required": [ "kind", "match_based_ids" ],
+      "properties": {
+        "kind": { "type": "string" },
+        "match_based_ids": { "type": "array", "items": { "type": "string" } }
+      }
+    },
     "ci_scan_complete_response": {
       "type": "object",
       "required": [ "success" ],
       "properties": {
         "success": { "type": "boolean" },
         "app_block_override": { "type": "boolean" },
-        "app_block_reason": { "type": "string" }
+        "app_block_reason": { "type": "string" },
+        "app_finding_actions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/app_finding_action" }
+        }
       }
     },
     "ci_scan_dependencies": {

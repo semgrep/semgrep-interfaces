@@ -696,10 +696,16 @@ export type ParsingStats = {
   num_bytes: number /*int*/;
 }
 
+export type AppFindingAction = {
+  kind: string;
+  match_based_ids: string[];
+}
+
 export type CiScanCompleteResponse = {
   success: boolean;
   app_block_override: boolean;
   app_block_reason: string;
+  app_finding_actions: AppFindingAction[];
 }
 
 export type CiScanDependencies = Map<string, FoundDependency[]>
@@ -3108,11 +3114,26 @@ export function readParsingStats(x: any, context: any = x): ParsingStats {
   };
 }
 
+export function writeAppFindingAction(x: AppFindingAction, context: any = x): any {
+  return {
+    'kind': _atd_write_required_field('AppFindingAction', 'kind', _atd_write_string, x.kind, x),
+    'match_based_ids': _atd_write_required_field('AppFindingAction', 'match_based_ids', _atd_write_array(_atd_write_string), x.match_based_ids, x),
+  };
+}
+
+export function readAppFindingAction(x: any, context: any = x): AppFindingAction {
+  return {
+    kind: _atd_read_required_field('AppFindingAction', 'kind', _atd_read_string, x['kind'], x),
+    match_based_ids: _atd_read_required_field('AppFindingAction', 'match_based_ids', _atd_read_array(_atd_read_string), x['match_based_ids'], x),
+  };
+}
+
 export function writeCiScanCompleteResponse(x: CiScanCompleteResponse, context: any = x): any {
   return {
     'success': _atd_write_required_field('CiScanCompleteResponse', 'success', _atd_write_bool, x.success, x),
     'app_block_override': _atd_write_field_with_default(_atd_write_bool, false, x.app_block_override, x),
     'app_block_reason': _atd_write_field_with_default(_atd_write_string, "", x.app_block_reason, x),
+    'app_finding_actions': _atd_write_field_with_default(_atd_write_array(writeAppFindingAction), [], x.app_finding_actions, x),
   };
 }
 
@@ -3121,6 +3142,7 @@ export function readCiScanCompleteResponse(x: any, context: any = x): CiScanComp
     success: _atd_read_required_field('CiScanCompleteResponse', 'success', _atd_read_bool, x['success'], x),
     app_block_override: _atd_read_field_with_default(_atd_read_bool, false, x['app_block_override'], x),
     app_block_reason: _atd_read_field_with_default(_atd_read_string, "", x['app_block_reason'], x),
+    app_finding_actions: _atd_read_field_with_default(_atd_read_array(readAppFindingAction), [], x['app_finding_actions'], x),
   };
 }
 

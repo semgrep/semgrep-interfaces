@@ -9084,12 +9084,44 @@ class CiScanResultsResponse:
 
 
 @dataclass
+class AppFindingAction:
+    """Original type: app_finding_action = { ... }"""
+
+    kind: str
+    match_based_ids: List[str]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'AppFindingAction':
+        if isinstance(x, dict):
+            return cls(
+                kind=_atd_read_string(x['kind']) if 'kind' in x else _atd_missing_json_field('AppFindingAction', 'kind'),
+                match_based_ids=_atd_read_list(_atd_read_string)(x['match_based_ids']) if 'match_based_ids' in x else _atd_missing_json_field('AppFindingAction', 'match_based_ids'),
+            )
+        else:
+            _atd_bad_json('AppFindingAction', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['kind'] = _atd_write_string(self.kind)
+        res['match_based_ids'] = _atd_write_list(_atd_write_string)(self.match_based_ids)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'AppFindingAction':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class CiScanCompleteResponse:
     """Original type: ci_scan_complete_response = { ... }"""
 
     success: bool
     app_block_override: bool = field(default_factory=lambda: False)
     app_block_reason: str = field(default_factory=lambda: "")
+    app_finding_actions: List[AppFindingAction] = field(default_factory=lambda: [])
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanCompleteResponse':
@@ -9098,6 +9130,7 @@ class CiScanCompleteResponse:
                 success=_atd_read_bool(x['success']) if 'success' in x else _atd_missing_json_field('CiScanCompleteResponse', 'success'),
                 app_block_override=_atd_read_bool(x['app_block_override']) if 'app_block_override' in x else False,
                 app_block_reason=_atd_read_string(x['app_block_reason']) if 'app_block_reason' in x else "",
+                app_finding_actions=_atd_read_list(AppFindingAction.from_json)(x['app_finding_actions']) if 'app_finding_actions' in x else [],
             )
         else:
             _atd_bad_json('CiScanCompleteResponse', x)
@@ -9107,6 +9140,7 @@ class CiScanCompleteResponse:
         res['success'] = _atd_write_bool(self.success)
         res['app_block_override'] = _atd_write_bool(self.app_block_override)
         res['app_block_reason'] = _atd_write_string(self.app_block_reason)
+        res['app_finding_actions'] = _atd_write_list((lambda x: x.to_json()))(self.app_finding_actions)
         return res
 
     @classmethod
