@@ -1357,12 +1357,17 @@ type scan_metadata = {
 
 (* Sent by the CLI to the POST /api/cli/scans to create a scan. *)
 type scan_request = {
-    (* until 1.43ish, was 'meta: project_metadata;' before *)
-    meta: raw_json;
-    (* from 1.43 *)
-    ?project_metadata: project_metadata option; (* replacing meta *)
+    (* added in 1.43 as options, and mandatory since 1.99.0 (replacing meta) *)
+    project_metadata: project_metadata;
+    scan_metadata: scan_metadata;
+
+    (* added in 1.43 (used to be in meta) *)
     ?project_config: ci_config_from_repo option;
-    ?scan_metadata: scan_metadata option;
+    
+    (* deprecated: moved as an option in 1.98.0 and was used until 1.43ish
+     * old: 'meta: project_metadata;' before 1.43
+     *)
+    ?meta: raw_json option;
 }
 
 (* Response from the backend to the CLI to the POST /api/cli/scans *)
