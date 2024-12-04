@@ -1700,7 +1700,8 @@
         { "const": "Pipfile" },
         { "const": "PyprojectToml" },
         { "const": "ConanFileTxt" },
-        { "const": "ConanFilePy" }
+        { "const": "ConanFilePy" },
+        { "const": "Csproj" }
       ]
     },
     "manifest": {
