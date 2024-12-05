@@ -877,17 +877,12 @@ type ci_scan_results_response =
 }
   [@@deriving show]
 
-type app_finding_action = Semgrep_output_v1_t.app_finding_action = {
-  kind: string;
-  match_based_ids: string list
-}
-
 type ci_scan_complete_response =
   Semgrep_output_v1_t.ci_scan_complete_response = {
   success: bool;
   app_block_override: bool;
   app_block_reason: string;
-  app_finding_actions: app_finding_action list
+  app_blocking_match_based_ids: string list
 }
   [@@deriving show]
 
@@ -3650,26 +3645,6 @@ val read_ci_scan_results_response :
 val ci_scan_results_response_of_string :
   string -> ci_scan_results_response
   (** Deserialize JSON data of type {!type:ci_scan_results_response}. *)
-
-val write_app_finding_action :
-  Buffer.t -> app_finding_action -> unit
-  (** Output a JSON value of type {!type:app_finding_action}. *)
-
-val string_of_app_finding_action :
-  ?len:int -> app_finding_action -> string
-  (** Serialize a value of type {!type:app_finding_action}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_app_finding_action :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> app_finding_action
-  (** Input JSON data of type {!type:app_finding_action}. *)
-
-val app_finding_action_of_string :
-  string -> app_finding_action
-  (** Deserialize JSON data of type {!type:app_finding_action}. *)
 
 val write_ci_scan_complete_response :
   Buffer.t -> ci_scan_complete_response -> unit
