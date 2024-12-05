@@ -1622,7 +1622,8 @@ Policy/automation related data the app wants the CLI to know about
 certain findings. Right now this is only used for the app to cause
 a CI scan to block, so 'kind' can only ever be "block". The list
 of match_based_ids are the MIDs of the findings that the action
-relates to.
+relates to. If a "block" action is present, the `app_block_override`
+field should be true.
 
 This a record with a 'kind' field instead
 instead of a sum type because ATD doesn't have convenient support for
