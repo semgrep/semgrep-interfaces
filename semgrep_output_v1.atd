@@ -2095,6 +2095,8 @@ type manifest_kind
   | ConanFileTxt
   (* conanfile.py - https://docs.conan.io/2.9/reference/conanfile.html *)  
   | ConanFilePy
+  (* .csproj - https://docs.microsoft.com/en-us/dotnet/core/tools/csproj *)
+  | Csproj
 ]
 
 type manifest
