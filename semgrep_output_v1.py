@@ -7934,6 +7934,27 @@ class OutputFormat:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class MatchBasedId:
+    """Original type: match_based_id"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'MatchBasedId':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'MatchBasedId':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class Manifest:
     """Original type: manifest = { ... }"""
@@ -9090,6 +9111,7 @@ class CiScanCompleteResponse:
     success: bool
     app_block_override: bool = field(default_factory=lambda: False)
     app_block_reason: str = field(default_factory=lambda: "")
+    app_blocking_match_based_ids: List[MatchBasedId] = field(default_factory=lambda: [])
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanCompleteResponse':
@@ -9098,6 +9120,7 @@ class CiScanCompleteResponse:
                 success=_atd_read_bool(x['success']) if 'success' in x else _atd_missing_json_field('CiScanCompleteResponse', 'success'),
                 app_block_override=_atd_read_bool(x['app_block_override']) if 'app_block_override' in x else False,
                 app_block_reason=_atd_read_string(x['app_block_reason']) if 'app_block_reason' in x else "",
+                app_blocking_match_based_ids=_atd_read_list(MatchBasedId.from_json)(x['app_blocking_match_based_ids']) if 'app_blocking_match_based_ids' in x else [],
             )
         else:
             _atd_bad_json('CiScanCompleteResponse', x)
@@ -9107,6 +9130,7 @@ class CiScanCompleteResponse:
         res['success'] = _atd_write_bool(self.success)
         res['app_block_override'] = _atd_write_bool(self.app_block_override)
         res['app_block_reason'] = _atd_write_string(self.app_block_reason)
+        res['app_blocking_match_based_ids'] = _atd_write_list((lambda x: x.to_json()))(self.app_blocking_match_based_ids)
         return res
 
     @classmethod

@@ -41,6 +41,7 @@
     "sha1": { "type": "string" },
     "uuid": { "type": "string" },
     "datetime": { "type": "string" },
+    "match_based_id": { "type": "string" },
     "version": { "type": "string" },
     "position": {
       "type": "object",
@@ -1278,7 +1279,11 @@
       "properties": {
         "success": { "type": "boolean" },
         "app_block_override": { "type": "boolean" },
-        "app_block_reason": { "type": "string" }
+        "app_block_reason": { "type": "string" },
+        "app_blocking_match_based_ids": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/match_based_id" }
+        }
       }
     },
     "ci_scan_dependencies": {
