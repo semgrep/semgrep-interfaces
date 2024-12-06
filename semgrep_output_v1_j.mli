@@ -725,6 +725,8 @@ type output_format = Semgrep_output_v1_t.output_format =
 
   [@@deriving show]
 
+type match_based_id = Semgrep_output_v1_t.match_based_id
+
 type manifest = Semgrep_output_v1_t.manifest = {
   kind: manifest_kind;
   path: fpath
@@ -882,7 +884,7 @@ type ci_scan_complete_response =
   success: bool;
   app_block_override: bool;
   app_block_reason: string;
-  app_blocking_match_based_ids: string list
+  app_blocking_match_based_ids: match_based_id list
 }
   [@@deriving show]
 
@@ -3225,6 +3227,26 @@ val read_output_format :
 val output_format_of_string :
   string -> output_format
   (** Deserialize JSON data of type {!type:output_format}. *)
+
+val write_match_based_id :
+  Buffer.t -> match_based_id -> unit
+  (** Output a JSON value of type {!type:match_based_id}. *)
+
+val string_of_match_based_id :
+  ?len:int -> match_based_id -> string
+  (** Serialize a value of type {!type:match_based_id}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_match_based_id :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> match_based_id
+  (** Input JSON data of type {!type:match_based_id}. *)
+
+val match_based_id_of_string :
+  string -> match_based_id
+  (** Deserialize JSON data of type {!type:match_based_id}. *)
 
 val write_manifest :
   Buffer.t -> manifest -> unit

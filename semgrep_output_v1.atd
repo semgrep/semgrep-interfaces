@@ -100,6 +100,8 @@ type uuid = string wrap <ocaml module="ATD_string_wrap.Uuidm">
 (* RFC 3339 format *)
 type datetime = string wrap <ocaml module="ATD_string_wrap.Datetime">
 
+type match_based_id = string wrap
+
 (*****************************************************************************)
 (* Versioning *)
 (*****************************************************************************)
@@ -1625,7 +1627,7 @@ type ci_scan_complete_response <ocaml attr="deriving show"> = {
    (* only when app_block_override is true *)
    ~app_block_reason: string;
    (* match_based_ids of findings that semgrep-app determined should cause the scan to block *)
-   ~app_blocking_match_based_ids : string list;
+   ~app_blocking_match_based_ids : match_based_id list;
 }
 
 (* ----------------------------- *)

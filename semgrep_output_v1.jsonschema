@@ -41,6 +41,7 @@
     "sha1": { "type": "string" },
     "uuid": { "type": "string" },
     "datetime": { "type": "string" },
+    "match_based_id": { "type": "string" },
     "version": { "type": "string" },
     "position": {
       "type": "object",
@@ -1281,7 +1282,7 @@
         "app_block_reason": { "type": "string" },
         "app_blocking_match_based_ids": {
           "type": "array",
-          "items": { "type": "string" }
+          "items": { "$ref": "#/definitions/match_based_id" }
         }
       }
     },

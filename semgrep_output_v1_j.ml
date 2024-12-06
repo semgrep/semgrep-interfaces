@@ -725,6 +725,8 @@ type output_format = Semgrep_output_v1_t.output_format =
 
   [@@deriving show]
 
+type match_based_id = Semgrep_output_v1_t.match_based_id
+
 type manifest = Semgrep_output_v1_t.manifest = {
   kind: manifest_kind;
   path: fpath
@@ -882,7 +884,7 @@ type ci_scan_complete_response =
   success: bool;
   app_block_override: bool;
   app_block_reason: string;
-  app_blocking_match_based_ids: string list
+  app_blocking_match_based_ids: match_based_id list
 }
   [@@deriving show]
 
@@ -28583,6 +28585,30 @@ let read_output_format = (
 )
 let output_format_of_string s =
   read_output_format (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__string_wrap = (
+  Yojson.Safe.write_string
+)
+let string_of__string_wrap ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__string_wrap ob x;
+  Buffer.contents ob
+let read__string_wrap = (
+  Atdgen_runtime.Oj_run.read_string
+)
+let _string_wrap_of_string s =
+  read__string_wrap (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_match_based_id = (
+  write__string_wrap
+)
+let string_of_match_based_id ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_match_based_id ob x;
+  Buffer.contents ob
+let read_match_based_id = (
+  read__string_wrap
+)
+let match_based_id_of_string s =
+  read_match_based_id (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_manifest : _ -> manifest -> _ = (
   fun ob (x : manifest) ->
     Buffer.add_char ob '{';
@@ -34572,6 +34598,22 @@ let read_ci_scan_results_response = (
 )
 let ci_scan_results_response_of_string s =
   read_ci_scan_results_response (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__match_based_id_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_match_based_id
+  )
+)
+let string_of__match_based_id_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__match_based_id_list ob x;
+  Buffer.contents ob
+let read__match_based_id_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_match_based_id
+  )
+)
+let _match_based_id_list_of_string s =
+  read__match_based_id_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_ci_scan_complete_response : _ -> ci_scan_complete_response -> _ = (
   fun ob (x : ci_scan_complete_response) ->
     Buffer.add_char ob '{';
@@ -34609,7 +34651,7 @@ let write_ci_scan_complete_response : _ -> ci_scan_complete_response -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"app_blocking_match_based_ids\":";
     (
-      write__string_list
+      write__match_based_id_list
     )
       ob x.app_blocking_match_based_ids;
     Buffer.add_char ob '}';
@@ -34703,7 +34745,7 @@ let read_ci_scan_complete_response = (
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_app_blocking_match_based_ids := (
                 (
-                  read__string_list
+                  read__match_based_id_list
                 ) p lb
               );
             )
@@ -34788,7 +34830,7 @@ let read_ci_scan_complete_response = (
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_app_blocking_match_based_ids := (
                   (
-                    read__string_list
+                    read__match_based_id_list
                   ) p lb
                 );
               )
