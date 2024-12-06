@@ -831,7 +831,8 @@ type skipped_rule = {
 (* coupling: with semgrep_metrics.atd performance section *)
 
 (* coupling: if you change the JSON schema below, you probably need to
- * also modify perf/run-benchmarks. Run locally  $ ./run-benchmarks --dummy --upload
+ * also modify perf/run-benchmarks.
+ * Run locally  $ ./run-benchmarks --dummy --upload
  *)
 type profile = {
     (* List of rules, including the one read but not run on any target.
@@ -1364,7 +1365,8 @@ type scan_request = {
     (* added in 1.43 *)
     ?project_config: ci_config_from_repo option;
     
-    (* deprecated: moved as an option in 1.99.0 and was duplicative of information in project_metadata and scan_metadata since 1.43.0
+    (* deprecated: moved as an option in 1.99.0 and was duplicative of
+     * information in project_metadata and scan_metadata since 1.43.0
      * old: 'meta: project_metadata;' before 1.43
      *)
     ?meta: raw_json option;
@@ -1942,7 +1944,6 @@ type apply_fixes_return <python decorator="dataclass(frozen=True)"> = {
   fixed_lines: (int * string list) list;
 }
 
-(* The parameters here pretty much match what's needed by Sarif_output.sarif_output. *)
 type sarif_format_params <python decorator="dataclass(frozen=True)"> = {
   hide_nudge: bool;
   engine_label: string;
