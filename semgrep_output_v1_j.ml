@@ -726,6 +726,7 @@ type output_format = Semgrep_output_v1_t.output_format =
   [@@deriving show]
 
 type match_based_id = Semgrep_output_v1_t.match_based_id
+  [@@deriving show, eq]
 
 type manifest = Semgrep_output_v1_t.manifest = {
   kind: manifest_kind;
@@ -28465,27 +28466,15 @@ let read_output_format = (
 )
 let output_format_of_string s =
   read_output_format (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__string_wrap = (
-  Yojson.Safe.write_string
-)
-let string_of__string_wrap ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__string_wrap ob x;
-  Buffer.contents ob
-let read__string_wrap = (
-  Atdgen_runtime.Oj_run.read_string
-)
-let _string_wrap_of_string s =
-  read__string_wrap (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_match_based_id = (
-  write__string_wrap
+  Yojson.Safe.write_string
 )
 let string_of_match_based_id ?(len = 1024) x =
   let ob = Buffer.create len in
   write_match_based_id ob x;
   Buffer.contents ob
 let read_match_based_id = (
-  read__string_wrap
+  Atdgen_runtime.Oj_run.read_string
 )
 let match_based_id_of_string s =
   read_match_based_id (Yojson.Safe.init_lexer ()) (Lexing.from_string s)

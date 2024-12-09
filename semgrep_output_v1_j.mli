@@ -726,6 +726,7 @@ type output_format = Semgrep_output_v1_t.output_format =
   [@@deriving show]
 
 type match_based_id = Semgrep_output_v1_t.match_based_id
+  [@@deriving show, eq]
 
 type manifest = Semgrep_output_v1_t.manifest = {
   kind: manifest_kind;
