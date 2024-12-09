@@ -26,8 +26,6 @@ export type Uuid = string
 
 export type Datetime = string
 
-export type MatchBasedId = string
-
 export type Version = string
 
 export type Position = {
@@ -81,6 +79,8 @@ export type Product =
 | { kind: 'SAST' /* JSON: "sast" */ }
 | { kind: 'SCA' /* JSON: "sca" */ }
 | { kind: 'Secrets' /* JSON: "secrets" */ }
+
+export type MatchBasedId = string
 
 export type CliMatch = {
   check_id: RuleId;
@@ -1056,14 +1056,6 @@ export function readDatetime(x: any, context: any = x): Datetime {
   return _atd_read_string(x, context);
 }
 
-export function writeMatchBasedId(x: MatchBasedId, context: any = x): any {
-  return _atd_write_string(x, context);
-}
-
-export function readMatchBasedId(x: any, context: any = x): MatchBasedId {
-  return _atd_read_string(x, context);
-}
-
 export function writeVersion(x: Version, context: any = x): any {
   return _atd_write_string(x, context);
 }
@@ -1289,6 +1281,14 @@ export function readProduct(x: any, context: any = x): Product {
       _atd_bad_json('Product', x, context)
       throw new Error('impossible')
   }
+}
+
+export function writeMatchBasedId(x: MatchBasedId, context: any = x): any {
+  return _atd_write_string(x, context);
+}
+
+export function readMatchBasedId(x: any, context: any = x): MatchBasedId {
+  return _atd_read_string(x, context);
 }
 
 export function writeCliMatch(x: CliMatch, context: any = x): any {

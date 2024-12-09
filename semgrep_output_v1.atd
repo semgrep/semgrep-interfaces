@@ -100,8 +100,6 @@ type uuid = string wrap <ocaml module="ATD_string_wrap.Uuidm">
 (* RFC 3339 format *)
 type datetime = string wrap <ocaml module="ATD_string_wrap.Datetime">
 
-type match_based_id = string wrap
-
 (*****************************************************************************)
 (* Versioning *)
 (*****************************************************************************)
@@ -257,6 +255,8 @@ type product
   | SCA <json name="sca">
   | Secrets <json name="secrets">
 ]
+
+type match_based_id <ocaml attr="deriving show, eq"> = string (* ex:"ab023_1"*)
 
 (*****************************************************************************)
 (* Matches *)
@@ -1163,6 +1163,7 @@ type features = {
 
 type triage_ignored = {
     ~triage_ignored_syntactic_ids: string list;
+    (* TODO: use match_based_id list *)
     ~triage_ignored_match_based_ids: string list;
 }
 
@@ -1462,7 +1463,7 @@ type finding = {
   commit_date: string;
 
   syntactic_id: string;
-  (* since semgrep 0.98 *)
+  (* since semgrep 0.98 TODO: use match_based_id option *)
   ?match_based_id: string option;
   (* since semgrep 1.14.0 *)
   ?hashes: finding_hashes option;
@@ -1633,7 +1634,9 @@ type ci_scan_complete_response <ocaml attr="deriving show"> = {
    ~app_block_override: bool;
    (* only when app_block_override is true *)
    ~app_block_reason: string;
-   (* match_based_ids of findings that semgrep-app determined should cause the scan to block *)
+   (* since 1.100.0. match_based_ids of findings that semgrep-app determined
+    * should cause the scan to block
+    *)
    ~app_blocking_match_based_ids : match_based_id list;
 }
 

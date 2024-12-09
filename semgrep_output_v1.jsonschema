@@ -41,7 +41,6 @@
     "sha1": { "type": "string" },
     "uuid": { "type": "string" },
     "datetime": { "type": "string" },
-    "match_based_id": { "type": "string" },
     "version": { "type": "string" },
     "position": {
       "type": "object",
@@ -121,6 +120,7 @@
         { "const": "sast" }, { "const": "sca" }, { "const": "secrets" }
       ]
     },
+    "match_based_id": { "type": "string" },
     "cli_match": {
       "type": "object",
       "required": [ "check_id", "path", "start", "end", "extra" ],
