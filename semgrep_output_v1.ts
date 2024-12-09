@@ -26,6 +26,8 @@ export type Uuid = string
 
 export type Datetime = string
 
+export type MatchBasedId = string
+
 export type Version = string
 
 export type Position = {
@@ -700,6 +702,7 @@ export type CiScanCompleteResponse = {
   success: boolean;
   app_block_override: boolean;
   app_block_reason: string;
+  app_blocking_match_based_ids: MatchBasedId[];
 }
 
 export type CiScanDependencies = Map<string, FoundDependency[]>
@@ -1050,6 +1053,14 @@ export function writeDatetime(x: Datetime, context: any = x): any {
 }
 
 export function readDatetime(x: any, context: any = x): Datetime {
+  return _atd_read_string(x, context);
+}
+
+export function writeMatchBasedId(x: MatchBasedId, context: any = x): any {
+  return _atd_write_string(x, context);
+}
+
+export function readMatchBasedId(x: any, context: any = x): MatchBasedId {
   return _atd_read_string(x, context);
 }
 
@@ -3113,6 +3124,7 @@ export function writeCiScanCompleteResponse(x: CiScanCompleteResponse, context: 
     'success': _atd_write_required_field('CiScanCompleteResponse', 'success', _atd_write_bool, x.success, x),
     'app_block_override': _atd_write_field_with_default(_atd_write_bool, false, x.app_block_override, x),
     'app_block_reason': _atd_write_field_with_default(_atd_write_string, "", x.app_block_reason, x),
+    'app_blocking_match_based_ids': _atd_write_field_with_default(_atd_write_array(writeMatchBasedId), [], x.app_blocking_match_based_ids, x),
   };
 }
 
@@ -3121,6 +3133,7 @@ export function readCiScanCompleteResponse(x: any, context: any = x): CiScanComp
     success: _atd_read_required_field('CiScanCompleteResponse', 'success', _atd_read_bool, x['success'], x),
     app_block_override: _atd_read_field_with_default(_atd_read_bool, false, x['app_block_override'], x),
     app_block_reason: _atd_read_field_with_default(_atd_read_string, "", x['app_block_reason'], x),
+    app_blocking_match_based_ids: _atd_read_field_with_default(_atd_read_array(readMatchBasedId), [], x['app_blocking_match_based_ids'], x),
   };
 }
 
