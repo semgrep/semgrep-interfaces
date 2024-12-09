@@ -560,10 +560,10 @@ export type ScanMetadata = {
 }
 
 export type ScanRequest = {
-  meta: RawJson;
-  project_metadata?: ProjectMetadata;
+  project_metadata: ProjectMetadata;
+  scan_metadata: ScanMetadata;
   project_config?: CiConfigFromRepo;
-  scan_metadata?: ScanMetadata;
+  meta?: RawJson;
 }
 
 export type ScanResponse = {
@@ -2767,19 +2767,19 @@ export function readScanMetadata(x: any, context: any = x): ScanMetadata {
 
 export function writeScanRequest(x: ScanRequest, context: any = x): any {
   return {
-    'meta': _atd_write_required_field('ScanRequest', 'meta', writeRawJson, x.meta, x),
-    'project_metadata': _atd_write_optional_field(writeProjectMetadata, x.project_metadata, x),
+    'project_metadata': _atd_write_required_field('ScanRequest', 'project_metadata', writeProjectMetadata, x.project_metadata, x),
+    'scan_metadata': _atd_write_required_field('ScanRequest', 'scan_metadata', writeScanMetadata, x.scan_metadata, x),
     'project_config': _atd_write_optional_field(writeCiConfigFromRepo, x.project_config, x),
-    'scan_metadata': _atd_write_optional_field(writeScanMetadata, x.scan_metadata, x),
+    'meta': _atd_write_optional_field(writeRawJson, x.meta, x),
   };
 }
 
 export function readScanRequest(x: any, context: any = x): ScanRequest {
   return {
-    meta: _atd_read_required_field('ScanRequest', 'meta', readRawJson, x['meta'], x),
-    project_metadata: _atd_read_optional_field(readProjectMetadata, x['project_metadata'], x),
+    project_metadata: _atd_read_required_field('ScanRequest', 'project_metadata', readProjectMetadata, x['project_metadata'], x),
+    scan_metadata: _atd_read_required_field('ScanRequest', 'scan_metadata', readScanMetadata, x['scan_metadata'], x),
     project_config: _atd_read_optional_field(readCiConfigFromRepo, x['project_config'], x),
-    scan_metadata: _atd_read_optional_field(readScanMetadata, x['scan_metadata'], x),
+    meta: _atd_read_optional_field(readRawJson, x['meta'], x),
   };
 }
 

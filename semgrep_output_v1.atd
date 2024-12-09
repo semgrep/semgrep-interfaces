@@ -833,7 +833,8 @@ type skipped_rule = {
 (* coupling: with semgrep_metrics.atd performance section *)
 
 (* coupling: if you change the JSON schema below, you probably need to
- * also modify perf/run-benchmarks. Run locally  $ ./run-benchmarks --dummy --upload
+ * also modify perf/run-benchmarks.
+ * Run locally  $ ./run-benchmarks --dummy --upload
  *)
 type profile = {
     (* List of rules, including the one read but not run on any target.
@@ -1359,12 +1360,18 @@ type scan_metadata = {
 
 (* Sent by the CLI to the POST /api/cli/scans to create a scan. *)
 type scan_request = {
-    (* until 1.43ish, was 'meta: project_metadata;' before *)
-    meta: raw_json;
-    (* from 1.43 *)
-    ?project_metadata: project_metadata option; (* replacing meta *)
+    (* added in 1.43 as options, and mandatory since 1.100.0 (replacing meta) *)
+    project_metadata: project_metadata;
+    scan_metadata: scan_metadata;
+
+    (* added in 1.43 *)
     ?project_config: ci_config_from_repo option;
-    ?scan_metadata: scan_metadata option;
+    
+    (* deprecated: moved as an option in 1.100.0 and was duplicative of
+     * information in project_metadata and scan_metadata since 1.43.0
+     * old: 'meta: project_metadata;' before 1.43
+     *)
+    ?meta: raw_json option;
 }
 
 (* Response from the backend to the CLI to the POST /api/cli/scans *)
@@ -1942,7 +1949,6 @@ type apply_fixes_return <python decorator="dataclass(frozen=True)"> = {
   fixed_lines: (int * string list) list;
 }
 
-(* The parameters here pretty much match what's needed by Sarif_output.sarif_output. *)
 type sarif_format_params <python decorator="dataclass(frozen=True)"> = {
   hide_nudge: bool;
   engine_label: string;

@@ -1016,12 +1016,12 @@
     },
     "scan_request": {
       "type": "object",
-      "required": [ "meta" ],
+      "required": [ "project_metadata", "scan_metadata" ],
       "properties": {
-        "meta": { "$ref": "#/definitions/raw_json" },
         "project_metadata": { "$ref": "#/definitions/project_metadata" },
+        "scan_metadata": { "$ref": "#/definitions/scan_metadata" },
         "project_config": { "$ref": "#/definitions/ci_config_from_repo" },
-        "scan_metadata": { "$ref": "#/definitions/scan_metadata" }
+        "meta": { "$ref": "#/definitions/raw_json" }
       }
     },
     "scan_response": {
