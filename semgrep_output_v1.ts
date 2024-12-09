@@ -100,7 +100,7 @@ export type CliMatchExtra = {
   fingerprint: string;
   lines: string;
   is_ignored?: boolean;
-  sca_info?: ScaInfo;
+  sca_info?: ScaMatch;
   validation_state?: ValidationState;
   historical_info?: HistoricalInfo;
   dataflow_trace?: MatchDataflowTrace;
@@ -187,7 +187,7 @@ export type Transitivity =
 | { kind: 'Transitive' /* JSON: "transitive" */ }
 | { kind: 'Unknown' /* JSON: "unknown" */ }
 
-export type ScaInfo = {
+export type ScaMatch = {
   reachable: boolean;
   reachability_rule: boolean;
   sca_finding_schema: number /*int*/;
@@ -195,12 +195,12 @@ export type ScaInfo = {
 }
 
 export type DependencyMatch = {
-  dependency_pattern: DependencyPattern;
+  dependency_pattern: ScaPattern;
   found_dependency: FoundDependency;
   lockfile: Fpath;
 }
 
-export type DependencyPattern = {
+export type ScaPattern = {
   ecosystem: Ecosystem;
   package_: string;
   semver_range: string;
@@ -623,7 +623,7 @@ export type Finding = {
   metadata: RawJson;
   is_blocking: boolean;
   fixed_lines?: string[];
-  sca_info?: ScaInfo;
+  sca_info?: ScaMatch;
   dataflow_trace?: MatchDataflowTrace;
   validation_state?: ValidationState;
   historical_info?: HistoricalInfo;
@@ -813,14 +813,15 @@ export type CoreMatch = {
 }
 
 export type CoreMatchExtra = {
+  metavars: Metavars;
+  engine_kind: EngineOfFinding;
+  is_ignored: boolean;
   message?: string;
   metadata?: RawJson;
   severity?: MatchSeverity;
-  metavars: Metavars;
   fix?: string;
   dataflow_trace?: MatchDataflowTrace;
-  engine_kind: EngineOfFinding;
-  is_ignored: boolean;
+  sca_match?: ScaMatch;
   validation_state?: ValidationState;
   historical_info?: HistoricalInfo;
   extra_extra?: RawJson;
@@ -1322,7 +1323,7 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'fingerprint': _atd_write_required_field('CliMatchExtra', 'fingerprint', _atd_write_string, x.fingerprint, x),
     'lines': _atd_write_required_field('CliMatchExtra', 'lines', _atd_write_string, x.lines, x),
     'is_ignored': _atd_write_optional_field(_atd_write_bool, x.is_ignored, x),
-    'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
+    'sca_info': _atd_write_optional_field(writeScaMatch, x.sca_info, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
     'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
@@ -1342,7 +1343,7 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     fingerprint: _atd_read_required_field('CliMatchExtra', 'fingerprint', _atd_read_string, x['fingerprint'], x),
     lines: _atd_read_required_field('CliMatchExtra', 'lines', _atd_read_string, x['lines'], x),
     is_ignored: _atd_read_optional_field(_atd_read_bool, x['is_ignored'], x),
-    sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
+    sca_info: _atd_read_optional_field(readScaMatch, x['sca_info'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
@@ -1648,27 +1649,27 @@ export function readTransitivity(x: any, context: any = x): Transitivity {
   }
 }
 
-export function writeScaInfo(x: ScaInfo, context: any = x): any {
+export function writeScaMatch(x: ScaMatch, context: any = x): any {
   return {
-    'reachable': _atd_write_required_field('ScaInfo', 'reachable', _atd_write_bool, x.reachable, x),
-    'reachability_rule': _atd_write_required_field('ScaInfo', 'reachability_rule', _atd_write_bool, x.reachability_rule, x),
-    'sca_finding_schema': _atd_write_required_field('ScaInfo', 'sca_finding_schema', _atd_write_int, x.sca_finding_schema, x),
-    'dependency_match': _atd_write_required_field('ScaInfo', 'dependency_match', writeDependencyMatch, x.dependency_match, x),
+    'reachable': _atd_write_required_field('ScaMatch', 'reachable', _atd_write_bool, x.reachable, x),
+    'reachability_rule': _atd_write_required_field('ScaMatch', 'reachability_rule', _atd_write_bool, x.reachability_rule, x),
+    'sca_finding_schema': _atd_write_required_field('ScaMatch', 'sca_finding_schema', _atd_write_int, x.sca_finding_schema, x),
+    'dependency_match': _atd_write_required_field('ScaMatch', 'dependency_match', writeDependencyMatch, x.dependency_match, x),
   };
 }
 
-export function readScaInfo(x: any, context: any = x): ScaInfo {
+export function readScaMatch(x: any, context: any = x): ScaMatch {
   return {
-    reachable: _atd_read_required_field('ScaInfo', 'reachable', _atd_read_bool, x['reachable'], x),
-    reachability_rule: _atd_read_required_field('ScaInfo', 'reachability_rule', _atd_read_bool, x['reachability_rule'], x),
-    sca_finding_schema: _atd_read_required_field('ScaInfo', 'sca_finding_schema', _atd_read_int, x['sca_finding_schema'], x),
-    dependency_match: _atd_read_required_field('ScaInfo', 'dependency_match', readDependencyMatch, x['dependency_match'], x),
+    reachable: _atd_read_required_field('ScaMatch', 'reachable', _atd_read_bool, x['reachable'], x),
+    reachability_rule: _atd_read_required_field('ScaMatch', 'reachability_rule', _atd_read_bool, x['reachability_rule'], x),
+    sca_finding_schema: _atd_read_required_field('ScaMatch', 'sca_finding_schema', _atd_read_int, x['sca_finding_schema'], x),
+    dependency_match: _atd_read_required_field('ScaMatch', 'dependency_match', readDependencyMatch, x['dependency_match'], x),
   };
 }
 
 export function writeDependencyMatch(x: DependencyMatch, context: any = x): any {
   return {
-    'dependency_pattern': _atd_write_required_field('DependencyMatch', 'dependency_pattern', writeDependencyPattern, x.dependency_pattern, x),
+    'dependency_pattern': _atd_write_required_field('DependencyMatch', 'dependency_pattern', writeScaPattern, x.dependency_pattern, x),
     'found_dependency': _atd_write_required_field('DependencyMatch', 'found_dependency', writeFoundDependency, x.found_dependency, x),
     'lockfile': _atd_write_required_field('DependencyMatch', 'lockfile', writeFpath, x.lockfile, x),
   };
@@ -1676,25 +1677,25 @@ export function writeDependencyMatch(x: DependencyMatch, context: any = x): any 
 
 export function readDependencyMatch(x: any, context: any = x): DependencyMatch {
   return {
-    dependency_pattern: _atd_read_required_field('DependencyMatch', 'dependency_pattern', readDependencyPattern, x['dependency_pattern'], x),
+    dependency_pattern: _atd_read_required_field('DependencyMatch', 'dependency_pattern', readScaPattern, x['dependency_pattern'], x),
     found_dependency: _atd_read_required_field('DependencyMatch', 'found_dependency', readFoundDependency, x['found_dependency'], x),
     lockfile: _atd_read_required_field('DependencyMatch', 'lockfile', readFpath, x['lockfile'], x),
   };
 }
 
-export function writeDependencyPattern(x: DependencyPattern, context: any = x): any {
+export function writeScaPattern(x: ScaPattern, context: any = x): any {
   return {
-    'ecosystem': _atd_write_required_field('DependencyPattern', 'ecosystem', writeEcosystem, x.ecosystem, x),
-    'package': _atd_write_required_field('DependencyPattern', 'package', _atd_write_string, x.package_, x),
-    'semver_range': _atd_write_required_field('DependencyPattern', 'semver_range', _atd_write_string, x.semver_range, x),
+    'ecosystem': _atd_write_required_field('ScaPattern', 'ecosystem', writeEcosystem, x.ecosystem, x),
+    'package': _atd_write_required_field('ScaPattern', 'package', _atd_write_string, x.package_, x),
+    'semver_range': _atd_write_required_field('ScaPattern', 'semver_range', _atd_write_string, x.semver_range, x),
   };
 }
 
-export function readDependencyPattern(x: any, context: any = x): DependencyPattern {
+export function readScaPattern(x: any, context: any = x): ScaPattern {
   return {
-    ecosystem: _atd_read_required_field('DependencyPattern', 'ecosystem', readEcosystem, x['ecosystem'], x),
-    package_: _atd_read_required_field('DependencyPattern', 'package', _atd_read_string, x['package'], x),
-    semver_range: _atd_read_required_field('DependencyPattern', 'semver_range', _atd_read_string, x['semver_range'], x),
+    ecosystem: _atd_read_required_field('ScaPattern', 'ecosystem', readEcosystem, x['ecosystem'], x),
+    package_: _atd_read_required_field('ScaPattern', 'package', _atd_read_string, x['package'], x),
+    semver_range: _atd_read_required_field('ScaPattern', 'semver_range', _atd_read_string, x['semver_range'], x),
   };
 }
 
@@ -2909,7 +2910,7 @@ export function writeFinding(x: Finding, context: any = x): any {
     'metadata': _atd_write_required_field('Finding', 'metadata', writeRawJson, x.metadata, x),
     'is_blocking': _atd_write_required_field('Finding', 'is_blocking', _atd_write_bool, x.is_blocking, x),
     'fixed_lines': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.fixed_lines, x),
-    'sca_info': _atd_write_optional_field(writeScaInfo, x.sca_info, x),
+    'sca_info': _atd_write_optional_field(writeScaMatch, x.sca_info, x),
     'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
@@ -2935,7 +2936,7 @@ export function readFinding(x: any, context: any = x): Finding {
     metadata: _atd_read_required_field('Finding', 'metadata', readRawJson, x['metadata'], x),
     is_blocking: _atd_read_required_field('Finding', 'is_blocking', _atd_read_bool, x['is_blocking'], x),
     fixed_lines: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['fixed_lines'], x),
-    sca_info: _atd_read_optional_field(readScaInfo, x['sca_info'], x),
+    sca_info: _atd_read_optional_field(readScaMatch, x['sca_info'], x),
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),
@@ -3477,14 +3478,15 @@ export function readCoreMatch(x: any, context: any = x): CoreMatch {
 
 export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
   return {
+    'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
+    'engine_kind': _atd_write_required_field('CoreMatchExtra', 'engine_kind', writeEngineOfFinding, x.engine_kind, x),
+    'is_ignored': _atd_write_required_field('CoreMatchExtra', 'is_ignored', _atd_write_bool, x.is_ignored, x),
     'message': _atd_write_optional_field(_atd_write_string, x.message, x),
     'metadata': _atd_write_optional_field(writeRawJson, x.metadata, x),
     'severity': _atd_write_optional_field(writeMatchSeverity, x.severity, x),
-    'metavars': _atd_write_required_field('CoreMatchExtra', 'metavars', writeMetavars, x.metavars, x),
     'fix': _atd_write_optional_field(_atd_write_string, x.fix, x),
     'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
-    'engine_kind': _atd_write_required_field('CoreMatchExtra', 'engine_kind', writeEngineOfFinding, x.engine_kind, x),
-    'is_ignored': _atd_write_required_field('CoreMatchExtra', 'is_ignored', _atd_write_bool, x.is_ignored, x),
+    'sca_match': _atd_write_optional_field(writeScaMatch, x.sca_match, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
     'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
@@ -3493,14 +3495,15 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
 
 export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
   return {
+    metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
+    engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineOfFinding, x['engine_kind'], x),
+    is_ignored: _atd_read_required_field('CoreMatchExtra', 'is_ignored', _atd_read_bool, x['is_ignored'], x),
     message: _atd_read_optional_field(_atd_read_string, x['message'], x),
     metadata: _atd_read_optional_field(readRawJson, x['metadata'], x),
     severity: _atd_read_optional_field(readMatchSeverity, x['severity'], x),
-    metavars: _atd_read_required_field('CoreMatchExtra', 'metavars', readMetavars, x['metavars'], x),
     fix: _atd_read_optional_field(_atd_read_string, x['fix'], x),
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
-    engine_kind: _atd_read_required_field('CoreMatchExtra', 'engine_kind', readEngineOfFinding, x['engine_kind'], x),
-    is_ignored: _atd_read_required_field('CoreMatchExtra', 'is_ignored', _atd_read_bool, x['is_ignored'], x),
+    sca_match: _atd_read_optional_field(readScaMatch, x['sca_match'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),

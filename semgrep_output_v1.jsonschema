@@ -147,7 +147,7 @@
         "fingerprint": { "type": "string" },
         "lines": { "type": "string" },
         "is_ignored": { "type": "boolean" },
-        "sca_info": { "$ref": "#/definitions/sca_info" },
+        "sca_info": { "$ref": "#/definitions/sca_match" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
         "historical_info": { "$ref": "#/definitions/historical_info" },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
@@ -347,7 +347,7 @@
         { "const": "unknown" }
       ]
     },
-    "sca_info": {
+    "sca_match": {
       "type": "object",
       "required": [
         "reachable", "reachability_rule", "sca_finding_schema",
@@ -364,12 +364,12 @@
       "type": "object",
       "required": [ "dependency_pattern", "found_dependency", "lockfile" ],
       "properties": {
-        "dependency_pattern": { "$ref": "#/definitions/dependency_pattern" },
+        "dependency_pattern": { "$ref": "#/definitions/sca_pattern" },
         "found_dependency": { "$ref": "#/definitions/found_dependency" },
         "lockfile": { "$ref": "#/definitions/fpath" }
       }
     },
-    "dependency_pattern": {
+    "sca_pattern": {
       "type": "object",
       "required": [ "ecosystem", "package", "semver_range" ],
       "properties": {
@@ -1125,7 +1125,7 @@
         "metadata": { "$ref": "#/definitions/raw_json" },
         "is_blocking": { "type": "boolean" },
         "fixed_lines": { "type": "array", "items": { "type": "string" } },
-        "sca_info": { "$ref": "#/definitions/sca_info" },
+        "sca_info": { "$ref": "#/definitions/sca_match" },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
         "historical_info": { "$ref": "#/definitions/historical_info" },
@@ -1498,14 +1498,15 @@
       "type": "object",
       "required": [ "metavars", "engine_kind", "is_ignored" ],
       "properties": {
+        "metavars": { "$ref": "#/definitions/metavars" },
+        "engine_kind": { "$ref": "#/definitions/engine_of_finding" },
+        "is_ignored": { "type": "boolean" },
         "message": { "type": "string" },
         "metadata": { "$ref": "#/definitions/raw_json" },
         "severity": { "$ref": "#/definitions/match_severity" },
-        "metavars": { "$ref": "#/definitions/metavars" },
         "fix": { "type": "string" },
         "dataflow_trace": { "$ref": "#/definitions/match_dataflow_trace" },
-        "engine_kind": { "$ref": "#/definitions/engine_of_finding" },
-        "is_ignored": { "type": "boolean" },
+        "sca_match": { "$ref": "#/definitions/sca_match" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
         "historical_info": { "$ref": "#/definitions/historical_info" },
         "extra_extra": { "$ref": "#/definitions/raw_json" }
