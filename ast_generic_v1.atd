@@ -287,6 +287,7 @@ type field_name = [
 type special = [
   (* special vars *)
   | This | Super (* called 'base' in C# *)
+  | Cls (* similar to `self`, but indicating the type of the class, not the instance *)
   | Self | Parent (* different from This/Super? *)
 
   (* special calls *)
