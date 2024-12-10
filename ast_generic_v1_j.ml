@@ -1361,6 +1361,7 @@ let write_special = (
     match x with
       | `This -> Buffer.add_string ob "\"This\""
       | `Super -> Buffer.add_string ob "\"Super\""
+      | `Cls -> Buffer.add_string ob "\"Cls\""
       | `Self -> Buffer.add_string ob "\"Self\""
       | `Parent -> Buffer.add_string ob "\"Parent\""
       | `Eval -> Buffer.add_string ob "\"Eval\""
@@ -1435,6 +1436,10 @@ let read_special = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Super
+            | "Cls" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Cls
             | "Self" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -1578,6 +1583,8 @@ let read_special = (
               `This
             | "Super" ->
               `Super
+            | "Cls" ->
+              `Cls
             | "Self" ->
               `Self
             | "Parent" ->
