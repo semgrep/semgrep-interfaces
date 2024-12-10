@@ -274,20 +274,16 @@ type cli_match_extra = {
   ?metavars: metavars option;
 
   (* Those fields are derived from the rule but the metavariables
-   * they contain have been expanded to their concrete value.
-   *)
+   * they contain have been expanded to their concrete value. *)
   message: string;
+
   (* If present, semgrep was able to compute a string that should be
    * inserted in place of the text in the matched range in order to fix the
-   * finding.
-   * Note that this is the result of applying both the fix: or fix_regex:
-   * in a rule.
-   *)
+   * finding. Note that this is the result of applying both the fix: or
+   * fix_regex: in a rule. *)
   ?fix: string option;
-
   (* TODO: done with monkey patching right now in the Python code,
-   * and seems to be used only when sending findings to the backend.
-   *)
+   * and seems to be used only when sending findings to the backend. *)
   ?fixed_lines: string list option;
 
   (* fields coming from the rule *)
@@ -298,12 +294,11 @@ type cli_match_extra = {
   fingerprint: string;
   lines: string;
 
-  (* extra fields *)
+  (* for nosemgrep *)
   ?is_ignored: bool option;
 
   (* EXPERIMENTAL: added by dependency_aware code *)
-  ?sca_info: sca_info option;
-
+  ?sca_info: sca_match option;
   (* EXPERIMENTAL: If present indicates the status of postprocessor validation.
    * This field not being present should be equivalent to No_validator.
    * Added in semgrep 1.37.0 *)
@@ -311,7 +306,6 @@ type cli_match_extra = {
   (* EXPERIMENTAL: added by secrets post-processing & historical scanning code
    * Since 1.60.0. *)
   ?historical_info: historical_info option;
-
   (* EXPERIMENTAL: For now, present only for taint findings. May be extended to
    * otherslater on. *)
   ?dataflow_trace: match_dataflow_trace option;
@@ -530,7 +524,7 @@ type transitivity
 ]
 
 (* part of cli_match_extra *)
-type sca_info = {
+type sca_match = {
   reachable: bool;
   reachability_rule: bool;
   sca_finding_schema: int;
@@ -538,25 +532,25 @@ type sca_info = {
 }
 
 type dependency_match = {
-  dependency_pattern: dependency_pattern;
+  dependency_pattern: sca_pattern;
   found_dependency: found_dependency;
   lockfile: fpath;
 }
 
-type dependency_pattern = {
+type sca_pattern = {
   ecosystem: ecosystem;
   package: string;
   semver_range: string;
 }
 
+(* alt: sca_dependency? *)
 type found_dependency = {
   package: string;
   version: string;
   ecosystem: ecosystem;
+  (* ??? *)
   allowed_hashes: (string * string list) list
-    <json repr="object">
-    <python repr="dict">
-    <ts repr="map">;
+    <json repr="object"> <python repr="dict"> <ts repr="map">;
   ?resolved_url: string option;
   transitivity: transitivity;
   (* Path to the manifest file that defines the project containing this
@@ -564,7 +558,6 @@ type found_dependency = {
    *)
   ?manifest_path: fpath option;
   (* Path to the lockfile that contains this dependency. 
-   *
    * Examples: package-lock.json, nested/folder/requirements.txt, go.mod
    * Since 1.87.0
    *)
@@ -1476,12 +1469,11 @@ type finding = {
 
   ?fixed_lines: string list option;
 
-  ?sca_info: sca_info option;
-  (* Note that this contains code!
-   * TODO? do we need to send this to the App?
-   *)
+  (* added in ?? *)
+  ?sca_info: sca_match option;
+  (* Note that this contains code! TODO? do we need to send this to the App? *)
   ?dataflow_trace: match_dataflow_trace option;
-  (* Added in semgrep 1.39.0 see comments in cli_match_extra. *)
+  (* Added in semgrep 1.39.0 see comments in cli_match_extra *)
   ?validation_state: validation_state option;
   (* Added in semgrep 1.65.0 see comments in cli_match_extra *)
   ?historical_info: historical_info option;
@@ -1801,7 +1793,6 @@ type core_output = {
   results: core_match list;
   (* errors are guaranteed to be duplicate free; see also Report.ml *)
   errors: core_error list;
-
   inherit cli_output_extra;
 }
 
@@ -1812,32 +1803,26 @@ type core_match <python decorator="dataclass(frozen=True)"> = {
   extra: core_match_extra;
 }
 
-(* TODO: try to make it as close as possible to 'cli_match_extra' below *)
+(* TODO: try to make it as close as possible to 'cli_match_extra' below
+ * See the corresponding comment in cli_match_extra for more information
+ * about the fields below.
+ *)
 type core_match_extra <python decorator="dataclass(frozen=True)"> = {
+  metavars: metavars;
+  engine_kind: engine_of_finding;
+  is_ignored: bool;
   (* These fields generally come from the rule, but may be set here if they're
    * being overriden for that particular finding. This would currently occur
-   * for rule with a validator for secrets, depending on what the valdiator
+   * for rule with a validator for secrets, depending on what the validator
    * might match, but could be expanded in the future.
-   *
-   * Added in semgrep 1.44.0 *)
+   *)
   ?message: string option;
   ?metadata: raw_json option;
   ?severity: match_severity option;
-
-  metavars: metavars;
-  (* old: was called rendered_fix *)
   ?fix: string option;
-
   ?dataflow_trace: match_dataflow_trace option;
-  engine_kind: engine_of_finding;
-  (* for nosemgrep *)
-  is_ignored: bool;
-  (* If present indicates the status of postprocessor validation. This field
-   * not being present should be equivalent to No_validator.
-   * Added in semgrep 1.37.0 *)
+  ?sca_match: sca_match option;
   ?validation_state : validation_state option;
-  (* EXPERIMENTAL: added by secrets post-processing & historical scanning code.
-   * Since 1.63.0. *)
   ?historical_info: historical_info option;
   (* Escape hatch to pass untyped info from semgrep-core to the semgrep output.
    * Useful for quick experiments, especially when combined with semgrep
@@ -1860,7 +1845,7 @@ type core_error <python decorator="dataclass(frozen=True)"> = {
   ?details: string option;
   ?location: location option;
   ?rule_id: rule_id option;
-  }
+}
 
 (*****************************************************************************)
 (* semgrep-core JSON input via -targets (from pysemgrep) *)
