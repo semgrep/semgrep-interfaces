@@ -282,6 +282,293 @@ class Datetime:
 
 
 @dataclass(frozen=True)
+class DependencyChild:
+    """Original type: dependency_child = { ... }"""
+
+    package: str
+    version: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencyChild':
+        if isinstance(x, dict):
+            return cls(
+                package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('DependencyChild', 'package'),
+                version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('DependencyChild', 'version'),
+            )
+        else:
+            _atd_bad_json('DependencyChild', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['package'] = _atd_write_string(self.package)
+        res['version'] = _atd_write_string(self.version)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencyChild':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Npm:
+    """Original type: ecosystem = [ ... | Npm | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Npm'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'npm'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Pypi:
+    """Original type: ecosystem = [ ... | Pypi | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Pypi'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'pypi'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Gem:
+    """Original type: ecosystem = [ ... | Gem | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Gem'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'gem'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Gomod:
+    """Original type: ecosystem = [ ... | Gomod | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Gomod'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'gomod'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Cargo:
+    """Original type: ecosystem = [ ... | Cargo | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Cargo'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'cargo'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Maven:
+    """Original type: ecosystem = [ ... | Maven | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Maven'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'maven'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Composer:
+    """Original type: ecosystem = [ ... | Composer | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Composer'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'composer'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Nuget:
+    """Original type: ecosystem = [ ... | Nuget | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Nuget'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'nuget'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Pub:
+    """Original type: ecosystem = [ ... | Pub | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Pub'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'pub'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class SwiftPM:
+    """Original type: ecosystem = [ ... | SwiftPM | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SwiftPM'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'swiftpm'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Mix:
+    """Original type: ecosystem = [ ... | Mix | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Mix'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'mix'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Hex:
+    """Original type: ecosystem = [ ... | Hex | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Hex'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'hex'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Ecosystem:
+    """Original type: ecosystem = [ ... ]"""
+
+    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub, SwiftPM, Mix, Hex]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Ecosystem':
+        if isinstance(x, str):
+            if x == 'npm':
+                return cls(Npm())
+            if x == 'pypi':
+                return cls(Pypi())
+            if x == 'gem':
+                return cls(Gem())
+            if x == 'gomod':
+                return cls(Gomod())
+            if x == 'cargo':
+                return cls(Cargo())
+            if x == 'maven':
+                return cls(Maven())
+            if x == 'composer':
+                return cls(Composer())
+            if x == 'nuget':
+                return cls(Nuget())
+            if x == 'pub':
+                return cls(Pub())
+            if x == 'swiftpm':
+                return cls(SwiftPM())
+            if x == 'mix':
+                return cls(Mix())
+            if x == 'hex':
+                return cls(Hex())
+            _atd_bad_json('Ecosystem', x)
+        _atd_bad_json('Ecosystem', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Ecosystem':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class Fpath:
     """Original type: fpath"""
 
@@ -1067,6 +1354,40 @@ class RuleId:
 
 
 @dataclass
+class ScaPattern:
+    """Original type: sca_pattern = { ... }"""
+
+    ecosystem: Ecosystem
+    package: str
+    semver_range: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaPattern':
+        if isinstance(x, dict):
+            return cls(
+                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('ScaPattern', 'ecosystem'),
+                package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('ScaPattern', 'package'),
+                semver_range=_atd_read_string(x['semver_range']) if 'semver_range' in x else _atd_missing_json_field('ScaPattern', 'semver_range'),
+            )
+        else:
+            _atd_bad_json('ScaPattern', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
+        res['package'] = _atd_write_string(self.package)
+        res['semver_range'] = _atd_write_string(self.semver_range)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaPattern':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Sha1:
     """Original type: sha1"""
 
@@ -1211,6 +1532,226 @@ class Metavars:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Metavars':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Direct:
+    """Original type: transitivity = [ ... | Direct | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Direct'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'direct'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Transitive:
+    """Original type: transitivity = [ ... | Transitive | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Transitive'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'transitive'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Unknown:
+    """Original type: transitivity = [ ... | Unknown | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Unknown'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'unknown'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Transitivity:
+    """Original type: transitivity = [ ... ]"""
+
+    value: Union[Direct, Transitive, Unknown]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Transitivity':
+        if isinstance(x, str):
+            if x == 'direct':
+                return cls(Direct())
+            if x == 'transitive':
+                return cls(Transitive())
+            if x == 'unknown':
+                return cls(Unknown())
+            _atd_bad_json('Transitivity', x)
+        _atd_bad_json('Transitivity', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Transitivity':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class FoundDependency:
+    """Original type: found_dependency = { ... }"""
+
+    package: str
+    version: str
+    ecosystem: Ecosystem
+    allowed_hashes: Dict[str, List[str]]
+    transitivity: Transitivity
+    resolved_url: Optional[str] = None
+    manifest_path: Optional[Fpath] = None
+    lockfile_path: Optional[Fpath] = None
+    line_number: Optional[int] = None
+    children: Optional[List[DependencyChild]] = None
+    git_ref: Optional[str] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FoundDependency':
+        if isinstance(x, dict):
+            return cls(
+                package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('FoundDependency', 'package'),
+                version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('FoundDependency', 'version'),
+                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('FoundDependency', 'ecosystem'),
+                allowed_hashes=_atd_read_assoc_object_into_dict(_atd_read_list(_atd_read_string))(x['allowed_hashes']) if 'allowed_hashes' in x else _atd_missing_json_field('FoundDependency', 'allowed_hashes'),
+                transitivity=Transitivity.from_json(x['transitivity']) if 'transitivity' in x else _atd_missing_json_field('FoundDependency', 'transitivity'),
+                resolved_url=_atd_read_string(x['resolved_url']) if 'resolved_url' in x else None,
+                manifest_path=Fpath.from_json(x['manifest_path']) if 'manifest_path' in x else None,
+                lockfile_path=Fpath.from_json(x['lockfile_path']) if 'lockfile_path' in x else None,
+                line_number=_atd_read_int(x['line_number']) if 'line_number' in x else None,
+                children=_atd_read_list(DependencyChild.from_json)(x['children']) if 'children' in x else None,
+                git_ref=_atd_read_string(x['git_ref']) if 'git_ref' in x else None,
+            )
+        else:
+            _atd_bad_json('FoundDependency', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['package'] = _atd_write_string(self.package)
+        res['version'] = _atd_write_string(self.version)
+        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
+        res['allowed_hashes'] = _atd_write_assoc_dict_to_object(_atd_write_list(_atd_write_string))(self.allowed_hashes)
+        res['transitivity'] = (lambda x: x.to_json())(self.transitivity)
+        if self.resolved_url is not None:
+            res['resolved_url'] = _atd_write_string(self.resolved_url)
+        if self.manifest_path is not None:
+            res['manifest_path'] = (lambda x: x.to_json())(self.manifest_path)
+        if self.lockfile_path is not None:
+            res['lockfile_path'] = (lambda x: x.to_json())(self.lockfile_path)
+        if self.line_number is not None:
+            res['line_number'] = _atd_write_int(self.line_number)
+        if self.children is not None:
+            res['children'] = _atd_write_list((lambda x: x.to_json()))(self.children)
+        if self.git_ref is not None:
+            res['git_ref'] = _atd_write_string(self.git_ref)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FoundDependency':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DependencyMatch:
+    """Original type: dependency_match = { ... }"""
+
+    dependency_pattern: ScaPattern
+    found_dependency: FoundDependency
+    lockfile: Fpath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencyMatch':
+        if isinstance(x, dict):
+            return cls(
+                dependency_pattern=ScaPattern.from_json(x['dependency_pattern']) if 'dependency_pattern' in x else _atd_missing_json_field('DependencyMatch', 'dependency_pattern'),
+                found_dependency=FoundDependency.from_json(x['found_dependency']) if 'found_dependency' in x else _atd_missing_json_field('DependencyMatch', 'found_dependency'),
+                lockfile=Fpath.from_json(x['lockfile']) if 'lockfile' in x else _atd_missing_json_field('DependencyMatch', 'lockfile'),
+            )
+        else:
+            _atd_bad_json('DependencyMatch', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['dependency_pattern'] = (lambda x: x.to_json())(self.dependency_pattern)
+        res['found_dependency'] = (lambda x: x.to_json())(self.found_dependency)
+        res['lockfile'] = (lambda x: x.to_json())(self.lockfile)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencyMatch':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScaMatch:
+    """Original type: sca_match = { ... }"""
+
+    reachable: bool
+    reachability_rule: bool
+    sca_finding_schema: int
+    dependency_match: DependencyMatch
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaMatch':
+        if isinstance(x, dict):
+            return cls(
+                reachable=_atd_read_bool(x['reachable']) if 'reachable' in x else _atd_missing_json_field('ScaMatch', 'reachable'),
+                reachability_rule=_atd_read_bool(x['reachability_rule']) if 'reachability_rule' in x else _atd_missing_json_field('ScaMatch', 'reachability_rule'),
+                sca_finding_schema=_atd_read_int(x['sca_finding_schema']) if 'sca_finding_schema' in x else _atd_missing_json_field('ScaMatch', 'sca_finding_schema'),
+                dependency_match=DependencyMatch.from_json(x['dependency_match']) if 'dependency_match' in x else _atd_missing_json_field('ScaMatch', 'dependency_match'),
+            )
+        else:
+            _atd_bad_json('ScaMatch', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['reachable'] = _atd_write_bool(self.reachable)
+        res['reachability_rule'] = _atd_write_bool(self.reachability_rule)
+        res['sca_finding_schema'] = _atd_write_int(self.sca_finding_schema)
+        res['dependency_match'] = (lambda x: x.to_json())(self.dependency_match)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaMatch':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -1439,6 +1980,7 @@ class CoreMatchExtra:
     severity: Optional[MatchSeverity] = None
     fix: Optional[str] = None
     dataflow_trace: Optional[MatchDataflowTrace] = None
+    sca_match: Optional[ScaMatch] = None
     validation_state: Optional[ValidationState] = None
     historical_info: Optional[HistoricalInfo] = None
     extra_extra: Optional[RawJson] = None
@@ -1455,6 +1997,7 @@ class CoreMatchExtra:
                 severity=MatchSeverity.from_json(x['severity']) if 'severity' in x else None,
                 fix=_atd_read_string(x['fix']) if 'fix' in x else None,
                 dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
+                sca_match=ScaMatch.from_json(x['sca_match']) if 'sca_match' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
                 historical_info=HistoricalInfo.from_json(x['historical_info']) if 'historical_info' in x else None,
                 extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
@@ -1477,6 +2020,8 @@ class CoreMatchExtra:
             res['fix'] = _atd_write_string(self.fix)
         if self.dataflow_trace is not None:
             res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
+        if self.sca_match is not None:
+            res['sca_match'] = (lambda x: x.to_json())(self.sca_match)
         if self.validation_state is not None:
             res['validation_state'] = (lambda x: x.to_json())(self.validation_state)
         if self.historical_info is not None:
@@ -1599,6 +2144,27 @@ class MatchingExplanation:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'MatchingExplanation':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Xlang:
+    """Original type: xlang"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Xlang':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Xlang':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -2073,91 +2639,6 @@ class TriageIgnored:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
-class Direct:
-    """Original type: transitivity = [ ... | Direct | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Direct'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'direct'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Transitive:
-    """Original type: transitivity = [ ... | Transitive | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Transitive'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'transitive'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Unknown:
-    """Original type: transitivity = [ ... | Unknown | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Unknown'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'unknown'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Transitivity:
-    """Original type: transitivity = [ ... ]"""
-
-    value: Union[Direct, Transitive, Unknown]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Transitivity':
-        if isinstance(x, str):
-            if x == 'direct':
-                return cls(Direct())
-            if x == 'transitive':
-                return cls(Transitive())
-            if x == 'unknown':
-                return cls(Unknown())
-            _atd_bad_json('Transitivity', x)
-        _atd_bad_json('Transitivity', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Transitivity':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass
 class Todo:
     """Original type: todo"""
@@ -2456,6 +2937,620 @@ class TestsResult:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class SAST:
+    """Original type: product = [ ... | SAST | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SAST'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'sast'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class SCA:
+    """Original type: product = [ ... | SCA | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SCA'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'sca'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Secrets:
+    """Original type: product = [ ... | Secrets | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Secrets'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'secrets'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Product:
+    """Original type: product = [ ... ]"""
+
+    value: Union[SAST, SCA, Secrets]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Product':
+        if isinstance(x, str):
+            if x == 'sast':
+                return cls(SAST())
+            if x == 'sca':
+                return cls(SCA())
+            if x == 'secrets':
+                return cls(Secrets())
+            _atd_bad_json('Product', x)
+        _atd_bad_json('Product', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Product':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PipRequirementsTxt:
+    """Original type: lockfile_kind = [ ... | PipRequirementsTxt | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PipRequirementsTxt'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PipRequirementsTxt'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PoetryLock:
+    """Original type: lockfile_kind = [ ... | PoetryLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PoetryLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PoetryLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PipfileLock:
+    """Original type: lockfile_kind = [ ... | PipfileLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PipfileLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PipfileLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class UvLock:
+    """Original type: lockfile_kind = [ ... | UvLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'UvLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'UvLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class NpmPackageLockJson:
+    """Original type: lockfile_kind = [ ... | NpmPackageLockJson | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'NpmPackageLockJson'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'NpmPackageLockJson'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class YarnLock:
+    """Original type: lockfile_kind = [ ... | YarnLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'YarnLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'YarnLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PnpmLock:
+    """Original type: lockfile_kind = [ ... | PnpmLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PnpmLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PnpmLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class GemfileLock:
+    """Original type: lockfile_kind = [ ... | GemfileLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'GemfileLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'GemfileLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class GoMod:
+    """Original type: lockfile_kind = [ ... | GoMod | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'GoMod'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'GoMod'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class CargoLock:
+    """Original type: lockfile_kind = [ ... | CargoLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CargoLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'CargoLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class MavenDepTree:
+    """Original type: lockfile_kind = [ ... | MavenDepTree | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'MavenDepTree'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'MavenDepTree'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class GradleLockfile:
+    """Original type: lockfile_kind = [ ... | GradleLockfile | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'GradleLockfile'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'GradleLockfile'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ComposerLock:
+    """Original type: lockfile_kind = [ ... | ComposerLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ComposerLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'ComposerLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class NugetPackagesLockJson:
+    """Original type: lockfile_kind = [ ... | NugetPackagesLockJson | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'NugetPackagesLockJson'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'NugetPackagesLockJson'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class PubspecLock:
+    """Original type: lockfile_kind = [ ... | PubspecLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PubspecLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PubspecLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class SwiftPackageResolved:
+    """Original type: lockfile_kind = [ ... | SwiftPackageResolved | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SwiftPackageResolved'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'SwiftPackageResolved'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class MixLock:
+    """Original type: lockfile_kind = [ ... | MixLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'MixLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'MixLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ConanLock:
+    """Original type: lockfile_kind = [ ... | ConanLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ConanLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'ConanLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class LockfileKind:
+    """Original type: lockfile_kind = [ ... ]"""
+
+    value: Union[PipRequirementsTxt, PoetryLock, PipfileLock, UvLock, NpmPackageLockJson, YarnLock, PnpmLock, GemfileLock, GoMod, CargoLock, MavenDepTree, GradleLockfile, ComposerLock, NugetPackagesLockJson, PubspecLock, SwiftPackageResolved, MixLock, ConanLock]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'LockfileKind':
+        if isinstance(x, str):
+            if x == 'PipRequirementsTxt':
+                return cls(PipRequirementsTxt())
+            if x == 'PoetryLock':
+                return cls(PoetryLock())
+            if x == 'PipfileLock':
+                return cls(PipfileLock())
+            if x == 'UvLock':
+                return cls(UvLock())
+            if x == 'NpmPackageLockJson':
+                return cls(NpmPackageLockJson())
+            if x == 'YarnLock':
+                return cls(YarnLock())
+            if x == 'PnpmLock':
+                return cls(PnpmLock())
+            if x == 'GemfileLock':
+                return cls(GemfileLock())
+            if x == 'GoMod':
+                return cls(GoMod())
+            if x == 'CargoLock':
+                return cls(CargoLock())
+            if x == 'MavenDepTree':
+                return cls(MavenDepTree())
+            if x == 'GradleLockfile':
+                return cls(GradleLockfile())
+            if x == 'ComposerLock':
+                return cls(ComposerLock())
+            if x == 'NugetPackagesLockJson':
+                return cls(NugetPackagesLockJson())
+            if x == 'PubspecLock':
+                return cls(PubspecLock())
+            if x == 'SwiftPackageResolved':
+                return cls(SwiftPackageResolved())
+            if x == 'MixLock':
+                return cls(MixLock())
+            if x == 'ConanLock':
+                return cls(ConanLock())
+            _atd_bad_json('LockfileKind', x)
+        _atd_bad_json('LockfileKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'LockfileKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Lockfile:
+    """Original type: lockfile = { ... }"""
+
+    kind: LockfileKind
+    path: Fpath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Lockfile':
+        if isinstance(x, dict):
+            return cls(
+                kind=LockfileKind.from_json(x['kind']) if 'kind' in x else _atd_missing_json_field('Lockfile', 'kind'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('Lockfile', 'path'),
+            )
+        else:
+            _atd_bad_json('Lockfile', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['kind'] = (lambda x: x.to_json())(self.kind)
+        res['path'] = (lambda x: x.to_json())(self.path)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Lockfile':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CodeTarget:
+    """Original type: code_target = { ... }"""
+
+    path: Fpath
+    analyzer: Xlang
+    products: List[Product]
+    lockfile_target: Optional[Lockfile] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CodeTarget':
+        if isinstance(x, dict):
+            return cls(
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('CodeTarget', 'path'),
+                analyzer=Xlang.from_json(x['analyzer']) if 'analyzer' in x else _atd_missing_json_field('CodeTarget', 'analyzer'),
+                products=_atd_read_list(Product.from_json)(x['products']) if 'products' in x else _atd_missing_json_field('CodeTarget', 'products'),
+                lockfile_target=Lockfile.from_json(x['lockfile_target']) if 'lockfile_target' in x else None,
+            )
+        else:
+            _atd_bad_json('CodeTarget', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['path'] = (lambda x: x.to_json())(self.path)
+        res['analyzer'] = (lambda x: x.to_json())(self.analyzer)
+        res['products'] = _atd_write_list((lambda x: x.to_json()))(self.products)
+        if self.lockfile_target is not None:
+            res['lockfile_target'] = (lambda x: x.to_json())(self.lockfile_target)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CodeTarget':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CodeTarget_:
+    """Original type: target = [ ... | CodeTarget of ... | ... ]"""
+
+    value: CodeTarget
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CodeTarget_'
+
+    def to_json(self) -> Any:
+        return ['CodeTarget', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class LockfileTarget:
+    """Original type: target = [ ... | LockfileTarget of ... | ... ]"""
+
+    value: Lockfile
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'LockfileTarget'
+
+    def to_json(self) -> Any:
+        return ['LockfileTarget', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Target:
+    """Original type: target = [ ... ]"""
+
+    value: Union[CodeTarget_, LockfileTarget]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Target':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'CodeTarget':
+                return cls(CodeTarget_(CodeTarget.from_json(x[1])))
+            if cons == 'LockfileTarget':
+                return cls(LockfileTarget(Lockfile.from_json(x[1])))
+            _atd_bad_json('Target', x)
+        _atd_bad_json('Target', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Target':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Targets:
+    """Original type: targets"""
+
+    value: List[Target]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Targets':
+        return cls(_atd_read_list(Target.from_json)(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_list((lambda x: x.to_json()))(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Targets':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class TargetTimes:
     """Original type: target_times = { ... }"""
@@ -2635,13 +3730,13 @@ class Gemfile:
 
 
 @dataclass(frozen=True)
-class GoMod:
+class GoMod_:
     """Original type: manifest_kind = [ ... | GoMod | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'GoMod'
+        return 'GoMod_'
 
     @staticmethod
     def to_json() -> Any:
@@ -2873,10 +3968,27 @@ class ConanFilePy:
 
 
 @dataclass(frozen=True)
+class Csproj:
+    """Original type: manifest_kind = [ ... | Csproj | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Csproj'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Csproj'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class ManifestKind:
     """Original type: manifest_kind = [ ... ]"""
 
-    value: Union[RequirementsIn, PackageJson, Gemfile, GoMod, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy]
+    value: Union[RequirementsIn, PackageJson, Gemfile, GoMod_, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj]
 
     @property
     def kind(self) -> str:
@@ -2893,7 +4005,7 @@ class ManifestKind:
             if x == 'Gemfile':
                 return cls(Gemfile())
             if x == 'GoMod':
-                return cls(GoMod())
+                return cls(GoMod_())
             if x == 'CargoToml':
                 return cls(CargoToml())
             if x == 'PomXml':
@@ -2920,6 +4032,8 @@ class ManifestKind:
                 return cls(ConanFileTxt())
             if x == 'ConanFilePy':
                 return cls(ConanFilePy())
+            if x == 'Csproj':
+                return cls(Csproj())
             _atd_bad_json('ManifestKind', x)
         _atd_bad_json('ManifestKind', x)
 
@@ -2928,632 +4042,6 @@ class ManifestKind:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ManifestKind':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PipRequirementsTxt:
-    """Original type: lockfile_kind = [ ... | PipRequirementsTxt | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PipRequirementsTxt'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PipRequirementsTxt'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PoetryLock:
-    """Original type: lockfile_kind = [ ... | PoetryLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PoetryLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PoetryLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PipfileLock:
-    """Original type: lockfile_kind = [ ... | PipfileLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PipfileLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PipfileLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class UvLock:
-    """Original type: lockfile_kind = [ ... | UvLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'UvLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'UvLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class NpmPackageLockJson:
-    """Original type: lockfile_kind = [ ... | NpmPackageLockJson | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'NpmPackageLockJson'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'NpmPackageLockJson'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class YarnLock:
-    """Original type: lockfile_kind = [ ... | YarnLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'YarnLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'YarnLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PnpmLock:
-    """Original type: lockfile_kind = [ ... | PnpmLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PnpmLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PnpmLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class GemfileLock:
-    """Original type: lockfile_kind = [ ... | GemfileLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'GemfileLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'GemfileLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class GoMod_:
-    """Original type: lockfile_kind = [ ... | GoMod | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'GoMod_'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'GoMod'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class CargoLock:
-    """Original type: lockfile_kind = [ ... | CargoLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'CargoLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'CargoLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class MavenDepTree:
-    """Original type: lockfile_kind = [ ... | MavenDepTree | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'MavenDepTree'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'MavenDepTree'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class GradleLockfile:
-    """Original type: lockfile_kind = [ ... | GradleLockfile | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'GradleLockfile'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'GradleLockfile'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class ComposerLock:
-    """Original type: lockfile_kind = [ ... | ComposerLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'ComposerLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'ComposerLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class NugetPackagesLockJson:
-    """Original type: lockfile_kind = [ ... | NugetPackagesLockJson | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'NugetPackagesLockJson'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'NugetPackagesLockJson'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class PubspecLock:
-    """Original type: lockfile_kind = [ ... | PubspecLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PubspecLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'PubspecLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class SwiftPackageResolved:
-    """Original type: lockfile_kind = [ ... | SwiftPackageResolved | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'SwiftPackageResolved'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'SwiftPackageResolved'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class MixLock:
-    """Original type: lockfile_kind = [ ... | MixLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'MixLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'MixLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class ConanLock:
-    """Original type: lockfile_kind = [ ... | ConanLock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'ConanLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'ConanLock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class LockfileKind:
-    """Original type: lockfile_kind = [ ... ]"""
-
-    value: Union[PipRequirementsTxt, PoetryLock, PipfileLock, UvLock, NpmPackageLockJson, YarnLock, PnpmLock, GemfileLock, GoMod_, CargoLock, MavenDepTree, GradleLockfile, ComposerLock, NugetPackagesLockJson, PubspecLock, SwiftPackageResolved, MixLock, ConanLock]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'LockfileKind':
-        if isinstance(x, str):
-            if x == 'PipRequirementsTxt':
-                return cls(PipRequirementsTxt())
-            if x == 'PoetryLock':
-                return cls(PoetryLock())
-            if x == 'PipfileLock':
-                return cls(PipfileLock())
-            if x == 'UvLock':
-                return cls(UvLock())
-            if x == 'NpmPackageLockJson':
-                return cls(NpmPackageLockJson())
-            if x == 'YarnLock':
-                return cls(YarnLock())
-            if x == 'PnpmLock':
-                return cls(PnpmLock())
-            if x == 'GemfileLock':
-                return cls(GemfileLock())
-            if x == 'GoMod':
-                return cls(GoMod_())
-            if x == 'CargoLock':
-                return cls(CargoLock())
-            if x == 'MavenDepTree':
-                return cls(MavenDepTree())
-            if x == 'GradleLockfile':
-                return cls(GradleLockfile())
-            if x == 'ComposerLock':
-                return cls(ComposerLock())
-            if x == 'NugetPackagesLockJson':
-                return cls(NugetPackagesLockJson())
-            if x == 'PubspecLock':
-                return cls(PubspecLock())
-            if x == 'SwiftPackageResolved':
-                return cls(SwiftPackageResolved())
-            if x == 'MixLock':
-                return cls(MixLock())
-            if x == 'ConanLock':
-                return cls(ConanLock())
-            _atd_bad_json('LockfileKind', x)
-        _atd_bad_json('LockfileKind', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'LockfileKind':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Npm:
-    """Original type: ecosystem = [ ... | Npm | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Npm'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'npm'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Pypi:
-    """Original type: ecosystem = [ ... | Pypi | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Pypi'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'pypi'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Gem:
-    """Original type: ecosystem = [ ... | Gem | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Gem'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'gem'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Gomod:
-    """Original type: ecosystem = [ ... | Gomod | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Gomod'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'gomod'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Cargo:
-    """Original type: ecosystem = [ ... | Cargo | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Cargo'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'cargo'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Maven:
-    """Original type: ecosystem = [ ... | Maven | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Maven'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'maven'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Composer:
-    """Original type: ecosystem = [ ... | Composer | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Composer'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'composer'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Nuget:
-    """Original type: ecosystem = [ ... | Nuget | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Nuget'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'nuget'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Pub:
-    """Original type: ecosystem = [ ... | Pub | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Pub'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'pub'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class SwiftPM:
-    """Original type: ecosystem = [ ... | SwiftPM | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'SwiftPM'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'swiftpm'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Mix:
-    """Original type: ecosystem = [ ... | Mix | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Mix'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'mix'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Hex:
-    """Original type: ecosystem = [ ... | Hex | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Hex'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'hex'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Ecosystem:
-    """Original type: ecosystem = [ ... ]"""
-
-    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub, SwiftPM, Mix, Hex]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Ecosystem':
-        if isinstance(x, str):
-            if x == 'npm':
-                return cls(Npm())
-            if x == 'pypi':
-                return cls(Pypi())
-            if x == 'gem':
-                return cls(Gem())
-            if x == 'gomod':
-                return cls(Gomod())
-            if x == 'cargo':
-                return cls(Cargo())
-            if x == 'maven':
-                return cls(Maven())
-            if x == 'composer':
-                return cls(Composer())
-            if x == 'nuget':
-                return cls(Nuget())
-            if x == 'pub':
-                return cls(Pub())
-            if x == 'swiftpm':
-                return cls(SwiftPM())
-            if x == 'mix':
-                return cls(Mix())
-            if x == 'hex':
-                return cls(Hex())
-            _atd_bad_json('Ecosystem', x)
-        _atd_bad_json('Ecosystem', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Ecosystem':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -4213,91 +4701,6 @@ class ScannedAndSkipped:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
-class SAST:
-    """Original type: product = [ ... | SAST | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'SAST'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'sast'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class SCA:
-    """Original type: product = [ ... | SCA | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'SCA'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'sca'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Secrets:
-    """Original type: product = [ ... | Secrets | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Secrets'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'secrets'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Product:
-    """Original type: product = [ ... ]"""
-
-    value: Union[SAST, SCA, Secrets]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Product':
-        if isinstance(x, str):
-            if x == 'sast':
-                return cls(SAST())
-            if x == 'sca':
-                return cls(SCA())
-            if x == 'secrets':
-                return cls(Secrets())
-            _atd_bad_json('Product', x)
-        _atd_bad_json('Product', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Product':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass
 class ScanInfo:
     """Original type: scan_info = { ... }"""
@@ -4724,32 +5127,31 @@ class CiConfigFromRepo:
 class ScanRequest:
     """Original type: scan_request = { ... }"""
 
-    meta: RawJson
-    project_metadata: Optional[ProjectMetadata] = None
+    project_metadata: ProjectMetadata
+    scan_metadata: ScanMetadata
     project_config: Optional[CiConfigFromRepo] = None
-    scan_metadata: Optional[ScanMetadata] = None
+    meta: Optional[RawJson] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanRequest':
         if isinstance(x, dict):
             return cls(
-                meta=RawJson.from_json(x['meta']) if 'meta' in x else _atd_missing_json_field('ScanRequest', 'meta'),
-                project_metadata=ProjectMetadata.from_json(x['project_metadata']) if 'project_metadata' in x else None,
+                project_metadata=ProjectMetadata.from_json(x['project_metadata']) if 'project_metadata' in x else _atd_missing_json_field('ScanRequest', 'project_metadata'),
+                scan_metadata=ScanMetadata.from_json(x['scan_metadata']) if 'scan_metadata' in x else _atd_missing_json_field('ScanRequest', 'scan_metadata'),
                 project_config=CiConfigFromRepo.from_json(x['project_config']) if 'project_config' in x else None,
-                scan_metadata=ScanMetadata.from_json(x['scan_metadata']) if 'scan_metadata' in x else None,
+                meta=RawJson.from_json(x['meta']) if 'meta' in x else None,
             )
         else:
             _atd_bad_json('ScanRequest', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['meta'] = (lambda x: x.to_json())(self.meta)
-        if self.project_metadata is not None:
-            res['project_metadata'] = (lambda x: x.to_json())(self.project_metadata)
+        res['project_metadata'] = (lambda x: x.to_json())(self.project_metadata)
+        res['scan_metadata'] = (lambda x: x.to_json())(self.scan_metadata)
         if self.project_config is not None:
             res['project_config'] = (lambda x: x.to_json())(self.project_config)
-        if self.scan_metadata is not None:
-            res['scan_metadata'] = (lambda x: x.to_json())(self.scan_metadata)
+        if self.meta is not None:
+            res['meta'] = (lambda x: x.to_json())(self.meta)
         return res
 
     @classmethod
@@ -5426,206 +5828,6 @@ class ScaParserName:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ScaParserName':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class DependencyChild:
-    """Original type: dependency_child = { ... }"""
-
-    package: str
-    version: str
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'DependencyChild':
-        if isinstance(x, dict):
-            return cls(
-                package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('DependencyChild', 'package'),
-                version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('DependencyChild', 'version'),
-            )
-        else:
-            _atd_bad_json('DependencyChild', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['package'] = _atd_write_string(self.package)
-        res['version'] = _atd_write_string(self.version)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'DependencyChild':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class FoundDependency:
-    """Original type: found_dependency = { ... }"""
-
-    package: str
-    version: str
-    ecosystem: Ecosystem
-    allowed_hashes: Dict[str, List[str]]
-    transitivity: Transitivity
-    resolved_url: Optional[str] = None
-    manifest_path: Optional[Fpath] = None
-    lockfile_path: Optional[Fpath] = None
-    line_number: Optional[int] = None
-    children: Optional[List[DependencyChild]] = None
-    git_ref: Optional[str] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'FoundDependency':
-        if isinstance(x, dict):
-            return cls(
-                package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('FoundDependency', 'package'),
-                version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('FoundDependency', 'version'),
-                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('FoundDependency', 'ecosystem'),
-                allowed_hashes=_atd_read_assoc_object_into_dict(_atd_read_list(_atd_read_string))(x['allowed_hashes']) if 'allowed_hashes' in x else _atd_missing_json_field('FoundDependency', 'allowed_hashes'),
-                transitivity=Transitivity.from_json(x['transitivity']) if 'transitivity' in x else _atd_missing_json_field('FoundDependency', 'transitivity'),
-                resolved_url=_atd_read_string(x['resolved_url']) if 'resolved_url' in x else None,
-                manifest_path=Fpath.from_json(x['manifest_path']) if 'manifest_path' in x else None,
-                lockfile_path=Fpath.from_json(x['lockfile_path']) if 'lockfile_path' in x else None,
-                line_number=_atd_read_int(x['line_number']) if 'line_number' in x else None,
-                children=_atd_read_list(DependencyChild.from_json)(x['children']) if 'children' in x else None,
-                git_ref=_atd_read_string(x['git_ref']) if 'git_ref' in x else None,
-            )
-        else:
-            _atd_bad_json('FoundDependency', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['package'] = _atd_write_string(self.package)
-        res['version'] = _atd_write_string(self.version)
-        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
-        res['allowed_hashes'] = _atd_write_assoc_dict_to_object(_atd_write_list(_atd_write_string))(self.allowed_hashes)
-        res['transitivity'] = (lambda x: x.to_json())(self.transitivity)
-        if self.resolved_url is not None:
-            res['resolved_url'] = _atd_write_string(self.resolved_url)
-        if self.manifest_path is not None:
-            res['manifest_path'] = (lambda x: x.to_json())(self.manifest_path)
-        if self.lockfile_path is not None:
-            res['lockfile_path'] = (lambda x: x.to_json())(self.lockfile_path)
-        if self.line_number is not None:
-            res['line_number'] = _atd_write_int(self.line_number)
-        if self.children is not None:
-            res['children'] = _atd_write_list((lambda x: x.to_json()))(self.children)
-        if self.git_ref is not None:
-            res['git_ref'] = _atd_write_string(self.git_ref)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'FoundDependency':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class DependencyPattern:
-    """Original type: dependency_pattern = { ... }"""
-
-    ecosystem: Ecosystem
-    package: str
-    semver_range: str
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'DependencyPattern':
-        if isinstance(x, dict):
-            return cls(
-                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('DependencyPattern', 'ecosystem'),
-                package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('DependencyPattern', 'package'),
-                semver_range=_atd_read_string(x['semver_range']) if 'semver_range' in x else _atd_missing_json_field('DependencyPattern', 'semver_range'),
-            )
-        else:
-            _atd_bad_json('DependencyPattern', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
-        res['package'] = _atd_write_string(self.package)
-        res['semver_range'] = _atd_write_string(self.semver_range)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'DependencyPattern':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class DependencyMatch:
-    """Original type: dependency_match = { ... }"""
-
-    dependency_pattern: DependencyPattern
-    found_dependency: FoundDependency
-    lockfile: str
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'DependencyMatch':
-        if isinstance(x, dict):
-            return cls(
-                dependency_pattern=DependencyPattern.from_json(x['dependency_pattern']) if 'dependency_pattern' in x else _atd_missing_json_field('DependencyMatch', 'dependency_pattern'),
-                found_dependency=FoundDependency.from_json(x['found_dependency']) if 'found_dependency' in x else _atd_missing_json_field('DependencyMatch', 'found_dependency'),
-                lockfile=_atd_read_string(x['lockfile']) if 'lockfile' in x else _atd_missing_json_field('DependencyMatch', 'lockfile'),
-            )
-        else:
-            _atd_bad_json('DependencyMatch', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['dependency_pattern'] = (lambda x: x.to_json())(self.dependency_pattern)
-        res['found_dependency'] = (lambda x: x.to_json())(self.found_dependency)
-        res['lockfile'] = _atd_write_string(self.lockfile)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'DependencyMatch':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class ScaInfo:
-    """Original type: sca_info = { ... }"""
-
-    reachable: bool
-    reachability_rule: bool
-    sca_finding_schema: int
-    dependency_match: DependencyMatch
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ScaInfo':
-        if isinstance(x, dict):
-            return cls(
-                reachable=_atd_read_bool(x['reachable']) if 'reachable' in x else _atd_missing_json_field('ScaInfo', 'reachable'),
-                reachability_rule=_atd_read_bool(x['reachability_rule']) if 'reachability_rule' in x else _atd_missing_json_field('ScaInfo', 'reachability_rule'),
-                sca_finding_schema=_atd_read_int(x['sca_finding_schema']) if 'sca_finding_schema' in x else _atd_missing_json_field('ScaInfo', 'sca_finding_schema'),
-                dependency_match=DependencyMatch.from_json(x['dependency_match']) if 'dependency_match' in x else _atd_missing_json_field('ScaInfo', 'dependency_match'),
-            )
-        else:
-            _atd_bad_json('ScaInfo', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['reachable'] = _atd_write_bool(self.reachable)
-        res['reachability_rule'] = _atd_write_bool(self.reachability_rule)
-        res['sca_finding_schema'] = _atd_write_int(self.sca_finding_schema)
-        res['dependency_match'] = (lambda x: x.to_json())(self.dependency_match)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ScaInfo':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -6528,11 +6730,11 @@ class CliMatchExtra:
     fix: Optional[str] = None
     fixed_lines: Optional[List[str]] = None
     is_ignored: Optional[bool] = None
-    sca_info: Optional[ScaInfo] = None
-    dataflow_trace: Optional[MatchDataflowTrace] = None
-    engine_kind: Optional[EngineOfFinding] = None
+    sca_info: Optional[ScaMatch] = None
     validation_state: Optional[ValidationState] = None
     historical_info: Optional[HistoricalInfo] = None
+    dataflow_trace: Optional[MatchDataflowTrace] = None
+    engine_kind: Optional[EngineOfFinding] = None
     extra_extra: Optional[RawJson] = None
 
     @classmethod
@@ -6548,11 +6750,11 @@ class CliMatchExtra:
                 fix=_atd_read_string(x['fix']) if 'fix' in x else None,
                 fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
                 is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else None,
-                sca_info=ScaInfo.from_json(x['sca_info']) if 'sca_info' in x else None,
-                dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
-                engine_kind=EngineOfFinding.from_json(x['engine_kind']) if 'engine_kind' in x else None,
+                sca_info=ScaMatch.from_json(x['sca_info']) if 'sca_info' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
                 historical_info=HistoricalInfo.from_json(x['historical_info']) if 'historical_info' in x else None,
+                dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
+                engine_kind=EngineOfFinding.from_json(x['engine_kind']) if 'engine_kind' in x else None,
                 extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
             )
         else:
@@ -6575,14 +6777,14 @@ class CliMatchExtra:
             res['is_ignored'] = _atd_write_bool(self.is_ignored)
         if self.sca_info is not None:
             res['sca_info'] = (lambda x: x.to_json())(self.sca_info)
-        if self.dataflow_trace is not None:
-            res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
-        if self.engine_kind is not None:
-            res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
         if self.validation_state is not None:
             res['validation_state'] = (lambda x: x.to_json())(self.validation_state)
         if self.historical_info is not None:
             res['historical_info'] = (lambda x: x.to_json())(self.historical_info)
+        if self.dataflow_trace is not None:
+            res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
+        if self.engine_kind is not None:
+            res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
         if self.extra_extra is not None:
             res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
         return res
@@ -7034,7 +7236,7 @@ class Finding:
     match_based_id: Optional[str] = None
     hashes: Optional[FindingHashes] = None
     fixed_lines: Optional[List[str]] = None
-    sca_info: Optional[ScaInfo] = None
+    sca_info: Optional[ScaMatch] = None
     dataflow_trace: Optional[MatchDataflowTrace] = None
     validation_state: Optional[ValidationState] = None
     historical_info: Optional[HistoricalInfo] = None
@@ -7060,7 +7262,7 @@ class Finding:
                 match_based_id=_atd_read_string(x['match_based_id']) if 'match_based_id' in x else None,
                 hashes=FindingHashes.from_json(x['hashes']) if 'hashes' in x else None,
                 fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
-                sca_info=ScaInfo.from_json(x['sca_info']) if 'sca_info' in x else None,
+                sca_info=ScaMatch.from_json(x['sca_info']) if 'sca_info' in x else None,
                 dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
                 historical_info=HistoricalInfo.from_json(x['historical_info']) if 'historical_info' in x else None,
@@ -7114,7 +7316,7 @@ class Finding:
 class DependencyParserError:
     """Original type: dependency_parser_error = { ... }"""
 
-    path: str
+    path: Fpath
     parser: ScaParserName
     reason: str
     line: Optional[int] = None
@@ -7125,7 +7327,7 @@ class DependencyParserError:
     def from_json(cls, x: Any) -> 'DependencyParserError':
         if isinstance(x, dict):
             return cls(
-                path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('DependencyParserError', 'path'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('DependencyParserError', 'path'),
                 parser=ScaParserName.from_json(x['parser']) if 'parser' in x else _atd_missing_json_field('DependencyParserError', 'parser'),
                 reason=_atd_read_string(x['reason']) if 'reason' in x else _atd_missing_json_field('DependencyParserError', 'reason'),
                 line=_atd_read_int(x['line']) if 'line' in x else None,
@@ -7137,7 +7339,7 @@ class DependencyParserError:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['path'] = _atd_write_string(self.path)
+        res['path'] = (lambda x: x.to_json())(self.path)
         res['parser'] = (lambda x: x.to_json())(self.parser)
         res['reason'] = _atd_write_string(self.reason)
         if self.line is not None:
@@ -7734,6 +7936,27 @@ class OutputFormat:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class MatchBasedId:
+    """Original type: match_based_id"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'MatchBasedId':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'MatchBasedId':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class Manifest:
     """Original type: manifest = { ... }"""
@@ -7759,37 +7982,6 @@ class Manifest:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Manifest':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Lockfile:
-    """Original type: lockfile = { ... }"""
-
-    kind: LockfileKind
-    path: Fpath
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Lockfile':
-        if isinstance(x, dict):
-            return cls(
-                kind=LockfileKind.from_json(x['kind']) if 'kind' in x else _atd_missing_json_field('Lockfile', 'kind'),
-                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('Lockfile', 'path'),
-            )
-        else:
-            _atd_bad_json('Lockfile', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['kind'] = (lambda x: x.to_json())(self.kind)
-        res['path'] = (lambda x: x.to_json())(self.path)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Lockfile':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -8547,6 +8739,68 @@ class Features:
 
 
 @dataclass
+class DiffFile:
+    """Original type: diff_file = { ... }"""
+
+    filename: Fpath
+    diffs: List[str]
+    url: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DiffFile':
+        if isinstance(x, dict):
+            return cls(
+                filename=Fpath.from_json(x['filename']) if 'filename' in x else _atd_missing_json_field('DiffFile', 'filename'),
+                diffs=_atd_read_list(_atd_read_string)(x['diffs']) if 'diffs' in x else _atd_missing_json_field('DiffFile', 'diffs'),
+                url=_atd_read_string(x['url']) if 'url' in x else _atd_missing_json_field('DiffFile', 'url'),
+            )
+        else:
+            _atd_bad_json('DiffFile', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['filename'] = (lambda x: x.to_json())(self.filename)
+        res['diffs'] = _atd_write_list(_atd_write_string)(self.diffs)
+        res['url'] = _atd_write_string(self.url)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DiffFile':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DiffFiles:
+    """Original type: diff_files = { ... }"""
+
+    cve_diffs: List[DiffFile]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DiffFiles':
+        if isinstance(x, dict):
+            return cls(
+                cve_diffs=_atd_read_list(DiffFile.from_json)(x['cve_diffs']) if 'cve_diffs' in x else _atd_missing_json_field('DiffFiles', 'cve_diffs'),
+            )
+        else:
+            _atd_bad_json('DiffFiles', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['cve_diffs'] = _atd_write_list((lambda x: x.to_json()))(self.cve_diffs)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DiffFiles':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class DeploymentConfig:
     """Original type: deployment_config = { ... }"""
 
@@ -8859,6 +9113,7 @@ class CiScanCompleteResponse:
     success: bool
     app_block_override: bool = field(default_factory=lambda: False)
     app_block_reason: str = field(default_factory=lambda: "")
+    app_blocking_match_based_ids: List[MatchBasedId] = field(default_factory=lambda: [])
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanCompleteResponse':
@@ -8867,6 +9122,7 @@ class CiScanCompleteResponse:
                 success=_atd_read_bool(x['success']) if 'success' in x else _atd_missing_json_field('CiScanCompleteResponse', 'success'),
                 app_block_override=_atd_read_bool(x['app_block_override']) if 'app_block_override' in x else False,
                 app_block_reason=_atd_read_string(x['app_block_reason']) if 'app_block_reason' in x else "",
+                app_blocking_match_based_ids=_atd_read_list(MatchBasedId.from_json)(x['app_blocking_match_based_ids']) if 'app_blocking_match_based_ids' in x else [],
             )
         else:
             _atd_bad_json('CiScanCompleteResponse', x)
@@ -8876,6 +9132,7 @@ class CiScanCompleteResponse:
         res['success'] = _atd_write_bool(self.success)
         res['app_block_override'] = _atd_write_bool(self.app_block_override)
         res['app_block_reason'] = _atd_write_string(self.app_block_reason)
+        res['app_blocking_match_based_ids'] = _atd_write_list((lambda x: x.to_json()))(self.app_blocking_match_based_ids)
         return res
 
     @classmethod
