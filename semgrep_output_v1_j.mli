@@ -596,12 +596,12 @@ type cli_error = Semgrep_output_v1_t.cli_error = {
 }
 
 type sarif_format_params = Semgrep_output_v1_t.sarif_format_params = {
-  hide_nudge: bool;
-  engine_label: string;
   rules: fpath;
   cli_matches: cli_match list;
   cli_errors: cli_error list;
-  show_dataflow_traces: bool option
+  hide_nudge: bool;
+  engine_label: string;
+  show_dataflow_traces: bool
 }
 
 type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
