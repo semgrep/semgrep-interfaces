@@ -336,6 +336,7 @@
         { "const": "nuget" },
         { "const": "pub" },
         { "const": "swiftpm" },
+        { "const": "cocoapods" },
         { "const": "mix" },
         { "const": "hex" }
       ]
@@ -1325,6 +1326,7 @@
         { "const": "composer_lock" },
         { "const": "pubspec_lock" },
         { "const": "package_swift" },
+        { "const": "podfile_lock" },
         { "const": "package_resolved" },
         { "const": "mix_lock" }
       ]
@@ -1685,6 +1687,7 @@
         { "const": "NugetPackagesLockJson" },
         { "const": "PubspecLock" },
         { "const": "SwiftPackageResolved" },
+        { "const": "PodfileLock" },
         { "const": "MixLock" },
         { "const": "ConanLock" }
       ]
@@ -1703,6 +1706,7 @@
         { "const": "NugetManifestJson" },
         { "const": "PubspecYaml" },
         { "const": "PackageSwift" },
+        { "const": "Podfile" },
         { "const": "MixExs" },
         { "const": "Pipfile" },
         { "const": "PyprojectToml" },
