@@ -179,6 +179,7 @@ export type Ecosystem =
 | { kind: 'Nuget' /* JSON: "nuget" */ }
 | { kind: 'Pub' /* JSON: "pub" */ }
 | { kind: 'SwiftPM' /* JSON: "swiftpm" */ }
+| { kind: 'Cocoapods' /* JSON: "cocoapods" */ }
 | { kind: 'Mix' /* JSON: "mix" */ }
 | { kind: 'Hex' /* JSON: "hex" */ }
 
@@ -735,6 +736,7 @@ export type ScaParserName =
 | { kind: 'Composer_lock' /* JSON: "composer_lock" */ }
 | { kind: 'Pubspec_lock' /* JSON: "pubspec_lock" */ }
 | { kind: 'Package_swift' /* JSON: "package_swift" */ }
+| { kind: 'Podfile_lock' /* JSON: "podfile_lock" */ }
 | { kind: 'Package_resolved' /* JSON: "package_resolved" */ }
 | { kind: 'Mix_lock' /* JSON: "mix_lock" */ }
 
@@ -923,6 +925,7 @@ export type LockfileKind =
 | { kind: 'NugetPackagesLockJson' }
 | { kind: 'PubspecLock' }
 | { kind: 'SwiftPackageResolved' }
+| { kind: 'PodfileLock' }
 | { kind: 'MixLock' }
 | { kind: 'ConanLock' }
 
@@ -939,6 +942,7 @@ export type ManifestKind =
 | { kind: 'NugetManifestJson' }
 | { kind: 'PubspecYaml' }
 | { kind: 'PackageSwift' }
+| { kind: 'Podfile' }
 | { kind: 'MixExs' }
 | { kind: 'Pipfile' }
 | { kind: 'PyprojectToml' }
@@ -1585,6 +1589,8 @@ export function writeEcosystem(x: Ecosystem, context: any = x): any {
       return 'pub'
     case 'SwiftPM':
       return 'swiftpm'
+    case 'Cocoapods':
+      return 'cocoapods'
     case 'Mix':
       return 'mix'
     case 'Hex':
@@ -1614,6 +1620,8 @@ export function readEcosystem(x: any, context: any = x): Ecosystem {
       return { kind: 'Pub' }
     case 'swiftpm':
       return { kind: 'SwiftPM' }
+    case 'cocoapods':
+      return { kind: 'Cocoapods' }
     case 'mix':
       return { kind: 'Mix' }
     case 'hex':
@@ -3206,6 +3214,8 @@ export function writeScaParserName(x: ScaParserName, context: any = x): any {
       return 'pubspec_lock'
     case 'Package_swift':
       return 'package_swift'
+    case 'Podfile_lock':
+      return 'podfile_lock'
     case 'Package_resolved':
       return 'package_resolved'
     case 'Mix_lock':
@@ -3251,6 +3261,8 @@ export function readScaParserName(x: any, context: any = x): ScaParserName {
       return { kind: 'Pubspec_lock' }
     case 'package_swift':
       return { kind: 'Package_swift' }
+    case 'podfile_lock':
+      return { kind: 'Podfile_lock' }
     case 'package_resolved':
       return { kind: 'Package_resolved' }
     case 'mix_lock':
@@ -3789,6 +3801,8 @@ export function writeLockfileKind(x: LockfileKind, context: any = x): any {
       return 'PubspecLock'
     case 'SwiftPackageResolved':
       return 'SwiftPackageResolved'
+    case 'PodfileLock':
+      return 'PodfileLock'
     case 'MixLock':
       return 'MixLock'
     case 'ConanLock':
@@ -3830,6 +3844,8 @@ export function readLockfileKind(x: any, context: any = x): LockfileKind {
       return { kind: 'PubspecLock' }
     case 'SwiftPackageResolved':
       return { kind: 'SwiftPackageResolved' }
+    case 'PodfileLock':
+      return { kind: 'PodfileLock' }
     case 'MixLock':
       return { kind: 'MixLock' }
     case 'ConanLock':
@@ -3866,6 +3882,8 @@ export function writeManifestKind(x: ManifestKind, context: any = x): any {
       return 'PubspecYaml'
     case 'PackageSwift':
       return 'PackageSwift'
+    case 'Podfile':
+      return 'Podfile'
     case 'MixExs':
       return 'MixExs'
     case 'Pipfile':
@@ -3907,6 +3925,8 @@ export function readManifestKind(x: any, context: any = x): ManifestKind {
       return { kind: 'PubspecYaml' }
     case 'PackageSwift':
       return { kind: 'PackageSwift' }
+    case 'Podfile':
+      return { kind: 'Podfile' }
     case 'MixExs':
       return { kind: 'MixExs' }
     case 'Pipfile':

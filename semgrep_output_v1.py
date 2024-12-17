@@ -483,6 +483,23 @@ class SwiftPM:
 
 
 @dataclass(frozen=True)
+class Cocoapods:
+    """Original type: ecosystem = [ ... | Cocoapods | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Cocoapods'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'cocoapods'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class Mix:
     """Original type: ecosystem = [ ... | Mix | ... ]"""
 
@@ -520,7 +537,7 @@ class Hex:
 class Ecosystem:
     """Original type: ecosystem = [ ... ]"""
 
-    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub, SwiftPM, Mix, Hex]
+    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub, SwiftPM, Cocoapods, Mix, Hex]
 
     @property
     def kind(self) -> str:
@@ -550,6 +567,8 @@ class Ecosystem:
                 return cls(Pub())
             if x == 'swiftpm':
                 return cls(SwiftPM())
+            if x == 'cocoapods':
+                return cls(Cocoapods())
             if x == 'mix':
                 return cls(Mix())
             if x == 'hex':
@@ -3295,6 +3314,23 @@ class SwiftPackageResolved:
 
 
 @dataclass(frozen=True)
+class PodfileLock:
+    """Original type: lockfile_kind = [ ... | PodfileLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PodfileLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'PodfileLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class MixLock:
     """Original type: lockfile_kind = [ ... | MixLock | ... ]"""
 
@@ -3332,7 +3368,7 @@ class ConanLock:
 class LockfileKind:
     """Original type: lockfile_kind = [ ... ]"""
 
-    value: Union[PipRequirementsTxt, PoetryLock, PipfileLock, UvLock, NpmPackageLockJson, YarnLock, PnpmLock, GemfileLock, GoMod, CargoLock, MavenDepTree, GradleLockfile, ComposerLock, NugetPackagesLockJson, PubspecLock, SwiftPackageResolved, MixLock, ConanLock]
+    value: Union[PipRequirementsTxt, PoetryLock, PipfileLock, UvLock, NpmPackageLockJson, YarnLock, PnpmLock, GemfileLock, GoMod, CargoLock, MavenDepTree, GradleLockfile, ComposerLock, NugetPackagesLockJson, PubspecLock, SwiftPackageResolved, PodfileLock, MixLock, ConanLock]
 
     @property
     def kind(self) -> str:
@@ -3374,6 +3410,8 @@ class LockfileKind:
                 return cls(PubspecLock())
             if x == 'SwiftPackageResolved':
                 return cls(SwiftPackageResolved())
+            if x == 'PodfileLock':
+                return cls(PodfileLock())
             if x == 'MixLock':
                 return cls(MixLock())
             if x == 'ConanLock':
@@ -3883,6 +3921,23 @@ class PackageSwift:
 
 
 @dataclass(frozen=True)
+class Podfile:
+    """Original type: manifest_kind = [ ... | Podfile | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Podfile'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Podfile'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class MixExs:
     """Original type: manifest_kind = [ ... | MixExs | ... ]"""
 
@@ -3988,7 +4043,7 @@ class Csproj:
 class ManifestKind:
     """Original type: manifest_kind = [ ... ]"""
 
-    value: Union[RequirementsIn, PackageJson, Gemfile, GoMod_, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj]
+    value: Union[RequirementsIn, PackageJson, Gemfile, GoMod_, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, Podfile, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj]
 
     @property
     def kind(self) -> str:
@@ -4022,6 +4077,8 @@ class ManifestKind:
                 return cls(PubspecYaml())
             if x == 'PackageSwift':
                 return cls(PackageSwift())
+            if x == 'Podfile':
+                return cls(Podfile())
             if x == 'MixExs':
                 return cls(MixExs())
             if x == 'Pipfile':
@@ -5733,6 +5790,23 @@ class PackageSwift_:
 
 
 @dataclass
+class PodfileLock_:
+    """Original type: sca_parser_name = [ ... | Podfile_lock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PodfileLock_'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'podfile_lock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class PackageResolved:
     """Original type: sca_parser_name = [ ... | Package_resolved | ... ]"""
 
@@ -5770,7 +5844,7 @@ class MixLock_:
 class ScaParserName:
     """Original type: sca_parser_name = [ ... ]"""
 
-    value: Union[GemfileLock_, GoMod2, GoSum, GradleLockfile_, GradleBuild, Jsondoc, Pipfile_, PnpmLock_, PoetryLock_, PyprojectToml_, Requirements, Yarn1, Yarn2, Pomtree, CargoParser, ComposerLock_, PubspecLock_, PackageSwift_, PackageResolved, MixLock_]
+    value: Union[GemfileLock_, GoMod2, GoSum, GradleLockfile_, GradleBuild, Jsondoc, Pipfile_, PnpmLock_, PoetryLock_, PyprojectToml_, Requirements, Yarn1, Yarn2, Pomtree, CargoParser, ComposerLock_, PubspecLock_, PackageSwift_, PodfileLock_, PackageResolved, MixLock_]
 
     @property
     def kind(self) -> str:
@@ -5816,6 +5890,8 @@ class ScaParserName:
                 return cls(PubspecLock_())
             if x == 'package_swift':
                 return cls(PackageSwift_())
+            if x == 'podfile_lock':
+                return cls(PodfileLock_())
             if x == 'package_resolved':
                 return cls(PackageResolved())
             if x == 'mix_lock':
