@@ -1867,7 +1867,8 @@ type core_error <python decorator="dataclass(frozen=True)"> = {
    those different files (because ATD does not have a proper module system yet).
 *)
 
-type xlang <ocaml attr="deriving show"> = string wrap <ocaml module="Xlang">
+type analyzer <ocaml attr="deriving show"> =
+  string wrap <ocaml module="Analyzer">
 
 (* A target can either be a traditional code target (now with optional
    associated lockfile) or it can be a lockfile target, which will be used to
@@ -1889,10 +1890,10 @@ type target <ocaml attr="deriving show"> = [
 *)
 type code_target <ocaml attr="deriving show"> = {
   path: fpath (* source file *);
-  (* Must be a valid target analyzer as defined in Xlang.mli.
+  (* Must be a valid target analyzer as defined in Analyzer.mli.
      examples: "ocaml", "python", but also "spacegrep" or "regexp".
   *)
-  analyzer: xlang;
+  analyzer: analyzer;
   products: product list;
   ?lockfile_target: lockfile option;
 }
