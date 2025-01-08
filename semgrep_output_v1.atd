@@ -1864,8 +1864,45 @@ type core_error <python decorator="dataclass(frozen=True)"> = {
    those different files (because ATD does not have a proper module system yet).
 *)
 
-type analyzer <ocaml attr="deriving show"> =
-  string wrap <ocaml module="Analyzer">
+(* See Scan_CLI.ml on how to convert command-line options to this *)
+type project_root <ocaml attr="deriving show"> = [
+  (* path *)
+  | Filesystem of string
+  (* URL *)
+  | Git_remote of string
+]
+
+(*
+   This type is similar to the type Find_targets.conf used by osemgrep.
+
+   We could share the type but it would be slightly more complicated.
+   This solution will be easier to undo when we're fully migrated to osemgrep.
+
+   It encodes options derived from the pysemgrep command line.
+   Upon receiving this record, semgrep-core will discover the target
+   files like osemgrep does.
+
+   - See Find_targets.mli for the meaning of each field.
+   - See Scan_CLI.ml for the mapping between semgrep CLI and this type.
+*)
+type targeting_conf <ocaml attr="deriving show"> = {
+  exclude : string list;
+  ?include_ : string list option;
+  max_target_bytes : int;
+  respect_gitignore : bool;
+  respect_semgrepignore_files : bool;
+  always_select_explicit_targets : bool;
+  (* This is a hash table in Find_targets.conf: *)
+  explicit_targets : string list;
+  (* osemgrep-only: option (see Git_project.ml and the force_root parameter) *)
+  ?force_project_root : project_root option;
+  force_novcs_project : bool;
+  exclude_minified_files : bool;
+  ?baseline_commit : string option;
+  diff_depth : int;
+}
+
+type analyzer <ocaml attr="deriving show"> = string wrap <ocaml module="Analyzer">
 
 (* A target can either be a traditional code target (now with optional
    associated lockfile) or it can be a lockfile target, which will be used to
@@ -1904,7 +1941,12 @@ type code_target <ocaml attr="deriving show"> = {
  * you could have at most one PL language, and then possibly
  * "generic" and "regexp".
  *)
-type targets <ocaml attr="deriving show"> = target list
+type targets <ocaml attr="deriving show"> = [
+  (* list of paths used to discover targets *)
+  | Scanning_roots of (string list * targeting_conf)
+  (* targets already discovered from the scanning roots by pysemgrep *)
+  | Targets of target list
+]
 
 (*****************************************************************************)
 (* Python -> OCaml RPC typedefs *)
