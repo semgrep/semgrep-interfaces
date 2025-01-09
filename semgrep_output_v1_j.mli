@@ -240,7 +240,9 @@ type rule_result = Semgrep_output_v1_t.rule_result = {
 
 type fixtest_result = Semgrep_output_v1_t.fixtest_result = { passed: bool }
 
-type config_error_reason = Semgrep_output_v1_t.config_error_reason
+type config_error_reason = Semgrep_output_v1_t.config_error_reason = 
+  UnparsableRule
+
 
 type config_error = Semgrep_output_v1_t.config_error = {
   file: fpath;
@@ -408,7 +410,6 @@ type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
 }
 
 type project_metadata = Semgrep_output_v1_t.project_metadata = {
-  semgrep_version: version;
   scan_environment: string;
   repository: string;
   repo_url: uri option;
@@ -445,8 +446,7 @@ type ci_config_from_repo = Semgrep_output_v1_t.ci_config_from_repo = {
 type scan_request = Semgrep_output_v1_t.scan_request = {
   project_metadata: project_metadata;
   scan_metadata: scan_metadata;
-  project_config: ci_config_from_repo option;
-  meta: raw_json option
+  project_config: ci_config_from_repo option
 }
 
 type ci_env = Semgrep_output_v1_t.ci_env

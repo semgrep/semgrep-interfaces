@@ -41,6 +41,7 @@
     "sha1": { "type": "string" },
     "uuid": { "type": "string" },
     "datetime": { "type": "string" },
+    "glob": { "type": "string" },
     "version": { "type": "string" },
     "position": {
       "type": "object",
@@ -964,15 +965,14 @@
     "project_metadata": {
       "type": "object",
       "required": [
-        "semgrep_version", "scan_environment", "repository", "repo_url",
-        "branch", "commit", "commit_title", "commit_author_email",
-        "commit_author_name", "commit_author_username",
-        "commit_author_image_url", "ci_job_url", "on",
-        "pull_request_author_username", "pull_request_author_image_url",
-        "pull_request_id", "pull_request_title", "is_full_scan"
+        "scan_environment", "repository", "repo_url", "branch", "commit",
+        "commit_title", "commit_author_email", "commit_author_name",
+        "commit_author_username", "commit_author_image_url", "ci_job_url",
+        "on", "pull_request_author_username",
+        "pull_request_author_image_url", "pull_request_id",
+        "pull_request_title", "is_full_scan"
       ],
       "properties": {
-        "semgrep_version": { "$ref": "#/definitions/version" },
         "scan_environment": { "type": "string" },
         "repository": { "type": "string" },
         "repo_url": { "$ref": "#/definitions/uri" },
@@ -1021,8 +1021,7 @@
       "properties": {
         "project_metadata": { "$ref": "#/definitions/project_metadata" },
         "scan_metadata": { "$ref": "#/definitions/scan_metadata" },
-        "project_config": { "$ref": "#/definitions/ci_config_from_repo" },
-        "meta": { "$ref": "#/definitions/raw_json" }
+        "project_config": { "$ref": "#/definitions/ci_config_from_repo" }
       }
     },
     "scan_response": {
@@ -1070,7 +1069,6 @@
         "lookback_days": { "type": "integer" }
       }
     },
-    "glob": { "type": "string" },
     "product_ignored_files": {
       "type": "array",
       "items": {
