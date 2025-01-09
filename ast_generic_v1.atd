@@ -966,7 +966,7 @@ type directive = [
   | ImportFrom of (
         tok (* 'import'/'from' for Python, 'include' for C *)
       * module_name
-      * (ident * alias nullable (* as name alias *)) list
+      * (alias * alias nullable (* as name alias *)) list
     )
 
   | ImportAs   of (tok * module_name * alias nullable) (* as name *)
