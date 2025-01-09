@@ -265,8 +265,8 @@ type lockfile_kind = Semgrep_output_v1_t.lockfile_kind =
     PipRequirementsTxt | PoetryLock | PipfileLock | UvLock
   | NpmPackageLockJson | YarnLock | PnpmLock | GemfileLock | GoMod
   | CargoLock | MavenDepTree | GradleLockfile | ComposerLock
-  | NugetPackagesLockJson | PubspecLock | SwiftPackageResolved | MixLock
-  | ConanLock
+  | NugetPackagesLockJson | PubspecLock | SwiftPackageResolved | PodfileLock
+  | MixLock | ConanLock
 
   [@@deriving show, eq, yojson]
 
@@ -1377,6 +1377,7 @@ let write_ecosystem = (
       | `Nuget -> Buffer.add_string ob "\"nuget\""
       | `Pub -> Buffer.add_string ob "\"pub\""
       | `SwiftPM -> Buffer.add_string ob "\"swiftpm\""
+      | `Cocoapods -> Buffer.add_string ob "\"cocoapods\""
       | `Mix -> Buffer.add_string ob "\"mix\""
       | `Hex -> Buffer.add_string ob "\"hex\""
 )
@@ -1430,6 +1431,10 @@ let read_ecosystem = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `SwiftPM
+            | "cocoapods" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Cocoapods
             | "mix" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -1463,6 +1468,8 @@ let read_ecosystem = (
               `Pub
             | "swiftpm" ->
               `SwiftPM
+            | "cocoapods" ->
+              `Cocoapods
             | "mix" ->
               `Mix
             | "hex" ->
@@ -10218,6 +10225,7 @@ let write_lockfile_kind : _ -> lockfile_kind -> _ = (
       | NugetPackagesLockJson -> Buffer.add_string ob "\"NugetPackagesLockJson\""
       | PubspecLock -> Buffer.add_string ob "\"PubspecLock\""
       | SwiftPackageResolved -> Buffer.add_string ob "\"SwiftPackageResolved\""
+      | PodfileLock -> Buffer.add_string ob "\"PodfileLock\""
       | MixLock -> Buffer.add_string ob "\"MixLock\""
       | ConanLock -> Buffer.add_string ob "\"ConanLock\""
 )
@@ -10295,6 +10303,10 @@ let read_lockfile_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (SwiftPackageResolved : lockfile_kind)
+            | "PodfileLock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PodfileLock : lockfile_kind)
             | "MixLock" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -10340,6 +10352,8 @@ let read_lockfile_kind = (
               (PubspecLock : lockfile_kind)
             | "SwiftPackageResolved" ->
               (SwiftPackageResolved : lockfile_kind)
+            | "PodfileLock" ->
+              (PodfileLock : lockfile_kind)
             | "MixLock" ->
               (MixLock : lockfile_kind)
             | "ConanLock" ->
@@ -11339,6 +11353,7 @@ let write_manifest_kind = (
       | `NugetManifestJson -> Buffer.add_string ob "\"NugetManifestJson\""
       | `PubspecYaml -> Buffer.add_string ob "\"PubspecYaml\""
       | `PackageSwift -> Buffer.add_string ob "\"PackageSwift\""
+      | `Podfile -> Buffer.add_string ob "\"Podfile\""
       | `MixExs -> Buffer.add_string ob "\"MixExs\""
       | `Pipfile -> Buffer.add_string ob "\"Pipfile\""
       | `PyprojectToml -> Buffer.add_string ob "\"PyprojectToml\""
@@ -11404,6 +11419,10 @@ let read_manifest_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `PackageSwift
+            | "Podfile" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Podfile
             | "MixExs" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -11457,6 +11476,8 @@ let read_manifest_kind = (
               `PubspecYaml
             | "PackageSwift" ->
               `PackageSwift
+            | "Podfile" ->
+              `Podfile
             | "MixExs" ->
               `MixExs
             | "Pipfile" ->
@@ -18995,6 +19016,7 @@ let write_sca_parser_name = (
       | `Composer_lock -> Buffer.add_string ob "\"composer_lock\""
       | `Pubspec_lock -> Buffer.add_string ob "\"pubspec_lock\""
       | `Package_swift -> Buffer.add_string ob "\"package_swift\""
+      | `Podfile_lock -> Buffer.add_string ob "\"podfile_lock\""
       | `Package_resolved -> Buffer.add_string ob "\"package_resolved\""
       | `Mix_lock -> Buffer.add_string ob "\"mix_lock\""
 )
@@ -19080,6 +19102,10 @@ let read_sca_parser_name = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Package_swift
+            | "podfile_lock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Podfile_lock
             | "package_resolved" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -19129,6 +19155,8 @@ let read_sca_parser_name = (
               `Pubspec_lock
             | "package_swift" ->
               `Package_swift
+            | "podfile_lock" ->
+              `Podfile_lock
             | "package_resolved" ->
               `Package_resolved
             | "mix_lock" ->

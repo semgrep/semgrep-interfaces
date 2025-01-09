@@ -509,6 +509,7 @@ type ecosystem
   | Nuget <json name="nuget">
   | Pub <json name="pub">
   | SwiftPM <json name="swiftpm">
+  | Cocoapods <json name="cocoapods">
   (* Deprecated: Mix is a build system, should use Hex, which is the ecosystem *)
   | Mix <json name="mix">
   | Hex <json name="hex">
@@ -1674,6 +1675,7 @@ type sca_parser_name = [
   | Composer_lock <json name="composer_lock">
   | Pubspec_lock <json name="pubspec_lock">
   | Package_swift <json name="package_swift">
+  | Podfile_lock <json name="podfile_lock">
   | Package_resolved <json name="package_resolved">
   | Mix_lock <json name="mix_lock">
 ]
@@ -2025,6 +2027,7 @@ type lockfile_kind
     | NugetPackagesLockJson
     | PubspecLock
     | SwiftPackageResolved (* not a real lockfile *)
+    | PodfileLock
     | MixLock
     | ConanLock
 ] <ocaml repr="classic">
@@ -2067,6 +2070,8 @@ type manifest_kind
   (* Package.swift
    * https://docs.swift.org/package-manager/PackageDescription/PackageDescription.html *)
   | PackageSwift
+  (* Podfile - https://guides.cocoapods.org/using/the-podfile.html *)
+  | Podfile
   (* mix.exs
    * https://hexdocs.pm/elixir/introduction-to-mix.html#project-compilation *)
   | MixExs
