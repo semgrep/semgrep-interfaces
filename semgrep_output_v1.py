@@ -5422,7 +5422,6 @@ class ScanConfig:
     deployment_name: str
     policy_names: List[str]
     rule_config: str
-    ci_config_from_cloud: Optional[CiConfigFromCloud] = None
     autofix: bool = field(default_factory=lambda: False)
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
@@ -5432,6 +5431,7 @@ class ScanConfig:
     ignored_files: List[str] = field(default_factory=lambda: [])
     enabled_products: Optional[List[Product]] = None
     actions: List[Action] = field(default_factory=lambda: [])
+    ci_config_from_cloud: Optional[CiConfigFromCloud] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanConfig':
@@ -5441,7 +5441,6 @@ class ScanConfig:
                 deployment_name=_atd_read_string(x['deployment_name']) if 'deployment_name' in x else _atd_missing_json_field('ScanConfig', 'deployment_name'),
                 policy_names=_atd_read_list(_atd_read_string)(x['policy_names']) if 'policy_names' in x else _atd_missing_json_field('ScanConfig', 'policy_names'),
                 rule_config=_atd_read_string(x['rule_config']) if 'rule_config' in x else _atd_missing_json_field('ScanConfig', 'rule_config'),
-                ci_config_from_cloud=CiConfigFromCloud.from_json(x['ci_config_from_cloud']) if 'ci_config_from_cloud' in x else None,
                 autofix=_atd_read_bool(x['autofix']) if 'autofix' in x else False,
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
@@ -5451,6 +5450,7 @@ class ScanConfig:
                 ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
                 enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else None,
                 actions=_atd_read_list(Action.from_json)(x['actions']) if 'actions' in x else [],
+                ci_config_from_cloud=CiConfigFromCloud.from_json(x['ci_config_from_cloud']) if 'ci_config_from_cloud' in x else None,
             )
         else:
             _atd_bad_json('ScanConfig', x)
@@ -5461,8 +5461,6 @@ class ScanConfig:
         res['deployment_name'] = _atd_write_string(self.deployment_name)
         res['policy_names'] = _atd_write_list(_atd_write_string)(self.policy_names)
         res['rule_config'] = _atd_write_string(self.rule_config)
-        if self.ci_config_from_cloud is not None:
-            res['ci_config_from_cloud'] = (lambda x: x.to_json())(self.ci_config_from_cloud)
         res['autofix'] = _atd_write_bool(self.autofix)
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
@@ -5473,6 +5471,8 @@ class ScanConfig:
         if self.enabled_products is not None:
             res['enabled_products'] = _atd_write_list((lambda x: x.to_json()))(self.enabled_products)
         res['actions'] = _atd_write_list((lambda x: x.to_json()))(self.actions)
+        if self.ci_config_from_cloud is not None:
+            res['ci_config_from_cloud'] = (lambda x: x.to_json())(self.ci_config_from_cloud)
         return res
 
     @classmethod

@@ -475,7 +475,6 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   deployment_name: string;
   policy_names: string list;
   rule_config: string;
-  ci_config_from_cloud: ci_config_from_cloud option;
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
@@ -484,7 +483,8 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   triage_ignored_match_based_ids: string list;
   ignored_files: string list;
   enabled_products: product list option;
-  actions: action list
+  actions: action list;
+  ci_config_from_cloud: ci_config_from_cloud option
 }
 
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
@@ -18284,17 +18284,6 @@ let write_scan_config : _ -> scan_config -> _ = (
       Yojson.Safe.write_string
     )
       ob x.rule_config;
-    (match x.ci_config_from_cloud with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"ci_config_from_cloud\":";
-      (
-        write_ci_config_from_cloud
-      )
-        ob x;
-    );
     if !is_first then
       is_first := false
     else
@@ -18378,6 +18367,17 @@ let write_scan_config : _ -> scan_config -> _ = (
       write__action_list
     )
       ob x.actions;
+    (match x.ci_config_from_cloud with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"ci_config_from_cloud\":";
+      (
+        write_ci_config_from_cloud
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_scan_config ?(len = 1024) x =
@@ -18392,7 +18392,6 @@ let read_scan_config = (
     let field_deployment_name = ref (None) in
     let field_policy_names = ref (None) in
     let field_rule_config = ref (None) in
-    let field_ci_config_from_cloud = ref (None) in
     let field_autofix = ref (false) in
     let field_deepsemgrep = ref (false) in
     let field_dependency_query = ref (false) in
@@ -18402,6 +18401,7 @@ let read_scan_config = (
     let field_ignored_files = ref ([]) in
     let field_enabled_products = ref (None) in
     let field_actions = ref ([]) in
+    let field_ci_config_from_cloud = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -18416,7 +18416,7 @@ let read_scan_config = (
                   match String.unsafe_get s (pos+1) with
                     | 'c' -> (
                         if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 's' then (
-                          13
+                          12
                         )
                         else (
                           -1
@@ -18424,7 +18424,7 @@ let read_scan_config = (
                       )
                     | 'u' -> (
                         if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'x' then (
-                          5
+                          4
                         )
                         else (
                           -1
@@ -18442,7 +18442,7 @@ let read_scan_config = (
                 match String.unsafe_get s pos with
                   | 'd' -> (
                       if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'g' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'p' then (
-                        6
+                        5
                       )
                       else (
                         -1
@@ -18480,7 +18480,7 @@ let read_scan_config = (
                     )
                   | 'i' -> (
                       if String.unsafe_get s (pos+1) = 'g' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
-                        11
+                        10
                       )
                       else (
                         -1
@@ -18502,7 +18502,7 @@ let read_scan_config = (
                 match String.unsafe_get s pos with
                   | 'd' -> (
                       if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'q' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'y' then (
-                        7
+                        6
                       )
                       else (
                         -1
@@ -18510,7 +18510,7 @@ let read_scan_config = (
                     )
                   | 'e' -> (
                       if String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'c' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 's' then (
-                        12
+                        11
                       )
                       else (
                         -1
@@ -18524,7 +18524,7 @@ let read_scan_config = (
                 match String.unsafe_get s pos with
                   | 'c' -> (
                       if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'f' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'f' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'm' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 'l' && String.unsafe_get s (pos+17) = 'o' && String.unsafe_get s (pos+18) = 'u' && String.unsafe_get s (pos+19) = 'd' then (
-                        4
+                        13
                       )
                       else (
                         -1
@@ -18532,7 +18532,7 @@ let read_scan_config = (
                     )
                   | 'p' -> (
                       if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'i' && String.unsafe_get s (pos+16) = 'v' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 'y' then (
-                        8
+                        7
                       )
                       else (
                         -1
@@ -18544,7 +18544,7 @@ let read_scan_config = (
               )
             | 28 -> (
                 if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 's' && String.unsafe_get s (pos+16) = 'y' && String.unsafe_get s (pos+17) = 'n' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 'a' && String.unsafe_get s (pos+20) = 'c' && String.unsafe_get s (pos+21) = 't' && String.unsafe_get s (pos+22) = 'i' && String.unsafe_get s (pos+23) = 'c' && String.unsafe_get s (pos+24) = '_' && String.unsafe_get s (pos+25) = 'i' && String.unsafe_get s (pos+26) = 'd' && String.unsafe_get s (pos+27) = 's' then (
-                  9
+                  8
                 )
                 else (
                   -1
@@ -18552,7 +18552,7 @@ let read_scan_config = (
               )
             | 30 -> (
                 if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'm' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 't' && String.unsafe_get s (pos+18) = 'c' && String.unsafe_get s (pos+19) = 'h' && String.unsafe_get s (pos+20) = '_' && String.unsafe_get s (pos+21) = 'b' && String.unsafe_get s (pos+22) = 'a' && String.unsafe_get s (pos+23) = 's' && String.unsafe_get s (pos+24) = 'e' && String.unsafe_get s (pos+25) = 'd' && String.unsafe_get s (pos+26) = '_' && String.unsafe_get s (pos+27) = 'i' && String.unsafe_get s (pos+28) = 'd' && String.unsafe_get s (pos+29) = 's' then (
-                  10
+                  9
                 )
                 else (
                   -1
@@ -18600,23 +18600,13 @@ let read_scan_config = (
             );
           | 4 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_ci_config_from_cloud := (
-                Some (
-                  (
-                    read_ci_config_from_cloud
-                  ) p lb
-                )
-              );
-            )
-          | 5 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_autofix := (
                 (
                   Atdgen_runtime.Oj_run.read_bool
                 ) p lb
               );
             )
-          | 6 ->
+          | 5 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_deepsemgrep := (
                 (
@@ -18624,7 +18614,7 @@ let read_scan_config = (
                 ) p lb
               );
             )
-          | 7 ->
+          | 6 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_dependency_query := (
                 (
@@ -18632,7 +18622,7 @@ let read_scan_config = (
                 ) p lb
               );
             )
-          | 8 ->
+          | 7 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_path_to_transitivity := (
                 (
@@ -18640,7 +18630,7 @@ let read_scan_config = (
                 ) p lb
               );
             )
-          | 9 ->
+          | 8 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_triage_ignored_syntactic_ids := (
                 (
@@ -18648,7 +18638,7 @@ let read_scan_config = (
                 ) p lb
               );
             )
-          | 10 ->
+          | 9 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_triage_ignored_match_based_ids := (
                 (
@@ -18656,7 +18646,7 @@ let read_scan_config = (
                 ) p lb
               );
             )
-          | 11 ->
+          | 10 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_ignored_files := (
                 (
@@ -18664,7 +18654,7 @@ let read_scan_config = (
                 ) p lb
               );
             )
-          | 12 ->
+          | 11 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_enabled_products := (
                 Some (
@@ -18674,12 +18664,22 @@ let read_scan_config = (
                 )
               );
             )
-          | 13 ->
+          | 12 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_actions := (
                 (
                   read__action_list
                 ) p lb
+              );
+            )
+          | 13 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_ci_config_from_cloud := (
+                Some (
+                  (
+                    read_ci_config_from_cloud
+                  ) p lb
+                )
               );
             )
           | _ -> (
@@ -18700,7 +18700,7 @@ let read_scan_config = (
                     match String.unsafe_get s (pos+1) with
                       | 'c' -> (
                           if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 's' then (
-                            13
+                            12
                           )
                           else (
                             -1
@@ -18708,7 +18708,7 @@ let read_scan_config = (
                         )
                       | 'u' -> (
                           if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'x' then (
-                            5
+                            4
                           )
                           else (
                             -1
@@ -18726,7 +18726,7 @@ let read_scan_config = (
                   match String.unsafe_get s pos with
                     | 'd' -> (
                         if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'g' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'p' then (
-                          6
+                          5
                         )
                         else (
                           -1
@@ -18764,7 +18764,7 @@ let read_scan_config = (
                       )
                     | 'i' -> (
                         if String.unsafe_get s (pos+1) = 'g' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
-                          11
+                          10
                         )
                         else (
                           -1
@@ -18786,7 +18786,7 @@ let read_scan_config = (
                   match String.unsafe_get s pos with
                     | 'd' -> (
                         if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'q' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'y' then (
-                          7
+                          6
                         )
                         else (
                           -1
@@ -18794,7 +18794,7 @@ let read_scan_config = (
                       )
                     | 'e' -> (
                         if String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'c' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 's' then (
-                          12
+                          11
                         )
                         else (
                           -1
@@ -18808,7 +18808,7 @@ let read_scan_config = (
                   match String.unsafe_get s pos with
                     | 'c' -> (
                         if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'f' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'f' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'm' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 'l' && String.unsafe_get s (pos+17) = 'o' && String.unsafe_get s (pos+18) = 'u' && String.unsafe_get s (pos+19) = 'd' then (
-                          4
+                          13
                         )
                         else (
                           -1
@@ -18816,7 +18816,7 @@ let read_scan_config = (
                       )
                     | 'p' -> (
                         if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'i' && String.unsafe_get s (pos+16) = 'v' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 'y' then (
-                          8
+                          7
                         )
                         else (
                           -1
@@ -18828,7 +18828,7 @@ let read_scan_config = (
                 )
               | 28 -> (
                   if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 's' && String.unsafe_get s (pos+16) = 'y' && String.unsafe_get s (pos+17) = 'n' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 'a' && String.unsafe_get s (pos+20) = 'c' && String.unsafe_get s (pos+21) = 't' && String.unsafe_get s (pos+22) = 'i' && String.unsafe_get s (pos+23) = 'c' && String.unsafe_get s (pos+24) = '_' && String.unsafe_get s (pos+25) = 'i' && String.unsafe_get s (pos+26) = 'd' && String.unsafe_get s (pos+27) = 's' then (
-                    9
+                    8
                   )
                   else (
                     -1
@@ -18836,7 +18836,7 @@ let read_scan_config = (
                 )
               | 30 -> (
                   if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'm' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 't' && String.unsafe_get s (pos+18) = 'c' && String.unsafe_get s (pos+19) = 'h' && String.unsafe_get s (pos+20) = '_' && String.unsafe_get s (pos+21) = 'b' && String.unsafe_get s (pos+22) = 'a' && String.unsafe_get s (pos+23) = 's' && String.unsafe_get s (pos+24) = 'e' && String.unsafe_get s (pos+25) = 'd' && String.unsafe_get s (pos+26) = '_' && String.unsafe_get s (pos+27) = 'i' && String.unsafe_get s (pos+28) = 'd' && String.unsafe_get s (pos+29) = 's' then (
-                    10
+                    9
                   )
                   else (
                     -1
@@ -18884,23 +18884,13 @@ let read_scan_config = (
               );
             | 4 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_ci_config_from_cloud := (
-                  Some (
-                    (
-                      read_ci_config_from_cloud
-                    ) p lb
-                  )
-                );
-              )
-            | 5 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_autofix := (
                   (
                     Atdgen_runtime.Oj_run.read_bool
                   ) p lb
                 );
               )
-            | 6 ->
+            | 5 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_deepsemgrep := (
                   (
@@ -18908,7 +18898,7 @@ let read_scan_config = (
                   ) p lb
                 );
               )
-            | 7 ->
+            | 6 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_dependency_query := (
                   (
@@ -18916,7 +18906,7 @@ let read_scan_config = (
                   ) p lb
                 );
               )
-            | 8 ->
+            | 7 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_path_to_transitivity := (
                   (
@@ -18924,7 +18914,7 @@ let read_scan_config = (
                   ) p lb
                 );
               )
-            | 9 ->
+            | 8 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_triage_ignored_syntactic_ids := (
                   (
@@ -18932,7 +18922,7 @@ let read_scan_config = (
                   ) p lb
                 );
               )
-            | 10 ->
+            | 9 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_triage_ignored_match_based_ids := (
                   (
@@ -18940,7 +18930,7 @@ let read_scan_config = (
                   ) p lb
                 );
               )
-            | 11 ->
+            | 10 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_ignored_files := (
                   (
@@ -18948,7 +18938,7 @@ let read_scan_config = (
                   ) p lb
                 );
               )
-            | 12 ->
+            | 11 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_enabled_products := (
                   Some (
@@ -18958,12 +18948,22 @@ let read_scan_config = (
                   )
                 );
               )
-            | 13 ->
+            | 12 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_actions := (
                   (
                     read__action_list
                   ) p lb
+                );
+              )
+            | 13 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_ci_config_from_cloud := (
+                  Some (
+                    (
+                      read_ci_config_from_cloud
+                    ) p lb
+                  )
                 );
               )
             | _ -> (
@@ -18979,7 +18979,6 @@ let read_scan_config = (
             deployment_name = (match !field_deployment_name with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "deployment_name");
             policy_names = (match !field_policy_names with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "policy_names");
             rule_config = (match !field_rule_config with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rule_config");
-            ci_config_from_cloud = !field_ci_config_from_cloud;
             autofix = !field_autofix;
             deepsemgrep = !field_deepsemgrep;
             dependency_query = !field_dependency_query;
@@ -18989,6 +18988,7 @@ let read_scan_config = (
             ignored_files = !field_ignored_files;
             enabled_products = !field_enabled_products;
             actions = !field_actions;
+            ci_config_from_cloud = !field_ci_config_from_cloud;
           }
          : scan_config)
       )
