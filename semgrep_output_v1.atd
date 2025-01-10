@@ -1152,6 +1152,7 @@ type features = {
    ~deepsemgrep: bool;
    ~dependency_query: bool;
    ~path_to_transitivity: bool;
+   ~scan_all_deps_in_diff_scan: bool;
 }
 
 type triage_ignored = {

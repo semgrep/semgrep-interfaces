@@ -144,6 +144,8 @@ and id_info = Ast_generic_v1_t.id_info = {
   id_svalue: svalue option
 }
 
+and import_from_kind = Ast_generic_v1_t.import_from_kind
+
 and item = Ast_generic_v1_t.item
 
 and label_ident = Ast_generic_v1_t.label_ident
@@ -1382,6 +1384,26 @@ val read_id_info :
 val id_info_of_string :
   string -> id_info
   (** Deserialize JSON data of type {!type:id_info}. *)
+
+val write_import_from_kind :
+  Buffer.t -> import_from_kind -> unit
+  (** Output a JSON value of type {!type:import_from_kind}. *)
+
+val string_of_import_from_kind :
+  ?len:int -> import_from_kind -> string
+  (** Serialize a value of type {!type:import_from_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_import_from_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> import_from_kind
+  (** Input JSON data of type {!type:import_from_kind}. *)
+
+val import_from_kind_of_string :
+  string -> import_from_kind
+  (** Deserialize JSON data of type {!type:import_from_kind}. *)
 
 val write_item :
   Buffer.t -> item -> unit
