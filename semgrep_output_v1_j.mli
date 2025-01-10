@@ -177,8 +177,6 @@ type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
   extra: matching_explanation_extra option
 }
 
-type xlang = Semgrep_output_v1_t.xlang [@@deriving show]
-
 type version = Semgrep_output_v1_t.version [@@deriving show]
 
 type uuid = Semgrep_output_v1_t.uuid
@@ -276,9 +274,11 @@ type lockfile = Semgrep_output_v1_t.lockfile = {
 }
   [@@deriving show, eq]
 
+type analyzer = Semgrep_output_v1_t.analyzer [@@deriving show]
+
 type code_target = Semgrep_output_v1_t.code_target = {
   path: fpath;
-  analyzer: xlang;
+  analyzer: analyzer;
   products: product list;
   lockfile_target: lockfile option
 }
@@ -1510,26 +1510,6 @@ val matching_explanation_of_string :
   string -> matching_explanation
   (** Deserialize JSON data of type {!type:matching_explanation}. *)
 
-val write_xlang :
-  Buffer.t -> xlang -> unit
-  (** Output a JSON value of type {!type:xlang}. *)
-
-val string_of_xlang :
-  ?len:int -> xlang -> string
-  (** Serialize a value of type {!type:xlang}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_xlang :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> xlang
-  (** Input JSON data of type {!type:xlang}. *)
-
-val xlang_of_string :
-  string -> xlang
-  (** Deserialize JSON data of type {!type:xlang}. *)
-
 val write_version :
   Buffer.t -> version -> unit
   (** Output a JSON value of type {!type:version}. *)
@@ -1989,6 +1969,26 @@ val read_lockfile :
 val lockfile_of_string :
   string -> lockfile
   (** Deserialize JSON data of type {!type:lockfile}. *)
+
+val write_analyzer :
+  Buffer.t -> analyzer -> unit
+  (** Output a JSON value of type {!type:analyzer}. *)
+
+val string_of_analyzer :
+  ?len:int -> analyzer -> string
+  (** Serialize a value of type {!type:analyzer}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_analyzer :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> analyzer
+  (** Input JSON data of type {!type:analyzer}. *)
+
+val analyzer_of_string :
+  string -> analyzer
+  (** Deserialize JSON data of type {!type:analyzer}. *)
 
 val write_code_target :
   Buffer.t -> code_target -> unit

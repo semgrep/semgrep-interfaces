@@ -177,8 +177,6 @@ type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
   extra: matching_explanation_extra option
 }
 
-type xlang = Semgrep_output_v1_t.xlang [@@deriving show]
-
 type version = Semgrep_output_v1_t.version [@@deriving show]
 
 type uuid = Semgrep_output_v1_t.uuid
@@ -276,9 +274,11 @@ type lockfile = Semgrep_output_v1_t.lockfile = {
 }
   [@@deriving show, eq]
 
+type analyzer = Semgrep_output_v1_t.analyzer [@@deriving show]
+
 type code_target = Semgrep_output_v1_t.code_target = {
   path: fpath;
-  analyzer: xlang;
+  analyzer: analyzer;
   products: product list;
   lockfile_target: lockfile option
 }
@@ -7428,37 +7428,6 @@ and read_matching_explanation = (
 )
 and matching_explanation_of_string s =
   read_matching_explanation (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__x_893d00a = (
-  fun ob x -> (
-    let x = ( Xlang.unwrap ) x in (
-      Yojson.Safe.write_string
-    ) ob x)
-)
-let string_of__x_893d00a ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__x_893d00a ob x;
-  Buffer.contents ob
-let read__x_893d00a = (
-  fun p lb ->
-    let x = (
-      Atdgen_runtime.Oj_run.read_string
-    ) p lb in
-    ( Xlang.wrap ) x
-)
-let _x_893d00a_of_string s =
-  read__x_893d00a (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_xlang = (
-  write__x_893d00a
-)
-let string_of_xlang ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_xlang ob x;
-  Buffer.contents ob
-let read_xlang = (
-  read__x_893d00a
-)
-let xlang_of_string s =
-  read_xlang (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_version = (
   Yojson.Safe.write_string
 )
@@ -10532,6 +10501,37 @@ let read_lockfile = (
 )
 let lockfile_of_string s =
   read_lockfile (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_7982d5d = (
+  fun ob x -> (
+    let x = ( Analyzer.unwrap ) x in (
+      Yojson.Safe.write_string
+    ) ob x)
+)
+let string_of__x_7982d5d ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__x_7982d5d ob x;
+  Buffer.contents ob
+let read__x_7982d5d = (
+  fun p lb ->
+    let x = (
+      Atdgen_runtime.Oj_run.read_string
+    ) p lb in
+    ( Analyzer.wrap ) x
+)
+let _x_7982d5d_of_string s =
+  read__x_7982d5d (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_analyzer = (
+  write__x_7982d5d
+)
+let string_of_analyzer ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_analyzer ob x;
+  Buffer.contents ob
+let read_analyzer = (
+  read__x_7982d5d
+)
+let analyzer_of_string s =
+  read_analyzer (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__product_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_product
@@ -10624,7 +10624,7 @@ let write_code_target : _ -> code_target -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"analyzer\":";
     (
-      write_xlang
+      write_analyzer
     )
       ob x.analyzer;
     if !is_first then
@@ -10728,7 +10728,7 @@ let read_code_target = (
             field_analyzer := (
               Some (
                 (
-                  read_xlang
+                  read_analyzer
                 ) p lb
               )
             );
@@ -10821,7 +10821,7 @@ let read_code_target = (
               field_analyzer := (
                 Some (
                   (
-                    read_xlang
+                    read_analyzer
                   ) p lb
                 )
               );

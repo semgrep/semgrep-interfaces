@@ -2170,27 +2170,6 @@ class MatchingExplanation:
 
 
 @dataclass
-class Xlang:
-    """Original type: xlang"""
-
-    value: str
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Xlang':
-        return cls(_atd_read_string(x))
-
-    def to_json(self) -> Any:
-        return _atd_write_string(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Xlang':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class Version:
     """Original type: version"""
 
@@ -3462,11 +3441,32 @@ class Lockfile:
 
 
 @dataclass
+class Analyzer:
+    """Original type: analyzer"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Analyzer':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Analyzer':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class CodeTarget:
     """Original type: code_target = { ... }"""
 
     path: Fpath
-    analyzer: Xlang
+    analyzer: Analyzer
     products: List[Product]
     lockfile_target: Optional[Lockfile] = None
 
@@ -3475,7 +3475,7 @@ class CodeTarget:
         if isinstance(x, dict):
             return cls(
                 path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('CodeTarget', 'path'),
-                analyzer=Xlang.from_json(x['analyzer']) if 'analyzer' in x else _atd_missing_json_field('CodeTarget', 'analyzer'),
+                analyzer=Analyzer.from_json(x['analyzer']) if 'analyzer' in x else _atd_missing_json_field('CodeTarget', 'analyzer'),
                 products=_atd_read_list(Product.from_json)(x['products']) if 'products' in x else _atd_missing_json_field('CodeTarget', 'products'),
                 lockfile_target=Lockfile.from_json(x['lockfile_target']) if 'lockfile_target' in x else None,
             )

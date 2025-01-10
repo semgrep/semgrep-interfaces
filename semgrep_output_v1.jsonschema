@@ -1526,7 +1526,7 @@
         "rule_id": { "$ref": "#/definitions/rule_id" }
       }
     },
-    "xlang": { "type": "string" },
+    "analyzer": { "type": "string" },
     "target": {
       "oneOf": [
         {
@@ -1554,7 +1554,7 @@
       "required": [ "path", "analyzer", "products" ],
       "properties": {
         "path": { "$ref": "#/definitions/fpath" },
-        "analyzer": { "$ref": "#/definitions/xlang" },
+        "analyzer": { "$ref": "#/definitions/analyzer" },
         "products": {
           "type": "array",
           "items": { "$ref": "#/definitions/product" }

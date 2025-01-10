@@ -838,7 +838,7 @@ export type CoreError = {
   rule_id?: RuleId;
 }
 
-export type Xlang = string
+export type Analyzer = string
 
 export type Target =
 | { kind: 'CodeTarget'; value: CodeTarget }
@@ -846,7 +846,7 @@ export type Target =
 
 export type CodeTarget = {
   path: Fpath;
-  analyzer: Xlang;
+  analyzer: Analyzer;
   products: Product[];
   lockfile_target?: Lockfile;
 }
@@ -3544,11 +3544,11 @@ export function readCoreError(x: any, context: any = x): CoreError {
   };
 }
 
-export function writeXlang(x: Xlang, context: any = x): any {
+export function writeAnalyzer(x: Analyzer, context: any = x): any {
   return _atd_write_string(x, context);
 }
 
-export function readXlang(x: any, context: any = x): Xlang {
+export function readAnalyzer(x: any, context: any = x): Analyzer {
   return _atd_read_string(x, context);
 }
 
@@ -3577,7 +3577,7 @@ export function readTarget(x: any, context: any = x): Target {
 export function writeCodeTarget(x: CodeTarget, context: any = x): any {
   return {
     'path': _atd_write_required_field('CodeTarget', 'path', writeFpath, x.path, x),
-    'analyzer': _atd_write_required_field('CodeTarget', 'analyzer', writeXlang, x.analyzer, x),
+    'analyzer': _atd_write_required_field('CodeTarget', 'analyzer', writeAnalyzer, x.analyzer, x),
     'products': _atd_write_required_field('CodeTarget', 'products', _atd_write_array(writeProduct), x.products, x),
     'lockfile_target': _atd_write_optional_field(writeLockfile, x.lockfile_target, x),
   };
@@ -3586,7 +3586,7 @@ export function writeCodeTarget(x: CodeTarget, context: any = x): any {
 export function readCodeTarget(x: any, context: any = x): CodeTarget {
   return {
     path: _atd_read_required_field('CodeTarget', 'path', readFpath, x['path'], x),
-    analyzer: _atd_read_required_field('CodeTarget', 'analyzer', readXlang, x['analyzer'], x),
+    analyzer: _atd_read_required_field('CodeTarget', 'analyzer', readAnalyzer, x['analyzer'], x),
     products: _atd_read_required_field('CodeTarget', 'products', _atd_read_array(readProduct), x['products'], x),
     lockfile_target: _atd_read_optional_field(readLockfile, x['lockfile_target'], x),
   };
