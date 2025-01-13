@@ -1939,33 +1939,13 @@ type apply_fixes_return <python decorator="dataclass(frozen=True)"> = {
   fixed_lines: (int * string list) list;
 }
 
-(* TODO: remove many fields so that CallSarifFormat gets close to CallFormatter.
- * I think we just need the 'rules: fpath' as it can't be reconstructed
- * from cli_output.
- *)
-type sarif_format_params <python decorator="dataclass(frozen=True)"> = {
-  (* Path the the rules file *)
+type sarif_format <python decorator="dataclass(frozen=True)"> = {
+  (* Path to the rules file. We need it because rules can't be reconstructed
+   * from cli_output (which is one of the other param of CallSarifFormat) *)
   rules: fpath;
-
-  (* TODO: remove, just use cli_output *)
-  cli_matches: cli_match list;
-  cli_errors: cli_error list;
-  (* TODO: remove, should be able to derive those from format_context *)
-  hide_nudge: bool;
-  engine_label: string;
+  (* TODO? move to format_context? *)
+  is_pro: bool;
   show_dataflow_traces: bool;
-}
-
-(* TODO: remove, reuse RetFormatter *)
-type sarif_format_return <python decorator="dataclass(frozen=True)"> = {
-  (* The formatted output. *)
-  output: string;
-  (* Time (in seconds) it took to format the output.
-   * This helps tracking how much actual formatting time is needed
-   * compared to the whole RPC call, so we can profile and improve
-   * performace when needed.
-   *)
-  format_time_seconds: float;
 }
 
 type output_format
@@ -2148,9 +2128,9 @@ type resolution_result = [
 type function_call <python decorator="dataclass(frozen=True)"> = [
   | CallContributions
   | CallApplyFixes of apply_fixes_params
-  (* TODO: merge with CallFormatter at some point *)
-  | CallSarifFormat of (format_context * sarif_format_params)
   | CallFormatter of (output_format * format_context * cli_output)
+  (* TODO: merge with CallFormatter at some point *)
+  | CallSarifFormat of (sarif_format * format_context * cli_output)
   (* NOTE: fpath is most likely a temporary file that contains all the rules in
      JSON format. In the future, we could send the rules via a big string through
      the RPC pipe.
@@ -2168,9 +2148,9 @@ type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetError of string
   | RetApplyFixes of apply_fixes_return
   | RetContributions of contributions
-  (* TODO: remove and use RetFormatter for the return of CallSarifFormat too *)
-  | RetSarifFormat of sarif_format_return
   | RetFormatter of string
+  (* alt: reuse RetFormatter *)
+  | RetSarifFormat of string
   | RetValidate of bool
   | RetResolveDependencies of (dependency_source * resolution_result) list
   | RetDumpRulePartitions of bool

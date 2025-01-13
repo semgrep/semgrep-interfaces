@@ -1608,33 +1608,13 @@
         }
       }
     },
-    "sarif_format_params": {
+    "sarif_format": {
       "type": "object",
-      "required": [
-        "rules", "cli_matches", "cli_errors", "hide_nudge", "engine_label",
-        "show_dataflow_traces"
-      ],
+      "required": [ "rules", "is_pro", "show_dataflow_traces" ],
       "properties": {
         "rules": { "$ref": "#/definitions/fpath" },
-        "cli_matches": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/cli_match" }
-        },
-        "cli_errors": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/cli_error" }
-        },
-        "hide_nudge": { "type": "boolean" },
-        "engine_label": { "type": "string" },
+        "is_pro": { "type": "boolean" },
         "show_dataflow_traces": { "type": "boolean" }
-      }
-    },
-    "sarif_format_return": {
-      "type": "object",
-      "required": [ "output", "format_time_seconds" ],
-      "properties": {
-        "output": { "type": "string" },
-        "format_time_seconds": { "type": "number" }
       }
     },
     "output_format": {
@@ -1864,14 +1844,15 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "CallSarifFormat" },
+            { "const": "CallFormatter" },
             {
               "type": "array",
-              "minItems": 2,
+              "minItems": 3,
               "items": false,
               "prefixItems": [
+                { "$ref": "#/definitions/output_format" },
                 { "$ref": "#/definitions/format_context" },
-                { "$ref": "#/definitions/sarif_format_params" }
+                { "$ref": "#/definitions/cli_output" }
               ]
             }
           ]
@@ -1881,13 +1862,13 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "CallFormatter" },
+            { "const": "CallSarifFormat" },
             {
               "type": "array",
               "minItems": 3,
               "items": false,
               "prefixItems": [
-                { "$ref": "#/definitions/output_format" },
+                { "$ref": "#/definitions/sarif_format" },
                 { "$ref": "#/definitions/format_context" },
                 { "$ref": "#/definitions/cli_output" }
               ]
@@ -1956,8 +1937,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "RetSarifFormat" },
-            { "$ref": "#/definitions/sarif_format_return" }
+            { "const": "RetFormatter" }, { "type": "string" }
           ]
         },
         {
@@ -1965,7 +1945,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "RetFormatter" }, { "type": "string" }
+            { "const": "RetSarifFormat" }, { "type": "string" }
           ]
         },
         {
