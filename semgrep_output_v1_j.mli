@@ -475,7 +475,6 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   deployment_name: string;
   policy_names: string list;
   rule_config: string;
-  ci_config_from_cloud: ci_config_from_cloud option;
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
@@ -484,7 +483,8 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   triage_ignored_match_based_ids: string list;
   ignored_files: string list;
   enabled_products: product list option;
-  actions: action list
+  actions: action list;
+  ci_config_from_cloud: ci_config_from_cloud option
 }
 
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
