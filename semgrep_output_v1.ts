@@ -870,18 +870,10 @@ export type ApplyFixesReturn = {
   fixed_lines: [number /*int*/, string[]][];
 }
 
-export type SarifFormatParams = {
+export type SarifFormat = {
   rules: Fpath;
-  cli_matches: CliMatch[];
-  cli_errors: CliError[];
-  hide_nudge: boolean;
-  engine_label: string;
+  is_pro: boolean;
   show_dataflow_traces: boolean;
-}
-
-export type SarifFormatReturn = {
-  output: string;
-  format_time_seconds: number;
 }
 
 export type OutputFormat =
@@ -983,8 +975,8 @@ export type ResolutionResult =
 export type FunctionCall =
 | { kind: 'CallContributions' }
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
-| { kind: 'CallSarifFormat'; value: [FormatContext, SarifFormatParams] }
 | { kind: 'CallFormatter'; value: [OutputFormat, FormatContext, CliOutput] }
+| { kind: 'CallSarifFormat'; value: [SarifFormat, FormatContext, CliOutput] }
 | { kind: 'CallValidate'; value: Fpath }
 | { kind: 'CallResolveDependencies'; value: DependencySource[] }
 | { kind: 'CallDumpRulePartitions'; value: DumpRulePartitionsParams }
@@ -993,8 +985,8 @@ export type FunctionReturn =
 | { kind: 'RetError'; value: string }
 | { kind: 'RetApplyFixes'; value: ApplyFixesReturn }
 | { kind: 'RetContributions'; value: Contributions }
-| { kind: 'RetSarifFormat'; value: SarifFormatReturn }
 | { kind: 'RetFormatter'; value: string }
+| { kind: 'RetSarifFormat'; value: string }
 | { kind: 'RetValidate'; value: boolean }
 | { kind: 'RetResolveDependencies'; value: [DependencySource, ResolutionResult][] }
 | { kind: 'RetDumpRulePartitions'; value: boolean }
@@ -3646,39 +3638,19 @@ export function readApplyFixesReturn(x: any, context: any = x): ApplyFixesReturn
   };
 }
 
-export function writeSarifFormatParams(x: SarifFormatParams, context: any = x): any {
+export function writeSarifFormat(x: SarifFormat, context: any = x): any {
   return {
-    'rules': _atd_write_required_field('SarifFormatParams', 'rules', writeFpath, x.rules, x),
-    'cli_matches': _atd_write_required_field('SarifFormatParams', 'cli_matches', _atd_write_array(writeCliMatch), x.cli_matches, x),
-    'cli_errors': _atd_write_required_field('SarifFormatParams', 'cli_errors', _atd_write_array(writeCliError), x.cli_errors, x),
-    'hide_nudge': _atd_write_required_field('SarifFormatParams', 'hide_nudge', _atd_write_bool, x.hide_nudge, x),
-    'engine_label': _atd_write_required_field('SarifFormatParams', 'engine_label', _atd_write_string, x.engine_label, x),
-    'show_dataflow_traces': _atd_write_required_field('SarifFormatParams', 'show_dataflow_traces', _atd_write_bool, x.show_dataflow_traces, x),
+    'rules': _atd_write_required_field('SarifFormat', 'rules', writeFpath, x.rules, x),
+    'is_pro': _atd_write_required_field('SarifFormat', 'is_pro', _atd_write_bool, x.is_pro, x),
+    'show_dataflow_traces': _atd_write_required_field('SarifFormat', 'show_dataflow_traces', _atd_write_bool, x.show_dataflow_traces, x),
   };
 }
 
-export function readSarifFormatParams(x: any, context: any = x): SarifFormatParams {
+export function readSarifFormat(x: any, context: any = x): SarifFormat {
   return {
-    rules: _atd_read_required_field('SarifFormatParams', 'rules', readFpath, x['rules'], x),
-    cli_matches: _atd_read_required_field('SarifFormatParams', 'cli_matches', _atd_read_array(readCliMatch), x['cli_matches'], x),
-    cli_errors: _atd_read_required_field('SarifFormatParams', 'cli_errors', _atd_read_array(readCliError), x['cli_errors'], x),
-    hide_nudge: _atd_read_required_field('SarifFormatParams', 'hide_nudge', _atd_read_bool, x['hide_nudge'], x),
-    engine_label: _atd_read_required_field('SarifFormatParams', 'engine_label', _atd_read_string, x['engine_label'], x),
-    show_dataflow_traces: _atd_read_required_field('SarifFormatParams', 'show_dataflow_traces', _atd_read_bool, x['show_dataflow_traces'], x),
-  };
-}
-
-export function writeSarifFormatReturn(x: SarifFormatReturn, context: any = x): any {
-  return {
-    'output': _atd_write_required_field('SarifFormatReturn', 'output', _atd_write_string, x.output, x),
-    'format_time_seconds': _atd_write_required_field('SarifFormatReturn', 'format_time_seconds', _atd_write_float, x.format_time_seconds, x),
-  };
-}
-
-export function readSarifFormatReturn(x: any, context: any = x): SarifFormatReturn {
-  return {
-    output: _atd_read_required_field('SarifFormatReturn', 'output', _atd_read_string, x['output'], x),
-    format_time_seconds: _atd_read_required_field('SarifFormatReturn', 'format_time_seconds', _atd_read_float, x['format_time_seconds'], x),
+    rules: _atd_read_required_field('SarifFormat', 'rules', readFpath, x['rules'], x),
+    is_pro: _atd_read_required_field('SarifFormat', 'is_pro', _atd_read_bool, x['is_pro'], x),
+    show_dataflow_traces: _atd_read_required_field('SarifFormat', 'show_dataflow_traces', _atd_read_bool, x['show_dataflow_traces'], x),
   };
 }
 
@@ -4080,10 +4052,10 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return 'CallContributions'
     case 'CallApplyFixes':
       return ['CallApplyFixes', writeApplyFixesParams(x.value, x)]
-    case 'CallSarifFormat':
-      return ['CallSarifFormat', ((x, context) => [writeFormatContext(x[0], x), writeSarifFormatParams(x[1], x)])(x.value, x)]
     case 'CallFormatter':
       return ['CallFormatter', ((x, context) => [writeOutputFormat(x[0], x), writeFormatContext(x[1], x), writeCliOutput(x[2], x)])(x.value, x)]
+    case 'CallSarifFormat':
+      return ['CallSarifFormat', ((x, context) => [writeSarifFormat(x[0], x), writeFormatContext(x[1], x), writeCliOutput(x[2], x)])(x.value, x)]
     case 'CallValidate':
       return ['CallValidate', writeFpath(x.value, x)]
     case 'CallResolveDependencies':
@@ -4108,10 +4080,10 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
     switch (x[0]) {
       case 'CallApplyFixes':
         return { kind: 'CallApplyFixes', value: readApplyFixesParams(x[1], x) }
-      case 'CallSarifFormat':
-        return { kind: 'CallSarifFormat', value: ((x, context): [FormatContext, SarifFormatParams] => { _atd_check_json_tuple(2, x, context); return [readFormatContext(x[0], x), readSarifFormatParams(x[1], x)] })(x[1], x) }
       case 'CallFormatter':
         return { kind: 'CallFormatter', value: ((x, context): [OutputFormat, FormatContext, CliOutput] => { _atd_check_json_tuple(3, x, context); return [readOutputFormat(x[0], x), readFormatContext(x[1], x), readCliOutput(x[2], x)] })(x[1], x) }
+      case 'CallSarifFormat':
+        return { kind: 'CallSarifFormat', value: ((x, context): [SarifFormat, FormatContext, CliOutput] => { _atd_check_json_tuple(3, x, context); return [readSarifFormat(x[0], x), readFormatContext(x[1], x), readCliOutput(x[2], x)] })(x[1], x) }
       case 'CallValidate':
         return { kind: 'CallValidate', value: readFpath(x[1], x) }
       case 'CallResolveDependencies':
@@ -4133,10 +4105,10 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetApplyFixes', writeApplyFixesReturn(x.value, x)]
     case 'RetContributions':
       return ['RetContributions', writeContributions(x.value, x)]
-    case 'RetSarifFormat':
-      return ['RetSarifFormat', writeSarifFormatReturn(x.value, x)]
     case 'RetFormatter':
       return ['RetFormatter', _atd_write_string(x.value, x)]
+    case 'RetSarifFormat':
+      return ['RetSarifFormat', _atd_write_string(x.value, x)]
     case 'RetValidate':
       return ['RetValidate', _atd_write_bool(x.value, x)]
     case 'RetResolveDependencies':
@@ -4155,10 +4127,10 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetApplyFixes', value: readApplyFixesReturn(x[1], x) }
     case 'RetContributions':
       return { kind: 'RetContributions', value: readContributions(x[1], x) }
-    case 'RetSarifFormat':
-      return { kind: 'RetSarifFormat', value: readSarifFormatReturn(x[1], x) }
     case 'RetFormatter':
       return { kind: 'RetFormatter', value: _atd_read_string(x[1], x) }
+    case 'RetSarifFormat':
+      return { kind: 'RetSarifFormat', value: _atd_read_string(x[1], x) }
     case 'RetValidate':
       return { kind: 'RetValidate', value: _atd_read_bool(x[1], x) }
     case 'RetResolveDependencies':
