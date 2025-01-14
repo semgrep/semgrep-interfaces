@@ -2935,6 +2935,139 @@ class TestsResult:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class Filesystem:
+    """Original type: project_root = [ ... | Filesystem of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Filesystem'
+
+    def to_json(self) -> Any:
+        return ['Filesystem', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class GitRemote:
+    """Original type: project_root = [ ... | Git_remote of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'GitRemote'
+
+    def to_json(self) -> Any:
+        return ['Git_remote', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ProjectRoot:
+    """Original type: project_root = [ ... ]"""
+
+    value: Union[Filesystem, GitRemote]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ProjectRoot':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'Filesystem':
+                return cls(Filesystem(_atd_read_string(x[1])))
+            if cons == 'Git_remote':
+                return cls(GitRemote(_atd_read_string(x[1])))
+            _atd_bad_json('ProjectRoot', x)
+        _atd_bad_json('ProjectRoot', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ProjectRoot':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TargetingConf:
+    """Original type: targeting_conf = { ... }"""
+
+    exclude: List[str]
+    max_target_bytes: int
+    respect_gitignore: bool
+    respect_semgrepignore_files: bool
+    always_select_explicit_targets: bool
+    explicit_targets: List[str]
+    force_novcs_project: bool
+    exclude_minified_files: bool
+    diff_depth: int
+    include_: Optional[List[str]] = None
+    force_project_root: Optional[ProjectRoot] = None
+    baseline_commit: Optional[str] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TargetingConf':
+        if isinstance(x, dict):
+            return cls(
+                exclude=_atd_read_list(_atd_read_string)(x['exclude']) if 'exclude' in x else _atd_missing_json_field('TargetingConf', 'exclude'),
+                max_target_bytes=_atd_read_int(x['max_target_bytes']) if 'max_target_bytes' in x else _atd_missing_json_field('TargetingConf', 'max_target_bytes'),
+                respect_gitignore=_atd_read_bool(x['respect_gitignore']) if 'respect_gitignore' in x else _atd_missing_json_field('TargetingConf', 'respect_gitignore'),
+                respect_semgrepignore_files=_atd_read_bool(x['respect_semgrepignore_files']) if 'respect_semgrepignore_files' in x else _atd_missing_json_field('TargetingConf', 'respect_semgrepignore_files'),
+                always_select_explicit_targets=_atd_read_bool(x['always_select_explicit_targets']) if 'always_select_explicit_targets' in x else _atd_missing_json_field('TargetingConf', 'always_select_explicit_targets'),
+                explicit_targets=_atd_read_list(_atd_read_string)(x['explicit_targets']) if 'explicit_targets' in x else _atd_missing_json_field('TargetingConf', 'explicit_targets'),
+                force_novcs_project=_atd_read_bool(x['force_novcs_project']) if 'force_novcs_project' in x else _atd_missing_json_field('TargetingConf', 'force_novcs_project'),
+                exclude_minified_files=_atd_read_bool(x['exclude_minified_files']) if 'exclude_minified_files' in x else _atd_missing_json_field('TargetingConf', 'exclude_minified_files'),
+                diff_depth=_atd_read_int(x['diff_depth']) if 'diff_depth' in x else _atd_missing_json_field('TargetingConf', 'diff_depth'),
+                include_=_atd_read_list(_atd_read_string)(x['include_']) if 'include_' in x else None,
+                force_project_root=ProjectRoot.from_json(x['force_project_root']) if 'force_project_root' in x else None,
+                baseline_commit=_atd_read_string(x['baseline_commit']) if 'baseline_commit' in x else None,
+            )
+        else:
+            _atd_bad_json('TargetingConf', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['exclude'] = _atd_write_list(_atd_write_string)(self.exclude)
+        res['max_target_bytes'] = _atd_write_int(self.max_target_bytes)
+        res['respect_gitignore'] = _atd_write_bool(self.respect_gitignore)
+        res['respect_semgrepignore_files'] = _atd_write_bool(self.respect_semgrepignore_files)
+        res['always_select_explicit_targets'] = _atd_write_bool(self.always_select_explicit_targets)
+        res['explicit_targets'] = _atd_write_list(_atd_write_string)(self.explicit_targets)
+        res['force_novcs_project'] = _atd_write_bool(self.force_novcs_project)
+        res['exclude_minified_files'] = _atd_write_bool(self.exclude_minified_files)
+        res['diff_depth'] = _atd_write_int(self.diff_depth)
+        if self.include_ is not None:
+            res['include_'] = _atd_write_list(_atd_write_string)(self.include_)
+        if self.force_project_root is not None:
+            res['force_project_root'] = (lambda x: x.to_json())(self.force_project_root)
+        if self.baseline_commit is not None:
+            res['baseline_commit'] = _atd_write_string(self.baseline_commit)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TargetingConf':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class SAST:
     """Original type: product = [ ... | SAST | ... ]"""
@@ -3569,17 +3702,65 @@ class Target:
 
 
 @dataclass
-class Targets:
-    """Original type: targets"""
+class ScanningRoots:
+    """Original type: targets = [ ... | Scanning_roots of ... | ... ]"""
+
+    value: Tuple[List[str], TargetingConf]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ScanningRoots'
+
+    def to_json(self) -> Any:
+        return ['Scanning_roots', (lambda x: [_atd_write_list(_atd_write_string)(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Targets_:
+    """Original type: targets = [ ... | Targets of ... | ... ]"""
 
     value: List[Target]
 
-    @classmethod
-    def from_json(cls, x: Any) -> 'Targets':
-        return cls(_atd_read_list(Target.from_json)(x))
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Targets_'
 
     def to_json(self) -> Any:
-        return _atd_write_list((lambda x: x.to_json()))(self.value)
+        return ['Targets', _atd_write_list((lambda x: x.to_json()))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Targets:
+    """Original type: targets = [ ... ]"""
+
+    value: Union[ScanningRoots, Targets_]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Targets':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'Scanning_roots':
+                return cls(ScanningRoots((lambda x: (_atd_read_list(_atd_read_string)(x[0]), TargetingConf.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+            if cons == 'Targets':
+                return cls(Targets_(_atd_read_list(Target.from_json)(x[1])))
+            _atd_bad_json('Targets', x)
+        _atd_bad_json('Targets', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Targets':
