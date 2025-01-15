@@ -177,8 +177,6 @@ type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
   extra: matching_explanation_extra option
 }
 
-type xlang = Semgrep_output_v1_t.xlang [@@deriving show]
-
 type version = Semgrep_output_v1_t.version [@@deriving show]
 
 type uuid = Semgrep_output_v1_t.uuid
@@ -276,9 +274,11 @@ type lockfile = Semgrep_output_v1_t.lockfile = {
 }
   [@@deriving show, eq]
 
+type analyzer = Semgrep_output_v1_t.analyzer [@@deriving show]
+
 type code_target = Semgrep_output_v1_t.code_target = {
   path: fpath;
-  analyzer: xlang;
+  analyzer: analyzer;
   products: product list;
   lockfile_target: lockfile option
 }
@@ -475,7 +475,6 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   deployment_name: string;
   policy_names: string list;
   rule_config: string;
-  ci_config_from_cloud: ci_config_from_cloud option;
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
@@ -484,15 +483,21 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   triage_ignored_match_based_ids: string list;
   ignored_files: string list;
   enabled_products: product list option;
-  actions: action list
+  actions: action list;
+  ci_config_from_cloud: ci_config_from_cloud option
 }
 
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
 
-type sarif_format_return = Semgrep_output_v1_t.sarif_format_return = {
-  output: string;
-  format_time_seconds: float
+type sarif_format = Semgrep_output_v1_t.sarif_format = {
+  rules: fpath;
+  is_pro: bool;
+  show_dataflow_traces: bool
 }
+
+type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
+
+type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
 
 type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
   command: string;
@@ -503,6 +508,24 @@ type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
 type resolution_error = Semgrep_output_v1_t.resolution_error
   [@@deriving show]
 
+type resolution_result = Semgrep_output_v1_t.resolution_result
+
+type profile = Semgrep_output_v1_t.profile = {
+  rules: rule_id list;
+  rules_parse_time: float;
+  profiling_times: (string * float) list;
+  targets: target_times list;
+  total_bytes: int;
+  max_memory_bytes: int option
+}
+
+type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
+  targets_parsed: int;
+  num_targets: int;
+  bytes_parsed: int;
+  num_bytes: int
+}
+
 type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
   rule_id: rule_id;
   this_version: version;
@@ -510,6 +533,37 @@ type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
   max_version: version option
 }
   [@@deriving show]
+
+type finding_hashes = Semgrep_output_v1_t.finding_hashes = {
+  start_line_hash: string;
+  end_line_hash: string;
+  code_hash: string;
+  pattern_hash: string
+}
+
+type finding = Semgrep_output_v1_t.finding = {
+  check_id: rule_id;
+  path: fpath;
+  line: int;
+  column: int;
+  end_line: int;
+  end_column: int;
+  message: string;
+  severity: Yojson.Safe.t;
+  index: int;
+  commit_date: string;
+  syntactic_id: string;
+  match_based_id: string option;
+  hashes: finding_hashes option;
+  metadata: raw_json;
+  is_blocking: bool;
+  fixed_lines: string list option;
+  sca_info: sca_match option;
+  dataflow_trace: match_dataflow_trace option;
+  validation_state: validation_state option;
+  historical_info: historical_info option;
+  engine_kind: engine_of_finding option
+}
 
 type error_type = Semgrep_output_v1_t.error_type = 
     LexicalError
@@ -556,107 +610,6 @@ type error_span = Semgrep_output_v1_t.error_span = {
 type error_severity = Semgrep_output_v1_t.error_severity
   [@@deriving show, eq]
 
-type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
-  metavars: metavars option;
-  message: string;
-  fix: string option;
-  fixed_lines: string list option;
-  metadata: raw_json;
-  severity: match_severity;
-  fingerprint: string;
-  lines: string;
-  is_ignored: bool option;
-  sca_info: sca_match option;
-  validation_state: validation_state option;
-  historical_info: historical_info option;
-  dataflow_trace: match_dataflow_trace option;
-  engine_kind: engine_of_finding option;
-  extra_extra: raw_json option
-}
-
-type cli_match = Semgrep_output_v1_t.cli_match = {
-  check_id: rule_id;
-  path: fpath;
-  start: position;
-  end_ (*atd end *): position;
-  extra: cli_match_extra
-}
-
-type cli_error = Semgrep_output_v1_t.cli_error = {
-  code: int;
-  level: error_severity;
-  type_: error_type;
-  rule_id: rule_id option;
-  message: string option;
-  path: fpath option;
-  long_msg: string option;
-  short_msg: string option;
-  spans: error_span list option;
-  help: string option
-}
-
-type sarif_format_params = Semgrep_output_v1_t.sarif_format_params = {
-  rules: fpath;
-  cli_matches: cli_match list;
-  cli_errors: cli_error list;
-  hide_nudge: bool;
-  engine_label: string;
-  show_dataflow_traces: bool
-}
-
-type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
-
-type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
-
-type resolution_result = Semgrep_output_v1_t.resolution_result
-
-type profile = Semgrep_output_v1_t.profile = {
-  rules: rule_id list;
-  rules_parse_time: float;
-  profiling_times: (string * float) list;
-  targets: target_times list;
-  total_bytes: int;
-  max_memory_bytes: int option
-}
-
-type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
-  targets_parsed: int;
-  num_targets: int;
-  bytes_parsed: int;
-  num_bytes: int
-}
-
-type finding_hashes = Semgrep_output_v1_t.finding_hashes = {
-  start_line_hash: string;
-  end_line_hash: string;
-  code_hash: string;
-  pattern_hash: string
-}
-
-type finding = Semgrep_output_v1_t.finding = {
-  check_id: rule_id;
-  path: fpath;
-  line: int;
-  column: int;
-  end_line: int;
-  end_column: int;
-  message: string;
-  severity: Yojson.Safe.t;
-  index: int;
-  commit_date: string;
-  syntactic_id: string;
-  match_based_id: string option;
-  hashes: finding_hashes option;
-  metadata: raw_json;
-  is_blocking: bool;
-  fixed_lines: string list option;
-  sca_info: sca_match option;
-  dataflow_trace: match_dataflow_trace option;
-  validation_state: validation_state option;
-  historical_info: historical_info option;
-  engine_kind: engine_of_finding option
-}
-
 type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
   path: fpath;
   parser: sca_parser_name;
@@ -678,6 +631,19 @@ type contribution = Semgrep_output_v1_t.contribution = {
 }
 
 type contributions = Semgrep_output_v1_t.contributions
+
+type cli_error = Semgrep_output_v1_t.cli_error = {
+  code: int;
+  level: error_severity;
+  type_: error_type;
+  rule_id: rule_id option;
+  message: string option;
+  path: fpath option;
+  long_msg: string option;
+  short_msg: string option;
+  spans: error_span list option;
+  help: string option
+}
 
 type ci_scan_dependencies = Semgrep_output_v1_t.ci_scan_dependencies
 
@@ -775,6 +741,32 @@ type dump_rule_partitions_params =
   rules: raw_json;
   n_partitions: int;
   output_dir: fpath
+}
+
+type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
+  metavars: metavars option;
+  message: string;
+  fix: string option;
+  fixed_lines: string list option;
+  metadata: raw_json;
+  severity: match_severity;
+  fingerprint: string;
+  lines: string;
+  is_ignored: bool option;
+  sca_info: sca_match option;
+  validation_state: validation_state option;
+  historical_info: historical_info option;
+  dataflow_trace: match_dataflow_trace option;
+  engine_kind: engine_of_finding option;
+  extra_extra: raw_json option
+}
+
+type cli_match = Semgrep_output_v1_t.cli_match = {
+  check_id: rule_id;
+  path: fpath;
+  start: position;
+  end_ (*atd end *): position;
+  extra: cli_match_extra
 }
 
 type cli_output = Semgrep_output_v1_t.cli_output = {
@@ -1510,26 +1502,6 @@ val matching_explanation_of_string :
   string -> matching_explanation
   (** Deserialize JSON data of type {!type:matching_explanation}. *)
 
-val write_xlang :
-  Buffer.t -> xlang -> unit
-  (** Output a JSON value of type {!type:xlang}. *)
-
-val string_of_xlang :
-  ?len:int -> xlang -> string
-  (** Serialize a value of type {!type:xlang}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_xlang :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> xlang
-  (** Input JSON data of type {!type:xlang}. *)
-
-val xlang_of_string :
-  string -> xlang
-  (** Deserialize JSON data of type {!type:xlang}. *)
-
 val write_version :
   Buffer.t -> version -> unit
   (** Output a JSON value of type {!type:version}. *)
@@ -1989,6 +1961,26 @@ val read_lockfile :
 val lockfile_of_string :
   string -> lockfile
   (** Deserialize JSON data of type {!type:lockfile}. *)
+
+val write_analyzer :
+  Buffer.t -> analyzer -> unit
+  (** Output a JSON value of type {!type:analyzer}. *)
+
+val string_of_analyzer :
+  ?len:int -> analyzer -> string
+  (** Serialize a value of type {!type:analyzer}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_analyzer :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> analyzer
+  (** Input JSON data of type {!type:analyzer}. *)
+
+val analyzer_of_string :
+  string -> analyzer
+  (** Deserialize JSON data of type {!type:analyzer}. *)
 
 val write_code_target :
   Buffer.t -> code_target -> unit
@@ -2650,225 +2642,25 @@ val sca_parser_name_of_string :
   string -> sca_parser_name
   (** Deserialize JSON data of type {!type:sca_parser_name}. *)
 
-val write_sarif_format_return :
-  Buffer.t -> sarif_format_return -> unit
-  (** Output a JSON value of type {!type:sarif_format_return}. *)
+val write_sarif_format :
+  Buffer.t -> sarif_format -> unit
+  (** Output a JSON value of type {!type:sarif_format}. *)
 
-val string_of_sarif_format_return :
-  ?len:int -> sarif_format_return -> string
-  (** Serialize a value of type {!type:sarif_format_return}
+val string_of_sarif_format :
+  ?len:int -> sarif_format -> string
+  (** Serialize a value of type {!type:sarif_format}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_sarif_format_return :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sarif_format_return
-  (** Input JSON data of type {!type:sarif_format_return}. *)
+val read_sarif_format :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sarif_format
+  (** Input JSON data of type {!type:sarif_format}. *)
 
-val sarif_format_return_of_string :
-  string -> sarif_format_return
-  (** Deserialize JSON data of type {!type:sarif_format_return}. *)
-
-val write_resolution_cmd_failed :
-  Buffer.t -> resolution_cmd_failed -> unit
-  (** Output a JSON value of type {!type:resolution_cmd_failed}. *)
-
-val string_of_resolution_cmd_failed :
-  ?len:int -> resolution_cmd_failed -> string
-  (** Serialize a value of type {!type:resolution_cmd_failed}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_resolution_cmd_failed :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_cmd_failed
-  (** Input JSON data of type {!type:resolution_cmd_failed}. *)
-
-val resolution_cmd_failed_of_string :
-  string -> resolution_cmd_failed
-  (** Deserialize JSON data of type {!type:resolution_cmd_failed}. *)
-
-val write_resolution_error :
-  Buffer.t -> resolution_error -> unit
-  (** Output a JSON value of type {!type:resolution_error}. *)
-
-val string_of_resolution_error :
-  ?len:int -> resolution_error -> string
-  (** Serialize a value of type {!type:resolution_error}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_resolution_error :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_error
-  (** Input JSON data of type {!type:resolution_error}. *)
-
-val resolution_error_of_string :
-  string -> resolution_error
-  (** Deserialize JSON data of type {!type:resolution_error}. *)
-
-val write_incompatible_rule :
-  Buffer.t -> incompatible_rule -> unit
-  (** Output a JSON value of type {!type:incompatible_rule}. *)
-
-val string_of_incompatible_rule :
-  ?len:int -> incompatible_rule -> string
-  (** Serialize a value of type {!type:incompatible_rule}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_incompatible_rule :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> incompatible_rule
-  (** Input JSON data of type {!type:incompatible_rule}. *)
-
-val incompatible_rule_of_string :
-  string -> incompatible_rule
-  (** Deserialize JSON data of type {!type:incompatible_rule}. *)
-
-val write_error_type :
-  Buffer.t -> error_type -> unit
-  (** Output a JSON value of type {!type:error_type}. *)
-
-val string_of_error_type :
-  ?len:int -> error_type -> string
-  (** Serialize a value of type {!type:error_type}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_error_type :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> error_type
-  (** Input JSON data of type {!type:error_type}. *)
-
-val error_type_of_string :
-  string -> error_type
-  (** Deserialize JSON data of type {!type:error_type}. *)
-
-val write_error_span :
-  Buffer.t -> error_span -> unit
-  (** Output a JSON value of type {!type:error_span}. *)
-
-val string_of_error_span :
-  ?len:int -> error_span -> string
-  (** Serialize a value of type {!type:error_span}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_error_span :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> error_span
-  (** Input JSON data of type {!type:error_span}. *)
-
-val error_span_of_string :
-  string -> error_span
-  (** Deserialize JSON data of type {!type:error_span}. *)
-
-val write_error_severity :
-  Buffer.t -> error_severity -> unit
-  (** Output a JSON value of type {!type:error_severity}. *)
-
-val string_of_error_severity :
-  ?len:int -> error_severity -> string
-  (** Serialize a value of type {!type:error_severity}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_error_severity :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> error_severity
-  (** Input JSON data of type {!type:error_severity}. *)
-
-val error_severity_of_string :
-  string -> error_severity
-  (** Deserialize JSON data of type {!type:error_severity}. *)
-
-val write_cli_match_extra :
-  Buffer.t -> cli_match_extra -> unit
-  (** Output a JSON value of type {!type:cli_match_extra}. *)
-
-val string_of_cli_match_extra :
-  ?len:int -> cli_match_extra -> string
-  (** Serialize a value of type {!type:cli_match_extra}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cli_match_extra :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match_extra
-  (** Input JSON data of type {!type:cli_match_extra}. *)
-
-val cli_match_extra_of_string :
-  string -> cli_match_extra
-  (** Deserialize JSON data of type {!type:cli_match_extra}. *)
-
-val write_cli_match :
-  Buffer.t -> cli_match -> unit
-  (** Output a JSON value of type {!type:cli_match}. *)
-
-val string_of_cli_match :
-  ?len:int -> cli_match -> string
-  (** Serialize a value of type {!type:cli_match}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cli_match :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match
-  (** Input JSON data of type {!type:cli_match}. *)
-
-val cli_match_of_string :
-  string -> cli_match
-  (** Deserialize JSON data of type {!type:cli_match}. *)
-
-val write_cli_error :
-  Buffer.t -> cli_error -> unit
-  (** Output a JSON value of type {!type:cli_error}. *)
-
-val string_of_cli_error :
-  ?len:int -> cli_error -> string
-  (** Serialize a value of type {!type:cli_error}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cli_error :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_error
-  (** Input JSON data of type {!type:cli_error}. *)
-
-val cli_error_of_string :
-  string -> cli_error
-  (** Deserialize JSON data of type {!type:cli_error}. *)
-
-val write_sarif_format_params :
-  Buffer.t -> sarif_format_params -> unit
-  (** Output a JSON value of type {!type:sarif_format_params}. *)
-
-val string_of_sarif_format_params :
-  ?len:int -> sarif_format_params -> string
-  (** Serialize a value of type {!type:sarif_format_params}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_sarif_format_params :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sarif_format_params
-  (** Input JSON data of type {!type:sarif_format_params}. *)
-
-val sarif_format_params_of_string :
-  string -> sarif_format_params
-  (** Deserialize JSON data of type {!type:sarif_format_params}. *)
+val sarif_format_of_string :
+  string -> sarif_format
+  (** Deserialize JSON data of type {!type:sarif_format}. *)
 
 val write_engine_kind :
   Buffer.t -> engine_kind -> unit
@@ -2909,6 +2701,46 @@ val read_rule_id_and_engine_kind :
 val rule_id_and_engine_kind_of_string :
   string -> rule_id_and_engine_kind
   (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
+
+val write_resolution_cmd_failed :
+  Buffer.t -> resolution_cmd_failed -> unit
+  (** Output a JSON value of type {!type:resolution_cmd_failed}. *)
+
+val string_of_resolution_cmd_failed :
+  ?len:int -> resolution_cmd_failed -> string
+  (** Serialize a value of type {!type:resolution_cmd_failed}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolution_cmd_failed :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_cmd_failed
+  (** Input JSON data of type {!type:resolution_cmd_failed}. *)
+
+val resolution_cmd_failed_of_string :
+  string -> resolution_cmd_failed
+  (** Deserialize JSON data of type {!type:resolution_cmd_failed}. *)
+
+val write_resolution_error :
+  Buffer.t -> resolution_error -> unit
+  (** Output a JSON value of type {!type:resolution_error}. *)
+
+val string_of_resolution_error :
+  ?len:int -> resolution_error -> string
+  (** Serialize a value of type {!type:resolution_error}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolution_error :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_error
+  (** Input JSON data of type {!type:resolution_error}. *)
+
+val resolution_error_of_string :
+  string -> resolution_error
+  (** Deserialize JSON data of type {!type:resolution_error}. *)
 
 val write_resolution_result :
   Buffer.t -> resolution_result -> unit
@@ -2970,6 +2802,26 @@ val parsing_stats_of_string :
   string -> parsing_stats
   (** Deserialize JSON data of type {!type:parsing_stats}. *)
 
+val write_incompatible_rule :
+  Buffer.t -> incompatible_rule -> unit
+  (** Output a JSON value of type {!type:incompatible_rule}. *)
+
+val string_of_incompatible_rule :
+  ?len:int -> incompatible_rule -> string
+  (** Serialize a value of type {!type:incompatible_rule}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_incompatible_rule :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> incompatible_rule
+  (** Input JSON data of type {!type:incompatible_rule}. *)
+
+val incompatible_rule_of_string :
+  string -> incompatible_rule
+  (** Deserialize JSON data of type {!type:incompatible_rule}. *)
+
 val write_finding_hashes :
   Buffer.t -> finding_hashes -> unit
   (** Output a JSON value of type {!type:finding_hashes}. *)
@@ -3009,6 +2861,66 @@ val read_finding :
 val finding_of_string :
   string -> finding
   (** Deserialize JSON data of type {!type:finding}. *)
+
+val write_error_type :
+  Buffer.t -> error_type -> unit
+  (** Output a JSON value of type {!type:error_type}. *)
+
+val string_of_error_type :
+  ?len:int -> error_type -> string
+  (** Serialize a value of type {!type:error_type}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_error_type :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> error_type
+  (** Input JSON data of type {!type:error_type}. *)
+
+val error_type_of_string :
+  string -> error_type
+  (** Deserialize JSON data of type {!type:error_type}. *)
+
+val write_error_span :
+  Buffer.t -> error_span -> unit
+  (** Output a JSON value of type {!type:error_span}. *)
+
+val string_of_error_span :
+  ?len:int -> error_span -> string
+  (** Serialize a value of type {!type:error_span}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_error_span :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> error_span
+  (** Input JSON data of type {!type:error_span}. *)
+
+val error_span_of_string :
+  string -> error_span
+  (** Deserialize JSON data of type {!type:error_span}. *)
+
+val write_error_severity :
+  Buffer.t -> error_severity -> unit
+  (** Output a JSON value of type {!type:error_severity}. *)
+
+val string_of_error_severity :
+  ?len:int -> error_severity -> string
+  (** Serialize a value of type {!type:error_severity}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_error_severity :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> error_severity
+  (** Input JSON data of type {!type:error_severity}. *)
+
+val error_severity_of_string :
+  string -> error_severity
+  (** Deserialize JSON data of type {!type:error_severity}. *)
 
 val write_dependency_parser_error :
   Buffer.t -> dependency_parser_error -> unit
@@ -3089,6 +3001,26 @@ val read_contributions :
 val contributions_of_string :
   string -> contributions
   (** Deserialize JSON data of type {!type:contributions}. *)
+
+val write_cli_error :
+  Buffer.t -> cli_error -> unit
+  (** Output a JSON value of type {!type:cli_error}. *)
+
+val string_of_cli_error :
+  ?len:int -> cli_error -> string
+  (** Serialize a value of type {!type:cli_error}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_cli_error :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_error
+  (** Input JSON data of type {!type:cli_error}. *)
+
+val cli_error_of_string :
+  string -> cli_error
+  (** Deserialize JSON data of type {!type:cli_error}. *)
 
 val write_ci_scan_dependencies :
   Buffer.t -> ci_scan_dependencies -> unit
@@ -3409,6 +3341,46 @@ val read_dump_rule_partitions_params :
 val dump_rule_partitions_params_of_string :
   string -> dump_rule_partitions_params
   (** Deserialize JSON data of type {!type:dump_rule_partitions_params}. *)
+
+val write_cli_match_extra :
+  Buffer.t -> cli_match_extra -> unit
+  (** Output a JSON value of type {!type:cli_match_extra}. *)
+
+val string_of_cli_match_extra :
+  ?len:int -> cli_match_extra -> string
+  (** Serialize a value of type {!type:cli_match_extra}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_cli_match_extra :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match_extra
+  (** Input JSON data of type {!type:cli_match_extra}. *)
+
+val cli_match_extra_of_string :
+  string -> cli_match_extra
+  (** Deserialize JSON data of type {!type:cli_match_extra}. *)
+
+val write_cli_match :
+  Buffer.t -> cli_match -> unit
+  (** Output a JSON value of type {!type:cli_match}. *)
+
+val string_of_cli_match :
+  ?len:int -> cli_match -> string
+  (** Serialize a value of type {!type:cli_match}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_cli_match :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match
+  (** Input JSON data of type {!type:cli_match}. *)
+
+val cli_match_of_string :
+  string -> cli_match
+  (** Deserialize JSON data of type {!type:cli_match}. *)
 
 val write_cli_output :
   Buffer.t -> cli_output -> unit

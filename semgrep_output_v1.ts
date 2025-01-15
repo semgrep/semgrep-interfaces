@@ -506,7 +506,6 @@ export type ScanConfig = {
   deployment_name: string;
   policy_names: string[];
   rule_config: string;
-  ci_config_from_cloud?: CiConfigFromCloud;
   autofix: boolean;
   deepsemgrep: boolean;
   dependency_query: boolean;
@@ -516,10 +515,58 @@ export type ScanConfig = {
   ignored_files: string[];
   enabled_products?: Product[];
   actions: Action[];
+  ci_config_from_cloud?: CiConfigFromCloud;
+}
+
+export type ScanResponse = {
+  info: ScanInfo;
+  config: ScanConfiguration;
+  engine_params: EngineConfiguration;
+}
+
+export type ScanInfo = {
+  id?: number /*int*/;
+  enabled_products: Product[];
+  deployment_id: number /*int*/;
+  deployment_name: string;
+}
+
+export type ScanConfiguration = {
+  rules: RawJson;
+  triage_ignored_syntactic_ids: string[];
+  triage_ignored_match_based_ids: string[];
+}
+
+export type EngineConfiguration = {
+  autofix: boolean;
+  deepsemgrep: boolean;
+  dependency_query: boolean;
+  path_to_transitivity: boolean;
+  ignored_files: string[];
+  product_ignored_files?: ProductIgnoredFiles;
+  generic_slow_rollout: boolean;
+  historical_config?: HistoricalConfiguration;
+  always_suppress_errors: boolean;
+}
+
+export type Glob = string
+
+export type ProductIgnoredFiles = Map<Product, Glob[]>
+
+export type HistoricalConfiguration = {
+  enabled: boolean;
+  lookback_days?: number /*int*/;
 }
 
 export type DeploymentResponse = {
   deployment: DeploymentConfig;
+}
+
+export type ScanRequest = {
+  project_metadata: ProjectMetadata;
+  scan_metadata: ScanMetadata;
+  project_config?: CiConfigFromRepo;
+  meta?: RawJson;
 }
 
 export type ProjectMetadata = {
@@ -558,53 +605,6 @@ export type ScanMetadata = {
   requested_products: Product[];
   dry_run: boolean;
   sms_scan_id?: string;
-}
-
-export type ScanRequest = {
-  project_metadata: ProjectMetadata;
-  scan_metadata: ScanMetadata;
-  project_config?: CiConfigFromRepo;
-  meta?: RawJson;
-}
-
-export type ScanResponse = {
-  info: ScanInfo;
-  config: ScanConfiguration;
-  engine_params: EngineConfiguration;
-}
-
-export type ScanInfo = {
-  id?: number /*int*/;
-  enabled_products: Product[];
-  deployment_id: number /*int*/;
-  deployment_name: string;
-}
-
-export type ScanConfiguration = {
-  rules: RawJson;
-  triage_ignored_syntactic_ids: string[];
-  triage_ignored_match_based_ids: string[];
-}
-
-export type HistoricalConfiguration = {
-  enabled: boolean;
-  lookback_days?: number /*int*/;
-}
-
-export type Glob = string
-
-export type ProductIgnoredFiles = Map<Product, Glob[]>
-
-export type EngineConfiguration = {
-  autofix: boolean;
-  deepsemgrep: boolean;
-  dependency_query: boolean;
-  path_to_transitivity: boolean;
-  ignored_files: string[];
-  product_ignored_files?: ProductIgnoredFiles;
-  generic_slow_rollout: boolean;
-  historical_config?: HistoricalConfiguration;
-  always_suppress_errors: boolean;
 }
 
 export type Finding = {
@@ -838,7 +838,7 @@ export type CoreError = {
   rule_id?: RuleId;
 }
 
-export type Xlang = string
+export type Analyzer = string
 
 export type Target =
 | { kind: 'CodeTarget'; value: CodeTarget }
@@ -846,7 +846,7 @@ export type Target =
 
 export type CodeTarget = {
   path: Fpath;
-  analyzer: Xlang;
+  analyzer: Analyzer;
   products: Product[];
   lockfile_target?: Lockfile;
 }
@@ -870,18 +870,10 @@ export type ApplyFixesReturn = {
   fixed_lines: [number /*int*/, string[]][];
 }
 
-export type SarifFormatParams = {
+export type SarifFormat = {
   rules: Fpath;
-  cli_matches: CliMatch[];
-  cli_errors: CliError[];
-  hide_nudge: boolean;
-  engine_label: string;
+  is_pro: boolean;
   show_dataflow_traces: boolean;
-}
-
-export type SarifFormatReturn = {
-  output: string;
-  format_time_seconds: number;
 }
 
 export type OutputFormat =
@@ -983,8 +975,8 @@ export type ResolutionResult =
 export type FunctionCall =
 | { kind: 'CallContributions' }
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
-| { kind: 'CallSarifFormat'; value: [FormatContext, SarifFormatParams] }
 | { kind: 'CallFormatter'; value: [OutputFormat, FormatContext, CliOutput] }
+| { kind: 'CallSarifFormat'; value: [SarifFormat, FormatContext, CliOutput] }
 | { kind: 'CallValidate'; value: Fpath }
 | { kind: 'CallResolveDependencies'; value: DependencySource[] }
 | { kind: 'CallDumpRulePartitions'; value: DumpRulePartitionsParams }
@@ -993,8 +985,8 @@ export type FunctionReturn =
 | { kind: 'RetError'; value: string }
 | { kind: 'RetApplyFixes'; value: ApplyFixesReturn }
 | { kind: 'RetContributions'; value: Contributions }
-| { kind: 'RetSarifFormat'; value: SarifFormatReturn }
 | { kind: 'RetFormatter'; value: string }
+| { kind: 'RetSarifFormat'; value: string }
 | { kind: 'RetValidate'; value: boolean }
 | { kind: 'RetResolveDependencies'; value: [DependencySource, ResolutionResult][] }
 | { kind: 'RetDumpRulePartitions'; value: boolean }
@@ -2646,7 +2638,6 @@ export function writeScanConfig(x: ScanConfig, context: any = x): any {
     'deployment_name': _atd_write_required_field('ScanConfig', 'deployment_name', _atd_write_string, x.deployment_name, x),
     'policy_names': _atd_write_required_field('ScanConfig', 'policy_names', _atd_write_array(_atd_write_string), x.policy_names, x),
     'rule_config': _atd_write_required_field('ScanConfig', 'rule_config', _atd_write_string, x.rule_config, x),
-    'ci_config_from_cloud': _atd_write_optional_field(writeCiConfigFromCloud, x.ci_config_from_cloud, x),
     'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
@@ -2656,6 +2647,7 @@ export function writeScanConfig(x: ScanConfig, context: any = x): any {
     'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
     'enabled_products': _atd_write_optional_field(_atd_write_array(writeProduct), x.enabled_products, x),
     'actions': _atd_write_field_with_default(_atd_write_array(writeAction), [], x.actions, x),
+    'ci_config_from_cloud': _atd_write_optional_field(writeCiConfigFromCloud, x.ci_config_from_cloud, x),
   };
 }
 
@@ -2665,7 +2657,6 @@ export function readScanConfig(x: any, context: any = x): ScanConfig {
     deployment_name: _atd_read_required_field('ScanConfig', 'deployment_name', _atd_read_string, x['deployment_name'], x),
     policy_names: _atd_read_required_field('ScanConfig', 'policy_names', _atd_read_array(_atd_read_string), x['policy_names'], x),
     rule_config: _atd_read_required_field('ScanConfig', 'rule_config', _atd_read_string, x['rule_config'], x),
-    ci_config_from_cloud: _atd_read_optional_field(readCiConfigFromCloud, x['ci_config_from_cloud'], x),
     autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
@@ -2675,6 +2666,115 @@ export function readScanConfig(x: any, context: any = x): ScanConfig {
     ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
     enabled_products: _atd_read_optional_field(_atd_read_array(readProduct), x['enabled_products'], x),
     actions: _atd_read_field_with_default(_atd_read_array(readAction), [], x['actions'], x),
+    ci_config_from_cloud: _atd_read_optional_field(readCiConfigFromCloud, x['ci_config_from_cloud'], x),
+  };
+}
+
+export function writeScanResponse(x: ScanResponse, context: any = x): any {
+  return {
+    'info': _atd_write_required_field('ScanResponse', 'info', writeScanInfo, x.info, x),
+    'config': _atd_write_required_field('ScanResponse', 'config', writeScanConfiguration, x.config, x),
+    'engine_params': _atd_write_required_field('ScanResponse', 'engine_params', writeEngineConfiguration, x.engine_params, x),
+  };
+}
+
+export function readScanResponse(x: any, context: any = x): ScanResponse {
+  return {
+    info: _atd_read_required_field('ScanResponse', 'info', readScanInfo, x['info'], x),
+    config: _atd_read_required_field('ScanResponse', 'config', readScanConfiguration, x['config'], x),
+    engine_params: _atd_read_required_field('ScanResponse', 'engine_params', readEngineConfiguration, x['engine_params'], x),
+  };
+}
+
+export function writeScanInfo(x: ScanInfo, context: any = x): any {
+  return {
+    'id': _atd_write_optional_field(_atd_write_int, x.id, x),
+    'enabled_products': _atd_write_required_field('ScanInfo', 'enabled_products', _atd_write_array(writeProduct), x.enabled_products, x),
+    'deployment_id': _atd_write_required_field('ScanInfo', 'deployment_id', _atd_write_int, x.deployment_id, x),
+    'deployment_name': _atd_write_required_field('ScanInfo', 'deployment_name', _atd_write_string, x.deployment_name, x),
+  };
+}
+
+export function readScanInfo(x: any, context: any = x): ScanInfo {
+  return {
+    id: _atd_read_optional_field(_atd_read_int, x['id'], x),
+    enabled_products: _atd_read_required_field('ScanInfo', 'enabled_products', _atd_read_array(readProduct), x['enabled_products'], x),
+    deployment_id: _atd_read_required_field('ScanInfo', 'deployment_id', _atd_read_int, x['deployment_id'], x),
+    deployment_name: _atd_read_required_field('ScanInfo', 'deployment_name', _atd_read_string, x['deployment_name'], x),
+  };
+}
+
+export function writeScanConfiguration(x: ScanConfiguration, context: any = x): any {
+  return {
+    'rules': _atd_write_required_field('ScanConfiguration', 'rules', writeRawJson, x.rules, x),
+    'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
+    'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
+  };
+}
+
+export function readScanConfiguration(x: any, context: any = x): ScanConfiguration {
+  return {
+    rules: _atd_read_required_field('ScanConfiguration', 'rules', readRawJson, x['rules'], x),
+    triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),
+    triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
+  };
+}
+
+export function writeEngineConfiguration(x: EngineConfiguration, context: any = x): any {
+  return {
+    'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
+    'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
+    'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
+    'path_to_transitivity': _atd_write_field_with_default(_atd_write_bool, false, x.path_to_transitivity, x),
+    'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
+    'product_ignored_files': _atd_write_optional_field(writeProductIgnoredFiles, x.product_ignored_files, x),
+    'generic_slow_rollout': _atd_write_field_with_default(_atd_write_bool, false, x.generic_slow_rollout, x),
+    'historical_config': _atd_write_optional_field(writeHistoricalConfiguration, x.historical_config, x),
+    'always_suppress_errors': _atd_write_field_with_default(_atd_write_bool, false, x.always_suppress_errors, x),
+  };
+}
+
+export function readEngineConfiguration(x: any, context: any = x): EngineConfiguration {
+  return {
+    autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
+    deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
+    dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
+    path_to_transitivity: _atd_read_field_with_default(_atd_read_bool, false, x['path_to_transitivity'], x),
+    ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
+    product_ignored_files: _atd_read_optional_field(readProductIgnoredFiles, x['product_ignored_files'], x),
+    generic_slow_rollout: _atd_read_field_with_default(_atd_read_bool, false, x['generic_slow_rollout'], x),
+    historical_config: _atd_read_optional_field(readHistoricalConfiguration, x['historical_config'], x),
+    always_suppress_errors: _atd_read_field_with_default(_atd_read_bool, false, x['always_suppress_errors'], x),
+  };
+}
+
+export function writeGlob(x: Glob, context: any = x): any {
+  return _atd_write_string(x, context);
+}
+
+export function readGlob(x: any, context: any = x): Glob {
+  return _atd_read_string(x, context);
+}
+
+export function writeProductIgnoredFiles(x: ProductIgnoredFiles, context: any = x): any {
+  return _atd_write_assoc_map_to_array(writeProduct, _atd_write_array(writeGlob))(x, context);
+}
+
+export function readProductIgnoredFiles(x: any, context: any = x): ProductIgnoredFiles {
+  return _atd_read_assoc_array_into_map(readProduct, _atd_read_array(readGlob))(x, context);
+}
+
+export function writeHistoricalConfiguration(x: HistoricalConfiguration, context: any = x): any {
+  return {
+    'enabled': _atd_write_required_field('HistoricalConfiguration', 'enabled', _atd_write_bool, x.enabled, x),
+    'lookback_days': _atd_write_optional_field(_atd_write_int, x.lookback_days, x),
+  };
+}
+
+export function readHistoricalConfiguration(x: any, context: any = x): HistoricalConfiguration {
+  return {
+    enabled: _atd_read_required_field('HistoricalConfiguration', 'enabled', _atd_read_bool, x['enabled'], x),
+    lookback_days: _atd_read_optional_field(_atd_read_int, x['lookback_days'], x),
   };
 }
 
@@ -2687,6 +2787,24 @@ export function writeDeploymentResponse(x: DeploymentResponse, context: any = x)
 export function readDeploymentResponse(x: any, context: any = x): DeploymentResponse {
   return {
     deployment: _atd_read_required_field('DeploymentResponse', 'deployment', readDeploymentConfig, x['deployment'], x),
+  };
+}
+
+export function writeScanRequest(x: ScanRequest, context: any = x): any {
+  return {
+    'project_metadata': _atd_write_required_field('ScanRequest', 'project_metadata', writeProjectMetadata, x.project_metadata, x),
+    'scan_metadata': _atd_write_required_field('ScanRequest', 'scan_metadata', writeScanMetadata, x.scan_metadata, x),
+    'project_config': _atd_write_optional_field(writeCiConfigFromRepo, x.project_config, x),
+    'meta': _atd_write_optional_field(writeRawJson, x.meta, x),
+  };
+}
+
+export function readScanRequest(x: any, context: any = x): ScanRequest {
+  return {
+    project_metadata: _atd_read_required_field('ScanRequest', 'project_metadata', readProjectMetadata, x['project_metadata'], x),
+    scan_metadata: _atd_read_required_field('ScanRequest', 'scan_metadata', readScanMetadata, x['scan_metadata'], x),
+    project_config: _atd_read_optional_field(readCiConfigFromRepo, x['project_config'], x),
+    meta: _atd_read_optional_field(readRawJson, x['meta'], x),
   };
 }
 
@@ -2771,132 +2889,6 @@ export function readScanMetadata(x: any, context: any = x): ScanMetadata {
     requested_products: _atd_read_required_field('ScanMetadata', 'requested_products', _atd_read_array(readProduct), x['requested_products'], x),
     dry_run: _atd_read_field_with_default(_atd_read_bool, false, x['dry_run'], x),
     sms_scan_id: _atd_read_optional_field(_atd_read_string, x['sms_scan_id'], x),
-  };
-}
-
-export function writeScanRequest(x: ScanRequest, context: any = x): any {
-  return {
-    'project_metadata': _atd_write_required_field('ScanRequest', 'project_metadata', writeProjectMetadata, x.project_metadata, x),
-    'scan_metadata': _atd_write_required_field('ScanRequest', 'scan_metadata', writeScanMetadata, x.scan_metadata, x),
-    'project_config': _atd_write_optional_field(writeCiConfigFromRepo, x.project_config, x),
-    'meta': _atd_write_optional_field(writeRawJson, x.meta, x),
-  };
-}
-
-export function readScanRequest(x: any, context: any = x): ScanRequest {
-  return {
-    project_metadata: _atd_read_required_field('ScanRequest', 'project_metadata', readProjectMetadata, x['project_metadata'], x),
-    scan_metadata: _atd_read_required_field('ScanRequest', 'scan_metadata', readScanMetadata, x['scan_metadata'], x),
-    project_config: _atd_read_optional_field(readCiConfigFromRepo, x['project_config'], x),
-    meta: _atd_read_optional_field(readRawJson, x['meta'], x),
-  };
-}
-
-export function writeScanResponse(x: ScanResponse, context: any = x): any {
-  return {
-    'info': _atd_write_required_field('ScanResponse', 'info', writeScanInfo, x.info, x),
-    'config': _atd_write_required_field('ScanResponse', 'config', writeScanConfiguration, x.config, x),
-    'engine_params': _atd_write_required_field('ScanResponse', 'engine_params', writeEngineConfiguration, x.engine_params, x),
-  };
-}
-
-export function readScanResponse(x: any, context: any = x): ScanResponse {
-  return {
-    info: _atd_read_required_field('ScanResponse', 'info', readScanInfo, x['info'], x),
-    config: _atd_read_required_field('ScanResponse', 'config', readScanConfiguration, x['config'], x),
-    engine_params: _atd_read_required_field('ScanResponse', 'engine_params', readEngineConfiguration, x['engine_params'], x),
-  };
-}
-
-export function writeScanInfo(x: ScanInfo, context: any = x): any {
-  return {
-    'id': _atd_write_optional_field(_atd_write_int, x.id, x),
-    'enabled_products': _atd_write_required_field('ScanInfo', 'enabled_products', _atd_write_array(writeProduct), x.enabled_products, x),
-    'deployment_id': _atd_write_required_field('ScanInfo', 'deployment_id', _atd_write_int, x.deployment_id, x),
-    'deployment_name': _atd_write_required_field('ScanInfo', 'deployment_name', _atd_write_string, x.deployment_name, x),
-  };
-}
-
-export function readScanInfo(x: any, context: any = x): ScanInfo {
-  return {
-    id: _atd_read_optional_field(_atd_read_int, x['id'], x),
-    enabled_products: _atd_read_required_field('ScanInfo', 'enabled_products', _atd_read_array(readProduct), x['enabled_products'], x),
-    deployment_id: _atd_read_required_field('ScanInfo', 'deployment_id', _atd_read_int, x['deployment_id'], x),
-    deployment_name: _atd_read_required_field('ScanInfo', 'deployment_name', _atd_read_string, x['deployment_name'], x),
-  };
-}
-
-export function writeScanConfiguration(x: ScanConfiguration, context: any = x): any {
-  return {
-    'rules': _atd_write_required_field('ScanConfiguration', 'rules', writeRawJson, x.rules, x),
-    'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
-    'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
-  };
-}
-
-export function readScanConfiguration(x: any, context: any = x): ScanConfiguration {
-  return {
-    rules: _atd_read_required_field('ScanConfiguration', 'rules', readRawJson, x['rules'], x),
-    triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),
-    triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
-  };
-}
-
-export function writeHistoricalConfiguration(x: HistoricalConfiguration, context: any = x): any {
-  return {
-    'enabled': _atd_write_required_field('HistoricalConfiguration', 'enabled', _atd_write_bool, x.enabled, x),
-    'lookback_days': _atd_write_optional_field(_atd_write_int, x.lookback_days, x),
-  };
-}
-
-export function readHistoricalConfiguration(x: any, context: any = x): HistoricalConfiguration {
-  return {
-    enabled: _atd_read_required_field('HistoricalConfiguration', 'enabled', _atd_read_bool, x['enabled'], x),
-    lookback_days: _atd_read_optional_field(_atd_read_int, x['lookback_days'], x),
-  };
-}
-
-export function writeGlob(x: Glob, context: any = x): any {
-  return _atd_write_string(x, context);
-}
-
-export function readGlob(x: any, context: any = x): Glob {
-  return _atd_read_string(x, context);
-}
-
-export function writeProductIgnoredFiles(x: ProductIgnoredFiles, context: any = x): any {
-  return _atd_write_assoc_map_to_array(writeProduct, _atd_write_array(writeGlob))(x, context);
-}
-
-export function readProductIgnoredFiles(x: any, context: any = x): ProductIgnoredFiles {
-  return _atd_read_assoc_array_into_map(readProduct, _atd_read_array(readGlob))(x, context);
-}
-
-export function writeEngineConfiguration(x: EngineConfiguration, context: any = x): any {
-  return {
-    'autofix': _atd_write_field_with_default(_atd_write_bool, false, x.autofix, x),
-    'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
-    'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
-    'path_to_transitivity': _atd_write_field_with_default(_atd_write_bool, false, x.path_to_transitivity, x),
-    'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
-    'product_ignored_files': _atd_write_optional_field(writeProductIgnoredFiles, x.product_ignored_files, x),
-    'generic_slow_rollout': _atd_write_field_with_default(_atd_write_bool, false, x.generic_slow_rollout, x),
-    'historical_config': _atd_write_optional_field(writeHistoricalConfiguration, x.historical_config, x),
-    'always_suppress_errors': _atd_write_field_with_default(_atd_write_bool, false, x.always_suppress_errors, x),
-  };
-}
-
-export function readEngineConfiguration(x: any, context: any = x): EngineConfiguration {
-  return {
-    autofix: _atd_read_field_with_default(_atd_read_bool, false, x['autofix'], x),
-    deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
-    dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
-    path_to_transitivity: _atd_read_field_with_default(_atd_read_bool, false, x['path_to_transitivity'], x),
-    ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
-    product_ignored_files: _atd_read_optional_field(readProductIgnoredFiles, x['product_ignored_files'], x),
-    generic_slow_rollout: _atd_read_field_with_default(_atd_read_bool, false, x['generic_slow_rollout'], x),
-    historical_config: _atd_read_optional_field(readHistoricalConfiguration, x['historical_config'], x),
-    always_suppress_errors: _atd_read_field_with_default(_atd_read_bool, false, x['always_suppress_errors'], x),
   };
 }
 
@@ -3544,11 +3536,11 @@ export function readCoreError(x: any, context: any = x): CoreError {
   };
 }
 
-export function writeXlang(x: Xlang, context: any = x): any {
+export function writeAnalyzer(x: Analyzer, context: any = x): any {
   return _atd_write_string(x, context);
 }
 
-export function readXlang(x: any, context: any = x): Xlang {
+export function readAnalyzer(x: any, context: any = x): Analyzer {
   return _atd_read_string(x, context);
 }
 
@@ -3577,7 +3569,7 @@ export function readTarget(x: any, context: any = x): Target {
 export function writeCodeTarget(x: CodeTarget, context: any = x): any {
   return {
     'path': _atd_write_required_field('CodeTarget', 'path', writeFpath, x.path, x),
-    'analyzer': _atd_write_required_field('CodeTarget', 'analyzer', writeXlang, x.analyzer, x),
+    'analyzer': _atd_write_required_field('CodeTarget', 'analyzer', writeAnalyzer, x.analyzer, x),
     'products': _atd_write_required_field('CodeTarget', 'products', _atd_write_array(writeProduct), x.products, x),
     'lockfile_target': _atd_write_optional_field(writeLockfile, x.lockfile_target, x),
   };
@@ -3586,7 +3578,7 @@ export function writeCodeTarget(x: CodeTarget, context: any = x): any {
 export function readCodeTarget(x: any, context: any = x): CodeTarget {
   return {
     path: _atd_read_required_field('CodeTarget', 'path', readFpath, x['path'], x),
-    analyzer: _atd_read_required_field('CodeTarget', 'analyzer', readXlang, x['analyzer'], x),
+    analyzer: _atd_read_required_field('CodeTarget', 'analyzer', readAnalyzer, x['analyzer'], x),
     products: _atd_read_required_field('CodeTarget', 'products', _atd_read_array(readProduct), x['products'], x),
     lockfile_target: _atd_read_optional_field(readLockfile, x['lockfile_target'], x),
   };
@@ -3646,39 +3638,19 @@ export function readApplyFixesReturn(x: any, context: any = x): ApplyFixesReturn
   };
 }
 
-export function writeSarifFormatParams(x: SarifFormatParams, context: any = x): any {
+export function writeSarifFormat(x: SarifFormat, context: any = x): any {
   return {
-    'rules': _atd_write_required_field('SarifFormatParams', 'rules', writeFpath, x.rules, x),
-    'cli_matches': _atd_write_required_field('SarifFormatParams', 'cli_matches', _atd_write_array(writeCliMatch), x.cli_matches, x),
-    'cli_errors': _atd_write_required_field('SarifFormatParams', 'cli_errors', _atd_write_array(writeCliError), x.cli_errors, x),
-    'hide_nudge': _atd_write_required_field('SarifFormatParams', 'hide_nudge', _atd_write_bool, x.hide_nudge, x),
-    'engine_label': _atd_write_required_field('SarifFormatParams', 'engine_label', _atd_write_string, x.engine_label, x),
-    'show_dataflow_traces': _atd_write_required_field('SarifFormatParams', 'show_dataflow_traces', _atd_write_bool, x.show_dataflow_traces, x),
+    'rules': _atd_write_required_field('SarifFormat', 'rules', writeFpath, x.rules, x),
+    'is_pro': _atd_write_required_field('SarifFormat', 'is_pro', _atd_write_bool, x.is_pro, x),
+    'show_dataflow_traces': _atd_write_required_field('SarifFormat', 'show_dataflow_traces', _atd_write_bool, x.show_dataflow_traces, x),
   };
 }
 
-export function readSarifFormatParams(x: any, context: any = x): SarifFormatParams {
+export function readSarifFormat(x: any, context: any = x): SarifFormat {
   return {
-    rules: _atd_read_required_field('SarifFormatParams', 'rules', readFpath, x['rules'], x),
-    cli_matches: _atd_read_required_field('SarifFormatParams', 'cli_matches', _atd_read_array(readCliMatch), x['cli_matches'], x),
-    cli_errors: _atd_read_required_field('SarifFormatParams', 'cli_errors', _atd_read_array(readCliError), x['cli_errors'], x),
-    hide_nudge: _atd_read_required_field('SarifFormatParams', 'hide_nudge', _atd_read_bool, x['hide_nudge'], x),
-    engine_label: _atd_read_required_field('SarifFormatParams', 'engine_label', _atd_read_string, x['engine_label'], x),
-    show_dataflow_traces: _atd_read_required_field('SarifFormatParams', 'show_dataflow_traces', _atd_read_bool, x['show_dataflow_traces'], x),
-  };
-}
-
-export function writeSarifFormatReturn(x: SarifFormatReturn, context: any = x): any {
-  return {
-    'output': _atd_write_required_field('SarifFormatReturn', 'output', _atd_write_string, x.output, x),
-    'format_time_seconds': _atd_write_required_field('SarifFormatReturn', 'format_time_seconds', _atd_write_float, x.format_time_seconds, x),
-  };
-}
-
-export function readSarifFormatReturn(x: any, context: any = x): SarifFormatReturn {
-  return {
-    output: _atd_read_required_field('SarifFormatReturn', 'output', _atd_read_string, x['output'], x),
-    format_time_seconds: _atd_read_required_field('SarifFormatReturn', 'format_time_seconds', _atd_read_float, x['format_time_seconds'], x),
+    rules: _atd_read_required_field('SarifFormat', 'rules', readFpath, x['rules'], x),
+    is_pro: _atd_read_required_field('SarifFormat', 'is_pro', _atd_read_bool, x['is_pro'], x),
+    show_dataflow_traces: _atd_read_required_field('SarifFormat', 'show_dataflow_traces', _atd_read_bool, x['show_dataflow_traces'], x),
   };
 }
 
@@ -4080,10 +4052,10 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return 'CallContributions'
     case 'CallApplyFixes':
       return ['CallApplyFixes', writeApplyFixesParams(x.value, x)]
-    case 'CallSarifFormat':
-      return ['CallSarifFormat', ((x, context) => [writeFormatContext(x[0], x), writeSarifFormatParams(x[1], x)])(x.value, x)]
     case 'CallFormatter':
       return ['CallFormatter', ((x, context) => [writeOutputFormat(x[0], x), writeFormatContext(x[1], x), writeCliOutput(x[2], x)])(x.value, x)]
+    case 'CallSarifFormat':
+      return ['CallSarifFormat', ((x, context) => [writeSarifFormat(x[0], x), writeFormatContext(x[1], x), writeCliOutput(x[2], x)])(x.value, x)]
     case 'CallValidate':
       return ['CallValidate', writeFpath(x.value, x)]
     case 'CallResolveDependencies':
@@ -4108,10 +4080,10 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
     switch (x[0]) {
       case 'CallApplyFixes':
         return { kind: 'CallApplyFixes', value: readApplyFixesParams(x[1], x) }
-      case 'CallSarifFormat':
-        return { kind: 'CallSarifFormat', value: ((x, context): [FormatContext, SarifFormatParams] => { _atd_check_json_tuple(2, x, context); return [readFormatContext(x[0], x), readSarifFormatParams(x[1], x)] })(x[1], x) }
       case 'CallFormatter':
         return { kind: 'CallFormatter', value: ((x, context): [OutputFormat, FormatContext, CliOutput] => { _atd_check_json_tuple(3, x, context); return [readOutputFormat(x[0], x), readFormatContext(x[1], x), readCliOutput(x[2], x)] })(x[1], x) }
+      case 'CallSarifFormat':
+        return { kind: 'CallSarifFormat', value: ((x, context): [SarifFormat, FormatContext, CliOutput] => { _atd_check_json_tuple(3, x, context); return [readSarifFormat(x[0], x), readFormatContext(x[1], x), readCliOutput(x[2], x)] })(x[1], x) }
       case 'CallValidate':
         return { kind: 'CallValidate', value: readFpath(x[1], x) }
       case 'CallResolveDependencies':
@@ -4133,10 +4105,10 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetApplyFixes', writeApplyFixesReturn(x.value, x)]
     case 'RetContributions':
       return ['RetContributions', writeContributions(x.value, x)]
-    case 'RetSarifFormat':
-      return ['RetSarifFormat', writeSarifFormatReturn(x.value, x)]
     case 'RetFormatter':
       return ['RetFormatter', _atd_write_string(x.value, x)]
+    case 'RetSarifFormat':
+      return ['RetSarifFormat', _atd_write_string(x.value, x)]
     case 'RetValidate':
       return ['RetValidate', _atd_write_bool(x.value, x)]
     case 'RetResolveDependencies':
@@ -4155,10 +4127,10 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetApplyFixes', value: readApplyFixesReturn(x[1], x) }
     case 'RetContributions':
       return { kind: 'RetContributions', value: readContributions(x[1], x) }
-    case 'RetSarifFormat':
-      return { kind: 'RetSarifFormat', value: readSarifFormatReturn(x[1], x) }
     case 'RetFormatter':
       return { kind: 'RetFormatter', value: _atd_read_string(x[1], x) }
+    case 'RetSarifFormat':
+      return { kind: 'RetSarifFormat', value: _atd_read_string(x[1], x) }
     case 'RetValidate':
       return { kind: 'RetValidate', value: _atd_read_bool(x[1], x) }
     case 'RetResolveDependencies':

@@ -928,9 +928,6 @@
         "deployment_name": { "type": "string" },
         "policy_names": { "type": "array", "items": { "type": "string" } },
         "rule_config": { "type": "string" },
-        "ci_config_from_cloud": {
-          "$ref": "#/definitions/ci_config_from_cloud"
-        },
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
         "dependency_query": { "type": "boolean" },
@@ -951,7 +948,87 @@
         "actions": {
           "type": "array",
           "items": { "$ref": "#/definitions/action" }
+        },
+        "ci_config_from_cloud": {
+          "$ref": "#/definitions/ci_config_from_cloud"
         }
+      }
+    },
+    "scan_response": {
+      "type": "object",
+      "required": [ "info", "config", "engine_params" ],
+      "properties": {
+        "info": { "$ref": "#/definitions/scan_info" },
+        "config": { "$ref": "#/definitions/scan_configuration" },
+        "engine_params": { "$ref": "#/definitions/engine_configuration" }
+      }
+    },
+    "scan_info": {
+      "type": "object",
+      "required": [ "enabled_products", "deployment_id", "deployment_name" ],
+      "properties": {
+        "id": { "type": "integer" },
+        "enabled_products": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/product" }
+        },
+        "deployment_id": { "type": "integer" },
+        "deployment_name": { "type": "string" }
+      }
+    },
+    "scan_configuration": {
+      "type": "object",
+      "required": [ "rules" ],
+      "properties": {
+        "rules": { "$ref": "#/definitions/raw_json" },
+        "triage_ignored_syntactic_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "triage_ignored_match_based_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "engine_configuration": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "autofix": { "type": "boolean" },
+        "deepsemgrep": { "type": "boolean" },
+        "dependency_query": { "type": "boolean" },
+        "path_to_transitivity": { "type": "boolean" },
+        "ignored_files": { "type": "array", "items": { "type": "string" } },
+        "product_ignored_files": {
+          "$ref": "#/definitions/product_ignored_files"
+        },
+        "generic_slow_rollout": { "type": "boolean" },
+        "historical_config": {
+          "$ref": "#/definitions/historical_configuration"
+        },
+        "always_suppress_errors": { "type": "boolean" }
+      }
+    },
+    "glob": { "type": "string" },
+    "product_ignored_files": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "items": false,
+        "prefixItems": [
+          { "$ref": "#/definitions/product" },
+          { "type": "array", "items": { "$ref": "#/definitions/glob" } }
+        ]
+      }
+    },
+    "historical_configuration": {
+      "type": "object",
+      "required": [ "enabled" ],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "lookback_days": { "type": "integer" }
       }
     },
     "deployment_response": {
@@ -959,6 +1036,16 @@
       "required": [ "deployment" ],
       "properties": {
         "deployment": { "$ref": "#/definitions/deployment_config" }
+      }
+    },
+    "scan_request": {
+      "type": "object",
+      "required": [ "project_metadata", "scan_metadata" ],
+      "properties": {
+        "project_metadata": { "$ref": "#/definitions/project_metadata" },
+        "scan_metadata": { "$ref": "#/definitions/scan_metadata" },
+        "project_config": { "$ref": "#/definitions/ci_config_from_repo" },
+        "meta": { "$ref": "#/definitions/raw_json" }
       }
     },
     "project_metadata": {
@@ -1013,93 +1100,6 @@
         },
         "dry_run": { "type": "boolean" },
         "sms_scan_id": { "type": "string" }
-      }
-    },
-    "scan_request": {
-      "type": "object",
-      "required": [ "project_metadata", "scan_metadata" ],
-      "properties": {
-        "project_metadata": { "$ref": "#/definitions/project_metadata" },
-        "scan_metadata": { "$ref": "#/definitions/scan_metadata" },
-        "project_config": { "$ref": "#/definitions/ci_config_from_repo" },
-        "meta": { "$ref": "#/definitions/raw_json" }
-      }
-    },
-    "scan_response": {
-      "type": "object",
-      "required": [ "info", "config", "engine_params" ],
-      "properties": {
-        "info": { "$ref": "#/definitions/scan_info" },
-        "config": { "$ref": "#/definitions/scan_configuration" },
-        "engine_params": { "$ref": "#/definitions/engine_configuration" }
-      }
-    },
-    "scan_info": {
-      "type": "object",
-      "required": [ "enabled_products", "deployment_id", "deployment_name" ],
-      "properties": {
-        "id": { "type": "integer" },
-        "enabled_products": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/product" }
-        },
-        "deployment_id": { "type": "integer" },
-        "deployment_name": { "type": "string" }
-      }
-    },
-    "scan_configuration": {
-      "type": "object",
-      "required": [ "rules" ],
-      "properties": {
-        "rules": { "$ref": "#/definitions/raw_json" },
-        "triage_ignored_syntactic_ids": {
-          "type": "array",
-          "items": { "type": "string" }
-        },
-        "triage_ignored_match_based_ids": {
-          "type": "array",
-          "items": { "type": "string" }
-        }
-      }
-    },
-    "historical_configuration": {
-      "type": "object",
-      "required": [ "enabled" ],
-      "properties": {
-        "enabled": { "type": "boolean" },
-        "lookback_days": { "type": "integer" }
-      }
-    },
-    "glob": { "type": "string" },
-    "product_ignored_files": {
-      "type": "array",
-      "items": {
-        "type": "array",
-        "minItems": 2,
-        "items": false,
-        "prefixItems": [
-          { "$ref": "#/definitions/product" },
-          { "type": "array", "items": { "$ref": "#/definitions/glob" } }
-        ]
-      }
-    },
-    "engine_configuration": {
-      "type": "object",
-      "required": [],
-      "properties": {
-        "autofix": { "type": "boolean" },
-        "deepsemgrep": { "type": "boolean" },
-        "dependency_query": { "type": "boolean" },
-        "path_to_transitivity": { "type": "boolean" },
-        "ignored_files": { "type": "array", "items": { "type": "string" } },
-        "product_ignored_files": {
-          "$ref": "#/definitions/product_ignored_files"
-        },
-        "generic_slow_rollout": { "type": "boolean" },
-        "historical_config": {
-          "$ref": "#/definitions/historical_configuration"
-        },
-        "always_suppress_errors": { "type": "boolean" }
       }
     },
     "finding": {
@@ -1526,7 +1526,7 @@
         "rule_id": { "$ref": "#/definitions/rule_id" }
       }
     },
-    "xlang": { "type": "string" },
+    "analyzer": { "type": "string" },
     "target": {
       "oneOf": [
         {
@@ -1554,7 +1554,7 @@
       "required": [ "path", "analyzer", "products" ],
       "properties": {
         "path": { "$ref": "#/definitions/fpath" },
-        "analyzer": { "$ref": "#/definitions/xlang" },
+        "analyzer": { "$ref": "#/definitions/analyzer" },
         "products": {
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
@@ -1608,33 +1608,13 @@
         }
       }
     },
-    "sarif_format_params": {
+    "sarif_format": {
       "type": "object",
-      "required": [
-        "rules", "cli_matches", "cli_errors", "hide_nudge", "engine_label",
-        "show_dataflow_traces"
-      ],
+      "required": [ "rules", "is_pro", "show_dataflow_traces" ],
       "properties": {
         "rules": { "$ref": "#/definitions/fpath" },
-        "cli_matches": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/cli_match" }
-        },
-        "cli_errors": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/cli_error" }
-        },
-        "hide_nudge": { "type": "boolean" },
-        "engine_label": { "type": "string" },
+        "is_pro": { "type": "boolean" },
         "show_dataflow_traces": { "type": "boolean" }
-      }
-    },
-    "sarif_format_return": {
-      "type": "object",
-      "required": [ "output", "format_time_seconds" ],
-      "properties": {
-        "output": { "type": "string" },
-        "format_time_seconds": { "type": "number" }
       }
     },
     "output_format": {
@@ -1864,14 +1844,15 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "CallSarifFormat" },
+            { "const": "CallFormatter" },
             {
               "type": "array",
-              "minItems": 2,
+              "minItems": 3,
               "items": false,
               "prefixItems": [
+                { "$ref": "#/definitions/output_format" },
                 { "$ref": "#/definitions/format_context" },
-                { "$ref": "#/definitions/sarif_format_params" }
+                { "$ref": "#/definitions/cli_output" }
               ]
             }
           ]
@@ -1881,13 +1862,13 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "CallFormatter" },
+            { "const": "CallSarifFormat" },
             {
               "type": "array",
               "minItems": 3,
               "items": false,
               "prefixItems": [
-                { "$ref": "#/definitions/output_format" },
+                { "$ref": "#/definitions/sarif_format" },
                 { "$ref": "#/definitions/format_context" },
                 { "$ref": "#/definitions/cli_output" }
               ]
@@ -1956,8 +1937,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "RetSarifFormat" },
-            { "$ref": "#/definitions/sarif_format_return" }
+            { "const": "RetFormatter" }, { "type": "string" }
           ]
         },
         {
@@ -1965,7 +1945,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "RetFormatter" }, { "type": "string" }
+            { "const": "RetSarifFormat" }, { "type": "string" }
           ]
         },
         {

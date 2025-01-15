@@ -177,8 +177,6 @@ type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
   extra: matching_explanation_extra option
 }
 
-type xlang = Semgrep_output_v1_t.xlang [@@deriving show]
-
 type version = Semgrep_output_v1_t.version [@@deriving show]
 
 type uuid = Semgrep_output_v1_t.uuid
@@ -276,9 +274,11 @@ type lockfile = Semgrep_output_v1_t.lockfile = {
 }
   [@@deriving show, eq]
 
+type analyzer = Semgrep_output_v1_t.analyzer [@@deriving show]
+
 type code_target = Semgrep_output_v1_t.code_target = {
   path: fpath;
-  analyzer: xlang;
+  analyzer: analyzer;
   products: product list;
   lockfile_target: lockfile option
 }
@@ -475,7 +475,6 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   deployment_name: string;
   policy_names: string list;
   rule_config: string;
-  ci_config_from_cloud: ci_config_from_cloud option;
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
@@ -484,15 +483,21 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   triage_ignored_match_based_ids: string list;
   ignored_files: string list;
   enabled_products: product list option;
-  actions: action list
+  actions: action list;
+  ci_config_from_cloud: ci_config_from_cloud option
 }
 
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
 
-type sarif_format_return = Semgrep_output_v1_t.sarif_format_return = {
-  output: string;
-  format_time_seconds: float
+type sarif_format = Semgrep_output_v1_t.sarif_format = {
+  rules: fpath;
+  is_pro: bool;
+  show_dataflow_traces: bool
 }
+
+type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
+
+type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
 
 type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
   command: string;
@@ -503,6 +508,24 @@ type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
 type resolution_error = Semgrep_output_v1_t.resolution_error
   [@@deriving show]
 
+type resolution_result = Semgrep_output_v1_t.resolution_result
+
+type profile = Semgrep_output_v1_t.profile = {
+  rules: rule_id list;
+  rules_parse_time: float;
+  profiling_times: (string * float) list;
+  targets: target_times list;
+  total_bytes: int;
+  max_memory_bytes: int option
+}
+
+type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
+  targets_parsed: int;
+  num_targets: int;
+  bytes_parsed: int;
+  num_bytes: int
+}
+
 type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
   rule_id: rule_id;
   this_version: version;
@@ -510,6 +533,37 @@ type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
   max_version: version option
 }
   [@@deriving show]
+
+type finding_hashes = Semgrep_output_v1_t.finding_hashes = {
+  start_line_hash: string;
+  end_line_hash: string;
+  code_hash: string;
+  pattern_hash: string
+}
+
+type finding = Semgrep_output_v1_t.finding = {
+  check_id: rule_id;
+  path: fpath;
+  line: int;
+  column: int;
+  end_line: int;
+  end_column: int;
+  message: string;
+  severity: Yojson.Safe.t;
+  index: int;
+  commit_date: string;
+  syntactic_id: string;
+  match_based_id: string option;
+  hashes: finding_hashes option;
+  metadata: raw_json;
+  is_blocking: bool;
+  fixed_lines: string list option;
+  sca_info: sca_match option;
+  dataflow_trace: match_dataflow_trace option;
+  validation_state: validation_state option;
+  historical_info: historical_info option;
+  engine_kind: engine_of_finding option
+}
 
 type error_type = Semgrep_output_v1_t.error_type = 
     LexicalError
@@ -556,107 +610,6 @@ type error_span = Semgrep_output_v1_t.error_span = {
 type error_severity = Semgrep_output_v1_t.error_severity
   [@@deriving show, eq]
 
-type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
-  metavars: metavars option;
-  message: string;
-  fix: string option;
-  fixed_lines: string list option;
-  metadata: raw_json;
-  severity: match_severity;
-  fingerprint: string;
-  lines: string;
-  is_ignored: bool option;
-  sca_info: sca_match option;
-  validation_state: validation_state option;
-  historical_info: historical_info option;
-  dataflow_trace: match_dataflow_trace option;
-  engine_kind: engine_of_finding option;
-  extra_extra: raw_json option
-}
-
-type cli_match = Semgrep_output_v1_t.cli_match = {
-  check_id: rule_id;
-  path: fpath;
-  start: position;
-  end_ (*atd end *): position;
-  extra: cli_match_extra
-}
-
-type cli_error = Semgrep_output_v1_t.cli_error = {
-  code: int;
-  level: error_severity;
-  type_: error_type;
-  rule_id: rule_id option;
-  message: string option;
-  path: fpath option;
-  long_msg: string option;
-  short_msg: string option;
-  spans: error_span list option;
-  help: string option
-}
-
-type sarif_format_params = Semgrep_output_v1_t.sarif_format_params = {
-  rules: fpath;
-  cli_matches: cli_match list;
-  cli_errors: cli_error list;
-  hide_nudge: bool;
-  engine_label: string;
-  show_dataflow_traces: bool
-}
-
-type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
-
-type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
-
-type resolution_result = Semgrep_output_v1_t.resolution_result
-
-type profile = Semgrep_output_v1_t.profile = {
-  rules: rule_id list;
-  rules_parse_time: float;
-  profiling_times: (string * float) list;
-  targets: target_times list;
-  total_bytes: int;
-  max_memory_bytes: int option
-}
-
-type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
-  targets_parsed: int;
-  num_targets: int;
-  bytes_parsed: int;
-  num_bytes: int
-}
-
-type finding_hashes = Semgrep_output_v1_t.finding_hashes = {
-  start_line_hash: string;
-  end_line_hash: string;
-  code_hash: string;
-  pattern_hash: string
-}
-
-type finding = Semgrep_output_v1_t.finding = {
-  check_id: rule_id;
-  path: fpath;
-  line: int;
-  column: int;
-  end_line: int;
-  end_column: int;
-  message: string;
-  severity: Yojson.Safe.t;
-  index: int;
-  commit_date: string;
-  syntactic_id: string;
-  match_based_id: string option;
-  hashes: finding_hashes option;
-  metadata: raw_json;
-  is_blocking: bool;
-  fixed_lines: string list option;
-  sca_info: sca_match option;
-  dataflow_trace: match_dataflow_trace option;
-  validation_state: validation_state option;
-  historical_info: historical_info option;
-  engine_kind: engine_of_finding option
-}
-
 type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
   path: fpath;
   parser: sca_parser_name;
@@ -678,6 +631,19 @@ type contribution = Semgrep_output_v1_t.contribution = {
 }
 
 type contributions = Semgrep_output_v1_t.contributions
+
+type cli_error = Semgrep_output_v1_t.cli_error = {
+  code: int;
+  level: error_severity;
+  type_: error_type;
+  rule_id: rule_id option;
+  message: string option;
+  path: fpath option;
+  long_msg: string option;
+  short_msg: string option;
+  spans: error_span list option;
+  help: string option
+}
 
 type ci_scan_dependencies = Semgrep_output_v1_t.ci_scan_dependencies
 
@@ -775,6 +741,32 @@ type dump_rule_partitions_params =
   rules: raw_json;
   n_partitions: int;
   output_dir: fpath
+}
+
+type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
+  metavars: metavars option;
+  message: string;
+  fix: string option;
+  fixed_lines: string list option;
+  metadata: raw_json;
+  severity: match_severity;
+  fingerprint: string;
+  lines: string;
+  is_ignored: bool option;
+  sca_info: sca_match option;
+  validation_state: validation_state option;
+  historical_info: historical_info option;
+  dataflow_trace: match_dataflow_trace option;
+  engine_kind: engine_of_finding option;
+  extra_extra: raw_json option
+}
+
+type cli_match = Semgrep_output_v1_t.cli_match = {
+  check_id: rule_id;
+  path: fpath;
+  start: position;
+  end_ (*atd end *): position;
+  extra: cli_match_extra
 }
 
 type cli_output = Semgrep_output_v1_t.cli_output = {
@@ -7428,37 +7420,6 @@ and read_matching_explanation = (
 )
 and matching_explanation_of_string s =
   read_matching_explanation (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__x_893d00a = (
-  fun ob x -> (
-    let x = ( Xlang.unwrap ) x in (
-      Yojson.Safe.write_string
-    ) ob x)
-)
-let string_of__x_893d00a ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__x_893d00a ob x;
-  Buffer.contents ob
-let read__x_893d00a = (
-  fun p lb ->
-    let x = (
-      Atdgen_runtime.Oj_run.read_string
-    ) p lb in
-    ( Xlang.wrap ) x
-)
-let _x_893d00a_of_string s =
-  read__x_893d00a (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_xlang = (
-  write__x_893d00a
-)
-let string_of_xlang ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_xlang ob x;
-  Buffer.contents ob
-let read_xlang = (
-  read__x_893d00a
-)
-let xlang_of_string s =
-  read_xlang (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_version = (
   Yojson.Safe.write_string
 )
@@ -10532,6 +10493,37 @@ let read_lockfile = (
 )
 let lockfile_of_string s =
   read_lockfile (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_7982d5d = (
+  fun ob x -> (
+    let x = ( Analyzer.unwrap ) x in (
+      Yojson.Safe.write_string
+    ) ob x)
+)
+let string_of__x_7982d5d ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__x_7982d5d ob x;
+  Buffer.contents ob
+let read__x_7982d5d = (
+  fun p lb ->
+    let x = (
+      Atdgen_runtime.Oj_run.read_string
+    ) p lb in
+    ( Analyzer.wrap ) x
+)
+let _x_7982d5d_of_string s =
+  read__x_7982d5d (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_analyzer = (
+  write__x_7982d5d
+)
+let string_of_analyzer ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_analyzer ob x;
+  Buffer.contents ob
+let read_analyzer = (
+  read__x_7982d5d
+)
+let analyzer_of_string s =
+  read_analyzer (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__product_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_product
@@ -10624,7 +10616,7 @@ let write_code_target : _ -> code_target -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"analyzer\":";
     (
-      write_xlang
+      write_analyzer
     )
       ob x.analyzer;
     if !is_first then
@@ -10728,7 +10720,7 @@ let read_code_target = (
             field_analyzer := (
               Some (
                 (
-                  read_xlang
+                  read_analyzer
                 ) p lb
               )
             );
@@ -10821,7 +10813,7 @@ let read_code_target = (
               field_analyzer := (
                 Some (
                   (
-                    read_xlang
+                    read_analyzer
                   ) p lb
                 )
               );
@@ -18284,17 +18276,6 @@ let write_scan_config : _ -> scan_config -> _ = (
       Yojson.Safe.write_string
     )
       ob x.rule_config;
-    (match x.ci_config_from_cloud with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"ci_config_from_cloud\":";
-      (
-        write_ci_config_from_cloud
-      )
-        ob x;
-    );
     if !is_first then
       is_first := false
     else
@@ -18378,6 +18359,17 @@ let write_scan_config : _ -> scan_config -> _ = (
       write__action_list
     )
       ob x.actions;
+    (match x.ci_config_from_cloud with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"ci_config_from_cloud\":";
+      (
+        write_ci_config_from_cloud
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_scan_config ?(len = 1024) x =
@@ -18392,7 +18384,6 @@ let read_scan_config = (
     let field_deployment_name = ref (None) in
     let field_policy_names = ref (None) in
     let field_rule_config = ref (None) in
-    let field_ci_config_from_cloud = ref (None) in
     let field_autofix = ref (false) in
     let field_deepsemgrep = ref (false) in
     let field_dependency_query = ref (false) in
@@ -18402,6 +18393,7 @@ let read_scan_config = (
     let field_ignored_files = ref ([]) in
     let field_enabled_products = ref (None) in
     let field_actions = ref ([]) in
+    let field_ci_config_from_cloud = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -18416,7 +18408,7 @@ let read_scan_config = (
                   match String.unsafe_get s (pos+1) with
                     | 'c' -> (
                         if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 's' then (
-                          13
+                          12
                         )
                         else (
                           -1
@@ -18424,7 +18416,7 @@ let read_scan_config = (
                       )
                     | 'u' -> (
                         if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'x' then (
-                          5
+                          4
                         )
                         else (
                           -1
@@ -18442,7 +18434,7 @@ let read_scan_config = (
                 match String.unsafe_get s pos with
                   | 'd' -> (
                       if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'g' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'p' then (
-                        6
+                        5
                       )
                       else (
                         -1
@@ -18480,7 +18472,7 @@ let read_scan_config = (
                     )
                   | 'i' -> (
                       if String.unsafe_get s (pos+1) = 'g' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
-                        11
+                        10
                       )
                       else (
                         -1
@@ -18502,7 +18494,7 @@ let read_scan_config = (
                 match String.unsafe_get s pos with
                   | 'd' -> (
                       if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'q' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'y' then (
-                        7
+                        6
                       )
                       else (
                         -1
@@ -18510,7 +18502,7 @@ let read_scan_config = (
                     )
                   | 'e' -> (
                       if String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'c' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 's' then (
-                        12
+                        11
                       )
                       else (
                         -1
@@ -18524,7 +18516,7 @@ let read_scan_config = (
                 match String.unsafe_get s pos with
                   | 'c' -> (
                       if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'f' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'f' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'm' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 'l' && String.unsafe_get s (pos+17) = 'o' && String.unsafe_get s (pos+18) = 'u' && String.unsafe_get s (pos+19) = 'd' then (
-                        4
+                        13
                       )
                       else (
                         -1
@@ -18532,7 +18524,7 @@ let read_scan_config = (
                     )
                   | 'p' -> (
                       if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'i' && String.unsafe_get s (pos+16) = 'v' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 'y' then (
-                        8
+                        7
                       )
                       else (
                         -1
@@ -18544,7 +18536,7 @@ let read_scan_config = (
               )
             | 28 -> (
                 if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 's' && String.unsafe_get s (pos+16) = 'y' && String.unsafe_get s (pos+17) = 'n' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 'a' && String.unsafe_get s (pos+20) = 'c' && String.unsafe_get s (pos+21) = 't' && String.unsafe_get s (pos+22) = 'i' && String.unsafe_get s (pos+23) = 'c' && String.unsafe_get s (pos+24) = '_' && String.unsafe_get s (pos+25) = 'i' && String.unsafe_get s (pos+26) = 'd' && String.unsafe_get s (pos+27) = 's' then (
-                  9
+                  8
                 )
                 else (
                   -1
@@ -18552,7 +18544,7 @@ let read_scan_config = (
               )
             | 30 -> (
                 if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'm' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 't' && String.unsafe_get s (pos+18) = 'c' && String.unsafe_get s (pos+19) = 'h' && String.unsafe_get s (pos+20) = '_' && String.unsafe_get s (pos+21) = 'b' && String.unsafe_get s (pos+22) = 'a' && String.unsafe_get s (pos+23) = 's' && String.unsafe_get s (pos+24) = 'e' && String.unsafe_get s (pos+25) = 'd' && String.unsafe_get s (pos+26) = '_' && String.unsafe_get s (pos+27) = 'i' && String.unsafe_get s (pos+28) = 'd' && String.unsafe_get s (pos+29) = 's' then (
-                  10
+                  9
                 )
                 else (
                   -1
@@ -18600,23 +18592,13 @@ let read_scan_config = (
             );
           | 4 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_ci_config_from_cloud := (
-                Some (
-                  (
-                    read_ci_config_from_cloud
-                  ) p lb
-                )
-              );
-            )
-          | 5 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_autofix := (
                 (
                   Atdgen_runtime.Oj_run.read_bool
                 ) p lb
               );
             )
-          | 6 ->
+          | 5 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_deepsemgrep := (
                 (
@@ -18624,7 +18606,7 @@ let read_scan_config = (
                 ) p lb
               );
             )
-          | 7 ->
+          | 6 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_dependency_query := (
                 (
@@ -18632,7 +18614,7 @@ let read_scan_config = (
                 ) p lb
               );
             )
-          | 8 ->
+          | 7 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_path_to_transitivity := (
                 (
@@ -18640,7 +18622,7 @@ let read_scan_config = (
                 ) p lb
               );
             )
-          | 9 ->
+          | 8 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_triage_ignored_syntactic_ids := (
                 (
@@ -18648,7 +18630,7 @@ let read_scan_config = (
                 ) p lb
               );
             )
-          | 10 ->
+          | 9 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_triage_ignored_match_based_ids := (
                 (
@@ -18656,7 +18638,7 @@ let read_scan_config = (
                 ) p lb
               );
             )
-          | 11 ->
+          | 10 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_ignored_files := (
                 (
@@ -18664,7 +18646,7 @@ let read_scan_config = (
                 ) p lb
               );
             )
-          | 12 ->
+          | 11 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_enabled_products := (
                 Some (
@@ -18674,12 +18656,22 @@ let read_scan_config = (
                 )
               );
             )
-          | 13 ->
+          | 12 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_actions := (
                 (
                   read__action_list
                 ) p lb
+              );
+            )
+          | 13 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_ci_config_from_cloud := (
+                Some (
+                  (
+                    read_ci_config_from_cloud
+                  ) p lb
+                )
               );
             )
           | _ -> (
@@ -18700,7 +18692,7 @@ let read_scan_config = (
                     match String.unsafe_get s (pos+1) with
                       | 'c' -> (
                           if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 's' then (
-                            13
+                            12
                           )
                           else (
                             -1
@@ -18708,7 +18700,7 @@ let read_scan_config = (
                         )
                       | 'u' -> (
                           if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'x' then (
-                            5
+                            4
                           )
                           else (
                             -1
@@ -18726,7 +18718,7 @@ let read_scan_config = (
                   match String.unsafe_get s pos with
                     | 'd' -> (
                         if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'g' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'p' then (
-                          6
+                          5
                         )
                         else (
                           -1
@@ -18764,7 +18756,7 @@ let read_scan_config = (
                       )
                     | 'i' -> (
                         if String.unsafe_get s (pos+1) = 'g' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'f' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' then (
-                          11
+                          10
                         )
                         else (
                           -1
@@ -18786,7 +18778,7 @@ let read_scan_config = (
                   match String.unsafe_get s pos with
                     | 'd' -> (
                         if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'q' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'y' then (
-                          7
+                          6
                         )
                         else (
                           -1
@@ -18794,7 +18786,7 @@ let read_scan_config = (
                       )
                     | 'e' -> (
                         if String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'c' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 's' then (
-                          12
+                          11
                         )
                         else (
                           -1
@@ -18808,7 +18800,7 @@ let read_scan_config = (
                   match String.unsafe_get s pos with
                     | 'c' -> (
                         if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'f' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'f' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'm' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 'l' && String.unsafe_get s (pos+17) = 'o' && String.unsafe_get s (pos+18) = 'u' && String.unsafe_get s (pos+19) = 'd' then (
-                          4
+                          13
                         )
                         else (
                           -1
@@ -18816,7 +18808,7 @@ let read_scan_config = (
                       )
                     | 'p' -> (
                         if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'i' && String.unsafe_get s (pos+16) = 'v' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 'y' then (
-                          8
+                          7
                         )
                         else (
                           -1
@@ -18828,7 +18820,7 @@ let read_scan_config = (
                 )
               | 28 -> (
                   if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 's' && String.unsafe_get s (pos+16) = 'y' && String.unsafe_get s (pos+17) = 'n' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 'a' && String.unsafe_get s (pos+20) = 'c' && String.unsafe_get s (pos+21) = 't' && String.unsafe_get s (pos+22) = 'i' && String.unsafe_get s (pos+23) = 'c' && String.unsafe_get s (pos+24) = '_' && String.unsafe_get s (pos+25) = 'i' && String.unsafe_get s (pos+26) = 'd' && String.unsafe_get s (pos+27) = 's' then (
-                    9
+                    8
                   )
                   else (
                     -1
@@ -18836,7 +18828,7 @@ let read_scan_config = (
                 )
               | 30 -> (
                   if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'm' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 't' && String.unsafe_get s (pos+18) = 'c' && String.unsafe_get s (pos+19) = 'h' && String.unsafe_get s (pos+20) = '_' && String.unsafe_get s (pos+21) = 'b' && String.unsafe_get s (pos+22) = 'a' && String.unsafe_get s (pos+23) = 's' && String.unsafe_get s (pos+24) = 'e' && String.unsafe_get s (pos+25) = 'd' && String.unsafe_get s (pos+26) = '_' && String.unsafe_get s (pos+27) = 'i' && String.unsafe_get s (pos+28) = 'd' && String.unsafe_get s (pos+29) = 's' then (
-                    10
+                    9
                   )
                   else (
                     -1
@@ -18884,23 +18876,13 @@ let read_scan_config = (
               );
             | 4 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_ci_config_from_cloud := (
-                  Some (
-                    (
-                      read_ci_config_from_cloud
-                    ) p lb
-                  )
-                );
-              )
-            | 5 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_autofix := (
                   (
                     Atdgen_runtime.Oj_run.read_bool
                   ) p lb
                 );
               )
-            | 6 ->
+            | 5 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_deepsemgrep := (
                   (
@@ -18908,7 +18890,7 @@ let read_scan_config = (
                   ) p lb
                 );
               )
-            | 7 ->
+            | 6 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_dependency_query := (
                   (
@@ -18916,7 +18898,7 @@ let read_scan_config = (
                   ) p lb
                 );
               )
-            | 8 ->
+            | 7 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_path_to_transitivity := (
                   (
@@ -18924,7 +18906,7 @@ let read_scan_config = (
                   ) p lb
                 );
               )
-            | 9 ->
+            | 8 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_triage_ignored_syntactic_ids := (
                   (
@@ -18932,7 +18914,7 @@ let read_scan_config = (
                   ) p lb
                 );
               )
-            | 10 ->
+            | 9 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_triage_ignored_match_based_ids := (
                   (
@@ -18940,7 +18922,7 @@ let read_scan_config = (
                   ) p lb
                 );
               )
-            | 11 ->
+            | 10 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_ignored_files := (
                   (
@@ -18948,7 +18930,7 @@ let read_scan_config = (
                   ) p lb
                 );
               )
-            | 12 ->
+            | 11 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_enabled_products := (
                   Some (
@@ -18958,12 +18940,22 @@ let read_scan_config = (
                   )
                 );
               )
-            | 13 ->
+            | 12 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_actions := (
                   (
                     read__action_list
                   ) p lb
+                );
+              )
+            | 13 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_ci_config_from_cloud := (
+                  Some (
+                    (
+                      read_ci_config_from_cloud
+                    ) p lb
+                  )
                 );
               )
             | _ -> (
@@ -18979,7 +18971,6 @@ let read_scan_config = (
             deployment_name = (match !field_deployment_name with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "deployment_name");
             policy_names = (match !field_policy_names with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "policy_names");
             rule_config = (match !field_rule_config with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rule_config");
-            ci_config_from_cloud = !field_ci_config_from_cloud;
             autofix = !field_autofix;
             deepsemgrep = !field_deepsemgrep;
             dependency_query = !field_dependency_query;
@@ -18989,6 +18980,7 @@ let read_scan_config = (
             ignored_files = !field_ignored_files;
             enabled_products = !field_enabled_products;
             actions = !field_actions;
+            ci_config_from_cloud = !field_ci_config_from_cloud;
           }
          : scan_config)
       )
@@ -19172,40 +19164,50 @@ let read_sca_parser_name = (
 )
 let sca_parser_name_of_string s =
   read_sca_parser_name (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_sarif_format_return : _ -> sarif_format_return -> _ = (
-  fun ob (x : sarif_format_return) ->
+let write_sarif_format : _ -> sarif_format -> _ = (
+  fun ob (x : sarif_format) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
     if !is_first then
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"output\":";
+      Buffer.add_string ob "\"rules\":";
     (
-      Yojson.Safe.write_string
+      write_fpath
     )
-      ob x.output;
+      ob x.rules;
     if !is_first then
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"format_time_seconds\":";
+      Buffer.add_string ob "\"is_pro\":";
     (
-      Yojson.Safe.write_std_float
+      Yojson.Safe.write_bool
     )
-      ob x.format_time_seconds;
+      ob x.is_pro;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"show_dataflow_traces\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.show_dataflow_traces;
     Buffer.add_char ob '}';
 )
-let string_of_sarif_format_return ?(len = 1024) x =
+let string_of_sarif_format ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_sarif_format_return ob x;
+  write_sarif_format ob x;
   Buffer.contents ob
-let read_sarif_format_return = (
+let read_sarif_format = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
-    let field_output = ref (None) in
-    let field_format_time_seconds = ref (None) in
+    let field_rules = ref (None) in
+    let field_is_pro = ref (None) in
+    let field_show_dataflow_traces = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -19215,17 +19217,25 @@ let read_sarif_format_return = (
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
-            | 6 -> (
-                if String.unsafe_get s pos = 'o' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 't' then (
+            | 5 -> (
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
                   0
                 )
                 else (
                   -1
                 )
               )
-            | 19 -> (
-                if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'm' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'c' && String.unsafe_get s (pos+15) = 'o' && String.unsafe_get s (pos+16) = 'n' && String.unsafe_get s (pos+17) = 'd' && String.unsafe_get s (pos+18) = 's' then (
+            | 6 -> (
+                if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' then (
                   1
+                )
+                else (
+                  -1
+                )
+              )
+            | 20 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'w' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'f' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'w' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'r' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = 's' then (
+                  2
                 )
                 else (
                   -1
@@ -19240,18 +19250,26 @@ let read_sarif_format_return = (
       (
         match i with
           | 0 ->
-            field_output := (
+            field_rules := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_fpath
                 ) p lb
               )
             );
           | 1 ->
-            field_format_time_seconds := (
+            field_is_pro := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_number
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              )
+            );
+          | 2 ->
+            field_show_dataflow_traces := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
                 ) p lb
               )
             );
@@ -19268,17 +19286,25 @@ let read_sarif_format_return = (
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
-              | 6 -> (
-                  if String.unsafe_get s pos = 'o' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 't' then (
+              | 5 -> (
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
                     0
                   )
                   else (
                     -1
                   )
                 )
-              | 19 -> (
-                  if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'm' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'c' && String.unsafe_get s (pos+15) = 'o' && String.unsafe_get s (pos+16) = 'n' && String.unsafe_get s (pos+17) = 'd' && String.unsafe_get s (pos+18) = 's' then (
+              | 6 -> (
+                  if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' then (
                     1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 20 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'w' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'f' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'w' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'r' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = 's' then (
+                    2
                   )
                   else (
                     -1
@@ -19293,18 +19319,26 @@ let read_sarif_format_return = (
         (
           match i with
             | 0 ->
-              field_output := (
+              field_rules := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_fpath
                   ) p lb
                 )
               );
             | 1 ->
-              field_format_time_seconds := (
+              field_is_pro := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_number
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            | 2 ->
+              field_show_dataflow_traces := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
                   ) p lb
                 )
               );
@@ -19317,14 +19351,125 @@ let read_sarif_format_return = (
     with Yojson.End_of_object -> (
         (
           {
-            output = (match !field_output with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "output");
-            format_time_seconds = (match !field_format_time_seconds with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "format_time_seconds");
+            rules = (match !field_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rules");
+            is_pro = (match !field_is_pro with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "is_pro");
+            show_dataflow_traces = (match !field_show_dataflow_traces with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "show_dataflow_traces");
           }
-         : sarif_format_return)
+         : sarif_format)
       )
 )
-let sarif_format_return_of_string s =
-  read_sarif_format_return (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let sarif_format_of_string s =
+  read_sarif_format (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_engine_kind = (
+  fun ob x ->
+    match x with
+      | `OSS -> Buffer.add_string ob "\"OSS\""
+      | `PRO -> Buffer.add_string ob "\"PRO\""
+)
+let string_of_engine_kind ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_engine_kind ob x;
+  Buffer.contents ob
+let read_engine_kind = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "OSS" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `OSS
+            | "PRO" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `PRO
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "OSS" ->
+              `OSS
+            | "PRO" ->
+              `PRO
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let engine_kind_of_string s =
+  read_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_rule_id_and_engine_kind = (
+  fun ob x ->
+    Buffer.add_char ob '[';
+    (let x, _ = x in
+    (
+      write_rule_id
+    ) ob x
+    );
+    Buffer.add_char ob ',';
+    (let _, x = x in
+    (
+      write_engine_kind
+    ) ob x
+    );
+    Buffer.add_char ob ']';
+)
+let string_of_rule_id_and_engine_kind ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_rule_id_and_engine_kind ob x;
+  Buffer.contents ob
+let read_rule_id_and_engine_kind = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+    let len = ref 0 in
+    let end_of_tuple = ref false in
+    (try
+      let x0 =
+        let x =
+          (
+            read_rule_id
+          ) p lb
+        in
+        incr len;
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+        x
+      in
+      let x1 =
+        let x =
+          (
+            read_engine_kind
+          ) p lb
+        in
+        incr len;
+        (try
+          Yojson.Safe.read_space p lb;
+          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+        with Yojson.End_of_tuple -> end_of_tuple := true);
+        x
+      in
+      if not !end_of_tuple then (
+        try
+          while true do
+            Yojson.Safe.skip_json p lb;
+            Yojson.Safe.read_space p lb;
+            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+          done
+        with Yojson.End_of_tuple -> ()
+      );
+      (x0, x1)
+    with Yojson.End_of_tuple ->
+      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+)
+let rule_id_and_engine_kind_of_string s =
+  read_rule_id_and_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_resolution_cmd_failed : _ -> resolution_cmd_failed -> _ = (
   fun ob (x : resolution_cmd_failed) ->
     Buffer.add_char ob '{';
@@ -19603,3823 +19748,6 @@ let read_resolution_error = (
 )
 let resolution_error_of_string s =
   read_resolution_error (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__version_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_version
-  )
-)
-let string_of__version_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__version_option ob x;
-  Buffer.contents ob
-let read__version_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_version
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_version
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _version_option_of_string s =
-  read__version_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_incompatible_rule : _ -> incompatible_rule -> _ = (
-  fun ob (x : incompatible_rule) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"rule_id\":";
-    (
-      write_rule_id
-    )
-      ob x.rule_id;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"this_version\":";
-    (
-      write_version
-    )
-      ob x.this_version;
-    (match x.min_version with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"min_version\":";
-      (
-        write_version
-      )
-        ob x;
-    );
-    (match x.max_version with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"max_version\":";
-      (
-        write_version
-      )
-        ob x;
-    );
-    Buffer.add_char ob '}';
-)
-let string_of_incompatible_rule ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_incompatible_rule ob x;
-  Buffer.contents ob
-let read_incompatible_rule = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_rule_id = ref (None) in
-    let field_this_version = ref (None) in
-    let field_min_version = ref (None) in
-    let field_max_version = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          match len with
-            | 7 -> (
-                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
-                  0
-                )
-                else (
-                  -1
-                )
-              )
-            | 11 -> (
-                if String.unsafe_get s pos = 'm' then (
-                  match String.unsafe_get s (pos+1) with
-                    | 'a' -> (
-                        if String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'v' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' then (
-                          3
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 'i' -> (
-                        if String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'v' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' then (
-                          2
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
-                )
-                else (
-                  -1
-                )
-              )
-            | 12 -> (
-                if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'v' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'n' then (
-                  1
-                )
-                else (
-                  -1
-                )
-              )
-            | _ -> (
-                -1
-              )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_rule_id := (
-              Some (
-                (
-                  read_rule_id
-                ) p lb
-              )
-            );
-          | 1 ->
-            field_this_version := (
-              Some (
-                (
-                  read_version
-                ) p lb
-              )
-            );
-          | 2 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_min_version := (
-                Some (
-                  (
-                    read_version
-                  ) p lb
-                )
-              );
-            )
-          | 3 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_max_version := (
-                Some (
-                  (
-                    read_version
-                  ) p lb
-                )
-              );
-            )
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            match len with
-              | 7 -> (
-                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
-                    0
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 11 -> (
-                  if String.unsafe_get s pos = 'm' then (
-                    match String.unsafe_get s (pos+1) with
-                      | 'a' -> (
-                          if String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'v' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' then (
-                            3
-                          )
-                          else (
-                            -1
-                          )
-                        )
-                      | 'i' -> (
-                          if String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'v' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' then (
-                            2
-                          )
-                          else (
-                            -1
-                          )
-                        )
-                      | _ -> (
-                          -1
-                        )
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 12 -> (
-                  if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'v' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'n' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_rule_id := (
-                Some (
-                  (
-                    read_rule_id
-                  ) p lb
-                )
-              );
-            | 1 ->
-              field_this_version := (
-                Some (
-                  (
-                    read_version
-                  ) p lb
-                )
-              );
-            | 2 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_min_version := (
-                  Some (
-                    (
-                      read_version
-                    ) p lb
-                  )
-                );
-              )
-            | 3 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_max_version := (
-                  Some (
-                    (
-                      read_version
-                    ) p lb
-                  )
-                );
-              )
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            rule_id = (match !field_rule_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rule_id");
-            this_version = (match !field_this_version with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "this_version");
-            min_version = !field_min_version;
-            max_version = !field_max_version;
-          }
-         : incompatible_rule)
-      )
-)
-let incompatible_rule_of_string s =
-  read_incompatible_rule (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__location_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_location
-  )
-)
-let string_of__location_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__location_list ob x;
-  Buffer.contents ob
-let read__location_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_location
-  )
-)
-let _location_list_of_string s =
-  read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_error_type : _ -> error_type -> _ = (
-  fun ob (x : error_type) ->
-    match x with
-      | LexicalError -> Buffer.add_string ob "\"Lexical error\""
-      | ParseError -> Buffer.add_string ob "\"Syntax error\""
-      | OtherParseError -> Buffer.add_string ob "\"Other syntax error\""
-      | AstBuilderError -> Buffer.add_string ob "\"AST builder error\""
-      | RuleParseError -> Buffer.add_string ob "\"Rule parse error\""
-      | SemgrepWarning -> Buffer.add_string ob "\"SemgrepWarning\""
-      | SemgrepError -> Buffer.add_string ob "\"SemgrepError\""
-      | InvalidRuleSchemaError -> Buffer.add_string ob "\"InvalidRuleSchemaError\""
-      | UnknownLanguageError -> Buffer.add_string ob "\"UnknownLanguageError\""
-      | InvalidYaml -> Buffer.add_string ob "\"Invalid YAML\""
-      | MatchingError -> Buffer.add_string ob "\"Internal matching error\""
-      | SemgrepMatchFound -> Buffer.add_string ob "\"Semgrep match found\""
-      | TooManyMatches -> Buffer.add_string ob "\"Too many matches\""
-      | FatalError -> Buffer.add_string ob "\"Fatal error\""
-      | Timeout -> Buffer.add_string ob "\"Timeout\""
-      | OutOfMemory -> Buffer.add_string ob "\"Out of memory\""
-      | StackOverflow -> Buffer.add_string ob "\"Stack overflow\""
-      | TimeoutDuringInterfile -> Buffer.add_string ob "\"Timeout during interfile analysis\""
-      | OutOfMemoryDuringInterfile -> Buffer.add_string ob "\"OOM during interfile analysis\""
-      | MissingPlugin -> Buffer.add_string ob "\"Missing plugin\""
-      | PatternParseError x ->
-        Buffer.add_string ob "[\"PatternParseError\",";
-        (
-          write__string_list
-        ) ob x;
-        Buffer.add_char ob ']'
-      | PartialParsing x ->
-        Buffer.add_string ob "[\"PartialParsing\",";
-        (
-          write__location_list
-        ) ob x;
-        Buffer.add_char ob ']'
-      | IncompatibleRule x ->
-        Buffer.add_string ob "[\"IncompatibleRule\",";
-        (
-          write_incompatible_rule
-        ) ob x;
-        Buffer.add_char ob ']'
-      | PatternParseError0 -> Buffer.add_string ob "\"Pattern parse error\""
-      | IncompatibleRule0 -> Buffer.add_string ob "\"Incompatible rule\""
-      | DependencyResolutionError x ->
-        Buffer.add_string ob "[\"DependencyResolutionError\",";
-        (
-          write_resolution_error
-        ) ob x;
-        Buffer.add_char ob ']'
-)
-let string_of_error_type ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_error_type ob x;
-  Buffer.contents ob
-let read_error_type = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "Lexical error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (LexicalError : error_type)
-            | "Syntax error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (ParseError : error_type)
-            | "Other syntax error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (OtherParseError : error_type)
-            | "AST builder error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (AstBuilderError : error_type)
-            | "Rule parse error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (RuleParseError : error_type)
-            | "SemgrepWarning" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (SemgrepWarning : error_type)
-            | "SemgrepError" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (SemgrepError : error_type)
-            | "InvalidRuleSchemaError" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (InvalidRuleSchemaError : error_type)
-            | "UnknownLanguageError" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (UnknownLanguageError : error_type)
-            | "Invalid YAML" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (InvalidYaml : error_type)
-            | "Internal matching error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (MatchingError : error_type)
-            | "Semgrep match found" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (SemgrepMatchFound : error_type)
-            | "Too many matches" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (TooManyMatches : error_type)
-            | "Fatal error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (FatalError : error_type)
-            | "Timeout" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Timeout : error_type)
-            | "Out of memory" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (OutOfMemory : error_type)
-            | "Stack overflow" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (StackOverflow : error_type)
-            | "Timeout during interfile analysis" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (TimeoutDuringInterfile : error_type)
-            | "OOM during interfile analysis" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (OutOfMemoryDuringInterfile : error_type)
-            | "Missing plugin" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (MissingPlugin : error_type)
-            | "PatternParseError" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__string_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PatternParseError x : error_type)
-            | "PartialParsing" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__location_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PartialParsing x : error_type)
-            | "IncompatibleRule" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_incompatible_rule
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (IncompatibleRule x : error_type)
-            | "Pattern parse error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PatternParseError0 : error_type)
-            | "Incompatible rule" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (IncompatibleRule0 : error_type)
-            | "DependencyResolutionError" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_resolution_error
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (DependencyResolutionError x : error_type)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "Lexical error" ->
-              (LexicalError : error_type)
-            | "Syntax error" ->
-              (ParseError : error_type)
-            | "Other syntax error" ->
-              (OtherParseError : error_type)
-            | "AST builder error" ->
-              (AstBuilderError : error_type)
-            | "Rule parse error" ->
-              (RuleParseError : error_type)
-            | "SemgrepWarning" ->
-              (SemgrepWarning : error_type)
-            | "SemgrepError" ->
-              (SemgrepError : error_type)
-            | "InvalidRuleSchemaError" ->
-              (InvalidRuleSchemaError : error_type)
-            | "UnknownLanguageError" ->
-              (UnknownLanguageError : error_type)
-            | "Invalid YAML" ->
-              (InvalidYaml : error_type)
-            | "Internal matching error" ->
-              (MatchingError : error_type)
-            | "Semgrep match found" ->
-              (SemgrepMatchFound : error_type)
-            | "Too many matches" ->
-              (TooManyMatches : error_type)
-            | "Fatal error" ->
-              (FatalError : error_type)
-            | "Timeout" ->
-              (Timeout : error_type)
-            | "Out of memory" ->
-              (OutOfMemory : error_type)
-            | "Stack overflow" ->
-              (StackOverflow : error_type)
-            | "Timeout during interfile analysis" ->
-              (TimeoutDuringInterfile : error_type)
-            | "OOM during interfile analysis" ->
-              (OutOfMemoryDuringInterfile : error_type)
-            | "Missing plugin" ->
-              (MissingPlugin : error_type)
-            | "Pattern parse error" ->
-              (PatternParseError0 : error_type)
-            | "Incompatible rule" ->
-              (IncompatibleRule0 : error_type)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "PatternParseError" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__string_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (PatternParseError x : error_type)
-            | "PartialParsing" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__location_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (PartialParsing x : error_type)
-            | "IncompatibleRule" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_incompatible_rule
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (IncompatibleRule x : error_type)
-            | "DependencyResolutionError" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_resolution_error
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (DependencyResolutionError x : error_type)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let error_type_of_string s =
-  read_error_type (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__string_list_nullable = (
-  Atdgen_runtime.Oj_run.write_nullable (
-    write__string_list
-  )
-)
-let string_of__string_list_nullable ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__string_list_nullable ob x;
-  Buffer.contents ob
-let read__string_list_nullable = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    (if Yojson.Safe.read_null_if_possible p lb then None
-    else Some ((
-      read__string_list
-    ) p lb) : _ option)
-)
-let _string_list_nullable_of_string s =
-  read__string_list_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__string_list_nullable_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write__string_list_nullable
-  )
-)
-let string_of__string_list_nullable_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__string_list_nullable_option ob x;
-  Buffer.contents ob
-let read__string_list_nullable_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__string_list_nullable
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__string_list_nullable
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _string_list_nullable_option_of_string s =
-  read__string_list_nullable_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__position_nullable = (
-  Atdgen_runtime.Oj_run.write_nullable (
-    write_position
-  )
-)
-let string_of__position_nullable ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__position_nullable ob x;
-  Buffer.contents ob
-let read__position_nullable = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    (if Yojson.Safe.read_null_if_possible p lb then None
-    else Some ((
-      read_position
-    ) p lb) : _ option)
-)
-let _position_nullable_of_string s =
-  read__position_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__position_nullable_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write__position_nullable
-  )
-)
-let string_of__position_nullable_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__position_nullable_option ob x;
-  Buffer.contents ob
-let read__position_nullable_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__position_nullable
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__position_nullable
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _position_nullable_option_of_string s =
-  read__position_nullable_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_error_span : _ -> error_span -> _ = (
-  fun ob (x : error_span) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"file\":";
-    (
-      write_fpath
-    )
-      ob x.file;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"start\":";
-    (
-      write_position
-    )
-      ob x.start;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"end\":";
-    (
-      write_position
-    )
-      ob x.end_;
-    (match x.source_hash with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"source_hash\":";
-      (
-        Yojson.Safe.write_string
-      )
-        ob x;
-    );
-    (match x.config_start with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"config_start\":";
-      (
-        write__position_nullable
-      )
-        ob x;
-    );
-    (match x.config_end with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"config_end\":";
-      (
-        write__position_nullable
-      )
-        ob x;
-    );
-    (match x.config_path with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"config_path\":";
-      (
-        write__string_list_nullable
-      )
-        ob x;
-    );
-    (match x.context_start with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"context_start\":";
-      (
-        write__position_nullable
-      )
-        ob x;
-    );
-    (match x.context_end with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"context_end\":";
-      (
-        write__position_nullable
-      )
-        ob x;
-    );
-    Buffer.add_char ob '}';
-)
-let string_of_error_span ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_error_span ob x;
-  Buffer.contents ob
-let read_error_span = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_file = ref (None) in
-    let field_start = ref (None) in
-    let field_end_ = ref (None) in
-    let field_source_hash = ref (None) in
-    let field_config_start = ref (None) in
-    let field_config_end = ref (None) in
-    let field_config_path = ref (None) in
-    let field_context_start = ref (None) in
-    let field_context_end = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          match len with
-            | 3 -> (
-                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'd' then (
-                  2
-                )
-                else (
-                  -1
-                )
-              )
-            | 4 -> (
-                if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' then (
-                  0
-                )
-                else (
-                  -1
-                )
-              )
-            | 5 -> (
-                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' then (
-                  1
-                )
-                else (
-                  -1
-                )
-              )
-            | 10 -> (
-                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'd' then (
-                  5
-                )
-                else (
-                  -1
-                )
-              )
-            | 11 -> (
-                match String.unsafe_get s pos with
-                  | 'c' -> (
-                      if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' then (
-                        match String.unsafe_get s (pos+3) with
-                          | 'f' -> (
-                              if String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' then (
-                                6
-                              )
-                              else (
-                                -1
-                              )
-                            )
-                          | 't' -> (
-                              if String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'x' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'd' then (
-                                8
-                              )
-                              else (
-                                -1
-                              )
-                            )
-                          | _ -> (
-                              -1
-                            )
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | 's' -> (
-                      if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'u' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'h' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'h' then (
-                        3
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | _ -> (
-                      -1
-                    )
-              )
-            | 12 -> (
-                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 't' then (
-                  4
-                )
-                else (
-                  -1
-                )
-              )
-            | 13 -> (
-                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'x' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 't' then (
-                  7
-                )
-                else (
-                  -1
-                )
-              )
-            | _ -> (
-                -1
-              )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_file := (
-              Some (
-                (
-                  read_fpath
-                ) p lb
-              )
-            );
-          | 1 ->
-            field_start := (
-              Some (
-                (
-                  read_position
-                ) p lb
-              )
-            );
-          | 2 ->
-            field_end_ := (
-              Some (
-                (
-                  read_position
-                ) p lb
-              )
-            );
-          | 3 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_source_hash := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            )
-          | 4 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_config_start := (
-                Some (
-                  (
-                    read__position_nullable
-                  ) p lb
-                )
-              );
-            )
-          | 5 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_config_end := (
-                Some (
-                  (
-                    read__position_nullable
-                  ) p lb
-                )
-              );
-            )
-          | 6 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_config_path := (
-                Some (
-                  (
-                    read__string_list_nullable
-                  ) p lb
-                )
-              );
-            )
-          | 7 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_context_start := (
-                Some (
-                  (
-                    read__position_nullable
-                  ) p lb
-                )
-              );
-            )
-          | 8 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_context_end := (
-                Some (
-                  (
-                    read__position_nullable
-                  ) p lb
-                )
-              );
-            )
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            match len with
-              | 3 -> (
-                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'd' then (
-                    2
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 4 -> (
-                  if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' then (
-                    0
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 5 -> (
-                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 10 -> (
-                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'd' then (
-                    5
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 11 -> (
-                  match String.unsafe_get s pos with
-                    | 'c' -> (
-                        if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' then (
-                          match String.unsafe_get s (pos+3) with
-                            | 'f' -> (
-                                if String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' then (
-                                  6
-                                )
-                                else (
-                                  -1
-                                )
-                              )
-                            | 't' -> (
-                                if String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'x' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'd' then (
-                                  8
-                                )
-                                else (
-                                  -1
-                                )
-                              )
-                            | _ -> (
-                                -1
-                              )
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 's' -> (
-                        if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'u' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'h' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'h' then (
-                          3
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
-                )
-              | 12 -> (
-                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 't' then (
-                    4
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 13 -> (
-                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'x' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 't' then (
-                    7
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_file := (
-                Some (
-                  (
-                    read_fpath
-                  ) p lb
-                )
-              );
-            | 1 ->
-              field_start := (
-                Some (
-                  (
-                    read_position
-                  ) p lb
-                )
-              );
-            | 2 ->
-              field_end_ := (
-                Some (
-                  (
-                    read_position
-                  ) p lb
-                )
-              );
-            | 3 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_source_hash := (
-                  Some (
-                    (
-                      Atdgen_runtime.Oj_run.read_string
-                    ) p lb
-                  )
-                );
-              )
-            | 4 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_config_start := (
-                  Some (
-                    (
-                      read__position_nullable
-                    ) p lb
-                  )
-                );
-              )
-            | 5 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_config_end := (
-                  Some (
-                    (
-                      read__position_nullable
-                    ) p lb
-                  )
-                );
-              )
-            | 6 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_config_path := (
-                  Some (
-                    (
-                      read__string_list_nullable
-                    ) p lb
-                  )
-                );
-              )
-            | 7 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_context_start := (
-                  Some (
-                    (
-                      read__position_nullable
-                    ) p lb
-                  )
-                );
-              )
-            | 8 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_context_end := (
-                  Some (
-                    (
-                      read__position_nullable
-                    ) p lb
-                  )
-                );
-              )
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            file = (match !field_file with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "file");
-            start = (match !field_start with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "start");
-            end_ = (match !field_end_ with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "end_");
-            source_hash = !field_source_hash;
-            config_start = !field_config_start;
-            config_end = !field_config_end;
-            config_path = !field_config_path;
-            context_start = !field_context_start;
-            context_end = !field_context_end;
-          }
-         : error_span)
-      )
-)
-let error_span_of_string s =
-  read_error_span (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_error_severity = (
-  fun ob x ->
-    match x with
-      | `Error -> Buffer.add_string ob "\"error\""
-      | `Warning -> Buffer.add_string ob "\"warn\""
-      | `Info -> Buffer.add_string ob "\"info\""
-)
-let string_of_error_severity ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_error_severity ob x;
-  Buffer.contents ob
-let read_error_severity = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Error
-            | "warn" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Warning
-            | "info" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Info
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "error" ->
-              `Error
-            | "warn" ->
-              `Warning
-            | "info" ->
-              `Info
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let error_severity_of_string s =
-  read_error_severity (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__string_list_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write__string_list
-  )
-)
-let string_of__string_list_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__string_list_option ob x;
-  Buffer.contents ob
-let read__string_list_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__string_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__string_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _string_list_option_of_string s =
-  read__string_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__metavars_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_metavars
-  )
-)
-let string_of__metavars_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__metavars_option ob x;
-  Buffer.contents ob
-let read__metavars_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_metavars
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_metavars
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _metavars_option_of_string s =
-  read__metavars_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__engine_of_finding_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write_engine_of_finding
-  )
-)
-let string_of__engine_of_finding_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__engine_of_finding_option ob x;
-  Buffer.contents ob
-let read__engine_of_finding_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_engine_of_finding
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_engine_of_finding
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _engine_of_finding_option_of_string s =
-  read__engine_of_finding_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_cli_match_extra : _ -> cli_match_extra -> _ = (
-  fun ob (x : cli_match_extra) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    (match x.metavars with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"metavars\":";
-      (
-        write_metavars
-      )
-        ob x;
-    );
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"message\":";
-    (
-      Yojson.Safe.write_string
-    )
-      ob x.message;
-    (match x.fix with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"fix\":";
-      (
-        Yojson.Safe.write_string
-      )
-        ob x;
-    );
-    (match x.fixed_lines with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"fixed_lines\":";
-      (
-        write__string_list
-      )
-        ob x;
-    );
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"metadata\":";
-    (
-      write_raw_json
-    )
-      ob x.metadata;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"severity\":";
-    (
-      write_match_severity
-    )
-      ob x.severity;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"fingerprint\":";
-    (
-      Yojson.Safe.write_string
-    )
-      ob x.fingerprint;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"lines\":";
-    (
-      Yojson.Safe.write_string
-    )
-      ob x.lines;
-    (match x.is_ignored with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"is_ignored\":";
-      (
-        Yojson.Safe.write_bool
-      )
-        ob x;
-    );
-    (match x.sca_info with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"sca_info\":";
-      (
-        write_sca_match
-      )
-        ob x;
-    );
-    (match x.validation_state with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"validation_state\":";
-      (
-        write_validation_state
-      )
-        ob x;
-    );
-    (match x.historical_info with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"historical_info\":";
-      (
-        write_historical_info
-      )
-        ob x;
-    );
-    (match x.dataflow_trace with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"dataflow_trace\":";
-      (
-        write_match_dataflow_trace
-      )
-        ob x;
-    );
-    (match x.engine_kind with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"engine_kind\":";
-      (
-        write_engine_of_finding
-      )
-        ob x;
-    );
-    (match x.extra_extra with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"extra_extra\":";
-      (
-        write_raw_json
-      )
-        ob x;
-    );
-    Buffer.add_char ob '}';
-)
-let string_of_cli_match_extra ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_cli_match_extra ob x;
-  Buffer.contents ob
-let read_cli_match_extra = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_metavars = ref (None) in
-    let field_message = ref (None) in
-    let field_fix = ref (None) in
-    let field_fixed_lines = ref (None) in
-    let field_metadata = ref (None) in
-    let field_severity = ref (None) in
-    let field_fingerprint = ref (None) in
-    let field_lines = ref (None) in
-    let field_is_ignored = ref (None) in
-    let field_sca_info = ref (None) in
-    let field_validation_state = ref (None) in
-    let field_historical_info = ref (None) in
-    let field_dataflow_trace = ref (None) in
-    let field_engine_kind = ref (None) in
-    let field_extra_extra = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          match len with
-            | 3 -> (
-                if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'x' then (
-                  2
-                )
-                else (
-                  -1
-                )
-              )
-            | 5 -> (
-                if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
-                  7
-                )
-                else (
-                  -1
-                )
-              )
-            | 7 -> (
-                if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
-                  1
-                )
-                else (
-                  -1
-                )
-              )
-            | 8 -> (
-                match String.unsafe_get s pos with
-                  | 'm' -> (
-                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' then (
-                        match String.unsafe_get s (pos+4) with
-                          | 'd' -> (
-                              if String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'a' then (
-                                4
-                              )
-                              else (
-                                -1
-                              )
-                            )
-                          | 'v' -> (
-                              if String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' then (
-                                0
-                              )
-                              else (
-                                -1
-                              )
-                            )
-                          | _ -> (
-                              -1
-                            )
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | 's' -> (
-                      match String.unsafe_get s (pos+1) with
-                        | 'c' -> (
-                            if String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'f' && String.unsafe_get s (pos+7) = 'o' then (
-                              9
-                            )
-                            else (
-                              -1
-                            )
-                          )
-                        | 'e' -> (
-                            if String.unsafe_get s (pos+2) = 'v' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'y' then (
-                              5
-                            )
-                            else (
-                              -1
-                            )
-                          )
-                        | _ -> (
-                            -1
-                          )
-                    )
-                  | _ -> (
-                      -1
-                    )
-              )
-            | 10 -> (
-                if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'd' then (
-                  8
-                )
-                else (
-                  -1
-                )
-              )
-            | 11 -> (
-                match String.unsafe_get s pos with
-                  | 'e' -> (
-                      match String.unsafe_get s (pos+1) with
-                        | 'n' -> (
-                            if String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'k' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'd' then (
-                              13
-                            )
-                            else (
-                              -1
-                            )
-                          )
-                        | 'x' -> (
-                            if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'x' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' then (
-                              14
-                            )
-                            else (
-                              -1
-                            )
-                          )
-                        | _ -> (
-                            -1
-                          )
-                    )
-                  | 'f' -> (
-                      if String.unsafe_get s (pos+1) = 'i' then (
-                        match String.unsafe_get s (pos+2) with
-                          | 'n' -> (
-                              if String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 't' then (
-                                6
-                              )
-                              else (
-                                -1
-                              )
-                            )
-                          | 'x' -> (
-                              if String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' then (
-                                3
-                              )
-                              else (
-                                -1
-                              )
-                            )
-                          | _ -> (
-                              -1
-                            )
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | _ -> (
-                      -1
-                    )
-              )
-            | 14 -> (
-                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'e' then (
-                  12
-                )
-                else (
-                  -1
-                )
-              )
-            | 15 -> (
-                if String.unsafe_get s pos = 'h' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'l' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 'f' && String.unsafe_get s (pos+14) = 'o' then (
-                  11
-                )
-                else (
-                  -1
-                )
-              )
-            | 16 -> (
-                if String.unsafe_get s pos = 'v' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'e' then (
-                  10
-                )
-                else (
-                  -1
-                )
-              )
-            | _ -> (
-                -1
-              )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_metavars := (
-                Some (
-                  (
-                    read_metavars
-                  ) p lb
-                )
-              );
-            )
-          | 1 ->
-            field_message := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              )
-            );
-          | 2 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_fix := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            )
-          | 3 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_fixed_lines := (
-                Some (
-                  (
-                    read__string_list
-                  ) p lb
-                )
-              );
-            )
-          | 4 ->
-            field_metadata := (
-              Some (
-                (
-                  read_raw_json
-                ) p lb
-              )
-            );
-          | 5 ->
-            field_severity := (
-              Some (
-                (
-                  read_match_severity
-                ) p lb
-              )
-            );
-          | 6 ->
-            field_fingerprint := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              )
-            );
-          | 7 ->
-            field_lines := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              )
-            );
-          | 8 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_is_ignored := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_bool
-                  ) p lb
-                )
-              );
-            )
-          | 9 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_sca_info := (
-                Some (
-                  (
-                    read_sca_match
-                  ) p lb
-                )
-              );
-            )
-          | 10 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_validation_state := (
-                Some (
-                  (
-                    read_validation_state
-                  ) p lb
-                )
-              );
-            )
-          | 11 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_historical_info := (
-                Some (
-                  (
-                    read_historical_info
-                  ) p lb
-                )
-              );
-            )
-          | 12 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_dataflow_trace := (
-                Some (
-                  (
-                    read_match_dataflow_trace
-                  ) p lb
-                )
-              );
-            )
-          | 13 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_engine_kind := (
-                Some (
-                  (
-                    read_engine_of_finding
-                  ) p lb
-                )
-              );
-            )
-          | 14 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_extra_extra := (
-                Some (
-                  (
-                    read_raw_json
-                  ) p lb
-                )
-              );
-            )
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            match len with
-              | 3 -> (
-                  if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'x' then (
-                    2
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 5 -> (
-                  if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
-                    7
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 7 -> (
-                  if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 8 -> (
-                  match String.unsafe_get s pos with
-                    | 'm' -> (
-                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' then (
-                          match String.unsafe_get s (pos+4) with
-                            | 'd' -> (
-                                if String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'a' then (
-                                  4
-                                )
-                                else (
-                                  -1
-                                )
-                              )
-                            | 'v' -> (
-                                if String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' then (
-                                  0
-                                )
-                                else (
-                                  -1
-                                )
-                              )
-                            | _ -> (
-                                -1
-                              )
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 's' -> (
-                        match String.unsafe_get s (pos+1) with
-                          | 'c' -> (
-                              if String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'f' && String.unsafe_get s (pos+7) = 'o' then (
-                                9
-                              )
-                              else (
-                                -1
-                              )
-                            )
-                          | 'e' -> (
-                              if String.unsafe_get s (pos+2) = 'v' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'y' then (
-                                5
-                              )
-                              else (
-                                -1
-                              )
-                            )
-                          | _ -> (
-                              -1
-                            )
-                      )
-                    | _ -> (
-                        -1
-                      )
-                )
-              | 10 -> (
-                  if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'd' then (
-                    8
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 11 -> (
-                  match String.unsafe_get s pos with
-                    | 'e' -> (
-                        match String.unsafe_get s (pos+1) with
-                          | 'n' -> (
-                              if String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'k' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'd' then (
-                                13
-                              )
-                              else (
-                                -1
-                              )
-                            )
-                          | 'x' -> (
-                              if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'x' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' then (
-                                14
-                              )
-                              else (
-                                -1
-                              )
-                            )
-                          | _ -> (
-                              -1
-                            )
-                      )
-                    | 'f' -> (
-                        if String.unsafe_get s (pos+1) = 'i' then (
-                          match String.unsafe_get s (pos+2) with
-                            | 'n' -> (
-                                if String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 't' then (
-                                  6
-                                )
-                                else (
-                                  -1
-                                )
-                              )
-                            | 'x' -> (
-                                if String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' then (
-                                  3
-                                )
-                                else (
-                                  -1
-                                )
-                              )
-                            | _ -> (
-                                -1
-                              )
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
-                )
-              | 14 -> (
-                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'e' then (
-                    12
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 15 -> (
-                  if String.unsafe_get s pos = 'h' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'l' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 'f' && String.unsafe_get s (pos+14) = 'o' then (
-                    11
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 16 -> (
-                  if String.unsafe_get s pos = 'v' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'e' then (
-                    10
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_metavars := (
-                  Some (
-                    (
-                      read_metavars
-                    ) p lb
-                  )
-                );
-              )
-            | 1 ->
-              field_message := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            | 2 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_fix := (
-                  Some (
-                    (
-                      Atdgen_runtime.Oj_run.read_string
-                    ) p lb
-                  )
-                );
-              )
-            | 3 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_fixed_lines := (
-                  Some (
-                    (
-                      read__string_list
-                    ) p lb
-                  )
-                );
-              )
-            | 4 ->
-              field_metadata := (
-                Some (
-                  (
-                    read_raw_json
-                  ) p lb
-                )
-              );
-            | 5 ->
-              field_severity := (
-                Some (
-                  (
-                    read_match_severity
-                  ) p lb
-                )
-              );
-            | 6 ->
-              field_fingerprint := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            | 7 ->
-              field_lines := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            | 8 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_is_ignored := (
-                  Some (
-                    (
-                      Atdgen_runtime.Oj_run.read_bool
-                    ) p lb
-                  )
-                );
-              )
-            | 9 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_sca_info := (
-                  Some (
-                    (
-                      read_sca_match
-                    ) p lb
-                  )
-                );
-              )
-            | 10 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_validation_state := (
-                  Some (
-                    (
-                      read_validation_state
-                    ) p lb
-                  )
-                );
-              )
-            | 11 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_historical_info := (
-                  Some (
-                    (
-                      read_historical_info
-                    ) p lb
-                  )
-                );
-              )
-            | 12 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_dataflow_trace := (
-                  Some (
-                    (
-                      read_match_dataflow_trace
-                    ) p lb
-                  )
-                );
-              )
-            | 13 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_engine_kind := (
-                  Some (
-                    (
-                      read_engine_of_finding
-                    ) p lb
-                  )
-                );
-              )
-            | 14 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_extra_extra := (
-                  Some (
-                    (
-                      read_raw_json
-                    ) p lb
-                  )
-                );
-              )
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            metavars = !field_metavars;
-            message = (match !field_message with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "message");
-            fix = !field_fix;
-            fixed_lines = !field_fixed_lines;
-            metadata = (match !field_metadata with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "metadata");
-            severity = (match !field_severity with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "severity");
-            fingerprint = (match !field_fingerprint with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "fingerprint");
-            lines = (match !field_lines with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "lines");
-            is_ignored = !field_is_ignored;
-            sca_info = !field_sca_info;
-            validation_state = !field_validation_state;
-            historical_info = !field_historical_info;
-            dataflow_trace = !field_dataflow_trace;
-            engine_kind = !field_engine_kind;
-            extra_extra = !field_extra_extra;
-          }
-         : cli_match_extra)
-      )
-)
-let cli_match_extra_of_string s =
-  read_cli_match_extra (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_cli_match : _ -> cli_match -> _ = (
-  fun ob (x : cli_match) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"check_id\":";
-    (
-      write_rule_id
-    )
-      ob x.check_id;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"path\":";
-    (
-      write_fpath
-    )
-      ob x.path;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"start\":";
-    (
-      write_position
-    )
-      ob x.start;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"end\":";
-    (
-      write_position
-    )
-      ob x.end_;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"extra\":";
-    (
-      write_cli_match_extra
-    )
-      ob x.extra;
-    Buffer.add_char ob '}';
-)
-let string_of_cli_match ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_cli_match ob x;
-  Buffer.contents ob
-let read_cli_match = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_check_id = ref (None) in
-    let field_path = ref (None) in
-    let field_start = ref (None) in
-    let field_end_ = ref (None) in
-    let field_extra = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          match len with
-            | 3 -> (
-                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'd' then (
-                  3
-                )
-                else (
-                  -1
-                )
-              )
-            | 4 -> (
-                if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
-                  1
-                )
-                else (
-                  -1
-                )
-              )
-            | 5 -> (
-                match String.unsafe_get s pos with
-                  | 'e' -> (
-                      if String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' then (
-                        4
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | 's' -> (
-                      if String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' then (
-                        2
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | _ -> (
-                      -1
-                    )
-              )
-            | 8 -> (
-                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'k' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'd' then (
-                  0
-                )
-                else (
-                  -1
-                )
-              )
-            | _ -> (
-                -1
-              )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_check_id := (
-              Some (
-                (
-                  read_rule_id
-                ) p lb
-              )
-            );
-          | 1 ->
-            field_path := (
-              Some (
-                (
-                  read_fpath
-                ) p lb
-              )
-            );
-          | 2 ->
-            field_start := (
-              Some (
-                (
-                  read_position
-                ) p lb
-              )
-            );
-          | 3 ->
-            field_end_ := (
-              Some (
-                (
-                  read_position
-                ) p lb
-              )
-            );
-          | 4 ->
-            field_extra := (
-              Some (
-                (
-                  read_cli_match_extra
-                ) p lb
-              )
-            );
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            match len with
-              | 3 -> (
-                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'd' then (
-                    3
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 4 -> (
-                  if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 5 -> (
-                  match String.unsafe_get s pos with
-                    | 'e' -> (
-                        if String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' then (
-                          4
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 's' -> (
-                        if String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' then (
-                          2
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
-                )
-              | 8 -> (
-                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'k' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'd' then (
-                    0
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_check_id := (
-                Some (
-                  (
-                    read_rule_id
-                  ) p lb
-                )
-              );
-            | 1 ->
-              field_path := (
-                Some (
-                  (
-                    read_fpath
-                  ) p lb
-                )
-              );
-            | 2 ->
-              field_start := (
-                Some (
-                  (
-                    read_position
-                  ) p lb
-                )
-              );
-            | 3 ->
-              field_end_ := (
-                Some (
-                  (
-                    read_position
-                  ) p lb
-                )
-              );
-            | 4 ->
-              field_extra := (
-                Some (
-                  (
-                    read_cli_match_extra
-                  ) p lb
-                )
-              );
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            check_id = (match !field_check_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "check_id");
-            path = (match !field_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "path");
-            start = (match !field_start with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "start");
-            end_ = (match !field_end_ with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "end_");
-            extra = (match !field_extra with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "extra");
-          }
-         : cli_match)
-      )
-)
-let cli_match_of_string s =
-  read_cli_match (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__error_span_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_error_span
-  )
-)
-let string_of__error_span_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__error_span_list ob x;
-  Buffer.contents ob
-let read__error_span_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_error_span
-  )
-)
-let _error_span_list_of_string s =
-  read__error_span_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__error_span_list_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write__error_span_list
-  )
-)
-let string_of__error_span_list_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__error_span_list_option ob x;
-  Buffer.contents ob
-let read__error_span_list_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__error_span_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__error_span_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _error_span_list_option_of_string s =
-  read__error_span_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_cli_error : _ -> cli_error -> _ = (
-  fun ob (x : cli_error) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"code\":";
-    (
-      Yojson.Safe.write_int
-    )
-      ob x.code;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"level\":";
-    (
-      write_error_severity
-    )
-      ob x.level;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"type\":";
-    (
-      write_error_type
-    )
-      ob x.type_;
-    (match x.rule_id with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"rule_id\":";
-      (
-        write_rule_id
-      )
-        ob x;
-    );
-    (match x.message with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"message\":";
-      (
-        Yojson.Safe.write_string
-      )
-        ob x;
-    );
-    (match x.path with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"path\":";
-      (
-        write_fpath
-      )
-        ob x;
-    );
-    (match x.long_msg with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"long_msg\":";
-      (
-        Yojson.Safe.write_string
-      )
-        ob x;
-    );
-    (match x.short_msg with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"short_msg\":";
-      (
-        Yojson.Safe.write_string
-      )
-        ob x;
-    );
-    (match x.spans with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"spans\":";
-      (
-        write__error_span_list
-      )
-        ob x;
-    );
-    (match x.help with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"help\":";
-      (
-        Yojson.Safe.write_string
-      )
-        ob x;
-    );
-    Buffer.add_char ob '}';
-)
-let string_of_cli_error ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_cli_error ob x;
-  Buffer.contents ob
-let read_cli_error = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_code = ref (None) in
-    let field_level = ref (None) in
-    let field_type_ = ref (None) in
-    let field_rule_id = ref (None) in
-    let field_message = ref (None) in
-    let field_path = ref (None) in
-    let field_long_msg = ref (None) in
-    let field_short_msg = ref (None) in
-    let field_spans = ref (None) in
-    let field_help = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          match len with
-            | 4 -> (
-                match String.unsafe_get s pos with
-                  | 'c' -> (
-                      if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'e' then (
-                        0
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | 'h' -> (
-                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'p' then (
-                        9
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | 'p' -> (
-                      if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
-                        5
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | 't' -> (
-                      if String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' then (
-                        2
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | _ -> (
-                      -1
-                    )
-              )
-            | 5 -> (
-                match String.unsafe_get s pos with
-                  | 'l' -> (
-                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'v' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'l' then (
-                        1
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | 's' -> (
-                      if String.unsafe_get s (pos+1) = 'p' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 's' then (
-                        8
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | _ -> (
-                      -1
-                    )
-              )
-            | 7 -> (
-                match String.unsafe_get s pos with
-                  | 'm' -> (
-                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
-                        4
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | 'r' -> (
-                      if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
-                        3
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | _ -> (
-                      -1
-                    )
-              )
-            | 8 -> (
-                if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'm' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 'g' then (
-                  6
-                )
-                else (
-                  -1
-                )
-              )
-            | 9 -> (
-                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'g' then (
-                  7
-                )
-                else (
-                  -1
-                )
-              )
-            | _ -> (
-                -1
-              )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_code := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_int
-                ) p lb
-              )
-            );
-          | 1 ->
-            field_level := (
-              Some (
-                (
-                  read_error_severity
-                ) p lb
-              )
-            );
-          | 2 ->
-            field_type_ := (
-              Some (
-                (
-                  read_error_type
-                ) p lb
-              )
-            );
-          | 3 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_rule_id := (
-                Some (
-                  (
-                    read_rule_id
-                  ) p lb
-                )
-              );
-            )
-          | 4 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_message := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            )
-          | 5 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_path := (
-                Some (
-                  (
-                    read_fpath
-                  ) p lb
-                )
-              );
-            )
-          | 6 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_long_msg := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            )
-          | 7 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_short_msg := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            )
-          | 8 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_spans := (
-                Some (
-                  (
-                    read__error_span_list
-                  ) p lb
-                )
-              );
-            )
-          | 9 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_help := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            )
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            match len with
-              | 4 -> (
-                  match String.unsafe_get s pos with
-                    | 'c' -> (
-                        if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'e' then (
-                          0
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 'h' -> (
-                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'p' then (
-                          9
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 'p' -> (
-                        if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
-                          5
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 't' -> (
-                        if String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' then (
-                          2
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
-                )
-              | 5 -> (
-                  match String.unsafe_get s pos with
-                    | 'l' -> (
-                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'v' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'l' then (
-                          1
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 's' -> (
-                        if String.unsafe_get s (pos+1) = 'p' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 's' then (
-                          8
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
-                )
-              | 7 -> (
-                  match String.unsafe_get s pos with
-                    | 'm' -> (
-                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
-                          4
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 'r' -> (
-                        if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
-                          3
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
-                )
-              | 8 -> (
-                  if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'm' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 'g' then (
-                    6
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 9 -> (
-                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'g' then (
-                    7
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_code := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_int
-                  ) p lb
-                )
-              );
-            | 1 ->
-              field_level := (
-                Some (
-                  (
-                    read_error_severity
-                  ) p lb
-                )
-              );
-            | 2 ->
-              field_type_ := (
-                Some (
-                  (
-                    read_error_type
-                  ) p lb
-                )
-              );
-            | 3 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_rule_id := (
-                  Some (
-                    (
-                      read_rule_id
-                    ) p lb
-                  )
-                );
-              )
-            | 4 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_message := (
-                  Some (
-                    (
-                      Atdgen_runtime.Oj_run.read_string
-                    ) p lb
-                  )
-                );
-              )
-            | 5 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_path := (
-                  Some (
-                    (
-                      read_fpath
-                    ) p lb
-                  )
-                );
-              )
-            | 6 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_long_msg := (
-                  Some (
-                    (
-                      Atdgen_runtime.Oj_run.read_string
-                    ) p lb
-                  )
-                );
-              )
-            | 7 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_short_msg := (
-                  Some (
-                    (
-                      Atdgen_runtime.Oj_run.read_string
-                    ) p lb
-                  )
-                );
-              )
-            | 8 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_spans := (
-                  Some (
-                    (
-                      read__error_span_list
-                    ) p lb
-                  )
-                );
-              )
-            | 9 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_help := (
-                  Some (
-                    (
-                      Atdgen_runtime.Oj_run.read_string
-                    ) p lb
-                  )
-                );
-              )
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            code = (match !field_code with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "code");
-            level = (match !field_level with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "level");
-            type_ = (match !field_type_ with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "type_");
-            rule_id = !field_rule_id;
-            message = !field_message;
-            path = !field_path;
-            long_msg = !field_long_msg;
-            short_msg = !field_short_msg;
-            spans = !field_spans;
-            help = !field_help;
-          }
-         : cli_error)
-      )
-)
-let cli_error_of_string s =
-  read_cli_error (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__cli_match_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_cli_match
-  )
-)
-let string_of__cli_match_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__cli_match_list ob x;
-  Buffer.contents ob
-let read__cli_match_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_cli_match
-  )
-)
-let _cli_match_list_of_string s =
-  read__cli_match_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__cli_error_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_cli_error
-  )
-)
-let string_of__cli_error_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__cli_error_list ob x;
-  Buffer.contents ob
-let read__cli_error_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_cli_error
-  )
-)
-let _cli_error_list_of_string s =
-  read__cli_error_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_sarif_format_params : _ -> sarif_format_params -> _ = (
-  fun ob (x : sarif_format_params) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"rules\":";
-    (
-      write_fpath
-    )
-      ob x.rules;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"cli_matches\":";
-    (
-      write__cli_match_list
-    )
-      ob x.cli_matches;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"cli_errors\":";
-    (
-      write__cli_error_list
-    )
-      ob x.cli_errors;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"hide_nudge\":";
-    (
-      Yojson.Safe.write_bool
-    )
-      ob x.hide_nudge;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"engine_label\":";
-    (
-      Yojson.Safe.write_string
-    )
-      ob x.engine_label;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"show_dataflow_traces\":";
-    (
-      Yojson.Safe.write_bool
-    )
-      ob x.show_dataflow_traces;
-    Buffer.add_char ob '}';
-)
-let string_of_sarif_format_params ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_sarif_format_params ob x;
-  Buffer.contents ob
-let read_sarif_format_params = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_rules = ref (None) in
-    let field_cli_matches = ref (None) in
-    let field_cli_errors = ref (None) in
-    let field_hide_nudge = ref (None) in
-    let field_engine_label = ref (None) in
-    let field_show_dataflow_traces = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          match len with
-            | 5 -> (
-                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
-                  0
-                )
-                else (
-                  -1
-                )
-              )
-            | 10 -> (
-                match String.unsafe_get s pos with
-                  | 'c' -> (
-                      if String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 's' then (
-                        2
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | 'h' -> (
-                      if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'u' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'e' then (
-                        3
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | _ -> (
-                      -1
-                    )
-              )
-            | 11 -> (
-                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' then (
-                  1
-                )
-                else (
-                  -1
-                )
-              )
-            | 12 -> (
-                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'l' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'b' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 'l' then (
-                  4
-                )
-                else (
-                  -1
-                )
-              )
-            | 20 -> (
-                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'w' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'f' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'w' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'r' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = 's' then (
-                  5
-                )
-                else (
-                  -1
-                )
-              )
-            | _ -> (
-                -1
-              )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_rules := (
-              Some (
-                (
-                  read_fpath
-                ) p lb
-              )
-            );
-          | 1 ->
-            field_cli_matches := (
-              Some (
-                (
-                  read__cli_match_list
-                ) p lb
-              )
-            );
-          | 2 ->
-            field_cli_errors := (
-              Some (
-                (
-                  read__cli_error_list
-                ) p lb
-              )
-            );
-          | 3 ->
-            field_hide_nudge := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_bool
-                ) p lb
-              )
-            );
-          | 4 ->
-            field_engine_label := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              )
-            );
-          | 5 ->
-            field_show_dataflow_traces := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_bool
-                ) p lb
-              )
-            );
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            match len with
-              | 5 -> (
-                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
-                    0
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 10 -> (
-                  match String.unsafe_get s pos with
-                    | 'c' -> (
-                        if String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 's' then (
-                          2
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 'h' -> (
-                        if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'u' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'e' then (
-                          3
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
-                )
-              | 11 -> (
-                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 12 -> (
-                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'l' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'b' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 'l' then (
-                    4
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 20 -> (
-                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'w' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'f' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'o' && String.unsafe_get s (pos+12) = 'w' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'r' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = 's' then (
-                    5
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_rules := (
-                Some (
-                  (
-                    read_fpath
-                  ) p lb
-                )
-              );
-            | 1 ->
-              field_cli_matches := (
-                Some (
-                  (
-                    read__cli_match_list
-                  ) p lb
-                )
-              );
-            | 2 ->
-              field_cli_errors := (
-                Some (
-                  (
-                    read__cli_error_list
-                  ) p lb
-                )
-              );
-            | 3 ->
-              field_hide_nudge := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_bool
-                  ) p lb
-                )
-              );
-            | 4 ->
-              field_engine_label := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            | 5 ->
-              field_show_dataflow_traces := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_bool
-                  ) p lb
-                )
-              );
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            rules = (match !field_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rules");
-            cli_matches = (match !field_cli_matches with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "cli_matches");
-            cli_errors = (match !field_cli_errors with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "cli_errors");
-            hide_nudge = (match !field_hide_nudge with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "hide_nudge");
-            engine_label = (match !field_engine_label with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "engine_label");
-            show_dataflow_traces = (match !field_show_dataflow_traces with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "show_dataflow_traces");
-          }
-         : sarif_format_params)
-      )
-)
-let sarif_format_params_of_string s =
-  read_sarif_format_params (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_engine_kind = (
-  fun ob x ->
-    match x with
-      | `OSS -> Buffer.add_string ob "\"OSS\""
-      | `PRO -> Buffer.add_string ob "\"PRO\""
-)
-let string_of_engine_kind ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_engine_kind ob x;
-  Buffer.contents ob
-let read_engine_kind = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "OSS" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `OSS
-            | "PRO" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `PRO
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "OSS" ->
-              `OSS
-            | "PRO" ->
-              `PRO
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let engine_kind_of_string s =
-  read_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_rule_id_and_engine_kind = (
-  fun ob x ->
-    Buffer.add_char ob '[';
-    (let x, _ = x in
-    (
-      write_rule_id
-    ) ob x
-    );
-    Buffer.add_char ob ',';
-    (let _, x = x in
-    (
-      write_engine_kind
-    ) ob x
-    );
-    Buffer.add_char ob ']';
-)
-let string_of_rule_id_and_engine_kind ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_rule_id_and_engine_kind ob x;
-  Buffer.contents ob
-let read_rule_id_and_engine_kind = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-    let len = ref 0 in
-    let end_of_tuple = ref false in
-    (try
-      let x0 =
-        let x =
-          (
-            read_rule_id
-          ) p lb
-        in
-        incr len;
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-        x
-      in
-      let x1 =
-        let x =
-          (
-            read_engine_kind
-          ) p lb
-        in
-        incr len;
-        (try
-          Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-        with Yojson.End_of_tuple -> end_of_tuple := true);
-        x
-      in
-      if not !end_of_tuple then (
-        try
-          while true do
-            Yojson.Safe.skip_json p lb;
-            Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          done
-        with Yojson.End_of_tuple -> ()
-      );
-      (x0, x1)
-    with Yojson.End_of_tuple ->
-      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
-)
-let rule_id_and_engine_kind_of_string s =
-  read_rule_id_and_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__resolution_error_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_resolution_error
@@ -24263,6 +20591,336 @@ let read_parsing_stats = (
 )
 let parsing_stats_of_string s =
   read_parsing_stats (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__version_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_version
+  )
+)
+let string_of__version_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__version_option ob x;
+  Buffer.contents ob
+let read__version_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_version
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_version
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _version_option_of_string s =
+  read__version_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_incompatible_rule : _ -> incompatible_rule -> _ = (
+  fun ob (x : incompatible_rule) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"rule_id\":";
+    (
+      write_rule_id
+    )
+      ob x.rule_id;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"this_version\":";
+    (
+      write_version
+    )
+      ob x.this_version;
+    (match x.min_version with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"min_version\":";
+      (
+        write_version
+      )
+        ob x;
+    );
+    (match x.max_version with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"max_version\":";
+      (
+        write_version
+      )
+        ob x;
+    );
+    Buffer.add_char ob '}';
+)
+let string_of_incompatible_rule ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_incompatible_rule ob x;
+  Buffer.contents ob
+let read_incompatible_rule = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_rule_id = ref (None) in
+    let field_this_version = ref (None) in
+    let field_min_version = ref (None) in
+    let field_max_version = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 7 -> (
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
+                  0
+                )
+                else (
+                  -1
+                )
+              )
+            | 11 -> (
+                if String.unsafe_get s pos = 'm' then (
+                  match String.unsafe_get s (pos+1) with
+                    | 'a' -> (
+                        if String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'v' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' then (
+                          3
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'i' -> (
+                        if String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'v' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' then (
+                          2
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
+                )
+                else (
+                  -1
+                )
+              )
+            | 12 -> (
+                if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'v' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'n' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_rule_id := (
+              Some (
+                (
+                  read_rule_id
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_this_version := (
+              Some (
+                (
+                  read_version
+                ) p lb
+              )
+            );
+          | 2 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_min_version := (
+                Some (
+                  (
+                    read_version
+                  ) p lb
+                )
+              );
+            )
+          | 3 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_max_version := (
+                Some (
+                  (
+                    read_version
+                  ) p lb
+                )
+              );
+            )
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 7 -> (
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 11 -> (
+                  if String.unsafe_get s pos = 'm' then (
+                    match String.unsafe_get s (pos+1) with
+                      | 'a' -> (
+                          if String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'v' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' then (
+                            3
+                          )
+                          else (
+                            -1
+                          )
+                        )
+                      | 'i' -> (
+                          if String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'v' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' then (
+                            2
+                          )
+                          else (
+                            -1
+                          )
+                        )
+                      | _ -> (
+                          -1
+                        )
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 12 -> (
+                  if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'v' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'n' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_rule_id := (
+                Some (
+                  (
+                    read_rule_id
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_this_version := (
+                Some (
+                  (
+                    read_version
+                  ) p lb
+                )
+              );
+            | 2 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_min_version := (
+                  Some (
+                    (
+                      read_version
+                    ) p lb
+                  )
+                );
+              )
+            | 3 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_max_version := (
+                  Some (
+                    (
+                      read_version
+                    ) p lb
+                  )
+                );
+              )
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            rule_id = (match !field_rule_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rule_id");
+            this_version = (match !field_this_version with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "this_version");
+            min_version = !field_min_version;
+            max_version = !field_max_version;
+          }
+         : incompatible_rule)
+      )
+)
+let incompatible_rule_of_string s =
+  read_incompatible_rule (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_finding_hashes : _ -> finding_hashes -> _ = (
   fun ob (x : finding_hashes) ->
     Buffer.add_char ob '{';
@@ -24502,6 +21160,63 @@ let read_finding_hashes = (
 )
 let finding_hashes_of_string s =
   read_finding_hashes (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__string_list_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write__string_list
+  )
+)
+let string_of__string_list_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__string_list_option ob x;
+  Buffer.contents ob
+let read__string_list_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__string_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__string_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _string_list_option_of_string s =
+  read__string_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__finding_hashes_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     write_finding_hashes
@@ -24559,6 +21274,63 @@ let read__finding_hashes_option = (
 )
 let _finding_hashes_option_of_string s =
   read__finding_hashes_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__engine_of_finding_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_engine_of_finding
+  )
+)
+let string_of__engine_of_finding_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__engine_of_finding_option ob x;
+  Buffer.contents ob
+let read__engine_of_finding_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_engine_of_finding
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_engine_of_finding
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _engine_of_finding_option_of_string s =
+  read__engine_of_finding_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_finding : _ -> finding -> _ = (
   fun ob (x : finding) ->
     Buffer.add_char ob '{';
@@ -25649,6 +22421,1037 @@ let read_finding = (
 )
 let finding_of_string s =
   read_finding (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__location_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_location
+  )
+)
+let string_of__location_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__location_list ob x;
+  Buffer.contents ob
+let read__location_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_location
+  )
+)
+let _location_list_of_string s =
+  read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_error_type : _ -> error_type -> _ = (
+  fun ob (x : error_type) ->
+    match x with
+      | LexicalError -> Buffer.add_string ob "\"Lexical error\""
+      | ParseError -> Buffer.add_string ob "\"Syntax error\""
+      | OtherParseError -> Buffer.add_string ob "\"Other syntax error\""
+      | AstBuilderError -> Buffer.add_string ob "\"AST builder error\""
+      | RuleParseError -> Buffer.add_string ob "\"Rule parse error\""
+      | SemgrepWarning -> Buffer.add_string ob "\"SemgrepWarning\""
+      | SemgrepError -> Buffer.add_string ob "\"SemgrepError\""
+      | InvalidRuleSchemaError -> Buffer.add_string ob "\"InvalidRuleSchemaError\""
+      | UnknownLanguageError -> Buffer.add_string ob "\"UnknownLanguageError\""
+      | InvalidYaml -> Buffer.add_string ob "\"Invalid YAML\""
+      | MatchingError -> Buffer.add_string ob "\"Internal matching error\""
+      | SemgrepMatchFound -> Buffer.add_string ob "\"Semgrep match found\""
+      | TooManyMatches -> Buffer.add_string ob "\"Too many matches\""
+      | FatalError -> Buffer.add_string ob "\"Fatal error\""
+      | Timeout -> Buffer.add_string ob "\"Timeout\""
+      | OutOfMemory -> Buffer.add_string ob "\"Out of memory\""
+      | StackOverflow -> Buffer.add_string ob "\"Stack overflow\""
+      | TimeoutDuringInterfile -> Buffer.add_string ob "\"Timeout during interfile analysis\""
+      | OutOfMemoryDuringInterfile -> Buffer.add_string ob "\"OOM during interfile analysis\""
+      | MissingPlugin -> Buffer.add_string ob "\"Missing plugin\""
+      | PatternParseError x ->
+        Buffer.add_string ob "[\"PatternParseError\",";
+        (
+          write__string_list
+        ) ob x;
+        Buffer.add_char ob ']'
+      | PartialParsing x ->
+        Buffer.add_string ob "[\"PartialParsing\",";
+        (
+          write__location_list
+        ) ob x;
+        Buffer.add_char ob ']'
+      | IncompatibleRule x ->
+        Buffer.add_string ob "[\"IncompatibleRule\",";
+        (
+          write_incompatible_rule
+        ) ob x;
+        Buffer.add_char ob ']'
+      | PatternParseError0 -> Buffer.add_string ob "\"Pattern parse error\""
+      | IncompatibleRule0 -> Buffer.add_string ob "\"Incompatible rule\""
+      | DependencyResolutionError x ->
+        Buffer.add_string ob "[\"DependencyResolutionError\",";
+        (
+          write_resolution_error
+        ) ob x;
+        Buffer.add_char ob ']'
+)
+let string_of_error_type ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_error_type ob x;
+  Buffer.contents ob
+let read_error_type = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "Lexical error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (LexicalError : error_type)
+            | "Syntax error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (ParseError : error_type)
+            | "Other syntax error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (OtherParseError : error_type)
+            | "AST builder error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (AstBuilderError : error_type)
+            | "Rule parse error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (RuleParseError : error_type)
+            | "SemgrepWarning" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (SemgrepWarning : error_type)
+            | "SemgrepError" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (SemgrepError : error_type)
+            | "InvalidRuleSchemaError" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (InvalidRuleSchemaError : error_type)
+            | "UnknownLanguageError" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (UnknownLanguageError : error_type)
+            | "Invalid YAML" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (InvalidYaml : error_type)
+            | "Internal matching error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (MatchingError : error_type)
+            | "Semgrep match found" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (SemgrepMatchFound : error_type)
+            | "Too many matches" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (TooManyMatches : error_type)
+            | "Fatal error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (FatalError : error_type)
+            | "Timeout" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Timeout : error_type)
+            | "Out of memory" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (OutOfMemory : error_type)
+            | "Stack overflow" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (StackOverflow : error_type)
+            | "Timeout during interfile analysis" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (TimeoutDuringInterfile : error_type)
+            | "OOM during interfile analysis" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (OutOfMemoryDuringInterfile : error_type)
+            | "Missing plugin" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (MissingPlugin : error_type)
+            | "PatternParseError" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__string_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PatternParseError x : error_type)
+            | "PartialParsing" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__location_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PartialParsing x : error_type)
+            | "IncompatibleRule" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_incompatible_rule
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (IncompatibleRule x : error_type)
+            | "Pattern parse error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PatternParseError0 : error_type)
+            | "Incompatible rule" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (IncompatibleRule0 : error_type)
+            | "DependencyResolutionError" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_resolution_error
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (DependencyResolutionError x : error_type)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "Lexical error" ->
+              (LexicalError : error_type)
+            | "Syntax error" ->
+              (ParseError : error_type)
+            | "Other syntax error" ->
+              (OtherParseError : error_type)
+            | "AST builder error" ->
+              (AstBuilderError : error_type)
+            | "Rule parse error" ->
+              (RuleParseError : error_type)
+            | "SemgrepWarning" ->
+              (SemgrepWarning : error_type)
+            | "SemgrepError" ->
+              (SemgrepError : error_type)
+            | "InvalidRuleSchemaError" ->
+              (InvalidRuleSchemaError : error_type)
+            | "UnknownLanguageError" ->
+              (UnknownLanguageError : error_type)
+            | "Invalid YAML" ->
+              (InvalidYaml : error_type)
+            | "Internal matching error" ->
+              (MatchingError : error_type)
+            | "Semgrep match found" ->
+              (SemgrepMatchFound : error_type)
+            | "Too many matches" ->
+              (TooManyMatches : error_type)
+            | "Fatal error" ->
+              (FatalError : error_type)
+            | "Timeout" ->
+              (Timeout : error_type)
+            | "Out of memory" ->
+              (OutOfMemory : error_type)
+            | "Stack overflow" ->
+              (StackOverflow : error_type)
+            | "Timeout during interfile analysis" ->
+              (TimeoutDuringInterfile : error_type)
+            | "OOM during interfile analysis" ->
+              (OutOfMemoryDuringInterfile : error_type)
+            | "Missing plugin" ->
+              (MissingPlugin : error_type)
+            | "Pattern parse error" ->
+              (PatternParseError0 : error_type)
+            | "Incompatible rule" ->
+              (IncompatibleRule0 : error_type)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "PatternParseError" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__string_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (PatternParseError x : error_type)
+            | "PartialParsing" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__location_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (PartialParsing x : error_type)
+            | "IncompatibleRule" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_incompatible_rule
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (IncompatibleRule x : error_type)
+            | "DependencyResolutionError" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_resolution_error
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (DependencyResolutionError x : error_type)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let error_type_of_string s =
+  read_error_type (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__string_list_nullable = (
+  Atdgen_runtime.Oj_run.write_nullable (
+    write__string_list
+  )
+)
+let string_of__string_list_nullable ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__string_list_nullable ob x;
+  Buffer.contents ob
+let read__string_list_nullable = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    (if Yojson.Safe.read_null_if_possible p lb then None
+    else Some ((
+      read__string_list
+    ) p lb) : _ option)
+)
+let _string_list_nullable_of_string s =
+  read__string_list_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__string_list_nullable_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write__string_list_nullable
+  )
+)
+let string_of__string_list_nullable_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__string_list_nullable_option ob x;
+  Buffer.contents ob
+let read__string_list_nullable_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__string_list_nullable
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__string_list_nullable
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _string_list_nullable_option_of_string s =
+  read__string_list_nullable_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__position_nullable = (
+  Atdgen_runtime.Oj_run.write_nullable (
+    write_position
+  )
+)
+let string_of__position_nullable ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__position_nullable ob x;
+  Buffer.contents ob
+let read__position_nullable = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    (if Yojson.Safe.read_null_if_possible p lb then None
+    else Some ((
+      read_position
+    ) p lb) : _ option)
+)
+let _position_nullable_of_string s =
+  read__position_nullable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__position_nullable_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write__position_nullable
+  )
+)
+let string_of__position_nullable_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__position_nullable_option ob x;
+  Buffer.contents ob
+let read__position_nullable_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__position_nullable
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__position_nullable
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _position_nullable_option_of_string s =
+  read__position_nullable_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_error_span : _ -> error_span -> _ = (
+  fun ob (x : error_span) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"file\":";
+    (
+      write_fpath
+    )
+      ob x.file;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"start\":";
+    (
+      write_position
+    )
+      ob x.start;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"end\":";
+    (
+      write_position
+    )
+      ob x.end_;
+    (match x.source_hash with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"source_hash\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
+    (match x.config_start with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"config_start\":";
+      (
+        write__position_nullable
+      )
+        ob x;
+    );
+    (match x.config_end with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"config_end\":";
+      (
+        write__position_nullable
+      )
+        ob x;
+    );
+    (match x.config_path with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"config_path\":";
+      (
+        write__string_list_nullable
+      )
+        ob x;
+    );
+    (match x.context_start with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"context_start\":";
+      (
+        write__position_nullable
+      )
+        ob x;
+    );
+    (match x.context_end with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"context_end\":";
+      (
+        write__position_nullable
+      )
+        ob x;
+    );
+    Buffer.add_char ob '}';
+)
+let string_of_error_span ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_error_span ob x;
+  Buffer.contents ob
+let read_error_span = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_file = ref (None) in
+    let field_start = ref (None) in
+    let field_end_ = ref (None) in
+    let field_source_hash = ref (None) in
+    let field_config_start = ref (None) in
+    let field_config_end = ref (None) in
+    let field_config_path = ref (None) in
+    let field_context_start = ref (None) in
+    let field_context_end = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 3 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'd' then (
+                  2
+                )
+                else (
+                  -1
+                )
+              )
+            | 4 -> (
+                if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' then (
+                  0
+                )
+                else (
+                  -1
+                )
+              )
+            | 5 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | 10 -> (
+                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'd' then (
+                  5
+                )
+                else (
+                  -1
+                )
+              )
+            | 11 -> (
+                match String.unsafe_get s pos with
+                  | 'c' -> (
+                      if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' then (
+                        match String.unsafe_get s (pos+3) with
+                          | 'f' -> (
+                              if String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' then (
+                                6
+                              )
+                              else (
+                                -1
+                              )
+                            )
+                          | 't' -> (
+                              if String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'x' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'd' then (
+                                8
+                              )
+                              else (
+                                -1
+                              )
+                            )
+                          | _ -> (
+                              -1
+                            )
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 's' -> (
+                      if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'u' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'h' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'h' then (
+                        3
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
+              )
+            | 12 -> (
+                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 't' then (
+                  4
+                )
+                else (
+                  -1
+                )
+              )
+            | 13 -> (
+                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'x' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 't' then (
+                  7
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_file := (
+              Some (
+                (
+                  read_fpath
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_start := (
+              Some (
+                (
+                  read_position
+                ) p lb
+              )
+            );
+          | 2 ->
+            field_end_ := (
+              Some (
+                (
+                  read_position
+                ) p lb
+              )
+            );
+          | 3 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_source_hash := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
+          | 4 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_config_start := (
+                Some (
+                  (
+                    read__position_nullable
+                  ) p lb
+                )
+              );
+            )
+          | 5 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_config_end := (
+                Some (
+                  (
+                    read__position_nullable
+                  ) p lb
+                )
+              );
+            )
+          | 6 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_config_path := (
+                Some (
+                  (
+                    read__string_list_nullable
+                  ) p lb
+                )
+              );
+            )
+          | 7 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_context_start := (
+                Some (
+                  (
+                    read__position_nullable
+                  ) p lb
+                )
+              );
+            )
+          | 8 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_context_end := (
+                Some (
+                  (
+                    read__position_nullable
+                  ) p lb
+                )
+              );
+            )
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 3 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'd' then (
+                    2
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 4 -> (
+                  if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 5 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 10 -> (
+                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'd' then (
+                    5
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 11 -> (
+                  match String.unsafe_get s pos with
+                    | 'c' -> (
+                        if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' then (
+                          match String.unsafe_get s (pos+3) with
+                            | 'f' -> (
+                                if String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' then (
+                                  6
+                                )
+                                else (
+                                  -1
+                                )
+                              )
+                            | 't' -> (
+                                if String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'x' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'd' then (
+                                  8
+                                )
+                                else (
+                                  -1
+                                )
+                              )
+                            | _ -> (
+                                -1
+                              )
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 's' -> (
+                        if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'u' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'h' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'h' then (
+                          3
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
+                )
+              | 12 -> (
+                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 't' then (
+                    4
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 13 -> (
+                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'x' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 't' then (
+                    7
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_file := (
+                Some (
+                  (
+                    read_fpath
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_start := (
+                Some (
+                  (
+                    read_position
+                  ) p lb
+                )
+              );
+            | 2 ->
+              field_end_ := (
+                Some (
+                  (
+                    read_position
+                  ) p lb
+                )
+              );
+            | 3 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_source_hash := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
+            | 4 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_config_start := (
+                  Some (
+                    (
+                      read__position_nullable
+                    ) p lb
+                  )
+                );
+              )
+            | 5 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_config_end := (
+                  Some (
+                    (
+                      read__position_nullable
+                    ) p lb
+                  )
+                );
+              )
+            | 6 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_config_path := (
+                  Some (
+                    (
+                      read__string_list_nullable
+                    ) p lb
+                  )
+                );
+              )
+            | 7 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_context_start := (
+                  Some (
+                    (
+                      read__position_nullable
+                    ) p lb
+                  )
+                );
+              )
+            | 8 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_context_end := (
+                  Some (
+                    (
+                      read__position_nullable
+                    ) p lb
+                  )
+                );
+              )
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            file = (match !field_file with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "file");
+            start = (match !field_start with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "start");
+            end_ = (match !field_end_ with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "end_");
+            source_hash = !field_source_hash;
+            config_start = !field_config_start;
+            config_end = !field_config_end;
+            config_path = !field_config_path;
+            context_start = !field_context_start;
+            context_end = !field_context_end;
+          }
+         : error_span)
+      )
+)
+let error_span_of_string s =
+  read_error_span (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_error_severity = (
+  fun ob x ->
+    match x with
+      | `Error -> Buffer.add_string ob "\"error\""
+      | `Warning -> Buffer.add_string ob "\"warn\""
+      | `Info -> Buffer.add_string ob "\"info\""
+)
+let string_of_error_severity ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_error_severity ob x;
+  Buffer.contents ob
+let read_error_severity = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "error" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Error
+            | "warn" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Warning
+            | "info" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Info
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "error" ->
+              `Error
+            | "warn" ->
+              `Warning
+            | "info" ->
+              `Info
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let error_severity_of_string s =
+  read_error_severity (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_dependency_parser_error : _ -> dependency_parser_error -> _ = (
   fun ob (x : dependency_parser_error) ->
     Buffer.add_char ob '{';
@@ -26415,6 +24218,654 @@ let read_contributions = (
 )
 let contributions_of_string s =
   read_contributions (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__error_span_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_error_span
+  )
+)
+let string_of__error_span_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__error_span_list ob x;
+  Buffer.contents ob
+let read__error_span_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_error_span
+  )
+)
+let _error_span_list_of_string s =
+  read__error_span_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__error_span_list_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write__error_span_list
+  )
+)
+let string_of__error_span_list_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__error_span_list_option ob x;
+  Buffer.contents ob
+let read__error_span_list_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__error_span_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__error_span_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _error_span_list_option_of_string s =
+  read__error_span_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_cli_error : _ -> cli_error -> _ = (
+  fun ob (x : cli_error) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"code\":";
+    (
+      Yojson.Safe.write_int
+    )
+      ob x.code;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"level\":";
+    (
+      write_error_severity
+    )
+      ob x.level;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"type\":";
+    (
+      write_error_type
+    )
+      ob x.type_;
+    (match x.rule_id with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"rule_id\":";
+      (
+        write_rule_id
+      )
+        ob x;
+    );
+    (match x.message with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"message\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
+    (match x.path with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"path\":";
+      (
+        write_fpath
+      )
+        ob x;
+    );
+    (match x.long_msg with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"long_msg\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
+    (match x.short_msg with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"short_msg\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
+    (match x.spans with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"spans\":";
+      (
+        write__error_span_list
+      )
+        ob x;
+    );
+    (match x.help with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"help\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
+    Buffer.add_char ob '}';
+)
+let string_of_cli_error ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_cli_error ob x;
+  Buffer.contents ob
+let read_cli_error = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_code = ref (None) in
+    let field_level = ref (None) in
+    let field_type_ = ref (None) in
+    let field_rule_id = ref (None) in
+    let field_message = ref (None) in
+    let field_path = ref (None) in
+    let field_long_msg = ref (None) in
+    let field_short_msg = ref (None) in
+    let field_spans = ref (None) in
+    let field_help = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 4 -> (
+                match String.unsafe_get s pos with
+                  | 'c' -> (
+                      if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'e' then (
+                        0
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 'h' -> (
+                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'p' then (
+                        9
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 'p' -> (
+                      if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
+                        5
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 't' -> (
+                      if String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' then (
+                        2
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
+              )
+            | 5 -> (
+                match String.unsafe_get s pos with
+                  | 'l' -> (
+                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'v' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'l' then (
+                        1
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 's' -> (
+                      if String.unsafe_get s (pos+1) = 'p' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 's' then (
+                        8
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
+              )
+            | 7 -> (
+                match String.unsafe_get s pos with
+                  | 'm' -> (
+                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
+                        4
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 'r' -> (
+                      if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
+                        3
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
+              )
+            | 8 -> (
+                if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'm' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 'g' then (
+                  6
+                )
+                else (
+                  -1
+                )
+              )
+            | 9 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'g' then (
+                  7
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_code := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_int
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_level := (
+              Some (
+                (
+                  read_error_severity
+                ) p lb
+              )
+            );
+          | 2 ->
+            field_type_ := (
+              Some (
+                (
+                  read_error_type
+                ) p lb
+              )
+            );
+          | 3 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_rule_id := (
+                Some (
+                  (
+                    read_rule_id
+                  ) p lb
+                )
+              );
+            )
+          | 4 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_message := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
+          | 5 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_path := (
+                Some (
+                  (
+                    read_fpath
+                  ) p lb
+                )
+              );
+            )
+          | 6 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_long_msg := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
+          | 7 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_short_msg := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
+          | 8 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_spans := (
+                Some (
+                  (
+                    read__error_span_list
+                  ) p lb
+                )
+              );
+            )
+          | 9 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_help := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 4 -> (
+                  match String.unsafe_get s pos with
+                    | 'c' -> (
+                        if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'e' then (
+                          0
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'h' -> (
+                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'p' then (
+                          9
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'p' -> (
+                        if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
+                          5
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 't' -> (
+                        if String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' then (
+                          2
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
+                )
+              | 5 -> (
+                  match String.unsafe_get s pos with
+                    | 'l' -> (
+                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'v' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'l' then (
+                          1
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 's' -> (
+                        if String.unsafe_get s (pos+1) = 'p' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 's' then (
+                          8
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
+                )
+              | 7 -> (
+                  match String.unsafe_get s pos with
+                    | 'm' -> (
+                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
+                          4
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'r' -> (
+                        if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
+                          3
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
+                )
+              | 8 -> (
+                  if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'm' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 'g' then (
+                    6
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 9 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'g' then (
+                    7
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_code := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_int
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_level := (
+                Some (
+                  (
+                    read_error_severity
+                  ) p lb
+                )
+              );
+            | 2 ->
+              field_type_ := (
+                Some (
+                  (
+                    read_error_type
+                  ) p lb
+                )
+              );
+            | 3 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_rule_id := (
+                  Some (
+                    (
+                      read_rule_id
+                    ) p lb
+                  )
+                );
+              )
+            | 4 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_message := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
+            | 5 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_path := (
+                  Some (
+                    (
+                      read_fpath
+                    ) p lb
+                  )
+                );
+              )
+            | 6 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_long_msg := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
+            | 7 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_short_msg := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
+            | 8 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_spans := (
+                  Some (
+                    (
+                      read__error_span_list
+                    ) p lb
+                  )
+                );
+              )
+            | 9 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_help := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            code = (match !field_code with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "code");
+            level = (match !field_level with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "level");
+            type_ = (match !field_type_ with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "type_");
+            rule_id = !field_rule_id;
+            message = !field_message;
+            path = !field_path;
+            long_msg = !field_long_msg;
+            short_msg = !field_short_msg;
+            spans = !field_spans;
+            help = !field_help;
+          }
+         : cli_error)
+      )
+)
+let cli_error_of_string s =
+  read_cli_error (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__x_a534bf0 = (
   Atdgen_runtime.Oj_run.write_assoc_list (
     Yojson.Safe.write_string
@@ -27331,6 +25782,22 @@ let read__supply_chain_stats_option = (
 )
 let _supply_chain_stats_option_of_string s =
   read__supply_chain_stats_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__cli_error_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_cli_error
+  )
+)
+let string_of__cli_error_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__cli_error_list ob x;
+  Buffer.contents ob
+let read__cli_error_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_cli_error
+  )
+)
+let _cli_error_list_of_string s =
+  read__cli_error_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_ci_scan_complete_stats : _ -> ci_scan_complete_stats -> _ = (
   fun ob (x : ci_scan_complete_stats) ->
     Buffer.add_char ob '{';
@@ -29469,14 +27936,14 @@ let write_function_return = (
           write_contributions
         ) ob x;
         Buffer.add_char ob ']'
-      | `RetSarifFormat x ->
-        Buffer.add_string ob "[\"RetSarifFormat\",";
-        (
-          write_sarif_format_return
-        ) ob x;
-        Buffer.add_char ob ']'
       | `RetFormatter x ->
         Buffer.add_string ob "[\"RetFormatter\",";
+        (
+          Yojson.Safe.write_string
+        ) ob x;
+        Buffer.add_char ob ']'
+      | `RetSarifFormat x ->
+        Buffer.add_string ob "[\"RetSarifFormat\",";
         (
           Yojson.Safe.write_string
         ) ob x;
@@ -29537,15 +28004,6 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `RetContributions x
-            | "RetSarifFormat" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_sarif_format_return
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `RetSarifFormat x
             | "RetFormatter" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -29555,6 +28013,15 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `RetFormatter x
+            | "RetSarifFormat" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `RetSarifFormat x
             | "RetValidate" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -29625,17 +28092,6 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `RetContributions x
-            | "RetSarifFormat" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_sarif_format_return
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `RetSarifFormat x
             | "RetFormatter" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -29647,6 +28103,17 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `RetFormatter x
+            | "RetSarifFormat" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `RetSarifFormat x
             | "RetValidate" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -30317,6 +28784,1221 @@ let read_dump_rule_partitions_params = (
 )
 let dump_rule_partitions_params_of_string s =
   read_dump_rule_partitions_params (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__metavars_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_metavars
+  )
+)
+let string_of__metavars_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__metavars_option ob x;
+  Buffer.contents ob
+let read__metavars_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_metavars
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_metavars
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _metavars_option_of_string s =
+  read__metavars_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_cli_match_extra : _ -> cli_match_extra -> _ = (
+  fun ob (x : cli_match_extra) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    (match x.metavars with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"metavars\":";
+      (
+        write_metavars
+      )
+        ob x;
+    );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"message\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.message;
+    (match x.fix with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"fix\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
+    (match x.fixed_lines with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"fixed_lines\":";
+      (
+        write__string_list
+      )
+        ob x;
+    );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"metadata\":";
+    (
+      write_raw_json
+    )
+      ob x.metadata;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"severity\":";
+    (
+      write_match_severity
+    )
+      ob x.severity;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"fingerprint\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.fingerprint;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"lines\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.lines;
+    (match x.is_ignored with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"is_ignored\":";
+      (
+        Yojson.Safe.write_bool
+      )
+        ob x;
+    );
+    (match x.sca_info with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"sca_info\":";
+      (
+        write_sca_match
+      )
+        ob x;
+    );
+    (match x.validation_state with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"validation_state\":";
+      (
+        write_validation_state
+      )
+        ob x;
+    );
+    (match x.historical_info with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"historical_info\":";
+      (
+        write_historical_info
+      )
+        ob x;
+    );
+    (match x.dataflow_trace with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"dataflow_trace\":";
+      (
+        write_match_dataflow_trace
+      )
+        ob x;
+    );
+    (match x.engine_kind with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"engine_kind\":";
+      (
+        write_engine_of_finding
+      )
+        ob x;
+    );
+    (match x.extra_extra with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"extra_extra\":";
+      (
+        write_raw_json
+      )
+        ob x;
+    );
+    Buffer.add_char ob '}';
+)
+let string_of_cli_match_extra ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_cli_match_extra ob x;
+  Buffer.contents ob
+let read_cli_match_extra = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_metavars = ref (None) in
+    let field_message = ref (None) in
+    let field_fix = ref (None) in
+    let field_fixed_lines = ref (None) in
+    let field_metadata = ref (None) in
+    let field_severity = ref (None) in
+    let field_fingerprint = ref (None) in
+    let field_lines = ref (None) in
+    let field_is_ignored = ref (None) in
+    let field_sca_info = ref (None) in
+    let field_validation_state = ref (None) in
+    let field_historical_info = ref (None) in
+    let field_dataflow_trace = ref (None) in
+    let field_engine_kind = ref (None) in
+    let field_extra_extra = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 3 -> (
+                if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'x' then (
+                  2
+                )
+                else (
+                  -1
+                )
+              )
+            | 5 -> (
+                if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
+                  7
+                )
+                else (
+                  -1
+                )
+              )
+            | 7 -> (
+                if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | 8 -> (
+                match String.unsafe_get s pos with
+                  | 'm' -> (
+                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' then (
+                        match String.unsafe_get s (pos+4) with
+                          | 'd' -> (
+                              if String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'a' then (
+                                4
+                              )
+                              else (
+                                -1
+                              )
+                            )
+                          | 'v' -> (
+                              if String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' then (
+                                0
+                              )
+                              else (
+                                -1
+                              )
+                            )
+                          | _ -> (
+                              -1
+                            )
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 's' -> (
+                      match String.unsafe_get s (pos+1) with
+                        | 'c' -> (
+                            if String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'f' && String.unsafe_get s (pos+7) = 'o' then (
+                              9
+                            )
+                            else (
+                              -1
+                            )
+                          )
+                        | 'e' -> (
+                            if String.unsafe_get s (pos+2) = 'v' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'y' then (
+                              5
+                            )
+                            else (
+                              -1
+                            )
+                          )
+                        | _ -> (
+                            -1
+                          )
+                    )
+                  | _ -> (
+                      -1
+                    )
+              )
+            | 10 -> (
+                if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'd' then (
+                  8
+                )
+                else (
+                  -1
+                )
+              )
+            | 11 -> (
+                match String.unsafe_get s pos with
+                  | 'e' -> (
+                      match String.unsafe_get s (pos+1) with
+                        | 'n' -> (
+                            if String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'k' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'd' then (
+                              13
+                            )
+                            else (
+                              -1
+                            )
+                          )
+                        | 'x' -> (
+                            if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'x' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' then (
+                              14
+                            )
+                            else (
+                              -1
+                            )
+                          )
+                        | _ -> (
+                            -1
+                          )
+                    )
+                  | 'f' -> (
+                      if String.unsafe_get s (pos+1) = 'i' then (
+                        match String.unsafe_get s (pos+2) with
+                          | 'n' -> (
+                              if String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 't' then (
+                                6
+                              )
+                              else (
+                                -1
+                              )
+                            )
+                          | 'x' -> (
+                              if String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' then (
+                                3
+                              )
+                              else (
+                                -1
+                              )
+                            )
+                          | _ -> (
+                              -1
+                            )
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
+              )
+            | 14 -> (
+                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'e' then (
+                  12
+                )
+                else (
+                  -1
+                )
+              )
+            | 15 -> (
+                if String.unsafe_get s pos = 'h' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'l' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 'f' && String.unsafe_get s (pos+14) = 'o' then (
+                  11
+                )
+                else (
+                  -1
+                )
+              )
+            | 16 -> (
+                if String.unsafe_get s pos = 'v' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'e' then (
+                  10
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_metavars := (
+                Some (
+                  (
+                    read_metavars
+                  ) p lb
+                )
+              );
+            )
+          | 1 ->
+            field_message := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | 2 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_fix := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
+          | 3 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_fixed_lines := (
+                Some (
+                  (
+                    read__string_list
+                  ) p lb
+                )
+              );
+            )
+          | 4 ->
+            field_metadata := (
+              Some (
+                (
+                  read_raw_json
+                ) p lb
+              )
+            );
+          | 5 ->
+            field_severity := (
+              Some (
+                (
+                  read_match_severity
+                ) p lb
+              )
+            );
+          | 6 ->
+            field_fingerprint := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | 7 ->
+            field_lines := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | 8 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_is_ignored := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            )
+          | 9 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_sca_info := (
+                Some (
+                  (
+                    read_sca_match
+                  ) p lb
+                )
+              );
+            )
+          | 10 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_validation_state := (
+                Some (
+                  (
+                    read_validation_state
+                  ) p lb
+                )
+              );
+            )
+          | 11 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_historical_info := (
+                Some (
+                  (
+                    read_historical_info
+                  ) p lb
+                )
+              );
+            )
+          | 12 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_dataflow_trace := (
+                Some (
+                  (
+                    read_match_dataflow_trace
+                  ) p lb
+                )
+              );
+            )
+          | 13 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_engine_kind := (
+                Some (
+                  (
+                    read_engine_of_finding
+                  ) p lb
+                )
+              );
+            )
+          | 14 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_extra_extra := (
+                Some (
+                  (
+                    read_raw_json
+                  ) p lb
+                )
+              );
+            )
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 3 -> (
+                  if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'x' then (
+                    2
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 5 -> (
+                  if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
+                    7
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 7 -> (
+                  if String.unsafe_get s pos = 'm' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 8 -> (
+                  match String.unsafe_get s pos with
+                    | 'm' -> (
+                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' then (
+                          match String.unsafe_get s (pos+4) with
+                            | 'd' -> (
+                                if String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'a' then (
+                                  4
+                                )
+                                else (
+                                  -1
+                                )
+                              )
+                            | 'v' -> (
+                                if String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 's' then (
+                                  0
+                                )
+                                else (
+                                  -1
+                                )
+                              )
+                            | _ -> (
+                                -1
+                              )
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 's' -> (
+                        match String.unsafe_get s (pos+1) with
+                          | 'c' -> (
+                              if String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'f' && String.unsafe_get s (pos+7) = 'o' then (
+                                9
+                              )
+                              else (
+                                -1
+                              )
+                            )
+                          | 'e' -> (
+                              if String.unsafe_get s (pos+2) = 'v' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'y' then (
+                                5
+                              )
+                              else (
+                                -1
+                              )
+                            )
+                          | _ -> (
+                              -1
+                            )
+                      )
+                    | _ -> (
+                        -1
+                      )
+                )
+              | 10 -> (
+                  if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'd' then (
+                    8
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 11 -> (
+                  match String.unsafe_get s pos with
+                    | 'e' -> (
+                        match String.unsafe_get s (pos+1) with
+                          | 'n' -> (
+                              if String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'k' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'd' then (
+                                13
+                              )
+                              else (
+                                -1
+                              )
+                            )
+                          | 'x' -> (
+                              if String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'x' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' then (
+                                14
+                              )
+                              else (
+                                -1
+                              )
+                            )
+                          | _ -> (
+                              -1
+                            )
+                      )
+                    | 'f' -> (
+                        if String.unsafe_get s (pos+1) = 'i' then (
+                          match String.unsafe_get s (pos+2) with
+                            | 'n' -> (
+                                if String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 't' then (
+                                  6
+                                )
+                                else (
+                                  -1
+                                )
+                              )
+                            | 'x' -> (
+                                if String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' then (
+                                  3
+                                )
+                                else (
+                                  -1
+                                )
+                              )
+                            | _ -> (
+                                -1
+                              )
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
+                )
+              | 14 -> (
+                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'w' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'c' && String.unsafe_get s (pos+13) = 'e' then (
+                    12
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 15 -> (
+                  if String.unsafe_get s pos = 'h' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'l' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 'f' && String.unsafe_get s (pos+14) = 'o' then (
+                    11
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 16 -> (
+                  if String.unsafe_get s pos = 'v' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'e' then (
+                    10
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_metavars := (
+                  Some (
+                    (
+                      read_metavars
+                    ) p lb
+                  )
+                );
+              )
+            | 1 ->
+              field_message := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | 2 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_fix := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
+            | 3 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_fixed_lines := (
+                  Some (
+                    (
+                      read__string_list
+                    ) p lb
+                  )
+                );
+              )
+            | 4 ->
+              field_metadata := (
+                Some (
+                  (
+                    read_raw_json
+                  ) p lb
+                )
+              );
+            | 5 ->
+              field_severity := (
+                Some (
+                  (
+                    read_match_severity
+                  ) p lb
+                )
+              );
+            | 6 ->
+              field_fingerprint := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | 7 ->
+              field_lines := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | 8 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_is_ignored := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_bool
+                    ) p lb
+                  )
+                );
+              )
+            | 9 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_sca_info := (
+                  Some (
+                    (
+                      read_sca_match
+                    ) p lb
+                  )
+                );
+              )
+            | 10 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_validation_state := (
+                  Some (
+                    (
+                      read_validation_state
+                    ) p lb
+                  )
+                );
+              )
+            | 11 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_historical_info := (
+                  Some (
+                    (
+                      read_historical_info
+                    ) p lb
+                  )
+                );
+              )
+            | 12 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_dataflow_trace := (
+                  Some (
+                    (
+                      read_match_dataflow_trace
+                    ) p lb
+                  )
+                );
+              )
+            | 13 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_engine_kind := (
+                  Some (
+                    (
+                      read_engine_of_finding
+                    ) p lb
+                  )
+                );
+              )
+            | 14 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_extra_extra := (
+                  Some (
+                    (
+                      read_raw_json
+                    ) p lb
+                  )
+                );
+              )
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            metavars = !field_metavars;
+            message = (match !field_message with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "message");
+            fix = !field_fix;
+            fixed_lines = !field_fixed_lines;
+            metadata = (match !field_metadata with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "metadata");
+            severity = (match !field_severity with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "severity");
+            fingerprint = (match !field_fingerprint with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "fingerprint");
+            lines = (match !field_lines with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "lines");
+            is_ignored = !field_is_ignored;
+            sca_info = !field_sca_info;
+            validation_state = !field_validation_state;
+            historical_info = !field_historical_info;
+            dataflow_trace = !field_dataflow_trace;
+            engine_kind = !field_engine_kind;
+            extra_extra = !field_extra_extra;
+          }
+         : cli_match_extra)
+      )
+)
+let cli_match_extra_of_string s =
+  read_cli_match_extra (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_cli_match : _ -> cli_match -> _ = (
+  fun ob (x : cli_match) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"check_id\":";
+    (
+      write_rule_id
+    )
+      ob x.check_id;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"path\":";
+    (
+      write_fpath
+    )
+      ob x.path;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"start\":";
+    (
+      write_position
+    )
+      ob x.start;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"end\":";
+    (
+      write_position
+    )
+      ob x.end_;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"extra\":";
+    (
+      write_cli_match_extra
+    )
+      ob x.extra;
+    Buffer.add_char ob '}';
+)
+let string_of_cli_match ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_cli_match ob x;
+  Buffer.contents ob
+let read_cli_match = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_check_id = ref (None) in
+    let field_path = ref (None) in
+    let field_start = ref (None) in
+    let field_end_ = ref (None) in
+    let field_extra = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 3 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'd' then (
+                  3
+                )
+                else (
+                  -1
+                )
+              )
+            | 4 -> (
+                if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | 5 -> (
+                match String.unsafe_get s pos with
+                  | 'e' -> (
+                      if String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' then (
+                        4
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 's' -> (
+                      if String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' then (
+                        2
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
+              )
+            | 8 -> (
+                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'k' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'd' then (
+                  0
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_check_id := (
+              Some (
+                (
+                  read_rule_id
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_path := (
+              Some (
+                (
+                  read_fpath
+                ) p lb
+              )
+            );
+          | 2 ->
+            field_start := (
+              Some (
+                (
+                  read_position
+                ) p lb
+              )
+            );
+          | 3 ->
+            field_end_ := (
+              Some (
+                (
+                  read_position
+                ) p lb
+              )
+            );
+          | 4 ->
+            field_extra := (
+              Some (
+                (
+                  read_cli_match_extra
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 3 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'd' then (
+                    3
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 4 -> (
+                  if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 5 -> (
+                  match String.unsafe_get s pos with
+                    | 'e' -> (
+                        if String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'a' then (
+                          4
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 's' -> (
+                        if String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 't' then (
+                          2
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
+                )
+              | 8 -> (
+                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'h' && String.unsafe_get s (pos+2) = 'e' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'k' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'd' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_check_id := (
+                Some (
+                  (
+                    read_rule_id
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_path := (
+                Some (
+                  (
+                    read_fpath
+                  ) p lb
+                )
+              );
+            | 2 ->
+              field_start := (
+                Some (
+                  (
+                    read_position
+                  ) p lb
+                )
+              );
+            | 3 ->
+              field_end_ := (
+                Some (
+                  (
+                    read_position
+                  ) p lb
+                )
+              );
+            | 4 ->
+              field_extra := (
+                Some (
+                  (
+                    read_cli_match_extra
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            check_id = (match !field_check_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "check_id");
+            path = (match !field_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "path");
+            start = (match !field_start with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "start");
+            end_ = (match !field_end_ with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "end_");
+            extra = (match !field_extra with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "extra");
+          }
+         : cli_match)
+      )
+)
+let cli_match_of_string s =
+  read_cli_match (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__skipped_rule_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_skipped_rule
@@ -30577,6 +30259,22 @@ let read__engine_kind_option = (
 )
 let _engine_kind_option_of_string s =
   read__engine_kind_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__cli_match_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_cli_match
+  )
+)
+let string_of__cli_match_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__cli_match_list ob x;
+  Buffer.contents ob
+let read__cli_match_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_cli_match
+  )
+)
+let _cli_match_list_of_string s =
+  read__cli_match_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_cli_output : _ -> cli_output -> _ = (
   fun ob (x : cli_output) ->
     Buffer.add_char ob '{';
@@ -31317,25 +31015,6 @@ let write_function_call = (
           write_apply_fixes_params
         ) ob x;
         Buffer.add_char ob ']'
-      | `CallSarifFormat x ->
-        Buffer.add_string ob "[\"CallSarifFormat\",";
-        (
-          fun ob x ->
-            Buffer.add_char ob '[';
-            (let x, _ = x in
-            (
-              write_format_context
-            ) ob x
-            );
-            Buffer.add_char ob ',';
-            (let _, x = x in
-            (
-              write_sarif_format_params
-            ) ob x
-            );
-            Buffer.add_char ob ']';
-        ) ob x;
-        Buffer.add_char ob ']'
       | `CallFormatter x ->
         Buffer.add_string ob "[\"CallFormatter\",";
         (
@@ -31344,6 +31023,31 @@ let write_function_call = (
             (let x, _, _ = x in
             (
               write_output_format
+            ) ob x
+            );
+            Buffer.add_char ob ',';
+            (let _, x, _ = x in
+            (
+              write_format_context
+            ) ob x
+            );
+            Buffer.add_char ob ',';
+            (let _, _, x = x in
+            (
+              write_cli_output
+            ) ob x
+            );
+            Buffer.add_char ob ']';
+        ) ob x;
+        Buffer.add_char ob ']'
+      | `CallSarifFormat x ->
+        Buffer.add_string ob "[\"CallSarifFormat\",";
+        (
+          fun ob x ->
+            Buffer.add_char ob '[';
+            (let x, _, _ = x in
+            (
+              write_sarif_format
             ) ob x
             );
             Buffer.add_char ob ',';
@@ -31403,56 +31107,6 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `CallApplyFixes x
-            | "CallSarifFormat" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  fun p lb ->
-                    Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                    let len = ref 0 in
-                    let end_of_tuple = ref false in
-                    (try
-                      let x0 =
-                        let x =
-                          (
-                            read_format_context
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x1 =
-                        let x =
-                          (
-                            read_sarif_format_params
-                          ) p lb
-                        in
-                        incr len;
-                        (try
-                          Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
-                        x
-                      in
-                      if not !end_of_tuple then (
-                        try
-                          while true do
-                            Yojson.Safe.skip_json p lb;
-                            Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                          done
-                        with Yojson.End_of_tuple -> ()
-                      );
-                      (x0, x1)
-                    with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `CallSarifFormat x
             | "CallFormatter" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -31514,6 +31168,67 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `CallFormatter x
+            | "CallSarifFormat" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  fun p lb ->
+                    Yojson.Safe.read_space p lb;
+                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    let len = ref 0 in
+                    let end_of_tuple = ref false in
+                    (try
+                      let x0 =
+                        let x =
+                          (
+                            read_sarif_format
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x1 =
+                        let x =
+                          (
+                            read_format_context
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x2 =
+                        let x =
+                          (
+                            read_cli_output
+                          ) p lb
+                        in
+                        incr len;
+                        (try
+                          Yojson.Safe.read_space p lb;
+                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                        x
+                      in
+                      if not !end_of_tuple then (
+                        try
+                          while true do
+                            Yojson.Safe.skip_json p lb;
+                            Yojson.Safe.read_space p lb;
+                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                          done
+                        with Yojson.End_of_tuple -> ()
+                      );
+                      (x0, x1, x2)
+                    with Yojson.End_of_tuple ->
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1; 2 ]);
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `CallSarifFormat x
             | "CallValidate" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -31564,58 +31279,6 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `CallApplyFixes x
-            | "CallSarifFormat" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  fun p lb ->
-                    Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                    let len = ref 0 in
-                    let end_of_tuple = ref false in
-                    (try
-                      let x0 =
-                        let x =
-                          (
-                            read_format_context
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x1 =
-                        let x =
-                          (
-                            read_sarif_format_params
-                          ) p lb
-                        in
-                        incr len;
-                        (try
-                          Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
-                        x
-                      in
-                      if not !end_of_tuple then (
-                        try
-                          while true do
-                            Yojson.Safe.skip_json p lb;
-                            Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                          done
-                        with Yojson.End_of_tuple -> ()
-                      );
-                      (x0, x1)
-                    with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `CallSarifFormat x
             | "CallFormatter" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -31679,6 +31342,69 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `CallFormatter x
+            | "CallSarifFormat" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  fun p lb ->
+                    Yojson.Safe.read_space p lb;
+                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    let len = ref 0 in
+                    let end_of_tuple = ref false in
+                    (try
+                      let x0 =
+                        let x =
+                          (
+                            read_sarif_format
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x1 =
+                        let x =
+                          (
+                            read_format_context
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x2 =
+                        let x =
+                          (
+                            read_cli_output
+                          ) p lb
+                        in
+                        incr len;
+                        (try
+                          Yojson.Safe.read_space p lb;
+                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                        x
+                      in
+                      if not !end_of_tuple then (
+                        try
+                          while true do
+                            Yojson.Safe.skip_json p lb;
+                            Yojson.Safe.read_space p lb;
+                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                          done
+                        with Yojson.End_of_tuple -> ()
+                      );
+                      (x0, x1, x2)
+                    with Yojson.End_of_tuple ->
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1; 2 ]);
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `CallSarifFormat x
             | "CallValidate" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
