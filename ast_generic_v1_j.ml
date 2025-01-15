@@ -144,6 +144,8 @@ and id_info = Ast_generic_v1_t.id_info = {
   id_svalue: svalue option
 }
 
+and import_from_kind = Ast_generic_v1_t.import_from_kind
+
 and item = Ast_generic_v1_t.item
 
 and label_ident = Ast_generic_v1_t.label_ident
@@ -4497,29 +4499,7 @@ let read_xml_kind = (
 )
 let xml_kind_of_string s =
   read_xml_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let rec write__alias_alias_nullable_list ob x = (
-  Atdgen_runtime.Oj_run.write_list (
-    fun ob x ->
-      Buffer.add_char ob '[';
-      (let x, _ = x in
-      (
-        write_alias
-      ) ob x
-      );
-      Buffer.add_char ob ',';
-      (let _, x = x in
-      (
-        write__alias_nullable
-      ) ob x
-      );
-      Buffer.add_char ob ']';
-  )
-) ob x
-and string_of__alias_alias_nullable_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__alias_alias_nullable_list ob x;
-  Buffer.contents ob
-and write__alias_nullable ob x = (
+let rec write__alias_nullable ob x = (
   Atdgen_runtime.Oj_run.write_nullable (
     write_alias
   )
@@ -4973,6 +4953,15 @@ and write__ident_type_arguments_nullable_list ob x = (
 and string_of__ident_type_arguments_nullable_list ?(len = 1024) x =
   let ob = Buffer.create len in
   write__ident_type_arguments_nullable_list ob x;
+  Buffer.contents ob
+and write__import_from_kind_list ob x = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_import_from_kind
+  )
+) ob x
+and string_of__import_from_kind_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__import_from_kind_list ob x;
   Buffer.contents ob
 and write__item_list ob x = (
   Atdgen_runtime.Oj_run.write_list (
@@ -5963,7 +5952,7 @@ and write_directive = (
             Buffer.add_char ob ',';
             (let _, _, x = x in
             (
-              write__alias_alias_nullable_list
+              write__import_from_kind_list
             ) ob x
             );
             Buffer.add_char ob ']';
@@ -6999,6 +6988,39 @@ and write_id_info : _ -> id_info -> _ = (
 and string_of_id_info ?(len = 1024) x =
   let ob = Buffer.create len in
   write_id_info ob x;
+  Buffer.contents ob
+and write_import_from_kind = (
+  fun ob x ->
+    match x with
+      | `Direct x ->
+        Buffer.add_string ob "[\"Direct\",";
+        (
+          write_alias
+        ) ob x;
+        Buffer.add_char ob ']'
+      | `Aliased x ->
+        Buffer.add_string ob "[\"Aliased\",";
+        (
+          fun ob x ->
+            Buffer.add_char ob '[';
+            (let x, _ = x in
+            (
+              write_ident
+            ) ob x
+            );
+            Buffer.add_char ob ',';
+            (let _, x = x in
+            (
+              write_alias
+            ) ob x
+            );
+            Buffer.add_char ob ']';
+        ) ob x;
+        Buffer.add_char ob ']'
+)
+and string_of_import_from_kind ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_import_from_kind ob x;
   Buffer.contents ob
 and write_item ob x = (
   write_stmt
@@ -8829,55 +8851,7 @@ and string_of_xml_body ?(len = 1024) x =
   let ob = Buffer.create len in
   write_xml_body ob x;
   Buffer.contents ob
-let rec read__alias_alias_nullable_list p lb = (
-  Atdgen_runtime.Oj_run.read_list (
-    fun p lb ->
-      Yojson.Safe.read_space p lb;
-      let std_tuple = Yojson.Safe.start_any_tuple p lb in
-      let len = ref 0 in
-      let end_of_tuple = ref false in
-      (try
-        let x0 =
-          let x =
-            (
-              read_alias
-            ) p lb
-          in
-          incr len;
-          Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          x
-        in
-        let x1 =
-          let x =
-            (
-              read__alias_nullable
-            ) p lb
-          in
-          incr len;
-          (try
-            Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          with Yojson.End_of_tuple -> end_of_tuple := true);
-          x
-        in
-        if not !end_of_tuple then (
-          try
-            while true do
-              Yojson.Safe.skip_json p lb;
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-            done
-          with Yojson.End_of_tuple -> ()
-        );
-        (x0, x1)
-      with Yojson.End_of_tuple ->
-        Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
-  )
-) p lb
-and _alias_alias_nullable_list_of_string s =
-  read__alias_alias_nullable_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-and read__alias_nullable p lb = (
+let rec read__alias_nullable p lb = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     (if Yojson.Safe.read_null_if_possible p lb then None
@@ -9717,6 +9691,13 @@ and read__ident_type_arguments_nullable_list p lb = (
 ) p lb
 and _ident_type_arguments_nullable_list_of_string s =
   read__ident_type_arguments_nullable_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+and read__import_from_kind_list p lb = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_import_from_kind
+  )
+) p lb
+and _import_from_kind_list_of_string s =
+  read__import_from_kind_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 and read__item_list p lb = (
   Atdgen_runtime.Oj_run.read_list (
     read_item
@@ -13029,7 +13010,7 @@ and read_directive = (
                       let x2 =
                         let x =
                           (
-                            read__alias_alias_nullable_list
+                            read__import_from_kind_list
                           ) p lb
                         in
                         incr len;
@@ -13383,7 +13364,7 @@ and read_directive = (
                       let x2 =
                         let x =
                           (
-                            read__alias_alias_nullable_list
+                            read__import_from_kind_list
                           ) p lb
                         in
                         incr len;
@@ -17780,6 +17761,150 @@ and read_id_info = (
 )
 and id_info_of_string s =
   read_id_info (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+and read_import_from_kind = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "Direct" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_alias
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Direct x
+            | "Aliased" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  fun p lb ->
+                    Yojson.Safe.read_space p lb;
+                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    let len = ref 0 in
+                    let end_of_tuple = ref false in
+                    (try
+                      let x0 =
+                        let x =
+                          (
+                            read_ident
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x1 =
+                        let x =
+                          (
+                            read_alias
+                          ) p lb
+                        in
+                        incr len;
+                        (try
+                          Yojson.Safe.read_space p lb;
+                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                        x
+                      in
+                      if not !end_of_tuple then (
+                        try
+                          while true do
+                            Yojson.Safe.skip_json p lb;
+                            Yojson.Safe.read_space p lb;
+                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                          done
+                        with Yojson.End_of_tuple -> ()
+                      );
+                      (x0, x1)
+                    with Yojson.End_of_tuple ->
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Aliased x
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Direct" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_alias
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `Direct x
+            | "Aliased" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  fun p lb ->
+                    Yojson.Safe.read_space p lb;
+                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    let len = ref 0 in
+                    let end_of_tuple = ref false in
+                    (try
+                      let x0 =
+                        let x =
+                          (
+                            read_ident
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x1 =
+                        let x =
+                          (
+                            read_alias
+                          ) p lb
+                        in
+                        incr len;
+                        (try
+                          Yojson.Safe.read_space p lb;
+                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                        x
+                      in
+                      if not !end_of_tuple then (
+                        try
+                          while true do
+                            Yojson.Safe.skip_json p lb;
+                            Yojson.Safe.read_space p lb;
+                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                          done
+                        with Yojson.End_of_tuple -> ()
+                      );
+                      (x0, x1)
+                    with Yojson.End_of_tuple ->
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `Aliased x
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+and import_from_kind_of_string s =
+  read_import_from_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 and read_item p lb = (
   read_stmt
 ) p lb

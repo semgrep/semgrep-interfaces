@@ -5807,7 +5807,7 @@ class DefinitionKind:
 class ImportFrom:
     """Original type: directive = [ ... | ImportFrom of ... | ... ]"""
 
-    value: Tuple[Tok, ModuleName, List[Tuple[Alias, Optional[Alias]]]]
+    value: Tuple[Tok, ModuleName, List[ImportFromKind]]
 
     @property
     def kind(self) -> str:
@@ -5815,7 +5815,7 @@ class ImportFrom:
         return 'ImportFrom'
 
     def to_json(self) -> Any:
-        return ['ImportFrom', (lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1]), _atd_write_list((lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_nullable((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(x[2])] if isinstance(x, tuple) and len(x) == 3 else _atd_bad_python('tuple of length 3', x))(self.value)]
+        return ['ImportFrom', (lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1]), _atd_write_list((lambda x: x.to_json()))(x[2])] if isinstance(x, tuple) and len(x) == 3 else _atd_bad_python('tuple of length 3', x))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -5945,7 +5945,7 @@ class Directive:
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'ImportFrom':
-                return cls(ImportFrom((lambda x: (Tok.from_json(x[0]), ModuleName.from_json(x[1]), _atd_read_list((lambda x: (Alias.from_json(x[0]), _atd_read_nullable(Alias.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
+                return cls(ImportFrom((lambda x: (Tok.from_json(x[0]), ModuleName.from_json(x[1]), _atd_read_list(ImportFromKind.from_json)(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
             if cons == 'ImportAs':
                 return cls(ImportAs((lambda x: (Tok.from_json(x[0]), ModuleName.from_json(x[1]), _atd_read_nullable(Alias.from_json)(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
             if cons == 'ImportAll':
@@ -7326,6 +7326,74 @@ class IdInfo:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'IdInfo':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+@dataclass
+class Direct:
+    """Original type: import_from_kind = [ ... | Direct of ... | ... ]"""
+
+    value: Alias
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Direct'
+
+    def to_json(self) -> Any:
+        return ['Direct', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Aliased:
+    """Original type: import_from_kind = [ ... | Aliased of ... | ... ]"""
+
+    value: Tuple[Ident, Alias]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Aliased'
+
+    def to_json(self) -> Any:
+        return ['Aliased', (lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ImportFromKind:
+    """Original type: import_from_kind = [ ... ]"""
+
+    value: Union[Direct, Aliased]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ImportFromKind':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'Direct':
+                return cls(Direct(Alias.from_json(x[1])))
+            if cons == 'Aliased':
+                return cls(Aliased((lambda x: (Ident.from_json(x[0]), Alias.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+            _atd_bad_json('ImportFromKind', x)
+        _atd_bad_json('ImportFromKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ImportFromKind':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
