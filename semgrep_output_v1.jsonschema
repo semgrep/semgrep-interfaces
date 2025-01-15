@@ -835,16 +835,6 @@
         "snippet": { "$ref": "#/definitions/snippet" }
       }
     },
-    "has_features": {
-      "type": "object",
-      "required": [],
-      "properties": {
-        "has_autofix": { "type": "boolean" },
-        "has_deepsemgrep": { "type": "boolean" },
-        "has_triage_via_comment": { "type": "boolean" },
-        "has_dependency_query": { "type": "boolean" }
-      }
-    },
     "features": {
       "type": "object",
       "required": [],
@@ -890,69 +880,6 @@
           "prefixItems": [ { "const": "Exit" }, { "type": "integer" } ]
         }
       ]
-    },
-    "deployment_config": {
-      "type": "object",
-      "required": [ "id", "name" ],
-      "properties": {
-        "id": { "type": "integer" },
-        "name": { "type": "string" },
-        "organization_id": { "type": "integer" },
-        "display_name": { "type": "string" },
-        "scm_name": { "type": "string" },
-        "slug": { "type": "string" },
-        "source_type": { "type": "string" },
-        "default_user_role": { "type": "string" },
-        "has_autofix": { "type": "boolean" },
-        "has_deepsemgrep": { "type": "boolean" },
-        "has_triage_via_comment": { "type": "boolean" },
-        "has_dependency_query": { "type": "boolean" }
-      }
-    },
-    "ci_config_from_repo": {
-      "type": "object",
-      "required": [],
-      "properties": {
-        "version": { "$ref": "#/definitions/version" },
-        "tags": { "type": "array", "items": { "$ref": "#/definitions/tag" } }
-      }
-    },
-    "tag": { "type": "string" },
-    "scan_config": {
-      "type": "object",
-      "required": [
-        "deployment_id", "deployment_name", "policy_names", "rule_config"
-      ],
-      "properties": {
-        "deployment_id": { "type": "integer" },
-        "deployment_name": { "type": "string" },
-        "policy_names": { "type": "array", "items": { "type": "string" } },
-        "rule_config": { "type": "string" },
-        "autofix": { "type": "boolean" },
-        "deepsemgrep": { "type": "boolean" },
-        "dependency_query": { "type": "boolean" },
-        "path_to_transitivity": { "type": "boolean" },
-        "triage_ignored_syntactic_ids": {
-          "type": "array",
-          "items": { "type": "string" }
-        },
-        "triage_ignored_match_based_ids": {
-          "type": "array",
-          "items": { "type": "string" }
-        },
-        "ignored_files": { "type": "array", "items": { "type": "string" } },
-        "enabled_products": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/product" }
-        },
-        "actions": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/action" }
-        },
-        "ci_config_from_cloud": {
-          "$ref": "#/definitions/ci_config_from_cloud"
-        }
-      }
     },
     "scan_response": {
       "type": "object",
@@ -1031,13 +958,6 @@
         "lookback_days": { "type": "integer" }
       }
     },
-    "deployment_response": {
-      "type": "object",
-      "required": [ "deployment" ],
-      "properties": {
-        "deployment": { "$ref": "#/definitions/deployment_config" }
-      }
-    },
     "scan_request": {
       "type": "object",
       "required": [ "project_metadata", "scan_metadata" ],
@@ -1102,6 +1022,15 @@
         "sms_scan_id": { "type": "string" }
       }
     },
+    "ci_config_from_repo": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "version": { "$ref": "#/definitions/version" },
+        "tags": { "type": "array", "items": { "$ref": "#/definitions/tag" } }
+      }
+    },
+    "tag": { "type": "string" },
     "finding": {
       "type": "object",
       "required": [
@@ -1405,6 +1334,77 @@
       "properties": {
         "exit_code": { "type": "integer" },
         "stderr": { "type": "string" }
+      }
+    },
+    "deployment_config": {
+      "type": "object",
+      "required": [ "id", "name" ],
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "organization_id": { "type": "integer" },
+        "display_name": { "type": "string" },
+        "scm_name": { "type": "string" },
+        "slug": { "type": "string" },
+        "source_type": { "type": "string" },
+        "default_user_role": { "type": "string" },
+        "has_autofix": { "type": "boolean" },
+        "has_deepsemgrep": { "type": "boolean" },
+        "has_triage_via_comment": { "type": "boolean" },
+        "has_dependency_query": { "type": "boolean" }
+      }
+    },
+    "has_features": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "has_autofix": { "type": "boolean" },
+        "has_deepsemgrep": { "type": "boolean" },
+        "has_triage_via_comment": { "type": "boolean" },
+        "has_dependency_query": { "type": "boolean" }
+      }
+    },
+    "deployment_response": {
+      "type": "object",
+      "required": [ "deployment" ],
+      "properties": {
+        "deployment": { "$ref": "#/definitions/deployment_config" }
+      }
+    },
+    "scan_config": {
+      "type": "object",
+      "required": [
+        "deployment_id", "deployment_name", "policy_names", "rule_config"
+      ],
+      "properties": {
+        "deployment_id": { "type": "integer" },
+        "deployment_name": { "type": "string" },
+        "policy_names": { "type": "array", "items": { "type": "string" } },
+        "rule_config": { "type": "string" },
+        "autofix": { "type": "boolean" },
+        "deepsemgrep": { "type": "boolean" },
+        "dependency_query": { "type": "boolean" },
+        "path_to_transitivity": { "type": "boolean" },
+        "triage_ignored_syntactic_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "triage_ignored_match_based_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "ignored_files": { "type": "array", "items": { "type": "string" } },
+        "enabled_products": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/product" }
+        },
+        "actions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/action" }
+        },
+        "ci_config_from_cloud": {
+          "$ref": "#/definitions/ci_config_from_cloud"
+        }
       }
     },
     "ci_config_from_cloud": {
