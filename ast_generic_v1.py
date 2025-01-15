@@ -9,7 +9,7 @@ methods and functions to convert data from/to JSON.
 
 # Import annotations to allow forward references
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, NoReturn, Optional, Tuple, Union
 
 import json
@@ -137,6 +137,19 @@ def _atd_read_nullable(read_elt: Callable[[Any], Any]) \
     return read_nullable
 
 
+def _atd_read_option(read_elt: Callable[[Any], Any]) \
+        -> Callable[[Optional[Any]], Optional[Any]]:
+    def read_option(x: Any) -> Any:
+        if x == 'None':
+            return None
+        elif isinstance(x, List) and len(x) == 2 and x[0] == 'Some':
+            return read_elt(x[1])
+        else:
+            _atd_bad_json('option', x)
+            raise AssertionError('impossible')  # keep mypy happy
+    return read_option
+
+
 def _atd_write_unit(x: Any) -> None:
     if x is None:
         return x
@@ -230,6 +243,16 @@ def _atd_write_nullable(write_elt: Callable[[Any], Any]) \
         else:
             return write_elt(x)
     return write_nullable
+
+
+def _atd_write_option(write_elt: Callable[[Any], Any]) \
+        -> Callable[[Optional[Any]], Optional[Any]]:
+    def write_option(x: Any) -> Any:
+        if x is None:
+            return 'None'
+        else:
+            return ['Some', write_elt(x)]
+    return write_option
 
 
 ############################################################################
@@ -2307,6 +2330,7 @@ class Pipe:
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
+
 @dataclass
 class LDA:
     """Original type: operator = [ ... | LDA | ... ]"""
@@ -2322,6 +2346,7 @@ class LDA:
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
+
 
 @dataclass
 class RDA:
@@ -2339,6 +2364,7 @@ class RDA:
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
+
 @dataclass
 class LSA:
     """Original type: operator = [ ... | LSA | ... ]"""
@@ -2354,6 +2380,7 @@ class LSA:
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
+
 
 @dataclass
 class RSA:
@@ -2614,6 +2641,23 @@ class Super:
     @staticmethod
     def to_json() -> Any:
         return 'Super'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Cls:
+    """Original type: special = [ ... | Cls | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Cls'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Cls'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -2917,7 +2961,7 @@ class OtherSpecial:
 class Special:
     """Original type: special = [ ... ]"""
 
-    value: Union[This, Super, Self, Parent, Eval, Typeof, Instanceof, Sizeof, Defined, ConcatString, EncodedString, InterpolatedElement, Spread, HashSplat, ForOf, Op, IncrDecr_, Require, OtherSpecial]
+    value: Union[This, Super, Cls, Self, Parent, Eval, Typeof, Instanceof, Sizeof, Defined, ConcatString, EncodedString, InterpolatedElement, Spread, HashSplat, ForOf, Op, IncrDecr_, Require, OtherSpecial]
 
     @property
     def kind(self) -> str:
@@ -2931,6 +2975,8 @@ class Special:
                 return cls(This())
             if x == 'Super':
                 return cls(Super())
+            if x == 'Cls':
+                return cls(Cls())
             if x == 'Self':
                 return cls(Self())
             if x == 'Parent':
@@ -3197,27 +3243,6 @@ class FunctionKindWrap:
 
 
 @dataclass
-class IntNullableWrap:
-    """Original type: _int_nullable_wrap"""
-
-    value: Tuple[Optional[int], Tok]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'IntNullableWrap':
-        return cls((lambda x: (_atd_read_nullable(_atd_read_int)(x[0]), Tok.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x))
-
-    def to_json(self) -> Any:
-        return (lambda x: [_atd_write_nullable(_atd_write_int)(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'IntNullableWrap':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class IntWrap:
     """Original type: _int_wrap"""
 
@@ -3344,6 +3369,27 @@ class StringWrapBracket:
 
 
 @dataclass
+class XB40703a:
+    """Original type: _x_b40703a"""
+
+    value: Tuple[Optional[int], Tok]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'XB40703a':
+        return cls((lambda x: (_atd_read_nullable(_atd_read_int)(x[0]), Tok.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x))
+
+    def to_json(self) -> Any:
+        return (lambda x: [_atd_write_nullable(_atd_write_int)(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'XB40703a':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Ident:
     """Original type: ident"""
 
@@ -3428,7 +3474,7 @@ class Bool:
 class Int:
     """Original type: literal = [ ... | Int of ... | ... ]"""
 
-    value: IntNullableWrap
+    value: XB40703a
 
     @property
     def kind(self) -> str:
@@ -3640,7 +3686,7 @@ class Literal:
             if cons == 'Bool':
                 return cls(Bool(BoolWrap.from_json(x[1])))
             if cons == 'Int':
-                return cls(Int(IntNullableWrap.from_json(x[1])))
+                return cls(Int(XB40703a.from_json(x[1])))
             if cons == 'Float':
                 return cls(Float(FloatNullableWrap.from_json(x[1])))
             if cons == 'Char':
@@ -5761,7 +5807,7 @@ class DefinitionKind:
 class ImportFrom:
     """Original type: directive = [ ... | ImportFrom of ... | ... ]"""
 
-    value: Tuple[Tok, ModuleName, List[Tuple[Ident, Optional[Alias]]]]
+    value: Tuple[Tok, ModuleName, List[Tuple[Alias, Optional[Alias]]]]
 
     @property
     def kind(self) -> str:
@@ -5899,7 +5945,7 @@ class Directive:
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'ImportFrom':
-                return cls(ImportFrom((lambda x: (Tok.from_json(x[0]), ModuleName.from_json(x[1]), _atd_read_list((lambda x: (Ident.from_json(x[0]), _atd_read_nullable(Alias.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
+                return cls(ImportFrom((lambda x: (Tok.from_json(x[0]), ModuleName.from_json(x[1]), _atd_read_list((lambda x: (Alias.from_json(x[0]), _atd_read_nullable(Alias.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
             if cons == 'ImportAs':
                 return cls(ImportAs((lambda x: (Tok.from_json(x[0]), ModuleName.from_json(x[1]), _atd_read_nullable(Alias.from_json)(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
             if cons == 'ImportAll':
@@ -8117,18 +8163,18 @@ class PatKeyVal:
 
 
 @dataclass
-class PatUnderscore:
-    """Original type: pattern = [ ... | PatUnderscore of ... | ... ]"""
+class PatWildcard:
+    """Original type: pattern = [ ... | PatWildcard of ... | ... ]"""
 
     value: Tok
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'PatUnderscore'
+        return 'PatWildcard'
 
     def to_json(self) -> Any:
-        return ['PatUnderscore', (lambda x: x.to_json())(self.value)]
+        return ['PatWildcard', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -8246,7 +8292,7 @@ class OtherPat:
 class Pattern:
     """Original type: pattern = [ ... ]"""
 
-    value: Union[PatLiteral, PatConstructor, PatRecord, PatId, PatTuple, PatList, PatKeyVal, PatUnderscore, PatDisj, PatTyped, PatWhen, PatAs, PatType, OtherPat]
+    value: Union[PatLiteral, PatConstructor, PatRecord, PatId, PatTuple, PatList, PatKeyVal, PatWildcard, PatDisj, PatTyped, PatWhen, PatAs, PatType, OtherPat]
 
     @property
     def kind(self) -> str:
@@ -8271,8 +8317,8 @@ class Pattern:
                 return cls(PatList(PatternListBracket.from_json(x[1])))
             if cons == 'PatKeyVal':
                 return cls(PatKeyVal((lambda x: (Pattern.from_json(x[0]), Pattern.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
-            if cons == 'PatUnderscore':
-                return cls(PatUnderscore(Tok.from_json(x[1])))
+            if cons == 'PatWildcard':
+                return cls(PatWildcard(Tok.from_json(x[1])))
             if cons == 'PatDisj':
                 return cls(PatDisj((lambda x: (Pattern.from_json(x[0]), Pattern.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
             if cons == 'PatTyped':
