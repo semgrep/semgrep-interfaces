@@ -4912,6 +4912,7 @@ class EngineConfiguration:
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
     path_to_transitivity: bool = field(default_factory=lambda: False)
+    scan_all_deps_in_diff_scan: bool = field(default_factory=lambda: False)
     ignored_files: List[str] = field(default_factory=lambda: [])
     product_ignored_files: Optional[ProductIgnoredFiles] = None
     generic_slow_rollout: bool = field(default_factory=lambda: False)
@@ -4926,6 +4927,7 @@ class EngineConfiguration:
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
                 path_to_transitivity=_atd_read_bool(x['path_to_transitivity']) if 'path_to_transitivity' in x else False,
+                scan_all_deps_in_diff_scan=_atd_read_bool(x['scan_all_deps_in_diff_scan']) if 'scan_all_deps_in_diff_scan' in x else False,
                 ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
                 product_ignored_files=ProductIgnoredFiles.from_json(x['product_ignored_files']) if 'product_ignored_files' in x else None,
                 generic_slow_rollout=_atd_read_bool(x['generic_slow_rollout']) if 'generic_slow_rollout' in x else False,
@@ -4941,6 +4943,7 @@ class EngineConfiguration:
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
         res['path_to_transitivity'] = _atd_write_bool(self.path_to_transitivity)
+        res['scan_all_deps_in_diff_scan'] = _atd_write_bool(self.scan_all_deps_in_diff_scan)
         res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
         if self.product_ignored_files is not None:
             res['product_ignored_files'] = (lambda x: x.to_json())(self.product_ignored_files)
@@ -5037,7 +5040,6 @@ class ScanMetadata:
 class ProjectMetadata:
     """Original type: project_metadata = { ... }"""
 
-    semgrep_version: Version
     scan_environment: str
     repository: str
     repo_url: Optional[Uri]
@@ -5069,7 +5071,6 @@ class ProjectMetadata:
     def from_json(cls, x: Any) -> 'ProjectMetadata':
         if isinstance(x, dict):
             return cls(
-                semgrep_version=Version.from_json(x['semgrep_version']) if 'semgrep_version' in x else _atd_missing_json_field('ProjectMetadata', 'semgrep_version'),
                 scan_environment=_atd_read_string(x['scan_environment']) if 'scan_environment' in x else _atd_missing_json_field('ProjectMetadata', 'scan_environment'),
                 repository=_atd_read_string(x['repository']) if 'repository' in x else _atd_missing_json_field('ProjectMetadata', 'repository'),
                 repo_url=_atd_read_nullable(Uri.from_json)(x['repo_url']) if 'repo_url' in x else _atd_missing_json_field('ProjectMetadata', 'repo_url'),
@@ -5102,7 +5103,6 @@ class ProjectMetadata:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['semgrep_version'] = (lambda x: x.to_json())(self.semgrep_version)
         res['scan_environment'] = _atd_write_string(self.scan_environment)
         res['repository'] = _atd_write_string(self.repository)
         res['repo_url'] = _atd_write_nullable((lambda x: x.to_json()))(self.repo_url)
@@ -5187,7 +5187,6 @@ class ScanRequest:
     project_metadata: ProjectMetadata
     scan_metadata: ScanMetadata
     project_config: Optional[CiConfigFromRepo] = None
-    meta: Optional[RawJson] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanRequest':
@@ -5196,7 +5195,6 @@ class ScanRequest:
                 project_metadata=ProjectMetadata.from_json(x['project_metadata']) if 'project_metadata' in x else _atd_missing_json_field('ScanRequest', 'project_metadata'),
                 scan_metadata=ScanMetadata.from_json(x['scan_metadata']) if 'scan_metadata' in x else _atd_missing_json_field('ScanRequest', 'scan_metadata'),
                 project_config=CiConfigFromRepo.from_json(x['project_config']) if 'project_config' in x else None,
-                meta=RawJson.from_json(x['meta']) if 'meta' in x else None,
             )
         else:
             _atd_bad_json('ScanRequest', x)
@@ -5207,8 +5205,6 @@ class ScanRequest:
         res['scan_metadata'] = (lambda x: x.to_json())(self.scan_metadata)
         if self.project_config is not None:
             res['project_config'] = (lambda x: x.to_json())(self.project_config)
-        if self.meta is not None:
-            res['meta'] = (lambda x: x.to_json())(self.meta)
         return res
 
     @classmethod
@@ -5251,6 +5247,7 @@ class CiConfig:
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
     path_to_transitivity: bool = field(default_factory=lambda: False)
+    scan_all_deps_in_diff_scan: bool = field(default_factory=lambda: False)
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiConfig':
@@ -5263,6 +5260,7 @@ class CiConfig:
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
                 path_to_transitivity=_atd_read_bool(x['path_to_transitivity']) if 'path_to_transitivity' in x else False,
+                scan_all_deps_in_diff_scan=_atd_read_bool(x['scan_all_deps_in_diff_scan']) if 'scan_all_deps_in_diff_scan' in x else False,
             )
         else:
             _atd_bad_json('CiConfig', x)
@@ -5276,6 +5274,7 @@ class CiConfig:
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
         res['path_to_transitivity'] = _atd_write_bool(self.path_to_transitivity)
+        res['scan_all_deps_in_diff_scan'] = _atd_write_bool(self.scan_all_deps_in_diff_scan)
         return res
 
     @classmethod
@@ -5426,6 +5425,7 @@ class ScanConfig:
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
     path_to_transitivity: bool = field(default_factory=lambda: False)
+    scan_all_deps_in_diff_scan: bool = field(default_factory=lambda: False)
     triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
     triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
     ignored_files: List[str] = field(default_factory=lambda: [])
@@ -5445,6 +5445,7 @@ class ScanConfig:
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
                 path_to_transitivity=_atd_read_bool(x['path_to_transitivity']) if 'path_to_transitivity' in x else False,
+                scan_all_deps_in_diff_scan=_atd_read_bool(x['scan_all_deps_in_diff_scan']) if 'scan_all_deps_in_diff_scan' in x else False,
                 triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
                 triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
                 ignored_files=_atd_read_list(_atd_read_string)(x['ignored_files']) if 'ignored_files' in x else [],
@@ -5465,6 +5466,7 @@ class ScanConfig:
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
         res['path_to_transitivity'] = _atd_write_bool(self.path_to_transitivity)
+        res['scan_all_deps_in_diff_scan'] = _atd_write_bool(self.scan_all_deps_in_diff_scan)
         res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
         res['triage_ignored_match_based_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_match_based_ids)
         res['ignored_files'] = _atd_write_list(_atd_write_string)(self.ignored_files)
@@ -8745,6 +8747,7 @@ class Features:
     deepsemgrep: bool = field(default_factory=lambda: False)
     dependency_query: bool = field(default_factory=lambda: False)
     path_to_transitivity: bool = field(default_factory=lambda: False)
+    scan_all_deps_in_diff_scan: bool = field(default_factory=lambda: False)
 
     @classmethod
     def from_json(cls, x: Any) -> 'Features':
@@ -8754,6 +8757,7 @@ class Features:
                 deepsemgrep=_atd_read_bool(x['deepsemgrep']) if 'deepsemgrep' in x else False,
                 dependency_query=_atd_read_bool(x['dependency_query']) if 'dependency_query' in x else False,
                 path_to_transitivity=_atd_read_bool(x['path_to_transitivity']) if 'path_to_transitivity' in x else False,
+                scan_all_deps_in_diff_scan=_atd_read_bool(x['scan_all_deps_in_diff_scan']) if 'scan_all_deps_in_diff_scan' in x else False,
             )
         else:
             _atd_bad_json('Features', x)
@@ -8764,6 +8768,7 @@ class Features:
         res['deepsemgrep'] = _atd_write_bool(self.deepsemgrep)
         res['dependency_query'] = _atd_write_bool(self.dependency_query)
         res['path_to_transitivity'] = _atd_write_bool(self.path_to_transitivity)
+        res['scan_all_deps_in_diff_scan'] = _atd_write_bool(self.scan_all_deps_in_diff_scan)
         return res
 
     @classmethod

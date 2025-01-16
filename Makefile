@@ -16,6 +16,7 @@ FILES= \
   semgrep_output_$(VER).ts \
   semgrep_output_$(VER).jsonschema \
   semgrep_output_$(VER).proto \
+  ast_generic_$(VER).py \
   ast_generic_$(VER)_j.ml \
   ast_generic_$(VER)_j.mli \
   Language.ml \

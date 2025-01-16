@@ -26,6 +26,8 @@ export type Uuid = string
 
 export type Datetime = string
 
+export type Glob = string
+
 export type Version = string
 
 export type Position = {
@@ -460,6 +462,7 @@ export type Features = {
   deepsemgrep: boolean;
   dependency_query: boolean;
   path_to_transitivity: boolean;
+  scan_all_deps_in_diff_scan: boolean;
 }
 
 export type TriageIgnored = {
@@ -496,14 +499,13 @@ export type EngineConfiguration = {
   deepsemgrep: boolean;
   dependency_query: boolean;
   path_to_transitivity: boolean;
+  scan_all_deps_in_diff_scan: boolean;
   ignored_files: string[];
   product_ignored_files?: ProductIgnoredFiles;
   generic_slow_rollout: boolean;
   historical_config?: HistoricalConfiguration;
   always_suppress_errors: boolean;
 }
-
-export type Glob = string
 
 export type ProductIgnoredFiles = Map<Product, Glob[]>
 
@@ -516,11 +518,9 @@ export type ScanRequest = {
   project_metadata: ProjectMetadata;
   scan_metadata: ScanMetadata;
   project_config?: CiConfigFromRepo;
-  meta?: RawJson;
 }
 
 export type ProjectMetadata = {
-  semgrep_version: Version;
   scan_environment: string;
   repository: string;
   repo_url: (Uri | null);
@@ -766,6 +766,7 @@ export type ScanConfig = {
   deepsemgrep: boolean;
   dependency_query: boolean;
   path_to_transitivity: boolean;
+  scan_all_deps_in_diff_scan: boolean;
   triage_ignored_syntactic_ids: string[];
   triage_ignored_match_based_ids: string[];
   ignored_files: string[];
@@ -789,6 +790,7 @@ export type CiConfig = {
   deepsemgrep: boolean;
   dependency_query: boolean;
   path_to_transitivity: boolean;
+  scan_all_deps_in_diff_scan: boolean;
 }
 
 export type CiEnv = Map<string, string>
@@ -1050,6 +1052,14 @@ export function writeDatetime(x: Datetime, context: any = x): any {
 }
 
 export function readDatetime(x: any, context: any = x): Datetime {
+  return _atd_read_string(x, context);
+}
+
+export function writeGlob(x: Glob, context: any = x): any {
+  return _atd_write_string(x, context);
+}
+
+export function readGlob(x: any, context: any = x): Glob {
   return _atd_read_string(x, context);
 }
 
@@ -2506,6 +2516,7 @@ export function writeFeatures(x: Features, context: any = x): any {
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
     'path_to_transitivity': _atd_write_field_with_default(_atd_write_bool, false, x.path_to_transitivity, x),
+    'scan_all_deps_in_diff_scan': _atd_write_field_with_default(_atd_write_bool, false, x.scan_all_deps_in_diff_scan, x),
   };
 }
 
@@ -2515,6 +2526,7 @@ export function readFeatures(x: any, context: any = x): Features {
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
     path_to_transitivity: _atd_read_field_with_default(_atd_read_bool, false, x['path_to_transitivity'], x),
+    scan_all_deps_in_diff_scan: _atd_read_field_with_default(_atd_read_bool, false, x['scan_all_deps_in_diff_scan'], x),
   };
 }
 
@@ -2614,6 +2626,7 @@ export function writeEngineConfiguration(x: EngineConfiguration, context: any = 
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
     'path_to_transitivity': _atd_write_field_with_default(_atd_write_bool, false, x.path_to_transitivity, x),
+    'scan_all_deps_in_diff_scan': _atd_write_field_with_default(_atd_write_bool, false, x.scan_all_deps_in_diff_scan, x),
     'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
     'product_ignored_files': _atd_write_optional_field(writeProductIgnoredFiles, x.product_ignored_files, x),
     'generic_slow_rollout': _atd_write_field_with_default(_atd_write_bool, false, x.generic_slow_rollout, x),
@@ -2628,20 +2641,13 @@ export function readEngineConfiguration(x: any, context: any = x): EngineConfigu
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
     path_to_transitivity: _atd_read_field_with_default(_atd_read_bool, false, x['path_to_transitivity'], x),
+    scan_all_deps_in_diff_scan: _atd_read_field_with_default(_atd_read_bool, false, x['scan_all_deps_in_diff_scan'], x),
     ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
     product_ignored_files: _atd_read_optional_field(readProductIgnoredFiles, x['product_ignored_files'], x),
     generic_slow_rollout: _atd_read_field_with_default(_atd_read_bool, false, x['generic_slow_rollout'], x),
     historical_config: _atd_read_optional_field(readHistoricalConfiguration, x['historical_config'], x),
     always_suppress_errors: _atd_read_field_with_default(_atd_read_bool, false, x['always_suppress_errors'], x),
   };
-}
-
-export function writeGlob(x: Glob, context: any = x): any {
-  return _atd_write_string(x, context);
-}
-
-export function readGlob(x: any, context: any = x): Glob {
-  return _atd_read_string(x, context);
 }
 
 export function writeProductIgnoredFiles(x: ProductIgnoredFiles, context: any = x): any {
@@ -2671,7 +2677,6 @@ export function writeScanRequest(x: ScanRequest, context: any = x): any {
     'project_metadata': _atd_write_required_field('ScanRequest', 'project_metadata', writeProjectMetadata, x.project_metadata, x),
     'scan_metadata': _atd_write_required_field('ScanRequest', 'scan_metadata', writeScanMetadata, x.scan_metadata, x),
     'project_config': _atd_write_optional_field(writeCiConfigFromRepo, x.project_config, x),
-    'meta': _atd_write_optional_field(writeRawJson, x.meta, x),
   };
 }
 
@@ -2680,13 +2685,11 @@ export function readScanRequest(x: any, context: any = x): ScanRequest {
     project_metadata: _atd_read_required_field('ScanRequest', 'project_metadata', readProjectMetadata, x['project_metadata'], x),
     scan_metadata: _atd_read_required_field('ScanRequest', 'scan_metadata', readScanMetadata, x['scan_metadata'], x),
     project_config: _atd_read_optional_field(readCiConfigFromRepo, x['project_config'], x),
-    meta: _atd_read_optional_field(readRawJson, x['meta'], x),
   };
 }
 
 export function writeProjectMetadata(x: ProjectMetadata, context: any = x): any {
   return {
-    'semgrep_version': _atd_write_required_field('ProjectMetadata', 'semgrep_version', writeVersion, x.semgrep_version, x),
     'scan_environment': _atd_write_required_field('ProjectMetadata', 'scan_environment', _atd_write_string, x.scan_environment, x),
     'repository': _atd_write_required_field('ProjectMetadata', 'repository', _atd_write_string, x.repository, x),
     'repo_url': _atd_write_required_field('ProjectMetadata', 'repo_url', _atd_write_nullable(writeUri), x.repo_url, x),
@@ -2718,7 +2721,6 @@ export function writeProjectMetadata(x: ProjectMetadata, context: any = x): any 
 
 export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
   return {
-    semgrep_version: _atd_read_required_field('ProjectMetadata', 'semgrep_version', readVersion, x['semgrep_version'], x),
     scan_environment: _atd_read_required_field('ProjectMetadata', 'scan_environment', _atd_read_string, x['scan_environment'], x),
     repository: _atd_read_required_field('ProjectMetadata', 'repository', _atd_read_string, x['repository'], x),
     repo_url: _atd_read_required_field('ProjectMetadata', 'repo_url', _atd_read_nullable(readUri), x['repo_url'], x),
@@ -3352,6 +3354,7 @@ export function writeScanConfig(x: ScanConfig, context: any = x): any {
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
     'path_to_transitivity': _atd_write_field_with_default(_atd_write_bool, false, x.path_to_transitivity, x),
+    'scan_all_deps_in_diff_scan': _atd_write_field_with_default(_atd_write_bool, false, x.scan_all_deps_in_diff_scan, x),
     'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
     'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
     'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
@@ -3371,6 +3374,7 @@ export function readScanConfig(x: any, context: any = x): ScanConfig {
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
     path_to_transitivity: _atd_read_field_with_default(_atd_read_bool, false, x['path_to_transitivity'], x),
+    scan_all_deps_in_diff_scan: _atd_read_field_with_default(_atd_read_bool, false, x['scan_all_deps_in_diff_scan'], x),
     triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),
     triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
     ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
@@ -3407,6 +3411,7 @@ export function writeCiConfig(x: CiConfig, context: any = x): any {
     'deepsemgrep': _atd_write_field_with_default(_atd_write_bool, false, x.deepsemgrep, x),
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
     'path_to_transitivity': _atd_write_field_with_default(_atd_write_bool, false, x.path_to_transitivity, x),
+    'scan_all_deps_in_diff_scan': _atd_write_field_with_default(_atd_write_bool, false, x.scan_all_deps_in_diff_scan, x),
   };
 }
 
@@ -3419,6 +3424,7 @@ export function readCiConfig(x: any, context: any = x): CiConfig {
     deepsemgrep: _atd_read_field_with_default(_atd_read_bool, false, x['deepsemgrep'], x),
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
     path_to_transitivity: _atd_read_field_with_default(_atd_read_bool, false, x['path_to_transitivity'], x),
+    scan_all_deps_in_diff_scan: _atd_read_field_with_default(_atd_read_bool, false, x['scan_all_deps_in_diff_scan'], x),
   };
 }
 

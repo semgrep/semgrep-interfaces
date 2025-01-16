@@ -100,6 +100,8 @@ type uuid = string wrap <ocaml module="ATD_string_wrap.Uuidm">
 (* RFC 3339 format *)
 type datetime = string wrap <ocaml module="ATD_string_wrap.Datetime">
 
+type glob = string
+
 (*****************************************************************************)
 (* Versioning *)
 (*****************************************************************************)
@@ -494,6 +496,7 @@ type match_intermediate_var <python decorator="dataclass(frozen=True)"> = {
 (* both ecosystem and transitivity below have frozen=True so the generated
  * classes can be hashed and put in sets (see calls to reachable_deps.add()
  * in semgrep SCA code)
+ * TODO: use <ocaml repr="classic">, and do the same for manifest
  *)
 type ecosystem
     <python decorator="dataclass(frozen=True)">
@@ -595,6 +598,7 @@ type dependency_child <python decorator="dataclass(frozen=True)"> = {
  * the validity of a finding. No_validator is currently also used when no
  * validation has yet occurred, which if that becomes confusing we
  * could adjust that, by adding another state.
+ * TODO: use <ocaml repr="classic">
 *)
 type validation_state
     <ocaml attr="deriving show, eq">
@@ -948,7 +952,7 @@ type cli_output_extra = {
 
 type config_error_reason = [
   | UnparsableRule <json name="unparsable_rule">
-]
+] <ocaml repr="classic">
 
 type config_error = {
   file: fpath;
@@ -1141,6 +1145,9 @@ type features = {
    ~deepsemgrep: bool;
    ~dependency_query: bool;
    ~path_to_transitivity: bool;
+   (* normally we resolve dependencies for changed subprojects only in diff scans. This flag
+    * causes all subprojects to be resolved in diff scans *)
+   ~scan_all_deps_in_diff_scan: bool;
 }
 
 type triage_ignored = {
@@ -1220,8 +1227,6 @@ type engine_configuration = {
     ~always_suppress_errors: bool;
 }
 
-type glob = string
-
 type product_ignored_files = (product * glob list) list
   (* We omit the usual <json repr="object"> otherwise we get a
    * "keys must be strings" error *)
@@ -1241,18 +1246,9 @@ type historical_configuration = {
 
 (* Sent by the CLI to the POST /api/cli/scans to create a scan. *)
 type scan_request = {
-    (* added in 1.43 as options, and mandatory since 1.100.0 (replacing meta) *)
     project_metadata: project_metadata;
     scan_metadata: scan_metadata;
-
-    (* added in 1.43 *)
     ?project_config: ci_config_from_repo option;
-    
-    (* deprecated: moved as an option in 1.100.0 and was duplicative of
-     * information in project_metadata and scan_metadata since 1.43.0
-     * old: 'meta: project_metadata;' before 1.43
-     *)
-    ?meta: raw_json option;
 }
 
 (* Collect information about a project from the environment, filesystem,
@@ -1262,9 +1258,6 @@ type scan_request = {
  * clearer (while still being backward compatible)
  *)
 type project_metadata = {
-    (* TODO: deprecate in favor of scan_metadata.cli_version *)
-    semgrep_version: version;
-
     (* TODO: use enum with <json name="..."> *)
     (* "git" | "github-actions" | "gitlab-ci" | "circleci"
      * "jenkins" | "bitbucket" | "azure-pipelines" | "buildkite" | "travis-ci"
@@ -1594,6 +1587,7 @@ type dependency_parser_error = {
 
 (* json names are to maintain backwards compatibility with the python enum it
  * is replacing
+ * TODO: use <ocaml repr="classic">
  *)
 type sca_parser_name = [
   | Gemfile_lock <json name="gemfile_lock">
@@ -2012,6 +2006,7 @@ type lockfile_kind
     | ConanLock
 ] <ocaml repr="classic">
 
+(* TODO: use <ocaml repr="classic"> *)
 type manifest_kind 
   <ocaml attr="deriving show, eq">
   <python decorator="dataclass(frozen=True)"> =
