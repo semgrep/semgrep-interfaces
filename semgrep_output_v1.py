@@ -5040,7 +5040,6 @@ class ScanMetadata:
 class ProjectMetadata:
     """Original type: project_metadata = { ... }"""
 
-    semgrep_version: Version
     scan_environment: str
     repository: str
     repo_url: Optional[Uri]
@@ -5072,7 +5071,6 @@ class ProjectMetadata:
     def from_json(cls, x: Any) -> 'ProjectMetadata':
         if isinstance(x, dict):
             return cls(
-                semgrep_version=Version.from_json(x['semgrep_version']) if 'semgrep_version' in x else _atd_missing_json_field('ProjectMetadata', 'semgrep_version'),
                 scan_environment=_atd_read_string(x['scan_environment']) if 'scan_environment' in x else _atd_missing_json_field('ProjectMetadata', 'scan_environment'),
                 repository=_atd_read_string(x['repository']) if 'repository' in x else _atd_missing_json_field('ProjectMetadata', 'repository'),
                 repo_url=_atd_read_nullable(Uri.from_json)(x['repo_url']) if 'repo_url' in x else _atd_missing_json_field('ProjectMetadata', 'repo_url'),
@@ -5105,7 +5103,6 @@ class ProjectMetadata:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['semgrep_version'] = (lambda x: x.to_json())(self.semgrep_version)
         res['scan_environment'] = _atd_write_string(self.scan_environment)
         res['repository'] = _atd_write_string(self.repository)
         res['repo_url'] = _atd_write_nullable((lambda x: x.to_json()))(self.repo_url)
@@ -5190,7 +5187,6 @@ class ScanRequest:
     project_metadata: ProjectMetadata
     scan_metadata: ScanMetadata
     project_config: Optional[CiConfigFromRepo] = None
-    meta: Optional[RawJson] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanRequest':
@@ -5199,7 +5195,6 @@ class ScanRequest:
                 project_metadata=ProjectMetadata.from_json(x['project_metadata']) if 'project_metadata' in x else _atd_missing_json_field('ScanRequest', 'project_metadata'),
                 scan_metadata=ScanMetadata.from_json(x['scan_metadata']) if 'scan_metadata' in x else _atd_missing_json_field('ScanRequest', 'scan_metadata'),
                 project_config=CiConfigFromRepo.from_json(x['project_config']) if 'project_config' in x else None,
-                meta=RawJson.from_json(x['meta']) if 'meta' in x else None,
             )
         else:
             _atd_bad_json('ScanRequest', x)
@@ -5210,8 +5205,6 @@ class ScanRequest:
         res['scan_metadata'] = (lambda x: x.to_json())(self.scan_metadata)
         if self.project_config is not None:
             res['project_config'] = (lambda x: x.to_json())(self.project_config)
-        if self.meta is not None:
-            res['meta'] = (lambda x: x.to_json())(self.meta)
         return res
 
     @classmethod
