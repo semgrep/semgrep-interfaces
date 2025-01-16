@@ -1674,10 +1674,10 @@ type ci_scan_failure = {
 (* ----------------------------- *)
 
 (* Response by the backend to the CLI to the POST api/agent/deployments/current
- * DEPRECATED: this is now used only in 'semgrep login' and in
- * 'semgrep show whoami' to just check whether the token is valid.
  * Some of the information in deployment_config is now returned
  * directly in scan_response (e.g., the deployment_name)
+ * TODO: deprecate this endpoint as it is now used only in 'semgrep login' and
+ * in 'semgrep show whoami' to just check whether the token is valid.
  *)
 type deployment_config <ocaml attr="deriving show"> = {
   id : int;
@@ -1708,7 +1708,11 @@ type deployment_response = {
 }
 
 (* Response by the backend to the CLI to the POST deployments/scans/config
- * DEPRECATED? seems to be used only by semgrep lsp. Similar to scan_response.
+ * The record is similar to scan_response.
+ * TODO: deprecate this endpoint/record. Is is used by semgrep lsp and possibly
+ * semgrep scan --config policy|supply-chain but we should remove
+ * those --config policy|supply-chain and migrate semgrep lsp to
+ * /api/cli/scans with dryrun=true
  *)
 type scan_config = {
     deployment_id: int;
