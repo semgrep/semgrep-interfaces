@@ -2,7 +2,7 @@
 (* Prelude *)
 (*****************************************************************************)
 (* Specification of the Semgrep CLI JSON output formats using ATD
- * (see https://atd.readthedocs.io/en/latest/ for more information on ATD).
+ * (see https://atd.readthedocs.io/en/latest/ for information on ATD).
  *
  * This file specifies mainly the JSON formats of:
  *  - the output of the 'semgrep scan --json' command
@@ -1124,16 +1124,13 @@ type killing_parent = {
  * types used to communicate with the Semgrep backend and are not meant
  * to be consumed directly by Semgrep users or tools wrapping Semgrep.
  *
- * The sequence of HTTP requests for 'semgrep ci' is mostly:
- *  - /api/agent/deployments/current with token
- *    and response with deployment name in a deployment config
- *    (TODO? get rid of this one? useful?)
+ * The sequence of HTTP requests for 'semgrep ci' is:
  *  - /api/cli/scans when starting a scan, with information about the project
- *    and response with scan_id and scan_config including the rules to use
- *  - /results to send the findings to the backend
+ *    and response with scan_id and scan_response including the rules to use
+ *  - /api/agent/scans/<scan_id>/results to send the findings to the backend
  *    and response with errors and task_id
- *  - /complete when done, with the exit code and a few more information
- *    and response with app_block_override and reason
+ *  - /api/agent/scans/<scan_id>/complete when done, with the exit code and a
+ *    few more information and response with app_block_override and reason
  *
  * alt: we could move all of this in a separate semgrep_posts_v1.atd file
  * or semgrep_webapp_v1.atd
@@ -1142,14 +1139,6 @@ type killing_parent = {
 (* ----------------------------- *)
 (* Features *)
 (* ----------------------------- *)
-
-(* whether a certain feature is available for a deployment *)
-type has_features = {
-  ~has_autofix : bool;
-  ~has_deepsemgrep : bool;
-  ~has_triage_via_comment : bool;
-  ~has_dependency_query : bool;
-}
 
 type features = {
    ~autofix: bool;
@@ -1192,64 +1181,8 @@ type action = [
 ]
 
 (* ----------------------------- *)
-(* CI configurations *)
+(* CI scan response *)
 (* ----------------------------- *)
-
-(* Response by the backend to the CLI to the POST deployments/current *)
-type deployment_config <ocaml attr="deriving show"> = {
-  id : int;
-  (* the important piece, the deployment name (e.g., "returntocorp" *)
-  name : string;
-  ~organization_id : int;
-  (* All three below seem similar to 'name' mostly (e.g., "returntocorp") *)
-  ~display_name : string;
-  ~scm_name : string;
-  ~slug : string;
-  (* ex: "github" *)
-  ~source_type : string;
-  (* ex: "member" *)
-  ~default_user_role : string;
-  (* TODO? factorize in ci_config_from_cloud instead of here and scan_config? *)
-  inherit has_features;
-}
-
-(* Content of a possible .semgrepconfig.yml in the repository.
- *
- * This config allows to configure Semgrep per repo, e.g., to store
- * a category/tag like "webapp" in a repo so that the Semgrep WebApp can
- * return a set of relevant rules automatically for this repo in scan_config
- * later when given this ci_config_from_repo in the scan_request.
- *)
-type ci_config_from_repo = {
-    (* version of the .semgrepconfig.yml format. "v1" right now (useful?) *)
-    ~version <python default="Version('v1')"> <ts default="'v1'">: version;
-    ?tags: tag list option;
-}
-(* ex: "webapp" *)
-type tag = string
-
-(* Response by the backend to the CLI to the POST deployments/scans/config
- * DEPRECATED? seems to be used only by semgrep lsp.
- *)
-type scan_config = {
-    deployment_id: int;
-    deployment_name: string;
-    (* ex: "audit", "comment", "block" TODO use enum? TODO: seems dead *)
-    policy_names: string list;
-    (* rules raw content in JSON format (but still sent as a string) *)
-    rule_config: string;
-    inherit features;
-    inherit triage_ignored;
-    (* glob patterns *)
-    ~ignored_files: string list;
-    (* since 1.37.0 *)
-    ?enabled_products: product list option;
-    (* since 1.64.0 *)
-    ~actions: action list;
-    (* since 1.47.0 but not created by the backend (nor used by the CLI) *)
-    ?ci_config_from_cloud: ci_config_from_cloud option;
-  }
-
 (* Response from the backend to the CLI to the POST /api/cli/scans *)
 type scan_response = {
     info: scan_info;
@@ -1262,16 +1195,15 @@ type scan_response = {
 type scan_info = {
     ?id: int option; (* the scan id, null for dry-runs *)
     enabled_products: product list;
-    (* redundant with deployment_config?
-     * TODO? remove the intermediate call to get the deployment and
-     * start a scan to /api/cli/scans/ without first accessing
-     * api/agent/deployments/current?
+    (* Those fields are also in deployment_config but they are also
+     * here so that 'semgrep ci' does not need an extra HTTP request to the
+     * deployment endpoint to get this info.
      *)
     deployment_id: int;
     deployment_name: string;
 }
 
-(* config specific to the scan, eg *)
+(* config specific to the scan *)
 type scan_configuration = {
     rules: raw_json; (* can we type this better *)
     inherit triage_ignored;
@@ -1308,13 +1240,6 @@ type historical_configuration = {
     ?lookback_days: int option;
 }
                  
-(* ----------------------------- *)
-(* CI Deployment response *)
-(* ----------------------------- *)
-type deployment_response = {
-    deployment: deployment_config;
-}
-
 (* ----------------------------- *)
 (* CI Scan request *)
 (* ----------------------------- *)
@@ -1415,6 +1340,21 @@ type scan_metadata = {
   (* unique id associated with the scan in Semgrep Managed Scanning *)
   ?sms_scan_id: string option;
 }
+
+(* Content of a possible .semgrepconfig.yml in the repository.
+ *
+ * This config allows to configure Semgrep per repo, e.g., to store
+ * a category/tag like "webapp" in a repo so that the Semgrep WebApp can
+ * return a set of relevant rules automatically for this repo in scan_config
+ * later when given this ci_config_from_repo in the scan_request.
+ *)
+type ci_config_from_repo = {
+    (* version of the .semgrepconfig.yml format. "v1" right now (useful?) *)
+    ~version <python default="Version('v1')"> <ts default="'v1'">: version;
+    ?tags: tag list option;
+}
+(* ex: "webapp" *)
+type tag = string
 
 (* ----------------------------- *)
 (* Findings *)
@@ -1728,6 +1668,70 @@ type ci_scan_failure = {
     exit_code: int;
     stderr: string;
 }
+
+(* ----------------------------- *)
+(* Other comms *)
+(* ----------------------------- *)
+
+(* Response by the backend to the CLI to the POST api/agent/deployments/current
+ * Some of the information in deployment_config is now returned
+ * directly in scan_response (e.g., the deployment_name)
+ * TODO: deprecate this endpoint as it is now used only in 'semgrep login' and
+ * in 'semgrep show whoami' to just check whether the token is valid.
+ *)
+type deployment_config <ocaml attr="deriving show"> = {
+  id : int;
+  (* the important piece, the deployment name (e.g., "returntocorp" *)
+  name : string;
+  ~organization_id : int;
+  (* All three below seem similar to 'name' mostly (e.g., "returntocorp") *)
+  ~display_name : string;
+  ~scm_name : string;
+  ~slug : string;
+  (* ex: "github" *)
+  ~source_type : string;
+  (* ex: "member" *)
+  ~default_user_role : string;
+  inherit has_features;
+}
+
+(* whether a certain feature is available for a deployment *)
+type has_features = {
+  ~has_autofix : bool;
+  ~has_deepsemgrep : bool;
+  ~has_triage_via_comment : bool;
+  ~has_dependency_query : bool;
+}
+
+type deployment_response = {
+    deployment: deployment_config;
+}
+
+(* Response by the backend to the CLI to the POST deployments/scans/config
+ * The record is similar to scan_response.
+ * TODO: deprecate this endpoint/record. Is is used by semgrep lsp and possibly
+ * semgrep scan --config policy|supply-chain but we should remove
+ * those --config policy|supply-chain and migrate semgrep lsp to
+ * /api/cli/scans with dryrun=true
+ *)
+type scan_config = {
+    deployment_id: int;
+    deployment_name: string;
+    (* ex: "audit", "comment", "block" TODO use enum? TODO: seems dead *)
+    policy_names: string list;
+    (* rules raw content in JSON format (but still sent as a string) *)
+    rule_config: string;
+    inherit features;
+    inherit triage_ignored;
+    (* glob patterns *)
+    ~ignored_files: string list;
+    (* since 1.37.0 *)
+    ?enabled_products: product list option;
+    (* since 1.64.0 *)
+    ~actions: action list;
+    (* since 1.47.0 but not created by the backend (nor used by the CLI) *)
+    ?ci_config_from_cloud: ci_config_from_cloud option;
+  }
 
 (* ----------------------------- *)
 (* TODO a better CI config from cloud *)
