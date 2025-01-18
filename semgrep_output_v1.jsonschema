@@ -1606,6 +1606,17 @@
         "lockfile_target": { "$ref": "#/definitions/lockfile" }
       }
     },
+    "scanning_roots": {
+      "type": "object",
+      "required": [ "root_paths", "targeting_conf" ],
+      "properties": {
+        "root_paths": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/fpath" }
+        },
+        "targeting_conf": { "$ref": "#/definitions/targeting_conf" }
+      }
+    },
     "targets": {
       "oneOf": [
         {
@@ -1614,15 +1625,7 @@
           "items": false,
           "prefixItems": [
             { "const": "Scanning_roots" },
-            {
-              "type": "array",
-              "minItems": 2,
-              "items": false,
-              "prefixItems": [
-                { "type": "array", "items": { "type": "string" } },
-                { "$ref": "#/definitions/targeting_conf" }
-              ]
-            }
+            { "$ref": "#/definitions/scanning_roots" }
           ]
         },
         {

@@ -3703,17 +3703,48 @@ class Target:
 
 @dataclass
 class ScanningRoots:
+    """Original type: scanning_roots = { ... }"""
+
+    root_paths: List[Fpath]
+    targeting_conf: TargetingConf
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScanningRoots':
+        if isinstance(x, dict):
+            return cls(
+                root_paths=_atd_read_list(Fpath.from_json)(x['root_paths']) if 'root_paths' in x else _atd_missing_json_field('ScanningRoots', 'root_paths'),
+                targeting_conf=TargetingConf.from_json(x['targeting_conf']) if 'targeting_conf' in x else _atd_missing_json_field('ScanningRoots', 'targeting_conf'),
+            )
+        else:
+            _atd_bad_json('ScanningRoots', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['root_paths'] = _atd_write_list((lambda x: x.to_json()))(self.root_paths)
+        res['targeting_conf'] = (lambda x: x.to_json())(self.targeting_conf)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScanningRoots':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScanningRoots_:
     """Original type: targets = [ ... | Scanning_roots of ... | ... ]"""
 
-    value: Tuple[List[str], TargetingConf]
+    value: ScanningRoots
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'ScanningRoots'
+        return 'ScanningRoots_'
 
     def to_json(self) -> Any:
-        return ['Scanning_roots', (lambda x: [_atd_write_list(_atd_write_string)(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
+        return ['Scanning_roots', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -3741,7 +3772,7 @@ class Targets_:
 class Targets:
     """Original type: targets = [ ... ]"""
 
-    value: Union[ScanningRoots, Targets_]
+    value: Union[ScanningRoots_, Targets_]
 
     @property
     def kind(self) -> str:
@@ -3753,7 +3784,7 @@ class Targets:
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'Scanning_roots':
-                return cls(ScanningRoots((lambda x: (_atd_read_list(_atd_read_string)(x[0]), TargetingConf.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+                return cls(ScanningRoots_(ScanningRoots.from_json(x[1])))
             if cons == 'Targets':
                 return cls(Targets_(_atd_read_list(Target.from_json)(x[1])))
             _atd_bad_json('Targets', x)

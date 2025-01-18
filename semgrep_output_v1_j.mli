@@ -306,6 +306,11 @@ type code_target = Semgrep_output_v1_t.code_target = {
 
 type target = Semgrep_output_v1_t.target [@@deriving show]
 
+type scanning_roots = Semgrep_output_v1_t.scanning_roots = {
+  root_paths: fpath list;
+  targeting_conf: targeting_conf
+}
+
 type targets = Semgrep_output_v1_t.targets [@@deriving show]
 
 type target_times = Semgrep_output_v1_t.target_times = {
@@ -2083,6 +2088,26 @@ val read_target :
 val target_of_string :
   string -> target
   (** Deserialize JSON data of type {!type:target}. *)
+
+val write_scanning_roots :
+  Buffer.t -> scanning_roots -> unit
+  (** Output a JSON value of type {!type:scanning_roots}. *)
+
+val string_of_scanning_roots :
+  ?len:int -> scanning_roots -> string
+  (** Serialize a value of type {!type:scanning_roots}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_scanning_roots :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scanning_roots
+  (** Input JSON data of type {!type:scanning_roots}. *)
+
+val scanning_roots_of_string :
+  string -> scanning_roots
+  (** Deserialize JSON data of type {!type:scanning_roots}. *)
 
 val write_targets :
   Buffer.t -> targets -> unit

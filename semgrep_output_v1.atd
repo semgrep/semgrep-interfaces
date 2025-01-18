@@ -1932,6 +1932,11 @@ type code_target <ocaml attr="deriving show"> = {
   ?lockfile_target: lockfile option;
 }
 
+type scanning_roots = {
+  root_paths: fpath list;
+  targeting_conf: targeting_conf;
+}
+
 (* The same path can be present multiple times in targets below, with
  * different languages each time, so a Python file can be both analyzed
  * with Python rules, but also with generic/regexp rules.
@@ -1943,7 +1948,7 @@ type code_target <ocaml attr="deriving show"> = {
  *)
 type targets <ocaml attr="deriving show"> = [
   (* list of paths used to discover targets *)
-  | Scanning_roots of (string list * targeting_conf)
+  | Scanning_roots of scanning_roots
   (* targets already discovered from the scanning roots by pysemgrep *)
   | Targets of target list
 ]

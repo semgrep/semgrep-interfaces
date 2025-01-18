@@ -872,8 +872,13 @@ export type CodeTarget = {
   lockfile_target?: Lockfile;
 }
 
+export type ScanningRoots = {
+  root_paths: Fpath[];
+  targeting_conf: TargetingConf;
+}
+
 export type Targets =
-| { kind: 'Scanning_roots'; value: [string[], TargetingConf] }
+| { kind: 'Scanning_roots'; value: ScanningRoots }
 | { kind: 'Targets'; value: Target[] }
 
 export type Edit = {
@@ -3667,10 +3672,24 @@ export function readCodeTarget(x: any, context: any = x): CodeTarget {
   };
 }
 
+export function writeScanningRoots(x: ScanningRoots, context: any = x): any {
+  return {
+    'root_paths': _atd_write_required_field('ScanningRoots', 'root_paths', _atd_write_array(writeFpath), x.root_paths, x),
+    'targeting_conf': _atd_write_required_field('ScanningRoots', 'targeting_conf', writeTargetingConf, x.targeting_conf, x),
+  };
+}
+
+export function readScanningRoots(x: any, context: any = x): ScanningRoots {
+  return {
+    root_paths: _atd_read_required_field('ScanningRoots', 'root_paths', _atd_read_array(readFpath), x['root_paths'], x),
+    targeting_conf: _atd_read_required_field('ScanningRoots', 'targeting_conf', readTargetingConf, x['targeting_conf'], x),
+  };
+}
+
 export function writeTargets(x: Targets, context: any = x): any {
   switch (x.kind) {
     case 'Scanning_roots':
-      return ['Scanning_roots', ((x, context) => [_atd_write_array(_atd_write_string)(x[0], x), writeTargetingConf(x[1], x)])(x.value, x)]
+      return ['Scanning_roots', writeScanningRoots(x.value, x)]
     case 'Targets':
       return ['Targets', _atd_write_array(writeTarget)(x.value, x)]
   }
@@ -3680,7 +3699,7 @@ export function readTargets(x: any, context: any = x): Targets {
   _atd_check_json_tuple(2, x, context)
   switch (x[0]) {
     case 'Scanning_roots':
-      return { kind: 'Scanning_roots', value: ((x, context): [string[], TargetingConf] => { _atd_check_json_tuple(2, x, context); return [_atd_read_array(_atd_read_string)(x[0], x), readTargetingConf(x[1], x)] })(x[1], x) }
+      return { kind: 'Scanning_roots', value: readScanningRoots(x[1], x) }
     case 'Targets':
       return { kind: 'Targets', value: _atd_read_array(readTarget)(x[1], x) }
     default:
