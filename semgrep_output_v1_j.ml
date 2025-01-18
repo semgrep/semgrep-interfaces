@@ -310,6 +310,7 @@ type scanning_roots = Semgrep_output_v1_t.scanning_roots = {
   root_paths: fpath list;
   targeting_conf: targeting_conf
 }
+  [@@deriving show]
 
 type targets = Semgrep_output_v1_t.targets [@@deriving show]
 

@@ -1932,7 +1932,7 @@ type code_target <ocaml attr="deriving show"> = {
   ?lockfile_target: lockfile option;
 }
 
-type scanning_roots = {
+type scanning_roots <ocaml attr="deriving show"> = {
   root_paths: fpath list;
   targeting_conf: targeting_conf;
 }
