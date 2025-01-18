@@ -47,7 +47,7 @@ for tag in $tags; do
     # I'm getting an exit code 128 when atddiff returns 3 (as of git 2.43.0),
     # contrary to what 'git difftool --help' promises for '--trust-exit-code'.
     # I'd report the bug if it was easier. -- Martin
-    git difftool --trust-exit-code -x 'atddiff $atddiff_options' -y \
+    git difftool --trust-exit-code -x "atddiff $atddiff_options" -y \
         "$tag" "origin/main" -- semgrep_output_v1.atd > before.txt
     ret=$?
     if [ "$ret" -ge 1 ] && [ "$ret" -le 2 ]; then
@@ -55,7 +55,7 @@ for tag in $tags; do
         cat before.txt
         exit 1
     fi
-    git difftool --trust-exit-code -x 'atddiff $atddiff_options' -y \
+    git difftool --trust-exit-code -x "atddiff $atddiff_options" -y \
         "$tag" "HEAD" -- semgrep_output_v1.atd > after.txt
     ret=$?
     if [ "$ret" -ge 1 ] && [ "$ret" -le 2 ]; then
