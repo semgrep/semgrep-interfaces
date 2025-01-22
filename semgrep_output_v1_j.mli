@@ -259,6 +259,24 @@ type tests_result = Semgrep_output_v1_t.tests_result = {
   config_with_errors: config_error list
 }
 
+type project_root = Semgrep_output_v1_t.project_root [@@deriving show]
+
+type targeting_conf = Semgrep_output_v1_t.targeting_conf = {
+  exclude: string list;
+  include_: string list option;
+  max_target_bytes: int;
+  respect_gitignore: bool;
+  respect_semgrepignore_files: bool;
+  always_select_explicit_targets: bool;
+  explicit_targets: string list;
+  force_project_root: project_root option;
+  force_novcs_project: bool;
+  exclude_minified_files: bool;
+  baseline_commit: string option;
+  diff_depth: int
+}
+  [@@deriving show]
+
 type product = Semgrep_output_v1_t.product [@@deriving show, eq]
 
 type lockfile_kind = Semgrep_output_v1_t.lockfile_kind = 
@@ -287,6 +305,12 @@ type code_target = Semgrep_output_v1_t.code_target = {
   [@@deriving show]
 
 type target = Semgrep_output_v1_t.target [@@deriving show]
+
+type scanning_roots = Semgrep_output_v1_t.scanning_roots = {
+  root_paths: fpath list;
+  targeting_conf: targeting_conf
+}
+  [@@deriving show]
 
 type targets = Semgrep_output_v1_t.targets [@@deriving show]
 
@@ -1906,6 +1930,46 @@ val tests_result_of_string :
   string -> tests_result
   (** Deserialize JSON data of type {!type:tests_result}. *)
 
+val write_project_root :
+  Buffer.t -> project_root -> unit
+  (** Output a JSON value of type {!type:project_root}. *)
+
+val string_of_project_root :
+  ?len:int -> project_root -> string
+  (** Serialize a value of type {!type:project_root}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_project_root :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> project_root
+  (** Input JSON data of type {!type:project_root}. *)
+
+val project_root_of_string :
+  string -> project_root
+  (** Deserialize JSON data of type {!type:project_root}. *)
+
+val write_targeting_conf :
+  Buffer.t -> targeting_conf -> unit
+  (** Output a JSON value of type {!type:targeting_conf}. *)
+
+val string_of_targeting_conf :
+  ?len:int -> targeting_conf -> string
+  (** Serialize a value of type {!type:targeting_conf}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_targeting_conf :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> targeting_conf
+  (** Input JSON data of type {!type:targeting_conf}. *)
+
+val targeting_conf_of_string :
+  string -> targeting_conf
+  (** Deserialize JSON data of type {!type:targeting_conf}. *)
+
 val write_product :
   Buffer.t -> product -> unit
   (** Output a JSON value of type {!type:product}. *)
@@ -2025,6 +2089,26 @@ val read_target :
 val target_of_string :
   string -> target
   (** Deserialize JSON data of type {!type:target}. *)
+
+val write_scanning_roots :
+  Buffer.t -> scanning_roots -> unit
+  (** Output a JSON value of type {!type:scanning_roots}. *)
+
+val string_of_scanning_roots :
+  ?len:int -> scanning_roots -> string
+  (** Serialize a value of type {!type:scanning_roots}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_scanning_roots :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scanning_roots
+  (** Input JSON data of type {!type:scanning_roots}. *)
+
+val scanning_roots_of_string :
+  string -> scanning_roots
+  (** Deserialize JSON data of type {!type:scanning_roots}. *)
 
 val write_targets :
   Buffer.t -> targets -> unit

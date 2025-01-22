@@ -840,6 +840,25 @@ export type CoreError = {
   rule_id?: RuleId;
 }
 
+export type ProjectRoot =
+| { kind: 'Filesystem'; value: string }
+| { kind: 'Git_remote'; value: string }
+
+export type TargetingConf = {
+  exclude: string[];
+  include_?: string[];
+  max_target_bytes: number /*int*/;
+  respect_gitignore: boolean;
+  respect_semgrepignore_files: boolean;
+  always_select_explicit_targets: boolean;
+  explicit_targets: string[];
+  force_project_root?: ProjectRoot;
+  force_novcs_project: boolean;
+  exclude_minified_files: boolean;
+  baseline_commit?: string;
+  diff_depth: number /*int*/;
+}
+
 export type Analyzer = string
 
 export type Target =
@@ -853,7 +872,14 @@ export type CodeTarget = {
   lockfile_target?: Lockfile;
 }
 
-export type Targets = Target[]
+export type ScanningRoots = {
+  root_paths: Fpath[];
+  targeting_conf: TargetingConf;
+}
+
+export type Targets =
+| { kind: 'Scanning_roots'; value: ScanningRoots }
+| { kind: 'Targets'; value: Target[] }
 
 export type Edit = {
   path: Fpath;
@@ -3542,6 +3568,62 @@ export function readCoreError(x: any, context: any = x): CoreError {
   };
 }
 
+export function writeProjectRoot(x: ProjectRoot, context: any = x): any {
+  switch (x.kind) {
+    case 'Filesystem':
+      return ['Filesystem', _atd_write_string(x.value, x)]
+    case 'Git_remote':
+      return ['Git_remote', _atd_write_string(x.value, x)]
+  }
+}
+
+export function readProjectRoot(x: any, context: any = x): ProjectRoot {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'Filesystem':
+      return { kind: 'Filesystem', value: _atd_read_string(x[1], x) }
+    case 'Git_remote':
+      return { kind: 'Git_remote', value: _atd_read_string(x[1], x) }
+    default:
+      _atd_bad_json('ProjectRoot', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeTargetingConf(x: TargetingConf, context: any = x): any {
+  return {
+    'exclude': _atd_write_required_field('TargetingConf', 'exclude', _atd_write_array(_atd_write_string), x.exclude, x),
+    'include_': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.include_, x),
+    'max_target_bytes': _atd_write_required_field('TargetingConf', 'max_target_bytes', _atd_write_int, x.max_target_bytes, x),
+    'respect_gitignore': _atd_write_required_field('TargetingConf', 'respect_gitignore', _atd_write_bool, x.respect_gitignore, x),
+    'respect_semgrepignore_files': _atd_write_required_field('TargetingConf', 'respect_semgrepignore_files', _atd_write_bool, x.respect_semgrepignore_files, x),
+    'always_select_explicit_targets': _atd_write_required_field('TargetingConf', 'always_select_explicit_targets', _atd_write_bool, x.always_select_explicit_targets, x),
+    'explicit_targets': _atd_write_required_field('TargetingConf', 'explicit_targets', _atd_write_array(_atd_write_string), x.explicit_targets, x),
+    'force_project_root': _atd_write_optional_field(writeProjectRoot, x.force_project_root, x),
+    'force_novcs_project': _atd_write_required_field('TargetingConf', 'force_novcs_project', _atd_write_bool, x.force_novcs_project, x),
+    'exclude_minified_files': _atd_write_required_field('TargetingConf', 'exclude_minified_files', _atd_write_bool, x.exclude_minified_files, x),
+    'baseline_commit': _atd_write_optional_field(_atd_write_string, x.baseline_commit, x),
+    'diff_depth': _atd_write_required_field('TargetingConf', 'diff_depth', _atd_write_int, x.diff_depth, x),
+  };
+}
+
+export function readTargetingConf(x: any, context: any = x): TargetingConf {
+  return {
+    exclude: _atd_read_required_field('TargetingConf', 'exclude', _atd_read_array(_atd_read_string), x['exclude'], x),
+    include_: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['include_'], x),
+    max_target_bytes: _atd_read_required_field('TargetingConf', 'max_target_bytes', _atd_read_int, x['max_target_bytes'], x),
+    respect_gitignore: _atd_read_required_field('TargetingConf', 'respect_gitignore', _atd_read_bool, x['respect_gitignore'], x),
+    respect_semgrepignore_files: _atd_read_required_field('TargetingConf', 'respect_semgrepignore_files', _atd_read_bool, x['respect_semgrepignore_files'], x),
+    always_select_explicit_targets: _atd_read_required_field('TargetingConf', 'always_select_explicit_targets', _atd_read_bool, x['always_select_explicit_targets'], x),
+    explicit_targets: _atd_read_required_field('TargetingConf', 'explicit_targets', _atd_read_array(_atd_read_string), x['explicit_targets'], x),
+    force_project_root: _atd_read_optional_field(readProjectRoot, x['force_project_root'], x),
+    force_novcs_project: _atd_read_required_field('TargetingConf', 'force_novcs_project', _atd_read_bool, x['force_novcs_project'], x),
+    exclude_minified_files: _atd_read_required_field('TargetingConf', 'exclude_minified_files', _atd_read_bool, x['exclude_minified_files'], x),
+    baseline_commit: _atd_read_optional_field(_atd_read_string, x['baseline_commit'], x),
+    diff_depth: _atd_read_required_field('TargetingConf', 'diff_depth', _atd_read_int, x['diff_depth'], x),
+  };
+}
+
 export function writeAnalyzer(x: Analyzer, context: any = x): any {
   return _atd_write_string(x, context);
 }
@@ -3590,12 +3672,40 @@ export function readCodeTarget(x: any, context: any = x): CodeTarget {
   };
 }
 
+export function writeScanningRoots(x: ScanningRoots, context: any = x): any {
+  return {
+    'root_paths': _atd_write_required_field('ScanningRoots', 'root_paths', _atd_write_array(writeFpath), x.root_paths, x),
+    'targeting_conf': _atd_write_required_field('ScanningRoots', 'targeting_conf', writeTargetingConf, x.targeting_conf, x),
+  };
+}
+
+export function readScanningRoots(x: any, context: any = x): ScanningRoots {
+  return {
+    root_paths: _atd_read_required_field('ScanningRoots', 'root_paths', _atd_read_array(readFpath), x['root_paths'], x),
+    targeting_conf: _atd_read_required_field('ScanningRoots', 'targeting_conf', readTargetingConf, x['targeting_conf'], x),
+  };
+}
+
 export function writeTargets(x: Targets, context: any = x): any {
-  return _atd_write_array(writeTarget)(x, context);
+  switch (x.kind) {
+    case 'Scanning_roots':
+      return ['Scanning_roots', writeScanningRoots(x.value, x)]
+    case 'Targets':
+      return ['Targets', _atd_write_array(writeTarget)(x.value, x)]
+  }
 }
 
 export function readTargets(x: any, context: any = x): Targets {
-  return _atd_read_array(readTarget)(x, context);
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'Scanning_roots':
+      return { kind: 'Scanning_roots', value: readScanningRoots(x[1], x) }
+    case 'Targets':
+      return { kind: 'Targets', value: _atd_read_array(readTarget)(x[1], x) }
+    default:
+      _atd_bad_json('Targets', x, context)
+      throw new Error('impossible')
+  }
 }
 
 export function writeEdit(x: Edit, context: any = x): any {

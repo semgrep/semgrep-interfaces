@@ -1528,6 +1528,48 @@
         "rule_id": { "$ref": "#/definitions/rule_id" }
       }
     },
+    "project_root": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [ { "const": "Filesystem" }, { "type": "string" } ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [ { "const": "Git_remote" }, { "type": "string" } ]
+        }
+      ]
+    },
+    "targeting_conf": {
+      "type": "object",
+      "required": [
+        "exclude", "max_target_bytes", "respect_gitignore",
+        "respect_semgrepignore_files", "always_select_explicit_targets",
+        "explicit_targets", "force_novcs_project", "exclude_minified_files",
+        "diff_depth"
+      ],
+      "properties": {
+        "exclude": { "type": "array", "items": { "type": "string" } },
+        "include_": { "type": "array", "items": { "type": "string" } },
+        "max_target_bytes": { "type": "integer" },
+        "respect_gitignore": { "type": "boolean" },
+        "respect_semgrepignore_files": { "type": "boolean" },
+        "always_select_explicit_targets": { "type": "boolean" },
+        "explicit_targets": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "force_project_root": { "$ref": "#/definitions/project_root" },
+        "force_novcs_project": { "type": "boolean" },
+        "exclude_minified_files": { "type": "boolean" },
+        "baseline_commit": { "type": "string" },
+        "diff_depth": { "type": "integer" }
+      }
+    },
     "analyzer": { "type": "string" },
     "target": {
       "oneOf": [
@@ -1564,9 +1606,38 @@
         "lockfile_target": { "$ref": "#/definitions/lockfile" }
       }
     },
+    "scanning_roots": {
+      "type": "object",
+      "required": [ "root_paths", "targeting_conf" ],
+      "properties": {
+        "root_paths": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/fpath" }
+        },
+        "targeting_conf": { "$ref": "#/definitions/targeting_conf" }
+      }
+    },
     "targets": {
-      "type": "array",
-      "items": { "$ref": "#/definitions/target" }
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "Scanning_roots" },
+            { "$ref": "#/definitions/scanning_roots" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "Targets" },
+            { "type": "array", "items": { "$ref": "#/definitions/target" } }
+          ]
+        }
+      ]
     },
     "edit": {
       "type": "object",
