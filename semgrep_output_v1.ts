@@ -337,6 +337,12 @@ export type SkippedRule = {
   position: Position;
 }
 
+export type TargetDiscoveryResult = {
+  target_paths: Fpath[];
+  errors: CoreError[];
+  skipped: SkippedTarget[];
+}
+
 export type Profile = {
   rules: RuleId[];
   rules_parse_time: number;
@@ -856,7 +862,6 @@ export type TargetingConf = {
   force_novcs_project: boolean;
   exclude_minified_files: boolean;
   baseline_commit?: string;
-  diff_depth: number /*int*/;
 }
 
 export type Analyzer = string
@@ -1008,6 +1013,7 @@ export type FunctionCall =
 | { kind: 'CallValidate'; value: Fpath }
 | { kind: 'CallResolveDependencies'; value: DependencySource[] }
 | { kind: 'CallDumpRulePartitions'; value: DumpRulePartitionsParams }
+| { kind: 'CallGetTargets'; value: ScanningRoots }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -1018,6 +1024,7 @@ export type FunctionReturn =
 | { kind: 'RetValidate'; value: boolean }
 | { kind: 'RetResolveDependencies'; value: [DependencySource, ResolutionResult][] }
 | { kind: 'RetDumpRulePartitions'; value: boolean }
+| { kind: 'RetGetTargets'; value: TargetDiscoveryResult }
 
 export type PartialScanResult =
 | { kind: 'PartialScanOk'; value: [CiScanResults, CiScanComplete] }
@@ -2155,6 +2162,22 @@ export function readSkippedRule(x: any, context: any = x): SkippedRule {
     rule_id: _atd_read_required_field('SkippedRule', 'rule_id', readRuleId, x['rule_id'], x),
     details: _atd_read_required_field('SkippedRule', 'details', _atd_read_string, x['details'], x),
     position: _atd_read_required_field('SkippedRule', 'position', readPosition, x['position'], x),
+  };
+}
+
+export function writeTargetDiscoveryResult(x: TargetDiscoveryResult, context: any = x): any {
+  return {
+    'target_paths': _atd_write_required_field('TargetDiscoveryResult', 'target_paths', _atd_write_array(writeFpath), x.target_paths, x),
+    'errors': _atd_write_required_field('TargetDiscoveryResult', 'errors', _atd_write_array(writeCoreError), x.errors, x),
+    'skipped': _atd_write_required_field('TargetDiscoveryResult', 'skipped', _atd_write_array(writeSkippedTarget), x.skipped, x),
+  };
+}
+
+export function readTargetDiscoveryResult(x: any, context: any = x): TargetDiscoveryResult {
+  return {
+    target_paths: _atd_read_required_field('TargetDiscoveryResult', 'target_paths', _atd_read_array(readFpath), x['target_paths'], x),
+    errors: _atd_read_required_field('TargetDiscoveryResult', 'errors', _atd_read_array(readCoreError), x['errors'], x),
+    skipped: _atd_read_required_field('TargetDiscoveryResult', 'skipped', _atd_read_array(readSkippedTarget), x['skipped'], x),
   };
 }
 
@@ -3603,7 +3626,6 @@ export function writeTargetingConf(x: TargetingConf, context: any = x): any {
     'force_novcs_project': _atd_write_required_field('TargetingConf', 'force_novcs_project', _atd_write_bool, x.force_novcs_project, x),
     'exclude_minified_files': _atd_write_required_field('TargetingConf', 'exclude_minified_files', _atd_write_bool, x.exclude_minified_files, x),
     'baseline_commit': _atd_write_optional_field(_atd_write_string, x.baseline_commit, x),
-    'diff_depth': _atd_write_required_field('TargetingConf', 'diff_depth', _atd_write_int, x.diff_depth, x),
   };
 }
 
@@ -3620,7 +3642,6 @@ export function readTargetingConf(x: any, context: any = x): TargetingConf {
     force_novcs_project: _atd_read_required_field('TargetingConf', 'force_novcs_project', _atd_read_bool, x['force_novcs_project'], x),
     exclude_minified_files: _atd_read_required_field('TargetingConf', 'exclude_minified_files', _atd_read_bool, x['exclude_minified_files'], x),
     baseline_commit: _atd_read_optional_field(_atd_read_string, x['baseline_commit'], x),
-    diff_depth: _atd_read_required_field('TargetingConf', 'diff_depth', _atd_read_int, x['diff_depth'], x),
   };
 }
 
@@ -4178,6 +4199,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallResolveDependencies', _atd_write_array(writeDependencySource)(x.value, x)]
     case 'CallDumpRulePartitions':
       return ['CallDumpRulePartitions', writeDumpRulePartitionsParams(x.value, x)]
+    case 'CallGetTargets':
+      return ['CallGetTargets', writeScanningRoots(x.value, x)]
   }
 }
 
@@ -4206,6 +4229,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallResolveDependencies', value: _atd_read_array(readDependencySource)(x[1], x) }
       case 'CallDumpRulePartitions':
         return { kind: 'CallDumpRulePartitions', value: readDumpRulePartitionsParams(x[1], x) }
+      case 'CallGetTargets':
+        return { kind: 'CallGetTargets', value: readScanningRoots(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -4231,6 +4256,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetResolveDependencies', _atd_write_array(((x, context) => [writeDependencySource(x[0], x), writeResolutionResult(x[1], x)]))(x.value, x)]
     case 'RetDumpRulePartitions':
       return ['RetDumpRulePartitions', _atd_write_bool(x.value, x)]
+    case 'RetGetTargets':
+      return ['RetGetTargets', writeTargetDiscoveryResult(x.value, x)]
   }
 }
 
@@ -4253,6 +4280,8 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetResolveDependencies', value: _atd_read_array(((x, context): [DependencySource, ResolutionResult] => { _atd_check_json_tuple(2, x, context); return [readDependencySource(x[0], x), readResolutionResult(x[1], x)] }))(x[1], x) }
     case 'RetDumpRulePartitions':
       return { kind: 'RetDumpRulePartitions', value: _atd_read_bool(x[1], x) }
+    case 'RetGetTargets':
+      return { kind: 'RetGetTargets', value: readTargetDiscoveryResult(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')

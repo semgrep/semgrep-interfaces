@@ -599,6 +599,24 @@
         "position": { "$ref": "#/definitions/position" }
       }
     },
+    "target_discovery_result": {
+      "type": "object",
+      "required": [ "target_paths", "errors", "skipped" ],
+      "properties": {
+        "target_paths": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/fpath" }
+        },
+        "errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/core_error" }
+        },
+        "skipped": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/skipped_target" }
+        }
+      }
+    },
     "profile": {
       "type": "object",
       "required": [
@@ -1549,8 +1567,7 @@
       "required": [
         "exclude", "max_target_bytes", "respect_gitignore",
         "respect_semgrepignore_files", "always_select_explicit_targets",
-        "explicit_targets", "force_novcs_project", "exclude_minified_files",
-        "diff_depth"
+        "explicit_targets", "force_novcs_project", "exclude_minified_files"
       ],
       "properties": {
         "exclude": { "type": "array", "items": { "type": "string" } },
@@ -1566,8 +1583,7 @@
         "force_project_root": { "$ref": "#/definitions/project_root" },
         "force_novcs_project": { "type": "boolean" },
         "exclude_minified_files": { "type": "boolean" },
-        "baseline_commit": { "type": "string" },
-        "diff_depth": { "type": "integer" }
+        "baseline_commit": { "type": "string" }
       }
     },
     "analyzer": { "type": "string" },
@@ -1976,6 +1992,15 @@
             { "const": "CallDumpRulePartitions" },
             { "$ref": "#/definitions/dump_rule_partitions_params" }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CallGetTargets" },
+            { "$ref": "#/definitions/scanning_roots" }
+          ]
         }
       ]
     },
@@ -2055,6 +2080,15 @@
           "items": false,
           "prefixItems": [
             { "const": "RetDumpRulePartitions" }, { "type": "boolean" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "RetGetTargets" },
+            { "$ref": "#/definitions/target_discovery_result" }
           ]
         }
       ]
