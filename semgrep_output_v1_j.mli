@@ -402,8 +402,7 @@ type targeting_conf = Semgrep_output_v1_t.targeting_conf = {
   force_project_root: project_root option;
   force_novcs_project: bool;
   exclude_minified_files: bool;
-  baseline_commit: string option;
-  diff_depth: int
+  baseline_commit: string option
 }
   [@@deriving show]
 
