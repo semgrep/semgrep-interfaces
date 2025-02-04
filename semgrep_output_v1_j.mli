@@ -324,11 +324,11 @@ type target_times = Semgrep_output_v1_t.target_times = {
 
 type tag = Semgrep_output_v1_t.tag
 
-type symbol = Semgrep_output_v1_t.symbol
+type symbol = Semgrep_output_v1_t.symbol = { fqn: string list }
 
 type symbol_usage = Semgrep_output_v1_t.symbol_usage = {
   symbol: symbol;
-  loc: location
+  locs: location list
 }
 
 type symbol_analysis = Semgrep_output_v1_t.symbol_analysis

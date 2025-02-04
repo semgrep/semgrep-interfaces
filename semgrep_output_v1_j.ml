@@ -324,11 +324,11 @@ type target_times = Semgrep_output_v1_t.target_times = {
 
 type tag = Semgrep_output_v1_t.tag
 
-type symbol = Semgrep_output_v1_t.symbol
+type symbol = Semgrep_output_v1_t.symbol = { fqn: string list }
 
 type symbol_usage = Semgrep_output_v1_t.symbol_usage = {
   symbol: symbol;
-  loc: location
+  locs: location list
 }
 
 type symbol_analysis = Semgrep_output_v1_t.symbol_analysis
@@ -12356,18 +12356,120 @@ let read_tag = (
 )
 let tag_of_string s =
   read_tag (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_symbol = (
-  write__string_list
+let write_symbol : _ -> symbol -> _ = (
+  fun ob (x : symbol) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"fqn\":";
+    (
+      write__string_list
+    )
+      ob x.fqn;
+    Buffer.add_char ob '}';
 )
 let string_of_symbol ?(len = 1024) x =
   let ob = Buffer.create len in
   write_symbol ob x;
   Buffer.contents ob
 let read_symbol = (
-  read__string_list
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_fqn = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          if len = 3 && String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'q' && String.unsafe_get s (pos+2) = 'n' then (
+            0
+          )
+          else (
+            -1
+          )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_fqn := (
+              Some (
+                (
+                  read__string_list
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            if len = 3 && String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'q' && String.unsafe_get s (pos+2) = 'n' then (
+              0
+            )
+            else (
+              -1
+            )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_fqn := (
+                Some (
+                  (
+                    read__string_list
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            fqn = (match !field_fqn with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "fqn");
+          }
+         : symbol)
+      )
 )
 let symbol_of_string s =
   read_symbol (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__location_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_location
+  )
+)
+let string_of__location_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__location_list ob x;
+  Buffer.contents ob
+let read__location_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_location
+  )
+)
+let _location_list_of_string s =
+  read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_symbol_usage : _ -> symbol_usage -> _ = (
   fun ob (x : symbol_usage) ->
     Buffer.add_char ob '{';
@@ -12385,11 +12487,11 @@ let write_symbol_usage : _ -> symbol_usage -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"loc\":";
+      Buffer.add_string ob "\"locs\":";
     (
-      write_location
+      write__location_list
     )
-      ob x.loc;
+      ob x.locs;
     Buffer.add_char ob '}';
 )
 let string_of_symbol_usage ?(len = 1024) x =
@@ -12401,7 +12503,7 @@ let read_symbol_usage = (
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
     let field_symbol = ref (None) in
-    let field_loc = ref (None) in
+    let field_locs = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -12411,8 +12513,8 @@ let read_symbol_usage = (
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
-            | 3 -> (
-                if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' then (
+            | 4 -> (
+                if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 's' then (
                   1
                 )
                 else (
@@ -12444,10 +12546,10 @@ let read_symbol_usage = (
               )
             );
           | 1 ->
-            field_loc := (
+            field_locs := (
               Some (
                 (
-                  read_location
+                  read__location_list
                 ) p lb
               )
             );
@@ -12464,8 +12566,8 @@ let read_symbol_usage = (
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
-              | 3 -> (
-                  if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' then (
+              | 4 -> (
+                  if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 's' then (
                     1
                   )
                   else (
@@ -12497,10 +12599,10 @@ let read_symbol_usage = (
                 )
               );
             | 1 ->
-              field_loc := (
+              field_locs := (
                 Some (
                   (
-                    read_location
+                    read__location_list
                   ) p lb
                 )
               );
@@ -12514,7 +12616,7 @@ let read_symbol_usage = (
         (
           {
             symbol = (match !field_symbol with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "symbol");
-            loc = (match !field_loc with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "loc");
+            locs = (match !field_locs with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "locs");
           }
          : symbol_usage)
       )
@@ -23664,22 +23766,6 @@ let read_finding = (
 )
 let finding_of_string s =
   read_finding (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__location_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_location
-  )
-)
-let string_of__location_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__location_list ob x;
-  Buffer.contents ob
-let read__location_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_location
-  )
-)
-let _location_list_of_string s =
-  read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_error_type : _ -> error_type -> _ = (
   fun ob (x : error_type) ->
     match x with

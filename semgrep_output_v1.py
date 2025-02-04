@@ -3864,16 +3864,23 @@ class Tag:
 
 @dataclass
 class Symbol:
-    """Original type: symbol"""
+    """Original type: symbol = { ... }"""
 
-    value: List[str]
+    fqn: List[str]
 
     @classmethod
     def from_json(cls, x: Any) -> 'Symbol':
-        return cls(_atd_read_list(_atd_read_string)(x))
+        if isinstance(x, dict):
+            return cls(
+                fqn=_atd_read_list(_atd_read_string)(x['fqn']) if 'fqn' in x else _atd_missing_json_field('Symbol', 'fqn'),
+            )
+        else:
+            _atd_bad_json('Symbol', x)
 
     def to_json(self) -> Any:
-        return _atd_write_list(_atd_write_string)(self.value)
+        res: Dict[str, Any] = {}
+        res['fqn'] = _atd_write_list(_atd_write_string)(self.fqn)
+        return res
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Symbol':
@@ -3888,14 +3895,14 @@ class SymbolUsage:
     """Original type: symbol_usage = { ... }"""
 
     symbol: Symbol
-    loc: Location
+    locs: List[Location]
 
     @classmethod
     def from_json(cls, x: Any) -> 'SymbolUsage':
         if isinstance(x, dict):
             return cls(
                 symbol=Symbol.from_json(x['symbol']) if 'symbol' in x else _atd_missing_json_field('SymbolUsage', 'symbol'),
-                loc=Location.from_json(x['loc']) if 'loc' in x else _atd_missing_json_field('SymbolUsage', 'loc'),
+                locs=_atd_read_list(Location.from_json)(x['locs']) if 'locs' in x else _atd_missing_json_field('SymbolUsage', 'locs'),
             )
         else:
             _atd_bad_json('SymbolUsage', x)
@@ -3903,7 +3910,7 @@ class SymbolUsage:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['symbol'] = (lambda x: x.to_json())(self.symbol)
-        res['loc'] = (lambda x: x.to_json())(self.loc)
+        res['locs'] = _atd_write_list((lambda x: x.to_json()))(self.locs)
         return res
 
     @classmethod

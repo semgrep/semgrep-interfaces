@@ -1001,11 +1001,13 @@ export type ResolutionResult =
 | { kind: 'ResolutionOk'; value: [FoundDependency[], ResolutionError[]] }
 | { kind: 'ResolutionError'; value: ResolutionError[] }
 
-export type Symbol = string[]
+export type Symbol = {
+  fqn: string[];
+}
 
 export type SymbolUsage = {
   symbol_: Symbol;
-  loc: Location;
+  locs: Location[];
 }
 
 export type SymbolAnalysis = SymbolUsage[]
@@ -4175,24 +4177,28 @@ export function readResolutionResult(x: any, context: any = x): ResolutionResult
 }
 
 export function writeSymbol(x: Symbol, context: any = x): any {
-  return _atd_write_array(_atd_write_string)(x, context);
+  return {
+    'fqn': _atd_write_required_field('Symbol', 'fqn', _atd_write_array(_atd_write_string), x.fqn, x),
+  };
 }
 
 export function readSymbol(x: any, context: any = x): Symbol {
-  return _atd_read_array(_atd_read_string)(x, context);
+  return {
+    fqn: _atd_read_required_field('Symbol', 'fqn', _atd_read_array(_atd_read_string), x['fqn'], x),
+  };
 }
 
 export function writeSymbolUsage(x: SymbolUsage, context: any = x): any {
   return {
     'symbol': _atd_write_required_field('SymbolUsage', 'symbol', writeSymbol, x.symbol_, x),
-    'loc': _atd_write_required_field('SymbolUsage', 'loc', writeLocation, x.loc, x),
+    'locs': _atd_write_required_field('SymbolUsage', 'locs', _atd_write_array(writeLocation), x.locs, x),
   };
 }
 
 export function readSymbolUsage(x: any, context: any = x): SymbolUsage {
   return {
     symbol_: _atd_read_required_field('SymbolUsage', 'symbol', readSymbol, x['symbol'], x),
-    loc: _atd_read_required_field('SymbolUsage', 'loc', readLocation, x['loc'], x),
+    locs: _atd_read_required_field('SymbolUsage', 'locs', _atd_read_array(readLocation), x['locs'], x),
   };
 }
 

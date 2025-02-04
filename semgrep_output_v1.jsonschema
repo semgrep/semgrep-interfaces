@@ -1901,13 +1901,22 @@
         }
       ]
     },
-    "symbol": { "type": "array", "items": { "type": "string" } },
+    "symbol": {
+      "type": "object",
+      "required": [ "fqn" ],
+      "properties": {
+        "fqn": { "type": "array", "items": { "type": "string" } }
+      }
+    },
     "symbol_usage": {
       "type": "object",
-      "required": [ "symbol", "loc" ],
+      "required": [ "symbol", "locs" ],
       "properties": {
         "symbol": { "$ref": "#/definitions/symbol" },
-        "loc": { "$ref": "#/definitions/location" }
+        "locs": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/location" }
+        }
       }
     },
     "symbol_analysis": {

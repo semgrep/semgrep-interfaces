@@ -2188,14 +2188,16 @@ type resolution_result = [
  *)
 
 (* A symbol is a FQN. *)
-type symbol = string list
+type symbol = {
+  fqn: string list
+}
 
 (* We store the location of the usage, because we may want to be able to know how
    many uses of the symbol there are, and where.
  *)
 type symbol_usage = {
   symbol: symbol;
-  loc: location;
+  locs: location list;
 }
 
 type symbol_analysis = symbol_usage list
