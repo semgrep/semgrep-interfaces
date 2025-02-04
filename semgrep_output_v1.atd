@@ -2185,6 +2185,10 @@ type resolution_result = [
    from werkzeug.wrappers import Request
    ```
    may be described as using the "symbol" [werkzeug, wrappers, Request].
+
+   IMPORTANT: We aren't sending the customer code of the symbols, here, but we are
+   sending the names of the symbols that are used. We should be careful that this
+   is well-documented and permissioned.
  *)
 
 (* A symbol is a FQN. *)
