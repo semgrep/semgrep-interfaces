@@ -12357,14 +12357,14 @@ let read_tag = (
 let tag_of_string s =
   read_tag (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_symbol = (
-  Yojson.Safe.write_string
+  write__string_list
 )
 let string_of_symbol ?(len = 1024) x =
   let ob = Buffer.create len in
   write_symbol ob x;
   Buffer.contents ob
 let read_symbol = (
-  Atdgen_runtime.Oj_run.read_string
+  read__string_list
 )
 let symbol_of_string s =
   read_symbol (Yojson.Safe.init_lexer ()) (Lexing.from_string s)

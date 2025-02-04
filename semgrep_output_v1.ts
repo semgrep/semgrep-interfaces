@@ -1001,7 +1001,7 @@ export type ResolutionResult =
 | { kind: 'ResolutionOk'; value: [FoundDependency[], ResolutionError[]] }
 | { kind: 'ResolutionError'; value: ResolutionError[] }
 
-export type Symbol = string
+export type Symbol = string[]
 
 export type SymbolUsage = {
   symbol_: Symbol;
@@ -4175,11 +4175,11 @@ export function readResolutionResult(x: any, context: any = x): ResolutionResult
 }
 
 export function writeSymbol(x: Symbol, context: any = x): any {
-  return _atd_write_string(x, context);
+  return _atd_write_array(_atd_write_string)(x, context);
 }
 
 export function readSymbol(x: any, context: any = x): Symbol {
-  return _atd_read_string(x, context);
+  return _atd_read_array(_atd_read_string)(x, context);
 }
 
 export function writeSymbolUsage(x: SymbolUsage, context: any = x): any {

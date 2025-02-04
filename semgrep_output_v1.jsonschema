@@ -1901,7 +1901,7 @@
         }
       ]
     },
-    "symbol": { "type": "string" },
+    "symbol": { "type": "array", "items": { "type": "string" } },
     "symbol_usage": {
       "type": "object",
       "required": [ "symbol", "loc" ],

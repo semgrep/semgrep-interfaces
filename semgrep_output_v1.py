@@ -3866,14 +3866,14 @@ class Tag:
 class Symbol:
     """Original type: symbol"""
 
-    value: str
+    value: List[str]
 
     @classmethod
     def from_json(cls, x: Any) -> 'Symbol':
-        return cls(_atd_read_string(x))
+        return cls(_atd_read_list(_atd_read_string)(x))
 
     def to_json(self) -> Any:
-        return _atd_write_string(self.value)
+        return _atd_write_list(_atd_write_string)(self.value)
 
     @classmethod
     def from_json_string(cls, x: str) -> 'Symbol':

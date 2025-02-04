@@ -2188,7 +2188,7 @@ type resolution_result = [
  *)
 
 (* A symbol is a FQN. *)
-type symbol = string
+type symbol = string list
 
 (* We store the location of the usage, because we may want to be able to know how
    many uses of the symbol there are, and where.
