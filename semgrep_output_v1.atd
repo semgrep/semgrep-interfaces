@@ -561,7 +561,7 @@ type found_dependency = {
    * dependency. Examples: package.json, nested/folder/pom.xml
    *)
   ?manifest_path: fpath option;
-  (* Path to the lockfile that contains this dependency. 
+  (* Path to the lockfile that contains this dependency.
    * Examples: package-lock.json, nested/folder/requirements.txt, go.mod
    * Since 1.87.0
    *)
@@ -573,9 +573,9 @@ type found_dependency = {
   ?line_number: int option;
   (* If we have dependency relationship information for this dependency, this
    * field will include the name and version of other found_dependency items
-   * that this dependency requires. 
+   * that this dependency requires.
    * These fields must match values in `package` and `version` of another
-   * `found_dependency` in the same set 
+   * `found_dependency` in the same set
    *)
   ?children: dependency_child list option;
   (* Git ref of the dependency if the dependency comes directly from a git repo.
@@ -1239,7 +1239,7 @@ type historical_configuration = {
     enabled: bool;
     ?lookback_days: int option;
 }
-                 
+
 (* ----------------------------- *)
 (* CI Scan request *)
 (* ----------------------------- *)
@@ -1455,6 +1455,8 @@ type ci_scan_results = {
    (* this data was originally sent to /complete, but we want to start sending
     * it /results *)
    ?dependencies: ci_scan_dependencies option;
+   (* since semgrep 1.107.0 *)
+   ?symbol_analysis: symbol_analysis option;
 }
 
 (* See https://semgrep.dev/docs/usage-limits
@@ -1495,7 +1497,7 @@ type ci_scan_complete = {
   exit_code: int;
   stats: ci_scan_complete_stats;
   (* TODO: remove when min version is 1.38.0 *)
-  ?dependencies: ci_scan_dependencies option; 
+  ?dependencies: ci_scan_dependencies option;
   ?dependency_parser_errors: dependency_parser_error list option;
   (* since 1.31.0 *)
   ?task_id: string option;
@@ -1539,7 +1541,7 @@ type ci_scan_complete_stats = {
   (* since 1.98.0 *)
   (* In collaboration with the Data Science team, it was suggested
    * that we start to group stats by product for organizational purposes.
-   * 
+   *
    * This field will only be defined for SCA scans.
    *)
   ?supply_chain_stats: supply_chain_stats option;
@@ -1621,11 +1623,11 @@ type subproject_stats = {
   (* The `subproject_id` is derived as a stable hash of the sorted paths of
    * `dependency_source_file`s.  Any change to the set of dependency sources
    * (addition, removal, or modification) results in a new `subproject_id`, as
-   * different dependency sources indicate a different subproject context. 
+   * different dependency sources indicate a different subproject context.
    *)
   subproject_id: string;
   (* Files used to determine the subproject's dependencies (lockfiles, manifest
-   * files, etc) 
+   * files, etc)
    *)
   dependency_sources: dependency_source_file list;
   (* Results of dependency resolution, empty if resolution failed *)
@@ -1643,7 +1645,7 @@ type dependency_source_file_kind
 [
   | Lockfile of lockfile_kind
   | Manifest of manifest_kind
-] 
+]
 
 type dependency_resolution_stats = {
   resolution_method: resolution_method;
@@ -1655,8 +1657,8 @@ type resolution_method
      <ocaml attr="deriving show">
      <python decorator="dataclass(frozen=True, order=True)"> =
 [
-  | LockfileParsing 
-  | DynamicResolution 
+  | LockfileParsing
+  | DynamicResolution
 ]
 
 (* ----------------------------- *)
@@ -2058,7 +2060,7 @@ type lockfile_kind
 ] <ocaml repr="classic">
 
 (* TODO: use <ocaml repr="classic"> *)
-type manifest_kind 
+type manifest_kind
   <ocaml attr="deriving show, eq">
   <python decorator="dataclass(frozen=True)"> =
 [
@@ -2071,7 +2073,7 @@ type manifest_kind
   (* A Ruby Gemfile manifest https://bundler.io/v2.5/man/gemfile.5.html *)
   | Gemfile
   (* go.modhttps://go.dev/doc/modules/gomod-ref *)
-  | GoMod 
+  | GoMod
   (* cargo.toml - https://doc.rust-lang.org/cargo/reference/manifest.html *)
   | CargoToml
   (* A Maven pom.xml manifest file
@@ -2081,7 +2083,7 @@ type manifest_kind
    * https://docs.gradle.org/current/userguide/build_file_basics.html *)
   | BuildGradle
   (* A Gradle settings.gradle file
-   * https://docs.gradle.org/current/userguide/settings_file_basics.html. 
+   * https://docs.gradle.org/current/userguide/settings_file_basics.html.
    * Multi-project builds are defined by settings.gradle rather than
    * build.gradle:
    * https://docs.gradle.org/current/userguide/multi_project_builds.html#multi_project_builds *)
@@ -2107,9 +2109,9 @@ type manifest_kind
    * https://packaging.python.org/en/latest/guides/writing-pyproject-toml/ *)
   | PyprojectToml
   (* conanfile.txt
-   * https://docs.conan.io/2.9/reference/conanfile_txt.html#conanfile-txt *)    
+   * https://docs.conan.io/2.9/reference/conanfile_txt.html#conanfile-txt *)
   | ConanFileTxt
-  (* conanfile.py - https://docs.conan.io/2.9/reference/conanfile.html *)  
+  (* conanfile.py - https://docs.conan.io/2.9/reference/conanfile.html *)
   | ConanFilePy
   (* .csproj - https://docs.microsoft.com/en-us/dotnet/core/tools/csproj *)
   | Csproj
@@ -2166,6 +2168,37 @@ type resolution_result = [
   | ResolutionOk of (found_dependency list * resolution_error list)
   | ResolutionError of resolution_error list
 ]
+
+(* ----------------------------- *)
+(* SCA part 4: Symbol analysis *)
+(* ----------------------------- *)
+
+(* "Symbol analysis" is about determining the third-party functions which
+   are used by a given project.
+
+   We may be interested in this for the purposes of analyzing the vulnerability
+   of the repo based on its dependencies, and providing more customized/informed
+   guidance on how to remediate SCA vulns.
+
+   For instance, source code like
+   ```
+   from werkzeug.wrappers import Request
+   ```
+   may be described as using the "symbol" [werkzeug, wrappers, Request].
+ *)
+
+(* A symbol is a FQN. *)
+type symbol = string
+
+(* We store the location of the usage, because we may want to be able to know how
+   many uses of the symbol there are, and where.
+ *)
+type symbol_usage = {
+  symbol: symbol;
+  loc: location;
+}
+
+type symbol_analysis = symbol_usage list
 
 (* ----------------------------- *)
 (* The call *)
