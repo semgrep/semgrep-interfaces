@@ -1103,7 +1103,8 @@
           "items": { "$ref": "#/definitions/rule_id" }
         },
         "contributions": { "$ref": "#/definitions/contributions" },
-        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" }
+        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" },
+        "symbol_analysis": { "$ref": "#/definitions/symbol_analysis" }
       }
     },
     "contributor": {
@@ -1899,6 +1900,28 @@
           ]
         }
       ]
+    },
+    "symbol": {
+      "type": "object",
+      "required": [ "fqn" ],
+      "properties": {
+        "fqn": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "symbol_usage": {
+      "type": "object",
+      "required": [ "symbol", "locs" ],
+      "properties": {
+        "symbol": { "$ref": "#/definitions/symbol" },
+        "locs": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/location" }
+        }
+      }
+    },
+    "symbol_analysis": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/symbol_usage" }
     },
     "function_call": {
       "oneOf": [

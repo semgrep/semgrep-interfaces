@@ -604,6 +604,7 @@ export type CiScanResults = {
   rule_ids: RuleId[];
   contributions?: Contributions;
   dependencies?: CiScanDependencies;
+  symbol_analysis?: SymbolAnalysis;
 }
 
 export type Contributor = {
@@ -999,6 +1000,17 @@ export type ResolutionCmdFailed = {
 export type ResolutionResult =
 | { kind: 'ResolutionOk'; value: [FoundDependency[], ResolutionError[]] }
 | { kind: 'ResolutionError'; value: ResolutionError[] }
+
+export type Symbol = {
+  fqn: string[];
+}
+
+export type SymbolUsage = {
+  symbol_: Symbol;
+  locs: Location[];
+}
+
+export type SymbolAnalysis = SymbolUsage[]
 
 export type FunctionCall =
 | { kind: 'CallContributions' }
@@ -2898,6 +2910,7 @@ export function writeCiScanResults(x: CiScanResults, context: any = x): any {
     'rule_ids': _atd_write_required_field('CiScanResults', 'rule_ids', _atd_write_array(writeRuleId), x.rule_ids, x),
     'contributions': _atd_write_optional_field(writeContributions, x.contributions, x),
     'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
+    'symbol_analysis': _atd_write_optional_field(writeSymbolAnalysis, x.symbol_analysis, x),
   };
 }
 
@@ -2911,6 +2924,7 @@ export function readCiScanResults(x: any, context: any = x): CiScanResults {
     rule_ids: _atd_read_required_field('CiScanResults', 'rule_ids', _atd_read_array(readRuleId), x['rule_ids'], x),
     contributions: _atd_read_optional_field(readContributions, x['contributions'], x),
     dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
+    symbol_analysis: _atd_read_optional_field(readSymbolAnalysis, x['symbol_analysis'], x),
   };
 }
 
@@ -4160,6 +4174,40 @@ export function readResolutionResult(x: any, context: any = x): ResolutionResult
       _atd_bad_json('ResolutionResult', x, context)
       throw new Error('impossible')
   }
+}
+
+export function writeSymbol(x: Symbol, context: any = x): any {
+  return {
+    'fqn': _atd_write_required_field('Symbol', 'fqn', _atd_write_array(_atd_write_string), x.fqn, x),
+  };
+}
+
+export function readSymbol(x: any, context: any = x): Symbol {
+  return {
+    fqn: _atd_read_required_field('Symbol', 'fqn', _atd_read_array(_atd_read_string), x['fqn'], x),
+  };
+}
+
+export function writeSymbolUsage(x: SymbolUsage, context: any = x): any {
+  return {
+    'symbol': _atd_write_required_field('SymbolUsage', 'symbol', writeSymbol, x.symbol_, x),
+    'locs': _atd_write_required_field('SymbolUsage', 'locs', _atd_write_array(writeLocation), x.locs, x),
+  };
+}
+
+export function readSymbolUsage(x: any, context: any = x): SymbolUsage {
+  return {
+    symbol_: _atd_read_required_field('SymbolUsage', 'symbol', readSymbol, x['symbol'], x),
+    locs: _atd_read_required_field('SymbolUsage', 'locs', _atd_read_array(readLocation), x['locs'], x),
+  };
+}
+
+export function writeSymbolAnalysis(x: SymbolAnalysis, context: any = x): any {
+  return _atd_write_array(writeSymbolUsage)(x, context);
+}
+
+export function readSymbolAnalysis(x: any, context: any = x): SymbolAnalysis {
+  return _atd_read_array(readSymbolUsage)(x, context);
 }
 
 export function writeFunctionCall(x: FunctionCall, context: any = x): any {
