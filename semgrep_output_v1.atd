@@ -522,17 +522,83 @@ type transitivity
     <python decorator="dataclass(frozen=True)">
     <ocaml attr="deriving show,eq"> =
 [
+  (* we depend directly on the 3rd-party library mentioned in the lockfile
+   * (e.g., use of log4j library and concrete calls to log4j in 1st-party code)
+ *)
   | Direct <json name="direct">
+  (* we depend indirectly (transitively) on the 3rd-party library
+   * (e.g., if we use lodash which itself uses internally log4j then
+   * lodash is a Direct dependency and log4j a Transitive one)
+   *)
   | Transitive <json name="transitive">
+  (* This happens when ?? *)
   | Unknown <json name="unknown">
 ]
 
-(* part of cli_match_extra *)
+(* part of cli_match_extra, core_match_extra, and finding *)
 type sca_match = {
-  reachable: bool;
+  (* does the rule has a pattern part; otherwise it's a "parity"
+   * or "upgrade-only" rule.
+   *)
   reachability_rule: bool;
   sca_finding_schema: int;
   dependency_match: dependency_match;
+  (* TODO: deprecate, we should use sca_match_kind instead *)
+  reachable: bool;
+  (* EXPERIMENTAL since 1.08.0 *)
+  ?kind: sca_match_kind option;
+}
+
+(* Note that in addition to "reachable" there are also the notions of
+ * "vulnerable" and "exploitable".
+ * coupling: see also SCA_match.ml
+*)
+type sca_match_kind = [
+  (* This is used for "parity" or "upgrade-only" rules
+   * alt: transitive option, but Unknown can play the role of None
+   * the match location will be in the lockfile
+   *)
+  | LockfileOnlyMatch of transitivity
+  (* found the pattern-part of the SCA rule in 1st-party code
+   * (reachable as originally defined by Semgrep Inc.)
+   * the match location will be in some target code.
+   *)
+  | Reachable
+  (* found the pattern-part of the SCA rule in third-party code
+   * and ultimately found a path from 1st party code to this vulnerable
+   * third-party code.
+   * The goal of transitive reachability analysis is to change
+   * some Undetermined or (LockfileOnlyMatch Transitive) into
+   * TransitiveReachable or TransitiveUnreachable
+   *)
+  | TransitiveReachable of transitive_reachable
+  (* This is a "positive" finding in the sense that semgrep was
+   * able to prove that the transitive finding is "safe" and
+   * can be ignored because either there is no call to the pattern-part
+   * of the SCA rule in 3rd party code, or if there is
+   * it's in third-party code that is not accessed from the
+   * 1st-party code (e.g., via callgraph analysis)
+   *)
+  | TransitiveUnreachable of transitive_unreachable
+  (* could not decide because of the engine limitations (e.g., 
+   * found the use of a vulnerable library in the lockfile but
+   * could not find the pattern in first party code and could not
+   * access third-party code for further investigation
+   * (similar to (LocfileOnlyMatch Transitive))
+  *)
+  | Undetermined
+] < ocaml repr="classic">
+
+type transitive_reachable = {
+  (* TODO: some proof that the user can understand *)
+  explanation: string option;
+  callgraph_reachable: bool option;
+  (* LATER: add trace information *)
+}
+
+type transitive_unreachable = {
+  (* TODO: some proof that the user can understand *)
+  explanation: string option;
 }
 
 type dependency_match = {
@@ -1402,7 +1468,6 @@ type finding = {
 
   ?fixed_lines: string list option;
 
-  (* added in ?? *)
   ?sca_info: sca_match option;
   (* Note that this contains code! TODO? do we need to send this to the App? *)
   ?dataflow_trace: match_dataflow_trace option;
@@ -2167,6 +2232,16 @@ type resolution_result = [
   | ResolutionError of resolution_error list
 ]
 
+type transitive_finding = {
+  (* the important part is the sca_match in core_match_extra that
+   * we need to adjust and especially the sca_match_kind.
+   *)
+  m: core_match;
+  (* TODO: add lots of info to find the third-party code related
+   * to this match
+   *)
+}
+
 (* ----------------------------- *)
 (* The call *)
 (* ----------------------------- *)
@@ -2184,6 +2259,7 @@ type function_call <python decorator="dataclass(frozen=True)"> = [
   | CallValidate of fpath
   | CallResolveDependencies of dependency_source list
   | CallDumpRulePartitions of dump_rule_partitions_params
+  | CallTransitiveReachabilityFilter of transitive_finding list
 ]
 
 (* ----------------------------- *)
@@ -2200,6 +2276,7 @@ type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetValidate of bool
   | RetResolveDependencies of (dependency_source * resolution_result) list
   | RetDumpRulePartitions of bool
+  | RetTransitiveReachabilityFilter of transitive_finding list
 ]
 
 (*****************************************************************************)

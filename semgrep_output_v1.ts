@@ -191,10 +191,27 @@ export type Transitivity =
 | { kind: 'Unknown' /* JSON: "unknown" */ }
 
 export type ScaMatch = {
-  reachable: boolean;
   reachability_rule: boolean;
   sca_finding_schema: number /*int*/;
   dependency_match: DependencyMatch;
+  reachable: boolean;
+  kind?: ScaMatchKind;
+}
+
+export type ScaMatchKind =
+| { kind: 'LockfileOnlyMatch'; value: Transitivity }
+| { kind: 'Reachable' }
+| { kind: 'TransitiveReachable'; value: TransitiveReachable }
+| { kind: 'TransitiveUnreachable'; value: TransitiveUnreachable }
+| { kind: 'Undetermined' }
+
+export type TransitiveReachable = {
+  explanation: Option<string>;
+  callgraph_reachable: Option<boolean>;
+}
+
+export type TransitiveUnreachable = {
+  explanation: Option<string>;
 }
 
 export type DependencyMatch = {
@@ -1000,6 +1017,10 @@ export type ResolutionResult =
 | { kind: 'ResolutionOk'; value: [FoundDependency[], ResolutionError[]] }
 | { kind: 'ResolutionError'; value: ResolutionError[] }
 
+export type TransitiveFinding = {
+  m: CoreMatch;
+}
+
 export type FunctionCall =
 | { kind: 'CallContributions' }
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
@@ -1008,6 +1029,7 @@ export type FunctionCall =
 | { kind: 'CallValidate'; value: Fpath }
 | { kind: 'CallResolveDependencies'; value: DependencySource[] }
 | { kind: 'CallDumpRulePartitions'; value: DumpRulePartitionsParams }
+| { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveFinding[] }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -1018,6 +1040,7 @@ export type FunctionReturn =
 | { kind: 'RetValidate'; value: boolean }
 | { kind: 'RetResolveDependencies'; value: [DependencySource, ResolutionResult][] }
 | { kind: 'RetDumpRulePartitions'; value: boolean }
+| { kind: 'RetTransitiveReachabilityFilter'; value: TransitiveFinding[] }
 
 export type PartialScanResult =
 | { kind: 'PartialScanOk'; value: [CiScanResults, CiScanComplete] }
@@ -1687,19 +1710,90 @@ export function readTransitivity(x: any, context: any = x): Transitivity {
 
 export function writeScaMatch(x: ScaMatch, context: any = x): any {
   return {
-    'reachable': _atd_write_required_field('ScaMatch', 'reachable', _atd_write_bool, x.reachable, x),
     'reachability_rule': _atd_write_required_field('ScaMatch', 'reachability_rule', _atd_write_bool, x.reachability_rule, x),
     'sca_finding_schema': _atd_write_required_field('ScaMatch', 'sca_finding_schema', _atd_write_int, x.sca_finding_schema, x),
     'dependency_match': _atd_write_required_field('ScaMatch', 'dependency_match', writeDependencyMatch, x.dependency_match, x),
+    'reachable': _atd_write_required_field('ScaMatch', 'reachable', _atd_write_bool, x.reachable, x),
+    'kind': _atd_write_optional_field(writeScaMatchKind, x.kind, x),
   };
 }
 
 export function readScaMatch(x: any, context: any = x): ScaMatch {
   return {
-    reachable: _atd_read_required_field('ScaMatch', 'reachable', _atd_read_bool, x['reachable'], x),
     reachability_rule: _atd_read_required_field('ScaMatch', 'reachability_rule', _atd_read_bool, x['reachability_rule'], x),
     sca_finding_schema: _atd_read_required_field('ScaMatch', 'sca_finding_schema', _atd_read_int, x['sca_finding_schema'], x),
     dependency_match: _atd_read_required_field('ScaMatch', 'dependency_match', readDependencyMatch, x['dependency_match'], x),
+    reachable: _atd_read_required_field('ScaMatch', 'reachable', _atd_read_bool, x['reachable'], x),
+    kind: _atd_read_optional_field(readScaMatchKind, x['kind'], x),
+  };
+}
+
+export function writeScaMatchKind(x: ScaMatchKind, context: any = x): any {
+  switch (x.kind) {
+    case 'LockfileOnlyMatch':
+      return ['LockfileOnlyMatch', writeTransitivity(x.value, x)]
+    case 'Reachable':
+      return 'Reachable'
+    case 'TransitiveReachable':
+      return ['TransitiveReachable', writeTransitiveReachable(x.value, x)]
+    case 'TransitiveUnreachable':
+      return ['TransitiveUnreachable', writeTransitiveUnreachable(x.value, x)]
+    case 'Undetermined':
+      return 'Undetermined'
+  }
+}
+
+export function readScaMatchKind(x: any, context: any = x): ScaMatchKind {
+  if (typeof x === 'string') {
+    switch (x) {
+      case 'Reachable':
+        return { kind: 'Reachable' }
+      case 'Undetermined':
+        return { kind: 'Undetermined' }
+      default:
+        _atd_bad_json('ScaMatchKind', x, context)
+        throw new Error('impossible')
+    }
+  }
+  else {
+    _atd_check_json_tuple(2, x, context)
+    switch (x[0]) {
+      case 'LockfileOnlyMatch':
+        return { kind: 'LockfileOnlyMatch', value: readTransitivity(x[1], x) }
+      case 'TransitiveReachable':
+        return { kind: 'TransitiveReachable', value: readTransitiveReachable(x[1], x) }
+      case 'TransitiveUnreachable':
+        return { kind: 'TransitiveUnreachable', value: readTransitiveUnreachable(x[1], x) }
+      default:
+        _atd_bad_json('ScaMatchKind', x, context)
+        throw new Error('impossible')
+    }
+  }
+}
+
+export function writeTransitiveReachable(x: TransitiveReachable, context: any = x): any {
+  return {
+    'explanation': _atd_write_required_field('TransitiveReachable', 'explanation', _atd_write_option(_atd_write_string), x.explanation, x),
+    'callgraph_reachable': _atd_write_required_field('TransitiveReachable', 'callgraph_reachable', _atd_write_option(_atd_write_bool), x.callgraph_reachable, x),
+  };
+}
+
+export function readTransitiveReachable(x: any, context: any = x): TransitiveReachable {
+  return {
+    explanation: _atd_read_required_field('TransitiveReachable', 'explanation', _atd_read_option(_atd_read_string), x['explanation'], x),
+    callgraph_reachable: _atd_read_required_field('TransitiveReachable', 'callgraph_reachable', _atd_read_option(_atd_read_bool), x['callgraph_reachable'], x),
+  };
+}
+
+export function writeTransitiveUnreachable(x: TransitiveUnreachable, context: any = x): any {
+  return {
+    'explanation': _atd_write_required_field('TransitiveUnreachable', 'explanation', _atd_write_option(_atd_write_string), x.explanation, x),
+  };
+}
+
+export function readTransitiveUnreachable(x: any, context: any = x): TransitiveUnreachable {
+  return {
+    explanation: _atd_read_required_field('TransitiveUnreachable', 'explanation', _atd_read_option(_atd_read_string), x['explanation'], x),
   };
 }
 
@@ -4162,6 +4256,18 @@ export function readResolutionResult(x: any, context: any = x): ResolutionResult
   }
 }
 
+export function writeTransitiveFinding(x: TransitiveFinding, context: any = x): any {
+  return {
+    'm': _atd_write_required_field('TransitiveFinding', 'm', writeCoreMatch, x.m, x),
+  };
+}
+
+export function readTransitiveFinding(x: any, context: any = x): TransitiveFinding {
+  return {
+    m: _atd_read_required_field('TransitiveFinding', 'm', readCoreMatch, x['m'], x),
+  };
+}
+
 export function writeFunctionCall(x: FunctionCall, context: any = x): any {
   switch (x.kind) {
     case 'CallContributions':
@@ -4178,6 +4284,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallResolveDependencies', _atd_write_array(writeDependencySource)(x.value, x)]
     case 'CallDumpRulePartitions':
       return ['CallDumpRulePartitions', writeDumpRulePartitionsParams(x.value, x)]
+    case 'CallTransitiveReachabilityFilter':
+      return ['CallTransitiveReachabilityFilter', _atd_write_array(writeTransitiveFinding)(x.value, x)]
   }
 }
 
@@ -4206,6 +4314,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallResolveDependencies', value: _atd_read_array(readDependencySource)(x[1], x) }
       case 'CallDumpRulePartitions':
         return { kind: 'CallDumpRulePartitions', value: readDumpRulePartitionsParams(x[1], x) }
+      case 'CallTransitiveReachabilityFilter':
+        return { kind: 'CallTransitiveReachabilityFilter', value: _atd_read_array(readTransitiveFinding)(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -4231,6 +4341,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetResolveDependencies', _atd_write_array(((x, context) => [writeDependencySource(x[0], x), writeResolutionResult(x[1], x)]))(x.value, x)]
     case 'RetDumpRulePartitions':
       return ['RetDumpRulePartitions', _atd_write_bool(x.value, x)]
+    case 'RetTransitiveReachabilityFilter':
+      return ['RetTransitiveReachabilityFilter', _atd_write_array(writeTransitiveFinding)(x.value, x)]
   }
 }
 
@@ -4253,6 +4365,8 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetResolveDependencies', value: _atd_read_array(((x, context): [DependencySource, ResolutionResult] => { _atd_check_json_tuple(2, x, context); return [readDependencySource(x[0], x), readResolutionResult(x[1], x)] }))(x[1], x) }
     case 'RetDumpRulePartitions':
       return { kind: 'RetDumpRulePartitions', value: _atd_read_bool(x[1], x) }
+    case 'RetTransitiveReachabilityFilter':
+      return { kind: 'RetTransitiveReachabilityFilter', value: _atd_read_array(readTransitiveFinding)(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')
