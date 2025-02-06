@@ -200,10 +200,11 @@ export type ScaMatch = {
 
 export type ScaMatchKind =
 | { kind: 'LockfileOnlyMatch'; value: Transitivity }
-| { kind: 'Reachable' }
+| { kind: 'DirectReachable' }
+| { kind: 'DirectUnreachable' }
 | { kind: 'TransitiveReachable'; value: TransitiveReachable }
 | { kind: 'TransitiveUnreachable'; value: TransitiveUnreachable }
-| { kind: 'Undetermined' }
+| { kind: 'TransitiveUndetermined' }
 
 export type TransitiveReachable = {
   explanation: Option<string>;
@@ -1732,24 +1733,28 @@ export function writeScaMatchKind(x: ScaMatchKind, context: any = x): any {
   switch (x.kind) {
     case 'LockfileOnlyMatch':
       return ['LockfileOnlyMatch', writeTransitivity(x.value, x)]
-    case 'Reachable':
-      return 'Reachable'
+    case 'DirectReachable':
+      return 'DirectReachable'
+    case 'DirectUnreachable':
+      return 'DirectUnreachable'
     case 'TransitiveReachable':
       return ['TransitiveReachable', writeTransitiveReachable(x.value, x)]
     case 'TransitiveUnreachable':
       return ['TransitiveUnreachable', writeTransitiveUnreachable(x.value, x)]
-    case 'Undetermined':
-      return 'Undetermined'
+    case 'TransitiveUndetermined':
+      return 'TransitiveUndetermined'
   }
 }
 
 export function readScaMatchKind(x: any, context: any = x): ScaMatchKind {
   if (typeof x === 'string') {
     switch (x) {
-      case 'Reachable':
-        return { kind: 'Reachable' }
-      case 'Undetermined':
-        return { kind: 'Undetermined' }
+      case 'DirectReachable':
+        return { kind: 'DirectReachable' }
+      case 'DirectUnreachable':
+        return { kind: 'DirectUnreachable' }
+      case 'TransitiveUndetermined':
+        return { kind: 'TransitiveUndetermined' }
       default:
         _atd_bad_json('ScaMatchKind', x, context)
         throw new Error('impossible')

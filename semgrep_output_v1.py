@@ -1818,17 +1818,34 @@ class LockfileOnlyMatch:
 
 
 @dataclass
-class Reachable:
-    """Original type: sca_match_kind = [ ... | Reachable | ... ]"""
+class DirectReachable:
+    """Original type: sca_match_kind = [ ... | DirectReachable | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'Reachable'
+        return 'DirectReachable'
 
     @staticmethod
     def to_json() -> Any:
-        return 'Reachable'
+        return 'DirectReachable'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DirectUnreachable:
+    """Original type: sca_match_kind = [ ... | DirectUnreachable | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'DirectUnreachable'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'DirectUnreachable'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1871,17 +1888,17 @@ class TransitiveUnreachable_:
 
 
 @dataclass
-class Undetermined:
-    """Original type: sca_match_kind = [ ... | Undetermined | ... ]"""
+class TransitiveUndetermined:
+    """Original type: sca_match_kind = [ ... | TransitiveUndetermined | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'Undetermined'
+        return 'TransitiveUndetermined'
 
     @staticmethod
     def to_json() -> Any:
-        return 'Undetermined'
+        return 'TransitiveUndetermined'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1891,7 +1908,7 @@ class Undetermined:
 class ScaMatchKind:
     """Original type: sca_match_kind = [ ... ]"""
 
-    value: Union[LockfileOnlyMatch, Reachable, TransitiveReachable_, TransitiveUnreachable_, Undetermined]
+    value: Union[LockfileOnlyMatch, DirectReachable, DirectUnreachable, TransitiveReachable_, TransitiveUnreachable_, TransitiveUndetermined]
 
     @property
     def kind(self) -> str:
@@ -1901,10 +1918,12 @@ class ScaMatchKind:
     @classmethod
     def from_json(cls, x: Any) -> 'ScaMatchKind':
         if isinstance(x, str):
-            if x == 'Reachable':
-                return cls(Reachable())
-            if x == 'Undetermined':
-                return cls(Undetermined())
+            if x == 'DirectReachable':
+                return cls(DirectReachable())
+            if x == 'DirectUnreachable':
+                return cls(DirectUnreachable())
+            if x == 'TransitiveUndetermined':
+                return cls(TransitiveUndetermined())
             _atd_bad_json('ScaMatchKind', x)
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]

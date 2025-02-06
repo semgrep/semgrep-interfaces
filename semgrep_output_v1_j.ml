@@ -129,10 +129,11 @@ type dependency_match = Semgrep_output_v1_t.dependency_match = {
 
 type sca_match_kind = Semgrep_output_v1_t.sca_match_kind = 
     LockfileOnlyMatch of transitivity
-  | Reachable
+  | DirectReachable
+  | DirectUnreachable
   | TransitiveReachable of transitive_reachable
   | TransitiveUnreachable of transitive_unreachable
-  | Undetermined
+  | TransitiveUndetermined
 
 
 type sca_match = Semgrep_output_v1_t.sca_match = {
@@ -5269,7 +5270,8 @@ let write_sca_match_kind : _ -> sca_match_kind -> _ = (
           write_transitivity
         ) ob x;
         Buffer.add_char ob ']'
-      | Reachable -> Buffer.add_string ob "\"Reachable\""
+      | DirectReachable -> Buffer.add_string ob "\"DirectReachable\""
+      | DirectUnreachable -> Buffer.add_string ob "\"DirectUnreachable\""
       | TransitiveReachable x ->
         Buffer.add_string ob "[\"TransitiveReachable\",";
         (
@@ -5282,7 +5284,7 @@ let write_sca_match_kind : _ -> sca_match_kind -> _ = (
           write_transitive_unreachable
         ) ob x;
         Buffer.add_char ob ']'
-      | Undetermined -> Buffer.add_string ob "\"Undetermined\""
+      | TransitiveUndetermined -> Buffer.add_string ob "\"TransitiveUndetermined\""
 )
 let string_of_sca_match_kind ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -5303,10 +5305,14 @@ let read_sca_match_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (LockfileOnlyMatch x : sca_match_kind)
-            | "Reachable" ->
+            | "DirectReachable" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              (Reachable : sca_match_kind)
+              (DirectReachable : sca_match_kind)
+            | "DirectUnreachable" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (DirectUnreachable : sca_match_kind)
             | "TransitiveReachable" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -5325,19 +5331,21 @@ let read_sca_match_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (TransitiveUnreachable x : sca_match_kind)
-            | "Undetermined" ->
+            | "TransitiveUndetermined" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              (Undetermined : sca_match_kind)
+              (TransitiveUndetermined : sca_match_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
-            | "Reachable" ->
-              (Reachable : sca_match_kind)
-            | "Undetermined" ->
-              (Undetermined : sca_match_kind)
+            | "DirectReachable" ->
+              (DirectReachable : sca_match_kind)
+            | "DirectUnreachable" ->
+              (DirectUnreachable : sca_match_kind)
+            | "TransitiveUndetermined" ->
+              (TransitiveUndetermined : sca_match_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

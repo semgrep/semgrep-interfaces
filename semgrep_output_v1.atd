@@ -523,7 +523,8 @@ type transitivity
     <ocaml attr="deriving show,eq"> =
 [
   (* we depend directly on the 3rd-party library mentioned in the lockfile
-   * (e.g., use of log4j library and concrete calls to log4j in 1st-party code)
+   * (e.g., use of log4j library and concrete calls to log4j in 1st-party code).
+   * log4j must be declared as a direct dependency in the manifest file.
  *)
   | Direct <json name="direct">
   (* we depend indirectly (transitively) on the 3rd-party library
@@ -531,7 +532,10 @@ type transitivity
    * lodash is a Direct dependency and log4j a Transitive one)
    *)
   | Transitive <json name="transitive">
-  (* This happens when ?? *)
+  (* If there is insufficient information to determine the transitivity,
+    such as a requirements.txt file without a requirements.in manifest,
+    we leave it Unknown.
+   *)
   | Unknown <json name="unknown">
 ]
 
@@ -554,16 +558,24 @@ type sca_match = {
  * coupling: see also SCA_match.ml
 *)
 type sca_match_kind = [
-  (* This is used for "parity" or "upgrade-only" rules
-   * alt: transitive option, but Unknown can play the role of None
-   * the match location will be in the lockfile
+  (* This is used for "parity" or "upgrade-only" rules. transitivity
+   * indicates whether the match is for a direct or transitive usage of
+   * the dependency; for a dependency that is both direct and transitive
+   * two findings should be generated.
    *)
   | LockfileOnlyMatch of transitivity
   (* found the pattern-part of the SCA rule in 1st-party code
    * (reachable as originally defined by Semgrep Inc.)
    * the match location will be in some target code.
    *)
-  | Reachable
+  | DirectReachable
+  (* This is a "positive" finding in the sense that semgrep was
+   * able to prove that the finding is "safe" and
+   * can be ignored because it is not used in the 1st-party code
+   * directly. Note that this match kind considers only first-party
+   * code.
+   *)
+  | DirectUnreachable
   (* found the pattern-part of the SCA rule in third-party code
    * and ultimately found a path from 1st party code to this vulnerable
    * third-party code.
@@ -584,9 +596,9 @@ type sca_match_kind = [
    * found the use of a vulnerable library in the lockfile but
    * could not find the pattern in first party code and could not
    * access third-party code for further investigation
-   * (similar to (LocfileOnlyMatch Transitive))
+   * (similar to (LockfileOnlyMatch Transitive))
   *)
-  | Undetermined
+  | TransitiveUndetermined
 ] < ocaml repr="classic">
 
 type transitive_reachable = {

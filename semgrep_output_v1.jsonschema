@@ -374,7 +374,8 @@
             { "$ref": "#/definitions/transitivity" }
           ]
         },
-        { "const": "Reachable" },
+        { "const": "DirectReachable" },
+        { "const": "DirectUnreachable" },
         {
           "type": "array",
           "minItems": 2,
@@ -393,7 +394,7 @@
             { "$ref": "#/definitions/transitive_unreachable" }
           ]
         },
-        { "const": "Undetermined" }
+        { "const": "TransitiveUndetermined" }
       ]
     },
     "transitive_reachable": {

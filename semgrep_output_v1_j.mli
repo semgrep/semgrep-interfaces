@@ -129,10 +129,11 @@ type dependency_match = Semgrep_output_v1_t.dependency_match = {
 
 type sca_match_kind = Semgrep_output_v1_t.sca_match_kind = 
     LockfileOnlyMatch of transitivity
-  | Reachable
+  | DirectReachable
+  | DirectUnreachable
   | TransitiveReachable of transitive_reachable
   | TransitiveUnreachable of transitive_unreachable
-  | Undetermined
+  | TransitiveUndetermined
 
 
 type sca_match = Semgrep_output_v1_t.sca_match = {
