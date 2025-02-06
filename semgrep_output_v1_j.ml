@@ -96,6 +96,15 @@ type metavar_value = Semgrep_output_v1_t.metavar_value = {
 
 type metavars = Semgrep_output_v1_t.metavars
 
+type transitive_reachable = Semgrep_output_v1_t.transitive_reachable = {
+  explanation: string option;
+  callgraph_reachable: bool option
+}
+
+type transitive_unreachable = Semgrep_output_v1_t.transitive_unreachable = {
+  explanation: string option
+}
+
 type transitivity = Semgrep_output_v1_t.transitivity [@@deriving show,eq]
 
 type found_dependency = Semgrep_output_v1_t.found_dependency = {
@@ -118,11 +127,21 @@ type dependency_match = Semgrep_output_v1_t.dependency_match = {
   lockfile: fpath
 }
 
+type sca_match_kind = Semgrep_output_v1_t.sca_match_kind = 
+    LockfileOnlyMatch of transitivity
+  | DirectReachable
+  | DirectUnreachable
+  | TransitiveReachable of transitive_reachable
+  | TransitiveUnreachable of transitive_unreachable
+  | TransitiveUndetermined
+
+
 type sca_match = Semgrep_output_v1_t.sca_match = {
-  reachable: bool;
   reachability_rule: bool;
   sca_finding_schema: int;
-  dependency_match: dependency_match
+  dependency_match: dependency_match;
+  reachable: bool;
+  kind: sca_match_kind option
 }
 
 type validation_state = Semgrep_output_v1_t.validation_state
@@ -214,6 +233,10 @@ type unexpected_match_diagnosis =
 type triage_ignored = Semgrep_output_v1_t.triage_ignored = {
   triage_ignored_syntactic_ids: string list;
   triage_ignored_match_based_ids: string list
+}
+
+type transitive_finding = Semgrep_output_v1_t.transitive_finding = {
+  m: core_match
 }
 
 type todo = Semgrep_output_v1_t.todo
@@ -920,6 +943,63 @@ type ci_scan_complete_response =
 }
   [@@deriving show]
 
+let write__bool_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    Yojson.Safe.write_bool
+  )
+)
+let string_of__bool_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__bool_option ob x;
+  Buffer.contents ob
+let read__bool_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _bool_option_of_string s =
+  read__bool_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__int_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     Yojson.Safe.write_int
@@ -4081,6 +4161,257 @@ let read_metavars = (
 )
 let metavars_of_string s =
   read_metavars (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_transitive_reachable : _ -> transitive_reachable -> _ = (
+  fun ob (x : transitive_reachable) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"explanation\":";
+    (
+      write__string_option
+    )
+      ob x.explanation;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"callgraph_reachable\":";
+    (
+      write__bool_option
+    )
+      ob x.callgraph_reachable;
+    Buffer.add_char ob '}';
+)
+let string_of_transitive_reachable ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_transitive_reachable ob x;
+  Buffer.contents ob
+let read_transitive_reachable = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_explanation = ref (None) in
+    let field_callgraph_reachable = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 11 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' then (
+                  0
+                )
+                else (
+                  -1
+                )
+              )
+            | 19 -> (
+                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'c' && String.unsafe_get s (pos+14) = 'h' && String.unsafe_get s (pos+15) = 'a' && String.unsafe_get s (pos+16) = 'b' && String.unsafe_get s (pos+17) = 'l' && String.unsafe_get s (pos+18) = 'e' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_explanation := (
+              Some (
+                (
+                  read__string_option
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_callgraph_reachable := (
+              Some (
+                (
+                  read__bool_option
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 11 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 19 -> (
+                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'r' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 'h' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 'c' && String.unsafe_get s (pos+14) = 'h' && String.unsafe_get s (pos+15) = 'a' && String.unsafe_get s (pos+16) = 'b' && String.unsafe_get s (pos+17) = 'l' && String.unsafe_get s (pos+18) = 'e' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_explanation := (
+                Some (
+                  (
+                    read__string_option
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_callgraph_reachable := (
+                Some (
+                  (
+                    read__bool_option
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            explanation = (match !field_explanation with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "explanation");
+            callgraph_reachable = (match !field_callgraph_reachable with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "callgraph_reachable");
+          }
+         : transitive_reachable)
+      )
+)
+let transitive_reachable_of_string s =
+  read_transitive_reachable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_transitive_unreachable : _ -> transitive_unreachable -> _ = (
+  fun ob (x : transitive_unreachable) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"explanation\":";
+    (
+      write__string_option
+    )
+      ob x.explanation;
+    Buffer.add_char ob '}';
+)
+let string_of_transitive_unreachable ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_transitive_unreachable ob x;
+  Buffer.contents ob
+let read_transitive_unreachable = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_explanation = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          if len = 11 && String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' then (
+            0
+          )
+          else (
+            -1
+          )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_explanation := (
+              Some (
+                (
+                  read__string_option
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            if len = 11 && String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' then (
+              0
+            )
+            else (
+              -1
+            )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_explanation := (
+                Some (
+                  (
+                    read__string_option
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            explanation = (match !field_explanation with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "explanation");
+          }
+         : transitive_unreachable)
+      )
+)
+let transitive_unreachable_of_string s =
+  read_transitive_unreachable (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_transitivity = (
   fun ob x ->
     match x with
@@ -4940,19 +5271,196 @@ let read_dependency_match = (
 )
 let dependency_match_of_string s =
   read_dependency_match (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_sca_match_kind : _ -> sca_match_kind -> _ = (
+  fun ob (x : sca_match_kind) ->
+    match x with
+      | LockfileOnlyMatch x ->
+        Buffer.add_string ob "[\"LockfileOnlyMatch\",";
+        (
+          write_transitivity
+        ) ob x;
+        Buffer.add_char ob ']'
+      | DirectReachable -> Buffer.add_string ob "\"DirectReachable\""
+      | DirectUnreachable -> Buffer.add_string ob "\"DirectUnreachable\""
+      | TransitiveReachable x ->
+        Buffer.add_string ob "[\"TransitiveReachable\",";
+        (
+          write_transitive_reachable
+        ) ob x;
+        Buffer.add_char ob ']'
+      | TransitiveUnreachable x ->
+        Buffer.add_string ob "[\"TransitiveUnreachable\",";
+        (
+          write_transitive_unreachable
+        ) ob x;
+        Buffer.add_char ob ']'
+      | TransitiveUndetermined -> Buffer.add_string ob "\"TransitiveUndetermined\""
+)
+let string_of_sca_match_kind ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_sca_match_kind ob x;
+  Buffer.contents ob
+let read_sca_match_kind = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "LockfileOnlyMatch" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_transitivity
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (LockfileOnlyMatch x : sca_match_kind)
+            | "DirectReachable" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (DirectReachable : sca_match_kind)
+            | "DirectUnreachable" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (DirectUnreachable : sca_match_kind)
+            | "TransitiveReachable" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_transitive_reachable
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (TransitiveReachable x : sca_match_kind)
+            | "TransitiveUnreachable" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_transitive_unreachable
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (TransitiveUnreachable x : sca_match_kind)
+            | "TransitiveUndetermined" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (TransitiveUndetermined : sca_match_kind)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "DirectReachable" ->
+              (DirectReachable : sca_match_kind)
+            | "DirectUnreachable" ->
+              (DirectUnreachable : sca_match_kind)
+            | "TransitiveUndetermined" ->
+              (TransitiveUndetermined : sca_match_kind)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "LockfileOnlyMatch" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_transitivity
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (LockfileOnlyMatch x : sca_match_kind)
+            | "TransitiveReachable" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_transitive_reachable
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (TransitiveReachable x : sca_match_kind)
+            | "TransitiveUnreachable" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_transitive_unreachable
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (TransitiveUnreachable x : sca_match_kind)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let sca_match_kind_of_string s =
+  read_sca_match_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__sca_match_kind_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_sca_match_kind
+  )
+)
+let string_of__sca_match_kind_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__sca_match_kind_option ob x;
+  Buffer.contents ob
+let read__sca_match_kind_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_sca_match_kind
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_sca_match_kind
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _sca_match_kind_option_of_string s =
+  read__sca_match_kind_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_sca_match : _ -> sca_match -> _ = (
   fun ob (x : sca_match) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"reachable\":";
-    (
-      Yojson.Safe.write_bool
-    )
-      ob x.reachable;
     if !is_first then
       is_first := false
     else
@@ -4980,6 +5488,26 @@ let write_sca_match : _ -> sca_match -> _ = (
       write_dependency_match
     )
       ob x.dependency_match;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"reachable\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.reachable;
+    (match x.kind with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"kind\":";
+      (
+        write_sca_match_kind
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_sca_match ?(len = 1024) x =
@@ -4990,10 +5518,11 @@ let read_sca_match = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
-    let field_reachable = ref (None) in
     let field_reachability_rule = ref (None) in
     let field_sca_finding_schema = ref (None) in
     let field_dependency_match = ref (None) in
+    let field_reachable = ref (None) in
+    let field_kind = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -5003,9 +5532,17 @@ let read_sca_match = (
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
+            | 4 -> (
+                if String.unsafe_get s pos = 'k' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' then (
+                  4
+                )
+                else (
+                  -1
+                )
+              )
             | 9 -> (
                 if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'h' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'l' && String.unsafe_get s (pos+8) = 'e' then (
-                  0
+                  3
                 )
                 else (
                   -1
@@ -5013,7 +5550,7 @@ let read_sca_match = (
               )
             | 16 -> (
                 if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'm' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'c' && String.unsafe_get s (pos+15) = 'h' then (
-                  3
+                  2
                 )
                 else (
                   -1
@@ -5021,7 +5558,7 @@ let read_sca_match = (
               )
             | 17 -> (
                 if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'h' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'l' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'y' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 'l' && String.unsafe_get s (pos+16) = 'e' then (
-                  1
+                  0
                 )
                 else (
                   -1
@@ -5029,7 +5566,7 @@ let read_sca_match = (
               )
             | 18 -> (
                 if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'g' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'c' && String.unsafe_get s (pos+14) = 'h' && String.unsafe_get s (pos+15) = 'e' && String.unsafe_get s (pos+16) = 'm' && String.unsafe_get s (pos+17) = 'a' then (
-                  2
+                  1
                 )
                 else (
                   -1
@@ -5044,14 +5581,6 @@ let read_sca_match = (
       (
         match i with
           | 0 ->
-            field_reachable := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_bool
-                ) p lb
-              )
-            );
-          | 1 ->
             field_reachability_rule := (
               Some (
                 (
@@ -5059,7 +5588,7 @@ let read_sca_match = (
                 ) p lb
               )
             );
-          | 2 ->
+          | 1 ->
             field_sca_finding_schema := (
               Some (
                 (
@@ -5067,7 +5596,7 @@ let read_sca_match = (
                 ) p lb
               )
             );
-          | 3 ->
+          | 2 ->
             field_dependency_match := (
               Some (
                 (
@@ -5075,6 +5604,24 @@ let read_sca_match = (
                 ) p lb
               )
             );
+          | 3 ->
+            field_reachable := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              )
+            );
+          | 4 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_kind := (
+                Some (
+                  (
+                    read_sca_match_kind
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -5088,9 +5635,17 @@ let read_sca_match = (
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
+              | 4 -> (
+                  if String.unsafe_get s pos = 'k' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' then (
+                    4
+                  )
+                  else (
+                    -1
+                  )
+                )
               | 9 -> (
                   if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'h' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'l' && String.unsafe_get s (pos+8) = 'e' then (
-                    0
+                    3
                   )
                   else (
                     -1
@@ -5098,7 +5653,7 @@ let read_sca_match = (
                 )
               | 16 -> (
                   if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'm' && String.unsafe_get s (pos+12) = 'a' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'c' && String.unsafe_get s (pos+15) = 'h' then (
-                    3
+                    2
                   )
                   else (
                     -1
@@ -5106,7 +5661,7 @@ let read_sca_match = (
                 )
               | 17 -> (
                   if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'h' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'l' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'y' && String.unsafe_get s (pos+12) = '_' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 'l' && String.unsafe_get s (pos+16) = 'e' then (
-                    1
+                    0
                   )
                   else (
                     -1
@@ -5114,7 +5669,7 @@ let read_sca_match = (
                 )
               | 18 -> (
                   if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'g' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'c' && String.unsafe_get s (pos+14) = 'h' && String.unsafe_get s (pos+15) = 'e' && String.unsafe_get s (pos+16) = 'm' && String.unsafe_get s (pos+17) = 'a' then (
-                    2
+                    1
                   )
                   else (
                     -1
@@ -5129,14 +5684,6 @@ let read_sca_match = (
         (
           match i with
             | 0 ->
-              field_reachable := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_bool
-                  ) p lb
-                )
-              );
-            | 1 ->
               field_reachability_rule := (
                 Some (
                   (
@@ -5144,7 +5691,7 @@ let read_sca_match = (
                   ) p lb
                 )
               );
-            | 2 ->
+            | 1 ->
               field_sca_finding_schema := (
                 Some (
                   (
@@ -5152,7 +5699,7 @@ let read_sca_match = (
                   ) p lb
                 )
               );
-            | 3 ->
+            | 2 ->
               field_dependency_match := (
                 Some (
                   (
@@ -5160,6 +5707,24 @@ let read_sca_match = (
                   ) p lb
                 )
               );
+            | 3 ->
+              field_reachable := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            | 4 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_kind := (
+                  Some (
+                    (
+                      read_sca_match_kind
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -5169,10 +5734,11 @@ let read_sca_match = (
     with Yojson.End_of_object -> (
         (
           {
-            reachable = (match !field_reachable with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "reachable");
             reachability_rule = (match !field_reachability_rule with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "reachability_rule");
             sca_finding_schema = (match !field_sca_finding_schema with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "sca_finding_schema");
             dependency_match = (match !field_dependency_match with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "dependency_match");
+            reachable = (match !field_reachable with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "reachable");
+            kind = !field_kind;
           }
          : sca_match)
       )
@@ -8625,6 +9191,104 @@ let read_triage_ignored = (
 )
 let triage_ignored_of_string s =
   read_triage_ignored (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_transitive_finding : _ -> transitive_finding -> _ = (
+  fun ob (x : transitive_finding) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"m\":";
+    (
+      write_core_match
+    )
+      ob x.m;
+    Buffer.add_char ob '}';
+)
+let string_of_transitive_finding ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_transitive_finding ob x;
+  Buffer.contents ob
+let read_transitive_finding = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_m = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          if len = 1 && String.unsafe_get s pos = 'm' then (
+            0
+          )
+          else (
+            -1
+          )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_m := (
+              Some (
+                (
+                  read_core_match
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            if len = 1 && String.unsafe_get s pos = 'm' then (
+              0
+            )
+            else (
+              -1
+            )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_m := (
+                Some (
+                  (
+                    read_core_match
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            m = (match !field_m with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "m");
+          }
+         : transitive_finding)
+      )
+)
+let transitive_finding_of_string s =
+  read_transitive_finding (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_todo = (
   Yojson.Safe.write_int
 )
@@ -16562,63 +17226,6 @@ let read__datetime_option = (
 )
 let _datetime_option_of_string s =
   read__datetime_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__bool_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    Yojson.Safe.write_bool
-  )
-)
-let string_of__bool_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__bool_option ob x;
-  Buffer.contents ob
-let read__bool_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_bool
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_bool
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _bool_option_of_string s =
-  read__bool_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_project_metadata : _ -> project_metadata -> _ = (
   fun ob (x : project_metadata) ->
     Buffer.add_char ob '{';
@@ -29280,6 +29887,22 @@ let read_apply_fixes_return = (
 )
 let apply_fixes_return_of_string s =
   read_apply_fixes_return (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__transitive_finding_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_transitive_finding
+  )
+)
+let string_of__transitive_finding_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__transitive_finding_list ob x;
+  Buffer.contents ob
+let read__transitive_finding_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_transitive_finding
+  )
+)
+let _transitive_finding_list_of_string s =
+  read__transitive_finding_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__dependency_source_resolution_result_list = (
   Atdgen_runtime.Oj_run.write_list (
     fun ob x ->
@@ -29401,6 +30024,12 @@ let write_function_return = (
           Yojson.Safe.write_bool
         ) ob x;
         Buffer.add_char ob ']'
+      | `RetTransitiveReachabilityFilter x ->
+        Buffer.add_string ob "[\"RetTransitiveReachabilityFilter\",";
+        (
+          write__transitive_finding_list
+        ) ob x;
+        Buffer.add_char ob ']'
 )
 let string_of_function_return ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -29484,6 +30113,15 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `RetDumpRulePartitions x
+            | "RetTransitiveReachabilityFilter" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__transitive_finding_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `RetTransitiveReachabilityFilter x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -29582,6 +30220,17 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `RetDumpRulePartitions x
+            | "RetTransitiveReachabilityFilter" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__transitive_finding_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `RetTransitiveReachabilityFilter x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -32518,6 +33167,12 @@ let write_function_call = (
           write_dump_rule_partitions_params
         ) ob x;
         Buffer.add_char ob ']'
+      | `CallTransitiveReachabilityFilter x ->
+        Buffer.add_string ob "[\"CallTransitiveReachabilityFilter\",";
+        (
+          write__transitive_finding_list
+        ) ob x;
+        Buffer.add_char ob ']'
 )
 let string_of_function_call ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -32691,6 +33346,15 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `CallDumpRulePartitions x
+            | "CallTransitiveReachabilityFilter" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__transitive_finding_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `CallTransitiveReachabilityFilter x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -32873,6 +33537,17 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `CallDumpRulePartitions x
+            | "CallTransitiveReachabilityFilter" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__transitive_finding_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `CallTransitiveReachabilityFilter x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

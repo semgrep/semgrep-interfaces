@@ -352,14 +352,94 @@
     "sca_match": {
       "type": "object",
       "required": [
-        "reachable", "reachability_rule", "sca_finding_schema",
-        "dependency_match"
+        "reachability_rule", "sca_finding_schema", "dependency_match",
+        "reachable"
       ],
       "properties": {
-        "reachable": { "type": "boolean" },
         "reachability_rule": { "type": "boolean" },
         "sca_finding_schema": { "type": "integer" },
-        "dependency_match": { "$ref": "#/definitions/dependency_match" }
+        "dependency_match": { "$ref": "#/definitions/dependency_match" },
+        "reachable": { "type": "boolean" },
+        "kind": { "$ref": "#/definitions/sca_match_kind" }
+      }
+    },
+    "sca_match_kind": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "LockfileOnlyMatch" },
+            { "$ref": "#/definitions/transitivity" }
+          ]
+        },
+        { "const": "DirectReachable" },
+        { "const": "DirectUnreachable" },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "TransitiveReachable" },
+            { "$ref": "#/definitions/transitive_reachable" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "TransitiveUnreachable" },
+            { "$ref": "#/definitions/transitive_unreachable" }
+          ]
+        },
+        { "const": "TransitiveUndetermined" }
+      ]
+    },
+    "transitive_reachable": {
+      "type": "object",
+      "required": [ "explanation", "callgraph_reachable" ],
+      "properties": {
+        "explanation": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "callgraph_reachable": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "boolean" } ]
+            },
+            { "const": "None" }
+          ]
+        }
+      }
+    },
+    "transitive_unreachable": {
+      "type": "object",
+      "required": [ "explanation" ],
+      "properties": {
+        "explanation": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        }
       }
     },
     "dependency_match": {
@@ -1901,6 +1981,11 @@
         }
       ]
     },
+    "transitive_finding": {
+      "type": "object",
+      "required": [ "m" ],
+      "properties": { "m": { "$ref": "#/definitions/core_match" } }
+    },
     "symbol": {
       "type": "object",
       "required": [ "fqn" ],
@@ -1999,6 +2084,18 @@
             { "const": "CallDumpRulePartitions" },
             { "$ref": "#/definitions/dump_rule_partitions_params" }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CallTransitiveReachabilityFilter" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/transitive_finding" }
+            }
+          ]
         }
       ]
     },
@@ -2078,6 +2175,18 @@
           "items": false,
           "prefixItems": [
             { "const": "RetDumpRulePartitions" }, { "type": "boolean" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "RetTransitiveReachabilityFilter" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/transitive_finding" }
+            }
           ]
         }
       ]

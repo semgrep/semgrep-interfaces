@@ -96,6 +96,15 @@ type metavar_value = Semgrep_output_v1_t.metavar_value = {
 
 type metavars = Semgrep_output_v1_t.metavars
 
+type transitive_reachable = Semgrep_output_v1_t.transitive_reachable = {
+  explanation: string option;
+  callgraph_reachable: bool option
+}
+
+type transitive_unreachable = Semgrep_output_v1_t.transitive_unreachable = {
+  explanation: string option
+}
+
 type transitivity = Semgrep_output_v1_t.transitivity [@@deriving show,eq]
 
 type found_dependency = Semgrep_output_v1_t.found_dependency = {
@@ -118,11 +127,21 @@ type dependency_match = Semgrep_output_v1_t.dependency_match = {
   lockfile: fpath
 }
 
+type sca_match_kind = Semgrep_output_v1_t.sca_match_kind = 
+    LockfileOnlyMatch of transitivity
+  | DirectReachable
+  | DirectUnreachable
+  | TransitiveReachable of transitive_reachable
+  | TransitiveUnreachable of transitive_unreachable
+  | TransitiveUndetermined
+
+
 type sca_match = Semgrep_output_v1_t.sca_match = {
-  reachable: bool;
   reachability_rule: bool;
   sca_finding_schema: int;
-  dependency_match: dependency_match
+  dependency_match: dependency_match;
+  reachable: bool;
+  kind: sca_match_kind option
 }
 
 type validation_state = Semgrep_output_v1_t.validation_state
@@ -214,6 +233,10 @@ type unexpected_match_diagnosis =
 type triage_ignored = Semgrep_output_v1_t.triage_ignored = {
   triage_ignored_syntactic_ids: string list;
   triage_ignored_match_based_ids: string list
+}
+
+type transitive_finding = Semgrep_output_v1_t.transitive_finding = {
+  m: core_match
 }
 
 type todo = Semgrep_output_v1_t.todo
@@ -1320,6 +1343,46 @@ val metavars_of_string :
   string -> metavars
   (** Deserialize JSON data of type {!type:metavars}. *)
 
+val write_transitive_reachable :
+  Buffer.t -> transitive_reachable -> unit
+  (** Output a JSON value of type {!type:transitive_reachable}. *)
+
+val string_of_transitive_reachable :
+  ?len:int -> transitive_reachable -> string
+  (** Serialize a value of type {!type:transitive_reachable}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_transitive_reachable :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> transitive_reachable
+  (** Input JSON data of type {!type:transitive_reachable}. *)
+
+val transitive_reachable_of_string :
+  string -> transitive_reachable
+  (** Deserialize JSON data of type {!type:transitive_reachable}. *)
+
+val write_transitive_unreachable :
+  Buffer.t -> transitive_unreachable -> unit
+  (** Output a JSON value of type {!type:transitive_unreachable}. *)
+
+val string_of_transitive_unreachable :
+  ?len:int -> transitive_unreachable -> string
+  (** Serialize a value of type {!type:transitive_unreachable}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_transitive_unreachable :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> transitive_unreachable
+  (** Input JSON data of type {!type:transitive_unreachable}. *)
+
+val transitive_unreachable_of_string :
+  string -> transitive_unreachable
+  (** Deserialize JSON data of type {!type:transitive_unreachable}. *)
+
 val write_transitivity :
   Buffer.t -> transitivity -> unit
   (** Output a JSON value of type {!type:transitivity}. *)
@@ -1379,6 +1442,26 @@ val read_dependency_match :
 val dependency_match_of_string :
   string -> dependency_match
   (** Deserialize JSON data of type {!type:dependency_match}. *)
+
+val write_sca_match_kind :
+  Buffer.t -> sca_match_kind -> unit
+  (** Output a JSON value of type {!type:sca_match_kind}. *)
+
+val string_of_sca_match_kind :
+  ?len:int -> sca_match_kind -> string
+  (** Serialize a value of type {!type:sca_match_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_match_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_match_kind
+  (** Input JSON data of type {!type:sca_match_kind}. *)
+
+val sca_match_kind_of_string :
+  string -> sca_match_kind
+  (** Deserialize JSON data of type {!type:sca_match_kind}. *)
 
 val write_sca_match :
   Buffer.t -> sca_match -> unit
@@ -1759,6 +1842,26 @@ val read_triage_ignored :
 val triage_ignored_of_string :
   string -> triage_ignored
   (** Deserialize JSON data of type {!type:triage_ignored}. *)
+
+val write_transitive_finding :
+  Buffer.t -> transitive_finding -> unit
+  (** Output a JSON value of type {!type:transitive_finding}. *)
+
+val string_of_transitive_finding :
+  ?len:int -> transitive_finding -> string
+  (** Serialize a value of type {!type:transitive_finding}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_transitive_finding :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> transitive_finding
+  (** Input JSON data of type {!type:transitive_finding}. *)
+
+val transitive_finding_of_string :
+  string -> transitive_finding
+  (** Deserialize JSON data of type {!type:transitive_finding}. *)
 
 val write_todo :
   Buffer.t -> todo -> unit

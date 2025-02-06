@@ -1557,6 +1557,65 @@ class Metavars:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class TransitiveReachable:
+    """Original type: transitive_reachable = { ... }"""
+
+    explanation: Optional[str]
+    callgraph_reachable: Optional[bool]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TransitiveReachable':
+        if isinstance(x, dict):
+            return cls(
+                explanation=_atd_read_option(_atd_read_string)(x['explanation']) if 'explanation' in x else _atd_missing_json_field('TransitiveReachable', 'explanation'),
+                callgraph_reachable=_atd_read_option(_atd_read_bool)(x['callgraph_reachable']) if 'callgraph_reachable' in x else _atd_missing_json_field('TransitiveReachable', 'callgraph_reachable'),
+            )
+        else:
+            _atd_bad_json('TransitiveReachable', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['explanation'] = _atd_write_option(_atd_write_string)(self.explanation)
+        res['callgraph_reachable'] = _atd_write_option(_atd_write_bool)(self.callgraph_reachable)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TransitiveReachable':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TransitiveUnreachable:
+    """Original type: transitive_unreachable = { ... }"""
+
+    explanation: Optional[str]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TransitiveUnreachable':
+        if isinstance(x, dict):
+            return cls(
+                explanation=_atd_read_option(_atd_read_string)(x['explanation']) if 'explanation' in x else _atd_missing_json_field('TransitiveUnreachable', 'explanation'),
+            )
+        else:
+            _atd_bad_json('TransitiveUnreachable', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['explanation'] = _atd_write_option(_atd_write_string)(self.explanation)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TransitiveUnreachable':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class Direct:
     """Original type: transitivity = [ ... | Direct | ... ]"""
@@ -1741,32 +1800,184 @@ class DependencyMatch:
 
 
 @dataclass
+class LockfileOnlyMatch:
+    """Original type: sca_match_kind = [ ... | LockfileOnlyMatch of ... | ... ]"""
+
+    value: Transitivity
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'LockfileOnlyMatch'
+
+    def to_json(self) -> Any:
+        return ['LockfileOnlyMatch', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DirectReachable:
+    """Original type: sca_match_kind = [ ... | DirectReachable | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'DirectReachable'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'DirectReachable'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DirectUnreachable:
+    """Original type: sca_match_kind = [ ... | DirectUnreachable | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'DirectUnreachable'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'DirectUnreachable'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TransitiveReachable_:
+    """Original type: sca_match_kind = [ ... | TransitiveReachable of ... | ... ]"""
+
+    value: TransitiveReachable
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'TransitiveReachable_'
+
+    def to_json(self) -> Any:
+        return ['TransitiveReachable', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TransitiveUnreachable_:
+    """Original type: sca_match_kind = [ ... | TransitiveUnreachable of ... | ... ]"""
+
+    value: TransitiveUnreachable
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'TransitiveUnreachable_'
+
+    def to_json(self) -> Any:
+        return ['TransitiveUnreachable', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TransitiveUndetermined:
+    """Original type: sca_match_kind = [ ... | TransitiveUndetermined | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'TransitiveUndetermined'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'TransitiveUndetermined'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScaMatchKind:
+    """Original type: sca_match_kind = [ ... ]"""
+
+    value: Union[LockfileOnlyMatch, DirectReachable, DirectUnreachable, TransitiveReachable_, TransitiveUnreachable_, TransitiveUndetermined]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaMatchKind':
+        if isinstance(x, str):
+            if x == 'DirectReachable':
+                return cls(DirectReachable())
+            if x == 'DirectUnreachable':
+                return cls(DirectUnreachable())
+            if x == 'TransitiveUndetermined':
+                return cls(TransitiveUndetermined())
+            _atd_bad_json('ScaMatchKind', x)
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'LockfileOnlyMatch':
+                return cls(LockfileOnlyMatch(Transitivity.from_json(x[1])))
+            if cons == 'TransitiveReachable':
+                return cls(TransitiveReachable_(TransitiveReachable.from_json(x[1])))
+            if cons == 'TransitiveUnreachable':
+                return cls(TransitiveUnreachable_(TransitiveUnreachable.from_json(x[1])))
+            _atd_bad_json('ScaMatchKind', x)
+        _atd_bad_json('ScaMatchKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaMatchKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class ScaMatch:
     """Original type: sca_match = { ... }"""
 
-    reachable: bool
     reachability_rule: bool
     sca_finding_schema: int
     dependency_match: DependencyMatch
+    reachable: bool
+    kind: Optional[ScaMatchKind] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScaMatch':
         if isinstance(x, dict):
             return cls(
-                reachable=_atd_read_bool(x['reachable']) if 'reachable' in x else _atd_missing_json_field('ScaMatch', 'reachable'),
                 reachability_rule=_atd_read_bool(x['reachability_rule']) if 'reachability_rule' in x else _atd_missing_json_field('ScaMatch', 'reachability_rule'),
                 sca_finding_schema=_atd_read_int(x['sca_finding_schema']) if 'sca_finding_schema' in x else _atd_missing_json_field('ScaMatch', 'sca_finding_schema'),
                 dependency_match=DependencyMatch.from_json(x['dependency_match']) if 'dependency_match' in x else _atd_missing_json_field('ScaMatch', 'dependency_match'),
+                reachable=_atd_read_bool(x['reachable']) if 'reachable' in x else _atd_missing_json_field('ScaMatch', 'reachable'),
+                kind=ScaMatchKind.from_json(x['kind']) if 'kind' in x else None,
             )
         else:
             _atd_bad_json('ScaMatch', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['reachable'] = _atd_write_bool(self.reachable)
         res['reachability_rule'] = _atd_write_bool(self.reachability_rule)
         res['sca_finding_schema'] = _atd_write_int(self.sca_finding_schema)
         res['dependency_match'] = (lambda x: x.to_json())(self.dependency_match)
+        res['reachable'] = _atd_write_bool(self.reachable)
+        if self.kind is not None:
+            res['kind'] = (lambda x: x.to_json())(self.kind)
         return res
 
     @classmethod
@@ -2631,6 +2842,34 @@ class TriageIgnored:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'TriageIgnored':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TransitiveFinding:
+    """Original type: transitive_finding = { ... }"""
+
+    m: CoreMatch
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TransitiveFinding':
+        if isinstance(x, dict):
+            return cls(
+                m=CoreMatch.from_json(x['m']) if 'm' in x else _atd_missing_json_field('TransitiveFinding', 'm'),
+            )
+        else:
+            _atd_bad_json('TransitiveFinding', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['m'] = (lambda x: x.to_json())(self.m)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TransitiveFinding':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -8504,10 +8743,28 @@ class RetDumpRulePartitions:
 
 
 @dataclass(frozen=True)
+class RetTransitiveReachabilityFilter:
+    """Original type: function_return = [ ... | RetTransitiveReachabilityFilter of ... | ... ]"""
+
+    value: List[TransitiveFinding]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetTransitiveReachabilityFilter'
+
+    def to_json(self) -> Any:
+        return ['RetTransitiveReachabilityFilter', _atd_write_list((lambda x: x.to_json()))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionReturn:
     """Original type: function_return = [ ... ]"""
 
-    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetDumpRulePartitions]
+    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetDumpRulePartitions, RetTransitiveReachabilityFilter]
 
     @property
     def kind(self) -> str:
@@ -8534,6 +8791,8 @@ class FunctionReturn:
                 return cls(RetResolveDependencies(_atd_read_list((lambda x: (DependencySource.from_json(x[0]), ResolutionResult.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x[1])))
             if cons == 'RetDumpRulePartitions':
                 return cls(RetDumpRulePartitions(_atd_read_bool(x[1])))
+            if cons == 'RetTransitiveReachabilityFilter':
+                return cls(RetTransitiveReachabilityFilter(_atd_read_list(TransitiveFinding.from_json)(x[1])))
             _atd_bad_json('FunctionReturn', x)
         _atd_bad_json('FunctionReturn', x)
 
@@ -8991,10 +9250,28 @@ class CallDumpRulePartitions:
 
 
 @dataclass(frozen=True)
+class CallTransitiveReachabilityFilter:
+    """Original type: function_call = [ ... | CallTransitiveReachabilityFilter of ... | ... ]"""
+
+    value: List[TransitiveFinding]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallTransitiveReachabilityFilter'
+
+    def to_json(self) -> Any:
+        return ['CallTransitiveReachabilityFilter', _atd_write_list((lambda x: x.to_json()))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionCall:
     """Original type: function_call = [ ... ]"""
 
-    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallDumpRulePartitions]
+    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallDumpRulePartitions, CallTransitiveReachabilityFilter]
 
     @property
     def kind(self) -> str:
@@ -9021,6 +9298,8 @@ class FunctionCall:
                 return cls(CallResolveDependencies(_atd_read_list(DependencySource.from_json)(x[1])))
             if cons == 'CallDumpRulePartitions':
                 return cls(CallDumpRulePartitions(DumpRulePartitionsParams.from_json(x[1])))
+            if cons == 'CallTransitiveReachabilityFilter':
+                return cls(CallTransitiveReachabilityFilter(_atd_read_list(TransitiveFinding.from_json)(x[1])))
             _atd_bad_json('FunctionCall', x)
         _atd_bad_json('FunctionCall', x)
 
