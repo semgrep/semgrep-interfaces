@@ -2303,9 +2303,18 @@ type resolution_cmd_failed
  * lockfile parsing might partially fail but recover and still produce results)
 *)
 type resolution_result = [
-  | ResolutionOk of (found_dependency list * resolution_error_kind list)
+  | ResolutionOk of (sca_dependency list * resolution_error_kind list)
   | ResolutionError of resolution_error_kind list
 ]
+
+(* A found_dependency annotated with extra information that is used
+ * within the Semgrep CLI, passed back and forth from OCaml to Python
+ * via RPC. See also SCA_dependency.t in OCaml and ResolvedDependencies 
+ * in Python.*)
+type sca_dependency = {
+  inherit found_dependency;
+  source_path: fpath option;
+}
 
 type transitive_finding = {
   (* the important part is the sca_match in core_match_extra that

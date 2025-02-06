@@ -2037,7 +2037,7 @@
               "prefixItems": [
                 {
                   "type": "array",
-                  "items": { "$ref": "#/definitions/found_dependency" }
+                  "items": { "$ref": "#/definitions/sca_dependency" }
                 },
                 {
                   "type": "array",
@@ -2060,6 +2060,48 @@
           ]
         }
       ]
+    },
+    "sca_dependency": {
+      "type": "object",
+      "required": [
+        "package", "version", "ecosystem", "allowed_hashes", "transitivity",
+        "source_path"
+      ],
+      "properties": {
+        "package": { "type": "string" },
+        "version": { "type": "string" },
+        "ecosystem": { "$ref": "#/definitions/ecosystem" },
+        "allowed_hashes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "resolved_url": { "type": "string" },
+        "transitivity": { "$ref": "#/definitions/transitivity" },
+        "manifest_path": { "$ref": "#/definitions/fpath" },
+        "lockfile_path": { "$ref": "#/definitions/fpath" },
+        "line_number": { "type": "integer" },
+        "children": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/dependency_child" }
+        },
+        "git_ref": { "type": "string" },
+        "source_path": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" }, { "$ref": "#/definitions/fpath" }
+              ]
+            },
+            { "const": "None" }
+          ]
+        }
+      }
     },
     "transitive_finding": {
       "type": "object",
