@@ -347,6 +347,15 @@ type target_times = Semgrep_output_v1_t.target_times = {
 
 type tag = Semgrep_output_v1_t.tag
 
+type symbol = Semgrep_output_v1_t.symbol = { fqn: string list }
+
+type symbol_usage = Semgrep_output_v1_t.symbol_usage = {
+  symbol: symbol;
+  locs: location list
+}
+
+type symbol_analysis = Semgrep_output_v1_t.symbol_analysis
+
 type resolution_method = Semgrep_output_v1_t.resolution_method
   [@@deriving show]
 
@@ -705,7 +714,8 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   renamed_paths: fpath list;
   rule_ids: rule_id list;
   contributions: contributions option;
-  dependencies: ci_scan_dependencies option
+  dependencies: ci_scan_dependencies option;
+  symbol_analysis: symbol_analysis option
 }
 
 type ci_scan_failure = Semgrep_output_v1_t.ci_scan_failure = {
@@ -2272,6 +2282,66 @@ val read_tag :
 val tag_of_string :
   string -> tag
   (** Deserialize JSON data of type {!type:tag}. *)
+
+val write_symbol :
+  Buffer.t -> symbol -> unit
+  (** Output a JSON value of type {!type:symbol}. *)
+
+val string_of_symbol :
+  ?len:int -> symbol -> string
+  (** Serialize a value of type {!type:symbol}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_symbol :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> symbol
+  (** Input JSON data of type {!type:symbol}. *)
+
+val symbol_of_string :
+  string -> symbol
+  (** Deserialize JSON data of type {!type:symbol}. *)
+
+val write_symbol_usage :
+  Buffer.t -> symbol_usage -> unit
+  (** Output a JSON value of type {!type:symbol_usage}. *)
+
+val string_of_symbol_usage :
+  ?len:int -> symbol_usage -> string
+  (** Serialize a value of type {!type:symbol_usage}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_symbol_usage :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> symbol_usage
+  (** Input JSON data of type {!type:symbol_usage}. *)
+
+val symbol_usage_of_string :
+  string -> symbol_usage
+  (** Deserialize JSON data of type {!type:symbol_usage}. *)
+
+val write_symbol_analysis :
+  Buffer.t -> symbol_analysis -> unit
+  (** Output a JSON value of type {!type:symbol_analysis}. *)
+
+val string_of_symbol_analysis :
+  ?len:int -> symbol_analysis -> string
+  (** Serialize a value of type {!type:symbol_analysis}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_symbol_analysis :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> symbol_analysis
+  (** Input JSON data of type {!type:symbol_analysis}. *)
+
+val symbol_analysis_of_string :
+  string -> symbol_analysis
+  (** Deserialize JSON data of type {!type:symbol_analysis}. *)
 
 val write_resolution_method :
   Buffer.t -> resolution_method -> unit

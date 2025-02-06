@@ -4101,6 +4101,86 @@ class Tag:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class Symbol:
+    """Original type: symbol = { ... }"""
+
+    fqn: List[str]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Symbol':
+        if isinstance(x, dict):
+            return cls(
+                fqn=_atd_read_list(_atd_read_string)(x['fqn']) if 'fqn' in x else _atd_missing_json_field('Symbol', 'fqn'),
+            )
+        else:
+            _atd_bad_json('Symbol', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['fqn'] = _atd_write_list(_atd_write_string)(self.fqn)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Symbol':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class SymbolUsage:
+    """Original type: symbol_usage = { ... }"""
+
+    symbol: Symbol
+    locs: List[Location]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SymbolUsage':
+        if isinstance(x, dict):
+            return cls(
+                symbol=Symbol.from_json(x['symbol']) if 'symbol' in x else _atd_missing_json_field('SymbolUsage', 'symbol'),
+                locs=_atd_read_list(Location.from_json)(x['locs']) if 'locs' in x else _atd_missing_json_field('SymbolUsage', 'locs'),
+            )
+        else:
+            _atd_bad_json('SymbolUsage', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['symbol'] = (lambda x: x.to_json())(self.symbol)
+        res['locs'] = _atd_write_list((lambda x: x.to_json()))(self.locs)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SymbolUsage':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class SymbolAnalysis:
+    """Original type: symbol_analysis"""
+
+    value: List[SymbolUsage]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SymbolAnalysis':
+        return cls(_atd_read_list(SymbolUsage.from_json)(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_list((lambda x: x.to_json()))(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SymbolAnalysis':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True, order=True)
 class LockfileParsing:
     """Original type: resolution_method = [ ... | LockfileParsing | ... ]"""
@@ -7846,6 +7926,7 @@ class CiScanResults:
     rule_ids: List[RuleId]
     contributions: Optional[Contributions] = None
     dependencies: Optional[CiScanDependencies] = None
+    symbol_analysis: Optional[SymbolAnalysis] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanResults':
@@ -7859,6 +7940,7 @@ class CiScanResults:
                 rule_ids=_atd_read_list(RuleId.from_json)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('CiScanResults', 'rule_ids'),
                 contributions=Contributions.from_json(x['contributions']) if 'contributions' in x else None,
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
+                symbol_analysis=SymbolAnalysis.from_json(x['symbol_analysis']) if 'symbol_analysis' in x else None,
             )
         else:
             _atd_bad_json('CiScanResults', x)
@@ -7875,6 +7957,8 @@ class CiScanResults:
             res['contributions'] = (lambda x: x.to_json())(self.contributions)
         if self.dependencies is not None:
             res['dependencies'] = (lambda x: x.to_json())(self.dependencies)
+        if self.symbol_analysis is not None:
+            res['symbol_analysis'] = (lambda x: x.to_json())(self.symbol_analysis)
         return res
 
     @classmethod
