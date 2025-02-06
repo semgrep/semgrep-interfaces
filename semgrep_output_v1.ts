@@ -481,6 +481,7 @@ export type Features = {
   dependency_query: boolean;
   path_to_transitivity: boolean;
   scan_all_deps_in_diff_scan: boolean;
+  symbol_analysis: boolean;
 }
 
 export type TriageIgnored = {
@@ -518,6 +519,7 @@ export type EngineConfiguration = {
   dependency_query: boolean;
   path_to_transitivity: boolean;
   scan_all_deps_in_diff_scan: boolean;
+  symbol_analysis: boolean;
   ignored_files: string[];
   product_ignored_files?: ProductIgnoredFiles;
   generic_slow_rollout: boolean;
@@ -786,6 +788,7 @@ export type ScanConfig = {
   dependency_query: boolean;
   path_to_transitivity: boolean;
   scan_all_deps_in_diff_scan: boolean;
+  symbol_analysis: boolean;
   triage_ignored_syntactic_ids: string[];
   triage_ignored_match_based_ids: string[];
   ignored_files: string[];
@@ -810,6 +813,7 @@ export type CiConfig = {
   dependency_query: boolean;
   path_to_transitivity: boolean;
   scan_all_deps_in_diff_scan: boolean;
+  symbol_analysis: boolean;
 }
 
 export type CiEnv = Map<string, string>
@@ -2654,6 +2658,7 @@ export function writeFeatures(x: Features, context: any = x): any {
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
     'path_to_transitivity': _atd_write_field_with_default(_atd_write_bool, false, x.path_to_transitivity, x),
     'scan_all_deps_in_diff_scan': _atd_write_field_with_default(_atd_write_bool, false, x.scan_all_deps_in_diff_scan, x),
+    'symbol_analysis': _atd_write_field_with_default(_atd_write_bool, false, x.symbol_analysis, x),
   };
 }
 
@@ -2664,6 +2669,7 @@ export function readFeatures(x: any, context: any = x): Features {
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
     path_to_transitivity: _atd_read_field_with_default(_atd_read_bool, false, x['path_to_transitivity'], x),
     scan_all_deps_in_diff_scan: _atd_read_field_with_default(_atd_read_bool, false, x['scan_all_deps_in_diff_scan'], x),
+    symbol_analysis: _atd_read_field_with_default(_atd_read_bool, false, x['symbol_analysis'], x),
   };
 }
 
@@ -2764,6 +2770,7 @@ export function writeEngineConfiguration(x: EngineConfiguration, context: any = 
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
     'path_to_transitivity': _atd_write_field_with_default(_atd_write_bool, false, x.path_to_transitivity, x),
     'scan_all_deps_in_diff_scan': _atd_write_field_with_default(_atd_write_bool, false, x.scan_all_deps_in_diff_scan, x),
+    'symbol_analysis': _atd_write_field_with_default(_atd_write_bool, false, x.symbol_analysis, x),
     'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
     'product_ignored_files': _atd_write_optional_field(writeProductIgnoredFiles, x.product_ignored_files, x),
     'generic_slow_rollout': _atd_write_field_with_default(_atd_write_bool, false, x.generic_slow_rollout, x),
@@ -2779,6 +2786,7 @@ export function readEngineConfiguration(x: any, context: any = x): EngineConfigu
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
     path_to_transitivity: _atd_read_field_with_default(_atd_read_bool, false, x['path_to_transitivity'], x),
     scan_all_deps_in_diff_scan: _atd_read_field_with_default(_atd_read_bool, false, x['scan_all_deps_in_diff_scan'], x),
+    symbol_analysis: _atd_read_field_with_default(_atd_read_bool, false, x['symbol_analysis'], x),
     ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
     product_ignored_files: _atd_read_optional_field(readProductIgnoredFiles, x['product_ignored_files'], x),
     generic_slow_rollout: _atd_read_field_with_default(_atd_read_bool, false, x['generic_slow_rollout'], x),
@@ -3494,6 +3502,7 @@ export function writeScanConfig(x: ScanConfig, context: any = x): any {
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
     'path_to_transitivity': _atd_write_field_with_default(_atd_write_bool, false, x.path_to_transitivity, x),
     'scan_all_deps_in_diff_scan': _atd_write_field_with_default(_atd_write_bool, false, x.scan_all_deps_in_diff_scan, x),
+    'symbol_analysis': _atd_write_field_with_default(_atd_write_bool, false, x.symbol_analysis, x),
     'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
     'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
     'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
@@ -3514,6 +3523,7 @@ export function readScanConfig(x: any, context: any = x): ScanConfig {
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
     path_to_transitivity: _atd_read_field_with_default(_atd_read_bool, false, x['path_to_transitivity'], x),
     scan_all_deps_in_diff_scan: _atd_read_field_with_default(_atd_read_bool, false, x['scan_all_deps_in_diff_scan'], x),
+    symbol_analysis: _atd_read_field_with_default(_atd_read_bool, false, x['symbol_analysis'], x),
     triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),
     triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
     ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
@@ -3551,6 +3561,7 @@ export function writeCiConfig(x: CiConfig, context: any = x): any {
     'dependency_query': _atd_write_field_with_default(_atd_write_bool, false, x.dependency_query, x),
     'path_to_transitivity': _atd_write_field_with_default(_atd_write_bool, false, x.path_to_transitivity, x),
     'scan_all_deps_in_diff_scan': _atd_write_field_with_default(_atd_write_bool, false, x.scan_all_deps_in_diff_scan, x),
+    'symbol_analysis': _atd_write_field_with_default(_atd_write_bool, false, x.symbol_analysis, x),
   };
 }
 
@@ -3564,6 +3575,7 @@ export function readCiConfig(x: any, context: any = x): CiConfig {
     dependency_query: _atd_read_field_with_default(_atd_read_bool, false, x['dependency_query'], x),
     path_to_transitivity: _atd_read_field_with_default(_atd_read_bool, false, x['path_to_transitivity'], x),
     scan_all_deps_in_diff_scan: _atd_read_field_with_default(_atd_read_bool, false, x['scan_all_deps_in_diff_scan'], x),
+    symbol_analysis: _atd_read_field_with_default(_atd_read_bool, false, x['symbol_analysis'], x),
   };
 }
 

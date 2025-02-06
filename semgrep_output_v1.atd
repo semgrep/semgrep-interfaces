@@ -592,7 +592,7 @@ type sca_match_kind = [
    * 1st-party code (e.g., via callgraph analysis)
    *)
   | TransitiveUnreachable of transitive_unreachable
-  (* could not decide because of the engine limitations (e.g., 
+  (* could not decide because of the engine limitations (e.g.,
    * found the use of a vulnerable library in the lockfile but
    * could not find the pattern in first party code and could not
    * access third-party code for further investigation
@@ -1226,6 +1226,10 @@ type features = {
    (* normally we resolve dependencies for changed subprojects only in diff scans. This flag
     * causes all subprojects to be resolved in diff scans *)
    ~scan_all_deps_in_diff_scan: bool;
+   (* Whether to collect "symbol analysis" information from the repo being scanned
+      See https://www.notion.so/semgrep/Semgrep-Code-Reconnaissance-Toolbox-18a3009241a880f2a439eed6b2cffe66?pvs=4
+    *)
+   ~symbol_analysis: bool;
 }
 
 type triage_ignored = {
