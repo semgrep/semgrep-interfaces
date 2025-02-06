@@ -829,6 +829,11 @@ export type CoreOutput = {
   engine_requested?: EngineKind;
   interfile_languages_used?: string[];
   skipped_rules: SkippedRule[];
+  symbol_analysis: Option<SymbolAnalysis>;
+}
+
+export type CoreOutputExtra = {
+  symbol_analysis: Option<SymbolAnalysis>;
 }
 
 export type CoreMatch = {
@@ -3599,6 +3604,7 @@ export function writeCoreOutput(x: CoreOutput, context: any = x): any {
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
     'interfile_languages_used': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.interfile_languages_used, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
+    'symbol_analysis': _atd_write_required_field('CoreOutput', 'symbol_analysis', _atd_write_option(writeSymbolAnalysis), x.symbol_analysis, x),
   };
 }
 
@@ -3614,6 +3620,19 @@ export function readCoreOutput(x: any, context: any = x): CoreOutput {
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
     interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
+    symbol_analysis: _atd_read_required_field('CoreOutput', 'symbol_analysis', _atd_read_option(readSymbolAnalysis), x['symbol_analysis'], x),
+  };
+}
+
+export function writeCoreOutputExtra(x: CoreOutputExtra, context: any = x): any {
+  return {
+    'symbol_analysis': _atd_write_required_field('CoreOutputExtra', 'symbol_analysis', _atd_write_option(writeSymbolAnalysis), x.symbol_analysis, x),
+  };
+}
+
+export function readCoreOutputExtra(x: any, context: any = x): CoreOutputExtra {
+  return {
+    symbol_analysis: _atd_read_required_field('CoreOutputExtra', 'symbol_analysis', _atd_read_option(readSymbolAnalysis), x['symbol_analysis'], x),
   };
 }
 

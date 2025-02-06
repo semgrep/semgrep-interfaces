@@ -9517,6 +9517,34 @@ class DeploymentResponse:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class CoreOutputExtra:
+    """Original type: core_output_extra = { ... }"""
+
+    symbol_analysis: Optional[SymbolAnalysis]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CoreOutputExtra':
+        if isinstance(x, dict):
+            return cls(
+                symbol_analysis=_atd_read_option(SymbolAnalysis.from_json)(x['symbol_analysis']) if 'symbol_analysis' in x else _atd_missing_json_field('CoreOutputExtra', 'symbol_analysis'),
+            )
+        else:
+            _atd_bad_json('CoreOutputExtra', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['symbol_analysis'] = _atd_write_option((lambda x: x.to_json()))(self.symbol_analysis)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CoreOutputExtra':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class CoreError:
     """Original type: core_error = { ... }"""
@@ -9571,6 +9599,7 @@ class CoreOutput:
     results: List[CoreMatch]
     errors: List[CoreError]
     paths: ScannedAndSkipped
+    symbol_analysis: Optional[SymbolAnalysis]
     time: Optional[Profile] = None
     explanations: Optional[List[MatchingExplanation]] = None
     rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
@@ -9586,6 +9615,7 @@ class CoreOutput:
                 results=_atd_read_list(CoreMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CoreOutput', 'results'),
                 errors=_atd_read_list(CoreError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CoreOutput', 'errors'),
                 paths=ScannedAndSkipped.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CoreOutput', 'paths'),
+                symbol_analysis=_atd_read_option(SymbolAnalysis.from_json)(x['symbol_analysis']) if 'symbol_analysis' in x else _atd_missing_json_field('CoreOutput', 'symbol_analysis'),
                 time=Profile.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
@@ -9602,6 +9632,7 @@ class CoreOutput:
         res['results'] = _atd_write_list((lambda x: x.to_json()))(self.results)
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['paths'] = (lambda x: x.to_json())(self.paths)
+        res['symbol_analysis'] = _atd_write_option((lambda x: x.to_json()))(self.symbol_analysis)
         if self.time is not None:
             res['time'] = (lambda x: x.to_json())(self.time)
         if self.explanations is not None:
