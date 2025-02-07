@@ -1185,8 +1185,7 @@
           "items": { "$ref": "#/definitions/rule_id" }
         },
         "contributions": { "$ref": "#/definitions/contributions" },
-        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" },
-        "symbol_analysis": { "$ref": "#/definitions/symbol_analysis" }
+        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" }
       }
     },
     "contributor": {
@@ -1540,9 +1539,7 @@
     },
     "core_output": {
       "type": "object",
-      "required": [
-        "version", "results", "errors", "paths", "symbol_analysis"
-      ],
+      "required": [ "version", "results", "errors", "paths" ],
       "properties": {
         "version": { "$ref": "#/definitions/version" },
         "results": {
@@ -1572,40 +1569,14 @@
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
         },
-        "symbol_analysis": {
-          "oneOf": [
-            {
-              "type": "array",
-              "minItems": 2,
-              "items": false,
-              "prefixItems": [
-                { "const": "Some" },
-                { "$ref": "#/definitions/symbol_analysis" }
-              ]
-            },
-            { "const": "None" }
-          ]
-        }
+        "symbol_analysis": { "$ref": "#/definitions/symbol_analysis" }
       }
     },
     "core_output_extra": {
       "type": "object",
-      "required": [ "symbol_analysis" ],
+      "required": [],
       "properties": {
-        "symbol_analysis": {
-          "oneOf": [
-            {
-              "type": "array",
-              "minItems": 2,
-              "items": false,
-              "prefixItems": [
-                { "const": "Some" },
-                { "$ref": "#/definitions/symbol_analysis" }
-              ]
-            },
-            { "const": "None" }
-          ]
-        }
+        "symbol_analysis": { "$ref": "#/definitions/symbol_analysis" }
       }
     },
     "core_match": {

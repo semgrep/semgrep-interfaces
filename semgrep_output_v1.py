@@ -7935,7 +7935,6 @@ class CiScanResults:
     rule_ids: List[RuleId]
     contributions: Optional[Contributions] = None
     dependencies: Optional[CiScanDependencies] = None
-    symbol_analysis: Optional[SymbolAnalysis] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanResults':
@@ -7949,7 +7948,6 @@ class CiScanResults:
                 rule_ids=_atd_read_list(RuleId.from_json)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('CiScanResults', 'rule_ids'),
                 contributions=Contributions.from_json(x['contributions']) if 'contributions' in x else None,
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
-                symbol_analysis=SymbolAnalysis.from_json(x['symbol_analysis']) if 'symbol_analysis' in x else None,
             )
         else:
             _atd_bad_json('CiScanResults', x)
@@ -7966,8 +7964,6 @@ class CiScanResults:
             res['contributions'] = (lambda x: x.to_json())(self.contributions)
         if self.dependencies is not None:
             res['dependencies'] = (lambda x: x.to_json())(self.dependencies)
-        if self.symbol_analysis is not None:
-            res['symbol_analysis'] = (lambda x: x.to_json())(self.symbol_analysis)
         return res
 
     @classmethod
@@ -9521,20 +9517,21 @@ class DeploymentResponse:
 class CoreOutputExtra:
     """Original type: core_output_extra = { ... }"""
 
-    symbol_analysis: Optional[SymbolAnalysis]
+    symbol_analysis: Optional[SymbolAnalysis] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreOutputExtra':
         if isinstance(x, dict):
             return cls(
-                symbol_analysis=_atd_read_option(SymbolAnalysis.from_json)(x['symbol_analysis']) if 'symbol_analysis' in x else _atd_missing_json_field('CoreOutputExtra', 'symbol_analysis'),
+                symbol_analysis=SymbolAnalysis.from_json(x['symbol_analysis']) if 'symbol_analysis' in x else None,
             )
         else:
             _atd_bad_json('CoreOutputExtra', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['symbol_analysis'] = _atd_write_option((lambda x: x.to_json()))(self.symbol_analysis)
+        if self.symbol_analysis is not None:
+            res['symbol_analysis'] = (lambda x: x.to_json())(self.symbol_analysis)
         return res
 
     @classmethod
@@ -9599,13 +9596,13 @@ class CoreOutput:
     results: List[CoreMatch]
     errors: List[CoreError]
     paths: ScannedAndSkipped
-    symbol_analysis: Optional[SymbolAnalysis]
     time: Optional[Profile] = None
     explanations: Optional[List[MatchingExplanation]] = None
     rules_by_engine: Optional[List[RuleIdAndEngineKind]] = None
     engine_requested: Optional[EngineKind] = None
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
+    symbol_analysis: Optional[SymbolAnalysis] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreOutput':
@@ -9615,13 +9612,13 @@ class CoreOutput:
                 results=_atd_read_list(CoreMatch.from_json)(x['results']) if 'results' in x else _atd_missing_json_field('CoreOutput', 'results'),
                 errors=_atd_read_list(CoreError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('CoreOutput', 'errors'),
                 paths=ScannedAndSkipped.from_json(x['paths']) if 'paths' in x else _atd_missing_json_field('CoreOutput', 'paths'),
-                symbol_analysis=_atd_read_option(SymbolAnalysis.from_json)(x['symbol_analysis']) if 'symbol_analysis' in x else _atd_missing_json_field('CoreOutput', 'symbol_analysis'),
                 time=Profile.from_json(x['time']) if 'time' in x else None,
                 explanations=_atd_read_list(MatchingExplanation.from_json)(x['explanations']) if 'explanations' in x else None,
                 rules_by_engine=_atd_read_list(RuleIdAndEngineKind.from_json)(x['rules_by_engine']) if 'rules_by_engine' in x else None,
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
+                symbol_analysis=SymbolAnalysis.from_json(x['symbol_analysis']) if 'symbol_analysis' in x else None,
             )
         else:
             _atd_bad_json('CoreOutput', x)
@@ -9632,7 +9629,6 @@ class CoreOutput:
         res['results'] = _atd_write_list((lambda x: x.to_json()))(self.results)
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         res['paths'] = (lambda x: x.to_json())(self.paths)
-        res['symbol_analysis'] = _atd_write_option((lambda x: x.to_json()))(self.symbol_analysis)
         if self.time is not None:
             res['time'] = (lambda x: x.to_json())(self.time)
         if self.explanations is not None:
@@ -9644,6 +9640,8 @@ class CoreOutput:
         if self.interfile_languages_used is not None:
             res['interfile_languages_used'] = _atd_write_list(_atd_write_string)(self.interfile_languages_used)
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
+        if self.symbol_analysis is not None:
+            res['symbol_analysis'] = (lambda x: x.to_json())(self.symbol_analysis)
         return res
 
     @classmethod

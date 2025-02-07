@@ -719,8 +719,7 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   renamed_paths: fpath list;
   rule_ids: rule_id list;
   contributions: contributions option;
-  dependencies: ci_scan_dependencies option;
-  symbol_analysis: symbol_analysis option
+  dependencies: ci_scan_dependencies option
 }
 
 type ci_scan_failure = Semgrep_output_v1_t.ci_scan_failure = {

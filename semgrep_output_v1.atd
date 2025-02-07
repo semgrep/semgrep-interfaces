@@ -1536,8 +1536,6 @@ type ci_scan_results = {
    (* this data was originally sent to /complete, but we want to start sending
     * it /results *)
    ?dependencies: ci_scan_dependencies option;
-   (* since semgrep 1.107.0 *)
-   ?symbol_analysis: symbol_analysis option;
 }
 
 (* See https://semgrep.dev/docs/usage-limits
@@ -1884,7 +1882,8 @@ type core_output = {
    do not necessarily want to share with the cli_output.
  *)
 type core_output_extra = {
-    symbol_analysis: symbol_analysis option;
+   (* since semgrep 1.108.0 *)
+   ?symbol_analysis: symbol_analysis option;
 }
 
 (* TODO: now only core_match_extra differ, otherwise it's just like cli_match *)
