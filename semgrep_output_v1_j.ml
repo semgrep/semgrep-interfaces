@@ -30063,6 +30063,12 @@ let write_function_return = (
           write__dependency_source_resolution_result_list
         ) ob x;
         Buffer.add_char ob ']'
+      | `RetUploadSymbolAnalysis x ->
+        Buffer.add_string ob "[\"RetUploadSymbolAnalysis\",";
+        (
+          Yojson.Safe.write_string
+        ) ob x;
+        Buffer.add_char ob ']'
       | `RetDumpRulePartitions x ->
         Buffer.add_string ob "[\"RetDumpRulePartitions\",";
         (
@@ -30149,6 +30155,15 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `RetResolveDependencies x
+            | "RetUploadSymbolAnalysis" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `RetUploadSymbolAnalysis x
             | "RetDumpRulePartitions" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -30254,6 +30269,17 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `RetResolveDependencies x
+            | "RetUploadSymbolAnalysis" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `RetUploadSymbolAnalysis x
             | "RetDumpRulePartitions" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -33206,6 +33232,31 @@ let write_function_call = (
           write__dependency_source_list
         ) ob x;
         Buffer.add_char ob ']'
+      | `CallUploadSymbolAnalysis x ->
+        Buffer.add_string ob "[\"CallUploadSymbolAnalysis\",";
+        (
+          fun ob x ->
+            Buffer.add_char ob '[';
+            (let x, _, _ = x in
+            (
+              Yojson.Safe.write_string
+            ) ob x
+            );
+            Buffer.add_char ob ',';
+            (let _, x, _ = x in
+            (
+              Yojson.Safe.write_int
+            ) ob x
+            );
+            Buffer.add_char ob ',';
+            (let _, _, x = x in
+            (
+              write_symbol_analysis
+            ) ob x
+            );
+            Buffer.add_char ob ']';
+        ) ob x;
+        Buffer.add_char ob ']'
       | `CallDumpRulePartitions x ->
         Buffer.add_string ob "[\"CallDumpRulePartitions\",";
         (
@@ -33382,6 +33433,67 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `CallResolveDependencies x
+            | "CallUploadSymbolAnalysis" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  fun p lb ->
+                    Yojson.Safe.read_space p lb;
+                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    let len = ref 0 in
+                    let end_of_tuple = ref false in
+                    (try
+                      let x0 =
+                        let x =
+                          (
+                            Atdgen_runtime.Oj_run.read_string
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x1 =
+                        let x =
+                          (
+                            Atdgen_runtime.Oj_run.read_int
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x2 =
+                        let x =
+                          (
+                            read_symbol_analysis
+                          ) p lb
+                        in
+                        incr len;
+                        (try
+                          Yojson.Safe.read_space p lb;
+                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                        x
+                      in
+                      if not !end_of_tuple then (
+                        try
+                          while true do
+                            Yojson.Safe.skip_json p lb;
+                            Yojson.Safe.read_space p lb;
+                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                          done
+                        with Yojson.End_of_tuple -> ()
+                      );
+                      (x0, x1, x2)
+                    with Yojson.End_of_tuple ->
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1; 2 ]);
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `CallUploadSymbolAnalysis x
             | "CallDumpRulePartitions" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -33571,6 +33683,69 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `CallResolveDependencies x
+            | "CallUploadSymbolAnalysis" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  fun p lb ->
+                    Yojson.Safe.read_space p lb;
+                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    let len = ref 0 in
+                    let end_of_tuple = ref false in
+                    (try
+                      let x0 =
+                        let x =
+                          (
+                            Atdgen_runtime.Oj_run.read_string
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x1 =
+                        let x =
+                          (
+                            Atdgen_runtime.Oj_run.read_int
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x2 =
+                        let x =
+                          (
+                            read_symbol_analysis
+                          ) p lb
+                        in
+                        incr len;
+                        (try
+                          Yojson.Safe.read_space p lb;
+                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                        x
+                      in
+                      if not !end_of_tuple then (
+                        try
+                          while true do
+                            Yojson.Safe.skip_json p lb;
+                            Yojson.Safe.read_space p lb;
+                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                          done
+                        with Yojson.End_of_tuple -> ()
+                      );
+                      (x0, x1, x2)
+                    with Yojson.End_of_tuple ->
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1; 2 ]);
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `CallUploadSymbolAnalysis x
             | "CallDumpRulePartitions" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;

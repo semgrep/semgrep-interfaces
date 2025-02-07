@@ -1049,6 +1049,7 @@ export type FunctionCall =
 | { kind: 'CallSarifFormat'; value: [SarifFormat, FormatContext, CliOutput] }
 | { kind: 'CallValidate'; value: Fpath }
 | { kind: 'CallResolveDependencies'; value: DependencySource[] }
+| { kind: 'CallUploadSymbolAnalysis'; value: [string, number /*int*/, SymbolAnalysis] }
 | { kind: 'CallDumpRulePartitions'; value: DumpRulePartitionsParams }
 | { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveFinding[] }
 
@@ -1060,6 +1061,7 @@ export type FunctionReturn =
 | { kind: 'RetSarifFormat'; value: string }
 | { kind: 'RetValidate'; value: boolean }
 | { kind: 'RetResolveDependencies'; value: [DependencySource, ResolutionResult][] }
+| { kind: 'RetUploadSymbolAnalysis'; value: string }
 | { kind: 'RetDumpRulePartitions'; value: boolean }
 | { kind: 'RetTransitiveReachabilityFilter'; value: TransitiveFinding[] }
 
@@ -4363,6 +4365,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallValidate', writeFpath(x.value, x)]
     case 'CallResolveDependencies':
       return ['CallResolveDependencies', _atd_write_array(writeDependencySource)(x.value, x)]
+    case 'CallUploadSymbolAnalysis':
+      return ['CallUploadSymbolAnalysis', ((x, context) => [_atd_write_string(x[0], x), _atd_write_int(x[1], x), writeSymbolAnalysis(x[2], x)])(x.value, x)]
     case 'CallDumpRulePartitions':
       return ['CallDumpRulePartitions', writeDumpRulePartitionsParams(x.value, x)]
     case 'CallTransitiveReachabilityFilter':
@@ -4393,6 +4397,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallValidate', value: readFpath(x[1], x) }
       case 'CallResolveDependencies':
         return { kind: 'CallResolveDependencies', value: _atd_read_array(readDependencySource)(x[1], x) }
+      case 'CallUploadSymbolAnalysis':
+        return { kind: 'CallUploadSymbolAnalysis', value: ((x, context): [string, number /*int*/, SymbolAnalysis] => { _atd_check_json_tuple(3, x, context); return [_atd_read_string(x[0], x), _atd_read_int(x[1], x), readSymbolAnalysis(x[2], x)] })(x[1], x) }
       case 'CallDumpRulePartitions':
         return { kind: 'CallDumpRulePartitions', value: readDumpRulePartitionsParams(x[1], x) }
       case 'CallTransitiveReachabilityFilter':
@@ -4420,6 +4426,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetValidate', _atd_write_bool(x.value, x)]
     case 'RetResolveDependencies':
       return ['RetResolveDependencies', _atd_write_array(((x, context) => [writeDependencySource(x[0], x), writeResolutionResult(x[1], x)]))(x.value, x)]
+    case 'RetUploadSymbolAnalysis':
+      return ['RetUploadSymbolAnalysis', _atd_write_string(x.value, x)]
     case 'RetDumpRulePartitions':
       return ['RetDumpRulePartitions', _atd_write_bool(x.value, x)]
     case 'RetTransitiveReachabilityFilter':
@@ -4444,6 +4452,8 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetValidate', value: _atd_read_bool(x[1], x) }
     case 'RetResolveDependencies':
       return { kind: 'RetResolveDependencies', value: _atd_read_array(((x, context): [DependencySource, ResolutionResult] => { _atd_check_json_tuple(2, x, context); return [readDependencySource(x[0], x), readResolutionResult(x[1], x)] }))(x[1], x) }
+    case 'RetUploadSymbolAnalysis':
+      return { kind: 'RetUploadSymbolAnalysis', value: _atd_read_string(x[1], x) }
     case 'RetDumpRulePartitions':
       return { kind: 'RetDumpRulePartitions', value: _atd_read_bool(x[1], x) }
     case 'RetTransitiveReachabilityFilter':

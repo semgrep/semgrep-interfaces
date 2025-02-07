@@ -8730,6 +8730,24 @@ class RetResolveDependencies:
 
 
 @dataclass(frozen=True)
+class RetUploadSymbolAnalysis:
+    """Original type: function_return = [ ... | RetUploadSymbolAnalysis of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetUploadSymbolAnalysis'
+
+    def to_json(self) -> Any:
+        return ['RetUploadSymbolAnalysis', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class RetDumpRulePartitions:
     """Original type: function_return = [ ... | RetDumpRulePartitions of ... | ... ]"""
 
@@ -8769,7 +8787,7 @@ class RetTransitiveReachabilityFilter:
 class FunctionReturn:
     """Original type: function_return = [ ... ]"""
 
-    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetDumpRulePartitions, RetTransitiveReachabilityFilter]
+    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetUploadSymbolAnalysis, RetDumpRulePartitions, RetTransitiveReachabilityFilter]
 
     @property
     def kind(self) -> str:
@@ -8794,6 +8812,8 @@ class FunctionReturn:
                 return cls(RetValidate(_atd_read_bool(x[1])))
             if cons == 'RetResolveDependencies':
                 return cls(RetResolveDependencies(_atd_read_list((lambda x: (DependencySource.from_json(x[0]), ResolutionResult.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x[1])))
+            if cons == 'RetUploadSymbolAnalysis':
+                return cls(RetUploadSymbolAnalysis(_atd_read_string(x[1])))
             if cons == 'RetDumpRulePartitions':
                 return cls(RetDumpRulePartitions(_atd_read_bool(x[1])))
             if cons == 'RetTransitiveReachabilityFilter':
@@ -9237,6 +9257,24 @@ class CallResolveDependencies:
 
 
 @dataclass(frozen=True)
+class CallUploadSymbolAnalysis:
+    """Original type: function_call = [ ... | CallUploadSymbolAnalysis of ... | ... ]"""
+
+    value: Tuple[str, int, SymbolAnalysis]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallUploadSymbolAnalysis'
+
+    def to_json(self) -> Any:
+        return ['CallUploadSymbolAnalysis', (lambda x: [_atd_write_string(x[0]), _atd_write_int(x[1]), (lambda x: x.to_json())(x[2])] if isinstance(x, tuple) and len(x) == 3 else _atd_bad_python('tuple of length 3', x))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class CallDumpRulePartitions:
     """Original type: function_call = [ ... | CallDumpRulePartitions of ... | ... ]"""
 
@@ -9276,7 +9314,7 @@ class CallTransitiveReachabilityFilter:
 class FunctionCall:
     """Original type: function_call = [ ... ]"""
 
-    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallDumpRulePartitions, CallTransitiveReachabilityFilter]
+    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallTransitiveReachabilityFilter]
 
     @property
     def kind(self) -> str:
@@ -9301,6 +9339,8 @@ class FunctionCall:
                 return cls(CallValidate(Fpath.from_json(x[1])))
             if cons == 'CallResolveDependencies':
                 return cls(CallResolveDependencies(_atd_read_list(DependencySource.from_json)(x[1])))
+            if cons == 'CallUploadSymbolAnalysis':
+                return cls(CallUploadSymbolAnalysis((lambda x: (_atd_read_string(x[0]), _atd_read_int(x[1]), SymbolAnalysis.from_json(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
             if cons == 'CallDumpRulePartitions':
                 return cls(CallDumpRulePartitions(DumpRulePartitionsParams.from_json(x[1])))
             if cons == 'CallTransitiveReachabilityFilter':

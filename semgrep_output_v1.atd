@@ -2321,6 +2321,7 @@ type function_call <python decorator="dataclass(frozen=True)"> = [
   *)
   | CallValidate of fpath
   | CallResolveDependencies of dependency_source list
+  | CallUploadSymbolAnalysis of ((* token *) string * (* scan_id *) int * symbol_analysis)
   | CallDumpRulePartitions of dump_rule_partitions_params
   | CallTransitiveReachabilityFilter of transitive_finding list
 ]
@@ -2338,6 +2339,7 @@ type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetSarifFormat of string
   | RetValidate of bool
   | RetResolveDependencies of (dependency_source * resolution_result) list
+  | RetUploadSymbolAnalysis of string
   | RetDumpRulePartitions of bool
   | RetTransitiveReachabilityFilter of transitive_finding list
 ]

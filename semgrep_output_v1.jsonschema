@@ -2092,6 +2092,24 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
+            { "const": "CallUploadSymbolAnalysis" },
+            {
+              "type": "array",
+              "minItems": 3,
+              "items": false,
+              "prefixItems": [
+                { "type": "string" },
+                { "type": "integer" },
+                { "$ref": "#/definitions/symbol_analysis" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
             { "const": "CallDumpRulePartitions" },
             { "$ref": "#/definitions/dump_rule_partitions_params" }
           ]
@@ -2178,6 +2196,14 @@
                 ]
               }
             }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "RetUploadSymbolAnalysis" }, { "type": "string" }
           ]
         },
         {
