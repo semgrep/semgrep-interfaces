@@ -1185,8 +1185,7 @@
           "items": { "$ref": "#/definitions/rule_id" }
         },
         "contributions": { "$ref": "#/definitions/contributions" },
-        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" },
-        "symbol_analysis": { "$ref": "#/definitions/symbol_analysis" }
+        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" }
       }
     },
     "contributor": {
@@ -1569,7 +1568,15 @@
         "skipped_rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
-        }
+        },
+        "symbol_analysis": { "$ref": "#/definitions/symbol_analysis" }
+      }
+    },
+    "core_output_extra": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "symbol_analysis": { "$ref": "#/definitions/symbol_analysis" }
       }
     },
     "core_match": {

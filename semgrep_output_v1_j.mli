@@ -348,13 +348,15 @@ type target_times = Semgrep_output_v1_t.target_times = {
 type tag = Semgrep_output_v1_t.tag
 
 type symbol = Semgrep_output_v1_t.symbol = { fqn: string list }
+  [@@deriving show]
 
 type symbol_usage = Semgrep_output_v1_t.symbol_usage = {
   symbol: symbol;
   locs: location list
 }
+  [@@deriving show]
 
-type symbol_analysis = Semgrep_output_v1_t.symbol_analysis
+type symbol_analysis = Semgrep_output_v1_t.symbol_analysis [@@deriving show]
 
 type resolution_method = Semgrep_output_v1_t.resolution_method
   [@@deriving show]
@@ -717,8 +719,7 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   renamed_paths: fpath list;
   rule_ids: rule_id list;
   contributions: contributions option;
-  dependencies: ci_scan_dependencies option;
-  symbol_analysis: symbol_analysis option
+  dependencies: ci_scan_dependencies option
 }
 
 type ci_scan_failure = Semgrep_output_v1_t.ci_scan_failure = {
@@ -893,6 +894,10 @@ type deployment_response = Semgrep_output_v1_t.deployment_response = {
   deployment: deployment_config
 }
 
+type core_output_extra = Semgrep_output_v1_t.core_output_extra = {
+  symbol_analysis: symbol_analysis option
+}
+
 type core_error = Semgrep_output_v1_t.core_error = {
   error_type: error_type;
   severity: error_severity;
@@ -912,7 +917,8 @@ type core_output = Semgrep_output_v1_t.core_output = {
   rules_by_engine: rule_id_and_engine_kind list option;
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
-  skipped_rules: skipped_rule list
+  skipped_rules: skipped_rule list;
+  symbol_analysis: symbol_analysis option
 }
 
 type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
@@ -3806,6 +3812,26 @@ val read_deployment_response :
 val deployment_response_of_string :
   string -> deployment_response
   (** Deserialize JSON data of type {!type:deployment_response}. *)
+
+val write_core_output_extra :
+  Buffer.t -> core_output_extra -> unit
+  (** Output a JSON value of type {!type:core_output_extra}. *)
+
+val string_of_core_output_extra :
+  ?len:int -> core_output_extra -> string
+  (** Serialize a value of type {!type:core_output_extra}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_core_output_extra :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> core_output_extra
+  (** Input JSON data of type {!type:core_output_extra}. *)
+
+val core_output_extra_of_string :
+  string -> core_output_extra
+  (** Deserialize JSON data of type {!type:core_output_extra}. *)
 
 val write_core_error :
   Buffer.t -> core_error -> unit

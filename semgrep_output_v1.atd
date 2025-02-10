@@ -1536,8 +1536,6 @@ type ci_scan_results = {
    (* this data was originally sent to /complete, but we want to start sending
     * it /results *)
    ?dependencies: ci_scan_dependencies option;
-   (* since semgrep 1.107.0 *)
-   ?symbol_analysis: symbol_analysis option;
 }
 
 (* See https://semgrep.dev/docs/usage-limits
@@ -1875,7 +1873,17 @@ type core_output = {
   results: core_match list;
   (* errors are guaranteed to be duplicate free; see also Report.ml *)
   errors: core_error list;
+
   inherit cli_output_extra;
+  inherit core_output_extra;
+}
+
+(* For extra information to put into the `core_output` that we
+   do not necessarily want to share with the cli_output.
+ *)
+type core_output_extra = {
+   (* since semgrep 1.108.0 *)
+   ?symbol_analysis: symbol_analysis option;
 }
 
 (* TODO: now only core_match_extra differ, otherwise it's just like cli_match *)
@@ -2283,19 +2291,19 @@ type transitive_finding = {
  *)
 
 (* A symbol is a FQN. *)
-type symbol = {
+type symbol <ocaml attr="deriving show"> = {
   fqn: string list
 }
 
 (* We store the location of the usage, because we may want to be able to know how
    many uses of the symbol there are, and where.
  *)
-type symbol_usage = {
+type symbol_usage <ocaml attr="deriving show"> = {
   symbol: symbol;
   locs: location list;
 }
 
-type symbol_analysis = symbol_usage list
+type symbol_analysis <ocaml attr="deriving show"> = symbol_usage list
 
 (* ----------------------------- *)
 (* The call *)

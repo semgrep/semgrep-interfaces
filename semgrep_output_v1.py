@@ -7935,7 +7935,6 @@ class CiScanResults:
     rule_ids: List[RuleId]
     contributions: Optional[Contributions] = None
     dependencies: Optional[CiScanDependencies] = None
-    symbol_analysis: Optional[SymbolAnalysis] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanResults':
@@ -7949,7 +7948,6 @@ class CiScanResults:
                 rule_ids=_atd_read_list(RuleId.from_json)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('CiScanResults', 'rule_ids'),
                 contributions=Contributions.from_json(x['contributions']) if 'contributions' in x else None,
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
-                symbol_analysis=SymbolAnalysis.from_json(x['symbol_analysis']) if 'symbol_analysis' in x else None,
             )
         else:
             _atd_bad_json('CiScanResults', x)
@@ -7966,8 +7964,6 @@ class CiScanResults:
             res['contributions'] = (lambda x: x.to_json())(self.contributions)
         if self.dependencies is not None:
             res['dependencies'] = (lambda x: x.to_json())(self.dependencies)
-        if self.symbol_analysis is not None:
-            res['symbol_analysis'] = (lambda x: x.to_json())(self.symbol_analysis)
         return res
 
     @classmethod
@@ -9517,6 +9513,35 @@ class DeploymentResponse:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class CoreOutputExtra:
+    """Original type: core_output_extra = { ... }"""
+
+    symbol_analysis: Optional[SymbolAnalysis] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CoreOutputExtra':
+        if isinstance(x, dict):
+            return cls(
+                symbol_analysis=SymbolAnalysis.from_json(x['symbol_analysis']) if 'symbol_analysis' in x else None,
+            )
+        else:
+            _atd_bad_json('CoreOutputExtra', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        if self.symbol_analysis is not None:
+            res['symbol_analysis'] = (lambda x: x.to_json())(self.symbol_analysis)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CoreOutputExtra':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class CoreError:
     """Original type: core_error = { ... }"""
@@ -9577,6 +9602,7 @@ class CoreOutput:
     engine_requested: Optional[EngineKind] = None
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
+    symbol_analysis: Optional[SymbolAnalysis] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreOutput':
@@ -9592,6 +9618,7 @@ class CoreOutput:
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
+                symbol_analysis=SymbolAnalysis.from_json(x['symbol_analysis']) if 'symbol_analysis' in x else None,
             )
         else:
             _atd_bad_json('CoreOutput', x)
@@ -9613,6 +9640,8 @@ class CoreOutput:
         if self.interfile_languages_used is not None:
             res['interfile_languages_used'] = _atd_write_list(_atd_write_string)(self.interfile_languages_used)
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
+        if self.symbol_analysis is not None:
+            res['symbol_analysis'] = (lambda x: x.to_json())(self.symbol_analysis)
         return res
 
     @classmethod
