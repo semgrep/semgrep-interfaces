@@ -35012,15 +35012,17 @@ let write_core_output_extra : _ -> core_output_extra -> _ = (
   fun ob (x : core_output_extra) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"symbol_analysis\":";
-    (
-      write__symbol_analysis_option
-    )
-      ob x.symbol_analysis;
+    (match x.symbol_analysis with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"symbol_analysis\":";
+      (
+        write_symbol_analysis
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_core_output_extra ?(len = 1024) x =
@@ -35052,13 +35054,15 @@ let read_core_output_extra = (
       (
         match i with
           | 0 ->
-            field_symbol_analysis := (
-              Some (
-                (
-                  read__symbol_analysis_option
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_symbol_analysis := (
+                Some (
+                  (
+                    read_symbol_analysis
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -35083,13 +35087,15 @@ let read_core_output_extra = (
         (
           match i with
             | 0 ->
-              field_symbol_analysis := (
-                Some (
-                  (
-                    read__symbol_analysis_option
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_symbol_analysis := (
+                  Some (
+                    (
+                      read_symbol_analysis
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -35099,7 +35105,7 @@ let read_core_output_extra = (
     with Yojson.End_of_object -> (
         (
           {
-            symbol_analysis = (match !field_symbol_analysis with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "symbol_analysis");
+            symbol_analysis = !field_symbol_analysis;
           }
          : core_output_extra)
       )
@@ -35650,15 +35656,17 @@ let write_core_output : _ -> core_output -> _ = (
       write__skipped_rule_list
     )
       ob x.skipped_rules;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"symbol_analysis\":";
-    (
-      write__symbol_analysis_option
-    )
-      ob x.symbol_analysis;
+    (match x.symbol_analysis with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"symbol_analysis\":";
+      (
+        write_symbol_analysis
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_core_output ?(len = 1024) x =
@@ -35888,13 +35896,15 @@ let read_core_output = (
               );
             )
           | 10 ->
-            field_symbol_analysis := (
-              Some (
-                (
-                  read__symbol_analysis_option
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_symbol_analysis := (
+                Some (
+                  (
+                    read_symbol_analysis
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -36107,13 +36117,15 @@ let read_core_output = (
                 );
               )
             | 10 ->
-              field_symbol_analysis := (
-                Some (
-                  (
-                    read__symbol_analysis_option
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_symbol_analysis := (
+                  Some (
+                    (
+                      read_symbol_analysis
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -36133,7 +36145,7 @@ let read_core_output = (
             engine_requested = !field_engine_requested;
             interfile_languages_used = !field_interfile_languages_used;
             skipped_rules = !field_skipped_rules;
-            symbol_analysis = (match !field_symbol_analysis with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "symbol_analysis");
+            symbol_analysis = !field_symbol_analysis;
           }
          : core_output)
       )
