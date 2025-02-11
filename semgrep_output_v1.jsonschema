@@ -2132,7 +2132,28 @@
             { "const": "CallTransitiveReachabilityFilter" },
             {
               "type": "array",
-              "items": { "$ref": "#/definitions/transitive_finding" }
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": false,
+                  "prefixItems": [
+                    { "$ref": "#/definitions/found_dependency" },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/downloaded_dependency"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": { "$ref": "#/definitions/transitive_finding" }
+                }
+              ]
             }
           ]
         }

@@ -1054,7 +1054,7 @@ export type FunctionCall =
 | { kind: 'CallValidate'; value: Fpath }
 | { kind: 'CallResolveDependencies'; value: DependencySource[] }
 | { kind: 'CallDumpRulePartitions'; value: DumpRulePartitionsParams }
-| { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveFinding[] }
+| { kind: 'CallTransitiveReachabilityFilter'; value: [[FoundDependency, DownloadedDependency[]], TransitiveFinding[]] }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -4382,7 +4382,7 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
     case 'CallDumpRulePartitions':
       return ['CallDumpRulePartitions', writeDumpRulePartitionsParams(x.value, x)]
     case 'CallTransitiveReachabilityFilter':
-      return ['CallTransitiveReachabilityFilter', _atd_write_array(writeTransitiveFinding)(x.value, x)]
+      return ['CallTransitiveReachabilityFilter', ((x, context) => [((x, context) => [writeFoundDependency(x[0], x), _atd_write_array(writeDownloadedDependency)(x[1], x)])(x[0], x), _atd_write_array(writeTransitiveFinding)(x[1], x)])(x.value, x)]
   }
 }
 
@@ -4412,7 +4412,7 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
       case 'CallDumpRulePartitions':
         return { kind: 'CallDumpRulePartitions', value: readDumpRulePartitionsParams(x[1], x) }
       case 'CallTransitiveReachabilityFilter':
-        return { kind: 'CallTransitiveReachabilityFilter', value: _atd_read_array(readTransitiveFinding)(x[1], x) }
+        return { kind: 'CallTransitiveReachabilityFilter', value: ((x, context): [[FoundDependency, DownloadedDependency[]], TransitiveFinding[]] => { _atd_check_json_tuple(2, x, context); return [((x, context): [FoundDependency, DownloadedDependency[]] => { _atd_check_json_tuple(2, x, context); return [readFoundDependency(x[0], x), _atd_read_array(readDownloadedDependency)(x[1], x)] })(x[0], x), _atd_read_array(readTransitiveFinding)(x[1], x)] })(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')

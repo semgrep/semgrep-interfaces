@@ -9286,7 +9286,7 @@ class CallDumpRulePartitions:
 class CallTransitiveReachabilityFilter:
     """Original type: function_call = [ ... | CallTransitiveReachabilityFilter of ... | ... ]"""
 
-    value: List[TransitiveFinding]
+    value: Tuple[Tuple[FoundDependency, List[DownloadedDependency]], List[TransitiveFinding]]
 
     @property
     def kind(self) -> str:
@@ -9294,7 +9294,7 @@ class CallTransitiveReachabilityFilter:
         return 'CallTransitiveReachabilityFilter'
 
     def to_json(self) -> Any:
-        return ['CallTransitiveReachabilityFilter', _atd_write_list((lambda x: x.to_json()))(self.value)]
+        return ['CallTransitiveReachabilityFilter', (lambda x: [(lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -9332,7 +9332,7 @@ class FunctionCall:
             if cons == 'CallDumpRulePartitions':
                 return cls(CallDumpRulePartitions(DumpRulePartitionsParams.from_json(x[1])))
             if cons == 'CallTransitiveReachabilityFilter':
-                return cls(CallTransitiveReachabilityFilter(_atd_read_list(TransitiveFinding.from_json)(x[1])))
+                return cls(CallTransitiveReachabilityFilter((lambda x: ((lambda x: (FoundDependency.from_json(x[0]), _atd_read_list(DownloadedDependency.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[0]), _atd_read_list(TransitiveFinding.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
             _atd_bad_json('FunctionCall', x)
         _atd_bad_json('FunctionCall', x)
 
