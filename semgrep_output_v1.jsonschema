@@ -2216,11 +2216,8 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "CallTransitiveReachabilityFilter" },
-            {
-              "type": "array",
-              "items": { "$ref": "#/definitions/transitive_finding" }
-            }
+            { "const": "CallGetTargets" },
+            { "$ref": "#/definitions/scanning_roots" }
           ]
         },
         {
@@ -2228,8 +2225,32 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "CallGetTargets" },
-            { "$ref": "#/definitions/scanning_roots" }
+            { "const": "CallTransitiveReachabilityFilter" },
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": false,
+                  "prefixItems": [
+                    { "$ref": "#/definitions/found_dependency" },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/downloaded_dependency"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": { "$ref": "#/definitions/transitive_finding" }
+                }
+              ]
+            }
           ]
         }
       ]

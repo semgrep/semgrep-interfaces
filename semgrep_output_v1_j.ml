@@ -34368,6 +34368,22 @@ let read_apply_fixes_params = (
 )
 let apply_fixes_params_of_string s =
   read_apply_fixes_params (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__downloaded_dependency_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_downloaded_dependency
+  )
+)
+let string_of__downloaded_dependency_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__downloaded_dependency_list ob x;
+  Buffer.contents ob
+let read__downloaded_dependency_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_downloaded_dependency
+  )
+)
+let _downloaded_dependency_list_of_string s =
+  read__downloaded_dependency_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_function_call = (
   fun ob x ->
     match x with
@@ -34471,16 +34487,42 @@ let write_function_call = (
           write_dump_rule_partitions_params
         ) ob x;
         Buffer.add_char ob ']'
-      | `CallTransitiveReachabilityFilter x ->
-        Buffer.add_string ob "[\"CallTransitiveReachabilityFilter\",";
-        (
-          write__transitive_finding_list
-        ) ob x;
-        Buffer.add_char ob ']'
       | `CallGetTargets x ->
         Buffer.add_string ob "[\"CallGetTargets\",";
         (
           write_scanning_roots
+        ) ob x;
+        Buffer.add_char ob ']'
+      | `CallTransitiveReachabilityFilter x ->
+        Buffer.add_string ob "[\"CallTransitiveReachabilityFilter\",";
+        (
+          fun ob x ->
+            Buffer.add_char ob '[';
+            (let x, _ = x in
+            (
+              fun ob x ->
+                Buffer.add_char ob '[';
+                (let x, _ = x in
+                (
+                  write_found_dependency
+                ) ob x
+                );
+                Buffer.add_char ob ',';
+                (let _, x = x in
+                (
+                  write__downloaded_dependency_list
+                ) ob x
+                );
+                Buffer.add_char ob ']';
+            ) ob x
+            );
+            Buffer.add_char ob ',';
+            (let _, x = x in
+            (
+              write__transitive_finding_list
+            ) ob x
+            );
+            Buffer.add_char ob ']';
         ) ob x;
         Buffer.add_char ob ']'
 )
@@ -34717,15 +34759,6 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `CallDumpRulePartitions x
-            | "CallTransitiveReachabilityFilter" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__transitive_finding_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `CallTransitiveReachabilityFilter x
             | "CallGetTargets" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -34735,6 +34768,97 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `CallGetTargets x
+            | "CallTransitiveReachabilityFilter" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  fun p lb ->
+                    Yojson.Safe.read_space p lb;
+                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    let len = ref 0 in
+                    let end_of_tuple = ref false in
+                    (try
+                      let x0 =
+                        let x =
+                          (
+                            fun p lb ->
+                              Yojson.Safe.read_space p lb;
+                              let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                              let len = ref 0 in
+                              let end_of_tuple = ref false in
+                              (try
+                                let x0 =
+                                  let x =
+                                    (
+                                      read_found_dependency
+                                    ) p lb
+                                  in
+                                  incr len;
+                                  Yojson.Safe.read_space p lb;
+                                  Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                                  x
+                                in
+                                let x1 =
+                                  let x =
+                                    (
+                                      read__downloaded_dependency_list
+                                    ) p lb
+                                  in
+                                  incr len;
+                                  (try
+                                    Yojson.Safe.read_space p lb;
+                                    Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                                  with Yojson.End_of_tuple -> end_of_tuple := true);
+                                  x
+                                in
+                                if not !end_of_tuple then (
+                                  try
+                                    while true do
+                                      Yojson.Safe.skip_json p lb;
+                                      Yojson.Safe.read_space p lb;
+                                      Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                                    done
+                                  with Yojson.End_of_tuple -> ()
+                                );
+                                (x0, x1)
+                              with Yojson.End_of_tuple ->
+                                Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x1 =
+                        let x =
+                          (
+                            read__transitive_finding_list
+                          ) p lb
+                        in
+                        incr len;
+                        (try
+                          Yojson.Safe.read_space p lb;
+                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                        x
+                      in
+                      if not !end_of_tuple then (
+                        try
+                          while true do
+                            Yojson.Safe.skip_json p lb;
+                            Yojson.Safe.read_space p lb;
+                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                          done
+                        with Yojson.End_of_tuple -> ()
+                      );
+                      (x0, x1)
+                    with Yojson.End_of_tuple ->
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `CallTransitiveReachabilityFilter x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -34980,17 +35104,6 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `CallDumpRulePartitions x
-            | "CallTransitiveReachabilityFilter" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__transitive_finding_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              `CallTransitiveReachabilityFilter x
             | "CallGetTargets" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -35002,6 +35115,99 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `CallGetTargets x
+            | "CallTransitiveReachabilityFilter" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  fun p lb ->
+                    Yojson.Safe.read_space p lb;
+                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    let len = ref 0 in
+                    let end_of_tuple = ref false in
+                    (try
+                      let x0 =
+                        let x =
+                          (
+                            fun p lb ->
+                              Yojson.Safe.read_space p lb;
+                              let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                              let len = ref 0 in
+                              let end_of_tuple = ref false in
+                              (try
+                                let x0 =
+                                  let x =
+                                    (
+                                      read_found_dependency
+                                    ) p lb
+                                  in
+                                  incr len;
+                                  Yojson.Safe.read_space p lb;
+                                  Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                                  x
+                                in
+                                let x1 =
+                                  let x =
+                                    (
+                                      read__downloaded_dependency_list
+                                    ) p lb
+                                  in
+                                  incr len;
+                                  (try
+                                    Yojson.Safe.read_space p lb;
+                                    Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                                  with Yojson.End_of_tuple -> end_of_tuple := true);
+                                  x
+                                in
+                                if not !end_of_tuple then (
+                                  try
+                                    while true do
+                                      Yojson.Safe.skip_json p lb;
+                                      Yojson.Safe.read_space p lb;
+                                      Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                                    done
+                                  with Yojson.End_of_tuple -> ()
+                                );
+                                (x0, x1)
+                              with Yojson.End_of_tuple ->
+                                Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        x
+                      in
+                      let x1 =
+                        let x =
+                          (
+                            read__transitive_finding_list
+                          ) p lb
+                        in
+                        incr len;
+                        (try
+                          Yojson.Safe.read_space p lb;
+                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                        x
+                      in
+                      if not !end_of_tuple then (
+                        try
+                          while true do
+                            Yojson.Safe.skip_json p lb;
+                            Yojson.Safe.read_space p lb;
+                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                          done
+                        with Yojson.End_of_tuple -> ()
+                      );
+                      (x0, x1)
+                    with Yojson.End_of_tuple ->
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `CallTransitiveReachabilityFilter x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

@@ -2384,8 +2384,10 @@ type function_call <python decorator="dataclass(frozen=True)"> = [
   | CallResolveDependencies of dependency_source list
   | CallUploadSymbolAnalysis of ((* token *) string * (* scan_id *) int * symbol_analysis)
   | CallDumpRulePartitions of dump_rule_partitions_params
-  | CallTransitiveReachabilityFilter of transitive_finding list
   | CallGetTargets of scanning_roots
+  (* for now, the transitive reachability filter takes only a single dependency graph as input.
+   * it is up to the caller to call it several times, one for each subproject *)
+  | CallTransitiveReachabilityFilter of ((found_dependency * downloaded_dependency list) * transitive_finding list)
 ]
 
 (* ----------------------------- *)

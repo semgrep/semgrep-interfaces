@@ -1072,8 +1072,8 @@ export type FunctionCall =
 | { kind: 'CallResolveDependencies'; value: DependencySource[] }
 | { kind: 'CallUploadSymbolAnalysis'; value: [string, number /*int*/, SymbolAnalysis] }
 | { kind: 'CallDumpRulePartitions'; value: DumpRulePartitionsParams }
-| { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveFinding[] }
 | { kind: 'CallGetTargets'; value: ScanningRoots }
+| { kind: 'CallTransitiveReachabilityFilter'; value: [[FoundDependency, DownloadedDependency[]], TransitiveFinding[]] }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -4464,10 +4464,10 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallUploadSymbolAnalysis', ((x, context) => [_atd_write_string(x[0], x), _atd_write_int(x[1], x), writeSymbolAnalysis(x[2], x)])(x.value, x)]
     case 'CallDumpRulePartitions':
       return ['CallDumpRulePartitions', writeDumpRulePartitionsParams(x.value, x)]
-    case 'CallTransitiveReachabilityFilter':
-      return ['CallTransitiveReachabilityFilter', _atd_write_array(writeTransitiveFinding)(x.value, x)]
     case 'CallGetTargets':
       return ['CallGetTargets', writeScanningRoots(x.value, x)]
+    case 'CallTransitiveReachabilityFilter':
+      return ['CallTransitiveReachabilityFilter', ((x, context) => [((x, context) => [writeFoundDependency(x[0], x), _atd_write_array(writeDownloadedDependency)(x[1], x)])(x[0], x), _atd_write_array(writeTransitiveFinding)(x[1], x)])(x.value, x)]
   }
 }
 
@@ -4498,10 +4498,10 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallUploadSymbolAnalysis', value: ((x, context): [string, number /*int*/, SymbolAnalysis] => { _atd_check_json_tuple(3, x, context); return [_atd_read_string(x[0], x), _atd_read_int(x[1], x), readSymbolAnalysis(x[2], x)] })(x[1], x) }
       case 'CallDumpRulePartitions':
         return { kind: 'CallDumpRulePartitions', value: readDumpRulePartitionsParams(x[1], x) }
-      case 'CallTransitiveReachabilityFilter':
-        return { kind: 'CallTransitiveReachabilityFilter', value: _atd_read_array(readTransitiveFinding)(x[1], x) }
       case 'CallGetTargets':
         return { kind: 'CallGetTargets', value: readScanningRoots(x[1], x) }
+      case 'CallTransitiveReachabilityFilter':
+        return { kind: 'CallTransitiveReachabilityFilter', value: ((x, context): [[FoundDependency, DownloadedDependency[]], TransitiveFinding[]] => { _atd_check_json_tuple(2, x, context); return [((x, context): [FoundDependency, DownloadedDependency[]] => { _atd_check_json_tuple(2, x, context); return [readFoundDependency(x[0], x), _atd_read_array(readDownloadedDependency)(x[1], x)] })(x[0], x), _atd_read_array(readTransitiveFinding)(x[1], x)] })(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
