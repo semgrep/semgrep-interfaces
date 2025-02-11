@@ -2339,7 +2339,7 @@ type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetSarifFormat of string
   | RetValidate of bool
   | RetResolveDependencies of (dependency_source * resolution_result) list
-  | RetUploadSymbolAnalysis of (* error msg *) string
+  | RetUploadSymbolAnalysis of (* success msg *) string
   | RetDumpRulePartitions of bool
   | RetTransitiveReachabilityFilter of transitive_finding list
 ]
