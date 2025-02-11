@@ -1041,22 +1041,11 @@ export type ResolutionCmdFailed = {
 }
 
 export type ResolutionResult =
-| { kind: 'ResolutionOk'; value: [ScaDependency[], ResolutionErrorKind[]] }
+| { kind: 'ResolutionOk'; value: [[FoundDependency, Option<DownloadedDependency>][], ResolutionErrorKind[]] }
 | { kind: 'ResolutionError'; value: ResolutionErrorKind[] }
 
-export type ScaDependency = {
-  package_: string;
-  version: string;
-  ecosystem: Ecosystem;
-  allowed_hashes: Map<string, string[]>;
-  resolved_url?: string;
-  transitivity: Transitivity;
-  manifest_path?: Fpath;
-  lockfile_path?: Fpath;
-  line_number?: number /*int*/;
-  children?: DependencyChild[];
-  git_ref?: string;
-  source_path: Option<Fpath>;
+export type DownloadedDependency = {
+  source_path: Fpath;
 }
 
 export type TransitiveFinding = {
@@ -4380,7 +4369,7 @@ export function readResolutionCmdFailed(x: any, context: any = x): ResolutionCmd
 export function writeResolutionResult(x: ResolutionResult, context: any = x): any {
   switch (x.kind) {
     case 'ResolutionOk':
-      return ['ResolutionOk', ((x, context) => [_atd_write_array(writeScaDependency)(x[0], x), _atd_write_array(writeResolutionErrorKind)(x[1], x)])(x.value, x)]
+      return ['ResolutionOk', ((x, context) => [_atd_write_array(((x, context) => [writeFoundDependency(x[0], x), _atd_write_option(writeDownloadedDependency)(x[1], x)]))(x[0], x), _atd_write_array(writeResolutionErrorKind)(x[1], x)])(x.value, x)]
     case 'ResolutionError':
       return ['ResolutionError', _atd_write_array(writeResolutionErrorKind)(x.value, x)]
   }
@@ -4390,7 +4379,7 @@ export function readResolutionResult(x: any, context: any = x): ResolutionResult
   _atd_check_json_tuple(2, x, context)
   switch (x[0]) {
     case 'ResolutionOk':
-      return { kind: 'ResolutionOk', value: ((x, context): [ScaDependency[], ResolutionErrorKind[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_array(readScaDependency)(x[0], x), _atd_read_array(readResolutionErrorKind)(x[1], x)] })(x[1], x) }
+      return { kind: 'ResolutionOk', value: ((x, context): [[FoundDependency, Option<DownloadedDependency>][], ResolutionErrorKind[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_array(((x, context): [FoundDependency, Option<DownloadedDependency>] => { _atd_check_json_tuple(2, x, context); return [readFoundDependency(x[0], x), _atd_read_option(readDownloadedDependency)(x[1], x)] }))(x[0], x), _atd_read_array(readResolutionErrorKind)(x[1], x)] })(x[1], x) }
     case 'ResolutionError':
       return { kind: 'ResolutionError', value: _atd_read_array(readResolutionErrorKind)(x[1], x) }
     default:
@@ -4399,37 +4388,15 @@ export function readResolutionResult(x: any, context: any = x): ResolutionResult
   }
 }
 
-export function writeScaDependency(x: ScaDependency, context: any = x): any {
+export function writeDownloadedDependency(x: DownloadedDependency, context: any = x): any {
   return {
-    'package': _atd_write_required_field('ScaDependency', 'package', _atd_write_string, x.package_, x),
-    'version': _atd_write_required_field('ScaDependency', 'version', _atd_write_string, x.version, x),
-    'ecosystem': _atd_write_required_field('ScaDependency', 'ecosystem', writeEcosystem, x.ecosystem, x),
-    'allowed_hashes': _atd_write_required_field('ScaDependency', 'allowed_hashes', _atd_write_assoc_map_to_object(_atd_write_array(_atd_write_string)), x.allowed_hashes, x),
-    'resolved_url': _atd_write_optional_field(_atd_write_string, x.resolved_url, x),
-    'transitivity': _atd_write_required_field('ScaDependency', 'transitivity', writeTransitivity, x.transitivity, x),
-    'manifest_path': _atd_write_optional_field(writeFpath, x.manifest_path, x),
-    'lockfile_path': _atd_write_optional_field(writeFpath, x.lockfile_path, x),
-    'line_number': _atd_write_optional_field(_atd_write_int, x.line_number, x),
-    'children': _atd_write_optional_field(_atd_write_array(writeDependencyChild), x.children, x),
-    'git_ref': _atd_write_optional_field(_atd_write_string, x.git_ref, x),
-    'source_path': _atd_write_required_field('ScaDependency', 'source_path', _atd_write_option(writeFpath), x.source_path, x),
+    'source_path': _atd_write_required_field('DownloadedDependency', 'source_path', writeFpath, x.source_path, x),
   };
 }
 
-export function readScaDependency(x: any, context: any = x): ScaDependency {
+export function readDownloadedDependency(x: any, context: any = x): DownloadedDependency {
   return {
-    package_: _atd_read_required_field('ScaDependency', 'package', _atd_read_string, x['package'], x),
-    version: _atd_read_required_field('ScaDependency', 'version', _atd_read_string, x['version'], x),
-    ecosystem: _atd_read_required_field('ScaDependency', 'ecosystem', readEcosystem, x['ecosystem'], x),
-    allowed_hashes: _atd_read_required_field('ScaDependency', 'allowed_hashes', _atd_read_assoc_object_into_map(_atd_read_array(_atd_read_string)), x['allowed_hashes'], x),
-    resolved_url: _atd_read_optional_field(_atd_read_string, x['resolved_url'], x),
-    transitivity: _atd_read_required_field('ScaDependency', 'transitivity', readTransitivity, x['transitivity'], x),
-    manifest_path: _atd_read_optional_field(readFpath, x['manifest_path'], x),
-    lockfile_path: _atd_read_optional_field(readFpath, x['lockfile_path'], x),
-    line_number: _atd_read_optional_field(_atd_read_int, x['line_number'], x),
-    children: _atd_read_optional_field(_atd_read_array(readDependencyChild), x['children'], x),
-    git_ref: _atd_read_optional_field(_atd_read_string, x['git_ref'], x),
-    source_path: _atd_read_required_field('ScaDependency', 'source_path', _atd_read_option(readFpath), x['source_path'], x),
+    source_path: _atd_read_required_field('DownloadedDependency', 'source_path', readFpath, x['source_path'], x),
   };
 }
 

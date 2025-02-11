@@ -7632,73 +7632,6 @@ class ScaError:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
-class ScaDependency:
-    """Original type: sca_dependency = { ... }"""
-
-    package: str
-    version: str
-    ecosystem: Ecosystem
-    allowed_hashes: Dict[str, List[str]]
-    transitivity: Transitivity
-    source_path: Optional[Fpath]
-    resolved_url: Optional[str] = None
-    manifest_path: Optional[Fpath] = None
-    lockfile_path: Optional[Fpath] = None
-    line_number: Optional[int] = None
-    children: Optional[List[DependencyChild]] = None
-    git_ref: Optional[str] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ScaDependency':
-        if isinstance(x, dict):
-            return cls(
-                package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('ScaDependency', 'package'),
-                version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('ScaDependency', 'version'),
-                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('ScaDependency', 'ecosystem'),
-                allowed_hashes=_atd_read_assoc_object_into_dict(_atd_read_list(_atd_read_string))(x['allowed_hashes']) if 'allowed_hashes' in x else _atd_missing_json_field('ScaDependency', 'allowed_hashes'),
-                transitivity=Transitivity.from_json(x['transitivity']) if 'transitivity' in x else _atd_missing_json_field('ScaDependency', 'transitivity'),
-                source_path=_atd_read_option(Fpath.from_json)(x['source_path']) if 'source_path' in x else _atd_missing_json_field('ScaDependency', 'source_path'),
-                resolved_url=_atd_read_string(x['resolved_url']) if 'resolved_url' in x else None,
-                manifest_path=Fpath.from_json(x['manifest_path']) if 'manifest_path' in x else None,
-                lockfile_path=Fpath.from_json(x['lockfile_path']) if 'lockfile_path' in x else None,
-                line_number=_atd_read_int(x['line_number']) if 'line_number' in x else None,
-                children=_atd_read_list(DependencyChild.from_json)(x['children']) if 'children' in x else None,
-                git_ref=_atd_read_string(x['git_ref']) if 'git_ref' in x else None,
-            )
-        else:
-            _atd_bad_json('ScaDependency', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['package'] = _atd_write_string(self.package)
-        res['version'] = _atd_write_string(self.version)
-        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
-        res['allowed_hashes'] = _atd_write_assoc_dict_to_object(_atd_write_list(_atd_write_string))(self.allowed_hashes)
-        res['transitivity'] = (lambda x: x.to_json())(self.transitivity)
-        res['source_path'] = _atd_write_option((lambda x: x.to_json()))(self.source_path)
-        if self.resolved_url is not None:
-            res['resolved_url'] = _atd_write_string(self.resolved_url)
-        if self.manifest_path is not None:
-            res['manifest_path'] = (lambda x: x.to_json())(self.manifest_path)
-        if self.lockfile_path is not None:
-            res['lockfile_path'] = (lambda x: x.to_json())(self.lockfile_path)
-        if self.line_number is not None:
-            res['line_number'] = _atd_write_int(self.line_number)
-        if self.children is not None:
-            res['children'] = _atd_write_list((lambda x: x.to_json()))(self.children)
-        if self.git_ref is not None:
-            res['git_ref'] = _atd_write_string(self.git_ref)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ScaDependency':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass(frozen=True)
 class SarifFormat:
     """Original type: sarif_format = { ... }"""
@@ -7821,10 +7754,38 @@ class RuleIdAndEngineKind:
 
 
 @dataclass
+class DownloadedDependency:
+    """Original type: downloaded_dependency = { ... }"""
+
+    source_path: Fpath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DownloadedDependency':
+        if isinstance(x, dict):
+            return cls(
+                source_path=Fpath.from_json(x['source_path']) if 'source_path' in x else _atd_missing_json_field('DownloadedDependency', 'source_path'),
+            )
+        else:
+            _atd_bad_json('DownloadedDependency', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['source_path'] = (lambda x: x.to_json())(self.source_path)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DownloadedDependency':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class ResolutionOk:
     """Original type: resolution_result = [ ... | ResolutionOk of ... | ... ]"""
 
-    value: Tuple[List[ScaDependency], List[ResolutionErrorKind]]
+    value: Tuple[List[Tuple[FoundDependency, Optional[DownloadedDependency]]], List[ResolutionErrorKind]]
 
     @property
     def kind(self) -> str:
@@ -7832,7 +7793,7 @@ class ResolutionOk:
         return 'ResolutionOk'
 
     def to_json(self) -> Any:
-        return ['ResolutionOk', (lambda x: [_atd_write_list((lambda x: x.to_json()))(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
+        return ['ResolutionOk', (lambda x: [_atd_write_list((lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_option((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -7872,7 +7833,7 @@ class ResolutionResult:
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'ResolutionOk':
-                return cls(ResolutionOk((lambda x: (_atd_read_list(ScaDependency.from_json)(x[0]), _atd_read_list(ResolutionErrorKind.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+                return cls(ResolutionOk((lambda x: (_atd_read_list((lambda x: (FoundDependency.from_json(x[0]), _atd_read_option(DownloadedDependency.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x[0]), _atd_read_list(ResolutionErrorKind.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
             if cons == 'ResolutionError':
                 return cls(ResolutionError(_atd_read_list(ResolutionErrorKind.from_json)(x[1])))
             _atd_bad_json('ResolutionResult', x)
