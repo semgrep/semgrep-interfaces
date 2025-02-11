@@ -572,6 +572,10 @@ type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
 type resolution_error = Semgrep_output_v1_t.resolution_error
   [@@deriving show]
 
+type downloaded_dependency = Semgrep_output_v1_t.downloaded_dependency = {
+  source_path: fpath
+}
+
 type resolution_result = Semgrep_output_v1_t.resolution_result
 
 type profile = Semgrep_output_v1_t.profile = {
@@ -3012,6 +3016,26 @@ val read_resolution_error :
 val resolution_error_of_string :
   string -> resolution_error
   (** Deserialize JSON data of type {!type:resolution_error}. *)
+
+val write_downloaded_dependency :
+  Buffer.t -> downloaded_dependency -> unit
+  (** Output a JSON value of type {!type:downloaded_dependency}. *)
+
+val string_of_downloaded_dependency :
+  ?len:int -> downloaded_dependency -> string
+  (** Serialize a value of type {!type:downloaded_dependency}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_downloaded_dependency :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> downloaded_dependency
+  (** Input JSON data of type {!type:downloaded_dependency}. *)
+
+val downloaded_dependency_of_string :
+  string -> downloaded_dependency
+  (** Deserialize JSON data of type {!type:downloaded_dependency}. *)
 
 val write_resolution_result :
   Buffer.t -> resolution_result -> unit
