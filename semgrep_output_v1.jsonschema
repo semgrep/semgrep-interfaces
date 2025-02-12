@@ -1978,7 +1978,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "SCAParserError" },
+            { "const": "SCAParse" },
             { "$ref": "#/definitions/dependency_parser_error" }
           ]
         },
@@ -1987,7 +1987,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "SCAResolutionError" },
+            { "const": "SCAResolution" },
             { "$ref": "#/definitions/sca_resolution_error" }
           ]
         }

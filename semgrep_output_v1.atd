@@ -2259,8 +2259,8 @@ type sca_resolution_error = {
   dependency_source_file: fpath;
 }
 type sca_error = [
-  | SCAParserError of dependency_parser_error
-  | SCAResolutionError of sca_resolution_error
+  | SCAParse of dependency_parser_error
+  | SCAResolution of sca_resolution_error
 ] <ocaml repr="classic">
 
 

@@ -633,8 +633,8 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
 }
 
 type sca_error = Semgrep_output_v1_t.sca_error = 
-    SCAParserError of dependency_parser_error
-  | SCAResolutionError of sca_resolution_error
+    SCAParse of dependency_parser_error
+  | SCAResolution of sca_resolution_error
 
 
 type sarif_format = Semgrep_output_v1_t.sarif_format = {
@@ -23446,14 +23446,14 @@ let dependency_parser_error_of_string s =
 let write_sca_error : _ -> sca_error -> _ = (
   fun ob (x : sca_error) ->
     match x with
-      | SCAParserError x ->
-        Buffer.add_string ob "[\"SCAParserError\",";
+      | SCAParse x ->
+        Buffer.add_string ob "[\"SCAParse\",";
         (
           write_dependency_parser_error
         ) ob x;
         Buffer.add_char ob ']'
-      | SCAResolutionError x ->
-        Buffer.add_string ob "[\"SCAResolutionError\",";
+      | SCAResolution x ->
+        Buffer.add_string ob "[\"SCAResolution\",";
         (
           write_sca_resolution_error
         ) ob x;
@@ -23469,7 +23469,7 @@ let read_sca_error = (
     match Yojson.Safe.start_any_variant p lb with
       | `Edgy_bracket -> (
           match Yojson.Safe.read_ident p lb with
-            | "SCAParserError" ->
+            | "SCAParse" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
                   read_dependency_parser_error
@@ -23477,8 +23477,8 @@ let read_sca_error = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              (SCAParserError x : sca_error)
-            | "SCAResolutionError" ->
+              (SCAParse x : sca_error)
+            | "SCAResolution" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
                   read_sca_resolution_error
@@ -23486,7 +23486,7 @@ let read_sca_error = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              (SCAResolutionError x : sca_error)
+              (SCAResolution x : sca_error)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -23497,7 +23497,7 @@ let read_sca_error = (
         )
       | `Square_bracket -> (
           match Atdgen_runtime.Oj_run.read_string p lb with
-            | "SCAParserError" ->
+            | "SCAParse" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
@@ -23507,8 +23507,8 @@ let read_sca_error = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
-              (SCAParserError x : sca_error)
-            | "SCAResolutionError" ->
+              (SCAParse x : sca_error)
+            | "SCAResolution" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
@@ -23518,7 +23518,7 @@ let read_sca_error = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
-              (SCAResolutionError x : sca_error)
+              (SCAResolution x : sca_error)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

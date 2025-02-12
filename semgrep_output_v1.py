@@ -7404,36 +7404,36 @@ class DependencyParserError:
 
 
 @dataclass
-class SCAParserError:
-    """Original type: sca_error = [ ... | SCAParserError of ... | ... ]"""
+class SCAParse:
+    """Original type: sca_error = [ ... | SCAParse of ... | ... ]"""
 
     value: DependencyParserError
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'SCAParserError'
+        return 'SCAParse'
 
     def to_json(self) -> Any:
-        return ['SCAParserError', (lambda x: x.to_json())(self.value)]
+        return ['SCAParse', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
 @dataclass
-class SCAResolutionError:
-    """Original type: sca_error = [ ... | SCAResolutionError of ... | ... ]"""
+class SCAResolution:
+    """Original type: sca_error = [ ... | SCAResolution of ... | ... ]"""
 
     value: ScaResolutionError
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'SCAResolutionError'
+        return 'SCAResolution'
 
     def to_json(self) -> Any:
-        return ['SCAResolutionError', (lambda x: x.to_json())(self.value)]
+        return ['SCAResolution', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -7443,7 +7443,7 @@ class SCAResolutionError:
 class ScaError:
     """Original type: sca_error = [ ... ]"""
 
-    value: Union[SCAParserError, SCAResolutionError]
+    value: Union[SCAParse, SCAResolution]
 
     @property
     def kind(self) -> str:
@@ -7454,10 +7454,10 @@ class ScaError:
     def from_json(cls, x: Any) -> 'ScaError':
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
-            if cons == 'SCAParserError':
-                return cls(SCAParserError(DependencyParserError.from_json(x[1])))
-            if cons == 'SCAResolutionError':
-                return cls(SCAResolutionError(ScaResolutionError.from_json(x[1])))
+            if cons == 'SCAParse':
+                return cls(SCAParse(DependencyParserError.from_json(x[1])))
+            if cons == 'SCAResolution':
+                return cls(SCAResolution(ScaResolutionError.from_json(x[1])))
             _atd_bad_json('ScaError', x)
         _atd_bad_json('ScaError', x)
 

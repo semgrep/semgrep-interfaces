@@ -633,8 +633,8 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
 }
 
 type sca_error = Semgrep_output_v1_t.sca_error = 
-    SCAParserError of dependency_parser_error
-  | SCAResolutionError of sca_resolution_error
+    SCAParse of dependency_parser_error
+  | SCAResolution of sca_resolution_error
 
 
 type sarif_format = Semgrep_output_v1_t.sarif_format = {

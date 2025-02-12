@@ -1030,8 +1030,8 @@ export type ScaResolutionError = {
 }
 
 export type ScaError =
-| { kind: 'SCAParserError'; value: DependencyParserError }
-| { kind: 'SCAResolutionError'; value: ScaResolutionError }
+| { kind: 'SCAParse'; value: DependencyParserError }
+| { kind: 'SCAResolution'; value: ScaResolutionError }
 
 export type ResolutionCmdFailed = {
   command: string;
@@ -4318,20 +4318,20 @@ export function readScaResolutionError(x: any, context: any = x): ScaResolutionE
 
 export function writeScaError(x: ScaError, context: any = x): any {
   switch (x.kind) {
-    case 'SCAParserError':
-      return ['SCAParserError', writeDependencyParserError(x.value, x)]
-    case 'SCAResolutionError':
-      return ['SCAResolutionError', writeScaResolutionError(x.value, x)]
+    case 'SCAParse':
+      return ['SCAParse', writeDependencyParserError(x.value, x)]
+    case 'SCAResolution':
+      return ['SCAResolution', writeScaResolutionError(x.value, x)]
   }
 }
 
 export function readScaError(x: any, context: any = x): ScaError {
   _atd_check_json_tuple(2, x, context)
   switch (x[0]) {
-    case 'SCAParserError':
-      return { kind: 'SCAParserError', value: readDependencyParserError(x[1], x) }
-    case 'SCAResolutionError':
-      return { kind: 'SCAResolutionError', value: readScaResolutionError(x[1], x) }
+    case 'SCAParse':
+      return { kind: 'SCAParse', value: readDependencyParserError(x[1], x) }
+    case 'SCAResolution':
+      return { kind: 'SCAResolution', value: readScaResolutionError(x[1], x) }
     default:
       _atd_bad_json('ScaError', x, context)
       throw new Error('impossible')
