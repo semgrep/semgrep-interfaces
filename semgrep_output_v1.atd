@@ -1744,7 +1744,9 @@ type resolution_method
      <ocaml attr="deriving show">
      <python decorator="dataclass(frozen=True, order=True)"> =
 [
+  (* we parsed a lockfile that was already included in the repository *)
   | LockfileParsing
+  (* we communicated with the package manager to resolve dependencies *)
   | DynamicResolution
 ]
 
@@ -2248,6 +2250,19 @@ type resolution_error
   | ResolutionCmdFailed of resolution_cmd_failed
   | ParseDependenciesFailed of string
 ]
+
+(* used only from pysemgrep for now
+ * TODO? we should merge dependency_{parser,resolution}_error cli_error
+ *)
+type sca_resolution_error = {
+  type_: resolution_error;
+  dependency_source_file: fpath;
+}
+type sca_error = [
+  | SCAParserError of dependency_parser_error
+  | SCAResolutionError of sca_resolution_error
+] <ocaml repr="classic">
+
 
 type resolution_cmd_failed
     <ocaml attr="deriving show">

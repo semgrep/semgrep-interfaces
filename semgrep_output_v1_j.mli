@@ -616,7 +616,26 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   ci_config_from_cloud: ci_config_from_cloud option
 }
 
+type sca_resolution_error = Semgrep_output_v1_t.sca_resolution_error = {
+  type_: resolution_error;
+  dependency_source_file: fpath
+}
+
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
+
+type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
+  path: fpath;
+  parser: sca_parser_name;
+  reason: string;
+  line: int option;
+  col: int option;
+  text: string option
+}
+
+type sca_error = Semgrep_output_v1_t.sca_error = 
+    SCAParserError of dependency_parser_error
+  | SCAResolutionError of sca_resolution_error
+
 
 type sarif_format = Semgrep_output_v1_t.sarif_format = {
   rules: fpath;
@@ -687,15 +706,6 @@ type error_span = Semgrep_output_v1_t.error_span = {
   config_path: string list option option;
   context_start: position option option;
   context_end: position option option
-}
-
-type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
-  path: fpath;
-  parser: sca_parser_name;
-  reason: string;
-  line: int option;
-  col: int option;
-  text: string option
 }
 
 type contributor = Semgrep_output_v1_t.contributor = {
@@ -3039,6 +3049,26 @@ val scan_config_of_string :
   string -> scan_config
   (** Deserialize JSON data of type {!type:scan_config}. *)
 
+val write_sca_resolution_error :
+  Buffer.t -> sca_resolution_error -> unit
+  (** Output a JSON value of type {!type:sca_resolution_error}. *)
+
+val string_of_sca_resolution_error :
+  ?len:int -> sca_resolution_error -> string
+  (** Serialize a value of type {!type:sca_resolution_error}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_resolution_error :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_resolution_error
+  (** Input JSON data of type {!type:sca_resolution_error}. *)
+
+val sca_resolution_error_of_string :
+  string -> sca_resolution_error
+  (** Deserialize JSON data of type {!type:sca_resolution_error}. *)
+
 val write_sca_parser_name :
   Buffer.t -> sca_parser_name -> unit
   (** Output a JSON value of type {!type:sca_parser_name}. *)
@@ -3058,6 +3088,46 @@ val read_sca_parser_name :
 val sca_parser_name_of_string :
   string -> sca_parser_name
   (** Deserialize JSON data of type {!type:sca_parser_name}. *)
+
+val write_dependency_parser_error :
+  Buffer.t -> dependency_parser_error -> unit
+  (** Output a JSON value of type {!type:dependency_parser_error}. *)
+
+val string_of_dependency_parser_error :
+  ?len:int -> dependency_parser_error -> string
+  (** Serialize a value of type {!type:dependency_parser_error}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_dependency_parser_error :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_parser_error
+  (** Input JSON data of type {!type:dependency_parser_error}. *)
+
+val dependency_parser_error_of_string :
+  string -> dependency_parser_error
+  (** Deserialize JSON data of type {!type:dependency_parser_error}. *)
+
+val write_sca_error :
+  Buffer.t -> sca_error -> unit
+  (** Output a JSON value of type {!type:sca_error}. *)
+
+val string_of_sca_error :
+  ?len:int -> sca_error -> string
+  (** Serialize a value of type {!type:sca_error}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_error :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_error
+  (** Input JSON data of type {!type:sca_error}. *)
+
+val sca_error_of_string :
+  string -> sca_error
+  (** Deserialize JSON data of type {!type:sca_error}. *)
 
 val write_sarif_format :
   Buffer.t -> sarif_format -> unit
@@ -3238,26 +3308,6 @@ val read_error_span :
 val error_span_of_string :
   string -> error_span
   (** Deserialize JSON data of type {!type:error_span}. *)
-
-val write_dependency_parser_error :
-  Buffer.t -> dependency_parser_error -> unit
-  (** Output a JSON value of type {!type:dependency_parser_error}. *)
-
-val string_of_dependency_parser_error :
-  ?len:int -> dependency_parser_error -> string
-  (** Serialize a value of type {!type:dependency_parser_error}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_dependency_parser_error :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_parser_error
-  (** Input JSON data of type {!type:dependency_parser_error}. *)
-
-val dependency_parser_error_of_string :
-  string -> dependency_parser_error
-  (** Deserialize JSON data of type {!type:dependency_parser_error}. *)
 
 val write_contributor :
   Buffer.t -> contributor -> unit

@@ -6900,6 +6900,37 @@ class ScanConfig:
 
 
 @dataclass
+class ScaResolutionError:
+    """Original type: sca_resolution_error = { ... }"""
+
+    type_: ResolutionError
+    dependency_source_file: Fpath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaResolutionError':
+        if isinstance(x, dict):
+            return cls(
+                type_=ResolutionError.from_json(x['type_']) if 'type_' in x else _atd_missing_json_field('ScaResolutionError', 'type_'),
+                dependency_source_file=Fpath.from_json(x['dependency_source_file']) if 'dependency_source_file' in x else _atd_missing_json_field('ScaResolutionError', 'dependency_source_file'),
+            )
+        else:
+            _atd_bad_json('ScaResolutionError', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['type_'] = (lambda x: x.to_json())(self.type_)
+        res['dependency_source_file'] = (lambda x: x.to_json())(self.dependency_source_file)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaResolutionError':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class GemfileLock_:
     """Original type: sca_parser_name = [ ... | Gemfile_lock | ... ]"""
 
@@ -7320,6 +7351,121 @@ class ScaParserName:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ScaParserName':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DependencyParserError:
+    """Original type: dependency_parser_error = { ... }"""
+
+    path: Fpath
+    parser: ScaParserName
+    reason: str
+    line: Optional[int] = None
+    col: Optional[int] = None
+    text: Optional[str] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencyParserError':
+        if isinstance(x, dict):
+            return cls(
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('DependencyParserError', 'path'),
+                parser=ScaParserName.from_json(x['parser']) if 'parser' in x else _atd_missing_json_field('DependencyParserError', 'parser'),
+                reason=_atd_read_string(x['reason']) if 'reason' in x else _atd_missing_json_field('DependencyParserError', 'reason'),
+                line=_atd_read_int(x['line']) if 'line' in x else None,
+                col=_atd_read_int(x['col']) if 'col' in x else None,
+                text=_atd_read_string(x['text']) if 'text' in x else None,
+            )
+        else:
+            _atd_bad_json('DependencyParserError', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['path'] = (lambda x: x.to_json())(self.path)
+        res['parser'] = (lambda x: x.to_json())(self.parser)
+        res['reason'] = _atd_write_string(self.reason)
+        if self.line is not None:
+            res['line'] = _atd_write_int(self.line)
+        if self.col is not None:
+            res['col'] = _atd_write_int(self.col)
+        if self.text is not None:
+            res['text'] = _atd_write_string(self.text)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencyParserError':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class SCAParserError:
+    """Original type: sca_error = [ ... | SCAParserError of ... | ... ]"""
+
+    value: DependencyParserError
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SCAParserError'
+
+    def to_json(self) -> Any:
+        return ['SCAParserError', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class SCAResolutionError:
+    """Original type: sca_error = [ ... | SCAResolutionError of ... | ... ]"""
+
+    value: ScaResolutionError
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SCAResolutionError'
+
+    def to_json(self) -> Any:
+        return ['SCAResolutionError', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScaError:
+    """Original type: sca_error = [ ... ]"""
+
+    value: Union[SCAParserError, SCAResolutionError]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaError':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'SCAParserError':
+                return cls(SCAParserError(DependencyParserError.from_json(x[1])))
+            if cons == 'SCAResolutionError':
+                return cls(SCAResolutionError(ScaResolutionError.from_json(x[1])))
+            _atd_bad_json('ScaError', x)
+        _atd_bad_json('ScaError', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaError':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -7782,52 +7928,6 @@ class ErrorSpan:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ErrorSpan':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class DependencyParserError:
-    """Original type: dependency_parser_error = { ... }"""
-
-    path: Fpath
-    parser: ScaParserName
-    reason: str
-    line: Optional[int] = None
-    col: Optional[int] = None
-    text: Optional[str] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'DependencyParserError':
-        if isinstance(x, dict):
-            return cls(
-                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('DependencyParserError', 'path'),
-                parser=ScaParserName.from_json(x['parser']) if 'parser' in x else _atd_missing_json_field('DependencyParserError', 'parser'),
-                reason=_atd_read_string(x['reason']) if 'reason' in x else _atd_missing_json_field('DependencyParserError', 'reason'),
-                line=_atd_read_int(x['line']) if 'line' in x else None,
-                col=_atd_read_int(x['col']) if 'col' in x else None,
-                text=_atd_read_string(x['text']) if 'text' in x else None,
-            )
-        else:
-            _atd_bad_json('DependencyParserError', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['path'] = (lambda x: x.to_json())(self.path)
-        res['parser'] = (lambda x: x.to_json())(self.parser)
-        res['reason'] = _atd_write_string(self.reason)
-        if self.line is not None:
-            res['line'] = _atd_write_int(self.line)
-        if self.col is not None:
-            res['col'] = _atd_write_int(self.col)
-        if self.text is not None:
-            res['text'] = _atd_write_string(self.text)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'DependencyParserError':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

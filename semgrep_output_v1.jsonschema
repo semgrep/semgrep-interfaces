@@ -1963,6 +1963,36 @@
         }
       ]
     },
+    "sca_resolution_error": {
+      "type": "object",
+      "required": [ "type_", "dependency_source_file" ],
+      "properties": {
+        "type_": { "$ref": "#/definitions/resolution_error" },
+        "dependency_source_file": { "$ref": "#/definitions/fpath" }
+      }
+    },
+    "sca_error": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "SCAParserError" },
+            { "$ref": "#/definitions/dependency_parser_error" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "SCAResolutionError" },
+            { "$ref": "#/definitions/sca_resolution_error" }
+          ]
+        }
+      ]
+    },
     "resolution_cmd_failed": {
       "type": "object",
       "required": [ "command", "message" ],

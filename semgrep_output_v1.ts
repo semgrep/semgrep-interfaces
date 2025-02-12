@@ -1024,6 +1024,15 @@ export type ResolutionError =
 | { kind: 'ResolutionCmdFailed'; value: ResolutionCmdFailed }
 | { kind: 'ParseDependenciesFailed'; value: string }
 
+export type ScaResolutionError = {
+  type_: ResolutionError;
+  dependency_source_file: Fpath;
+}
+
+export type ScaError =
+| { kind: 'SCAParserError'; value: DependencyParserError }
+| { kind: 'SCAResolutionError'; value: ScaResolutionError }
+
 export type ResolutionCmdFailed = {
   command: string;
   message: string;
@@ -4290,6 +4299,42 @@ export function readResolutionError(x: any, context: any = x): ResolutionError {
         _atd_bad_json('ResolutionError', x, context)
         throw new Error('impossible')
     }
+  }
+}
+
+export function writeScaResolutionError(x: ScaResolutionError, context: any = x): any {
+  return {
+    'type_': _atd_write_required_field('ScaResolutionError', 'type_', writeResolutionError, x.type_, x),
+    'dependency_source_file': _atd_write_required_field('ScaResolutionError', 'dependency_source_file', writeFpath, x.dependency_source_file, x),
+  };
+}
+
+export function readScaResolutionError(x: any, context: any = x): ScaResolutionError {
+  return {
+    type_: _atd_read_required_field('ScaResolutionError', 'type_', readResolutionError, x['type_'], x),
+    dependency_source_file: _atd_read_required_field('ScaResolutionError', 'dependency_source_file', readFpath, x['dependency_source_file'], x),
+  };
+}
+
+export function writeScaError(x: ScaError, context: any = x): any {
+  switch (x.kind) {
+    case 'SCAParserError':
+      return ['SCAParserError', writeDependencyParserError(x.value, x)]
+    case 'SCAResolutionError':
+      return ['SCAResolutionError', writeScaResolutionError(x.value, x)]
+  }
+}
+
+export function readScaError(x: any, context: any = x): ScaError {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'SCAParserError':
+      return { kind: 'SCAParserError', value: readDependencyParserError(x[1], x) }
+    case 'SCAResolutionError':
+      return { kind: 'SCAResolutionError', value: readScaResolutionError(x[1], x) }
+    default:
+      _atd_bad_json('ScaError', x, context)
+      throw new Error('impossible')
   }
 }
 
