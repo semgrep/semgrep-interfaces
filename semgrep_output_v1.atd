@@ -903,6 +903,14 @@ type skipped_rule = {
   position: position;
 }
 
+(* Result of get_targets internal RPC, similar to scanned_and_skipped but
+   more complete *)
+type target_discovery_result = {
+  target_paths: fpath list;
+  errors: core_error list;
+  skipped: skipped_target list;
+}
+
 (*****************************************************************************)
 (* Profiling information *)
 (*****************************************************************************)
@@ -2324,6 +2332,7 @@ type function_call <python decorator="dataclass(frozen=True)"> = [
   | CallUploadSymbolAnalysis of ((* token *) string * (* scan_id *) int * symbol_analysis)
   | CallDumpRulePartitions of dump_rule_partitions_params
   | CallTransitiveReachabilityFilter of transitive_finding list
+  | CallGetTargets of scanning_roots
 ]
 
 (* ----------------------------- *)
@@ -2342,6 +2351,7 @@ type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetUploadSymbolAnalysis of (* success msg *) string
   | RetDumpRulePartitions of bool
   | RetTransitiveReachabilityFilter of transitive_finding list
+  | RetGetTargets of target_discovery_result
 ]
 
 (*****************************************************************************)
