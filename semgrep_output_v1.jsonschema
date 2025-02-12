@@ -679,6 +679,24 @@
         "position": { "$ref": "#/definitions/position" }
       }
     },
+    "target_discovery_result": {
+      "type": "object",
+      "required": [ "target_paths", "errors", "skipped" ],
+      "properties": {
+        "target_paths": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/fpath" }
+        },
+        "errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/core_error" }
+        },
+        "skipped": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/skipped_target" }
+        }
+      }
+    },
     "profile": {
       "type": "object",
       "required": [
@@ -2125,6 +2143,15 @@
               "items": { "$ref": "#/definitions/transitive_finding" }
             }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CallGetTargets" },
+            { "$ref": "#/definitions/scanning_roots" }
+          ]
         }
       ]
     },
@@ -2224,6 +2251,15 @@
               "type": "array",
               "items": { "$ref": "#/definitions/transitive_finding" }
             }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "RetGetTargets" },
+            { "$ref": "#/definitions/target_discovery_result" }
           ]
         }
       ]

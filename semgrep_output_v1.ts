@@ -355,6 +355,12 @@ export type SkippedRule = {
   position: Position;
 }
 
+export type TargetDiscoveryResult = {
+  target_paths: Fpath[];
+  errors: CoreError[];
+  skipped: SkippedTarget[];
+}
+
 export type Profile = {
   rules: RuleId[];
   rules_parse_time: number;
@@ -1052,6 +1058,7 @@ export type FunctionCall =
 | { kind: 'CallUploadSymbolAnalysis'; value: [string, number /*int*/, SymbolAnalysis] }
 | { kind: 'CallDumpRulePartitions'; value: DumpRulePartitionsParams }
 | { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveFinding[] }
+| { kind: 'CallGetTargets'; value: ScanningRoots }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -1064,6 +1071,7 @@ export type FunctionReturn =
 | { kind: 'RetUploadSymbolAnalysis'; value: string }
 | { kind: 'RetDumpRulePartitions'; value: boolean }
 | { kind: 'RetTransitiveReachabilityFilter'; value: TransitiveFinding[] }
+| { kind: 'RetGetTargets'; value: TargetDiscoveryResult }
 
 export type PartialScanResult =
 | { kind: 'PartialScanOk'; value: [CiScanResults, CiScanComplete] }
@@ -2276,6 +2284,22 @@ export function readSkippedRule(x: any, context: any = x): SkippedRule {
     rule_id: _atd_read_required_field('SkippedRule', 'rule_id', readRuleId, x['rule_id'], x),
     details: _atd_read_required_field('SkippedRule', 'details', _atd_read_string, x['details'], x),
     position: _atd_read_required_field('SkippedRule', 'position', readPosition, x['position'], x),
+  };
+}
+
+export function writeTargetDiscoveryResult(x: TargetDiscoveryResult, context: any = x): any {
+  return {
+    'target_paths': _atd_write_required_field('TargetDiscoveryResult', 'target_paths', _atd_write_array(writeFpath), x.target_paths, x),
+    'errors': _atd_write_required_field('TargetDiscoveryResult', 'errors', _atd_write_array(writeCoreError), x.errors, x),
+    'skipped': _atd_write_required_field('TargetDiscoveryResult', 'skipped', _atd_write_array(writeSkippedTarget), x.skipped, x),
+  };
+}
+
+export function readTargetDiscoveryResult(x: any, context: any = x): TargetDiscoveryResult {
+  return {
+    target_paths: _atd_read_required_field('TargetDiscoveryResult', 'target_paths', _atd_read_array(readFpath), x['target_paths'], x),
+    errors: _atd_read_required_field('TargetDiscoveryResult', 'errors', _atd_read_array(readCoreError), x['errors'], x),
+    skipped: _atd_read_required_field('TargetDiscoveryResult', 'skipped', _atd_read_array(readSkippedTarget), x['skipped'], x),
   };
 }
 
@@ -4371,6 +4395,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallDumpRulePartitions', writeDumpRulePartitionsParams(x.value, x)]
     case 'CallTransitiveReachabilityFilter':
       return ['CallTransitiveReachabilityFilter', _atd_write_array(writeTransitiveFinding)(x.value, x)]
+    case 'CallGetTargets':
+      return ['CallGetTargets', writeScanningRoots(x.value, x)]
   }
 }
 
@@ -4403,6 +4429,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallDumpRulePartitions', value: readDumpRulePartitionsParams(x[1], x) }
       case 'CallTransitiveReachabilityFilter':
         return { kind: 'CallTransitiveReachabilityFilter', value: _atd_read_array(readTransitiveFinding)(x[1], x) }
+      case 'CallGetTargets':
+        return { kind: 'CallGetTargets', value: readScanningRoots(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -4432,6 +4460,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetDumpRulePartitions', _atd_write_bool(x.value, x)]
     case 'RetTransitiveReachabilityFilter':
       return ['RetTransitiveReachabilityFilter', _atd_write_array(writeTransitiveFinding)(x.value, x)]
+    case 'RetGetTargets':
+      return ['RetGetTargets', writeTargetDiscoveryResult(x.value, x)]
   }
 }
 
@@ -4458,6 +4488,8 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetDumpRulePartitions', value: _atd_read_bool(x[1], x) }
     case 'RetTransitiveReachabilityFilter':
       return { kind: 'RetTransitiveReachabilityFilter', value: _atd_read_array(readTransitiveFinding)(x[1], x) }
+    case 'RetGetTargets':
+      return { kind: 'RetGetTargets', value: readTargetDiscoveryResult(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')
