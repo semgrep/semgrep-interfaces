@@ -284,7 +284,7 @@ export type ErrorType =
 | { kind: 'IncompatibleRule'; value: IncompatibleRule }
 | { kind: 'PatternParseError0' /* JSON: "Pattern parse error" */ }
 | { kind: 'IncompatibleRule0' /* JSON: "Incompatible rule" */ }
-| { kind: 'DependencyResolutionError'; value: ResolutionError }
+| { kind: 'DependencyResolutionError'; value: ResolutionErrorKind }
 
 export type IncompatibleRule = {
   rule_id: RuleId;
@@ -1018,14 +1018,14 @@ export type DependencySource =
 | { kind: 'LockfileOnlyDependencySource'; value: Lockfile }
 | { kind: 'ManifestLockfileDependencySource'; value: [Manifest, Lockfile] }
 
-export type ResolutionError =
+export type ResolutionErrorKind =
 | { kind: 'UnsupportedManifest' }
 | { kind: 'MissingRequirement'; value: string }
 | { kind: 'ResolutionCmdFailed'; value: ResolutionCmdFailed }
 | { kind: 'ParseDependenciesFailed'; value: string }
 
 export type ScaResolutionError = {
-  type_: ResolutionError;
+  type_: ResolutionErrorKind;
   dependency_source_file: Fpath;
 }
 
@@ -1039,8 +1039,8 @@ export type ResolutionCmdFailed = {
 }
 
 export type ResolutionResult =
-| { kind: 'ResolutionOk'; value: [FoundDependency[], ResolutionError[]] }
-| { kind: 'ResolutionError'; value: ResolutionError[] }
+| { kind: 'ResolutionOk'; value: [FoundDependency[], ResolutionErrorKind[]] }
+| { kind: 'ResolutionError'; value: ResolutionErrorKind[] }
 
 export type TransitiveFinding = {
   m: CoreMatch;
@@ -2017,7 +2017,7 @@ export function writeErrorType(x: ErrorType, context: any = x): any {
     case 'IncompatibleRule0':
       return 'Incompatible rule'
     case 'DependencyResolutionError':
-      return ['DependencyResolutionError', writeResolutionError(x.value, x)]
+      return ['DependencyResolutionError', writeResolutionErrorKind(x.value, x)]
   }
 }
 
@@ -2083,7 +2083,7 @@ export function readErrorType(x: any, context: any = x): ErrorType {
       case 'IncompatibleRule':
         return { kind: 'IncompatibleRule', value: readIncompatibleRule(x[1], x) }
       case 'DependencyResolutionError':
-        return { kind: 'DependencyResolutionError', value: readResolutionError(x[1], x) }
+        return { kind: 'DependencyResolutionError', value: readResolutionErrorKind(x[1], x) }
       default:
         _atd_bad_json('ErrorType', x, context)
         throw new Error('impossible')
@@ -4263,7 +4263,7 @@ export function readDependencySource(x: any, context: any = x): DependencySource
   }
 }
 
-export function writeResolutionError(x: ResolutionError, context: any = x): any {
+export function writeResolutionErrorKind(x: ResolutionErrorKind, context: any = x): any {
   switch (x.kind) {
     case 'UnsupportedManifest':
       return 'UnsupportedManifest'
@@ -4276,13 +4276,13 @@ export function writeResolutionError(x: ResolutionError, context: any = x): any 
   }
 }
 
-export function readResolutionError(x: any, context: any = x): ResolutionError {
+export function readResolutionErrorKind(x: any, context: any = x): ResolutionErrorKind {
   if (typeof x === 'string') {
     switch (x) {
       case 'UnsupportedManifest':
         return { kind: 'UnsupportedManifest' }
       default:
-        _atd_bad_json('ResolutionError', x, context)
+        _atd_bad_json('ResolutionErrorKind', x, context)
         throw new Error('impossible')
     }
   }
@@ -4296,7 +4296,7 @@ export function readResolutionError(x: any, context: any = x): ResolutionError {
       case 'ParseDependenciesFailed':
         return { kind: 'ParseDependenciesFailed', value: _atd_read_string(x[1], x) }
       default:
-        _atd_bad_json('ResolutionError', x, context)
+        _atd_bad_json('ResolutionErrorKind', x, context)
         throw new Error('impossible')
     }
   }
@@ -4304,14 +4304,14 @@ export function readResolutionError(x: any, context: any = x): ResolutionError {
 
 export function writeScaResolutionError(x: ScaResolutionError, context: any = x): any {
   return {
-    'type_': _atd_write_required_field('ScaResolutionError', 'type_', writeResolutionError, x.type_, x),
+    'type_': _atd_write_required_field('ScaResolutionError', 'type_', writeResolutionErrorKind, x.type_, x),
     'dependency_source_file': _atd_write_required_field('ScaResolutionError', 'dependency_source_file', writeFpath, x.dependency_source_file, x),
   };
 }
 
 export function readScaResolutionError(x: any, context: any = x): ScaResolutionError {
   return {
-    type_: _atd_read_required_field('ScaResolutionError', 'type_', readResolutionError, x['type_'], x),
+    type_: _atd_read_required_field('ScaResolutionError', 'type_', readResolutionErrorKind, x['type_'], x),
     dependency_source_file: _atd_read_required_field('ScaResolutionError', 'dependency_source_file', readFpath, x['dependency_source_file'], x),
   };
 }
@@ -4355,9 +4355,9 @@ export function readResolutionCmdFailed(x: any, context: any = x): ResolutionCmd
 export function writeResolutionResult(x: ResolutionResult, context: any = x): any {
   switch (x.kind) {
     case 'ResolutionOk':
-      return ['ResolutionOk', ((x, context) => [_atd_write_array(writeFoundDependency)(x[0], x), _atd_write_array(writeResolutionError)(x[1], x)])(x.value, x)]
+      return ['ResolutionOk', ((x, context) => [_atd_write_array(writeFoundDependency)(x[0], x), _atd_write_array(writeResolutionErrorKind)(x[1], x)])(x.value, x)]
     case 'ResolutionError':
-      return ['ResolutionError', _atd_write_array(writeResolutionError)(x.value, x)]
+      return ['ResolutionError', _atd_write_array(writeResolutionErrorKind)(x.value, x)]
   }
 }
 
@@ -4365,9 +4365,9 @@ export function readResolutionResult(x: any, context: any = x): ResolutionResult
   _atd_check_json_tuple(2, x, context)
   switch (x[0]) {
     case 'ResolutionOk':
-      return { kind: 'ResolutionOk', value: ((x, context): [FoundDependency[], ResolutionError[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_array(readFoundDependency)(x[0], x), _atd_read_array(readResolutionError)(x[1], x)] })(x[1], x) }
+      return { kind: 'ResolutionOk', value: ((x, context): [FoundDependency[], ResolutionErrorKind[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_array(readFoundDependency)(x[0], x), _atd_read_array(readResolutionErrorKind)(x[1], x)] })(x[1], x) }
     case 'ResolutionError':
-      return { kind: 'ResolutionError', value: _atd_read_array(readResolutionError)(x[1], x) }
+      return { kind: 'ResolutionError', value: _atd_read_array(readResolutionErrorKind)(x[1], x) }
     default:
       _atd_bad_json('ResolutionResult', x, context)
       throw new Error('impossible')

@@ -369,7 +369,7 @@ type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
 }
   [@@deriving show]
 
-type resolution_error = Semgrep_output_v1_t.resolution_error
+type resolution_error_kind = Semgrep_output_v1_t.resolution_error_kind
   [@@deriving show]
 
 type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
@@ -406,7 +406,7 @@ type error_type = Semgrep_output_v1_t.error_type =
   | IncompatibleRule of incompatible_rule
   | PatternParseError0
   | IncompatibleRule0
-  | DependencyResolutionError of resolution_error
+  | DependencyResolutionError of resolution_error_kind
 
   [@@deriving show]
 
@@ -617,7 +617,7 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
 }
 
 type sca_resolution_error = Semgrep_output_v1_t.sca_resolution_error = {
-  type_: resolution_error;
+  type_: resolution_error_kind;
   dependency_source_file: fpath
 }
 
@@ -2349,25 +2349,25 @@ val resolution_cmd_failed_of_string :
   string -> resolution_cmd_failed
   (** Deserialize JSON data of type {!type:resolution_cmd_failed}. *)
 
-val write_resolution_error :
-  Buffer.t -> resolution_error -> unit
-  (** Output a JSON value of type {!type:resolution_error}. *)
+val write_resolution_error_kind :
+  Buffer.t -> resolution_error_kind -> unit
+  (** Output a JSON value of type {!type:resolution_error_kind}. *)
 
-val string_of_resolution_error :
-  ?len:int -> resolution_error -> string
-  (** Serialize a value of type {!type:resolution_error}
+val string_of_resolution_error_kind :
+  ?len:int -> resolution_error_kind -> string
+  (** Serialize a value of type {!type:resolution_error_kind}
       into a JSON string.
       @param len specifies the initial length
                  of the buffer used internally.
                  Default: 1024. *)
 
-val read_resolution_error :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_error
-  (** Input JSON data of type {!type:resolution_error}. *)
+val read_resolution_error_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_error_kind
+  (** Input JSON data of type {!type:resolution_error_kind}. *)
 
-val resolution_error_of_string :
-  string -> resolution_error
-  (** Deserialize JSON data of type {!type:resolution_error}. *)
+val resolution_error_kind_of_string :
+  string -> resolution_error_kind
+  (** Deserialize JSON data of type {!type:resolution_error_kind}. *)
 
 val write_incompatible_rule :
   Buffer.t -> incompatible_rule -> unit

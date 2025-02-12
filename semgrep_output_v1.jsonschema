@@ -573,7 +573,7 @@
           "items": false,
           "prefixItems": [
             { "const": "DependencyResolutionError" },
-            { "$ref": "#/definitions/resolution_error" }
+            { "$ref": "#/definitions/resolution_error_kind" }
           ]
         }
       ]
@@ -1933,7 +1933,7 @@
         }
       ]
     },
-    "resolution_error": {
+    "resolution_error_kind": {
       "oneOf": [
         { "const": "UnsupportedManifest" },
         {
@@ -1967,7 +1967,7 @@
       "type": "object",
       "required": [ "type_", "dependency_source_file" ],
       "properties": {
-        "type_": { "$ref": "#/definitions/resolution_error" },
+        "type_": { "$ref": "#/definitions/resolution_error_kind" },
         "dependency_source_file": { "$ref": "#/definitions/fpath" }
       }
     },
@@ -2020,7 +2020,7 @@
                 },
                 {
                   "type": "array",
-                  "items": { "$ref": "#/definitions/resolution_error" }
+                  "items": { "$ref": "#/definitions/resolution_error_kind" }
                 }
               ]
             }
@@ -2034,7 +2034,7 @@
             { "const": "ResolutionError" },
             {
               "type": "array",
-              "items": { "$ref": "#/definitions/resolution_error" }
+              "items": { "$ref": "#/definitions/resolution_error_kind" }
             }
           ]
         }

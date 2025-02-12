@@ -768,7 +768,7 @@ type error_type
   | PatternParseError0 <json name="Pattern parse error">
   | IncompatibleRule0 <json name="Incompatible rule">
   (* since semgrep 1.94.0 *)
-  | DependencyResolutionError of resolution_error
+  | DependencyResolutionError of resolution_error_kind
 ] <ocaml repr="classic">
 
 type incompatible_rule
@@ -2241,7 +2241,7 @@ type dependency_source
   | ManifestLockfileDependencySource of (manifest * lockfile)
 ] <ocaml repr="classic">
 
-type resolution_error
+type resolution_error_kind
     <ocaml attr="deriving show">
     <python decorator="dataclass(frozen=True)"> =
 [
@@ -2255,7 +2255,7 @@ type resolution_error
  * TODO? we should merge dependency_{parser,resolution}_error cli_error
  *)
 type sca_resolution_error = {
-  type_: resolution_error;
+  type_: resolution_error_kind;
   dependency_source_file: fpath;
 }
 type sca_error = [
@@ -2277,8 +2277,8 @@ type resolution_cmd_failed
  * lockfile parsing might partially fail but recover and still produce results)
 *)
 type resolution_result = [
-  | ResolutionOk of (found_dependency list * resolution_error list)
-  | ResolutionError of resolution_error list
+  | ResolutionOk of (found_dependency list * resolution_error_kind list)
+  | ResolutionError of resolution_error_kind list
 ]
 
 type transitive_finding = {

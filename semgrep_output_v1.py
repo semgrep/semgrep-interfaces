@@ -4503,7 +4503,7 @@ class ResolutionCmdFailed:
 
 @dataclass(frozen=True)
 class UnsupportedManifest:
-    """Original type: resolution_error = [ ... | UnsupportedManifest | ... ]"""
+    """Original type: resolution_error_kind = [ ... | UnsupportedManifest | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4520,7 +4520,7 @@ class UnsupportedManifest:
 
 @dataclass(frozen=True)
 class MissingRequirement:
-    """Original type: resolution_error = [ ... | MissingRequirement of ... | ... ]"""
+    """Original type: resolution_error_kind = [ ... | MissingRequirement of ... | ... ]"""
 
     value: str
 
@@ -4538,7 +4538,7 @@ class MissingRequirement:
 
 @dataclass(frozen=True)
 class ResolutionCmdFailed_:
-    """Original type: resolution_error = [ ... | ResolutionCmdFailed of ... | ... ]"""
+    """Original type: resolution_error_kind = [ ... | ResolutionCmdFailed of ... | ... ]"""
 
     value: ResolutionCmdFailed
 
@@ -4556,7 +4556,7 @@ class ResolutionCmdFailed_:
 
 @dataclass(frozen=True)
 class ParseDependenciesFailed:
-    """Original type: resolution_error = [ ... | ParseDependenciesFailed of ... | ... ]"""
+    """Original type: resolution_error_kind = [ ... | ParseDependenciesFailed of ... | ... ]"""
 
     value: str
 
@@ -4573,8 +4573,8 @@ class ParseDependenciesFailed:
 
 
 @dataclass(frozen=True)
-class ResolutionError:
-    """Original type: resolution_error = [ ... ]"""
+class ResolutionErrorKind:
+    """Original type: resolution_error_kind = [ ... ]"""
 
     value: Union[UnsupportedManifest, MissingRequirement, ResolutionCmdFailed_, ParseDependenciesFailed]
 
@@ -4584,11 +4584,11 @@ class ResolutionError:
         return self.value.kind
 
     @classmethod
-    def from_json(cls, x: Any) -> 'ResolutionError':
+    def from_json(cls, x: Any) -> 'ResolutionErrorKind':
         if isinstance(x, str):
             if x == 'UnsupportedManifest':
                 return cls(UnsupportedManifest())
-            _atd_bad_json('ResolutionError', x)
+            _atd_bad_json('ResolutionErrorKind', x)
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'MissingRequirement':
@@ -4597,14 +4597,14 @@ class ResolutionError:
                 return cls(ResolutionCmdFailed_(ResolutionCmdFailed.from_json(x[1])))
             if cons == 'ParseDependenciesFailed':
                 return cls(ParseDependenciesFailed(_atd_read_string(x[1])))
-            _atd_bad_json('ResolutionError', x)
-        _atd_bad_json('ResolutionError', x)
+            _atd_bad_json('ResolutionErrorKind', x)
+        _atd_bad_json('ResolutionErrorKind', x)
 
     def to_json(self) -> Any:
         return self.value.to_json()
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'ResolutionError':
+    def from_json_string(cls, x: str) -> 'ResolutionErrorKind':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -5082,7 +5082,7 @@ class IncompatibleRule0:
 class DependencyResolutionError:
     """Original type: error_type = [ ... | DependencyResolutionError of ... | ... ]"""
 
-    value: ResolutionError
+    value: ResolutionErrorKind
 
     @property
     def kind(self) -> str:
@@ -5164,7 +5164,7 @@ class ErrorType:
             if cons == 'IncompatibleRule':
                 return cls(IncompatibleRule_(IncompatibleRule.from_json(x[1])))
             if cons == 'DependencyResolutionError':
-                return cls(DependencyResolutionError(ResolutionError.from_json(x[1])))
+                return cls(DependencyResolutionError(ResolutionErrorKind.from_json(x[1])))
             _atd_bad_json('ErrorType', x)
         _atd_bad_json('ErrorType', x)
 
@@ -6903,14 +6903,14 @@ class ScanConfig:
 class ScaResolutionError:
     """Original type: sca_resolution_error = { ... }"""
 
-    type_: ResolutionError
+    type_: ResolutionErrorKind
     dependency_source_file: Fpath
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScaResolutionError':
         if isinstance(x, dict):
             return cls(
-                type_=ResolutionError.from_json(x['type_']) if 'type_' in x else _atd_missing_json_field('ScaResolutionError', 'type_'),
+                type_=ResolutionErrorKind.from_json(x['type_']) if 'type_' in x else _atd_missing_json_field('ScaResolutionError', 'type_'),
                 dependency_source_file=Fpath.from_json(x['dependency_source_file']) if 'dependency_source_file' in x else _atd_missing_json_field('ScaResolutionError', 'dependency_source_file'),
             )
         else:
@@ -7597,7 +7597,7 @@ class RuleIdAndEngineKind:
 class ResolutionOk:
     """Original type: resolution_result = [ ... | ResolutionOk of ... | ... ]"""
 
-    value: Tuple[List[FoundDependency], List[ResolutionError]]
+    value: Tuple[List[FoundDependency], List[ResolutionErrorKind]]
 
     @property
     def kind(self) -> str:
@@ -7612,15 +7612,15 @@ class ResolutionOk:
 
 
 @dataclass
-class ResolutionError_:
+class ResolutionError:
     """Original type: resolution_result = [ ... | ResolutionError of ... | ... ]"""
 
-    value: List[ResolutionError]
+    value: List[ResolutionErrorKind]
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'ResolutionError_'
+        return 'ResolutionError'
 
     def to_json(self) -> Any:
         return ['ResolutionError', _atd_write_list((lambda x: x.to_json()))(self.value)]
@@ -7633,7 +7633,7 @@ class ResolutionError_:
 class ResolutionResult:
     """Original type: resolution_result = [ ... ]"""
 
-    value: Union[ResolutionOk, ResolutionError_]
+    value: Union[ResolutionOk, ResolutionError]
 
     @property
     def kind(self) -> str:
@@ -7645,9 +7645,9 @@ class ResolutionResult:
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'ResolutionOk':
-                return cls(ResolutionOk((lambda x: (_atd_read_list(FoundDependency.from_json)(x[0]), _atd_read_list(ResolutionError.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+                return cls(ResolutionOk((lambda x: (_atd_read_list(FoundDependency.from_json)(x[0]), _atd_read_list(ResolutionErrorKind.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
             if cons == 'ResolutionError':
-                return cls(ResolutionError_(_atd_read_list(ResolutionError.from_json)(x[1])))
+                return cls(ResolutionError(_atd_read_list(ResolutionErrorKind.from_json)(x[1])))
             _atd_bad_json('ResolutionResult', x)
         _atd_bad_json('ResolutionResult', x)
 

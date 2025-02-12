@@ -369,7 +369,7 @@ type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
 }
   [@@deriving show]
 
-type resolution_error = Semgrep_output_v1_t.resolution_error
+type resolution_error_kind = Semgrep_output_v1_t.resolution_error_kind
   [@@deriving show]
 
 type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
@@ -406,7 +406,7 @@ type error_type = Semgrep_output_v1_t.error_type =
   | IncompatibleRule of incompatible_rule
   | PatternParseError0
   | IncompatibleRule0
-  | DependencyResolutionError of resolution_error
+  | DependencyResolutionError of resolution_error_kind
 
   [@@deriving show]
 
@@ -617,7 +617,7 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
 }
 
 type sca_resolution_error = Semgrep_output_v1_t.sca_resolution_error = {
-  type_: resolution_error;
+  type_: resolution_error_kind;
   dependency_source_file: fpath
 }
 
@@ -13666,7 +13666,7 @@ let read_resolution_cmd_failed = (
 )
 let resolution_cmd_failed_of_string s =
   read_resolution_cmd_failed (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_resolution_error = (
+let write_resolution_error_kind = (
   fun ob x ->
     match x with
       | `UnsupportedManifest -> Buffer.add_string ob "\"UnsupportedManifest\""
@@ -13689,11 +13689,11 @@ let write_resolution_error = (
         ) ob x;
         Buffer.add_char ob ']'
 )
-let string_of_resolution_error ?(len = 1024) x =
+let string_of_resolution_error_kind ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_resolution_error ob x;
+  write_resolution_error_kind ob x;
   Buffer.contents ob
-let read_resolution_error = (
+let read_resolution_error_kind = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     match Yojson.Safe.start_any_variant p lb with
@@ -13779,8 +13779,8 @@ let read_resolution_error = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-let resolution_error_of_string s =
-  read_resolution_error (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let resolution_error_kind_of_string s =
+  read_resolution_error_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__version_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     write_version
@@ -14173,7 +14173,7 @@ let write_error_type : _ -> error_type -> _ = (
       | DependencyResolutionError x ->
         Buffer.add_string ob "[\"DependencyResolutionError\",";
         (
-          write_resolution_error
+          write_resolution_error_kind
         ) ob x;
         Buffer.add_char ob ']'
 )
@@ -14305,7 +14305,7 @@ let read_error_type = (
             | "DependencyResolutionError" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read_resolution_error
+                  read_resolution_error_kind
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -14403,7 +14403,7 @@ let read_error_type = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read_resolution_error
+                  read_resolution_error_kind
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -22756,7 +22756,7 @@ let write_sca_resolution_error : _ -> sca_resolution_error -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"type_\":";
     (
-      write_resolution_error
+      write_resolution_error_kind
     )
       ob x.type_;
     if !is_first then
@@ -22817,7 +22817,7 @@ let read_sca_resolution_error = (
             field_type_ := (
               Some (
                 (
-                  read_resolution_error
+                  read_resolution_error_kind
                 ) p lb
               )
             );
@@ -22870,7 +22870,7 @@ let read_sca_resolution_error = (
               field_type_ := (
                 Some (
                   (
-                    read_resolution_error
+                    read_resolution_error_kind
                   ) p lb
                 )
               );
@@ -23831,22 +23831,22 @@ let read_rule_id_and_engine_kind = (
 )
 let rule_id_and_engine_kind_of_string s =
   read_rule_id_and_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__resolution_error_list = (
+let write__resolution_error_kind_list = (
   Atdgen_runtime.Oj_run.write_list (
-    write_resolution_error
+    write_resolution_error_kind
   )
 )
-let string_of__resolution_error_list ?(len = 1024) x =
+let string_of__resolution_error_kind_list ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__resolution_error_list ob x;
+  write__resolution_error_kind_list ob x;
   Buffer.contents ob
-let read__resolution_error_list = (
+let read__resolution_error_kind_list = (
   Atdgen_runtime.Oj_run.read_list (
-    read_resolution_error
+    read_resolution_error_kind
   )
 )
-let _resolution_error_list_of_string s =
-  read__resolution_error_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _resolution_error_kind_list_of_string s =
+  read__resolution_error_kind_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__found_dependency_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_found_dependency
@@ -23879,7 +23879,7 @@ let write_resolution_result = (
             Buffer.add_char ob ',';
             (let _, x = x in
             (
-              write__resolution_error_list
+              write__resolution_error_kind_list
             ) ob x
             );
             Buffer.add_char ob ']';
@@ -23888,7 +23888,7 @@ let write_resolution_result = (
       | `ResolutionError x ->
         Buffer.add_string ob "[\"ResolutionError\",";
         (
-          write__resolution_error_list
+          write__resolution_error_kind_list
         ) ob x;
         Buffer.add_char ob ']'
 )
@@ -23925,7 +23925,7 @@ let read_resolution_result = (
                       let x1 =
                         let x =
                           (
-                            read__resolution_error_list
+                            read__resolution_error_kind_list
                           ) p lb
                         in
                         incr len;
@@ -23955,7 +23955,7 @@ let read_resolution_result = (
             | "ResolutionError" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read__resolution_error_list
+                  read__resolution_error_kind_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -23996,7 +23996,7 @@ let read_resolution_result = (
                       let x1 =
                         let x =
                           (
-                            read__resolution_error_list
+                            read__resolution_error_kind_list
                           ) p lb
                         in
                         incr len;
@@ -24028,7 +24028,7 @@ let read_resolution_result = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read__resolution_error_list
+                  read__resolution_error_kind_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
