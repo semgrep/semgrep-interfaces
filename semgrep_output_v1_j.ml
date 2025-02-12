@@ -295,8 +295,7 @@ type targeting_conf = Semgrep_output_v1_t.targeting_conf = {
   force_project_root: project_root option;
   force_novcs_project: bool;
   exclude_minified_files: bool;
-  baseline_commit: string option;
-  diff_depth: int
+  baseline_commit: string option
 }
   [@@deriving show]
 
@@ -11139,15 +11138,6 @@ let write_targeting_conf : _ -> targeting_conf -> _ = (
       )
         ob x;
     );
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"diff_depth\":";
-    (
-      Yojson.Safe.write_int
-    )
-      ob x.diff_depth;
     Buffer.add_char ob '}';
 )
 let string_of_targeting_conf ?(len = 1024) x =
@@ -11169,7 +11159,6 @@ let read_targeting_conf = (
     let field_force_novcs_project = ref (None) in
     let field_exclude_minified_files = ref (None) in
     let field_baseline_commit = ref (None) in
-    let field_diff_depth = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -11190,14 +11179,6 @@ let read_targeting_conf = (
             | 8 -> (
                 if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = '_' then (
                   1
-                )
-                else (
-                  -1
-                )
-              )
-            | 10 -> (
-                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'f' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'h' then (
-                  11
                 )
                 else (
                   -1
@@ -11383,14 +11364,6 @@ let read_targeting_conf = (
                 )
               );
             )
-          | 11 ->
-            field_diff_depth := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_int
-                ) p lb
-              )
-            );
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -11415,14 +11388,6 @@ let read_targeting_conf = (
               | 8 -> (
                   if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = '_' then (
                     1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 10 -> (
-                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'f' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'h' then (
-                    11
                   )
                   else (
                     -1
@@ -11608,14 +11573,6 @@ let read_targeting_conf = (
                   )
                 );
               )
-            | 11 ->
-              field_diff_depth := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_int
-                  ) p lb
-                )
-              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -11636,7 +11593,6 @@ let read_targeting_conf = (
             force_novcs_project = (match !field_force_novcs_project with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "force_novcs_project");
             exclude_minified_files = (match !field_exclude_minified_files with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "exclude_minified_files");
             baseline_commit = !field_baseline_commit;
-            diff_depth = (match !field_diff_depth with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "diff_depth");
           }
          : targeting_conf)
       )

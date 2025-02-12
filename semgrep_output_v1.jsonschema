@@ -1659,8 +1659,7 @@
       "required": [
         "exclude", "max_target_bytes", "respect_gitignore",
         "respect_semgrepignore_files", "always_select_explicit_targets",
-        "explicit_targets", "force_novcs_project", "exclude_minified_files",
-        "diff_depth"
+        "explicit_targets", "force_novcs_project", "exclude_minified_files"
       ],
       "properties": {
         "exclude": { "type": "array", "items": { "type": "string" } },
@@ -1676,8 +1675,7 @@
         "force_project_root": { "$ref": "#/definitions/project_root" },
         "force_novcs_project": { "type": "boolean" },
         "exclude_minified_files": { "type": "boolean" },
-        "baseline_commit": { "type": "string" },
-        "diff_depth": { "type": "integer" }
+        "baseline_commit": { "type": "string" }
       }
     },
     "analyzer": { "type": "string" },
