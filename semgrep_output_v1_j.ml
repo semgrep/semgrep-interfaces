@@ -378,7 +378,12 @@ type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
 }
   [@@deriving show]
 
-type resolution_error_kind = Semgrep_output_v1_t.resolution_error_kind
+type resolution_error_kind = Semgrep_output_v1_t.resolution_error_kind = 
+    UnsupportedManifest
+  | MissingRequirement of string
+  | ResolutionCmdFailed of resolution_cmd_failed
+  | ParseDependenciesFailed of string
+
   [@@deriving show]
 
 type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
@@ -13851,23 +13856,23 @@ let read_resolution_cmd_failed = (
 )
 let resolution_cmd_failed_of_string s =
   read_resolution_cmd_failed (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_resolution_error_kind = (
-  fun ob x ->
+let write_resolution_error_kind : _ -> resolution_error_kind -> _ = (
+  fun ob (x : resolution_error_kind) ->
     match x with
-      | `UnsupportedManifest -> Buffer.add_string ob "\"UnsupportedManifest\""
-      | `MissingRequirement x ->
+      | UnsupportedManifest -> Buffer.add_string ob "\"UnsupportedManifest\""
+      | MissingRequirement x ->
         Buffer.add_string ob "[\"MissingRequirement\",";
         (
           Yojson.Safe.write_string
         ) ob x;
         Buffer.add_char ob ']'
-      | `ResolutionCmdFailed x ->
+      | ResolutionCmdFailed x ->
         Buffer.add_string ob "[\"ResolutionCmdFailed\",";
         (
           write_resolution_cmd_failed
         ) ob x;
         Buffer.add_char ob ']'
-      | `ParseDependenciesFailed x ->
+      | ParseDependenciesFailed x ->
         Buffer.add_string ob "[\"ParseDependenciesFailed\",";
         (
           Yojson.Safe.write_string
@@ -13887,7 +13892,7 @@ let read_resolution_error_kind = (
             | "UnsupportedManifest" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `UnsupportedManifest
+              (UnsupportedManifest : resolution_error_kind)
             | "MissingRequirement" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -13896,7 +13901,7 @@ let read_resolution_error_kind = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `MissingRequirement x
+              (MissingRequirement x : resolution_error_kind)
             | "ResolutionCmdFailed" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -13905,7 +13910,7 @@ let read_resolution_error_kind = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `ResolutionCmdFailed x
+              (ResolutionCmdFailed x : resolution_error_kind)
             | "ParseDependenciesFailed" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -13914,14 +13919,14 @@ let read_resolution_error_kind = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `ParseDependenciesFailed x
+              (ParseDependenciesFailed x : resolution_error_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "UnsupportedManifest" ->
-              `UnsupportedManifest
+              (UnsupportedManifest : resolution_error_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -13937,7 +13942,7 @@ let read_resolution_error_kind = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
-              `MissingRequirement x
+              (MissingRequirement x : resolution_error_kind)
             | "ResolutionCmdFailed" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -13948,7 +13953,7 @@ let read_resolution_error_kind = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
-              `ResolutionCmdFailed x
+              (ResolutionCmdFailed x : resolution_error_kind)
             | "ParseDependenciesFailed" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -13959,7 +13964,7 @@ let read_resolution_error_kind = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
-              `ParseDependenciesFailed x
+              (ParseDependenciesFailed x : resolution_error_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

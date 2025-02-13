@@ -378,7 +378,12 @@ type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
 }
   [@@deriving show]
 
-type resolution_error_kind = Semgrep_output_v1_t.resolution_error_kind
+type resolution_error_kind = Semgrep_output_v1_t.resolution_error_kind = 
+    UnsupportedManifest
+  | MissingRequirement of string
+  | ResolutionCmdFailed of resolution_cmd_failed
+  | ParseDependenciesFailed of string
+
   [@@deriving show]
 
 type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {

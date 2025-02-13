@@ -2254,7 +2254,7 @@ type resolution_error_kind
   | MissingRequirement of string
   | ResolutionCmdFailed of resolution_cmd_failed
   | ParseDependenciesFailed of string
-]
+] <ocaml repr="classic">
 
 (* used only from pysemgrep for now
  * TODO? we should merge dependency_{parser,resolution}_error with cli_error
