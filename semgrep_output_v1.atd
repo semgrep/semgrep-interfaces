@@ -769,6 +769,8 @@ type error_type
   | IncompatibleRule0 <json name="Incompatible rule">
   (* since semgrep 1.94.0 *)
   | DependencyResolutionError of resolution_error_kind
+  (* since semgrep 1.109.0 (to replace dependency_parser_error) *)
+  | ScaParseError of sca_parser_name
 ] <ocaml repr="classic">
 
 type incompatible_rule
@@ -1585,6 +1587,7 @@ type ci_scan_complete = {
   stats: ci_scan_complete_stats;
   (* TODO: remove when min version is 1.38.0 *)
   ?dependencies: ci_scan_dependencies option;
+  (* TODO: move the errors in ci_scan_complete_stats.errors instead *)
   ?dependency_parser_errors: dependency_parser_error list option;
   (* since 1.31.0 *)
   ?task_id: string option;
@@ -1662,6 +1665,7 @@ type ci_scan_dependencies = (string * found_dependency list) list
     <python repr="dict">
     <ts repr="map">
 
+(* TODO: get rid of; should use cli_error with error_type ScaParseError *)
 type dependency_parser_error = {
   path: fpath;
   parser: sca_parser_name;
@@ -1674,33 +1678,34 @@ type dependency_parser_error = {
   ?text: string option;
 }
 
-(* json names are to maintain backwards compatibility with the python enum it
- * is replacing
- * TODO: use <ocaml repr="classic">
+(* JSON names are to maintain backwards compatibility with the python enum it
+ * is replacing. The P prefix (for parser) is to avoid ambiguity with similar
+ * construtor names in the manifest and ecosystem types.
  *)
-type sca_parser_name = [
-  | Gemfile_lock <json name="gemfile_lock">
-  | Go_mod <json name="go_mod">
-  | Go_sum <json name="go_sum">
-  | Gradle_lockfile <json name="gradle_lockfile">
-  | Gradle_build <json name="gradle_build">
-  | Jsondoc <json name="jsondoc">
-  | Pipfile <json name="pipfile">
-  | Pnpm_lock <json name="pnpm_lock">
-  | Poetry_lock <json name="poetry_lock">
-  | Pyproject_toml <json name="pyproject_toml">
-  | Requirements <json name="requirements">
-  | Yarn_1 <json name="yarn_1">
-  | Yarn_2 <json name="yarn_2">
-  | Pomtree <json name="pomtree">
-  | Cargo_parser <json name="cargo">
-  | Composer_lock <json name="composer_lock">
-  | Pubspec_lock <json name="pubspec_lock">
-  | Package_swift <json name="package_swift">
-  | Podfile_lock <json name="podfile_lock">
-  | Package_resolved <json name="package_resolved">
-  | Mix_lock <json name="mix_lock">
-]
+type sca_parser_name <ocaml attr="deriving show"> = [
+  | PGemfile_lock <json name="gemfile_lock">
+  | PGo_mod <json name="go_mod">
+  | PGo_sum <json name="go_sum">
+  | PGradle_lockfile <json name="gradle_lockfile">
+  | PGradle_build <json name="gradle_build">
+  | PJsondoc <json name="jsondoc">
+  | PPipfile <json name="pipfile">
+  | PPnpm_lock <json name="pnpm_lock">
+  | PPoetry_lock <json name="poetry_lock">
+  | PPyproject_toml <json name="pyproject_toml">
+  | PRequirements <json name="requirements">
+  | PYarn_1 <json name="yarn_1">
+  | PYarn_2 <json name="yarn_2">
+  | PPomtree <json name="pomtree">
+  | PCargo_parser <json name="cargo">
+  | PComposer_lock <json name="composer_lock">
+  | PPubspec_lock <json name="pubspec_lock">
+  | PPackage_swift <json name="package_swift">
+  | PPodfile_lock <json name="podfile_lock">
+  | PPackage_resolved <json name="package_resolved">
+  | PMix_lock <json name="mix_lock">
+] <ocaml repr="classic">
+
 
 type supply_chain_stats = {
   subprojects_stats: subproject_stats list;
@@ -2252,7 +2257,7 @@ type resolution_error_kind
 ]
 
 (* used only from pysemgrep for now
- * TODO? we should merge dependency_{parser,resolution}_error cli_error
+ * TODO? we should merge dependency_{parser,resolution}_error with cli_error
  *)
 type sca_resolution_error = {
   type_: resolution_error_kind;

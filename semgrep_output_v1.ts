@@ -285,6 +285,7 @@ export type ErrorType =
 | { kind: 'PatternParseError0' /* JSON: "Pattern parse error" */ }
 | { kind: 'IncompatibleRule0' /* JSON: "Incompatible rule" */ }
 | { kind: 'DependencyResolutionError'; value: ResolutionErrorKind }
+| { kind: 'ScaParseError'; value: ScaParserName }
 
 export type IncompatibleRule = {
   rule_id: RuleId;
@@ -701,27 +702,27 @@ export type DependencyParserError = {
 }
 
 export type ScaParserName =
-| { kind: 'Gemfile_lock' /* JSON: "gemfile_lock" */ }
-| { kind: 'Go_mod' /* JSON: "go_mod" */ }
-| { kind: 'Go_sum' /* JSON: "go_sum" */ }
-| { kind: 'Gradle_lockfile' /* JSON: "gradle_lockfile" */ }
-| { kind: 'Gradle_build' /* JSON: "gradle_build" */ }
-| { kind: 'Jsondoc' /* JSON: "jsondoc" */ }
-| { kind: 'Pipfile' /* JSON: "pipfile" */ }
-| { kind: 'Pnpm_lock' /* JSON: "pnpm_lock" */ }
-| { kind: 'Poetry_lock' /* JSON: "poetry_lock" */ }
-| { kind: 'Pyproject_toml' /* JSON: "pyproject_toml" */ }
-| { kind: 'Requirements' /* JSON: "requirements" */ }
-| { kind: 'Yarn_1' /* JSON: "yarn_1" */ }
-| { kind: 'Yarn_2' /* JSON: "yarn_2" */ }
-| { kind: 'Pomtree' /* JSON: "pomtree" */ }
-| { kind: 'Cargo_parser' /* JSON: "cargo" */ }
-| { kind: 'Composer_lock' /* JSON: "composer_lock" */ }
-| { kind: 'Pubspec_lock' /* JSON: "pubspec_lock" */ }
-| { kind: 'Package_swift' /* JSON: "package_swift" */ }
-| { kind: 'Podfile_lock' /* JSON: "podfile_lock" */ }
-| { kind: 'Package_resolved' /* JSON: "package_resolved" */ }
-| { kind: 'Mix_lock' /* JSON: "mix_lock" */ }
+| { kind: 'PGemfile_lock' /* JSON: "gemfile_lock" */ }
+| { kind: 'PGo_mod' /* JSON: "go_mod" */ }
+| { kind: 'PGo_sum' /* JSON: "go_sum" */ }
+| { kind: 'PGradle_lockfile' /* JSON: "gradle_lockfile" */ }
+| { kind: 'PGradle_build' /* JSON: "gradle_build" */ }
+| { kind: 'PJsondoc' /* JSON: "jsondoc" */ }
+| { kind: 'PPipfile' /* JSON: "pipfile" */ }
+| { kind: 'PPnpm_lock' /* JSON: "pnpm_lock" */ }
+| { kind: 'PPoetry_lock' /* JSON: "poetry_lock" */ }
+| { kind: 'PPyproject_toml' /* JSON: "pyproject_toml" */ }
+| { kind: 'PRequirements' /* JSON: "requirements" */ }
+| { kind: 'PYarn_1' /* JSON: "yarn_1" */ }
+| { kind: 'PYarn_2' /* JSON: "yarn_2" */ }
+| { kind: 'PPomtree' /* JSON: "pomtree" */ }
+| { kind: 'PCargo_parser' /* JSON: "cargo" */ }
+| { kind: 'PComposer_lock' /* JSON: "composer_lock" */ }
+| { kind: 'PPubspec_lock' /* JSON: "pubspec_lock" */ }
+| { kind: 'PPackage_swift' /* JSON: "package_swift" */ }
+| { kind: 'PPodfile_lock' /* JSON: "podfile_lock" */ }
+| { kind: 'PPackage_resolved' /* JSON: "package_resolved" */ }
+| { kind: 'PMix_lock' /* JSON: "mix_lock" */ }
 
 export type SupplyChainStats = {
   subprojects_stats: SubprojectStats[];
@@ -2018,6 +2019,8 @@ export function writeErrorType(x: ErrorType, context: any = x): any {
       return 'Incompatible rule'
     case 'DependencyResolutionError':
       return ['DependencyResolutionError', writeResolutionErrorKind(x.value, x)]
+    case 'ScaParseError':
+      return ['ScaParseError', writeScaParserName(x.value, x)]
   }
 }
 
@@ -2084,6 +2087,8 @@ export function readErrorType(x: any, context: any = x): ErrorType {
         return { kind: 'IncompatibleRule', value: readIncompatibleRule(x[1], x) }
       case 'DependencyResolutionError':
         return { kind: 'DependencyResolutionError', value: readResolutionErrorKind(x[1], x) }
+      case 'ScaParseError':
+        return { kind: 'ScaParseError', value: readScaParserName(x[1], x) }
       default:
         _atd_bad_json('ErrorType', x, context)
         throw new Error('impossible')
@@ -3254,47 +3259,47 @@ export function readDependencyParserError(x: any, context: any = x): DependencyP
 
 export function writeScaParserName(x: ScaParserName, context: any = x): any {
   switch (x.kind) {
-    case 'Gemfile_lock':
+    case 'PGemfile_lock':
       return 'gemfile_lock'
-    case 'Go_mod':
+    case 'PGo_mod':
       return 'go_mod'
-    case 'Go_sum':
+    case 'PGo_sum':
       return 'go_sum'
-    case 'Gradle_lockfile':
+    case 'PGradle_lockfile':
       return 'gradle_lockfile'
-    case 'Gradle_build':
+    case 'PGradle_build':
       return 'gradle_build'
-    case 'Jsondoc':
+    case 'PJsondoc':
       return 'jsondoc'
-    case 'Pipfile':
+    case 'PPipfile':
       return 'pipfile'
-    case 'Pnpm_lock':
+    case 'PPnpm_lock':
       return 'pnpm_lock'
-    case 'Poetry_lock':
+    case 'PPoetry_lock':
       return 'poetry_lock'
-    case 'Pyproject_toml':
+    case 'PPyproject_toml':
       return 'pyproject_toml'
-    case 'Requirements':
+    case 'PRequirements':
       return 'requirements'
-    case 'Yarn_1':
+    case 'PYarn_1':
       return 'yarn_1'
-    case 'Yarn_2':
+    case 'PYarn_2':
       return 'yarn_2'
-    case 'Pomtree':
+    case 'PPomtree':
       return 'pomtree'
-    case 'Cargo_parser':
+    case 'PCargo_parser':
       return 'cargo'
-    case 'Composer_lock':
+    case 'PComposer_lock':
       return 'composer_lock'
-    case 'Pubspec_lock':
+    case 'PPubspec_lock':
       return 'pubspec_lock'
-    case 'Package_swift':
+    case 'PPackage_swift':
       return 'package_swift'
-    case 'Podfile_lock':
+    case 'PPodfile_lock':
       return 'podfile_lock'
-    case 'Package_resolved':
+    case 'PPackage_resolved':
       return 'package_resolved'
-    case 'Mix_lock':
+    case 'PMix_lock':
       return 'mix_lock'
   }
 }
@@ -3302,47 +3307,47 @@ export function writeScaParserName(x: ScaParserName, context: any = x): any {
 export function readScaParserName(x: any, context: any = x): ScaParserName {
   switch (x) {
     case 'gemfile_lock':
-      return { kind: 'Gemfile_lock' }
+      return { kind: 'PGemfile_lock' }
     case 'go_mod':
-      return { kind: 'Go_mod' }
+      return { kind: 'PGo_mod' }
     case 'go_sum':
-      return { kind: 'Go_sum' }
+      return { kind: 'PGo_sum' }
     case 'gradle_lockfile':
-      return { kind: 'Gradle_lockfile' }
+      return { kind: 'PGradle_lockfile' }
     case 'gradle_build':
-      return { kind: 'Gradle_build' }
+      return { kind: 'PGradle_build' }
     case 'jsondoc':
-      return { kind: 'Jsondoc' }
+      return { kind: 'PJsondoc' }
     case 'pipfile':
-      return { kind: 'Pipfile' }
+      return { kind: 'PPipfile' }
     case 'pnpm_lock':
-      return { kind: 'Pnpm_lock' }
+      return { kind: 'PPnpm_lock' }
     case 'poetry_lock':
-      return { kind: 'Poetry_lock' }
+      return { kind: 'PPoetry_lock' }
     case 'pyproject_toml':
-      return { kind: 'Pyproject_toml' }
+      return { kind: 'PPyproject_toml' }
     case 'requirements':
-      return { kind: 'Requirements' }
+      return { kind: 'PRequirements' }
     case 'yarn_1':
-      return { kind: 'Yarn_1' }
+      return { kind: 'PYarn_1' }
     case 'yarn_2':
-      return { kind: 'Yarn_2' }
+      return { kind: 'PYarn_2' }
     case 'pomtree':
-      return { kind: 'Pomtree' }
+      return { kind: 'PPomtree' }
     case 'cargo':
-      return { kind: 'Cargo_parser' }
+      return { kind: 'PCargo_parser' }
     case 'composer_lock':
-      return { kind: 'Composer_lock' }
+      return { kind: 'PComposer_lock' }
     case 'pubspec_lock':
-      return { kind: 'Pubspec_lock' }
+      return { kind: 'PPubspec_lock' }
     case 'package_swift':
-      return { kind: 'Package_swift' }
+      return { kind: 'PPackage_swift' }
     case 'podfile_lock':
-      return { kind: 'Podfile_lock' }
+      return { kind: 'PPodfile_lock' }
     case 'package_resolved':
-      return { kind: 'Package_resolved' }
+      return { kind: 'PPackage_resolved' }
     case 'mix_lock':
-      return { kind: 'Mix_lock' }
+      return { kind: 'PMix_lock' }
     default:
       _atd_bad_json('ScaParserName', x, context)
       throw new Error('impossible')

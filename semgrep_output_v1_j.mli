@@ -363,6 +363,15 @@ type skipped_target = Semgrep_output_v1_t.skipped_target = {
 }
   [@@deriving show]
 
+type sca_parser_name = Semgrep_output_v1_t.sca_parser_name = 
+    PGemfile_lock | PGo_mod | PGo_sum | PGradle_lockfile | PGradle_build
+  | PJsondoc | PPipfile | PPnpm_lock | PPoetry_lock | PPyproject_toml
+  | PRequirements | PYarn_1 | PYarn_2 | PPomtree | PCargo_parser
+  | PComposer_lock | PPubspec_lock | PPackage_swift | PPodfile_lock
+  | PPackage_resolved | PMix_lock
+
+  [@@deriving show]
+
 type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
   command: string;
   message: string
@@ -407,6 +416,7 @@ type error_type = Semgrep_output_v1_t.error_type =
   | PatternParseError0
   | IncompatibleRule0
   | DependencyResolutionError of resolution_error_kind
+  | ScaParseError of sca_parser_name
 
   [@@deriving show]
 
@@ -620,8 +630,6 @@ type sca_resolution_error = Semgrep_output_v1_t.sca_resolution_error = {
   type_: resolution_error_kind;
   dependency_source_file: fpath
 }
-
-type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
 
 type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
   path: fpath;
@@ -2329,6 +2337,26 @@ val skipped_target_of_string :
   string -> skipped_target
   (** Deserialize JSON data of type {!type:skipped_target}. *)
 
+val write_sca_parser_name :
+  Buffer.t -> sca_parser_name -> unit
+  (** Output a JSON value of type {!type:sca_parser_name}. *)
+
+val string_of_sca_parser_name :
+  ?len:int -> sca_parser_name -> string
+  (** Serialize a value of type {!type:sca_parser_name}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_parser_name :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_parser_name
+  (** Input JSON data of type {!type:sca_parser_name}. *)
+
+val sca_parser_name_of_string :
+  string -> sca_parser_name
+  (** Deserialize JSON data of type {!type:sca_parser_name}. *)
+
 val write_resolution_cmd_failed :
   Buffer.t -> resolution_cmd_failed -> unit
   (** Output a JSON value of type {!type:resolution_cmd_failed}. *)
@@ -3068,26 +3096,6 @@ val read_sca_resolution_error :
 val sca_resolution_error_of_string :
   string -> sca_resolution_error
   (** Deserialize JSON data of type {!type:sca_resolution_error}. *)
-
-val write_sca_parser_name :
-  Buffer.t -> sca_parser_name -> unit
-  (** Output a JSON value of type {!type:sca_parser_name}. *)
-
-val string_of_sca_parser_name :
-  ?len:int -> sca_parser_name -> string
-  (** Serialize a value of type {!type:sca_parser_name}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_sca_parser_name :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_parser_name
-  (** Input JSON data of type {!type:sca_parser_name}. *)
-
-val sca_parser_name_of_string :
-  string -> sca_parser_name
-  (** Deserialize JSON data of type {!type:sca_parser_name}. *)
 
 val write_dependency_parser_error :
   Buffer.t -> dependency_parser_error -> unit

@@ -363,6 +363,15 @@ type skipped_target = Semgrep_output_v1_t.skipped_target = {
 }
   [@@deriving show]
 
+type sca_parser_name = Semgrep_output_v1_t.sca_parser_name = 
+    PGemfile_lock | PGo_mod | PGo_sum | PGradle_lockfile | PGradle_build
+  | PJsondoc | PPipfile | PPnpm_lock | PPoetry_lock | PPyproject_toml
+  | PRequirements | PYarn_1 | PYarn_2 | PPomtree | PCargo_parser
+  | PComposer_lock | PPubspec_lock | PPackage_swift | PPodfile_lock
+  | PPackage_resolved | PMix_lock
+
+  [@@deriving show]
+
 type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
   command: string;
   message: string
@@ -407,6 +416,7 @@ type error_type = Semgrep_output_v1_t.error_type =
   | PatternParseError0
   | IncompatibleRule0
   | DependencyResolutionError of resolution_error_kind
+  | ScaParseError of sca_parser_name
 
   [@@deriving show]
 
@@ -620,8 +630,6 @@ type sca_resolution_error = Semgrep_output_v1_t.sca_resolution_error = {
   type_: resolution_error_kind;
   dependency_source_file: fpath
 }
-
-type sca_parser_name = Semgrep_output_v1_t.sca_parser_name
 
 type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
   path: fpath;
@@ -13503,6 +13511,183 @@ let read_skipped_target = (
 )
 let skipped_target_of_string s =
   read_skipped_target (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_sca_parser_name : _ -> sca_parser_name -> _ = (
+  fun ob (x : sca_parser_name) ->
+    match x with
+      | PGemfile_lock -> Buffer.add_string ob "\"gemfile_lock\""
+      | PGo_mod -> Buffer.add_string ob "\"go_mod\""
+      | PGo_sum -> Buffer.add_string ob "\"go_sum\""
+      | PGradle_lockfile -> Buffer.add_string ob "\"gradle_lockfile\""
+      | PGradle_build -> Buffer.add_string ob "\"gradle_build\""
+      | PJsondoc -> Buffer.add_string ob "\"jsondoc\""
+      | PPipfile -> Buffer.add_string ob "\"pipfile\""
+      | PPnpm_lock -> Buffer.add_string ob "\"pnpm_lock\""
+      | PPoetry_lock -> Buffer.add_string ob "\"poetry_lock\""
+      | PPyproject_toml -> Buffer.add_string ob "\"pyproject_toml\""
+      | PRequirements -> Buffer.add_string ob "\"requirements\""
+      | PYarn_1 -> Buffer.add_string ob "\"yarn_1\""
+      | PYarn_2 -> Buffer.add_string ob "\"yarn_2\""
+      | PPomtree -> Buffer.add_string ob "\"pomtree\""
+      | PCargo_parser -> Buffer.add_string ob "\"cargo\""
+      | PComposer_lock -> Buffer.add_string ob "\"composer_lock\""
+      | PPubspec_lock -> Buffer.add_string ob "\"pubspec_lock\""
+      | PPackage_swift -> Buffer.add_string ob "\"package_swift\""
+      | PPodfile_lock -> Buffer.add_string ob "\"podfile_lock\""
+      | PPackage_resolved -> Buffer.add_string ob "\"package_resolved\""
+      | PMix_lock -> Buffer.add_string ob "\"mix_lock\""
+)
+let string_of_sca_parser_name ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_sca_parser_name ob x;
+  Buffer.contents ob
+let read_sca_parser_name = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "gemfile_lock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PGemfile_lock : sca_parser_name)
+            | "go_mod" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PGo_mod : sca_parser_name)
+            | "go_sum" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PGo_sum : sca_parser_name)
+            | "gradle_lockfile" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PGradle_lockfile : sca_parser_name)
+            | "gradle_build" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PGradle_build : sca_parser_name)
+            | "jsondoc" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PJsondoc : sca_parser_name)
+            | "pipfile" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PPipfile : sca_parser_name)
+            | "pnpm_lock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PPnpm_lock : sca_parser_name)
+            | "poetry_lock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PPoetry_lock : sca_parser_name)
+            | "pyproject_toml" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PPyproject_toml : sca_parser_name)
+            | "requirements" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PRequirements : sca_parser_name)
+            | "yarn_1" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PYarn_1 : sca_parser_name)
+            | "yarn_2" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PYarn_2 : sca_parser_name)
+            | "pomtree" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PPomtree : sca_parser_name)
+            | "cargo" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PCargo_parser : sca_parser_name)
+            | "composer_lock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PComposer_lock : sca_parser_name)
+            | "pubspec_lock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PPubspec_lock : sca_parser_name)
+            | "package_swift" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PPackage_swift : sca_parser_name)
+            | "podfile_lock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PPodfile_lock : sca_parser_name)
+            | "package_resolved" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PPackage_resolved : sca_parser_name)
+            | "mix_lock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (PMix_lock : sca_parser_name)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "gemfile_lock" ->
+              (PGemfile_lock : sca_parser_name)
+            | "go_mod" ->
+              (PGo_mod : sca_parser_name)
+            | "go_sum" ->
+              (PGo_sum : sca_parser_name)
+            | "gradle_lockfile" ->
+              (PGradle_lockfile : sca_parser_name)
+            | "gradle_build" ->
+              (PGradle_build : sca_parser_name)
+            | "jsondoc" ->
+              (PJsondoc : sca_parser_name)
+            | "pipfile" ->
+              (PPipfile : sca_parser_name)
+            | "pnpm_lock" ->
+              (PPnpm_lock : sca_parser_name)
+            | "poetry_lock" ->
+              (PPoetry_lock : sca_parser_name)
+            | "pyproject_toml" ->
+              (PPyproject_toml : sca_parser_name)
+            | "requirements" ->
+              (PRequirements : sca_parser_name)
+            | "yarn_1" ->
+              (PYarn_1 : sca_parser_name)
+            | "yarn_2" ->
+              (PYarn_2 : sca_parser_name)
+            | "pomtree" ->
+              (PPomtree : sca_parser_name)
+            | "cargo" ->
+              (PCargo_parser : sca_parser_name)
+            | "composer_lock" ->
+              (PComposer_lock : sca_parser_name)
+            | "pubspec_lock" ->
+              (PPubspec_lock : sca_parser_name)
+            | "package_swift" ->
+              (PPackage_swift : sca_parser_name)
+            | "podfile_lock" ->
+              (PPodfile_lock : sca_parser_name)
+            | "package_resolved" ->
+              (PPackage_resolved : sca_parser_name)
+            | "mix_lock" ->
+              (PMix_lock : sca_parser_name)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let sca_parser_name_of_string s =
+  read_sca_parser_name (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_resolution_cmd_failed : _ -> resolution_cmd_failed -> _ = (
   fun ob (x : resolution_cmd_failed) ->
     Buffer.add_char ob '{';
@@ -14176,6 +14361,12 @@ let write_error_type : _ -> error_type -> _ = (
           write_resolution_error_kind
         ) ob x;
         Buffer.add_char ob ']'
+      | ScaParseError x ->
+        Buffer.add_string ob "[\"ScaParseError\",";
+        (
+          write_sca_parser_name
+        ) ob x;
+        Buffer.add_char ob ']'
 )
 let string_of_error_type ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -14311,6 +14502,15 @@ let read_error_type = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (DependencyResolutionError x : error_type)
+            | "ScaParseError" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_sca_parser_name
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (ScaParseError x : error_type)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -14409,6 +14609,17 @@ let read_error_type = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               (DependencyResolutionError x : error_type)
+            | "ScaParseError" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_sca_parser_name
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (ScaParseError x : error_type)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -22899,183 +23110,6 @@ let read_sca_resolution_error = (
 )
 let sca_resolution_error_of_string s =
   read_sca_resolution_error (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_sca_parser_name = (
-  fun ob x ->
-    match x with
-      | `Gemfile_lock -> Buffer.add_string ob "\"gemfile_lock\""
-      | `Go_mod -> Buffer.add_string ob "\"go_mod\""
-      | `Go_sum -> Buffer.add_string ob "\"go_sum\""
-      | `Gradle_lockfile -> Buffer.add_string ob "\"gradle_lockfile\""
-      | `Gradle_build -> Buffer.add_string ob "\"gradle_build\""
-      | `Jsondoc -> Buffer.add_string ob "\"jsondoc\""
-      | `Pipfile -> Buffer.add_string ob "\"pipfile\""
-      | `Pnpm_lock -> Buffer.add_string ob "\"pnpm_lock\""
-      | `Poetry_lock -> Buffer.add_string ob "\"poetry_lock\""
-      | `Pyproject_toml -> Buffer.add_string ob "\"pyproject_toml\""
-      | `Requirements -> Buffer.add_string ob "\"requirements\""
-      | `Yarn_1 -> Buffer.add_string ob "\"yarn_1\""
-      | `Yarn_2 -> Buffer.add_string ob "\"yarn_2\""
-      | `Pomtree -> Buffer.add_string ob "\"pomtree\""
-      | `Cargo_parser -> Buffer.add_string ob "\"cargo\""
-      | `Composer_lock -> Buffer.add_string ob "\"composer_lock\""
-      | `Pubspec_lock -> Buffer.add_string ob "\"pubspec_lock\""
-      | `Package_swift -> Buffer.add_string ob "\"package_swift\""
-      | `Podfile_lock -> Buffer.add_string ob "\"podfile_lock\""
-      | `Package_resolved -> Buffer.add_string ob "\"package_resolved\""
-      | `Mix_lock -> Buffer.add_string ob "\"mix_lock\""
-)
-let string_of_sca_parser_name ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_sca_parser_name ob x;
-  Buffer.contents ob
-let read_sca_parser_name = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "gemfile_lock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Gemfile_lock
-            | "go_mod" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Go_mod
-            | "go_sum" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Go_sum
-            | "gradle_lockfile" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Gradle_lockfile
-            | "gradle_build" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Gradle_build
-            | "jsondoc" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Jsondoc
-            | "pipfile" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Pipfile
-            | "pnpm_lock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Pnpm_lock
-            | "poetry_lock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Poetry_lock
-            | "pyproject_toml" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Pyproject_toml
-            | "requirements" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Requirements
-            | "yarn_1" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Yarn_1
-            | "yarn_2" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Yarn_2
-            | "pomtree" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Pomtree
-            | "cargo" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Cargo_parser
-            | "composer_lock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Composer_lock
-            | "pubspec_lock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Pubspec_lock
-            | "package_swift" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Package_swift
-            | "podfile_lock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Podfile_lock
-            | "package_resolved" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Package_resolved
-            | "mix_lock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Mix_lock
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "gemfile_lock" ->
-              `Gemfile_lock
-            | "go_mod" ->
-              `Go_mod
-            | "go_sum" ->
-              `Go_sum
-            | "gradle_lockfile" ->
-              `Gradle_lockfile
-            | "gradle_build" ->
-              `Gradle_build
-            | "jsondoc" ->
-              `Jsondoc
-            | "pipfile" ->
-              `Pipfile
-            | "pnpm_lock" ->
-              `Pnpm_lock
-            | "poetry_lock" ->
-              `Poetry_lock
-            | "pyproject_toml" ->
-              `Pyproject_toml
-            | "requirements" ->
-              `Requirements
-            | "yarn_1" ->
-              `Yarn_1
-            | "yarn_2" ->
-              `Yarn_2
-            | "pomtree" ->
-              `Pomtree
-            | "cargo" ->
-              `Cargo_parser
-            | "composer_lock" ->
-              `Composer_lock
-            | "pubspec_lock" ->
-              `Pubspec_lock
-            | "package_swift" ->
-              `Package_swift
-            | "podfile_lock" ->
-              `Podfile_lock
-            | "package_resolved" ->
-              `Package_resolved
-            | "mix_lock" ->
-              `Mix_lock
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let sca_parser_name_of_string s =
-  read_sca_parser_name (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_dependency_parser_error : _ -> dependency_parser_error -> _ = (
   fun ob (x : dependency_parser_error) ->
     Buffer.add_char ob '{';

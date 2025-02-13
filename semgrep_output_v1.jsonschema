@@ -575,6 +575,15 @@
             { "const": "DependencyResolutionError" },
             { "$ref": "#/definitions/resolution_error_kind" }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ScaParseError" },
+            { "$ref": "#/definitions/sca_parser_name" }
+          ]
         }
       ]
     },
