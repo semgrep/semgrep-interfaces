@@ -285,7 +285,6 @@ export type ErrorType =
 | { kind: 'PatternParseError0' /* JSON: "Pattern parse error" */ }
 | { kind: 'IncompatibleRule0' /* JSON: "Incompatible rule" */ }
 | { kind: 'DependencyResolutionError'; value: ResolutionErrorKind }
-| { kind: 'ScaParseError'; value: ScaParserName }
 
 export type IncompatibleRule = {
   rule_id: RuleId;
@@ -1024,6 +1023,7 @@ export type ResolutionErrorKind =
 | { kind: 'MissingRequirement'; value: string }
 | { kind: 'ResolutionCmdFailed'; value: ResolutionCmdFailed }
 | { kind: 'ParseDependenciesFailed'; value: string }
+| { kind: 'ScaParseError'; value: ScaParserName }
 
 export type ScaResolutionError = {
   type_: ResolutionErrorKind;
@@ -1032,7 +1032,7 @@ export type ScaResolutionError = {
 
 export type ScaError =
 | { kind: 'SCAParse'; value: DependencyParserError }
-| { kind: 'SCAResolution'; value: ScaResolutionError }
+| { kind: 'SCAResol'; value: ScaResolutionError }
 
 export type ResolutionCmdFailed = {
   command: string;
@@ -2019,8 +2019,6 @@ export function writeErrorType(x: ErrorType, context: any = x): any {
       return 'Incompatible rule'
     case 'DependencyResolutionError':
       return ['DependencyResolutionError', writeResolutionErrorKind(x.value, x)]
-    case 'ScaParseError':
-      return ['ScaParseError', writeScaParserName(x.value, x)]
   }
 }
 
@@ -2087,8 +2085,6 @@ export function readErrorType(x: any, context: any = x): ErrorType {
         return { kind: 'IncompatibleRule', value: readIncompatibleRule(x[1], x) }
       case 'DependencyResolutionError':
         return { kind: 'DependencyResolutionError', value: readResolutionErrorKind(x[1], x) }
-      case 'ScaParseError':
-        return { kind: 'ScaParseError', value: readScaParserName(x[1], x) }
       default:
         _atd_bad_json('ErrorType', x, context)
         throw new Error('impossible')
@@ -4278,6 +4274,8 @@ export function writeResolutionErrorKind(x: ResolutionErrorKind, context: any = 
       return ['ResolutionCmdFailed', writeResolutionCmdFailed(x.value, x)]
     case 'ParseDependenciesFailed':
       return ['ParseDependenciesFailed', _atd_write_string(x.value, x)]
+    case 'ScaParseError':
+      return ['ScaParseError', writeScaParserName(x.value, x)]
   }
 }
 
@@ -4300,6 +4298,8 @@ export function readResolutionErrorKind(x: any, context: any = x): ResolutionErr
         return { kind: 'ResolutionCmdFailed', value: readResolutionCmdFailed(x[1], x) }
       case 'ParseDependenciesFailed':
         return { kind: 'ParseDependenciesFailed', value: _atd_read_string(x[1], x) }
+      case 'ScaParseError':
+        return { kind: 'ScaParseError', value: readScaParserName(x[1], x) }
       default:
         _atd_bad_json('ResolutionErrorKind', x, context)
         throw new Error('impossible')
@@ -4325,8 +4325,8 @@ export function writeScaError(x: ScaError, context: any = x): any {
   switch (x.kind) {
     case 'SCAParse':
       return ['SCAParse', writeDependencyParserError(x.value, x)]
-    case 'SCAResolution':
-      return ['SCAResolution', writeScaResolutionError(x.value, x)]
+    case 'SCAResol':
+      return ['SCAResol', writeScaResolutionError(x.value, x)]
   }
 }
 
@@ -4335,8 +4335,8 @@ export function readScaError(x: any, context: any = x): ScaError {
   switch (x[0]) {
     case 'SCAParse':
       return { kind: 'SCAParse', value: readDependencyParserError(x[1], x) }
-    case 'SCAResolution':
-      return { kind: 'SCAResolution', value: readScaResolutionError(x[1], x) }
+    case 'SCAResol':
+      return { kind: 'SCAResol', value: readScaResolutionError(x[1], x) }
     default:
       _atd_bad_json('ScaError', x, context)
       throw new Error('impossible')

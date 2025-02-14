@@ -383,6 +383,7 @@ type resolution_error_kind = Semgrep_output_v1_t.resolution_error_kind =
   | MissingRequirement of string
   | ResolutionCmdFailed of resolution_cmd_failed
   | ParseDependenciesFailed of string
+  | ScaParseError of sca_parser_name
 
   [@@deriving show]
 
@@ -421,7 +422,6 @@ type error_type = Semgrep_output_v1_t.error_type =
   | PatternParseError0
   | IncompatibleRule0
   | DependencyResolutionError of resolution_error_kind
-  | ScaParseError of sca_parser_name
 
   [@@deriving show]
 
@@ -647,7 +647,7 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
 
 type sca_error = Semgrep_output_v1_t.sca_error = 
     SCAParse of dependency_parser_error
-  | SCAResolution of sca_resolution_error
+  | SCAResol of sca_resolution_error
 
 
 type sarif_format = Semgrep_output_v1_t.sarif_format = {
@@ -13878,6 +13878,12 @@ let write_resolution_error_kind : _ -> resolution_error_kind -> _ = (
           Yojson.Safe.write_string
         ) ob x;
         Buffer.add_char ob ']'
+      | ScaParseError x ->
+        Buffer.add_string ob "[\"ScaParseError\",";
+        (
+          write_sca_parser_name
+        ) ob x;
+        Buffer.add_char ob ']'
 )
 let string_of_resolution_error_kind ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -13920,6 +13926,15 @@ let read_resolution_error_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (ParseDependenciesFailed x : resolution_error_kind)
+            | "ScaParseError" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_sca_parser_name
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (ScaParseError x : resolution_error_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -13965,6 +13980,17 @@ let read_resolution_error_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               (ParseDependenciesFailed x : resolution_error_kind)
+            | "ScaParseError" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_sca_parser_name
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (ScaParseError x : resolution_error_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -14366,12 +14392,6 @@ let write_error_type : _ -> error_type -> _ = (
           write_resolution_error_kind
         ) ob x;
         Buffer.add_char ob ']'
-      | ScaParseError x ->
-        Buffer.add_string ob "[\"ScaParseError\",";
-        (
-          write_sca_parser_name
-        ) ob x;
-        Buffer.add_char ob ']'
 )
 let string_of_error_type ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -14507,15 +14527,6 @@ let read_error_type = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (DependencyResolutionError x : error_type)
-            | "ScaParseError" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_sca_parser_name
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (ScaParseError x : error_type)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -14614,17 +14625,6 @@ let read_error_type = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               (DependencyResolutionError x : error_type)
-            | "ScaParseError" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read_sca_parser_name
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (ScaParseError x : error_type)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -23491,8 +23491,8 @@ let write_sca_error : _ -> sca_error -> _ = (
           write_dependency_parser_error
         ) ob x;
         Buffer.add_char ob ']'
-      | SCAResolution x ->
-        Buffer.add_string ob "[\"SCAResolution\",";
+      | SCAResol x ->
+        Buffer.add_string ob "[\"SCAResol\",";
         (
           write_sca_resolution_error
         ) ob x;
@@ -23517,7 +23517,7 @@ let read_sca_error = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (SCAParse x : sca_error)
-            | "SCAResolution" ->
+            | "SCAResol" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
                   read_sca_resolution_error
@@ -23525,7 +23525,7 @@ let read_sca_error = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              (SCAResolution x : sca_error)
+              (SCAResol x : sca_error)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -23547,7 +23547,7 @@ let read_sca_error = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               (SCAParse x : sca_error)
-            | "SCAResolution" ->
+            | "SCAResol" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
@@ -23557,7 +23557,7 @@ let read_sca_error = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
-              (SCAResolution x : sca_error)
+              (SCAResol x : sca_error)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

@@ -383,6 +383,7 @@ type resolution_error_kind = Semgrep_output_v1_t.resolution_error_kind =
   | MissingRequirement of string
   | ResolutionCmdFailed of resolution_cmd_failed
   | ParseDependenciesFailed of string
+  | ScaParseError of sca_parser_name
 
   [@@deriving show]
 
@@ -421,7 +422,6 @@ type error_type = Semgrep_output_v1_t.error_type =
   | PatternParseError0
   | IncompatibleRule0
   | DependencyResolutionError of resolution_error_kind
-  | ScaParseError of sca_parser_name
 
   [@@deriving show]
 
@@ -647,7 +647,7 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
 
 type sca_error = Semgrep_output_v1_t.sca_error = 
     SCAParse of dependency_parser_error
-  | SCAResolution of sca_resolution_error
+  | SCAResol of sca_resolution_error
 
 
 type sarif_format = Semgrep_output_v1_t.sarif_format = {

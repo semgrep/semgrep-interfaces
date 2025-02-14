@@ -5000,10 +5000,28 @@ class ParseDependenciesFailed:
 
 
 @dataclass(frozen=True)
+class ScaParseError:
+    """Original type: resolution_error_kind = [ ... | ScaParseError of ... | ... ]"""
+
+    value: ScaParserName
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ScaParseError'
+
+    def to_json(self) -> Any:
+        return ['ScaParseError', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class ResolutionErrorKind:
     """Original type: resolution_error_kind = [ ... ]"""
 
-    value: Union[UnsupportedManifest, MissingRequirement, ResolutionCmdFailed_, ParseDependenciesFailed]
+    value: Union[UnsupportedManifest, MissingRequirement, ResolutionCmdFailed_, ParseDependenciesFailed, ScaParseError]
 
     @property
     def kind(self) -> str:
@@ -5024,6 +5042,8 @@ class ResolutionErrorKind:
                 return cls(ResolutionCmdFailed_(ResolutionCmdFailed.from_json(x[1])))
             if cons == 'ParseDependenciesFailed':
                 return cls(ParseDependenciesFailed(_atd_read_string(x[1])))
+            if cons == 'ScaParseError':
+                return cls(ScaParseError(ScaParserName.from_json(x[1])))
             _atd_bad_json('ResolutionErrorKind', x)
         _atd_bad_json('ResolutionErrorKind', x)
 
@@ -5524,28 +5544,10 @@ class DependencyResolutionError:
 
 
 @dataclass(frozen=True, order=True)
-class ScaParseError:
-    """Original type: error_type = [ ... | ScaParseError of ... | ... ]"""
-
-    value: ScaParserName
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'ScaParseError'
-
-    def to_json(self) -> Any:
-        return ['ScaParseError', (lambda x: x.to_json())(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True, order=True)
 class ErrorType:
     """Original type: error_type = [ ... ]"""
 
-    value: Union[LexicalError, ParseError, OtherParseError, AstBuilderError, RuleParseError, SemgrepWarning, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, StackOverflow, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0, DependencyResolutionError, ScaParseError]
+    value: Union[LexicalError, ParseError, OtherParseError, AstBuilderError, RuleParseError, SemgrepWarning, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, StackOverflow, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0, DependencyResolutionError]
 
     @property
     def kind(self) -> str:
@@ -5610,8 +5612,6 @@ class ErrorType:
                 return cls(IncompatibleRule_(IncompatibleRule.from_json(x[1])))
             if cons == 'DependencyResolutionError':
                 return cls(DependencyResolutionError(ResolutionErrorKind.from_json(x[1])))
-            if cons == 'ScaParseError':
-                return cls(ScaParseError(ScaParserName.from_json(x[1])))
             _atd_bad_json('ErrorType', x)
         _atd_bad_json('ErrorType', x)
 
@@ -7442,18 +7442,18 @@ class SCAParse:
 
 
 @dataclass
-class SCAResolution:
-    """Original type: sca_error = [ ... | SCAResolution of ... | ... ]"""
+class SCAResol:
+    """Original type: sca_error = [ ... | SCAResol of ... | ... ]"""
 
     value: ScaResolutionError
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'SCAResolution'
+        return 'SCAResol'
 
     def to_json(self) -> Any:
-        return ['SCAResolution', (lambda x: x.to_json())(self.value)]
+        return ['SCAResol', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -7463,7 +7463,7 @@ class SCAResolution:
 class ScaError:
     """Original type: sca_error = [ ... ]"""
 
-    value: Union[SCAParse, SCAResolution]
+    value: Union[SCAParse, SCAResol]
 
     @property
     def kind(self) -> str:
@@ -7476,8 +7476,8 @@ class ScaError:
             cons = x[0]
             if cons == 'SCAParse':
                 return cls(SCAParse(DependencyParserError.from_json(x[1])))
-            if cons == 'SCAResolution':
-                return cls(SCAResolution(ScaResolutionError.from_json(x[1])))
+            if cons == 'SCAResol':
+                return cls(SCAResol(ScaResolutionError.from_json(x[1])))
             _atd_bad_json('ScaError', x)
         _atd_bad_json('ScaError', x)
 

@@ -575,15 +575,6 @@
             { "const": "DependencyResolutionError" },
             { "$ref": "#/definitions/resolution_error_kind" }
           ]
-        },
-        {
-          "type": "array",
-          "minItems": 2,
-          "items": false,
-          "prefixItems": [
-            { "const": "ScaParseError" },
-            { "$ref": "#/definitions/sca_parser_name" }
-          ]
         }
       ]
     },
@@ -1969,6 +1960,15 @@
           "prefixItems": [
             { "const": "ParseDependenciesFailed" }, { "type": "string" }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ScaParseError" },
+            { "$ref": "#/definitions/sca_parser_name" }
+          ]
         }
       ]
     },
@@ -1996,7 +1996,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "SCAResolution" },
+            { "const": "SCAResol" },
             { "$ref": "#/definitions/sca_resolution_error" }
           ]
         }
