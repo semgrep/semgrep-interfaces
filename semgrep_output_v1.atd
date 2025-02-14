@@ -2246,6 +2246,9 @@ type dependency_source
   | ManifestOnlyDependencySource of manifest
   | LockfileOnlyDependencySource of lockfile
   | ManifestLockfileDependencySource of (manifest * lockfile)
+  (* the dependency_source should be LockfileOnly or ManifestLockfile,
+   * but not ManifestOnlyDependencySource *)
+  | MultiLockfileDependencySource of dependency_source list
 ] <ocaml repr="classic">
 
 (* alt: sca_error_kind *)                        
