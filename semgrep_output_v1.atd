@@ -21,7 +21,6 @@
  *    semgrep_metrics.atd
  *  - The parsing stats of semgrep-core -parsing_stats -json have its own
  *    Parsing_stats.atd
- *  - The schema for the generic AST dump is in AST_generic_v1.atd
  * For the definition of the Semgrep input (the rules), see rule_schema_v2.atd
  *
  * This file has the _v1 suffix to explicitely represent the
@@ -254,7 +253,7 @@ type product
     <python decorator="dataclass(frozen=True)"> =
 [
   | SAST (* a.k.a. Code *) <json name="sast">
-  | SCA <json name="sca">
+  | SCA  (* a.k.a. SSC *) <json name="sca">
   | Secrets <json name="secrets">
 ]
 
@@ -533,8 +532,8 @@ type transitivity
    *)
   | Transitive <json name="transitive">
   (* If there is insufficient information to determine the transitivity,
-    such as a requirements.txt file without a requirements.in manifest,
-    we leave it Unknown.
+   * such as a requirements.txt file without a requirements.in manifest,
+   * we leave it Unknown.
    *)
   | Unknown <json name="unknown">
 ]
@@ -549,7 +548,7 @@ type sca_match = {
   dependency_match: dependency_match;
   (* TODO: deprecate, we should use sca_match_kind instead *)
   reachable: bool;
-  (* EXPERIMENTAL since 1.08.0 *)
+  (* EXPERIMENTAL since 1.108.0 *)
   ?kind: sca_match_kind option;
 }
 
@@ -768,7 +767,7 @@ type error_type
   | PatternParseError0 <json name="Pattern parse error">
   | IncompatibleRule0 <json name="Incompatible rule">
   (* since semgrep 1.94.0 *)
-  | DependencyResolutionError of resolution_error
+  | DependencyResolutionError of resolution_error_kind
 ] <ocaml repr="classic">
 
 type incompatible_rule
@@ -867,11 +866,11 @@ type skip_reason <ocaml attr="deriving show"> = [
   | Irrelevant_rule <json name="irrelevant_rule">
   | Too_many_matches <json name="too_many_matches">
   (* New in osemgrep *)
-  | Gitignore_patterns_match (* TODO: use JSON lowercase for consistency *)
+  | Gitignore_patterns_match
   (* since 1.40.0. There were always ignored, but not shown in the skip report *)
-  | Dotfile (* TODO: use JSON lowercase for consistency *)
+  | Dotfile
   (* since 1.44.0 *)
-  | Nonexistent_file (* TODO: use JSON lowercase for consistency *)
+  | Nonexistent_file
   (* since 1.94.0 *)
   | Insufficient_permissions <json name="insufficient_permissions">
 ] <ocaml repr="classic">
@@ -981,7 +980,6 @@ type target_times = {
     run_time: float;
 }
 
-
 (*****************************************************************************)
 (* Final 'semgrep scan' output  *)
 (*****************************************************************************)
@@ -1056,7 +1054,6 @@ type tests_result = {
 }
 
 type checks = {
-  (* would like to use fpath *)
   checks: (string (* rule_id *) * rule_result) list <json repr="object">;
 }
 
@@ -1218,8 +1215,8 @@ type killing_parent = {
  *  - /api/agent/scans/<scan_id>/complete when done, with the exit code and a
  *    few more information and response with app_block_override and reason
  *
- * alt: we could move all of this in a separate semgrep_posts_v1.atd file
- * or semgrep_webapp_v1.atd
+ * TODO: we should move all of this in a separate semgrep_backend.atd
+ * (but need a proper module system for ATD first)
 *)
 
 (* ----------------------------- *)
@@ -1230,11 +1227,12 @@ type features = {
    ~autofix: bool;
    ~deepsemgrep: bool;
    ~dependency_query: bool;
+   (* a.k.a. dependency path *)
    ~path_to_transitivity: bool;
-   (* normally we resolve dependencies for changed subprojects only in diff scans. This flag
-    * causes all subprojects to be resolved in diff scans *)
+   (* normally we resolve dependencies for changed subprojects only in diff
+    * scans. This flag causes all subprojects to be resolved in diff scans *)
    ~scan_all_deps_in_diff_scan: bool;
-   (* Whether to collect "symbol analysis" information from the repo being scanned
+   (* Whether to collect "symbol analysis" info from the repo being scanned
       See https://www.notion.so/semgrep/Semgrep-Code-Reconnaissance-Toolbox-18a3009241a880f2a439eed6b2cffe66?pvs=4
     *)
    ~symbol_analysis: bool;
@@ -1260,6 +1258,7 @@ type triage_ignored = {
  * Note that the version of the CLI is sent to the WebApp in
  * project_metadata so the backend has all the necessary information to
  * send back an appropriate action depending on the CLI version.
+ * TODO: only osemgrep handles that right now
  *)
 type action = [
   | Message of string
@@ -1295,7 +1294,10 @@ type scan_info = {
 
 (* config specific to the scan *)
 type scan_configuration = {
-    rules: raw_json; (* can we type this better *)
+    (* Rules sent from the backend. Note that those rules are in JSON
+     * form not YAML (which led to some speedup in pysemgrep)
+     * TODO? can we type this better *)
+    rules: raw_json; 
     inherit triage_ignored;
 }
 
@@ -1322,9 +1324,8 @@ type product_ignored_files = (product * glob list) list
    * "keys must be strings" error *)
   <python repr="dict"> <ts repr="map">
 
-(* configuration for scanning version control history,
- * e.g., looking back at past git commits for committed credentials which may
- * have been removed *)
+(* configuration for scanning version control history, e.g., looking back at
+ * past git commits for committed credentials which may have been removed *)
 type historical_configuration = {
     enabled: bool;
     ?lookback_days: int option;
@@ -1425,9 +1426,10 @@ type scan_metadata = {
   cli_version: version;
   unique_id: uuid; (* client generated uuid for the scan *)
   requested_products: product list;
-  ~dry_run: bool; (* from 1.47.0 *)
-  (* since 1.96.0 *)
+  (* since 1.47.0 *)
+  ~dry_run: bool; 
   (* unique id associated with the scan in Semgrep Managed Scanning *)
+  (* since 1.96.0 *)
   ?sms_scan_id: string option;
 }
 
@@ -1466,6 +1468,7 @@ type finding = {
   message: string;
   (* int|string until minimum version exceeds 1.32.0. After 1.32.0
    * we're always using an int.
+   * TODO: switch to int now that minimum version supported is 1.50.0
    * TODO: should reuse match_severity instead of using an int here.
    * This is what pysemgrep is currently using:
    * Error = 2, Warning = 1, Experiment = 4, otherwise 0
@@ -1542,7 +1545,7 @@ type ci_scan_results = {
    ?contributions: contributions option;
    (* since semgrep 1.38.0 *)
    (* this data was originally sent to /complete, but we want to start sending
-    * it /results *)
+    * it to /results *)
    ?dependencies: ci_scan_dependencies option;
 }
 
@@ -1585,6 +1588,7 @@ type ci_scan_complete = {
   stats: ci_scan_complete_stats;
   (* TODO: remove when min version is 1.38.0 *)
   ?dependencies: ci_scan_dependencies option;
+  (* TODO: move the errors in ci_scan_complete_stats.errors instead *)
   ?dependency_parser_errors: dependency_parser_error list option;
   (* since 1.31.0 *)
   ?task_id: string option;
@@ -1596,10 +1600,12 @@ type ci_scan_complete_stats = {
   errors: cli_error list;
   total_time: float;
 
+  (* ?? *)
   unsupported_exts: (string * int) list
     <json repr="object">
     <python repr="dict">
     <ts repr="map">;
+  (* ?? *)
   lockfile_scan_info: (string * int) list
     <json repr="object">
     <python repr="dict">
@@ -1657,11 +1663,11 @@ type ci_scan_complete_response <ocaml attr="deriving show"> = {
 (* ----------------------------- *)
 (* SCA part 2 *)
 (* ----------------------------- *)
+(* key is ?? lockfile? *)
 type ci_scan_dependencies = (string * found_dependency list) list
-    <json repr="object">
-    <python repr="dict">
-    <ts repr="map">
+    <json repr="object"> <python repr="dict"> <ts repr="map">
 
+(* TODO: get rid of; should use cli_error with error_type ScaParseError *)
 type dependency_parser_error = {
   path: fpath;
   parser: sca_parser_name;
@@ -1674,33 +1680,34 @@ type dependency_parser_error = {
   ?text: string option;
 }
 
-(* json names are to maintain backwards compatibility with the python enum it
- * is replacing
- * TODO: use <ocaml repr="classic">
+(* JSON names are to maintain backwards compatibility with the python enum it
+ * is replacing. The P prefix (for parser) is to avoid ambiguity with similar
+ * construtor names in the manifest and ecosystem types.
  *)
-type sca_parser_name = [
-  | Gemfile_lock <json name="gemfile_lock">
-  | Go_mod <json name="go_mod">
-  | Go_sum <json name="go_sum">
-  | Gradle_lockfile <json name="gradle_lockfile">
-  | Gradle_build <json name="gradle_build">
-  | Jsondoc <json name="jsondoc">
-  | Pipfile <json name="pipfile">
-  | Pnpm_lock <json name="pnpm_lock">
-  | Poetry_lock <json name="poetry_lock">
-  | Pyproject_toml <json name="pyproject_toml">
-  | Requirements <json name="requirements">
-  | Yarn_1 <json name="yarn_1">
-  | Yarn_2 <json name="yarn_2">
-  | Pomtree <json name="pomtree">
-  | Cargo_parser <json name="cargo">
-  | Composer_lock <json name="composer_lock">
-  | Pubspec_lock <json name="pubspec_lock">
-  | Package_swift <json name="package_swift">
-  | Podfile_lock <json name="podfile_lock">
-  | Package_resolved <json name="package_resolved">
-  | Mix_lock <json name="mix_lock">
-]
+type sca_parser_name <ocaml attr="deriving show"> = [
+  | PGemfile_lock <json name="gemfile_lock">
+  | PGo_mod <json name="go_mod">
+  | PGo_sum <json name="go_sum">
+  | PGradle_lockfile <json name="gradle_lockfile">
+  | PGradle_build <json name="gradle_build">
+  | PJsondoc <json name="jsondoc">
+  | PPipfile <json name="pipfile">
+  | PPnpm_lock <json name="pnpm_lock">
+  | PPoetry_lock <json name="poetry_lock">
+  | PPyproject_toml <json name="pyproject_toml">
+  | PRequirements <json name="requirements">
+  | PYarn_1 <json name="yarn_1">
+  | PYarn_2 <json name="yarn_2">
+  | PPomtree <json name="pomtree">
+  | PCargo_parser <json name="cargo">
+  | PComposer_lock <json name="composer_lock">
+  | PPubspec_lock <json name="pubspec_lock">
+  | PPackage_swift <json name="package_swift">
+  | PPodfile_lock <json name="podfile_lock">
+  | PPackage_resolved <json name="package_resolved">
+  | PMix_lock <json name="mix_lock">
+] <ocaml repr="classic">
+
 
 type supply_chain_stats = {
   subprojects_stats: subproject_stats list;
@@ -1744,7 +1751,9 @@ type resolution_method
      <ocaml attr="deriving show">
      <python decorator="dataclass(frozen=True, order=True)"> =
 [
+  (* we parsed a lockfile that was already included in the repository *)
   | LockfileParsing
+  (* we communicated with the package manager to resolve dependencies *)
   | DynamicResolution
 ]
 
@@ -1765,8 +1774,8 @@ type ci_scan_failure = {
 (* Response by the backend to the CLI to the POST api/agent/deployments/current
  * Some of the information in deployment_config is now returned
  * directly in scan_response (e.g., the deployment_name)
- * TODO: deprecate this endpoint as it is now used only in 'semgrep login' and
- * in 'semgrep show whoami' to just check whether the token is valid.
+ * TODO? deprecate this endpoint as it is now used only in 'semgrep login' and
+ * in 'semgrep show whoami' to just check whether the token is valid?
  *)
 type deployment_config <ocaml attr="deriving show"> = {
   id : int;
@@ -1901,7 +1910,7 @@ type core_match <python decorator="dataclass(frozen=True)"> = {
   extra: core_match_extra;
 }
 
-(* TODO: try to make it as close as possible to 'cli_match_extra' below
+(* TODO: try to make it as close as possible to 'cli_match_extra'.
  * See the corresponding comment in cli_match_extra for more information
  * about the fields below.
  *)
@@ -1930,9 +1939,9 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
 }
 
 (* See Semgrep_error_code.ml *)
-(* TODO: try to make it as close as possible to 'cli_error' above, possibly
+(* TODO: try to make it as close as possible to 'cli_error', possibly
  * extending cli_error with more fields (but those fields must be optional
- * to remain backward compatible
+ * to remain backward compatible)
  * LATER: use a proper variant in error_type so we would need less
  * of those ?xxx types below (like a ParseError should always have a location)
  *)
@@ -2006,7 +2015,7 @@ type analyzer <ocaml attr="deriving show"> = string wrap <ocaml module="Analyzer
 (* A target can either be a traditional code target (now with optional
    associated lockfile) or it can be a lockfile target, which will be used to
    generate lockfile-only findings.
-   Currently *ALL TARGETS FROM OSEMGREP AND PYSEMGREP ARE CODETARGETS*
+   Currently *ALL TARGETS FROM PYSEMGREP ARE CODETARGETS*
    coupling: with src/target/Target.mli
 *)
 type target <ocaml attr="deriving show"> = [
@@ -2239,15 +2248,34 @@ type dependency_source
   | ManifestLockfileDependencySource of (manifest * lockfile)
 ] <ocaml repr="classic">
 
-type resolution_error
+(* alt: sca_error_kind *)                        
+type resolution_error_kind
     <ocaml attr="deriving show">
     <python decorator="dataclass(frozen=True)"> =
 [
   | UnsupportedManifest
   | MissingRequirement of string
   | ResolutionCmdFailed of resolution_cmd_failed
+  (* when we produce some dependency list in lockfileless scanning (by talking
+   * to the package manager) but fail to parse it correctly *)
   | ParseDependenciesFailed of string
-]
+  (* a lockfile parser failed
+   * since semgrep 1.109.0 (to replace dependency_parser_error) *)
+  | ScaParseError of sca_parser_name
+] <ocaml repr="classic">
+
+(* used only from pysemgrep for now
+ * TODO? we should merge dependency_{parser,resolution}_error with cli_error
+ *)
+type sca_resolution_error = {
+  type_: resolution_error_kind;
+  dependency_source_file: fpath;
+}
+type sca_error = [
+  | SCAParse of dependency_parser_error
+  | SCAResol of sca_resolution_error
+] <ocaml repr="classic">
+
 
 type resolution_cmd_failed
     <ocaml attr="deriving show">
@@ -2262,8 +2290,8 @@ type resolution_cmd_failed
  * lockfile parsing might partially fail but recover and still produce results)
 *)
 type resolution_result = [
-  | ResolutionOk of (found_dependency list * resolution_error list)
-  | ResolutionError of resolution_error list
+  | ResolutionOk of (found_dependency list * resolution_error_kind list)
+  | ResolutionError of resolution_error_kind list
 ]
 
 type transitive_finding = {
