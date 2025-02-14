@@ -597,7 +597,7 @@ type sca_match_kind = [
    * access third-party code for further investigation
    * (similar to (LockfileOnlyMatch Transitive))
   *)
-  | TransitiveUndetermined
+  | TransitiveUndetermined of transitive_undetermined
 ] < ocaml repr="classic">
 
 type transitive_reachable = {
@@ -609,6 +609,10 @@ type transitive_reachable = {
 
 type transitive_unreachable = {
   (* TODO: some proof that the user can understand *)
+  explanation: string option;
+}
+
+type transitive_undetermined = {
   explanation: string option;
 }
 
@@ -2329,6 +2333,12 @@ type transitive_finding = {
    *)
 }
 
+type transitive_reachability_filter_params = {
+  rules_path: fpath;
+  findings: transitive_finding list;
+  dependencies: (found_dependency * downloaded_dependency option) list;
+}
+
 (* ----------------------------- *)
 (* SCA part 4: Symbol analysis *)
 (* ----------------------------- *)
@@ -2387,7 +2397,7 @@ type function_call <python decorator="dataclass(frozen=True)"> = [
   | CallGetTargets of scanning_roots
   (* for now, the transitive reachability filter takes only a single dependency graph as input.
    * it is up to the caller to call it several times, one for each subproject *)
-  | CallTransitiveReachabilityFilter of ((found_dependency * downloaded_dependency list) * transitive_finding list)
+  | CallTransitiveReachabilityFilter of transitive_reachability_filter_params
 ]
 
 (* ----------------------------- *)

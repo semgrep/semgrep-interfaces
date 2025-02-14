@@ -204,7 +204,7 @@ export type ScaMatchKind =
 | { kind: 'DirectUnreachable' }
 | { kind: 'TransitiveReachable'; value: TransitiveReachable }
 | { kind: 'TransitiveUnreachable'; value: TransitiveUnreachable }
-| { kind: 'TransitiveUndetermined' }
+| { kind: 'TransitiveUndetermined'; value: TransitiveUndetermined }
 
 export type TransitiveReachable = {
   explanation: Option<string>;
@@ -212,6 +212,10 @@ export type TransitiveReachable = {
 }
 
 export type TransitiveUnreachable = {
+  explanation: Option<string>;
+}
+
+export type TransitiveUndetermined = {
   explanation: Option<string>;
 }
 
@@ -1052,6 +1056,12 @@ export type TransitiveFinding = {
   m: CoreMatch;
 }
 
+export type TransitiveReachabilityFilterParams = {
+  rules_path: Fpath;
+  findings: TransitiveFinding[];
+  dependencies: [FoundDependency, Option<DownloadedDependency>][];
+}
+
 export type Symbol = {
   fqn: string[];
 }
@@ -1073,7 +1083,7 @@ export type FunctionCall =
 | { kind: 'CallUploadSymbolAnalysis'; value: [string, number /*int*/, SymbolAnalysis] }
 | { kind: 'CallDumpRulePartitions'; value: DumpRulePartitionsParams }
 | { kind: 'CallGetTargets'; value: ScanningRoots }
-| { kind: 'CallTransitiveReachabilityFilter'; value: [[FoundDependency, DownloadedDependency[]], TransitiveFinding[]] }
+| { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveReachabilityFilterParams }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -1787,7 +1797,7 @@ export function writeScaMatchKind(x: ScaMatchKind, context: any = x): any {
     case 'TransitiveUnreachable':
       return ['TransitiveUnreachable', writeTransitiveUnreachable(x.value, x)]
     case 'TransitiveUndetermined':
-      return 'TransitiveUndetermined'
+      return ['TransitiveUndetermined', writeTransitiveUndetermined(x.value, x)]
   }
 }
 
@@ -1798,8 +1808,6 @@ export function readScaMatchKind(x: any, context: any = x): ScaMatchKind {
         return { kind: 'DirectReachable' }
       case 'DirectUnreachable':
         return { kind: 'DirectUnreachable' }
-      case 'TransitiveUndetermined':
-        return { kind: 'TransitiveUndetermined' }
       default:
         _atd_bad_json('ScaMatchKind', x, context)
         throw new Error('impossible')
@@ -1814,6 +1822,8 @@ export function readScaMatchKind(x: any, context: any = x): ScaMatchKind {
         return { kind: 'TransitiveReachable', value: readTransitiveReachable(x[1], x) }
       case 'TransitiveUnreachable':
         return { kind: 'TransitiveUnreachable', value: readTransitiveUnreachable(x[1], x) }
+      case 'TransitiveUndetermined':
+        return { kind: 'TransitiveUndetermined', value: readTransitiveUndetermined(x[1], x) }
       default:
         _atd_bad_json('ScaMatchKind', x, context)
         throw new Error('impossible')
@@ -1844,6 +1854,18 @@ export function writeTransitiveUnreachable(x: TransitiveUnreachable, context: an
 export function readTransitiveUnreachable(x: any, context: any = x): TransitiveUnreachable {
   return {
     explanation: _atd_read_required_field('TransitiveUnreachable', 'explanation', _atd_read_option(_atd_read_string), x['explanation'], x),
+  };
+}
+
+export function writeTransitiveUndetermined(x: TransitiveUndetermined, context: any = x): any {
+  return {
+    'explanation': _atd_write_required_field('TransitiveUndetermined', 'explanation', _atd_write_option(_atd_write_string), x.explanation, x),
+  };
+}
+
+export function readTransitiveUndetermined(x: any, context: any = x): TransitiveUndetermined {
+  return {
+    explanation: _atd_read_required_field('TransitiveUndetermined', 'explanation', _atd_read_option(_atd_read_string), x['explanation'], x),
   };
 }
 
@@ -4412,6 +4434,22 @@ export function readTransitiveFinding(x: any, context: any = x): TransitiveFindi
   };
 }
 
+export function writeTransitiveReachabilityFilterParams(x: TransitiveReachabilityFilterParams, context: any = x): any {
+  return {
+    'rules_path': _atd_write_required_field('TransitiveReachabilityFilterParams', 'rules_path', writeFpath, x.rules_path, x),
+    'findings': _atd_write_required_field('TransitiveReachabilityFilterParams', 'findings', _atd_write_array(writeTransitiveFinding), x.findings, x),
+    'dependencies': _atd_write_required_field('TransitiveReachabilityFilterParams', 'dependencies', _atd_write_array(((x, context) => [writeFoundDependency(x[0], x), _atd_write_option(writeDownloadedDependency)(x[1], x)])), x.dependencies, x),
+  };
+}
+
+export function readTransitiveReachabilityFilterParams(x: any, context: any = x): TransitiveReachabilityFilterParams {
+  return {
+    rules_path: _atd_read_required_field('TransitiveReachabilityFilterParams', 'rules_path', readFpath, x['rules_path'], x),
+    findings: _atd_read_required_field('TransitiveReachabilityFilterParams', 'findings', _atd_read_array(readTransitiveFinding), x['findings'], x),
+    dependencies: _atd_read_required_field('TransitiveReachabilityFilterParams', 'dependencies', _atd_read_array(((x, context): [FoundDependency, Option<DownloadedDependency>] => { _atd_check_json_tuple(2, x, context); return [readFoundDependency(x[0], x), _atd_read_option(readDownloadedDependency)(x[1], x)] })), x['dependencies'], x),
+  };
+}
+
 export function writeSymbol(x: Symbol, context: any = x): any {
   return {
     'fqn': _atd_write_required_field('Symbol', 'fqn', _atd_write_array(_atd_write_string), x.fqn, x),
@@ -4467,7 +4505,7 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
     case 'CallGetTargets':
       return ['CallGetTargets', writeScanningRoots(x.value, x)]
     case 'CallTransitiveReachabilityFilter':
-      return ['CallTransitiveReachabilityFilter', ((x, context) => [((x, context) => [writeFoundDependency(x[0], x), _atd_write_array(writeDownloadedDependency)(x[1], x)])(x[0], x), _atd_write_array(writeTransitiveFinding)(x[1], x)])(x.value, x)]
+      return ['CallTransitiveReachabilityFilter', writeTransitiveReachabilityFilterParams(x.value, x)]
   }
 }
 
@@ -4501,7 +4539,7 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
       case 'CallGetTargets':
         return { kind: 'CallGetTargets', value: readScanningRoots(x[1], x) }
       case 'CallTransitiveReachabilityFilter':
-        return { kind: 'CallTransitiveReachabilityFilter', value: ((x, context): [[FoundDependency, DownloadedDependency[]], TransitiveFinding[]] => { _atd_check_json_tuple(2, x, context); return [((x, context): [FoundDependency, DownloadedDependency[]] => { _atd_check_json_tuple(2, x, context); return [readFoundDependency(x[0], x), _atd_read_array(readDownloadedDependency)(x[1], x)] })(x[0], x), _atd_read_array(readTransitiveFinding)(x[1], x)] })(x[1], x) }
+        return { kind: 'CallTransitiveReachabilityFilter', value: readTransitiveReachabilityFilterParams(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
