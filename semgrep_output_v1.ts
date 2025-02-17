@@ -1017,6 +1017,7 @@ export type DependencySource =
 | { kind: 'ManifestOnlyDependencySource'; value: Manifest }
 | { kind: 'LockfileOnlyDependencySource'; value: Lockfile }
 | { kind: 'ManifestLockfileDependencySource'; value: [Manifest, Lockfile] }
+| { kind: 'MultiLockfileDependencySource'; value: DependencySource[] }
 
 export type ResolutionErrorKind =
 | { kind: 'UnsupportedManifest' }
@@ -4246,6 +4247,8 @@ export function writeDependencySource(x: DependencySource, context: any = x): an
       return ['LockfileOnlyDependencySource', writeLockfile(x.value, x)]
     case 'ManifestLockfileDependencySource':
       return ['ManifestLockfileDependencySource', ((x, context) => [writeManifest(x[0], x), writeLockfile(x[1], x)])(x.value, x)]
+    case 'MultiLockfileDependencySource':
+      return ['MultiLockfileDependencySource', _atd_write_array(writeDependencySource)(x.value, x)]
   }
 }
 
@@ -4258,6 +4261,8 @@ export function readDependencySource(x: any, context: any = x): DependencySource
       return { kind: 'LockfileOnlyDependencySource', value: readLockfile(x[1], x) }
     case 'ManifestLockfileDependencySource':
       return { kind: 'ManifestLockfileDependencySource', value: ((x, context): [Manifest, Lockfile] => { _atd_check_json_tuple(2, x, context); return [readManifest(x[0], x), readLockfile(x[1], x)] })(x[1], x) }
+    case 'MultiLockfileDependencySource':
+      return { kind: 'MultiLockfileDependencySource', value: _atd_read_array(readDependencySource)(x[1], x) }
     default:
       _atd_bad_json('DependencySource', x, context)
       throw new Error('impossible')
