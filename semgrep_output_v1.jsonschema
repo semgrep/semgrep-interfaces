@@ -1930,6 +1930,18 @@
               ]
             }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "MultiLockfileDependencySource" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/dependency_source" }
+            }
+          ]
         }
       ]
     },

@@ -2239,6 +2239,7 @@ type lockfile
     path: fpath;
 }
 
+(* TODO? use a record instead of an ADT? *)
 type dependency_source
     <ocaml attr="deriving show">
     <python decorator="dataclass(frozen=True)"> =
@@ -2246,6 +2247,18 @@ type dependency_source
   | ManifestOnlyDependencySource of manifest
   | LockfileOnlyDependencySource of lockfile
   | ManifestLockfileDependencySource of (manifest * lockfile)
+  (* The dependency_source should be LockfileOnly or ManifestLockfile,
+   * but not ManifestOnlyDependencySource.
+   * Right now this variant is only used by pysemgrep; it is
+   * deconstructed in multiple LockfileXxx when calling the dynamic resolver.
+   * Note that this variant introduces a series of problems in the Python code
+   * because atdpy generates a List[DependencySource] and List are
+   * not hashable in Python. We had to define a special hash function
+   * for Subproject to avoid hashing the dependency_source.
+   * TODO? add a <python repr="tuple"> so the list is converted instead in a
+   * Tuple[DependencySource, ...] which is hashable.
+   *)
+  | MultiLockfileDependencySource of dependency_source list
 ] <ocaml repr="classic">
 
 (* alt: sca_error_kind *)                        
