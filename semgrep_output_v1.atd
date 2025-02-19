@@ -555,6 +555,8 @@ type sca_match = {
 (* Note that in addition to "reachable" there are also the notions of
  * "vulnerable" and "exploitable".
  * coupling: see also SCA_match.ml
+ * TODO? have a Direct of xxx and Transitive of sca_transitive_match_kind?
+ * better so can be reused in other types such as tr_cache_result?
 *)
 type sca_match_kind = [
   (* This is used for "parity" or "upgrade-only" rules. transitivity
@@ -1831,6 +1833,62 @@ type scan_config = {
     ?ci_config_from_cloud: ci_config_from_cloud option;
   }
 
+(* ------------------------------------------- *)
+(* Transitive reachabilitiy (TR) caching comms *)
+(* ------------------------------------------- *)
+(* We want essentially to cache semgrep computation on third party packages
+ * to quickly know  (rule_id x package_version) -> sca_transitive_match_kind
+ * to avoid downloading and recomputing each time the same thing.
+ *)
+
+(* The "key".
+ * The rule_id and resolved_url should form a valid key for our TR cache
+ * database table. Indeed, semgrep should always return the same result when
+ * using the same rule and same resolved_url package. The content at the
+ * URL should hopefully not change (we could md5sum it just in case) and
+ * the content of the rule_id should also not change (could md5sum it maybe too).
+ * I've added tr_version below just in case we want to invalidate past
+ * cached entries (e.g., the semgrep engine itself changed enough that
+ * some past cached results might be wrong and should be recomputed)
+*)
+type tr_cache_key = {
+    rule_id: rule_id;
+    (* ex: http://some-website/hello-world.0.1.2.tgz like in found_dependency *)
+    resolved_url: string;
+    (* to bump just in case of problem
+     * TODO: to be set in Transitive_reachability.ml tr_version constant
+     *)
+    tr_version: int;
+}
+
+(* The "value" *)
+type tr_cache_match_result = {
+    (* TODO: could define separate sca_transitive_match type? Should only be
+     * one of TransitiveXxx case of sca_match_kind
+     * TODO? add other fields from sca_match or just sca_match_kind is enough?
+     * add location maybe? or make it part of the [transitive_reachable]
+     * and [transitive_unreachable] records?
+     * TODO? make it a list? match_results: ... list; ?
+     *)
+    match_result: sca_match_kind;
+}
+
+(* Sent by the CLI to the POST /api/???? *)
+type tr_query_cache_request = {
+    entries: tr_cache_key list;
+}
+
+(* Response by the backend the the POST /api/???? *)
+type tr_query_cache_response = {
+    cached: (tr_cache_key * tr_cache_match_result) list;   
+}
+
+(* Sent by the CLI to the POST /api/??? *)
+type tr_add_cache_request = {
+   new_entries: (tr_cache_key * tr_cache_match_result) list;
+}
+(* TODO: tr_add_cache_response: string result (Ok | Error) *)
+
 (* ----------------------------- *)
 (* TODO a better CI config from cloud *)
 (* ----------------------------- *)
@@ -2307,6 +2365,10 @@ type resolution_result = [
   | ResolutionError of resolution_error_kind list
 ]
 
+(* ----------------------------- *)
+(* SCA transitive reachability *)
+(* ----------------------------- *)
+
 type transitive_finding = {
   (* the important part is the sca_match in core_match_extra that
    * we need to adjust and especially the sca_match_kind.
@@ -2318,7 +2380,7 @@ type transitive_finding = {
 }
 
 (* ----------------------------- *)
-(* SCA part 4: Symbol analysis *)
+(* Symbol analysis *)
 (* ----------------------------- *)
 
 (* "Symbol analysis" is about determining the third-party functions which

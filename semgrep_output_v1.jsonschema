@@ -1509,6 +1509,68 @@
         }
       }
     },
+    "tr_cache_key": {
+      "type": "object",
+      "required": [ "rule_id", "resolved_url", "tr_version" ],
+      "properties": {
+        "rule_id": { "$ref": "#/definitions/rule_id" },
+        "resolved_url": { "type": "string" },
+        "tr_version": { "type": "integer" }
+      }
+    },
+    "tr_cache_match_result": {
+      "type": "object",
+      "required": [ "match_result" ],
+      "properties": {
+        "match_result": { "$ref": "#/definitions/sca_match_kind" }
+      }
+    },
+    "tr_query_cache_request": {
+      "type": "object",
+      "required": [ "entries" ],
+      "properties": {
+        "entries": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/tr_cache_key" }
+        }
+      }
+    },
+    "tr_query_cache_response": {
+      "type": "object",
+      "required": [ "cached" ],
+      "properties": {
+        "cached": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "items": false,
+            "prefixItems": [
+              { "$ref": "#/definitions/tr_cache_key" },
+              { "$ref": "#/definitions/tr_cache_match_result" }
+            ]
+          }
+        }
+      }
+    },
+    "tr_add_cache_request": {
+      "type": "object",
+      "required": [ "new_entries" ],
+      "properties": {
+        "new_entries": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "items": false,
+            "prefixItems": [
+              { "$ref": "#/definitions/tr_cache_key" },
+              { "$ref": "#/definitions/tr_cache_match_result" }
+            ]
+          }
+        }
+      }
+    },
     "ci_config_from_cloud": {
       "type": "object",
       "required": [ "repo_config" ],

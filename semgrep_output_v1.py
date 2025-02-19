@@ -3826,6 +3826,152 @@ class TransitiveFinding:
 
 
 @dataclass
+class TrCacheMatchResult:
+    """Original type: tr_cache_match_result = { ... }"""
+
+    match_result: ScaMatchKind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TrCacheMatchResult':
+        if isinstance(x, dict):
+            return cls(
+                match_result=ScaMatchKind.from_json(x['match_result']) if 'match_result' in x else _atd_missing_json_field('TrCacheMatchResult', 'match_result'),
+            )
+        else:
+            _atd_bad_json('TrCacheMatchResult', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['match_result'] = (lambda x: x.to_json())(self.match_result)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TrCacheMatchResult':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TrCacheKey:
+    """Original type: tr_cache_key = { ... }"""
+
+    rule_id: RuleId
+    resolved_url: str
+    tr_version: int
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TrCacheKey':
+        if isinstance(x, dict):
+            return cls(
+                rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else _atd_missing_json_field('TrCacheKey', 'rule_id'),
+                resolved_url=_atd_read_string(x['resolved_url']) if 'resolved_url' in x else _atd_missing_json_field('TrCacheKey', 'resolved_url'),
+                tr_version=_atd_read_int(x['tr_version']) if 'tr_version' in x else _atd_missing_json_field('TrCacheKey', 'tr_version'),
+            )
+        else:
+            _atd_bad_json('TrCacheKey', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
+        res['resolved_url'] = _atd_write_string(self.resolved_url)
+        res['tr_version'] = _atd_write_int(self.tr_version)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TrCacheKey':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TrQueryCacheResponse:
+    """Original type: tr_query_cache_response = { ... }"""
+
+    cached: List[Tuple[TrCacheKey, TrCacheMatchResult]]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TrQueryCacheResponse':
+        if isinstance(x, dict):
+            return cls(
+                cached=_atd_read_list((lambda x: (TrCacheKey.from_json(x[0]), TrCacheMatchResult.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['cached']) if 'cached' in x else _atd_missing_json_field('TrQueryCacheResponse', 'cached'),
+            )
+        else:
+            _atd_bad_json('TrQueryCacheResponse', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['cached'] = _atd_write_list((lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.cached)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TrQueryCacheResponse':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TrQueryCacheRequest:
+    """Original type: tr_query_cache_request = { ... }"""
+
+    entries: List[TrCacheKey]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TrQueryCacheRequest':
+        if isinstance(x, dict):
+            return cls(
+                entries=_atd_read_list(TrCacheKey.from_json)(x['entries']) if 'entries' in x else _atd_missing_json_field('TrQueryCacheRequest', 'entries'),
+            )
+        else:
+            _atd_bad_json('TrQueryCacheRequest', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['entries'] = _atd_write_list((lambda x: x.to_json()))(self.entries)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TrQueryCacheRequest':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TrAddCacheRequest:
+    """Original type: tr_add_cache_request = { ... }"""
+
+    new_entries: List[Tuple[TrCacheKey, TrCacheMatchResult]]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TrAddCacheRequest':
+        if isinstance(x, dict):
+            return cls(
+                new_entries=_atd_read_list((lambda x: (TrCacheKey.from_json(x[0]), TrCacheMatchResult.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['new_entries']) if 'new_entries' in x else _atd_missing_json_field('TrAddCacheRequest', 'new_entries'),
+            )
+        else:
+            _atd_bad_json('TrAddCacheRequest', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['new_entries'] = _atd_write_list((lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.new_entries)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TrAddCacheRequest':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Todo:
     """Original type: todo"""
 

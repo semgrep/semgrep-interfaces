@@ -802,6 +802,28 @@ export type ScanConfig = {
   ci_config_from_cloud?: CiConfigFromCloud;
 }
 
+export type TrCacheKey = {
+  rule_id: RuleId;
+  resolved_url: string;
+  tr_version: number /*int*/;
+}
+
+export type TrCacheMatchResult = {
+  match_result: ScaMatchKind;
+}
+
+export type TrQueryCacheRequest = {
+  entries: TrCacheKey[];
+}
+
+export type TrQueryCacheResponse = {
+  cached: [TrCacheKey, TrCacheMatchResult][];
+}
+
+export type TrAddCacheRequest = {
+  new_entries: [TrCacheKey, TrCacheMatchResult][];
+}
+
 export type CiConfigFromCloud = {
   repo_config: CiConfig;
   org_config?: CiConfig;
@@ -3569,6 +3591,70 @@ export function readScanConfig(x: any, context: any = x): ScanConfig {
     enabled_products: _atd_read_optional_field(_atd_read_array(readProduct), x['enabled_products'], x),
     actions: _atd_read_field_with_default(_atd_read_array(readAction), [], x['actions'], x),
     ci_config_from_cloud: _atd_read_optional_field(readCiConfigFromCloud, x['ci_config_from_cloud'], x),
+  };
+}
+
+export function writeTrCacheKey(x: TrCacheKey, context: any = x): any {
+  return {
+    'rule_id': _atd_write_required_field('TrCacheKey', 'rule_id', writeRuleId, x.rule_id, x),
+    'resolved_url': _atd_write_required_field('TrCacheKey', 'resolved_url', _atd_write_string, x.resolved_url, x),
+    'tr_version': _atd_write_required_field('TrCacheKey', 'tr_version', _atd_write_int, x.tr_version, x),
+  };
+}
+
+export function readTrCacheKey(x: any, context: any = x): TrCacheKey {
+  return {
+    rule_id: _atd_read_required_field('TrCacheKey', 'rule_id', readRuleId, x['rule_id'], x),
+    resolved_url: _atd_read_required_field('TrCacheKey', 'resolved_url', _atd_read_string, x['resolved_url'], x),
+    tr_version: _atd_read_required_field('TrCacheKey', 'tr_version', _atd_read_int, x['tr_version'], x),
+  };
+}
+
+export function writeTrCacheMatchResult(x: TrCacheMatchResult, context: any = x): any {
+  return {
+    'match_result': _atd_write_required_field('TrCacheMatchResult', 'match_result', writeScaMatchKind, x.match_result, x),
+  };
+}
+
+export function readTrCacheMatchResult(x: any, context: any = x): TrCacheMatchResult {
+  return {
+    match_result: _atd_read_required_field('TrCacheMatchResult', 'match_result', readScaMatchKind, x['match_result'], x),
+  };
+}
+
+export function writeTrQueryCacheRequest(x: TrQueryCacheRequest, context: any = x): any {
+  return {
+    'entries': _atd_write_required_field('TrQueryCacheRequest', 'entries', _atd_write_array(writeTrCacheKey), x.entries, x),
+  };
+}
+
+export function readTrQueryCacheRequest(x: any, context: any = x): TrQueryCacheRequest {
+  return {
+    entries: _atd_read_required_field('TrQueryCacheRequest', 'entries', _atd_read_array(readTrCacheKey), x['entries'], x),
+  };
+}
+
+export function writeTrQueryCacheResponse(x: TrQueryCacheResponse, context: any = x): any {
+  return {
+    'cached': _atd_write_required_field('TrQueryCacheResponse', 'cached', _atd_write_array(((x, context) => [writeTrCacheKey(x[0], x), writeTrCacheMatchResult(x[1], x)])), x.cached, x),
+  };
+}
+
+export function readTrQueryCacheResponse(x: any, context: any = x): TrQueryCacheResponse {
+  return {
+    cached: _atd_read_required_field('TrQueryCacheResponse', 'cached', _atd_read_array(((x, context): [TrCacheKey, TrCacheMatchResult] => { _atd_check_json_tuple(2, x, context); return [readTrCacheKey(x[0], x), readTrCacheMatchResult(x[1], x)] })), x['cached'], x),
+  };
+}
+
+export function writeTrAddCacheRequest(x: TrAddCacheRequest, context: any = x): any {
+  return {
+    'new_entries': _atd_write_required_field('TrAddCacheRequest', 'new_entries', _atd_write_array(((x, context) => [writeTrCacheKey(x[0], x), writeTrCacheMatchResult(x[1], x)])), x.new_entries, x),
+  };
+}
+
+export function readTrAddCacheRequest(x: any, context: any = x): TrAddCacheRequest {
+  return {
+    new_entries: _atd_read_required_field('TrAddCacheRequest', 'new_entries', _atd_read_array(((x, context): [TrCacheKey, TrCacheMatchResult] => { _atd_check_json_tuple(2, x, context); return [readTrCacheKey(x[0], x), readTrCacheMatchResult(x[1], x)] })), x['new_entries'], x),
   };
 }
 
