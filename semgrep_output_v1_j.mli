@@ -270,6 +270,28 @@ type transitive_finding = Semgrep_output_v1_t.transitive_finding = {
   m: core_match
 }
 
+type tr_cache_match_result = Semgrep_output_v1_t.tr_cache_match_result = {
+  match_result: sca_match_kind
+}
+
+type tr_cache_key = Semgrep_output_v1_t.tr_cache_key = {
+  rule_id: rule_id;
+  resolved_url: string;
+  tr_version: int
+}
+
+type tr_query_cache_response = Semgrep_output_v1_t.tr_query_cache_response = {
+  cached: (tr_cache_key * tr_cache_match_result) list
+}
+
+type tr_query_cache_request = Semgrep_output_v1_t.tr_query_cache_request = {
+  entries: tr_cache_key list
+}
+
+type tr_add_cache_request = Semgrep_output_v1_t.tr_add_cache_request = {
+  new_entries: (tr_cache_key * tr_cache_match_result) list
+}
+
 type todo = Semgrep_output_v1_t.todo
 
 type matching_diagnosis = Semgrep_output_v1_t.matching_diagnosis = {
@@ -2002,6 +2024,106 @@ val read_transitive_finding :
 val transitive_finding_of_string :
   string -> transitive_finding
   (** Deserialize JSON data of type {!type:transitive_finding}. *)
+
+val write_tr_cache_match_result :
+  Buffer.t -> tr_cache_match_result -> unit
+  (** Output a JSON value of type {!type:tr_cache_match_result}. *)
+
+val string_of_tr_cache_match_result :
+  ?len:int -> tr_cache_match_result -> string
+  (** Serialize a value of type {!type:tr_cache_match_result}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_tr_cache_match_result :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> tr_cache_match_result
+  (** Input JSON data of type {!type:tr_cache_match_result}. *)
+
+val tr_cache_match_result_of_string :
+  string -> tr_cache_match_result
+  (** Deserialize JSON data of type {!type:tr_cache_match_result}. *)
+
+val write_tr_cache_key :
+  Buffer.t -> tr_cache_key -> unit
+  (** Output a JSON value of type {!type:tr_cache_key}. *)
+
+val string_of_tr_cache_key :
+  ?len:int -> tr_cache_key -> string
+  (** Serialize a value of type {!type:tr_cache_key}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_tr_cache_key :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> tr_cache_key
+  (** Input JSON data of type {!type:tr_cache_key}. *)
+
+val tr_cache_key_of_string :
+  string -> tr_cache_key
+  (** Deserialize JSON data of type {!type:tr_cache_key}. *)
+
+val write_tr_query_cache_response :
+  Buffer.t -> tr_query_cache_response -> unit
+  (** Output a JSON value of type {!type:tr_query_cache_response}. *)
+
+val string_of_tr_query_cache_response :
+  ?len:int -> tr_query_cache_response -> string
+  (** Serialize a value of type {!type:tr_query_cache_response}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_tr_query_cache_response :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> tr_query_cache_response
+  (** Input JSON data of type {!type:tr_query_cache_response}. *)
+
+val tr_query_cache_response_of_string :
+  string -> tr_query_cache_response
+  (** Deserialize JSON data of type {!type:tr_query_cache_response}. *)
+
+val write_tr_query_cache_request :
+  Buffer.t -> tr_query_cache_request -> unit
+  (** Output a JSON value of type {!type:tr_query_cache_request}. *)
+
+val string_of_tr_query_cache_request :
+  ?len:int -> tr_query_cache_request -> string
+  (** Serialize a value of type {!type:tr_query_cache_request}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_tr_query_cache_request :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> tr_query_cache_request
+  (** Input JSON data of type {!type:tr_query_cache_request}. *)
+
+val tr_query_cache_request_of_string :
+  string -> tr_query_cache_request
+  (** Deserialize JSON data of type {!type:tr_query_cache_request}. *)
+
+val write_tr_add_cache_request :
+  Buffer.t -> tr_add_cache_request -> unit
+  (** Output a JSON value of type {!type:tr_add_cache_request}. *)
+
+val string_of_tr_add_cache_request :
+  ?len:int -> tr_add_cache_request -> string
+  (** Serialize a value of type {!type:tr_add_cache_request}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_tr_add_cache_request :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> tr_add_cache_request
+  (** Input JSON data of type {!type:tr_add_cache_request}. *)
+
+val tr_add_cache_request_of_string :
+  string -> tr_add_cache_request
+  (** Deserialize JSON data of type {!type:tr_add_cache_request}. *)
 
 val write_todo :
   Buffer.t -> todo -> unit
