@@ -87,7 +87,7 @@ type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
  *)
 type fpath
      <ocaml attr="deriving show, eq">
-     <python decorator="dataclass(frozen=True)"> =
+     <python decorator="dataclass(frozen=True, order=True)"> =
    string wrap <ocaml module="ATD_string_wrap.Fpath">
 
 type uri = string wrap <ocaml module="ATD_string_wrap.Uri">
@@ -2303,7 +2303,7 @@ type sca_error = [
  * Used as the unit of analysis for supply chain.
  *)
 type subproject
-    <python decorator="dataclass(frozen=True)"> =
+    <python decorator="dataclass(frozen=True, order=True)"> =
 {
     root_dir: fpath;
     (* This is used to match code files with subprojects. It is necessary to

@@ -587,7 +587,7 @@ class Ecosystem:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=True)
 class Fpath:
     """Original type: fpath"""
 
@@ -3477,7 +3477,7 @@ class UnresolvedReason:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=True)
 class Subproject:
     """Original type: subproject = { ... }"""
 
