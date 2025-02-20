@@ -1026,6 +1026,11 @@ export type ResolutionErrorKind =
 | { kind: 'ParseDependenciesFailed'; value: string }
 | { kind: 'ScaParseError'; value: ScaParserName }
 
+export type ResolutionCmdFailed = {
+  command: string;
+  message: string;
+}
+
 export type ScaResolutionError = {
   type_: ResolutionErrorKind;
   dependency_source_file: Fpath;
@@ -1035,9 +1040,29 @@ export type ScaError =
 | { kind: 'SCAParse'; value: DependencyParserError }
 | { kind: 'SCAResol'; value: ScaResolutionError }
 
-export type ResolutionCmdFailed = {
-  command: string;
-  message: string;
+export type Subproject = {
+  root_dir: Fpath;
+  ecosystem: Option<Ecosystem>;
+  dependency_source: DependencySource;
+}
+
+export type ResolvedSubproject = {
+  info: Subproject;
+  resolution_method: ResolutionMethod;
+  ecosystem: Ecosystem;
+  found_dependencies: [DependencyChild, FoundDependency[]][];
+  errors: ScaError[];
+}
+
+export type UnresolvedReason =
+| { kind: 'UnresolvedFailed' /* JSON: "failed" */ }
+| { kind: 'UnresolvedSkipped' /* JSON: "skipped" */ }
+| { kind: 'UnresolvedUnsupported' /* JSON: "unsupported" */ }
+
+export type UnresolvedSubproject = {
+  info: Subproject;
+  reason: UnresolvedReason;
+  errors: ScaError[];
 }
 
 export type ResolutionResult =
@@ -4312,6 +4337,20 @@ export function readResolutionErrorKind(x: any, context: any = x): ResolutionErr
   }
 }
 
+export function writeResolutionCmdFailed(x: ResolutionCmdFailed, context: any = x): any {
+  return {
+    'command': _atd_write_required_field('ResolutionCmdFailed', 'command', _atd_write_string, x.command, x),
+    'message': _atd_write_required_field('ResolutionCmdFailed', 'message', _atd_write_string, x.message, x),
+  };
+}
+
+export function readResolutionCmdFailed(x: any, context: any = x): ResolutionCmdFailed {
+  return {
+    command: _atd_read_required_field('ResolutionCmdFailed', 'command', _atd_read_string, x['command'], x),
+    message: _atd_read_required_field('ResolutionCmdFailed', 'message', _atd_read_string, x['message'], x),
+  };
+}
+
 export function writeScaResolutionError(x: ScaResolutionError, context: any = x): any {
   return {
     'type_': _atd_write_required_field('ScaResolutionError', 'type_', writeResolutionErrorKind, x.type_, x),
@@ -4348,17 +4387,80 @@ export function readScaError(x: any, context: any = x): ScaError {
   }
 }
 
-export function writeResolutionCmdFailed(x: ResolutionCmdFailed, context: any = x): any {
+export function writeSubproject(x: Subproject, context: any = x): any {
   return {
-    'command': _atd_write_required_field('ResolutionCmdFailed', 'command', _atd_write_string, x.command, x),
-    'message': _atd_write_required_field('ResolutionCmdFailed', 'message', _atd_write_string, x.message, x),
+    'root_dir': _atd_write_required_field('Subproject', 'root_dir', writeFpath, x.root_dir, x),
+    'ecosystem': _atd_write_required_field('Subproject', 'ecosystem', _atd_write_option(writeEcosystem), x.ecosystem, x),
+    'dependency_source': _atd_write_required_field('Subproject', 'dependency_source', writeDependencySource, x.dependency_source, x),
   };
 }
 
-export function readResolutionCmdFailed(x: any, context: any = x): ResolutionCmdFailed {
+export function readSubproject(x: any, context: any = x): Subproject {
   return {
-    command: _atd_read_required_field('ResolutionCmdFailed', 'command', _atd_read_string, x['command'], x),
-    message: _atd_read_required_field('ResolutionCmdFailed', 'message', _atd_read_string, x['message'], x),
+    root_dir: _atd_read_required_field('Subproject', 'root_dir', readFpath, x['root_dir'], x),
+    ecosystem: _atd_read_required_field('Subproject', 'ecosystem', _atd_read_option(readEcosystem), x['ecosystem'], x),
+    dependency_source: _atd_read_required_field('Subproject', 'dependency_source', readDependencySource, x['dependency_source'], x),
+  };
+}
+
+export function writeResolvedSubproject(x: ResolvedSubproject, context: any = x): any {
+  return {
+    'info': _atd_write_required_field('ResolvedSubproject', 'info', writeSubproject, x.info, x),
+    'resolution_method': _atd_write_required_field('ResolvedSubproject', 'resolution_method', writeResolutionMethod, x.resolution_method, x),
+    'ecosystem': _atd_write_required_field('ResolvedSubproject', 'ecosystem', writeEcosystem, x.ecosystem, x),
+    'found_dependencies': _atd_write_required_field('ResolvedSubproject', 'found_dependencies', _atd_write_array(((x, context) => [writeDependencyChild(x[0], x), _atd_write_array(writeFoundDependency)(x[1], x)])), x.found_dependencies, x),
+    'errors': _atd_write_required_field('ResolvedSubproject', 'errors', _atd_write_array(writeScaError), x.errors, x),
+  };
+}
+
+export function readResolvedSubproject(x: any, context: any = x): ResolvedSubproject {
+  return {
+    info: _atd_read_required_field('ResolvedSubproject', 'info', readSubproject, x['info'], x),
+    resolution_method: _atd_read_required_field('ResolvedSubproject', 'resolution_method', readResolutionMethod, x['resolution_method'], x),
+    ecosystem: _atd_read_required_field('ResolvedSubproject', 'ecosystem', readEcosystem, x['ecosystem'], x),
+    found_dependencies: _atd_read_required_field('ResolvedSubproject', 'found_dependencies', _atd_read_array(((x, context): [DependencyChild, FoundDependency[]] => { _atd_check_json_tuple(2, x, context); return [readDependencyChild(x[0], x), _atd_read_array(readFoundDependency)(x[1], x)] })), x['found_dependencies'], x),
+    errors: _atd_read_required_field('ResolvedSubproject', 'errors', _atd_read_array(readScaError), x['errors'], x),
+  };
+}
+
+export function writeUnresolvedReason(x: UnresolvedReason, context: any = x): any {
+  switch (x.kind) {
+    case 'UnresolvedFailed':
+      return 'failed'
+    case 'UnresolvedSkipped':
+      return 'skipped'
+    case 'UnresolvedUnsupported':
+      return 'unsupported'
+  }
+}
+
+export function readUnresolvedReason(x: any, context: any = x): UnresolvedReason {
+  switch (x) {
+    case 'failed':
+      return { kind: 'UnresolvedFailed' }
+    case 'skipped':
+      return { kind: 'UnresolvedSkipped' }
+    case 'unsupported':
+      return { kind: 'UnresolvedUnsupported' }
+    default:
+      _atd_bad_json('UnresolvedReason', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeUnresolvedSubproject(x: UnresolvedSubproject, context: any = x): any {
+  return {
+    'info': _atd_write_required_field('UnresolvedSubproject', 'info', writeSubproject, x.info, x),
+    'reason': _atd_write_required_field('UnresolvedSubproject', 'reason', writeUnresolvedReason, x.reason, x),
+    'errors': _atd_write_required_field('UnresolvedSubproject', 'errors', _atd_write_array(writeScaError), x.errors, x),
+  };
+}
+
+export function readUnresolvedSubproject(x: any, context: any = x): UnresolvedSubproject {
+  return {
+    info: _atd_read_required_field('UnresolvedSubproject', 'info', readSubproject, x['info'], x),
+    reason: _atd_read_required_field('UnresolvedSubproject', 'reason', readUnresolvedReason, x['reason'], x),
+    errors: _atd_read_required_field('UnresolvedSubproject', 'errors', _atd_read_array(readScaError), x['errors'], x),
   };
 }
 

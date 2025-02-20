@@ -2277,6 +2277,14 @@ type resolution_error_kind
   | ScaParseError of sca_parser_name
 ] <ocaml repr="classic">
 
+type resolution_cmd_failed
+    <ocaml attr="deriving show">
+    <python decorator="dataclass(frozen=True)"> =
+{
+    command: string;
+    message: string;
+}
+
 (* used only from pysemgrep for now
  * TODO? we should merge dependency_{parser,resolution}_error with cli_error
  *)
@@ -2289,13 +2297,57 @@ type sca_error = [
   | SCAResol of sca_resolution_error
 ] <ocaml repr="classic">
 
-
-type resolution_cmd_failed
-    <ocaml attr="deriving show">
+(* A subproject defined by some kind of manifest file (e.g., pyproject.toml,
+ * package.json, ...). This may be at the root of the repo being scanned or
+ * may be some other folder.
+ * Used as the unit of analysis for supply chain.
+ *)
+type subproject
     <python decorator="dataclass(frozen=True)"> =
 {
-    command: string;
-    message: string;
+    root_dir: fpath;
+    (* This is used to match code files with subprojects. It is necessary to
+     * have it here, even before a subproject's dependencies are resolved, in
+     * order to decide whether a certain subproject must be resolved given the
+     * changes included in a certain diff scan.
+     * It can be None if this subproject is for a package manager whose
+     * ecosystem is not yet supported (i.e. one that is identified only for
+     * tracking purposes)
+     *)
+    ecosystem: ecosystem option;
+    (* The dependency source is how we resolved the dependencies. This might be a
+     * lockfile/manifest pair (the only current one), but in the future it might
+     * also be dynamic resolution based on a manifest, an SBOM, or something else
+     *)
+    dependency_source: dependency_source;
+}    
+
+type resolved_subproject
+    <python decorator="dataclass(frozen=True)"> =
+{
+   info: subproject;
+   resolution_method: resolution_method;
+   ecosystem: ecosystem;
+   found_dependencies: (dependency_child * found_dependency list) list
+      <python repr="dict">;
+   errors: sca_error list;
+}
+
+type unresolved_reason = [
+  | UnresolvedFailed <json name="failed">
+  | UnresolvedSkipped <json name="skipped">
+  | UnresolvedUnsupported <json name="unsupported">
+] <ocaml repr="classic">
+
+type unresolved_subproject
+    <python decorator="dataclass(frozen=True)"> =
+{
+   info: subproject;
+   reason: unresolved_reason;
+   (* this is set only when the reason is UnresolvedFailed
+    * TODO: add it in unresolved_reason instead?
+    *)
+   errors: sca_error list;
 }
 
 (* Resolution can either succeed or fail, but in either case errors can be
