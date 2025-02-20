@@ -2037,7 +2037,30 @@
               "prefixItems": [
                 {
                   "type": "array",
-                  "items": { "$ref": "#/definitions/found_dependency" }
+                  "items": {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": false,
+                    "prefixItems": [
+                      { "$ref": "#/definitions/found_dependency" },
+                      {
+                        "oneOf": [
+                          {
+                            "type": "array",
+                            "minItems": 2,
+                            "items": false,
+                            "prefixItems": [
+                              { "const": "Some" },
+                              {
+                                "$ref": "#/definitions/downloaded_dependency"
+                              }
+                            ]
+                          },
+                          { "const": "None" }
+                        ]
+                      }
+                    ]
+                  }
                 },
                 {
                   "type": "array",
@@ -2060,6 +2083,11 @@
           ]
         }
       ]
+    },
+    "downloaded_dependency": {
+      "type": "object",
+      "required": [ "source_path" ],
+      "properties": { "source_path": { "$ref": "#/definitions/fpath" } }
     },
     "transitive_finding": {
       "type": "object",

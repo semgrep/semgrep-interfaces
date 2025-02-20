@@ -2300,12 +2300,24 @@ type resolution_cmd_failed
 
 (* Resolution can either succeed or fail, but in either case errors can be
  * produced (e.g. one resolution method might fail while a worse one succeeds,
- * lockfile parsing might partially fail but recover and still produce results)
+ * lockfile parsing might partially fail but recover and still produce results).
+ *
+ * Resolution can optionally include a `downloaded_dependency` alongside each
+ * `found_dependency`. This should be included if the source code for the
+ * dependency was downloaded and is available to scan later.
 *)
 type resolution_result = [
-  | ResolutionOk of (found_dependency list * resolution_error_kind list)
+  | ResolutionOk of ((found_dependency * downloaded_dependency option) list * resolution_error_kind list)
   | ResolutionError of resolution_error_kind list
 ]
+
+(* Information about a third-party dependency downloaded for Transitive Reachability.
+ * To accompany a found_dependency within the Semgrep CLI, passed back and forth 
+ * from OCaml to Python via RPC. See also SCA_dependency.t in OCaml and 
+ * ResolvedDependencies in Python. *)
+type downloaded_dependency = {
+  source_path: fpath;
+}
 
 type transitive_finding = {
   (* the important part is the sca_match in core_match_extra that
