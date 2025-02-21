@@ -124,6 +124,10 @@ type transitive_reachable = Semgrep_output_v1_t.transitive_reachable = {
   callgraph_reachable: bool option
 }
 
+type transitive_undetermined = Semgrep_output_v1_t.transitive_undetermined = {
+  explanation: string option
+}
+
 type transitive_unreachable = Semgrep_output_v1_t.transitive_unreachable = {
   explanation: string option
 }
@@ -156,7 +160,7 @@ type sca_match_kind = Semgrep_output_v1_t.sca_match_kind =
   | DirectUnreachable
   | TransitiveReachable of transitive_reachable
   | TransitiveUnreachable of transitive_unreachable
-  | TransitiveUndetermined
+  | TransitiveUndetermined of transitive_undetermined
 
 
 type sca_match = Semgrep_output_v1_t.sca_match = {
@@ -327,6 +331,17 @@ type triage_ignored = Semgrep_output_v1_t.triage_ignored = {
 
 type transitive_finding = Semgrep_output_v1_t.transitive_finding = {
   m: core_match
+}
+
+type downloaded_dependency = Semgrep_output_v1_t.downloaded_dependency = {
+  source_path: fpath
+}
+
+type transitive_reachability_filter_params =
+  Semgrep_output_v1_t.transitive_reachability_filter_params = {
+  rules_path: fpath;
+  findings: transitive_finding list;
+  dependencies: (found_dependency * downloaded_dependency option) list
 }
 
 type todo = Semgrep_output_v1_t.todo
@@ -689,10 +704,6 @@ type sarif_format = Semgrep_output_v1_t.sarif_format = {
 type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
-
-type downloaded_dependency = Semgrep_output_v1_t.downloaded_dependency = {
-  source_path: fpath
-}
 
 type resolved_dependency = Semgrep_output_v1_t.resolved_dependency
 
@@ -1513,6 +1524,26 @@ val transitive_reachable_of_string :
   string -> transitive_reachable
   (** Deserialize JSON data of type {!type:transitive_reachable}. *)
 
+val write_transitive_undetermined :
+  Buffer.t -> transitive_undetermined -> unit
+  (** Output a JSON value of type {!type:transitive_undetermined}. *)
+
+val string_of_transitive_undetermined :
+  ?len:int -> transitive_undetermined -> string
+  (** Serialize a value of type {!type:transitive_undetermined}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_transitive_undetermined :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> transitive_undetermined
+  (** Input JSON data of type {!type:transitive_undetermined}. *)
+
+val transitive_undetermined_of_string :
+  string -> transitive_undetermined
+  (** Deserialize JSON data of type {!type:transitive_undetermined}. *)
+
 val write_transitive_unreachable :
   Buffer.t -> transitive_unreachable -> unit
   (** Output a JSON value of type {!type:transitive_unreachable}. *)
@@ -2212,6 +2243,46 @@ val read_transitive_finding :
 val transitive_finding_of_string :
   string -> transitive_finding
   (** Deserialize JSON data of type {!type:transitive_finding}. *)
+
+val write_downloaded_dependency :
+  Buffer.t -> downloaded_dependency -> unit
+  (** Output a JSON value of type {!type:downloaded_dependency}. *)
+
+val string_of_downloaded_dependency :
+  ?len:int -> downloaded_dependency -> string
+  (** Serialize a value of type {!type:downloaded_dependency}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_downloaded_dependency :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> downloaded_dependency
+  (** Input JSON data of type {!type:downloaded_dependency}. *)
+
+val downloaded_dependency_of_string :
+  string -> downloaded_dependency
+  (** Deserialize JSON data of type {!type:downloaded_dependency}. *)
+
+val write_transitive_reachability_filter_params :
+  Buffer.t -> transitive_reachability_filter_params -> unit
+  (** Output a JSON value of type {!type:transitive_reachability_filter_params}. *)
+
+val string_of_transitive_reachability_filter_params :
+  ?len:int -> transitive_reachability_filter_params -> string
+  (** Serialize a value of type {!type:transitive_reachability_filter_params}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_transitive_reachability_filter_params :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> transitive_reachability_filter_params
+  (** Input JSON data of type {!type:transitive_reachability_filter_params}. *)
+
+val transitive_reachability_filter_params_of_string :
+  string -> transitive_reachability_filter_params
+  (** Deserialize JSON data of type {!type:transitive_reachability_filter_params}. *)
 
 val write_todo :
   Buffer.t -> todo -> unit
@@ -3332,26 +3403,6 @@ val read_rule_id_and_engine_kind :
 val rule_id_and_engine_kind_of_string :
   string -> rule_id_and_engine_kind
   (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
-
-val write_downloaded_dependency :
-  Buffer.t -> downloaded_dependency -> unit
-  (** Output a JSON value of type {!type:downloaded_dependency}. *)
-
-val string_of_downloaded_dependency :
-  ?len:int -> downloaded_dependency -> string
-  (** Serialize a value of type {!type:downloaded_dependency}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_downloaded_dependency :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> downloaded_dependency
-  (** Input JSON data of type {!type:downloaded_dependency}. *)
-
-val downloaded_dependency_of_string :
-  string -> downloaded_dependency
-  (** Deserialize JSON data of type {!type:downloaded_dependency}. *)
 
 val write_resolved_dependency :
   Buffer.t -> resolved_dependency -> unit
