@@ -7947,10 +7947,38 @@ class ResolvedSubproject:
 
 
 @dataclass
+class DownloadedDependency:
+    """Original type: downloaded_dependency = { ... }"""
+
+    source_path: Fpath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DownloadedDependency':
+        if isinstance(x, dict):
+            return cls(
+                source_path=Fpath.from_json(x['source_path']) if 'source_path' in x else _atd_missing_json_field('DownloadedDependency', 'source_path'),
+            )
+        else:
+            _atd_bad_json('DownloadedDependency', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['source_path'] = (lambda x: x.to_json())(self.source_path)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DownloadedDependency':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class ResolutionOk:
     """Original type: resolution_result = [ ... | ResolutionOk of ... | ... ]"""
 
-    value: Tuple[List[FoundDependency], List[ResolutionErrorKind]]
+    value: Tuple[List[Tuple[FoundDependency, Optional[DownloadedDependency]]], List[ResolutionErrorKind]]
 
     @property
     def kind(self) -> str:
@@ -7958,7 +7986,7 @@ class ResolutionOk:
         return 'ResolutionOk'
 
     def to_json(self) -> Any:
-        return ['ResolutionOk', (lambda x: [_atd_write_list((lambda x: x.to_json()))(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
+        return ['ResolutionOk', (lambda x: [_atd_write_list((lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_option((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -7998,7 +8026,7 @@ class ResolutionResult:
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'ResolutionOk':
-                return cls(ResolutionOk((lambda x: (_atd_read_list(FoundDependency.from_json)(x[0]), _atd_read_list(ResolutionErrorKind.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+                return cls(ResolutionOk((lambda x: (_atd_read_list((lambda x: (FoundDependency.from_json(x[0]), _atd_read_option(DownloadedDependency.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x[0]), _atd_read_list(ResolutionErrorKind.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
             if cons == 'ResolutionError':
                 return cls(ResolutionError(_atd_read_list(ResolutionErrorKind.from_json)(x[1])))
             _atd_bad_json('ResolutionResult', x)
