@@ -2322,12 +2322,23 @@ type subproject
     dependency_source: dependency_source;
 }
 
+(* A subproject plus its resolved set of dependencies *)
 type resolved_subproject
     <python decorator="dataclass(frozen=True)"> =
 {
    info: subproject;
+   (* The resolution method is how we determined the dependencies from the
+    * dependency source. This might be lockfile parsing, dependency resolution,
+    * SBOM ingest, or something else.
+    *)
    resolution_method: resolution_method;
+   (* should be similar to info.ecosystem but this time it can't be None *)
    ecosystem: ecosystem;
+   (* We use this mapping to efficiently find child dependencies from a
+    * FoundDependency. We need to store multiple FoundDependencies per
+    * package/version pair because a package might come from multiple places
+    * in a lockfile
+    *)
    resolved_dependencies: (dependency_child * resolved_dependency list) list
       <python repr="dict">;
    errors: sca_error list;
