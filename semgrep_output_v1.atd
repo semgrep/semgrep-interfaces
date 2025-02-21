@@ -2380,7 +2380,7 @@ type unresolved_subproject
  * dependency was downloaded and is available to scan later.
 *)
 type resolution_result = [
-  | ResolutionOk of ((found_dependency * downloaded_dependency option) list * resolution_error_kind list)
+  | ResolutionOk of (resolved_dependency list * resolution_error_kind list)
   | ResolutionError of resolution_error_kind list
 ]
 

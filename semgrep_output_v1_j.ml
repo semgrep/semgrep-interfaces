@@ -25442,76 +25442,6 @@ let read__resolution_error_kind_list = (
 )
 let _resolution_error_kind_list_of_string s =
   read__resolution_error_kind_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__list_b5680a0 = (
-  Atdgen_runtime.Oj_run.write_list (
-    fun ob x ->
-      Buffer.add_char ob '[';
-      (let x, _ = x in
-      (
-        write_found_dependency
-      ) ob x
-      );
-      Buffer.add_char ob ',';
-      (let _, x = x in
-      (
-        write__downloaded_dependency_option
-      ) ob x
-      );
-      Buffer.add_char ob ']';
-  )
-)
-let string_of__list_b5680a0 ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__list_b5680a0 ob x;
-  Buffer.contents ob
-let read__list_b5680a0 = (
-  Atdgen_runtime.Oj_run.read_list (
-    fun p lb ->
-      Yojson.Safe.read_space p lb;
-      let std_tuple = Yojson.Safe.start_any_tuple p lb in
-      let len = ref 0 in
-      let end_of_tuple = ref false in
-      (try
-        let x0 =
-          let x =
-            (
-              read_found_dependency
-            ) p lb
-          in
-          incr len;
-          Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          x
-        in
-        let x1 =
-          let x =
-            (
-              read__downloaded_dependency_option
-            ) p lb
-          in
-          incr len;
-          (try
-            Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          with Yojson.End_of_tuple -> end_of_tuple := true);
-          x
-        in
-        if not !end_of_tuple then (
-          try
-            while true do
-              Yojson.Safe.skip_json p lb;
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-            done
-          with Yojson.End_of_tuple -> ()
-        );
-        (x0, x1)
-      with Yojson.End_of_tuple ->
-        Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
-  )
-)
-let _list_b5680a0_of_string s =
-  read__list_b5680a0 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_resolution_result = (
   fun ob x ->
     match x with
@@ -25522,7 +25452,7 @@ let write_resolution_result = (
             Buffer.add_char ob '[';
             (let x, _ = x in
             (
-              write__list_b5680a0
+              write__resolved_dependency_list
             ) ob x
             );
             Buffer.add_char ob ',';
@@ -25563,7 +25493,7 @@ let read_resolution_result = (
                       let x0 =
                         let x =
                           (
-                            read__list_b5680a0
+                            read__resolved_dependency_list
                           ) p lb
                         in
                         incr len;
@@ -25634,7 +25564,7 @@ let read_resolution_result = (
                       let x0 =
                         let x =
                           (
-                            read__list_b5680a0
+                            read__resolved_dependency_list
                           ) p lb
                         in
                         incr len;

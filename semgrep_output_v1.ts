@@ -1072,7 +1072,7 @@ export type UnresolvedSubproject = {
 }
 
 export type ResolutionResult =
-| { kind: 'ResolutionOk'; value: [[FoundDependency, Option<DownloadedDependency>][], ResolutionErrorKind[]] }
+| { kind: 'ResolutionOk'; value: [ResolvedDependency[], ResolutionErrorKind[]] }
 | { kind: 'ResolutionError'; value: ResolutionErrorKind[] }
 
 export type TransitiveFinding = {
@@ -4493,7 +4493,7 @@ export function readUnresolvedSubproject(x: any, context: any = x): UnresolvedSu
 export function writeResolutionResult(x: ResolutionResult, context: any = x): any {
   switch (x.kind) {
     case 'ResolutionOk':
-      return ['ResolutionOk', ((x, context) => [_atd_write_array(((x, context) => [writeFoundDependency(x[0], x), _atd_write_option(writeDownloadedDependency)(x[1], x)]))(x[0], x), _atd_write_array(writeResolutionErrorKind)(x[1], x)])(x.value, x)]
+      return ['ResolutionOk', ((x, context) => [_atd_write_array(writeResolvedDependency)(x[0], x), _atd_write_array(writeResolutionErrorKind)(x[1], x)])(x.value, x)]
     case 'ResolutionError':
       return ['ResolutionError', _atd_write_array(writeResolutionErrorKind)(x.value, x)]
   }
@@ -4503,7 +4503,7 @@ export function readResolutionResult(x: any, context: any = x): ResolutionResult
   _atd_check_json_tuple(2, x, context)
   switch (x[0]) {
     case 'ResolutionOk':
-      return { kind: 'ResolutionOk', value: ((x, context): [[FoundDependency, Option<DownloadedDependency>][], ResolutionErrorKind[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_array(((x, context): [FoundDependency, Option<DownloadedDependency>] => { _atd_check_json_tuple(2, x, context); return [readFoundDependency(x[0], x), _atd_read_option(readDownloadedDependency)(x[1], x)] }))(x[0], x), _atd_read_array(readResolutionErrorKind)(x[1], x)] })(x[1], x) }
+      return { kind: 'ResolutionOk', value: ((x, context): [ResolvedDependency[], ResolutionErrorKind[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_array(readResolvedDependency)(x[0], x), _atd_read_array(readResolutionErrorKind)(x[1], x)] })(x[1], x) }
     case 'ResolutionError':
       return { kind: 'ResolutionError', value: _atd_read_array(readResolutionErrorKind)(x[1], x) }
     default:

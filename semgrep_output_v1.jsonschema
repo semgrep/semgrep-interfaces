@@ -2135,30 +2135,7 @@
               "prefixItems": [
                 {
                   "type": "array",
-                  "items": {
-                    "type": "array",
-                    "minItems": 2,
-                    "items": false,
-                    "prefixItems": [
-                      { "$ref": "#/definitions/found_dependency" },
-                      {
-                        "oneOf": [
-                          {
-                            "type": "array",
-                            "minItems": 2,
-                            "items": false,
-                            "prefixItems": [
-                              { "const": "Some" },
-                              {
-                                "$ref": "#/definitions/downloaded_dependency"
-                              }
-                            ]
-                          },
-                          { "const": "None" }
-                        ]
-                      }
-                    ]
-                  }
+                  "items": { "$ref": "#/definitions/resolved_dependency" }
                 },
                 {
                   "type": "array",
