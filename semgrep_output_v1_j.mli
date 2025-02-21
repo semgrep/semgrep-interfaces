@@ -690,16 +690,18 @@ type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
 
+type downloaded_dependency = Semgrep_output_v1_t.downloaded_dependency = {
+  source_path: fpath
+}
+
+type resolved_dependency = Semgrep_output_v1_t.resolved_dependency
+
 type resolved_subproject = Semgrep_output_v1_t.resolved_subproject = {
   info: subproject;
   resolution_method: resolution_method;
   ecosystem: ecosystem;
-  found_dependencies: (dependency_child * found_dependency list) list;
+  resolved_dependencies: (dependency_child * resolved_dependency list) list;
   errors: sca_error list
-}
-
-type downloaded_dependency = Semgrep_output_v1_t.downloaded_dependency = {
-  source_path: fpath
 }
 
 type resolution_result = Semgrep_output_v1_t.resolution_result
@@ -3331,26 +3333,6 @@ val rule_id_and_engine_kind_of_string :
   string -> rule_id_and_engine_kind
   (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
 
-val write_resolved_subproject :
-  Buffer.t -> resolved_subproject -> unit
-  (** Output a JSON value of type {!type:resolved_subproject}. *)
-
-val string_of_resolved_subproject :
-  ?len:int -> resolved_subproject -> string
-  (** Serialize a value of type {!type:resolved_subproject}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_resolved_subproject :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolved_subproject
-  (** Input JSON data of type {!type:resolved_subproject}. *)
-
-val resolved_subproject_of_string :
-  string -> resolved_subproject
-  (** Deserialize JSON data of type {!type:resolved_subproject}. *)
-
 val write_downloaded_dependency :
   Buffer.t -> downloaded_dependency -> unit
   (** Output a JSON value of type {!type:downloaded_dependency}. *)
@@ -3370,6 +3352,46 @@ val read_downloaded_dependency :
 val downloaded_dependency_of_string :
   string -> downloaded_dependency
   (** Deserialize JSON data of type {!type:downloaded_dependency}. *)
+
+val write_resolved_dependency :
+  Buffer.t -> resolved_dependency -> unit
+  (** Output a JSON value of type {!type:resolved_dependency}. *)
+
+val string_of_resolved_dependency :
+  ?len:int -> resolved_dependency -> string
+  (** Serialize a value of type {!type:resolved_dependency}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolved_dependency :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolved_dependency
+  (** Input JSON data of type {!type:resolved_dependency}. *)
+
+val resolved_dependency_of_string :
+  string -> resolved_dependency
+  (** Deserialize JSON data of type {!type:resolved_dependency}. *)
+
+val write_resolved_subproject :
+  Buffer.t -> resolved_subproject -> unit
+  (** Output a JSON value of type {!type:resolved_subproject}. *)
+
+val string_of_resolved_subproject :
+  ?len:int -> resolved_subproject -> string
+  (** Serialize a value of type {!type:resolved_subproject}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolved_subproject :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolved_subproject
+  (** Input JSON data of type {!type:resolved_subproject}. *)
+
+val resolved_subproject_of_string :
+  string -> resolved_subproject
+  (** Deserialize JSON data of type {!type:resolved_subproject}. *)
 
 val write_resolution_result :
   Buffer.t -> resolution_result -> unit

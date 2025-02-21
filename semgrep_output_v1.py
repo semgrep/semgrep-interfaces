@@ -7906,46 +7906,6 @@ class RuleIdAndEngineKind:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
-class ResolvedSubproject:
-    """Original type: resolved_subproject = { ... }"""
-
-    info: Subproject
-    resolution_method: ResolutionMethod
-    ecosystem: Ecosystem
-    found_dependencies: Dict[DependencyChild, List[FoundDependency]]
-    errors: List[ScaError]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ResolvedSubproject':
-        if isinstance(x, dict):
-            return cls(
-                info=Subproject.from_json(x['info']) if 'info' in x else _atd_missing_json_field('ResolvedSubproject', 'info'),
-                resolution_method=ResolutionMethod.from_json(x['resolution_method']) if 'resolution_method' in x else _atd_missing_json_field('ResolvedSubproject', 'resolution_method'),
-                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('ResolvedSubproject', 'ecosystem'),
-                found_dependencies=_atd_read_assoc_array_into_dict(DependencyChild.from_json, _atd_read_list(FoundDependency.from_json))(x['found_dependencies']) if 'found_dependencies' in x else _atd_missing_json_field('ResolvedSubproject', 'found_dependencies'),
-                errors=_atd_read_list(ScaError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('ResolvedSubproject', 'errors'),
-            )
-        else:
-            _atd_bad_json('ResolvedSubproject', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['info'] = (lambda x: x.to_json())(self.info)
-        res['resolution_method'] = (lambda x: x.to_json())(self.resolution_method)
-        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
-        res['found_dependencies'] = _atd_write_assoc_dict_to_array((lambda x: x.to_json()), _atd_write_list((lambda x: x.to_json())))(self.found_dependencies)
-        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ResolvedSubproject':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass
 class DownloadedDependency:
     """Original type: downloaded_dependency = { ... }"""
@@ -7968,6 +7928,67 @@ class DownloadedDependency:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'DownloadedDependency':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ResolvedDependency:
+    """Original type: resolved_dependency"""
+
+    value: Tuple[FoundDependency, Optional[DownloadedDependency]]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolvedDependency':
+        return cls((lambda x: (FoundDependency.from_json(x[0]), _atd_read_option(DownloadedDependency.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x))
+
+    def to_json(self) -> Any:
+        return (lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_option((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolvedDependency':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ResolvedSubproject:
+    """Original type: resolved_subproject = { ... }"""
+
+    info: Subproject
+    resolution_method: ResolutionMethod
+    ecosystem: Ecosystem
+    resolved_dependencies: Dict[DependencyChild, List[ResolvedDependency]]
+    errors: List[ScaError]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolvedSubproject':
+        if isinstance(x, dict):
+            return cls(
+                info=Subproject.from_json(x['info']) if 'info' in x else _atd_missing_json_field('ResolvedSubproject', 'info'),
+                resolution_method=ResolutionMethod.from_json(x['resolution_method']) if 'resolution_method' in x else _atd_missing_json_field('ResolvedSubproject', 'resolution_method'),
+                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('ResolvedSubproject', 'ecosystem'),
+                resolved_dependencies=_atd_read_assoc_array_into_dict(DependencyChild.from_json, _atd_read_list(ResolvedDependency.from_json))(x['resolved_dependencies']) if 'resolved_dependencies' in x else _atd_missing_json_field('ResolvedSubproject', 'resolved_dependencies'),
+                errors=_atd_read_list(ScaError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('ResolvedSubproject', 'errors'),
+            )
+        else:
+            _atd_bad_json('ResolvedSubproject', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['info'] = (lambda x: x.to_json())(self.info)
+        res['resolution_method'] = (lambda x: x.to_json())(self.resolution_method)
+        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
+        res['resolved_dependencies'] = _atd_write_assoc_dict_to_array((lambda x: x.to_json()), _atd_write_list((lambda x: x.to_json())))(self.resolved_dependencies)
+        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolvedSubproject':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

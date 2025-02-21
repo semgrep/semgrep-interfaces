@@ -2320,7 +2320,7 @@ type subproject
      * also be dynamic resolution based on a manifest, an SBOM, or something else
      *)
     dependency_source: dependency_source;
-}    
+}
 
 type resolved_subproject
     <python decorator="dataclass(frozen=True)"> =
@@ -2328,9 +2328,19 @@ type resolved_subproject
    info: subproject;
    resolution_method: resolution_method;
    ecosystem: ecosystem;
-   found_dependencies: (dependency_child * found_dependency list) list
+   resolved_dependencies: (dependency_child * resolved_dependency list) list
       <python repr="dict">;
    errors: sca_error list;
+}
+
+type resolved_dependency = (found_dependency * downloaded_dependency option)
+
+(* Information about a 3rd-party lib downloaded for Transitive Reachability.
+ * To accompany a found_dependency within the Semgrep CLI, passed back and forth 
+ * from OCaml to Python via RPC. See also SCA_dependency.t in OCaml
+ *)
+type downloaded_dependency = {
+  source_path: fpath;
 }
 
 type unresolved_reason = [
@@ -2362,14 +2372,6 @@ type resolution_result = [
   | ResolutionOk of ((found_dependency * downloaded_dependency option) list * resolution_error_kind list)
   | ResolutionError of resolution_error_kind list
 ]
-
-(* Information about a third-party dependency downloaded for Transitive Reachability.
- * To accompany a found_dependency within the Semgrep CLI, passed back and forth 
- * from OCaml to Python via RPC. See also SCA_dependency.t in OCaml and 
- * ResolvedDependencies in Python. *)
-type downloaded_dependency = {
-  source_path: fpath;
-}
 
 type transitive_finding = {
   (* the important part is the sca_match in core_match_extra that

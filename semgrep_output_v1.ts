@@ -1050,8 +1050,14 @@ export type ResolvedSubproject = {
   info: Subproject;
   resolution_method: ResolutionMethod;
   ecosystem: Ecosystem;
-  found_dependencies: [DependencyChild, FoundDependency[]][];
+  resolved_dependencies: [DependencyChild, ResolvedDependency[]][];
   errors: ScaError[];
+}
+
+export type ResolvedDependency = [FoundDependency, Option<DownloadedDependency>]
+
+export type DownloadedDependency = {
+  source_path: Fpath;
 }
 
 export type UnresolvedReason =
@@ -1068,10 +1074,6 @@ export type UnresolvedSubproject = {
 export type ResolutionResult =
 | { kind: 'ResolutionOk'; value: [[FoundDependency, Option<DownloadedDependency>][], ResolutionErrorKind[]] }
 | { kind: 'ResolutionError'; value: ResolutionErrorKind[] }
-
-export type DownloadedDependency = {
-  source_path: Fpath;
-}
 
 export type TransitiveFinding = {
   m: CoreMatch;
@@ -4412,7 +4414,7 @@ export function writeResolvedSubproject(x: ResolvedSubproject, context: any = x)
     'info': _atd_write_required_field('ResolvedSubproject', 'info', writeSubproject, x.info, x),
     'resolution_method': _atd_write_required_field('ResolvedSubproject', 'resolution_method', writeResolutionMethod, x.resolution_method, x),
     'ecosystem': _atd_write_required_field('ResolvedSubproject', 'ecosystem', writeEcosystem, x.ecosystem, x),
-    'found_dependencies': _atd_write_required_field('ResolvedSubproject', 'found_dependencies', _atd_write_array(((x, context) => [writeDependencyChild(x[0], x), _atd_write_array(writeFoundDependency)(x[1], x)])), x.found_dependencies, x),
+    'resolved_dependencies': _atd_write_required_field('ResolvedSubproject', 'resolved_dependencies', _atd_write_array(((x, context) => [writeDependencyChild(x[0], x), _atd_write_array(writeResolvedDependency)(x[1], x)])), x.resolved_dependencies, x),
     'errors': _atd_write_required_field('ResolvedSubproject', 'errors', _atd_write_array(writeScaError), x.errors, x),
   };
 }
@@ -4422,8 +4424,28 @@ export function readResolvedSubproject(x: any, context: any = x): ResolvedSubpro
     info: _atd_read_required_field('ResolvedSubproject', 'info', readSubproject, x['info'], x),
     resolution_method: _atd_read_required_field('ResolvedSubproject', 'resolution_method', readResolutionMethod, x['resolution_method'], x),
     ecosystem: _atd_read_required_field('ResolvedSubproject', 'ecosystem', readEcosystem, x['ecosystem'], x),
-    found_dependencies: _atd_read_required_field('ResolvedSubproject', 'found_dependencies', _atd_read_array(((x, context): [DependencyChild, FoundDependency[]] => { _atd_check_json_tuple(2, x, context); return [readDependencyChild(x[0], x), _atd_read_array(readFoundDependency)(x[1], x)] })), x['found_dependencies'], x),
+    resolved_dependencies: _atd_read_required_field('ResolvedSubproject', 'resolved_dependencies', _atd_read_array(((x, context): [DependencyChild, ResolvedDependency[]] => { _atd_check_json_tuple(2, x, context); return [readDependencyChild(x[0], x), _atd_read_array(readResolvedDependency)(x[1], x)] })), x['resolved_dependencies'], x),
     errors: _atd_read_required_field('ResolvedSubproject', 'errors', _atd_read_array(readScaError), x['errors'], x),
+  };
+}
+
+export function writeResolvedDependency(x: ResolvedDependency, context: any = x): any {
+  return ((x, context) => [writeFoundDependency(x[0], x), _atd_write_option(writeDownloadedDependency)(x[1], x)])(x, context);
+}
+
+export function readResolvedDependency(x: any, context: any = x): ResolvedDependency {
+  return ((x, context): [FoundDependency, Option<DownloadedDependency>] => { _atd_check_json_tuple(2, x, context); return [readFoundDependency(x[0], x), _atd_read_option(readDownloadedDependency)(x[1], x)] })(x, context);
+}
+
+export function writeDownloadedDependency(x: DownloadedDependency, context: any = x): any {
+  return {
+    'source_path': _atd_write_required_field('DownloadedDependency', 'source_path', writeFpath, x.source_path, x),
+  };
+}
+
+export function readDownloadedDependency(x: any, context: any = x): DownloadedDependency {
+  return {
+    source_path: _atd_read_required_field('DownloadedDependency', 'source_path', readFpath, x['source_path'], x),
   };
 }
 
@@ -4488,18 +4510,6 @@ export function readResolutionResult(x: any, context: any = x): ResolutionResult
       _atd_bad_json('ResolutionResult', x, context)
       throw new Error('impossible')
   }
-}
-
-export function writeDownloadedDependency(x: DownloadedDependency, context: any = x): any {
-  return {
-    'source_path': _atd_write_required_field('DownloadedDependency', 'source_path', writeFpath, x.source_path, x),
-  };
-}
-
-export function readDownloadedDependency(x: any, context: any = x): DownloadedDependency {
-  return {
-    source_path: _atd_read_required_field('DownloadedDependency', 'source_path', readFpath, x['source_path'], x),
-  };
 }
 
 export function writeTransitiveFinding(x: TransitiveFinding, context: any = x): any {
