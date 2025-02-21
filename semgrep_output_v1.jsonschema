@@ -394,7 +394,15 @@
             { "$ref": "#/definitions/transitive_unreachable" }
           ]
         },
-        { "const": "TransitiveUndetermined" }
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "TransitiveUndetermined" },
+            { "$ref": "#/definitions/transitive_undetermined" }
+          ]
+        }
       ]
     },
     "transitive_reachable": {
@@ -426,6 +434,23 @@
       }
     },
     "transitive_unreachable": {
+      "type": "object",
+      "required": [ "explanation" ],
+      "properties": {
+        "explanation": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        }
+      }
+    },
+    "transitive_undetermined": {
       "type": "object",
       "required": [ "explanation" ],
       "properties": {
@@ -2094,6 +2119,42 @@
       "required": [ "m" ],
       "properties": { "m": { "$ref": "#/definitions/core_match" } }
     },
+    "transitive_reachability_filter_params": {
+      "type": "object",
+      "required": [ "rules_path", "findings", "dependencies" ],
+      "properties": {
+        "rules_path": { "$ref": "#/definitions/fpath" },
+        "findings": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/transitive_finding" }
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "items": false,
+            "prefixItems": [
+              { "$ref": "#/definitions/found_dependency" },
+              {
+                "oneOf": [
+                  {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": false,
+                    "prefixItems": [
+                      { "const": "Some" },
+                      { "$ref": "#/definitions/downloaded_dependency" }
+                    ]
+                  },
+                  { "const": "None" }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
     "symbol": {
       "type": "object",
       "required": [ "fqn" ],
@@ -2216,11 +2277,8 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "CallTransitiveReachabilityFilter" },
-            {
-              "type": "array",
-              "items": { "$ref": "#/definitions/transitive_finding" }
-            }
+            { "const": "CallGetTargets" },
+            { "$ref": "#/definitions/scanning_roots" }
           ]
         },
         {
@@ -2228,8 +2286,8 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "CallGetTargets" },
-            { "$ref": "#/definitions/scanning_roots" }
+            { "const": "CallTransitiveReachabilityFilter" },
+            { "$ref": "#/definitions/transitive_reachability_filter_params" }
           ]
         }
       ]
