@@ -87,7 +87,7 @@ type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
  *)
 type fpath
      <ocaml attr="deriving show, eq">
-     <python decorator="dataclass(frozen=True)"> =
+     <python decorator="dataclass(frozen=True, order=True)"> =
    string wrap <ocaml module="ATD_string_wrap.Fpath">
 
 type uri = string wrap <ocaml module="ATD_string_wrap.Uri">
@@ -2281,6 +2281,14 @@ type resolution_error_kind
   | ScaParseError of sca_parser_name
 ] <ocaml repr="classic">
 
+type resolution_cmd_failed
+    <ocaml attr="deriving show">
+    <python decorator="dataclass(frozen=True)"> =
+{
+    command: string;
+    message: string;
+}
+
 (* used only from pysemgrep for now
  * TODO? we should merge dependency_{parser,resolution}_error with cli_error
  *)
@@ -2293,13 +2301,78 @@ type sca_error = [
   | SCAResol of sca_resolution_error
 ] <ocaml repr="classic">
 
+(* A subproject defined by some kind of manifest file (e.g., pyproject.toml,
+ * package.json, ...). This may be at the root of the repo being scanned or
+ * may be some other folder.
+ * Used as the unit of analysis for supply chain.
+ *)
+type subproject
+    <python decorator="dataclass(frozen=True, order=True)"> =
+{
+    root_dir: fpath;
+    (* This is used to match code files with subprojects. It is necessary to
+     * have it here, even before a subproject's dependencies are resolved, in
+     * order to decide whether a certain subproject must be resolved given the
+     * changes included in a certain diff scan.
+     * It can be None if this subproject is for a package manager whose
+     * ecosystem is not yet supported (i.e. one that is identified only for
+     * tracking purposes)
+     *)
+    ecosystem: ecosystem option;
+    (* The dependency source is how we resolved the dependencies. This might be a
+     * lockfile/manifest pair (the only current one), but in the future it might
+     * also be dynamic resolution based on a manifest, an SBOM, or something else
+     *)
+    dependency_source: dependency_source;
+}
 
-type resolution_cmd_failed
-    <ocaml attr="deriving show">
+(* A subproject plus its resolved set of dependencies *)
+type resolved_subproject
     <python decorator="dataclass(frozen=True)"> =
 {
-    command: string;
-    message: string;
+   info: subproject;
+   (* The resolution method is how we determined the dependencies from the
+    * dependency source. This might be lockfile parsing, dependency resolution,
+    * SBOM ingest, or something else.
+    *)
+   resolution_method: resolution_method;
+   (* should be similar to info.ecosystem but this time it can't be None *)
+   ecosystem: ecosystem;
+   (* We use this mapping to efficiently find child dependencies from a
+    * FoundDependency. We need to store multiple FoundDependencies per
+    * package/version pair because a package might come from multiple places
+    * in a lockfile
+    *)
+   resolved_dependencies: (dependency_child * resolved_dependency list) list
+      <python repr="dict">;
+   errors: sca_error list;
+}
+
+type resolved_dependency = (found_dependency * downloaded_dependency option)
+
+(* Information about a 3rd-party lib downloaded for Transitive Reachability.
+ * To accompany a found_dependency within the Semgrep CLI, passed back and forth 
+ * from OCaml to Python via RPC. See also SCA_dependency.t in OCaml
+ *)
+type downloaded_dependency = {
+  source_path: fpath;
+}
+
+type unresolved_reason = [
+  | UnresolvedFailed <json name="failed">
+  | UnresolvedSkipped <json name="skipped">
+  | UnresolvedUnsupported <json name="unsupported">
+] <ocaml repr="classic">
+
+type unresolved_subproject
+    <python decorator="dataclass(frozen=True)"> =
+{
+   info: subproject;
+   reason: unresolved_reason;
+   (* this is set only when the reason is UnresolvedFailed
+    * TODO: add it in unresolved_reason instead?
+    *)
+   errors: sca_error list;
 }
 
 (* Resolution can either succeed or fail, but in either case errors can be
@@ -2311,17 +2384,9 @@ type resolution_cmd_failed
  * dependency was downloaded and is available to scan later.
 *)
 type resolution_result = [
-  | ResolutionOk of ((found_dependency * downloaded_dependency option) list * resolution_error_kind list)
+  | ResolutionOk of (resolved_dependency list * resolution_error_kind list)
   | ResolutionError of resolution_error_kind list
 ]
-
-(* Information about a third-party dependency downloaded for Transitive Reachability.
- * To accompany a found_dependency within the Semgrep CLI, passed back and forth 
- * from OCaml to Python via RPC. See also SCA_dependency.t in OCaml and 
- * ResolvedDependencies in Python. *)
-type downloaded_dependency = {
-  source_path: fpath;
-}
 
 type transitive_finding = {
   (* the important part is the sca_match in core_match_extra that
@@ -2336,7 +2401,7 @@ type transitive_finding = {
 type transitive_reachability_filter_params = {
   rules_path: fpath;
   findings: transitive_finding list;
-  dependencies: (found_dependency * downloaded_dependency option) list;
+  dependencies: resolved_dependency list;
 }
 
 (* ----------------------------- *)

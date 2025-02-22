@@ -2009,6 +2009,14 @@
         }
       ]
     },
+    "resolution_cmd_failed": {
+      "type": "object",
+      "required": [ "command", "message" ],
+      "properties": {
+        "command": { "type": "string" },
+        "message": { "type": "string" }
+      }
+    },
     "sca_resolution_error": {
       "type": "object",
       "required": [ "type_", "dependency_source_file" ],
@@ -2039,12 +2047,102 @@
         }
       ]
     },
-    "resolution_cmd_failed": {
+    "subproject": {
       "type": "object",
-      "required": [ "command", "message" ],
+      "required": [ "root_dir", "ecosystem", "dependency_source" ],
       "properties": {
-        "command": { "type": "string" },
-        "message": { "type": "string" }
+        "root_dir": { "$ref": "#/definitions/fpath" },
+        "ecosystem": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" }, { "$ref": "#/definitions/ecosystem" }
+              ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "dependency_source": { "$ref": "#/definitions/dependency_source" }
+      }
+    },
+    "resolved_subproject": {
+      "type": "object",
+      "required": [
+        "info", "resolution_method", "ecosystem", "resolved_dependencies",
+        "errors"
+      ],
+      "properties": {
+        "info": { "$ref": "#/definitions/subproject" },
+        "resolution_method": { "$ref": "#/definitions/resolution_method" },
+        "ecosystem": { "$ref": "#/definitions/ecosystem" },
+        "resolved_dependencies": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "items": false,
+            "prefixItems": [
+              { "$ref": "#/definitions/dependency_child" },
+              {
+                "type": "array",
+                "items": { "$ref": "#/definitions/resolved_dependency" }
+              }
+            ]
+          }
+        },
+        "errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/sca_error" }
+        }
+      }
+    },
+    "resolved_dependency": {
+      "type": "array",
+      "minItems": 2,
+      "items": false,
+      "prefixItems": [
+        { "$ref": "#/definitions/found_dependency" },
+        {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" },
+                { "$ref": "#/definitions/downloaded_dependency" }
+              ]
+            },
+            { "const": "None" }
+          ]
+        }
+      ]
+    },
+    "downloaded_dependency": {
+      "type": "object",
+      "required": [ "source_path" ],
+      "properties": { "source_path": { "$ref": "#/definitions/fpath" } }
+    },
+    "unresolved_reason": {
+      "oneOf": [
+        { "const": "failed" },
+        { "const": "skipped" },
+        { "const": "unsupported" }
+      ]
+    },
+    "unresolved_subproject": {
+      "type": "object",
+      "required": [ "info", "reason", "errors" ],
+      "properties": {
+        "info": { "$ref": "#/definitions/subproject" },
+        "reason": { "$ref": "#/definitions/unresolved_reason" },
+        "errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/sca_error" }
+        }
       }
     },
     "resolution_result": {
@@ -2062,30 +2160,7 @@
               "prefixItems": [
                 {
                   "type": "array",
-                  "items": {
-                    "type": "array",
-                    "minItems": 2,
-                    "items": false,
-                    "prefixItems": [
-                      { "$ref": "#/definitions/found_dependency" },
-                      {
-                        "oneOf": [
-                          {
-                            "type": "array",
-                            "minItems": 2,
-                            "items": false,
-                            "prefixItems": [
-                              { "const": "Some" },
-                              {
-                                "$ref": "#/definitions/downloaded_dependency"
-                              }
-                            ]
-                          },
-                          { "const": "None" }
-                        ]
-                      }
-                    ]
-                  }
+                  "items": { "$ref": "#/definitions/resolved_dependency" }
                 },
                 {
                   "type": "array",
@@ -2109,11 +2184,6 @@
         }
       ]
     },
-    "downloaded_dependency": {
-      "type": "object",
-      "required": [ "source_path" ],
-      "properties": { "source_path": { "$ref": "#/definitions/fpath" } }
-    },
     "transitive_finding": {
       "type": "object",
       "required": [ "m" ],
@@ -2130,28 +2200,7 @@
         },
         "dependencies": {
           "type": "array",
-          "items": {
-            "type": "array",
-            "minItems": 2,
-            "items": false,
-            "prefixItems": [
-              { "$ref": "#/definitions/found_dependency" },
-              {
-                "oneOf": [
-                  {
-                    "type": "array",
-                    "minItems": 2,
-                    "items": false,
-                    "prefixItems": [
-                      { "const": "Some" },
-                      { "$ref": "#/definitions/downloaded_dependency" }
-                    ]
-                  },
-                  { "const": "None" }
-                ]
-              }
-            ]
-          }
+          "items": { "$ref": "#/definitions/resolved_dependency" }
         }
       }
     },
