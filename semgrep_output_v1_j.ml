@@ -337,11 +337,13 @@ type downloaded_dependency = Semgrep_output_v1_t.downloaded_dependency = {
   source_path: fpath
 }
 
+type resolved_dependency = Semgrep_output_v1_t.resolved_dependency
+
 type transitive_reachability_filter_params =
   Semgrep_output_v1_t.transitive_reachability_filter_params = {
   rules_path: fpath;
   findings: transitive_finding list;
-  dependencies: (found_dependency * downloaded_dependency option) list
+  dependencies: resolved_dependency list
 }
 
 type todo = Semgrep_output_v1_t.todo
@@ -704,8 +706,6 @@ type sarif_format = Semgrep_output_v1_t.sarif_format = {
 type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
-
-type resolved_dependency = Semgrep_output_v1_t.resolved_dependency
 
 type resolved_subproject = Semgrep_output_v1_t.resolved_subproject = {
   info: subproject;
@@ -12093,22 +12093,6 @@ let read_downloaded_dependency = (
 )
 let downloaded_dependency_of_string s =
   read_downloaded_dependency (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__transitive_finding_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_transitive_finding
-  )
-)
-let string_of__transitive_finding_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__transitive_finding_list ob x;
-  Buffer.contents ob
-let read__transitive_finding_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_transitive_finding
-  )
-)
-let _transitive_finding_list_of_string s =
-  read__transitive_finding_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__downloaded_dependency_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     write_downloaded_dependency
@@ -12166,76 +12150,104 @@ let read__downloaded_dependency_option = (
 )
 let _downloaded_dependency_option_of_string s =
   read__downloaded_dependency_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__list_b5680a0 = (
-  Atdgen_runtime.Oj_run.write_list (
-    fun ob x ->
-      Buffer.add_char ob '[';
-      (let x, _ = x in
-      (
-        write_found_dependency
-      ) ob x
-      );
-      Buffer.add_char ob ',';
-      (let _, x = x in
-      (
-        write__downloaded_dependency_option
-      ) ob x
-      );
-      Buffer.add_char ob ']';
-  )
+let write_resolved_dependency = (
+  fun ob x ->
+    Buffer.add_char ob '[';
+    (let x, _ = x in
+    (
+      write_found_dependency
+    ) ob x
+    );
+    Buffer.add_char ob ',';
+    (let _, x = x in
+    (
+      write__downloaded_dependency_option
+    ) ob x
+    );
+    Buffer.add_char ob ']';
 )
-let string_of__list_b5680a0 ?(len = 1024) x =
+let string_of_resolved_dependency ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__list_b5680a0 ob x;
+  write_resolved_dependency ob x;
   Buffer.contents ob
-let read__list_b5680a0 = (
-  Atdgen_runtime.Oj_run.read_list (
-    fun p lb ->
-      Yojson.Safe.read_space p lb;
-      let std_tuple = Yojson.Safe.start_any_tuple p lb in
-      let len = ref 0 in
-      let end_of_tuple = ref false in
-      (try
-        let x0 =
-          let x =
-            (
-              read_found_dependency
-            ) p lb
-          in
-          incr len;
+let read_resolved_dependency = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+    let len = ref 0 in
+    let end_of_tuple = ref false in
+    (try
+      let x0 =
+        let x =
+          (
+            read_found_dependency
+          ) p lb
+        in
+        incr len;
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+        x
+      in
+      let x1 =
+        let x =
+          (
+            read__downloaded_dependency_option
+          ) p lb
+        in
+        incr len;
+        (try
           Yojson.Safe.read_space p lb;
           Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          x
-        in
-        let x1 =
-          let x =
-            (
-              read__downloaded_dependency_option
-            ) p lb
-          in
-          incr len;
-          (try
+        with Yojson.End_of_tuple -> end_of_tuple := true);
+        x
+      in
+      if not !end_of_tuple then (
+        try
+          while true do
+            Yojson.Safe.skip_json p lb;
             Yojson.Safe.read_space p lb;
             Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          with Yojson.End_of_tuple -> end_of_tuple := true);
-          x
-        in
-        if not !end_of_tuple then (
-          try
-            while true do
-              Yojson.Safe.skip_json p lb;
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-            done
-          with Yojson.End_of_tuple -> ()
-        );
-        (x0, x1)
-      with Yojson.End_of_tuple ->
-        Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+          done
+        with Yojson.End_of_tuple -> ()
+      );
+      (x0, x1)
+    with Yojson.End_of_tuple ->
+      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+)
+let resolved_dependency_of_string s =
+  read_resolved_dependency (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__transitive_finding_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_transitive_finding
   )
 )
-let _list_b5680a0_of_string s =
-  read__list_b5680a0 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let string_of__transitive_finding_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__transitive_finding_list ob x;
+  Buffer.contents ob
+let read__transitive_finding_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_transitive_finding
+  )
+)
+let _transitive_finding_list_of_string s =
+  read__transitive_finding_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__resolved_dependency_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_resolved_dependency
+  )
+)
+let string_of__resolved_dependency_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__resolved_dependency_list ob x;
+  Buffer.contents ob
+let read__resolved_dependency_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_resolved_dependency
+  )
+)
+let _resolved_dependency_list_of_string s =
+  read__resolved_dependency_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_transitive_reachability_filter_params : _ -> transitive_reachability_filter_params -> _ = (
   fun ob (x : transitive_reachability_filter_params) ->
     Buffer.add_char ob '{';
@@ -12264,7 +12276,7 @@ let write_transitive_reachability_filter_params : _ -> transitive_reachability_f
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"dependencies\":";
     (
-      write__list_b5680a0
+      write__resolved_dependency_list
     )
       ob x.dependencies;
     Buffer.add_char ob '}';
@@ -12341,7 +12353,7 @@ let read_transitive_reachability_filter_params = (
             field_dependencies := (
               Some (
                 (
-                  read__list_b5680a0
+                  read__resolved_dependency_list
                 ) p lb
               )
             );
@@ -12410,7 +12422,7 @@ let read_transitive_reachability_filter_params = (
               field_dependencies := (
                 Some (
                   (
-                    read__list_b5680a0
+                    read__resolved_dependency_list
                   ) p lb
                 )
               );
@@ -25402,88 +25414,6 @@ let read_rule_id_and_engine_kind = (
 )
 let rule_id_and_engine_kind_of_string s =
   read_rule_id_and_engine_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_resolved_dependency = (
-  fun ob x ->
-    Buffer.add_char ob '[';
-    (let x, _ = x in
-    (
-      write_found_dependency
-    ) ob x
-    );
-    Buffer.add_char ob ',';
-    (let _, x = x in
-    (
-      write__downloaded_dependency_option
-    ) ob x
-    );
-    Buffer.add_char ob ']';
-)
-let string_of_resolved_dependency ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_resolved_dependency ob x;
-  Buffer.contents ob
-let read_resolved_dependency = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-    let len = ref 0 in
-    let end_of_tuple = ref false in
-    (try
-      let x0 =
-        let x =
-          (
-            read_found_dependency
-          ) p lb
-        in
-        incr len;
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-        x
-      in
-      let x1 =
-        let x =
-          (
-            read__downloaded_dependency_option
-          ) p lb
-        in
-        incr len;
-        (try
-          Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-        with Yojson.End_of_tuple -> end_of_tuple := true);
-        x
-      in
-      if not !end_of_tuple then (
-        try
-          while true do
-            Yojson.Safe.skip_json p lb;
-            Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          done
-        with Yojson.End_of_tuple -> ()
-      );
-      (x0, x1)
-    with Yojson.End_of_tuple ->
-      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
-)
-let resolved_dependency_of_string s =
-  read_resolved_dependency (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__resolved_dependency_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_resolved_dependency
-  )
-)
-let string_of__resolved_dependency_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__resolved_dependency_list ob x;
-  Buffer.contents ob
-let read__resolved_dependency_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_resolved_dependency
-  )
-)
-let _resolved_dependency_list_of_string s =
-  read__resolved_dependency_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__x_d93e7b4 = (
   Atdgen_runtime.Oj_run.write_list (
     fun ob x ->

@@ -2401,7 +2401,7 @@ type transitive_finding = {
 type transitive_reachability_filter_params = {
   rules_path: fpath;
   findings: transitive_finding list;
-  dependencies: (found_dependency * downloaded_dependency option) list;
+  dependencies: resolved_dependency list;
 }
 
 (* ----------------------------- *)

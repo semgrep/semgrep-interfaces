@@ -4770,12 +4770,33 @@ class DownloadedDependency:
 
 
 @dataclass
+class ResolvedDependency:
+    """Original type: resolved_dependency"""
+
+    value: Tuple[FoundDependency, Optional[DownloadedDependency]]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolvedDependency':
+        return cls((lambda x: (FoundDependency.from_json(x[0]), _atd_read_option(DownloadedDependency.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x))
+
+    def to_json(self) -> Any:
+        return (lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_option((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolvedDependency':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class TransitiveReachabilityFilterParams:
     """Original type: transitive_reachability_filter_params = { ... }"""
 
     rules_path: Fpath
     findings: List[TransitiveFinding]
-    dependencies: List[Tuple[FoundDependency, Optional[DownloadedDependency]]]
+    dependencies: List[ResolvedDependency]
 
     @classmethod
     def from_json(cls, x: Any) -> 'TransitiveReachabilityFilterParams':
@@ -4783,7 +4804,7 @@ class TransitiveReachabilityFilterParams:
             return cls(
                 rules_path=Fpath.from_json(x['rules_path']) if 'rules_path' in x else _atd_missing_json_field('TransitiveReachabilityFilterParams', 'rules_path'),
                 findings=_atd_read_list(TransitiveFinding.from_json)(x['findings']) if 'findings' in x else _atd_missing_json_field('TransitiveReachabilityFilterParams', 'findings'),
-                dependencies=_atd_read_list((lambda x: (FoundDependency.from_json(x[0]), _atd_read_option(DownloadedDependency.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['dependencies']) if 'dependencies' in x else _atd_missing_json_field('TransitiveReachabilityFilterParams', 'dependencies'),
+                dependencies=_atd_read_list(ResolvedDependency.from_json)(x['dependencies']) if 'dependencies' in x else _atd_missing_json_field('TransitiveReachabilityFilterParams', 'dependencies'),
             )
         else:
             _atd_bad_json('TransitiveReachabilityFilterParams', x)
@@ -4792,7 +4813,7 @@ class TransitiveReachabilityFilterParams:
         res: Dict[str, Any] = {}
         res['rules_path'] = (lambda x: x.to_json())(self.rules_path)
         res['findings'] = _atd_write_list((lambda x: x.to_json()))(self.findings)
-        res['dependencies'] = _atd_write_list((lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_option((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.dependencies)
+        res['dependencies'] = _atd_write_list((lambda x: x.to_json()))(self.dependencies)
         return res
 
     @classmethod
@@ -7991,27 +8012,6 @@ class RuleIdAndEngineKind:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'RuleIdAndEngineKind':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class ResolvedDependency:
-    """Original type: resolved_dependency"""
-
-    value: Tuple[FoundDependency, Optional[DownloadedDependency]]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ResolvedDependency':
-        return cls((lambda x: (FoundDependency.from_json(x[0]), _atd_read_option(DownloadedDependency.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x))
-
-    def to_json(self) -> Any:
-        return (lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_option((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ResolvedDependency':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

@@ -1086,7 +1086,7 @@ export type TransitiveFinding = {
 export type TransitiveReachabilityFilterParams = {
   rules_path: Fpath;
   findings: TransitiveFinding[];
-  dependencies: [FoundDependency, Option<DownloadedDependency>][];
+  dependencies: ResolvedDependency[];
 }
 
 export type Symbol = {
@@ -4550,7 +4550,7 @@ export function writeTransitiveReachabilityFilterParams(x: TransitiveReachabilit
   return {
     'rules_path': _atd_write_required_field('TransitiveReachabilityFilterParams', 'rules_path', writeFpath, x.rules_path, x),
     'findings': _atd_write_required_field('TransitiveReachabilityFilterParams', 'findings', _atd_write_array(writeTransitiveFinding), x.findings, x),
-    'dependencies': _atd_write_required_field('TransitiveReachabilityFilterParams', 'dependencies', _atd_write_array(((x, context) => [writeFoundDependency(x[0], x), _atd_write_option(writeDownloadedDependency)(x[1], x)])), x.dependencies, x),
+    'dependencies': _atd_write_required_field('TransitiveReachabilityFilterParams', 'dependencies', _atd_write_array(writeResolvedDependency), x.dependencies, x),
   };
 }
 
@@ -4558,7 +4558,7 @@ export function readTransitiveReachabilityFilterParams(x: any, context: any = x)
   return {
     rules_path: _atd_read_required_field('TransitiveReachabilityFilterParams', 'rules_path', readFpath, x['rules_path'], x),
     findings: _atd_read_required_field('TransitiveReachabilityFilterParams', 'findings', _atd_read_array(readTransitiveFinding), x['findings'], x),
-    dependencies: _atd_read_required_field('TransitiveReachabilityFilterParams', 'dependencies', _atd_read_array(((x, context): [FoundDependency, Option<DownloadedDependency>] => { _atd_check_json_tuple(2, x, context); return [readFoundDependency(x[0], x), _atd_read_option(readDownloadedDependency)(x[1], x)] })), x['dependencies'], x),
+    dependencies: _atd_read_required_field('TransitiveReachabilityFilterParams', 'dependencies', _atd_read_array(readResolvedDependency), x['dependencies'], x),
   };
 }
 

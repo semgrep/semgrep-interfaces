@@ -337,11 +337,13 @@ type downloaded_dependency = Semgrep_output_v1_t.downloaded_dependency = {
   source_path: fpath
 }
 
+type resolved_dependency = Semgrep_output_v1_t.resolved_dependency
+
 type transitive_reachability_filter_params =
   Semgrep_output_v1_t.transitive_reachability_filter_params = {
   rules_path: fpath;
   findings: transitive_finding list;
-  dependencies: (found_dependency * downloaded_dependency option) list
+  dependencies: resolved_dependency list
 }
 
 type todo = Semgrep_output_v1_t.todo
@@ -704,8 +706,6 @@ type sarif_format = Semgrep_output_v1_t.sarif_format = {
 type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
-
-type resolved_dependency = Semgrep_output_v1_t.resolved_dependency
 
 type resolved_subproject = Semgrep_output_v1_t.resolved_subproject = {
   info: subproject;
@@ -2264,6 +2264,26 @@ val downloaded_dependency_of_string :
   string -> downloaded_dependency
   (** Deserialize JSON data of type {!type:downloaded_dependency}. *)
 
+val write_resolved_dependency :
+  Buffer.t -> resolved_dependency -> unit
+  (** Output a JSON value of type {!type:resolved_dependency}. *)
+
+val string_of_resolved_dependency :
+  ?len:int -> resolved_dependency -> string
+  (** Serialize a value of type {!type:resolved_dependency}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolved_dependency :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolved_dependency
+  (** Input JSON data of type {!type:resolved_dependency}. *)
+
+val resolved_dependency_of_string :
+  string -> resolved_dependency
+  (** Deserialize JSON data of type {!type:resolved_dependency}. *)
+
 val write_transitive_reachability_filter_params :
   Buffer.t -> transitive_reachability_filter_params -> unit
   (** Output a JSON value of type {!type:transitive_reachability_filter_params}. *)
@@ -3403,26 +3423,6 @@ val read_rule_id_and_engine_kind :
 val rule_id_and_engine_kind_of_string :
   string -> rule_id_and_engine_kind
   (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
-
-val write_resolved_dependency :
-  Buffer.t -> resolved_dependency -> unit
-  (** Output a JSON value of type {!type:resolved_dependency}. *)
-
-val string_of_resolved_dependency :
-  ?len:int -> resolved_dependency -> string
-  (** Serialize a value of type {!type:resolved_dependency}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_resolved_dependency :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolved_dependency
-  (** Input JSON data of type {!type:resolved_dependency}. *)
-
-val resolved_dependency_of_string :
-  string -> resolved_dependency
-  (** Deserialize JSON data of type {!type:resolved_dependency}. *)
 
 val write_resolved_subproject :
   Buffer.t -> resolved_subproject -> unit
