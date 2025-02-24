@@ -413,7 +413,7 @@ type metavariable_cond = {
   (* for semgrep-internal-metavariable-name, currently only support
      "django-view" kind *)
   ?kind: string option;
-  (* for semgrep-internal-metavariable-name; consider renaming? for v2 *)
+  (* for metavariable-name; consider renaming? for v2 *)
   ?module_ <json name="module">: string option;
   ?modules: string list option;
 

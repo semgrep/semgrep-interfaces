@@ -323,7 +323,7 @@ $defs:
         - $ref: "#/$defs/metavariable-regex"
         - $ref: "#/$defs/metavariable-pattern"
         - $ref: "#/$defs/metavariable-type"
-        - $ref: "#/$defs/semgrep-internal-metavariable-name"
+        - $ref: "#/$defs/metavariable-name"
         - $ref: "#/$defs/metavariable-comparison"
         - $ref: "#/$defs/pattern-where-python"
   pattern-either-content:
@@ -647,9 +647,36 @@ $defs:
     required:
       - metavariable-type
     additionalProperties: false
-  semgrep-internal-metavariable-name:
+  metavariable-name:
     type: object
     properties:
+      # NOTE: Similar to the semgrep-internal-* variant, but doesn't yet permit
+      # a `kind` constraint.
+      metavariable-name:
+        type: object
+        title: Filter for metavariables with a certain kind
+        properties:
+          metavariable:
+            type: string
+            title: Metavariable to match
+          module:
+            title: A module name
+            type: string
+          modules:
+            title: A list of module names
+            type: array
+            items:
+              type: string
+        required:
+          - metavariable
+        anyOf:
+        - oneOf:
+          - required:
+              - module
+          - required:
+              - modules
+        additionalProperties: false
+      # EXPERIMENTAL variant
       semgrep-internal-metavariable-name:
         type: object
         title: Filter for metavariables with a certain kind
@@ -657,6 +684,8 @@ $defs:
           metavariable:
             type: string
             title: Metavariable to match
+          # If updating kind, consider if this experimental version can be
+          # removed in favour of the non-prefixed one.
           kind:
             title: Kind keyword
             type: string
@@ -679,8 +708,11 @@ $defs:
           - required:
               - modules
         additionalProperties: false
-    required:
-      - semgrep-internal-metavariable-name
+    oneOf:
+    - required:
+        - metavariable-name
+    - required:
+        - semgrep-internal-metavariable-name
     additionalProperties: false
   metavariable-comparison:
     type: object
