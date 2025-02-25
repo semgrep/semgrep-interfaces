@@ -323,6 +323,7 @@ $defs:
         - $ref: "#/$defs/metavariable-regex"
         - $ref: "#/$defs/metavariable-pattern"
         - $ref: "#/$defs/metavariable-type"
+        - $ref: "#/$defs/semgrep-internal-metavariable-name"
         - $ref: "#/$defs/metavariable-name"
         - $ref: "#/$defs/metavariable-comparison"
         - $ref: "#/$defs/pattern-where-python"
@@ -669,14 +670,19 @@ $defs:
               type: string
         required:
           - metavariable
-        anyOf:
-        - oneOf:
-          - required:
-              - module
-          - required:
-              - modules
+        oneOf:
+        - required:
+            - module
+        - required:
+            - modules
         additionalProperties: false
-      # EXPERIMENTAL variant
+    required:
+      - metavariable-name
+    additionalProperties: false
+  # EXPERIMENTAL variant
+  semgrep-internal-metavariable-name:
+    type: object
+    properties:
       semgrep-internal-metavariable-name:
         type: object
         title: Filter for metavariables with a certain kind
@@ -708,11 +714,8 @@ $defs:
           - required:
               - modules
         additionalProperties: false
-    oneOf:
-    - required:
-        - metavariable-name
-    - required:
-        - semgrep-internal-metavariable-name
+    required:
+      - semgrep-internal-metavariable-name
     additionalProperties: false
   metavariable-comparison:
     type: object
