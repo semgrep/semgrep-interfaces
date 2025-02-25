@@ -1730,6 +1730,10 @@ type subproject_stats = {
   dependency_sources: dependency_source_file list;
   (* Results of dependency resolution, empty if resolution failed *)
   ?resolved_stats: dependency_resolution_stats option;
+  (* Reason why resolution failed, empty if resolution succeeded *)
+  ?unresolved_reason: unresolved_reason option;
+  (* Errors encountered during subproject resolution *)
+  ?errors: sca_error list option;
 }
 
 type dependency_source_file = {

@@ -7074,6 +7074,8 @@ class SubprojectStats:
     subproject_id: str
     dependency_sources: List[DependencySourceFile]
     resolved_stats: Optional[DependencyResolutionStats] = None
+    unresolved_reason: Optional[UnresolvedReason] = None
+    errors: Optional[List[ScaError]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'SubprojectStats':
@@ -7082,6 +7084,8 @@ class SubprojectStats:
                 subproject_id=_atd_read_string(x['subproject_id']) if 'subproject_id' in x else _atd_missing_json_field('SubprojectStats', 'subproject_id'),
                 dependency_sources=_atd_read_list(DependencySourceFile.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('SubprojectStats', 'dependency_sources'),
                 resolved_stats=DependencyResolutionStats.from_json(x['resolved_stats']) if 'resolved_stats' in x else None,
+                unresolved_reason=UnresolvedReason.from_json(x['unresolved_reason']) if 'unresolved_reason' in x else None,
+                errors=_atd_read_list(ScaError.from_json)(x['errors']) if 'errors' in x else None,
             )
         else:
             _atd_bad_json('SubprojectStats', x)
@@ -7092,6 +7096,10 @@ class SubprojectStats:
         res['dependency_sources'] = _atd_write_list((lambda x: x.to_json()))(self.dependency_sources)
         if self.resolved_stats is not None:
             res['resolved_stats'] = (lambda x: x.to_json())(self.resolved_stats)
+        if self.unresolved_reason is not None:
+            res['unresolved_reason'] = (lambda x: x.to_json())(self.unresolved_reason)
+        if self.errors is not None:
+            res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         return res
 
     @classmethod
