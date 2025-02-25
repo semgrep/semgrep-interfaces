@@ -546,7 +546,9 @@ type dependency_resolution_stats =
 type subproject_stats = Semgrep_output_v1_t.subproject_stats = {
   subproject_id: string;
   dependency_sources: dependency_source_file list;
-  resolved_stats: dependency_resolution_stats option
+  resolved_stats: dependency_resolution_stats option;
+  unresolved_reason: unresolved_reason option;
+  errors: sca_error list option
 }
 
 type supply_chain_stats = Semgrep_output_v1_t.supply_chain_stats = {
