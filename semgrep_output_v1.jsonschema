@@ -1883,6 +1883,7 @@
     "manifest_kind": {
       "oneOf": [
         { "const": "RequirementsIn" },
+        { "const": "SetupPy" },
         { "const": "PackageJson" },
         { "const": "Gemfile" },
         { "const": "GoMod" },

@@ -2177,6 +2177,10 @@ type manifest_kind
   (* A Pip Requirements.in in file, which follows the format of requirements.txt
    * https://pip.pypa.io/en/stable/reference/requirements-file-format/ *)
   | RequirementsIn
+  (* A setup.py file, which is a Python file that contains the setup configuration
+   * for a Python project.
+   * https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#setup-py *)
+  | SetupPy
   (* An NPM package.json manifest file
    * https://docs.npmjs.com/cli/v10/configuring-npm/package-json *)
   | PackageJson

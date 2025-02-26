@@ -1046,6 +1046,23 @@ class RequirementsIn:
 
 
 @dataclass(frozen=True)
+class SetupPy:
+    """Original type: manifest_kind = [ ... | SetupPy | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SetupPy'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'SetupPy'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class PackageJson:
     """Original type: manifest_kind = [ ... | PackageJson | ... ]"""
 
@@ -1355,7 +1372,7 @@ class Csproj:
 class ManifestKind:
     """Original type: manifest_kind = [ ... ]"""
 
-    value: Union[RequirementsIn, PackageJson, Gemfile, GoMod_, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, Podfile, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj]
+    value: Union[RequirementsIn, SetupPy, PackageJson, Gemfile, GoMod_, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, Podfile, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj]
 
     @property
     def kind(self) -> str:
@@ -1367,6 +1384,8 @@ class ManifestKind:
         if isinstance(x, str):
             if x == 'RequirementsIn':
                 return cls(RequirementsIn())
+            if x == 'SetupPy':
+                return cls(SetupPy())
             if x == 'PackageJson':
                 return cls(PackageJson())
             if x == 'Gemfile':
