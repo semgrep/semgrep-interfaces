@@ -239,6 +239,7 @@ type uri = Semgrep_output_v1_t.uri
 
 type unresolved_reason = Semgrep_output_v1_t.unresolved_reason = 
     UnresolvedFailed | UnresolvedSkipped | UnresolvedUnsupported
+  | UnresolvedDisabled
 
 
 type subproject = Semgrep_output_v1_t.subproject = {
@@ -9205,6 +9206,7 @@ let write_unresolved_reason : _ -> unresolved_reason -> _ = (
       | UnresolvedFailed -> Buffer.add_string ob "\"failed\""
       | UnresolvedSkipped -> Buffer.add_string ob "\"skipped\""
       | UnresolvedUnsupported -> Buffer.add_string ob "\"unsupported\""
+      | UnresolvedDisabled -> Buffer.add_string ob "\"disabled\""
 )
 let string_of_unresolved_reason ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -9228,6 +9230,10 @@ let read_unresolved_reason = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (UnresolvedUnsupported : unresolved_reason)
+            | "disabled" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (UnresolvedDisabled : unresolved_reason)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -9239,6 +9245,8 @@ let read_unresolved_reason = (
               (UnresolvedSkipped : unresolved_reason)
             | "unsupported" ->
               (UnresolvedUnsupported : unresolved_reason)
+            | "disabled" ->
+              (UnresolvedDisabled : unresolved_reason)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

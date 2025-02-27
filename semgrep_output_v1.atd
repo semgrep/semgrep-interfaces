@@ -2361,10 +2361,11 @@ type downloaded_dependency = {
   source_path: fpath;
 }
 
-type unresolved_reason = [
+type unresolved_reason <python decorator="dataclass(frozen=True)"> = [
   | UnresolvedFailed <json name="failed">
   | UnresolvedSkipped <json name="skipped">
   | UnresolvedUnsupported <json name="unsupported">
+  | UnresolvedDisabled <json name="disabled">
 ] <ocaml repr="classic">
 
 type unresolved_subproject
