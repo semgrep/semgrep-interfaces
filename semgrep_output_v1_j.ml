@@ -548,7 +548,7 @@ type subproject_stats = Semgrep_output_v1_t.subproject_stats = {
   dependency_sources: dependency_source_file list;
   resolved_stats: dependency_resolution_stats option;
   unresolved_reason: unresolved_reason option;
-  errors: sca_error list option
+  errors: sca_error list
 }
 
 type supply_chain_stats = Semgrep_output_v1_t.supply_chain_stats = {
@@ -18455,63 +18455,6 @@ let read__unresolved_reason_option = (
 )
 let _unresolved_reason_option_of_string s =
   read__unresolved_reason_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__sca_error_list_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write__sca_error_list
-  )
-)
-let string_of__sca_error_list_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__sca_error_list_option ob x;
-  Buffer.contents ob
-let read__sca_error_list_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__sca_error_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__sca_error_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _sca_error_list_option_of_string s =
-  read__sca_error_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__dependency_source_file_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_dependency_source_file
@@ -18629,17 +18572,15 @@ let write_subproject_stats : _ -> subproject_stats -> _ = (
       )
         ob x;
     );
-    (match x.errors with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"errors\":";
-      (
-        write__sca_error_list
-      )
-        ob x;
-    );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"errors\":";
+    (
+      write__sca_error_list
+    )
+      ob x.errors;
     Buffer.add_char ob '}';
 )
 let string_of_subproject_stats ?(len = 1024) x =
@@ -18654,7 +18595,7 @@ let read_subproject_stats = (
     let field_dependency_sources = ref (None) in
     let field_resolved_stats = ref (None) in
     let field_unresolved_reason = ref (None) in
-    let field_errors = ref (None) in
+    let field_errors = ref ([]) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -18751,11 +18692,9 @@ let read_subproject_stats = (
           | 4 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_errors := (
-                Some (
-                  (
-                    read__sca_error_list
-                  ) p lb
-                )
+                (
+                  read__sca_error_list
+                ) p lb
               );
             )
           | _ -> (
@@ -18858,11 +18797,9 @@ let read_subproject_stats = (
             | 4 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_errors := (
-                  Some (
-                    (
-                      read__sca_error_list
-                    ) p lb
-                  )
+                  (
+                    read__sca_error_list
+                  ) p lb
                 );
               )
             | _ -> (

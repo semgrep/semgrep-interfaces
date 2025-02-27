@@ -736,7 +736,7 @@ export type SubprojectStats = {
   dependency_sources: DependencySourceFile[];
   resolved_stats?: DependencyResolutionStats;
   unresolved_reason?: UnresolvedReason;
-  errors?: ScaError[];
+  errors: ScaError[];
 }
 
 export type DependencySourceFile = {
@@ -3430,7 +3430,7 @@ export function writeSubprojectStats(x: SubprojectStats, context: any = x): any 
     'dependency_sources': _atd_write_required_field('SubprojectStats', 'dependency_sources', _atd_write_array(writeDependencySourceFile), x.dependency_sources, x),
     'resolved_stats': _atd_write_optional_field(writeDependencyResolutionStats, x.resolved_stats, x),
     'unresolved_reason': _atd_write_optional_field(writeUnresolvedReason, x.unresolved_reason, x),
-    'errors': _atd_write_optional_field(_atd_write_array(writeScaError), x.errors, x),
+    'errors': _atd_write_field_with_default(_atd_write_array(writeScaError), [], x.errors, x),
   };
 }
 
@@ -3440,7 +3440,7 @@ export function readSubprojectStats(x: any, context: any = x): SubprojectStats {
     dependency_sources: _atd_read_required_field('SubprojectStats', 'dependency_sources', _atd_read_array(readDependencySourceFile), x['dependency_sources'], x),
     resolved_stats: _atd_read_optional_field(readDependencyResolutionStats, x['resolved_stats'], x),
     unresolved_reason: _atd_read_optional_field(readUnresolvedReason, x['unresolved_reason'], x),
-    errors: _atd_read_optional_field(_atd_read_array(readScaError), x['errors'], x),
+    errors: _atd_read_field_with_default(_atd_read_array(readScaError), [], x['errors'], x),
   };
 }
 

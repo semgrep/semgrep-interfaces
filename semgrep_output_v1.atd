@@ -1733,7 +1733,7 @@ type subproject_stats = {
   (* Reason why resolution failed, empty if resolution succeeded *)
   ?unresolved_reason: unresolved_reason option;
   (* Errors encountered during subproject resolution *)
-  ?errors: sca_error list option;
+  ~errors: sca_error list
 }
 
 type dependency_source_file = {
