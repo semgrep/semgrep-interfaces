@@ -988,6 +988,7 @@ export type LockfileKind =
 
 export type ManifestKind =
 | { kind: 'RequirementsIn' }
+| { kind: 'SetupPy' }
 | { kind: 'PackageJson' }
 | { kind: 'Gemfile' }
 | { kind: 'GoMod' }
@@ -4179,6 +4180,8 @@ export function writeManifestKind(x: ManifestKind, context: any = x): any {
   switch (x.kind) {
     case 'RequirementsIn':
       return 'RequirementsIn'
+    case 'SetupPy':
+      return 'SetupPy'
     case 'PackageJson':
       return 'PackageJson'
     case 'Gemfile':
@@ -4222,6 +4225,8 @@ export function readManifestKind(x: any, context: any = x): ManifestKind {
   switch (x) {
     case 'RequirementsIn':
       return { kind: 'RequirementsIn' }
+    case 'SetupPy':
+      return { kind: 'SetupPy' }
     case 'PackageJson':
       return { kind: 'PackageJson' }
     case 'Gemfile':

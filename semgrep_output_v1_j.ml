@@ -2075,6 +2075,7 @@ let write_manifest_kind = (
   fun ob x ->
     match x with
       | `RequirementsIn -> Buffer.add_string ob "\"RequirementsIn\""
+      | `SetupPy -> Buffer.add_string ob "\"SetupPy\""
       | `PackageJson -> Buffer.add_string ob "\"PackageJson\""
       | `Gemfile -> Buffer.add_string ob "\"Gemfile\""
       | `GoMod -> Buffer.add_string ob "\"GoMod\""
@@ -2108,6 +2109,10 @@ let read_manifest_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `RequirementsIn
+            | "SetupPy" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `SetupPy
             | "PackageJson" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -2187,6 +2192,8 @@ let read_manifest_kind = (
           match Yojson.Safe.finish_string p lb with
             | "RequirementsIn" ->
               `RequirementsIn
+            | "SetupPy" ->
+              `SetupPy
             | "PackageJson" ->
               `PackageJson
             | "Gemfile" ->
