@@ -5222,7 +5222,6 @@ class TargetingConf:
     explicit_targets: List[str]
     force_novcs_project: bool
     exclude_minified_files: bool
-    diff_depth: int
     include_: Optional[List[str]] = None
     force_project_root: Optional[ProjectRoot] = None
     baseline_commit: Optional[str] = None
@@ -5239,7 +5238,6 @@ class TargetingConf:
                 explicit_targets=_atd_read_list(_atd_read_string)(x['explicit_targets']) if 'explicit_targets' in x else _atd_missing_json_field('TargetingConf', 'explicit_targets'),
                 force_novcs_project=_atd_read_bool(x['force_novcs_project']) if 'force_novcs_project' in x else _atd_missing_json_field('TargetingConf', 'force_novcs_project'),
                 exclude_minified_files=_atd_read_bool(x['exclude_minified_files']) if 'exclude_minified_files' in x else _atd_missing_json_field('TargetingConf', 'exclude_minified_files'),
-                diff_depth=_atd_read_int(x['diff_depth']) if 'diff_depth' in x else _atd_missing_json_field('TargetingConf', 'diff_depth'),
                 include_=_atd_read_list(_atd_read_string)(x['include_']) if 'include_' in x else None,
                 force_project_root=ProjectRoot.from_json(x['force_project_root']) if 'force_project_root' in x else None,
                 baseline_commit=_atd_read_string(x['baseline_commit']) if 'baseline_commit' in x else None,
@@ -5257,7 +5255,6 @@ class TargetingConf:
         res['explicit_targets'] = _atd_write_list(_atd_write_string)(self.explicit_targets)
         res['force_novcs_project'] = _atd_write_bool(self.force_novcs_project)
         res['exclude_minified_files'] = _atd_write_bool(self.exclude_minified_files)
-        res['diff_depth'] = _atd_write_int(self.diff_depth)
         if self.include_ is not None:
             res['include_'] = _atd_write_list(_atd_write_string)(self.include_)
         if self.force_project_root is not None:

@@ -893,7 +893,6 @@ export type TargetingConf = {
   force_novcs_project: boolean;
   exclude_minified_files: boolean;
   baseline_commit?: string;
-  diff_depth: number /*int*/;
 }
 
 export type Analyzer = string
@@ -3835,7 +3834,6 @@ export function writeTargetingConf(x: TargetingConf, context: any = x): any {
     'force_novcs_project': _atd_write_required_field('TargetingConf', 'force_novcs_project', _atd_write_bool, x.force_novcs_project, x),
     'exclude_minified_files': _atd_write_required_field('TargetingConf', 'exclude_minified_files', _atd_write_bool, x.exclude_minified_files, x),
     'baseline_commit': _atd_write_optional_field(_atd_write_string, x.baseline_commit, x),
-    'diff_depth': _atd_write_required_field('TargetingConf', 'diff_depth', _atd_write_int, x.diff_depth, x),
   };
 }
 
@@ -3852,7 +3850,6 @@ export function readTargetingConf(x: any, context: any = x): TargetingConf {
     force_novcs_project: _atd_read_required_field('TargetingConf', 'force_novcs_project', _atd_read_bool, x['force_novcs_project'], x),
     exclude_minified_files: _atd_read_required_field('TargetingConf', 'exclude_minified_files', _atd_read_bool, x['exclude_minified_files'], x),
     baseline_commit: _atd_read_optional_field(_atd_read_string, x['baseline_commit'], x),
-    diff_depth: _atd_read_required_field('TargetingConf', 'diff_depth', _atd_read_int, x['diff_depth'], x),
   };
 }
 
