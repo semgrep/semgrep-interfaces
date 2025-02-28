@@ -2129,7 +2129,8 @@
       "oneOf": [
         { "const": "failed" },
         { "const": "skipped" },
-        { "const": "unsupported" }
+        { "const": "unsupported" },
+        { "const": "disabled" }
       ]
     },
     "unresolved_subproject": {

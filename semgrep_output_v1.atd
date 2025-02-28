@@ -2361,10 +2361,17 @@ type downloaded_dependency = {
   source_path: fpath;
 }
 
-type unresolved_reason = [
+type unresolved_reason <python decorator="dataclass(frozen=True)"> = [
+  (* Resolution was attempted, but was unsuccessful. *)
   | UnresolvedFailed <json name="failed">
+  (* Resolution was skipped because the dependency source was not relevant to
+   * the scanned targets. *)
   | UnresolvedSkipped <json name="skipped">
+  (* Resolution was skipped because the dependency source is not supported. *)
   | UnresolvedUnsupported <json name="unsupported">
+  (* Resolution was not attempted because a required feature (such as local
+   * builds) was disabled. *)
+  | UnresolvedDisabled <json name="disabled">
 ] <ocaml repr="classic">
 
 type unresolved_subproject

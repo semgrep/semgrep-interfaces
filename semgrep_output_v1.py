@@ -3440,7 +3440,7 @@ class Uri:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class UnresolvedFailed:
     """Original type: unresolved_reason = [ ... | UnresolvedFailed | ... ]"""
 
@@ -3457,7 +3457,7 @@ class UnresolvedFailed:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class UnresolvedSkipped:
     """Original type: unresolved_reason = [ ... | UnresolvedSkipped | ... ]"""
 
@@ -3474,7 +3474,7 @@ class UnresolvedSkipped:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class UnresolvedUnsupported:
     """Original type: unresolved_reason = [ ... | UnresolvedUnsupported | ... ]"""
 
@@ -3491,11 +3491,28 @@ class UnresolvedUnsupported:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
+class UnresolvedDisabled:
+    """Original type: unresolved_reason = [ ... | UnresolvedDisabled | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'UnresolvedDisabled'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'disabled'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class UnresolvedReason:
     """Original type: unresolved_reason = [ ... ]"""
 
-    value: Union[UnresolvedFailed, UnresolvedSkipped, UnresolvedUnsupported]
+    value: Union[UnresolvedFailed, UnresolvedSkipped, UnresolvedUnsupported, UnresolvedDisabled]
 
     @property
     def kind(self) -> str:
@@ -3511,6 +3528,8 @@ class UnresolvedReason:
                 return cls(UnresolvedSkipped())
             if x == 'unsupported':
                 return cls(UnresolvedUnsupported())
+            if x == 'disabled':
+                return cls(UnresolvedDisabled())
             _atd_bad_json('UnresolvedReason', x)
         _atd_bad_json('UnresolvedReason', x)
 

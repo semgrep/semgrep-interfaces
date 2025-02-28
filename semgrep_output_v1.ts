@@ -1068,6 +1068,7 @@ export type UnresolvedReason =
 | { kind: 'UnresolvedFailed' /* JSON: "failed" */ }
 | { kind: 'UnresolvedSkipped' /* JSON: "skipped" */ }
 | { kind: 'UnresolvedUnsupported' /* JSON: "unsupported" */ }
+| { kind: 'UnresolvedDisabled' /* JSON: "disabled" */ }
 
 export type UnresolvedSubproject = {
   info: Subproject;
@@ -4481,6 +4482,8 @@ export function writeUnresolvedReason(x: UnresolvedReason, context: any = x): an
       return 'skipped'
     case 'UnresolvedUnsupported':
       return 'unsupported'
+    case 'UnresolvedDisabled':
+      return 'disabled'
   }
 }
 
@@ -4492,6 +4495,8 @@ export function readUnresolvedReason(x: any, context: any = x): UnresolvedReason
       return { kind: 'UnresolvedSkipped' }
     case 'unsupported':
       return { kind: 'UnresolvedUnsupported' }
+    case 'disabled':
+      return { kind: 'UnresolvedDisabled' }
     default:
       _atd_bad_json('UnresolvedReason', x, context)
       throw new Error('impossible')

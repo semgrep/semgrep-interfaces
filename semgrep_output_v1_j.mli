@@ -239,6 +239,7 @@ type uri = Semgrep_output_v1_t.uri
 
 type unresolved_reason = Semgrep_output_v1_t.unresolved_reason = 
     UnresolvedFailed | UnresolvedSkipped | UnresolvedUnsupported
+  | UnresolvedDisabled
 
 
 type subproject = Semgrep_output_v1_t.subproject = {
