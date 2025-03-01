@@ -2145,6 +2145,17 @@
         }
       }
     },
+    "resolve_dependencies_params": {
+      "type": "object",
+      "required": [ "dependency_sources", "download_dependency_source_code" ],
+      "properties": {
+        "dependency_sources": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/dependency_source" }
+        },
+        "download_dependency_source_code": { "type": "boolean" }
+      }
+    },
     "resolution_result": {
       "oneOf": [
         {
@@ -2288,10 +2299,7 @@
           "items": false,
           "prefixItems": [
             { "const": "CallResolveDependencies" },
-            {
-              "type": "array",
-              "items": { "$ref": "#/definitions/dependency_source" }
-            }
+            { "$ref": "#/definitions/resolve_dependencies_params" }
           ]
         },
         {

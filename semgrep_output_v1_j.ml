@@ -715,6 +715,12 @@ type resolved_subproject = Semgrep_output_v1_t.resolved_subproject = {
   errors: sca_error list
 }
 
+type resolve_dependencies_params =
+  Semgrep_output_v1_t.resolve_dependencies_params = {
+  dependency_sources: dependency_source list;
+  download_dependency_source_code: bool
+}
+
 type resolution_result = Semgrep_output_v1_t.resolution_result
 
 type profile = Semgrep_output_v1_t.profile = {
@@ -25737,6 +25743,159 @@ let read_resolved_subproject = (
 )
 let resolved_subproject_of_string s =
   read_resolved_subproject (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_resolve_dependencies_params : _ -> resolve_dependencies_params -> _ = (
+  fun ob (x : resolve_dependencies_params) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"dependency_sources\":";
+    (
+      write__dependency_source_list
+    )
+      ob x.dependency_sources;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"download_dependency_source_code\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.download_dependency_source_code;
+    Buffer.add_char ob '}';
+)
+let string_of_resolve_dependencies_params ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_resolve_dependencies_params ob x;
+  Buffer.contents ob
+let read_resolve_dependencies_params = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_dependency_sources = ref (None) in
+    let field_download_dependency_source_code = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 18 -> (
+                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'u' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 's' then (
+                  0
+                )
+                else (
+                  -1
+                )
+              )
+            | 31 -> (
+                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'w' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'd' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 'd' && String.unsafe_get s (pos+15) = 'e' && String.unsafe_get s (pos+16) = 'n' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 'y' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 's' && String.unsafe_get s (pos+21) = 'o' && String.unsafe_get s (pos+22) = 'u' && String.unsafe_get s (pos+23) = 'r' && String.unsafe_get s (pos+24) = 'c' && String.unsafe_get s (pos+25) = 'e' && String.unsafe_get s (pos+26) = '_' && String.unsafe_get s (pos+27) = 'c' && String.unsafe_get s (pos+28) = 'o' && String.unsafe_get s (pos+29) = 'd' && String.unsafe_get s (pos+30) = 'e' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_dependency_sources := (
+              Some (
+                (
+                  read__dependency_source_list
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_download_dependency_source_code := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 18 -> (
+                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'u' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 's' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 31 -> (
+                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'w' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'd' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 'd' && String.unsafe_get s (pos+15) = 'e' && String.unsafe_get s (pos+16) = 'n' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 'y' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 's' && String.unsafe_get s (pos+21) = 'o' && String.unsafe_get s (pos+22) = 'u' && String.unsafe_get s (pos+23) = 'r' && String.unsafe_get s (pos+24) = 'c' && String.unsafe_get s (pos+25) = 'e' && String.unsafe_get s (pos+26) = '_' && String.unsafe_get s (pos+27) = 'c' && String.unsafe_get s (pos+28) = 'o' && String.unsafe_get s (pos+29) = 'd' && String.unsafe_get s (pos+30) = 'e' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_dependency_sources := (
+                Some (
+                  (
+                    read__dependency_source_list
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_download_dependency_source_code := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            dependency_sources = (match !field_dependency_sources with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "dependency_sources");
+            download_dependency_source_code = (match !field_download_dependency_source_code with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "download_dependency_source_code");
+          }
+         : resolve_dependencies_params)
+      )
+)
+let resolve_dependencies_params_of_string s =
+  read_resolve_dependencies_params (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__resolution_error_kind_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_resolution_error_kind
@@ -35650,7 +35809,7 @@ let write_function_call = (
       | `CallResolveDependencies x ->
         Buffer.add_string ob "[\"CallResolveDependencies\",";
         (
-          write__dependency_source_list
+          write_resolve_dependencies_params
         ) ob x;
         Buffer.add_char ob ']'
       | `CallUploadSymbolAnalysis x ->
@@ -35854,7 +36013,7 @@ let read_function_call = (
             | "CallResolveDependencies" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read__dependency_source_list
+                  read_resolve_dependencies_params
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -36113,7 +36272,7 @@ let read_function_call = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read__dependency_source_list
+                  read_resolve_dependencies_params
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
