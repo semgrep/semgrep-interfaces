@@ -715,6 +715,12 @@ type resolved_subproject = Semgrep_output_v1_t.resolved_subproject = {
   errors: sca_error list
 }
 
+type resolve_dependencies_params =
+  Semgrep_output_v1_t.resolve_dependencies_params = {
+  dependency_sources: dependency_source list;
+  download_dependency_source_code: bool
+}
+
 type resolution_result = Semgrep_output_v1_t.resolution_result
 
 type profile = Semgrep_output_v1_t.profile = {
@@ -3443,6 +3449,26 @@ val read_resolved_subproject :
 val resolved_subproject_of_string :
   string -> resolved_subproject
   (** Deserialize JSON data of type {!type:resolved_subproject}. *)
+
+val write_resolve_dependencies_params :
+  Buffer.t -> resolve_dependencies_params -> unit
+  (** Output a JSON value of type {!type:resolve_dependencies_params}. *)
+
+val string_of_resolve_dependencies_params :
+  ?len:int -> resolve_dependencies_params -> string
+  (** Serialize a value of type {!type:resolve_dependencies_params}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolve_dependencies_params :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolve_dependencies_params
+  (** Input JSON data of type {!type:resolve_dependencies_params}. *)
+
+val resolve_dependencies_params_of_string :
+  string -> resolve_dependencies_params
+  (** Deserialize JSON data of type {!type:resolve_dependencies_params}. *)
 
 val write_resolution_result :
   Buffer.t -> resolution_result -> unit
