@@ -1406,6 +1406,11 @@
         },
         "resolved_stats": {
           "$ref": "#/definitions/dependency_resolution_stats"
+        },
+        "unresolved_reason": { "$ref": "#/definitions/unresolved_reason" },
+        "errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/sca_error" }
         }
       }
     },
