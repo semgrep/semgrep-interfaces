@@ -735,6 +735,8 @@ export type SubprojectStats = {
   subproject_id: string;
   dependency_sources: DependencySourceFile[];
   resolved_stats?: DependencyResolutionStats;
+  unresolved_reason?: UnresolvedReason;
+  errors: ScaError[];
 }
 
 export type DependencySourceFile = {
@@ -1076,6 +1078,11 @@ export type UnresolvedSubproject = {
   errors: ScaError[];
 }
 
+export type ResolveDependenciesParams = {
+  dependency_sources: DependencySource[];
+  download_dependency_source_code: boolean;
+}
+
 export type ResolutionResult =
 | { kind: 'ResolutionOk'; value: [ResolvedDependency[], ResolutionErrorKind[]] }
 | { kind: 'ResolutionError'; value: ResolutionErrorKind[] }
@@ -1107,7 +1114,7 @@ export type FunctionCall =
 | { kind: 'CallFormatter'; value: [OutputFormat, FormatContext, CliOutput] }
 | { kind: 'CallSarifFormat'; value: [SarifFormat, FormatContext, CliOutput] }
 | { kind: 'CallValidate'; value: Fpath }
-| { kind: 'CallResolveDependencies'; value: DependencySource[] }
+| { kind: 'CallResolveDependencies'; value: ResolveDependenciesParams }
 | { kind: 'CallUploadSymbolAnalysis'; value: [string, number /*int*/, SymbolAnalysis] }
 | { kind: 'CallDumpRulePartitions'; value: DumpRulePartitionsParams }
 | { kind: 'CallGetTargets'; value: ScanningRoots }
@@ -3422,6 +3429,8 @@ export function writeSubprojectStats(x: SubprojectStats, context: any = x): any 
     'subproject_id': _atd_write_required_field('SubprojectStats', 'subproject_id', _atd_write_string, x.subproject_id, x),
     'dependency_sources': _atd_write_required_field('SubprojectStats', 'dependency_sources', _atd_write_array(writeDependencySourceFile), x.dependency_sources, x),
     'resolved_stats': _atd_write_optional_field(writeDependencyResolutionStats, x.resolved_stats, x),
+    'unresolved_reason': _atd_write_optional_field(writeUnresolvedReason, x.unresolved_reason, x),
+    'errors': _atd_write_field_with_default(_atd_write_array(writeScaError), [], x.errors, x),
   };
 }
 
@@ -3430,6 +3439,8 @@ export function readSubprojectStats(x: any, context: any = x): SubprojectStats {
     subproject_id: _atd_read_required_field('SubprojectStats', 'subproject_id', _atd_read_string, x['subproject_id'], x),
     dependency_sources: _atd_read_required_field('SubprojectStats', 'dependency_sources', _atd_read_array(readDependencySourceFile), x['dependency_sources'], x),
     resolved_stats: _atd_read_optional_field(readDependencyResolutionStats, x['resolved_stats'], x),
+    unresolved_reason: _atd_read_optional_field(readUnresolvedReason, x['unresolved_reason'], x),
+    errors: _atd_read_field_with_default(_atd_read_array(readScaError), [], x['errors'], x),
   };
 }
 
@@ -4519,6 +4530,20 @@ export function readUnresolvedSubproject(x: any, context: any = x): UnresolvedSu
   };
 }
 
+export function writeResolveDependenciesParams(x: ResolveDependenciesParams, context: any = x): any {
+  return {
+    'dependency_sources': _atd_write_required_field('ResolveDependenciesParams', 'dependency_sources', _atd_write_array(writeDependencySource), x.dependency_sources, x),
+    'download_dependency_source_code': _atd_write_required_field('ResolveDependenciesParams', 'download_dependency_source_code', _atd_write_bool, x.download_dependency_source_code, x),
+  };
+}
+
+export function readResolveDependenciesParams(x: any, context: any = x): ResolveDependenciesParams {
+  return {
+    dependency_sources: _atd_read_required_field('ResolveDependenciesParams', 'dependency_sources', _atd_read_array(readDependencySource), x['dependency_sources'], x),
+    download_dependency_source_code: _atd_read_required_field('ResolveDependenciesParams', 'download_dependency_source_code', _atd_read_bool, x['download_dependency_source_code'], x),
+  };
+}
+
 export function writeResolutionResult(x: ResolutionResult, context: any = x): any {
   switch (x.kind) {
     case 'ResolutionOk':
@@ -4616,7 +4641,7 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
     case 'CallValidate':
       return ['CallValidate', writeFpath(x.value, x)]
     case 'CallResolveDependencies':
-      return ['CallResolveDependencies', _atd_write_array(writeDependencySource)(x.value, x)]
+      return ['CallResolveDependencies', writeResolveDependenciesParams(x.value, x)]
     case 'CallUploadSymbolAnalysis':
       return ['CallUploadSymbolAnalysis', ((x, context) => [_atd_write_string(x[0], x), _atd_write_int(x[1], x), writeSymbolAnalysis(x[2], x)])(x.value, x)]
     case 'CallDumpRulePartitions':
@@ -4650,7 +4675,7 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
       case 'CallValidate':
         return { kind: 'CallValidate', value: readFpath(x[1], x) }
       case 'CallResolveDependencies':
-        return { kind: 'CallResolveDependencies', value: _atd_read_array(readDependencySource)(x[1], x) }
+        return { kind: 'CallResolveDependencies', value: readResolveDependenciesParams(x[1], x) }
       case 'CallUploadSymbolAnalysis':
         return { kind: 'CallUploadSymbolAnalysis', value: ((x, context): [string, number /*int*/, SymbolAnalysis] => { _atd_check_json_tuple(3, x, context); return [_atd_read_string(x[0], x), _atd_read_int(x[1], x), readSymbolAnalysis(x[2], x)] })(x[1], x) }
       case 'CallDumpRulePartitions':

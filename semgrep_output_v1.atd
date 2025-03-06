@@ -1730,6 +1730,10 @@ type subproject_stats = {
   dependency_sources: dependency_source_file list;
   (* Results of dependency resolution, empty if resolution failed *)
   ?resolved_stats: dependency_resolution_stats option;
+  (* Reason why resolution failed, empty if resolution succeeded *)
+  ?unresolved_reason: unresolved_reason option;
+  (* Errors encountered during subproject resolution *)
+  ~errors: sca_error list
 }
 
 type dependency_source_file = {
@@ -2385,6 +2389,11 @@ type unresolved_subproject
    errors: sca_error list;
 }
 
+type resolve_dependencies_params <python decorator="dataclass(frozen=True)"> = {
+  dependency_sources: dependency_source list;
+  download_dependency_source_code: bool;
+}
+
 (* Resolution can either succeed or fail, but in either case errors can be
  * produced (e.g. one resolution method might fail while a worse one succeeds,
  * lockfile parsing might partially fail but recover and still produce results).
@@ -2466,7 +2475,7 @@ type function_call <python decorator="dataclass(frozen=True)"> = [
      the RPC pipe.
   *)
   | CallValidate of fpath
-  | CallResolveDependencies of dependency_source list
+  | CallResolveDependencies of resolve_dependencies_params
   | CallUploadSymbolAnalysis of ((* token *) string * (* scan_id *) int * symbol_analysis)
   | CallDumpRulePartitions of dump_rule_partitions_params
   | CallGetTargets of scanning_roots

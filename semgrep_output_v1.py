@@ -7074,6 +7074,8 @@ class SubprojectStats:
     subproject_id: str
     dependency_sources: List[DependencySourceFile]
     resolved_stats: Optional[DependencyResolutionStats] = None
+    unresolved_reason: Optional[UnresolvedReason] = None
+    errors: List[ScaError] = field(default_factory=lambda: [])
 
     @classmethod
     def from_json(cls, x: Any) -> 'SubprojectStats':
@@ -7082,6 +7084,8 @@ class SubprojectStats:
                 subproject_id=_atd_read_string(x['subproject_id']) if 'subproject_id' in x else _atd_missing_json_field('SubprojectStats', 'subproject_id'),
                 dependency_sources=_atd_read_list(DependencySourceFile.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('SubprojectStats', 'dependency_sources'),
                 resolved_stats=DependencyResolutionStats.from_json(x['resolved_stats']) if 'resolved_stats' in x else None,
+                unresolved_reason=UnresolvedReason.from_json(x['unresolved_reason']) if 'unresolved_reason' in x else None,
+                errors=_atd_read_list(ScaError.from_json)(x['errors']) if 'errors' in x else [],
             )
         else:
             _atd_bad_json('SubprojectStats', x)
@@ -7092,6 +7096,9 @@ class SubprojectStats:
         res['dependency_sources'] = _atd_write_list((lambda x: x.to_json()))(self.dependency_sources)
         if self.resolved_stats is not None:
             res['resolved_stats'] = (lambda x: x.to_json())(self.resolved_stats)
+        if self.unresolved_reason is not None:
+            res['unresolved_reason'] = (lambda x: x.to_json())(self.unresolved_reason)
+        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         return res
 
     @classmethod
@@ -8087,6 +8094,37 @@ class ResolvedSubproject:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ResolvedSubproject':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ResolveDependenciesParams:
+    """Original type: resolve_dependencies_params = { ... }"""
+
+    dependency_sources: List[DependencySource]
+    download_dependency_source_code: bool
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolveDependenciesParams':
+        if isinstance(x, dict):
+            return cls(
+                dependency_sources=_atd_read_list(DependencySource.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('ResolveDependenciesParams', 'dependency_sources'),
+                download_dependency_source_code=_atd_read_bool(x['download_dependency_source_code']) if 'download_dependency_source_code' in x else _atd_missing_json_field('ResolveDependenciesParams', 'download_dependency_source_code'),
+            )
+        else:
+            _atd_bad_json('ResolveDependenciesParams', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['dependency_sources'] = _atd_write_list((lambda x: x.to_json()))(self.dependency_sources)
+        res['download_dependency_source_code'] = _atd_write_bool(self.download_dependency_source_code)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolveDependenciesParams':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -9822,7 +9860,7 @@ class CallValidate:
 class CallResolveDependencies:
     """Original type: function_call = [ ... | CallResolveDependencies of ... | ... ]"""
 
-    value: List[DependencySource]
+    value: ResolveDependenciesParams
 
     @property
     def kind(self) -> str:
@@ -9830,7 +9868,7 @@ class CallResolveDependencies:
         return 'CallResolveDependencies'
 
     def to_json(self) -> Any:
-        return ['CallResolveDependencies', _atd_write_list((lambda x: x.to_json()))(self.value)]
+        return ['CallResolveDependencies', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -9936,7 +9974,7 @@ class FunctionCall:
             if cons == 'CallValidate':
                 return cls(CallValidate(Fpath.from_json(x[1])))
             if cons == 'CallResolveDependencies':
-                return cls(CallResolveDependencies(_atd_read_list(DependencySource.from_json)(x[1])))
+                return cls(CallResolveDependencies(ResolveDependenciesParams.from_json(x[1])))
             if cons == 'CallUploadSymbolAnalysis':
                 return cls(CallUploadSymbolAnalysis((lambda x: (_atd_read_string(x[0]), _atd_read_int(x[1]), SymbolAnalysis.from_json(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
             if cons == 'CallDumpRulePartitions':
