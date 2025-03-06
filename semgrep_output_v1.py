@@ -587,7 +587,7 @@ class Ecosystem:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=True)
 class Fpath:
     """Original type: fpath"""
 
@@ -1046,6 +1046,23 @@ class RequirementsIn:
 
 
 @dataclass(frozen=True)
+class SetupPy:
+    """Original type: manifest_kind = [ ... | SetupPy | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SetupPy'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'SetupPy'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class PackageJson:
     """Original type: manifest_kind = [ ... | PackageJson | ... ]"""
 
@@ -1355,7 +1372,7 @@ class Csproj:
 class ManifestKind:
     """Original type: manifest_kind = [ ... ]"""
 
-    value: Union[RequirementsIn, PackageJson, Gemfile, GoMod_, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, Podfile, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj]
+    value: Union[RequirementsIn, SetupPy, PackageJson, Gemfile, GoMod_, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, Podfile, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj]
 
     @property
     def kind(self) -> str:
@@ -1367,6 +1384,8 @@ class ManifestKind:
         if isinstance(x, str):
             if x == 'RequirementsIn':
                 return cls(RequirementsIn())
+            if x == 'SetupPy':
+                return cls(SetupPy())
             if x == 'PackageJson':
                 return cls(PackageJson())
             if x == 'Gemfile':
@@ -2429,6 +2448,34 @@ class TransitiveReachable:
 
 
 @dataclass
+class TransitiveUndetermined:
+    """Original type: transitive_undetermined = { ... }"""
+
+    explanation: Optional[str]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TransitiveUndetermined':
+        if isinstance(x, dict):
+            return cls(
+                explanation=_atd_read_option(_atd_read_string)(x['explanation']) if 'explanation' in x else _atd_missing_json_field('TransitiveUndetermined', 'explanation'),
+            )
+        else:
+            _atd_bad_json('TransitiveUndetermined', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['explanation'] = _atd_write_option(_atd_write_string)(self.explanation)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TransitiveUndetermined':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class TransitiveUnreachable:
     """Original type: transitive_unreachable = { ... }"""
 
@@ -2728,17 +2775,18 @@ class TransitiveUnreachable_:
 
 
 @dataclass
-class TransitiveUndetermined:
-    """Original type: sca_match_kind = [ ... | TransitiveUndetermined | ... ]"""
+class TransitiveUndetermined_:
+    """Original type: sca_match_kind = [ ... | TransitiveUndetermined of ... | ... ]"""
+
+    value: TransitiveUndetermined
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'TransitiveUndetermined'
+        return 'TransitiveUndetermined_'
 
-    @staticmethod
-    def to_json() -> Any:
-        return 'TransitiveUndetermined'
+    def to_json(self) -> Any:
+        return ['TransitiveUndetermined', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -2748,7 +2796,7 @@ class TransitiveUndetermined:
 class ScaMatchKind:
     """Original type: sca_match_kind = [ ... ]"""
 
-    value: Union[LockfileOnlyMatch, DirectReachable, DirectUnreachable, TransitiveReachable_, TransitiveUnreachable_, TransitiveUndetermined]
+    value: Union[LockfileOnlyMatch, DirectReachable, DirectUnreachable, TransitiveReachable_, TransitiveUnreachable_, TransitiveUndetermined_]
 
     @property
     def kind(self) -> str:
@@ -2762,8 +2810,6 @@ class ScaMatchKind:
                 return cls(DirectReachable())
             if x == 'DirectUnreachable':
                 return cls(DirectUnreachable())
-            if x == 'TransitiveUndetermined':
-                return cls(TransitiveUndetermined())
             _atd_bad_json('ScaMatchKind', x)
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
@@ -2773,6 +2819,8 @@ class ScaMatchKind:
                 return cls(TransitiveReachable_(TransitiveReachable.from_json(x[1])))
             if cons == 'TransitiveUnreachable':
                 return cls(TransitiveUnreachable_(TransitiveUnreachable.from_json(x[1])))
+            if cons == 'TransitiveUndetermined':
+                return cls(TransitiveUndetermined_(TransitiveUndetermined.from_json(x[1])))
             _atd_bad_json('ScaMatchKind', x)
         _atd_bad_json('ScaMatchKind', x)
 
@@ -3392,6 +3440,912 @@ class Uri:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class UnresolvedFailed:
+    """Original type: unresolved_reason = [ ... | UnresolvedFailed | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'UnresolvedFailed'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'failed'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class UnresolvedSkipped:
+    """Original type: unresolved_reason = [ ... | UnresolvedSkipped | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'UnresolvedSkipped'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'skipped'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class UnresolvedUnsupported:
+    """Original type: unresolved_reason = [ ... | UnresolvedUnsupported | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'UnresolvedUnsupported'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'unsupported'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class UnresolvedDisabled:
+    """Original type: unresolved_reason = [ ... | UnresolvedDisabled | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'UnresolvedDisabled'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'disabled'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class UnresolvedReason:
+    """Original type: unresolved_reason = [ ... ]"""
+
+    value: Union[UnresolvedFailed, UnresolvedSkipped, UnresolvedUnsupported, UnresolvedDisabled]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'UnresolvedReason':
+        if isinstance(x, str):
+            if x == 'failed':
+                return cls(UnresolvedFailed())
+            if x == 'skipped':
+                return cls(UnresolvedSkipped())
+            if x == 'unsupported':
+                return cls(UnresolvedUnsupported())
+            if x == 'disabled':
+                return cls(UnresolvedDisabled())
+            _atd_bad_json('UnresolvedReason', x)
+        _atd_bad_json('UnresolvedReason', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'UnresolvedReason':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class Subproject:
+    """Original type: subproject = { ... }"""
+
+    root_dir: Fpath
+    ecosystem: Optional[Ecosystem]
+    dependency_source: DependencySource
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Subproject':
+        if isinstance(x, dict):
+            return cls(
+                root_dir=Fpath.from_json(x['root_dir']) if 'root_dir' in x else _atd_missing_json_field('Subproject', 'root_dir'),
+                ecosystem=_atd_read_option(Ecosystem.from_json)(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('Subproject', 'ecosystem'),
+                dependency_source=DependencySource.from_json(x['dependency_source']) if 'dependency_source' in x else _atd_missing_json_field('Subproject', 'dependency_source'),
+            )
+        else:
+            _atd_bad_json('Subproject', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['root_dir'] = (lambda x: x.to_json())(self.root_dir)
+        res['ecosystem'] = _atd_write_option((lambda x: x.to_json()))(self.ecosystem)
+        res['dependency_source'] = (lambda x: x.to_json())(self.dependency_source)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Subproject':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PGemfileLock:
+    """Original type: sca_parser_name = [ ... | PGemfile_lock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PGemfileLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'gemfile_lock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PGoMod:
+    """Original type: sca_parser_name = [ ... | PGo_mod | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PGoMod'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'go_mod'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PGoSum:
+    """Original type: sca_parser_name = [ ... | PGo_sum | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PGoSum'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'go_sum'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PGradleLockfile:
+    """Original type: sca_parser_name = [ ... | PGradle_lockfile | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PGradleLockfile'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'gradle_lockfile'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PGradleBuild:
+    """Original type: sca_parser_name = [ ... | PGradle_build | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PGradleBuild'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'gradle_build'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PJsondoc:
+    """Original type: sca_parser_name = [ ... | PJsondoc | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PJsondoc'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'jsondoc'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PPipfile:
+    """Original type: sca_parser_name = [ ... | PPipfile | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PPipfile'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'pipfile'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PPnpmLock:
+    """Original type: sca_parser_name = [ ... | PPnpm_lock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PPnpmLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'pnpm_lock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PPoetryLock:
+    """Original type: sca_parser_name = [ ... | PPoetry_lock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PPoetryLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'poetry_lock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PPyprojectToml:
+    """Original type: sca_parser_name = [ ... | PPyproject_toml | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PPyprojectToml'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'pyproject_toml'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PRequirements:
+    """Original type: sca_parser_name = [ ... | PRequirements | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PRequirements'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'requirements'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PYarn1:
+    """Original type: sca_parser_name = [ ... | PYarn_1 | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PYarn1'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'yarn_1'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PYarn2:
+    """Original type: sca_parser_name = [ ... | PYarn_2 | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PYarn2'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'yarn_2'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PPomtree:
+    """Original type: sca_parser_name = [ ... | PPomtree | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PPomtree'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'pomtree'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PCargoParser:
+    """Original type: sca_parser_name = [ ... | PCargo_parser | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PCargoParser'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'cargo'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PComposerLock:
+    """Original type: sca_parser_name = [ ... | PComposer_lock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PComposerLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'composer_lock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PPubspecLock:
+    """Original type: sca_parser_name = [ ... | PPubspec_lock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PPubspecLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'pubspec_lock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PPackageSwift:
+    """Original type: sca_parser_name = [ ... | PPackage_swift | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PPackageSwift'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'package_swift'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PPodfileLock:
+    """Original type: sca_parser_name = [ ... | PPodfile_lock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PPodfileLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'podfile_lock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PPackageResolved:
+    """Original type: sca_parser_name = [ ... | PPackage_resolved | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PPackageResolved'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'package_resolved'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class PMixLock:
+    """Original type: sca_parser_name = [ ... | PMix_lock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'PMixLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'mix_lock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScaParserName:
+    """Original type: sca_parser_name = [ ... ]"""
+
+    value: Union[PGemfileLock, PGoMod, PGoSum, PGradleLockfile, PGradleBuild, PJsondoc, PPipfile, PPnpmLock, PPoetryLock, PPyprojectToml, PRequirements, PYarn1, PYarn2, PPomtree, PCargoParser, PComposerLock, PPubspecLock, PPackageSwift, PPodfileLock, PPackageResolved, PMixLock]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaParserName':
+        if isinstance(x, str):
+            if x == 'gemfile_lock':
+                return cls(PGemfileLock())
+            if x == 'go_mod':
+                return cls(PGoMod())
+            if x == 'go_sum':
+                return cls(PGoSum())
+            if x == 'gradle_lockfile':
+                return cls(PGradleLockfile())
+            if x == 'gradle_build':
+                return cls(PGradleBuild())
+            if x == 'jsondoc':
+                return cls(PJsondoc())
+            if x == 'pipfile':
+                return cls(PPipfile())
+            if x == 'pnpm_lock':
+                return cls(PPnpmLock())
+            if x == 'poetry_lock':
+                return cls(PPoetryLock())
+            if x == 'pyproject_toml':
+                return cls(PPyprojectToml())
+            if x == 'requirements':
+                return cls(PRequirements())
+            if x == 'yarn_1':
+                return cls(PYarn1())
+            if x == 'yarn_2':
+                return cls(PYarn2())
+            if x == 'pomtree':
+                return cls(PPomtree())
+            if x == 'cargo':
+                return cls(PCargoParser())
+            if x == 'composer_lock':
+                return cls(PComposerLock())
+            if x == 'pubspec_lock':
+                return cls(PPubspecLock())
+            if x == 'package_swift':
+                return cls(PPackageSwift())
+            if x == 'podfile_lock':
+                return cls(PPodfileLock())
+            if x == 'package_resolved':
+                return cls(PPackageResolved())
+            if x == 'mix_lock':
+                return cls(PMixLock())
+            _atd_bad_json('ScaParserName', x)
+        _atd_bad_json('ScaParserName', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaParserName':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ResolutionCmdFailed:
+    """Original type: resolution_cmd_failed = { ... }"""
+
+    command: str
+    message: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolutionCmdFailed':
+        if isinstance(x, dict):
+            return cls(
+                command=_atd_read_string(x['command']) if 'command' in x else _atd_missing_json_field('ResolutionCmdFailed', 'command'),
+                message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('ResolutionCmdFailed', 'message'),
+            )
+        else:
+            _atd_bad_json('ResolutionCmdFailed', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['command'] = _atd_write_string(self.command)
+        res['message'] = _atd_write_string(self.message)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolutionCmdFailed':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class UnsupportedManifest:
+    """Original type: resolution_error_kind = [ ... | UnsupportedManifest | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'UnsupportedManifest'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'UnsupportedManifest'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class MissingRequirement:
+    """Original type: resolution_error_kind = [ ... | MissingRequirement of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'MissingRequirement'
+
+    def to_json(self) -> Any:
+        return ['MissingRequirement', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ResolutionCmdFailed_:
+    """Original type: resolution_error_kind = [ ... | ResolutionCmdFailed of ... | ... ]"""
+
+    value: ResolutionCmdFailed
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ResolutionCmdFailed_'
+
+    def to_json(self) -> Any:
+        return ['ResolutionCmdFailed', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ParseDependenciesFailed:
+    """Original type: resolution_error_kind = [ ... | ParseDependenciesFailed of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ParseDependenciesFailed'
+
+    def to_json(self) -> Any:
+        return ['ParseDependenciesFailed', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ScaParseError:
+    """Original type: resolution_error_kind = [ ... | ScaParseError of ... | ... ]"""
+
+    value: ScaParserName
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ScaParseError'
+
+    def to_json(self) -> Any:
+        return ['ScaParseError', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ResolutionErrorKind:
+    """Original type: resolution_error_kind = [ ... ]"""
+
+    value: Union[UnsupportedManifest, MissingRequirement, ResolutionCmdFailed_, ParseDependenciesFailed, ScaParseError]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolutionErrorKind':
+        if isinstance(x, str):
+            if x == 'UnsupportedManifest':
+                return cls(UnsupportedManifest())
+            _atd_bad_json('ResolutionErrorKind', x)
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'MissingRequirement':
+                return cls(MissingRequirement(_atd_read_string(x[1])))
+            if cons == 'ResolutionCmdFailed':
+                return cls(ResolutionCmdFailed_(ResolutionCmdFailed.from_json(x[1])))
+            if cons == 'ParseDependenciesFailed':
+                return cls(ParseDependenciesFailed(_atd_read_string(x[1])))
+            if cons == 'ScaParseError':
+                return cls(ScaParseError(ScaParserName.from_json(x[1])))
+            _atd_bad_json('ResolutionErrorKind', x)
+        _atd_bad_json('ResolutionErrorKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolutionErrorKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScaResolutionError:
+    """Original type: sca_resolution_error = { ... }"""
+
+    type_: ResolutionErrorKind
+    dependency_source_file: Fpath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaResolutionError':
+        if isinstance(x, dict):
+            return cls(
+                type_=ResolutionErrorKind.from_json(x['type_']) if 'type_' in x else _atd_missing_json_field('ScaResolutionError', 'type_'),
+                dependency_source_file=Fpath.from_json(x['dependency_source_file']) if 'dependency_source_file' in x else _atd_missing_json_field('ScaResolutionError', 'dependency_source_file'),
+            )
+        else:
+            _atd_bad_json('ScaResolutionError', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['type_'] = (lambda x: x.to_json())(self.type_)
+        res['dependency_source_file'] = (lambda x: x.to_json())(self.dependency_source_file)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaResolutionError':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DependencyParserError:
+    """Original type: dependency_parser_error = { ... }"""
+
+    path: Fpath
+    parser: ScaParserName
+    reason: str
+    line: Optional[int] = None
+    col: Optional[int] = None
+    text: Optional[str] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencyParserError':
+        if isinstance(x, dict):
+            return cls(
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('DependencyParserError', 'path'),
+                parser=ScaParserName.from_json(x['parser']) if 'parser' in x else _atd_missing_json_field('DependencyParserError', 'parser'),
+                reason=_atd_read_string(x['reason']) if 'reason' in x else _atd_missing_json_field('DependencyParserError', 'reason'),
+                line=_atd_read_int(x['line']) if 'line' in x else None,
+                col=_atd_read_int(x['col']) if 'col' in x else None,
+                text=_atd_read_string(x['text']) if 'text' in x else None,
+            )
+        else:
+            _atd_bad_json('DependencyParserError', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['path'] = (lambda x: x.to_json())(self.path)
+        res['parser'] = (lambda x: x.to_json())(self.parser)
+        res['reason'] = _atd_write_string(self.reason)
+        if self.line is not None:
+            res['line'] = _atd_write_int(self.line)
+        if self.col is not None:
+            res['col'] = _atd_write_int(self.col)
+        if self.text is not None:
+            res['text'] = _atd_write_string(self.text)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencyParserError':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class SCAParse:
+    """Original type: sca_error = [ ... | SCAParse of ... | ... ]"""
+
+    value: DependencyParserError
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SCAParse'
+
+    def to_json(self) -> Any:
+        return ['SCAParse', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class SCAResol:
+    """Original type: sca_error = [ ... | SCAResol of ... | ... ]"""
+
+    value: ScaResolutionError
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SCAResol'
+
+    def to_json(self) -> Any:
+        return ['SCAResol', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScaError:
+    """Original type: sca_error = [ ... ]"""
+
+    value: Union[SCAParse, SCAResol]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaError':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'SCAParse':
+                return cls(SCAParse(DependencyParserError.from_json(x[1])))
+            if cons == 'SCAResol':
+                return cls(SCAResol(ScaResolutionError.from_json(x[1])))
+            _atd_bad_json('ScaError', x)
+        _atd_bad_json('ScaError', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaError':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class UnresolvedSubproject:
+    """Original type: unresolved_subproject = { ... }"""
+
+    info: Subproject
+    reason: UnresolvedReason
+    errors: List[ScaError]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'UnresolvedSubproject':
+        if isinstance(x, dict):
+            return cls(
+                info=Subproject.from_json(x['info']) if 'info' in x else _atd_missing_json_field('UnresolvedSubproject', 'info'),
+                reason=UnresolvedReason.from_json(x['reason']) if 'reason' in x else _atd_missing_json_field('UnresolvedSubproject', 'reason'),
+                errors=_atd_read_list(ScaError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('UnresolvedSubproject', 'errors'),
+            )
+        else:
+            _atd_bad_json('UnresolvedSubproject', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['info'] = (lambda x: x.to_json())(self.info)
+        res['reason'] = (lambda x: x.to_json())(self.reason)
+        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'UnresolvedSubproject':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class Snippet:
     """Original type: snippet = { ... }"""
@@ -3819,6 +4773,89 @@ class TransitiveFinding:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'TransitiveFinding':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DownloadedDependency:
+    """Original type: downloaded_dependency = { ... }"""
+
+    source_path: Fpath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DownloadedDependency':
+        if isinstance(x, dict):
+            return cls(
+                source_path=Fpath.from_json(x['source_path']) if 'source_path' in x else _atd_missing_json_field('DownloadedDependency', 'source_path'),
+            )
+        else:
+            _atd_bad_json('DownloadedDependency', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['source_path'] = (lambda x: x.to_json())(self.source_path)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DownloadedDependency':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ResolvedDependency:
+    """Original type: resolved_dependency"""
+
+    value: Tuple[FoundDependency, Optional[DownloadedDependency]]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolvedDependency':
+        return cls((lambda x: (FoundDependency.from_json(x[0]), _atd_read_option(DownloadedDependency.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x))
+
+    def to_json(self) -> Any:
+        return (lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_option((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolvedDependency':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TransitiveReachabilityFilterParams:
+    """Original type: transitive_reachability_filter_params = { ... }"""
+
+    rules_path: Fpath
+    findings: List[TransitiveFinding]
+    dependencies: List[ResolvedDependency]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TransitiveReachabilityFilterParams':
+        if isinstance(x, dict):
+            return cls(
+                rules_path=Fpath.from_json(x['rules_path']) if 'rules_path' in x else _atd_missing_json_field('TransitiveReachabilityFilterParams', 'rules_path'),
+                findings=_atd_read_list(TransitiveFinding.from_json)(x['findings']) if 'findings' in x else _atd_missing_json_field('TransitiveReachabilityFilterParams', 'findings'),
+                dependencies=_atd_read_list(ResolvedDependency.from_json)(x['dependencies']) if 'dependencies' in x else _atd_missing_json_field('TransitiveReachabilityFilterParams', 'dependencies'),
+            )
+        else:
+            _atd_bad_json('TransitiveReachabilityFilterParams', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['rules_path'] = (lambda x: x.to_json())(self.rules_path)
+        res['findings'] = _atd_write_list((lambda x: x.to_json()))(self.findings)
+        res['dependencies'] = _atd_write_list((lambda x: x.to_json()))(self.dependencies)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TransitiveReachabilityFilterParams':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -4350,7 +5387,6 @@ class TargetingConf:
     explicit_targets: List[str]
     force_novcs_project: bool
     exclude_minified_files: bool
-    diff_depth: int
     include_: Optional[List[str]] = None
     force_project_root: Optional[ProjectRoot] = None
     baseline_commit: Optional[str] = None
@@ -4367,7 +5403,6 @@ class TargetingConf:
                 explicit_targets=_atd_read_list(_atd_read_string)(x['explicit_targets']) if 'explicit_targets' in x else _atd_missing_json_field('TargetingConf', 'explicit_targets'),
                 force_novcs_project=_atd_read_bool(x['force_novcs_project']) if 'force_novcs_project' in x else _atd_missing_json_field('TargetingConf', 'force_novcs_project'),
                 exclude_minified_files=_atd_read_bool(x['exclude_minified_files']) if 'exclude_minified_files' in x else _atd_missing_json_field('TargetingConf', 'exclude_minified_files'),
-                diff_depth=_atd_read_int(x['diff_depth']) if 'diff_depth' in x else _atd_missing_json_field('TargetingConf', 'diff_depth'),
                 include_=_atd_read_list(_atd_read_string)(x['include_']) if 'include_' in x else None,
                 force_project_root=ProjectRoot.from_json(x['force_project_root']) if 'force_project_root' in x else None,
                 baseline_commit=_atd_read_string(x['baseline_commit']) if 'baseline_commit' in x else None,
@@ -4385,7 +5420,6 @@ class TargetingConf:
         res['explicit_targets'] = _atd_write_list(_atd_write_string)(self.explicit_targets)
         res['force_novcs_project'] = _atd_write_bool(self.force_novcs_project)
         res['exclude_minified_files'] = _atd_write_bool(self.exclude_minified_files)
-        res['diff_depth'] = _atd_write_int(self.diff_depth)
         if self.include_ is not None:
             res['include_'] = _atd_write_list(_atd_write_string)(self.include_)
         if self.force_project_root is not None:
@@ -5139,594 +6173,6 @@ class SkippedTarget:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'SkippedTarget':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PGemfileLock:
-    """Original type: sca_parser_name = [ ... | PGemfile_lock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PGemfileLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'gemfile_lock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PGoMod:
-    """Original type: sca_parser_name = [ ... | PGo_mod | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PGoMod'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'go_mod'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PGoSum:
-    """Original type: sca_parser_name = [ ... | PGo_sum | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PGoSum'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'go_sum'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PGradleLockfile:
-    """Original type: sca_parser_name = [ ... | PGradle_lockfile | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PGradleLockfile'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'gradle_lockfile'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PGradleBuild:
-    """Original type: sca_parser_name = [ ... | PGradle_build | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PGradleBuild'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'gradle_build'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PJsondoc:
-    """Original type: sca_parser_name = [ ... | PJsondoc | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PJsondoc'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'jsondoc'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PPipfile:
-    """Original type: sca_parser_name = [ ... | PPipfile | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PPipfile'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'pipfile'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PPnpmLock:
-    """Original type: sca_parser_name = [ ... | PPnpm_lock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PPnpmLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'pnpm_lock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PPoetryLock:
-    """Original type: sca_parser_name = [ ... | PPoetry_lock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PPoetryLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'poetry_lock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PPyprojectToml:
-    """Original type: sca_parser_name = [ ... | PPyproject_toml | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PPyprojectToml'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'pyproject_toml'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PRequirements:
-    """Original type: sca_parser_name = [ ... | PRequirements | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PRequirements'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'requirements'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PYarn1:
-    """Original type: sca_parser_name = [ ... | PYarn_1 | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PYarn1'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'yarn_1'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PYarn2:
-    """Original type: sca_parser_name = [ ... | PYarn_2 | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PYarn2'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'yarn_2'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PPomtree:
-    """Original type: sca_parser_name = [ ... | PPomtree | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PPomtree'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'pomtree'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PCargoParser:
-    """Original type: sca_parser_name = [ ... | PCargo_parser | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PCargoParser'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'cargo'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PComposerLock:
-    """Original type: sca_parser_name = [ ... | PComposer_lock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PComposerLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'composer_lock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PPubspecLock:
-    """Original type: sca_parser_name = [ ... | PPubspec_lock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PPubspecLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'pubspec_lock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PPackageSwift:
-    """Original type: sca_parser_name = [ ... | PPackage_swift | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PPackageSwift'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'package_swift'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PPodfileLock:
-    """Original type: sca_parser_name = [ ... | PPodfile_lock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PPodfileLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'podfile_lock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PPackageResolved:
-    """Original type: sca_parser_name = [ ... | PPackage_resolved | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PPackageResolved'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'package_resolved'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class PMixLock:
-    """Original type: sca_parser_name = [ ... | PMix_lock | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'PMixLock'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'mix_lock'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class ScaParserName:
-    """Original type: sca_parser_name = [ ... ]"""
-
-    value: Union[PGemfileLock, PGoMod, PGoSum, PGradleLockfile, PGradleBuild, PJsondoc, PPipfile, PPnpmLock, PPoetryLock, PPyprojectToml, PRequirements, PYarn1, PYarn2, PPomtree, PCargoParser, PComposerLock, PPubspecLock, PPackageSwift, PPodfileLock, PPackageResolved, PMixLock]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ScaParserName':
-        if isinstance(x, str):
-            if x == 'gemfile_lock':
-                return cls(PGemfileLock())
-            if x == 'go_mod':
-                return cls(PGoMod())
-            if x == 'go_sum':
-                return cls(PGoSum())
-            if x == 'gradle_lockfile':
-                return cls(PGradleLockfile())
-            if x == 'gradle_build':
-                return cls(PGradleBuild())
-            if x == 'jsondoc':
-                return cls(PJsondoc())
-            if x == 'pipfile':
-                return cls(PPipfile())
-            if x == 'pnpm_lock':
-                return cls(PPnpmLock())
-            if x == 'poetry_lock':
-                return cls(PPoetryLock())
-            if x == 'pyproject_toml':
-                return cls(PPyprojectToml())
-            if x == 'requirements':
-                return cls(PRequirements())
-            if x == 'yarn_1':
-                return cls(PYarn1())
-            if x == 'yarn_2':
-                return cls(PYarn2())
-            if x == 'pomtree':
-                return cls(PPomtree())
-            if x == 'cargo':
-                return cls(PCargoParser())
-            if x == 'composer_lock':
-                return cls(PComposerLock())
-            if x == 'pubspec_lock':
-                return cls(PPubspecLock())
-            if x == 'package_swift':
-                return cls(PPackageSwift())
-            if x == 'podfile_lock':
-                return cls(PPodfileLock())
-            if x == 'package_resolved':
-                return cls(PPackageResolved())
-            if x == 'mix_lock':
-                return cls(PMixLock())
-            _atd_bad_json('ScaParserName', x)
-        _atd_bad_json('ScaParserName', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ScaParserName':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class ResolutionCmdFailed:
-    """Original type: resolution_cmd_failed = { ... }"""
-
-    command: str
-    message: str
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ResolutionCmdFailed':
-        if isinstance(x, dict):
-            return cls(
-                command=_atd_read_string(x['command']) if 'command' in x else _atd_missing_json_field('ResolutionCmdFailed', 'command'),
-                message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('ResolutionCmdFailed', 'message'),
-            )
-        else:
-            _atd_bad_json('ResolutionCmdFailed', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['command'] = _atd_write_string(self.command)
-        res['message'] = _atd_write_string(self.message)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ResolutionCmdFailed':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class UnsupportedManifest:
-    """Original type: resolution_error_kind = [ ... | UnsupportedManifest | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'UnsupportedManifest'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'UnsupportedManifest'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class MissingRequirement:
-    """Original type: resolution_error_kind = [ ... | MissingRequirement of ... | ... ]"""
-
-    value: str
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'MissingRequirement'
-
-    def to_json(self) -> Any:
-        return ['MissingRequirement', _atd_write_string(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class ResolutionCmdFailed_:
-    """Original type: resolution_error_kind = [ ... | ResolutionCmdFailed of ... | ... ]"""
-
-    value: ResolutionCmdFailed
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'ResolutionCmdFailed_'
-
-    def to_json(self) -> Any:
-        return ['ResolutionCmdFailed', (lambda x: x.to_json())(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class ParseDependenciesFailed:
-    """Original type: resolution_error_kind = [ ... | ParseDependenciesFailed of ... | ... ]"""
-
-    value: str
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'ParseDependenciesFailed'
-
-    def to_json(self) -> Any:
-        return ['ParseDependenciesFailed', _atd_write_string(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class ScaParseError:
-    """Original type: resolution_error_kind = [ ... | ScaParseError of ... | ... ]"""
-
-    value: ScaParserName
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'ScaParseError'
-
-    def to_json(self) -> Any:
-        return ['ScaParseError', (lambda x: x.to_json())(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class ResolutionErrorKind:
-    """Original type: resolution_error_kind = [ ... ]"""
-
-    value: Union[UnsupportedManifest, MissingRequirement, ResolutionCmdFailed_, ParseDependenciesFailed, ScaParseError]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ResolutionErrorKind':
-        if isinstance(x, str):
-            if x == 'UnsupportedManifest':
-                return cls(UnsupportedManifest())
-            _atd_bad_json('ResolutionErrorKind', x)
-        if isinstance(x, List) and len(x) == 2:
-            cons = x[0]
-            if cons == 'MissingRequirement':
-                return cls(MissingRequirement(_atd_read_string(x[1])))
-            if cons == 'ResolutionCmdFailed':
-                return cls(ResolutionCmdFailed_(ResolutionCmdFailed.from_json(x[1])))
-            if cons == 'ParseDependenciesFailed':
-                return cls(ParseDependenciesFailed(_atd_read_string(x[1])))
-            if cons == 'ScaParseError':
-                return cls(ScaParseError(ScaParserName.from_json(x[1])))
-            _atd_bad_json('ResolutionErrorKind', x)
-        _atd_bad_json('ResolutionErrorKind', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ResolutionErrorKind':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -6774,6 +7220,8 @@ class SubprojectStats:
     subproject_id: str
     dependency_sources: List[DependencySourceFile]
     resolved_stats: Optional[DependencyResolutionStats] = None
+    unresolved_reason: Optional[UnresolvedReason] = None
+    errors: List[ScaError] = field(default_factory=lambda: [])
 
     @classmethod
     def from_json(cls, x: Any) -> 'SubprojectStats':
@@ -6782,6 +7230,8 @@ class SubprojectStats:
                 subproject_id=_atd_read_string(x['subproject_id']) if 'subproject_id' in x else _atd_missing_json_field('SubprojectStats', 'subproject_id'),
                 dependency_sources=_atd_read_list(DependencySourceFile.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('SubprojectStats', 'dependency_sources'),
                 resolved_stats=DependencyResolutionStats.from_json(x['resolved_stats']) if 'resolved_stats' in x else None,
+                unresolved_reason=UnresolvedReason.from_json(x['unresolved_reason']) if 'unresolved_reason' in x else None,
+                errors=_atd_read_list(ScaError.from_json)(x['errors']) if 'errors' in x else [],
             )
         else:
             _atd_bad_json('SubprojectStats', x)
@@ -6792,6 +7242,9 @@ class SubprojectStats:
         res['dependency_sources'] = _atd_write_list((lambda x: x.to_json()))(self.dependency_sources)
         if self.resolved_stats is not None:
             res['resolved_stats'] = (lambda x: x.to_json())(self.resolved_stats)
+        if self.unresolved_reason is not None:
+            res['unresolved_reason'] = (lambda x: x.to_json())(self.unresolved_reason)
+        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         return res
 
     @classmethod
@@ -7632,152 +8085,6 @@ class ScanConfig:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
-class ScaResolutionError:
-    """Original type: sca_resolution_error = { ... }"""
-
-    type_: ResolutionErrorKind
-    dependency_source_file: Fpath
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ScaResolutionError':
-        if isinstance(x, dict):
-            return cls(
-                type_=ResolutionErrorKind.from_json(x['type_']) if 'type_' in x else _atd_missing_json_field('ScaResolutionError', 'type_'),
-                dependency_source_file=Fpath.from_json(x['dependency_source_file']) if 'dependency_source_file' in x else _atd_missing_json_field('ScaResolutionError', 'dependency_source_file'),
-            )
-        else:
-            _atd_bad_json('ScaResolutionError', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['type_'] = (lambda x: x.to_json())(self.type_)
-        res['dependency_source_file'] = (lambda x: x.to_json())(self.dependency_source_file)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ScaResolutionError':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class DependencyParserError:
-    """Original type: dependency_parser_error = { ... }"""
-
-    path: Fpath
-    parser: ScaParserName
-    reason: str
-    line: Optional[int] = None
-    col: Optional[int] = None
-    text: Optional[str] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'DependencyParserError':
-        if isinstance(x, dict):
-            return cls(
-                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('DependencyParserError', 'path'),
-                parser=ScaParserName.from_json(x['parser']) if 'parser' in x else _atd_missing_json_field('DependencyParserError', 'parser'),
-                reason=_atd_read_string(x['reason']) if 'reason' in x else _atd_missing_json_field('DependencyParserError', 'reason'),
-                line=_atd_read_int(x['line']) if 'line' in x else None,
-                col=_atd_read_int(x['col']) if 'col' in x else None,
-                text=_atd_read_string(x['text']) if 'text' in x else None,
-            )
-        else:
-            _atd_bad_json('DependencyParserError', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['path'] = (lambda x: x.to_json())(self.path)
-        res['parser'] = (lambda x: x.to_json())(self.parser)
-        res['reason'] = _atd_write_string(self.reason)
-        if self.line is not None:
-            res['line'] = _atd_write_int(self.line)
-        if self.col is not None:
-            res['col'] = _atd_write_int(self.col)
-        if self.text is not None:
-            res['text'] = _atd_write_string(self.text)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'DependencyParserError':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class SCAParse:
-    """Original type: sca_error = [ ... | SCAParse of ... | ... ]"""
-
-    value: DependencyParserError
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'SCAParse'
-
-    def to_json(self) -> Any:
-        return ['SCAParse', (lambda x: x.to_json())(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class SCAResol:
-    """Original type: sca_error = [ ... | SCAResol of ... | ... ]"""
-
-    value: ScaResolutionError
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'SCAResol'
-
-    def to_json(self) -> Any:
-        return ['SCAResol', (lambda x: x.to_json())(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class ScaError:
-    """Original type: sca_error = [ ... ]"""
-
-    value: Union[SCAParse, SCAResol]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ScaError':
-        if isinstance(x, List) and len(x) == 2:
-            cons = x[0]
-            if cons == 'SCAParse':
-                return cls(SCAParse(DependencyParserError.from_json(x[1])))
-            if cons == 'SCAResol':
-                return cls(SCAResol(ScaResolutionError.from_json(x[1])))
-            _atd_bad_json('ScaError', x)
-        _atd_bad_json('ScaError', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ScaError':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass(frozen=True)
 class SarifFormat:
     """Original type: sarif_format = { ... }"""
@@ -7899,11 +8206,82 @@ class RuleIdAndEngineKind:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class ResolvedSubproject:
+    """Original type: resolved_subproject = { ... }"""
+
+    info: Subproject
+    resolution_method: ResolutionMethod
+    ecosystem: Ecosystem
+    resolved_dependencies: Dict[DependencyChild, List[ResolvedDependency]]
+    errors: List[ScaError]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolvedSubproject':
+        if isinstance(x, dict):
+            return cls(
+                info=Subproject.from_json(x['info']) if 'info' in x else _atd_missing_json_field('ResolvedSubproject', 'info'),
+                resolution_method=ResolutionMethod.from_json(x['resolution_method']) if 'resolution_method' in x else _atd_missing_json_field('ResolvedSubproject', 'resolution_method'),
+                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('ResolvedSubproject', 'ecosystem'),
+                resolved_dependencies=_atd_read_assoc_array_into_dict(DependencyChild.from_json, _atd_read_list(ResolvedDependency.from_json))(x['resolved_dependencies']) if 'resolved_dependencies' in x else _atd_missing_json_field('ResolvedSubproject', 'resolved_dependencies'),
+                errors=_atd_read_list(ScaError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('ResolvedSubproject', 'errors'),
+            )
+        else:
+            _atd_bad_json('ResolvedSubproject', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['info'] = (lambda x: x.to_json())(self.info)
+        res['resolution_method'] = (lambda x: x.to_json())(self.resolution_method)
+        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
+        res['resolved_dependencies'] = _atd_write_assoc_dict_to_array((lambda x: x.to_json()), _atd_write_list((lambda x: x.to_json())))(self.resolved_dependencies)
+        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolvedSubproject':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ResolveDependenciesParams:
+    """Original type: resolve_dependencies_params = { ... }"""
+
+    dependency_sources: List[DependencySource]
+    download_dependency_source_code: bool
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolveDependenciesParams':
+        if isinstance(x, dict):
+            return cls(
+                dependency_sources=_atd_read_list(DependencySource.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('ResolveDependenciesParams', 'dependency_sources'),
+                download_dependency_source_code=_atd_read_bool(x['download_dependency_source_code']) if 'download_dependency_source_code' in x else _atd_missing_json_field('ResolveDependenciesParams', 'download_dependency_source_code'),
+            )
+        else:
+            _atd_bad_json('ResolveDependenciesParams', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['dependency_sources'] = _atd_write_list((lambda x: x.to_json()))(self.dependency_sources)
+        res['download_dependency_source_code'] = _atd_write_bool(self.download_dependency_source_code)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolveDependenciesParams':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class ResolutionOk:
     """Original type: resolution_result = [ ... | ResolutionOk of ... | ... ]"""
 
-    value: Tuple[List[FoundDependency], List[ResolutionErrorKind]]
+    value: Tuple[List[ResolvedDependency], List[ResolutionErrorKind]]
 
     @property
     def kind(self) -> str:
@@ -7951,7 +8329,7 @@ class ResolutionResult:
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'ResolutionOk':
-                return cls(ResolutionOk((lambda x: (_atd_read_list(FoundDependency.from_json)(x[0]), _atd_read_list(ResolutionErrorKind.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+                return cls(ResolutionOk((lambda x: (_atd_read_list(ResolvedDependency.from_json)(x[0]), _atd_read_list(ResolutionErrorKind.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
             if cons == 'ResolutionError':
                 return cls(ResolutionError(_atd_read_list(ResolutionErrorKind.from_json)(x[1])))
             _atd_bad_json('ResolutionResult', x)
@@ -9628,7 +10006,7 @@ class CallValidate:
 class CallResolveDependencies:
     """Original type: function_call = [ ... | CallResolveDependencies of ... | ... ]"""
 
-    value: List[DependencySource]
+    value: ResolveDependenciesParams
 
     @property
     def kind(self) -> str:
@@ -9636,7 +10014,7 @@ class CallResolveDependencies:
         return 'CallResolveDependencies'
 
     def to_json(self) -> Any:
-        return ['CallResolveDependencies', _atd_write_list((lambda x: x.to_json()))(self.value)]
+        return ['CallResolveDependencies', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -9679,24 +10057,6 @@ class CallDumpRulePartitions:
 
 
 @dataclass(frozen=True)
-class CallTransitiveReachabilityFilter:
-    """Original type: function_call = [ ... | CallTransitiveReachabilityFilter of ... | ... ]"""
-
-    value: List[TransitiveFinding]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'CallTransitiveReachabilityFilter'
-
-    def to_json(self) -> Any:
-        return ['CallTransitiveReachabilityFilter', _atd_write_list((lambda x: x.to_json()))(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
 class CallGetTargets:
     """Original type: function_call = [ ... | CallGetTargets of ... | ... ]"""
 
@@ -9715,10 +10075,28 @@ class CallGetTargets:
 
 
 @dataclass(frozen=True)
+class CallTransitiveReachabilityFilter:
+    """Original type: function_call = [ ... | CallTransitiveReachabilityFilter of ... | ... ]"""
+
+    value: TransitiveReachabilityFilterParams
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallTransitiveReachabilityFilter'
+
+    def to_json(self) -> Any:
+        return ['CallTransitiveReachabilityFilter', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionCall:
     """Original type: function_call = [ ... ]"""
 
-    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallTransitiveReachabilityFilter, CallGetTargets]
+    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallGetTargets, CallTransitiveReachabilityFilter]
 
     @property
     def kind(self) -> str:
@@ -9742,15 +10120,15 @@ class FunctionCall:
             if cons == 'CallValidate':
                 return cls(CallValidate(Fpath.from_json(x[1])))
             if cons == 'CallResolveDependencies':
-                return cls(CallResolveDependencies(_atd_read_list(DependencySource.from_json)(x[1])))
+                return cls(CallResolveDependencies(ResolveDependenciesParams.from_json(x[1])))
             if cons == 'CallUploadSymbolAnalysis':
                 return cls(CallUploadSymbolAnalysis((lambda x: (_atd_read_string(x[0]), _atd_read_int(x[1]), SymbolAnalysis.from_json(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
             if cons == 'CallDumpRulePartitions':
                 return cls(CallDumpRulePartitions(DumpRulePartitionsParams.from_json(x[1])))
-            if cons == 'CallTransitiveReachabilityFilter':
-                return cls(CallTransitiveReachabilityFilter(_atd_read_list(TransitiveFinding.from_json)(x[1])))
             if cons == 'CallGetTargets':
                 return cls(CallGetTargets(ScanningRoots.from_json(x[1])))
+            if cons == 'CallTransitiveReachabilityFilter':
+                return cls(CallTransitiveReachabilityFilter(TransitiveReachabilityFilterParams.from_json(x[1])))
             _atd_bad_json('FunctionCall', x)
         _atd_bad_json('FunctionCall', x)
 

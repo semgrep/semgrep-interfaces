@@ -204,7 +204,7 @@ export type ScaMatchKind =
 | { kind: 'DirectUnreachable' }
 | { kind: 'TransitiveReachable'; value: TransitiveReachable }
 | { kind: 'TransitiveUnreachable'; value: TransitiveUnreachable }
-| { kind: 'TransitiveUndetermined' }
+| { kind: 'TransitiveUndetermined'; value: TransitiveUndetermined }
 
 export type TransitiveReachable = {
   explanation: Option<string>;
@@ -212,6 +212,10 @@ export type TransitiveReachable = {
 }
 
 export type TransitiveUnreachable = {
+  explanation: Option<string>;
+}
+
+export type TransitiveUndetermined = {
   explanation: Option<string>;
 }
 
@@ -731,6 +735,8 @@ export type SubprojectStats = {
   subproject_id: string;
   dependency_sources: DependencySourceFile[];
   resolved_stats?: DependencyResolutionStats;
+  unresolved_reason?: UnresolvedReason;
+  errors: ScaError[];
 }
 
 export type DependencySourceFile = {
@@ -911,7 +917,6 @@ export type TargetingConf = {
   force_novcs_project: boolean;
   exclude_minified_files: boolean;
   baseline_commit?: string;
-  diff_depth: number /*int*/;
 }
 
 export type Analyzer = string
@@ -1006,6 +1011,7 @@ export type LockfileKind =
 
 export type ManifestKind =
 | { kind: 'RequirementsIn' }
+| { kind: 'SetupPy' }
 | { kind: 'PackageJson' }
 | { kind: 'Gemfile' }
 | { kind: 'GoMod' }
@@ -1048,6 +1054,11 @@ export type ResolutionErrorKind =
 | { kind: 'ParseDependenciesFailed'; value: string }
 | { kind: 'ScaParseError'; value: ScaParserName }
 
+export type ResolutionCmdFailed = {
+  command: string;
+  message: string;
+}
+
 export type ScaResolutionError = {
   type_: ResolutionErrorKind;
   dependency_source_file: Fpath;
@@ -1057,17 +1068,55 @@ export type ScaError =
 | { kind: 'SCAParse'; value: DependencyParserError }
 | { kind: 'SCAResol'; value: ScaResolutionError }
 
-export type ResolutionCmdFailed = {
-  command: string;
-  message: string;
+export type Subproject = {
+  root_dir: Fpath;
+  ecosystem: Option<Ecosystem>;
+  dependency_source: DependencySource;
+}
+
+export type ResolvedSubproject = {
+  info: Subproject;
+  resolution_method: ResolutionMethod;
+  ecosystem: Ecosystem;
+  resolved_dependencies: [DependencyChild, ResolvedDependency[]][];
+  errors: ScaError[];
+}
+
+export type ResolvedDependency = [FoundDependency, Option<DownloadedDependency>]
+
+export type DownloadedDependency = {
+  source_path: Fpath;
+}
+
+export type UnresolvedReason =
+| { kind: 'UnresolvedFailed' /* JSON: "failed" */ }
+| { kind: 'UnresolvedSkipped' /* JSON: "skipped" */ }
+| { kind: 'UnresolvedUnsupported' /* JSON: "unsupported" */ }
+| { kind: 'UnresolvedDisabled' /* JSON: "disabled" */ }
+
+export type UnresolvedSubproject = {
+  info: Subproject;
+  reason: UnresolvedReason;
+  errors: ScaError[];
+}
+
+export type ResolveDependenciesParams = {
+  dependency_sources: DependencySource[];
+  download_dependency_source_code: boolean;
 }
 
 export type ResolutionResult =
-| { kind: 'ResolutionOk'; value: [FoundDependency[], ResolutionErrorKind[]] }
+| { kind: 'ResolutionOk'; value: [ResolvedDependency[], ResolutionErrorKind[]] }
 | { kind: 'ResolutionError'; value: ResolutionErrorKind[] }
 
 export type TransitiveFinding = {
   m: CoreMatch;
+}
+
+export type TransitiveReachabilityFilterParams = {
+  rules_path: Fpath;
+  findings: TransitiveFinding[];
+  dependencies: ResolvedDependency[];
 }
 
 export type Symbol = {
@@ -1087,11 +1136,11 @@ export type FunctionCall =
 | { kind: 'CallFormatter'; value: [OutputFormat, FormatContext, CliOutput] }
 | { kind: 'CallSarifFormat'; value: [SarifFormat, FormatContext, CliOutput] }
 | { kind: 'CallValidate'; value: Fpath }
-| { kind: 'CallResolveDependencies'; value: DependencySource[] }
+| { kind: 'CallResolveDependencies'; value: ResolveDependenciesParams }
 | { kind: 'CallUploadSymbolAnalysis'; value: [string, number /*int*/, SymbolAnalysis] }
 | { kind: 'CallDumpRulePartitions'; value: DumpRulePartitionsParams }
-| { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveFinding[] }
 | { kind: 'CallGetTargets'; value: ScanningRoots }
+| { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveReachabilityFilterParams }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -1805,7 +1854,7 @@ export function writeScaMatchKind(x: ScaMatchKind, context: any = x): any {
     case 'TransitiveUnreachable':
       return ['TransitiveUnreachable', writeTransitiveUnreachable(x.value, x)]
     case 'TransitiveUndetermined':
-      return 'TransitiveUndetermined'
+      return ['TransitiveUndetermined', writeTransitiveUndetermined(x.value, x)]
   }
 }
 
@@ -1816,8 +1865,6 @@ export function readScaMatchKind(x: any, context: any = x): ScaMatchKind {
         return { kind: 'DirectReachable' }
       case 'DirectUnreachable':
         return { kind: 'DirectUnreachable' }
-      case 'TransitiveUndetermined':
-        return { kind: 'TransitiveUndetermined' }
       default:
         _atd_bad_json('ScaMatchKind', x, context)
         throw new Error('impossible')
@@ -1832,6 +1879,8 @@ export function readScaMatchKind(x: any, context: any = x): ScaMatchKind {
         return { kind: 'TransitiveReachable', value: readTransitiveReachable(x[1], x) }
       case 'TransitiveUnreachable':
         return { kind: 'TransitiveUnreachable', value: readTransitiveUnreachable(x[1], x) }
+      case 'TransitiveUndetermined':
+        return { kind: 'TransitiveUndetermined', value: readTransitiveUndetermined(x[1], x) }
       default:
         _atd_bad_json('ScaMatchKind', x, context)
         throw new Error('impossible')
@@ -1862,6 +1911,18 @@ export function writeTransitiveUnreachable(x: TransitiveUnreachable, context: an
 export function readTransitiveUnreachable(x: any, context: any = x): TransitiveUnreachable {
   return {
     explanation: _atd_read_required_field('TransitiveUnreachable', 'explanation', _atd_read_option(_atd_read_string), x['explanation'], x),
+  };
+}
+
+export function writeTransitiveUndetermined(x: TransitiveUndetermined, context: any = x): any {
+  return {
+    'explanation': _atd_write_required_field('TransitiveUndetermined', 'explanation', _atd_write_option(_atd_write_string), x.explanation, x),
+  };
+}
+
+export function readTransitiveUndetermined(x: any, context: any = x): TransitiveUndetermined {
+  return {
+    explanation: _atd_read_required_field('TransitiveUndetermined', 'explanation', _atd_read_option(_atd_read_string), x['explanation'], x),
   };
 }
 
@@ -3390,6 +3451,8 @@ export function writeSubprojectStats(x: SubprojectStats, context: any = x): any 
     'subproject_id': _atd_write_required_field('SubprojectStats', 'subproject_id', _atd_write_string, x.subproject_id, x),
     'dependency_sources': _atd_write_required_field('SubprojectStats', 'dependency_sources', _atd_write_array(writeDependencySourceFile), x.dependency_sources, x),
     'resolved_stats': _atd_write_optional_field(writeDependencyResolutionStats, x.resolved_stats, x),
+    'unresolved_reason': _atd_write_optional_field(writeUnresolvedReason, x.unresolved_reason, x),
+    'errors': _atd_write_field_with_default(_atd_write_array(writeScaError), [], x.errors, x),
   };
 }
 
@@ -3398,6 +3461,8 @@ export function readSubprojectStats(x: any, context: any = x): SubprojectStats {
     subproject_id: _atd_read_required_field('SubprojectStats', 'subproject_id', _atd_read_string, x['subproject_id'], x),
     dependency_sources: _atd_read_required_field('SubprojectStats', 'dependency_sources', _atd_read_array(readDependencySourceFile), x['dependency_sources'], x),
     resolved_stats: _atd_read_optional_field(readDependencyResolutionStats, x['resolved_stats'], x),
+    unresolved_reason: _atd_read_optional_field(readUnresolvedReason, x['unresolved_reason'], x),
+    errors: _atd_read_field_with_default(_atd_read_array(readScaError), [], x['errors'], x),
   };
 }
 
@@ -3867,7 +3932,6 @@ export function writeTargetingConf(x: TargetingConf, context: any = x): any {
     'force_novcs_project': _atd_write_required_field('TargetingConf', 'force_novcs_project', _atd_write_bool, x.force_novcs_project, x),
     'exclude_minified_files': _atd_write_required_field('TargetingConf', 'exclude_minified_files', _atd_write_bool, x.exclude_minified_files, x),
     'baseline_commit': _atd_write_optional_field(_atd_write_string, x.baseline_commit, x),
-    'diff_depth': _atd_write_required_field('TargetingConf', 'diff_depth', _atd_write_int, x.diff_depth, x),
   };
 }
 
@@ -3884,7 +3948,6 @@ export function readTargetingConf(x: any, context: any = x): TargetingConf {
     force_novcs_project: _atd_read_required_field('TargetingConf', 'force_novcs_project', _atd_read_bool, x['force_novcs_project'], x),
     exclude_minified_files: _atd_read_required_field('TargetingConf', 'exclude_minified_files', _atd_read_bool, x['exclude_minified_files'], x),
     baseline_commit: _atd_read_optional_field(_atd_read_string, x['baseline_commit'], x),
-    diff_depth: _atd_read_required_field('TargetingConf', 'diff_depth', _atd_read_int, x['diff_depth'], x),
   };
 }
 
@@ -4212,6 +4275,8 @@ export function writeManifestKind(x: ManifestKind, context: any = x): any {
   switch (x.kind) {
     case 'RequirementsIn':
       return 'RequirementsIn'
+    case 'SetupPy':
+      return 'SetupPy'
     case 'PackageJson':
       return 'PackageJson'
     case 'Gemfile':
@@ -4255,6 +4320,8 @@ export function readManifestKind(x: any, context: any = x): ManifestKind {
   switch (x) {
     case 'RequirementsIn':
       return { kind: 'RequirementsIn' }
+    case 'SetupPy':
+      return { kind: 'SetupPy' }
     case 'PackageJson':
       return { kind: 'PackageJson' }
     case 'Gemfile':
@@ -4398,6 +4465,20 @@ export function readResolutionErrorKind(x: any, context: any = x): ResolutionErr
   }
 }
 
+export function writeResolutionCmdFailed(x: ResolutionCmdFailed, context: any = x): any {
+  return {
+    'command': _atd_write_required_field('ResolutionCmdFailed', 'command', _atd_write_string, x.command, x),
+    'message': _atd_write_required_field('ResolutionCmdFailed', 'message', _atd_write_string, x.message, x),
+  };
+}
+
+export function readResolutionCmdFailed(x: any, context: any = x): ResolutionCmdFailed {
+  return {
+    command: _atd_read_required_field('ResolutionCmdFailed', 'command', _atd_read_string, x['command'], x),
+    message: _atd_read_required_field('ResolutionCmdFailed', 'message', _atd_read_string, x['message'], x),
+  };
+}
+
 export function writeScaResolutionError(x: ScaResolutionError, context: any = x): any {
   return {
     'type_': _atd_write_required_field('ScaResolutionError', 'type_', writeResolutionErrorKind, x.type_, x),
@@ -4434,24 +4515,125 @@ export function readScaError(x: any, context: any = x): ScaError {
   }
 }
 
-export function writeResolutionCmdFailed(x: ResolutionCmdFailed, context: any = x): any {
+export function writeSubproject(x: Subproject, context: any = x): any {
   return {
-    'command': _atd_write_required_field('ResolutionCmdFailed', 'command', _atd_write_string, x.command, x),
-    'message': _atd_write_required_field('ResolutionCmdFailed', 'message', _atd_write_string, x.message, x),
+    'root_dir': _atd_write_required_field('Subproject', 'root_dir', writeFpath, x.root_dir, x),
+    'ecosystem': _atd_write_required_field('Subproject', 'ecosystem', _atd_write_option(writeEcosystem), x.ecosystem, x),
+    'dependency_source': _atd_write_required_field('Subproject', 'dependency_source', writeDependencySource, x.dependency_source, x),
   };
 }
 
-export function readResolutionCmdFailed(x: any, context: any = x): ResolutionCmdFailed {
+export function readSubproject(x: any, context: any = x): Subproject {
   return {
-    command: _atd_read_required_field('ResolutionCmdFailed', 'command', _atd_read_string, x['command'], x),
-    message: _atd_read_required_field('ResolutionCmdFailed', 'message', _atd_read_string, x['message'], x),
+    root_dir: _atd_read_required_field('Subproject', 'root_dir', readFpath, x['root_dir'], x),
+    ecosystem: _atd_read_required_field('Subproject', 'ecosystem', _atd_read_option(readEcosystem), x['ecosystem'], x),
+    dependency_source: _atd_read_required_field('Subproject', 'dependency_source', readDependencySource, x['dependency_source'], x),
+  };
+}
+
+export function writeResolvedSubproject(x: ResolvedSubproject, context: any = x): any {
+  return {
+    'info': _atd_write_required_field('ResolvedSubproject', 'info', writeSubproject, x.info, x),
+    'resolution_method': _atd_write_required_field('ResolvedSubproject', 'resolution_method', writeResolutionMethod, x.resolution_method, x),
+    'ecosystem': _atd_write_required_field('ResolvedSubproject', 'ecosystem', writeEcosystem, x.ecosystem, x),
+    'resolved_dependencies': _atd_write_required_field('ResolvedSubproject', 'resolved_dependencies', _atd_write_array(((x, context) => [writeDependencyChild(x[0], x), _atd_write_array(writeResolvedDependency)(x[1], x)])), x.resolved_dependencies, x),
+    'errors': _atd_write_required_field('ResolvedSubproject', 'errors', _atd_write_array(writeScaError), x.errors, x),
+  };
+}
+
+export function readResolvedSubproject(x: any, context: any = x): ResolvedSubproject {
+  return {
+    info: _atd_read_required_field('ResolvedSubproject', 'info', readSubproject, x['info'], x),
+    resolution_method: _atd_read_required_field('ResolvedSubproject', 'resolution_method', readResolutionMethod, x['resolution_method'], x),
+    ecosystem: _atd_read_required_field('ResolvedSubproject', 'ecosystem', readEcosystem, x['ecosystem'], x),
+    resolved_dependencies: _atd_read_required_field('ResolvedSubproject', 'resolved_dependencies', _atd_read_array(((x, context): [DependencyChild, ResolvedDependency[]] => { _atd_check_json_tuple(2, x, context); return [readDependencyChild(x[0], x), _atd_read_array(readResolvedDependency)(x[1], x)] })), x['resolved_dependencies'], x),
+    errors: _atd_read_required_field('ResolvedSubproject', 'errors', _atd_read_array(readScaError), x['errors'], x),
+  };
+}
+
+export function writeResolvedDependency(x: ResolvedDependency, context: any = x): any {
+  return ((x, context) => [writeFoundDependency(x[0], x), _atd_write_option(writeDownloadedDependency)(x[1], x)])(x, context);
+}
+
+export function readResolvedDependency(x: any, context: any = x): ResolvedDependency {
+  return ((x, context): [FoundDependency, Option<DownloadedDependency>] => { _atd_check_json_tuple(2, x, context); return [readFoundDependency(x[0], x), _atd_read_option(readDownloadedDependency)(x[1], x)] })(x, context);
+}
+
+export function writeDownloadedDependency(x: DownloadedDependency, context: any = x): any {
+  return {
+    'source_path': _atd_write_required_field('DownloadedDependency', 'source_path', writeFpath, x.source_path, x),
+  };
+}
+
+export function readDownloadedDependency(x: any, context: any = x): DownloadedDependency {
+  return {
+    source_path: _atd_read_required_field('DownloadedDependency', 'source_path', readFpath, x['source_path'], x),
+  };
+}
+
+export function writeUnresolvedReason(x: UnresolvedReason, context: any = x): any {
+  switch (x.kind) {
+    case 'UnresolvedFailed':
+      return 'failed'
+    case 'UnresolvedSkipped':
+      return 'skipped'
+    case 'UnresolvedUnsupported':
+      return 'unsupported'
+    case 'UnresolvedDisabled':
+      return 'disabled'
+  }
+}
+
+export function readUnresolvedReason(x: any, context: any = x): UnresolvedReason {
+  switch (x) {
+    case 'failed':
+      return { kind: 'UnresolvedFailed' }
+    case 'skipped':
+      return { kind: 'UnresolvedSkipped' }
+    case 'unsupported':
+      return { kind: 'UnresolvedUnsupported' }
+    case 'disabled':
+      return { kind: 'UnresolvedDisabled' }
+    default:
+      _atd_bad_json('UnresolvedReason', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeUnresolvedSubproject(x: UnresolvedSubproject, context: any = x): any {
+  return {
+    'info': _atd_write_required_field('UnresolvedSubproject', 'info', writeSubproject, x.info, x),
+    'reason': _atd_write_required_field('UnresolvedSubproject', 'reason', writeUnresolvedReason, x.reason, x),
+    'errors': _atd_write_required_field('UnresolvedSubproject', 'errors', _atd_write_array(writeScaError), x.errors, x),
+  };
+}
+
+export function readUnresolvedSubproject(x: any, context: any = x): UnresolvedSubproject {
+  return {
+    info: _atd_read_required_field('UnresolvedSubproject', 'info', readSubproject, x['info'], x),
+    reason: _atd_read_required_field('UnresolvedSubproject', 'reason', readUnresolvedReason, x['reason'], x),
+    errors: _atd_read_required_field('UnresolvedSubproject', 'errors', _atd_read_array(readScaError), x['errors'], x),
+  };
+}
+
+export function writeResolveDependenciesParams(x: ResolveDependenciesParams, context: any = x): any {
+  return {
+    'dependency_sources': _atd_write_required_field('ResolveDependenciesParams', 'dependency_sources', _atd_write_array(writeDependencySource), x.dependency_sources, x),
+    'download_dependency_source_code': _atd_write_required_field('ResolveDependenciesParams', 'download_dependency_source_code', _atd_write_bool, x.download_dependency_source_code, x),
+  };
+}
+
+export function readResolveDependenciesParams(x: any, context: any = x): ResolveDependenciesParams {
+  return {
+    dependency_sources: _atd_read_required_field('ResolveDependenciesParams', 'dependency_sources', _atd_read_array(readDependencySource), x['dependency_sources'], x),
+    download_dependency_source_code: _atd_read_required_field('ResolveDependenciesParams', 'download_dependency_source_code', _atd_read_bool, x['download_dependency_source_code'], x),
   };
 }
 
 export function writeResolutionResult(x: ResolutionResult, context: any = x): any {
   switch (x.kind) {
     case 'ResolutionOk':
-      return ['ResolutionOk', ((x, context) => [_atd_write_array(writeFoundDependency)(x[0], x), _atd_write_array(writeResolutionErrorKind)(x[1], x)])(x.value, x)]
+      return ['ResolutionOk', ((x, context) => [_atd_write_array(writeResolvedDependency)(x[0], x), _atd_write_array(writeResolutionErrorKind)(x[1], x)])(x.value, x)]
     case 'ResolutionError':
       return ['ResolutionError', _atd_write_array(writeResolutionErrorKind)(x.value, x)]
   }
@@ -4461,7 +4643,7 @@ export function readResolutionResult(x: any, context: any = x): ResolutionResult
   _atd_check_json_tuple(2, x, context)
   switch (x[0]) {
     case 'ResolutionOk':
-      return { kind: 'ResolutionOk', value: ((x, context): [FoundDependency[], ResolutionErrorKind[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_array(readFoundDependency)(x[0], x), _atd_read_array(readResolutionErrorKind)(x[1], x)] })(x[1], x) }
+      return { kind: 'ResolutionOk', value: ((x, context): [ResolvedDependency[], ResolutionErrorKind[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_array(readResolvedDependency)(x[0], x), _atd_read_array(readResolutionErrorKind)(x[1], x)] })(x[1], x) }
     case 'ResolutionError':
       return { kind: 'ResolutionError', value: _atd_read_array(readResolutionErrorKind)(x[1], x) }
     default:
@@ -4479,6 +4661,22 @@ export function writeTransitiveFinding(x: TransitiveFinding, context: any = x): 
 export function readTransitiveFinding(x: any, context: any = x): TransitiveFinding {
   return {
     m: _atd_read_required_field('TransitiveFinding', 'm', readCoreMatch, x['m'], x),
+  };
+}
+
+export function writeTransitiveReachabilityFilterParams(x: TransitiveReachabilityFilterParams, context: any = x): any {
+  return {
+    'rules_path': _atd_write_required_field('TransitiveReachabilityFilterParams', 'rules_path', writeFpath, x.rules_path, x),
+    'findings': _atd_write_required_field('TransitiveReachabilityFilterParams', 'findings', _atd_write_array(writeTransitiveFinding), x.findings, x),
+    'dependencies': _atd_write_required_field('TransitiveReachabilityFilterParams', 'dependencies', _atd_write_array(writeResolvedDependency), x.dependencies, x),
+  };
+}
+
+export function readTransitiveReachabilityFilterParams(x: any, context: any = x): TransitiveReachabilityFilterParams {
+  return {
+    rules_path: _atd_read_required_field('TransitiveReachabilityFilterParams', 'rules_path', readFpath, x['rules_path'], x),
+    findings: _atd_read_required_field('TransitiveReachabilityFilterParams', 'findings', _atd_read_array(readTransitiveFinding), x['findings'], x),
+    dependencies: _atd_read_required_field('TransitiveReachabilityFilterParams', 'dependencies', _atd_read_array(readResolvedDependency), x['dependencies'], x),
   };
 }
 
@@ -4529,15 +4727,15 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
     case 'CallValidate':
       return ['CallValidate', writeFpath(x.value, x)]
     case 'CallResolveDependencies':
-      return ['CallResolveDependencies', _atd_write_array(writeDependencySource)(x.value, x)]
+      return ['CallResolveDependencies', writeResolveDependenciesParams(x.value, x)]
     case 'CallUploadSymbolAnalysis':
       return ['CallUploadSymbolAnalysis', ((x, context) => [_atd_write_string(x[0], x), _atd_write_int(x[1], x), writeSymbolAnalysis(x[2], x)])(x.value, x)]
     case 'CallDumpRulePartitions':
       return ['CallDumpRulePartitions', writeDumpRulePartitionsParams(x.value, x)]
-    case 'CallTransitiveReachabilityFilter':
-      return ['CallTransitiveReachabilityFilter', _atd_write_array(writeTransitiveFinding)(x.value, x)]
     case 'CallGetTargets':
       return ['CallGetTargets', writeScanningRoots(x.value, x)]
+    case 'CallTransitiveReachabilityFilter':
+      return ['CallTransitiveReachabilityFilter', writeTransitiveReachabilityFilterParams(x.value, x)]
   }
 }
 
@@ -4563,15 +4761,15 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
       case 'CallValidate':
         return { kind: 'CallValidate', value: readFpath(x[1], x) }
       case 'CallResolveDependencies':
-        return { kind: 'CallResolveDependencies', value: _atd_read_array(readDependencySource)(x[1], x) }
+        return { kind: 'CallResolveDependencies', value: readResolveDependenciesParams(x[1], x) }
       case 'CallUploadSymbolAnalysis':
         return { kind: 'CallUploadSymbolAnalysis', value: ((x, context): [string, number /*int*/, SymbolAnalysis] => { _atd_check_json_tuple(3, x, context); return [_atd_read_string(x[0], x), _atd_read_int(x[1], x), readSymbolAnalysis(x[2], x)] })(x[1], x) }
       case 'CallDumpRulePartitions':
         return { kind: 'CallDumpRulePartitions', value: readDumpRulePartitionsParams(x[1], x) }
-      case 'CallTransitiveReachabilityFilter':
-        return { kind: 'CallTransitiveReachabilityFilter', value: _atd_read_array(readTransitiveFinding)(x[1], x) }
       case 'CallGetTargets':
         return { kind: 'CallGetTargets', value: readScanningRoots(x[1], x) }
+      case 'CallTransitiveReachabilityFilter':
+        return { kind: 'CallTransitiveReachabilityFilter', value: readTransitiveReachabilityFilterParams(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')

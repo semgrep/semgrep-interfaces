@@ -124,6 +124,10 @@ type transitive_reachable = Semgrep_output_v1_t.transitive_reachable = {
   callgraph_reachable: bool option
 }
 
+type transitive_undetermined = Semgrep_output_v1_t.transitive_undetermined = {
+  explanation: string option
+}
+
 type transitive_unreachable = Semgrep_output_v1_t.transitive_unreachable = {
   explanation: string option
 }
@@ -156,7 +160,7 @@ type sca_match_kind = Semgrep_output_v1_t.sca_match_kind =
   | DirectUnreachable
   | TransitiveReachable of transitive_reachable
   | TransitiveUnreachable of transitive_unreachable
-  | TransitiveUndetermined
+  | TransitiveUndetermined of transitive_undetermined
 
 
 type sca_match = Semgrep_output_v1_t.sca_match = {
@@ -233,6 +237,66 @@ type uuid = Semgrep_output_v1_t.uuid
 
 type uri = Semgrep_output_v1_t.uri
 
+type unresolved_reason = Semgrep_output_v1_t.unresolved_reason = 
+    UnresolvedFailed | UnresolvedSkipped | UnresolvedUnsupported
+  | UnresolvedDisabled
+
+
+type subproject = Semgrep_output_v1_t.subproject = {
+  root_dir: fpath;
+  ecosystem: ecosystem option;
+  dependency_source: dependency_source
+}
+
+type sca_parser_name = Semgrep_output_v1_t.sca_parser_name = 
+    PGemfile_lock | PGo_mod | PGo_sum | PGradle_lockfile | PGradle_build
+  | PJsondoc | PPipfile | PPnpm_lock | PPoetry_lock | PPyproject_toml
+  | PRequirements | PYarn_1 | PYarn_2 | PPomtree | PCargo_parser
+  | PComposer_lock | PPubspec_lock | PPackage_swift | PPodfile_lock
+  | PPackage_resolved | PMix_lock
+
+  [@@deriving show]
+
+type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
+  command: string;
+  message: string
+}
+  [@@deriving show]
+
+type resolution_error_kind = Semgrep_output_v1_t.resolution_error_kind = 
+    UnsupportedManifest
+  | MissingRequirement of string
+  | ResolutionCmdFailed of resolution_cmd_failed
+  | ParseDependenciesFailed of string
+  | ScaParseError of sca_parser_name
+
+  [@@deriving show]
+
+type sca_resolution_error = Semgrep_output_v1_t.sca_resolution_error = {
+  type_: resolution_error_kind;
+  dependency_source_file: fpath
+}
+
+type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
+  path: fpath;
+  parser: sca_parser_name;
+  reason: string;
+  line: int option;
+  col: int option;
+  text: string option
+}
+
+type sca_error = Semgrep_output_v1_t.sca_error = 
+    SCAParse of dependency_parser_error
+  | SCAResol of sca_resolution_error
+
+
+type unresolved_subproject = Semgrep_output_v1_t.unresolved_subproject = {
+  info: subproject;
+  reason: unresolved_reason;
+  errors: sca_error list
+}
+
 type snippet = Semgrep_output_v1_t.snippet = { line: int; text: string }
 
 type killing_parent_kind = Semgrep_output_v1_t.killing_parent_kind
@@ -268,6 +332,19 @@ type triage_ignored = Semgrep_output_v1_t.triage_ignored = {
 
 type transitive_finding = Semgrep_output_v1_t.transitive_finding = {
   m: core_match
+}
+
+type downloaded_dependency = Semgrep_output_v1_t.downloaded_dependency = {
+  source_path: fpath
+}
+
+type resolved_dependency = Semgrep_output_v1_t.resolved_dependency
+
+type transitive_reachability_filter_params =
+  Semgrep_output_v1_t.transitive_reachability_filter_params = {
+  rules_path: fpath;
+  findings: transitive_finding list;
+  dependencies: resolved_dependency list
 }
 
 type tr_cache_match_result = Semgrep_output_v1_t.tr_cache_match_result = {
@@ -348,8 +425,7 @@ type targeting_conf = Semgrep_output_v1_t.targeting_conf = {
   force_project_root: project_root option;
   force_novcs_project: bool;
   exclude_minified_files: bool;
-  baseline_commit: string option;
-  diff_depth: int
+  baseline_commit: string option
 }
   [@@deriving show]
 
@@ -399,30 +475,6 @@ type skipped_target = Semgrep_output_v1_t.skipped_target = {
   details: string option;
   rule_id: rule_id option
 }
-  [@@deriving show]
-
-type sca_parser_name = Semgrep_output_v1_t.sca_parser_name = 
-    PGemfile_lock | PGo_mod | PGo_sum | PGradle_lockfile | PGradle_build
-  | PJsondoc | PPipfile | PPnpm_lock | PPoetry_lock | PPyproject_toml
-  | PRequirements | PYarn_1 | PYarn_2 | PPomtree | PCargo_parser
-  | PComposer_lock | PPubspec_lock | PPackage_swift | PPodfile_lock
-  | PPackage_resolved | PMix_lock
-
-  [@@deriving show]
-
-type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
-  command: string;
-  message: string
-}
-  [@@deriving show]
-
-type resolution_error_kind = Semgrep_output_v1_t.resolution_error_kind = 
-    UnsupportedManifest
-  | MissingRequirement of string
-  | ResolutionCmdFailed of resolution_cmd_failed
-  | ParseDependenciesFailed of string
-  | ScaParseError of sca_parser_name
-
   [@@deriving show]
 
 type incompatible_rule = Semgrep_output_v1_t.incompatible_rule = {
@@ -516,7 +568,9 @@ type dependency_resolution_stats =
 type subproject_stats = Semgrep_output_v1_t.subproject_stats = {
   subproject_id: string;
   dependency_sources: dependency_source_file list;
-  resolved_stats: dependency_resolution_stats option
+  resolved_stats: dependency_resolution_stats option;
+  unresolved_reason: unresolved_reason option;
+  errors: sca_error list
 }
 
 type supply_chain_stats = Semgrep_output_v1_t.supply_chain_stats = {
@@ -667,25 +721,6 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   ci_config_from_cloud: ci_config_from_cloud option
 }
 
-type sca_resolution_error = Semgrep_output_v1_t.sca_resolution_error = {
-  type_: resolution_error_kind;
-  dependency_source_file: fpath
-}
-
-type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
-  path: fpath;
-  parser: sca_parser_name;
-  reason: string;
-  line: int option;
-  col: int option;
-  text: string option
-}
-
-type sca_error = Semgrep_output_v1_t.sca_error = 
-    SCAParse of dependency_parser_error
-  | SCAResol of sca_resolution_error
-
-
 type sarif_format = Semgrep_output_v1_t.sarif_format = {
   rules: fpath;
   is_pro: bool;
@@ -695,6 +730,20 @@ type sarif_format = Semgrep_output_v1_t.sarif_format = {
 type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
+
+type resolved_subproject = Semgrep_output_v1_t.resolved_subproject = {
+  info: subproject;
+  resolution_method: resolution_method;
+  ecosystem: ecosystem;
+  resolved_dependencies: (dependency_child * resolved_dependency list) list;
+  errors: sca_error list
+}
+
+type resolve_dependencies_params =
+  Semgrep_output_v1_t.resolve_dependencies_params = {
+  dependency_sources: dependency_source list;
+  download_dependency_source_code: bool
+}
 
 type resolution_result = Semgrep_output_v1_t.resolution_result
 
@@ -1505,6 +1554,26 @@ val transitive_reachable_of_string :
   string -> transitive_reachable
   (** Deserialize JSON data of type {!type:transitive_reachable}. *)
 
+val write_transitive_undetermined :
+  Buffer.t -> transitive_undetermined -> unit
+  (** Output a JSON value of type {!type:transitive_undetermined}. *)
+
+val string_of_transitive_undetermined :
+  ?len:int -> transitive_undetermined -> string
+  (** Serialize a value of type {!type:transitive_undetermined}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_transitive_undetermined :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> transitive_undetermined
+  (** Input JSON data of type {!type:transitive_undetermined}. *)
+
+val transitive_undetermined_of_string :
+  string -> transitive_undetermined
+  (** Deserialize JSON data of type {!type:transitive_undetermined}. *)
+
 val write_transitive_unreachable :
   Buffer.t -> transitive_unreachable -> unit
   (** Output a JSON value of type {!type:transitive_unreachable}. *)
@@ -1845,6 +1914,186 @@ val uri_of_string :
   string -> uri
   (** Deserialize JSON data of type {!type:uri}. *)
 
+val write_unresolved_reason :
+  Buffer.t -> unresolved_reason -> unit
+  (** Output a JSON value of type {!type:unresolved_reason}. *)
+
+val string_of_unresolved_reason :
+  ?len:int -> unresolved_reason -> string
+  (** Serialize a value of type {!type:unresolved_reason}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_unresolved_reason :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> unresolved_reason
+  (** Input JSON data of type {!type:unresolved_reason}. *)
+
+val unresolved_reason_of_string :
+  string -> unresolved_reason
+  (** Deserialize JSON data of type {!type:unresolved_reason}. *)
+
+val write_subproject :
+  Buffer.t -> subproject -> unit
+  (** Output a JSON value of type {!type:subproject}. *)
+
+val string_of_subproject :
+  ?len:int -> subproject -> string
+  (** Serialize a value of type {!type:subproject}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_subproject :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> subproject
+  (** Input JSON data of type {!type:subproject}. *)
+
+val subproject_of_string :
+  string -> subproject
+  (** Deserialize JSON data of type {!type:subproject}. *)
+
+val write_sca_parser_name :
+  Buffer.t -> sca_parser_name -> unit
+  (** Output a JSON value of type {!type:sca_parser_name}. *)
+
+val string_of_sca_parser_name :
+  ?len:int -> sca_parser_name -> string
+  (** Serialize a value of type {!type:sca_parser_name}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_parser_name :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_parser_name
+  (** Input JSON data of type {!type:sca_parser_name}. *)
+
+val sca_parser_name_of_string :
+  string -> sca_parser_name
+  (** Deserialize JSON data of type {!type:sca_parser_name}. *)
+
+val write_resolution_cmd_failed :
+  Buffer.t -> resolution_cmd_failed -> unit
+  (** Output a JSON value of type {!type:resolution_cmd_failed}. *)
+
+val string_of_resolution_cmd_failed :
+  ?len:int -> resolution_cmd_failed -> string
+  (** Serialize a value of type {!type:resolution_cmd_failed}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolution_cmd_failed :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_cmd_failed
+  (** Input JSON data of type {!type:resolution_cmd_failed}. *)
+
+val resolution_cmd_failed_of_string :
+  string -> resolution_cmd_failed
+  (** Deserialize JSON data of type {!type:resolution_cmd_failed}. *)
+
+val write_resolution_error_kind :
+  Buffer.t -> resolution_error_kind -> unit
+  (** Output a JSON value of type {!type:resolution_error_kind}. *)
+
+val string_of_resolution_error_kind :
+  ?len:int -> resolution_error_kind -> string
+  (** Serialize a value of type {!type:resolution_error_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolution_error_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_error_kind
+  (** Input JSON data of type {!type:resolution_error_kind}. *)
+
+val resolution_error_kind_of_string :
+  string -> resolution_error_kind
+  (** Deserialize JSON data of type {!type:resolution_error_kind}. *)
+
+val write_sca_resolution_error :
+  Buffer.t -> sca_resolution_error -> unit
+  (** Output a JSON value of type {!type:sca_resolution_error}. *)
+
+val string_of_sca_resolution_error :
+  ?len:int -> sca_resolution_error -> string
+  (** Serialize a value of type {!type:sca_resolution_error}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_resolution_error :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_resolution_error
+  (** Input JSON data of type {!type:sca_resolution_error}. *)
+
+val sca_resolution_error_of_string :
+  string -> sca_resolution_error
+  (** Deserialize JSON data of type {!type:sca_resolution_error}. *)
+
+val write_dependency_parser_error :
+  Buffer.t -> dependency_parser_error -> unit
+  (** Output a JSON value of type {!type:dependency_parser_error}. *)
+
+val string_of_dependency_parser_error :
+  ?len:int -> dependency_parser_error -> string
+  (** Serialize a value of type {!type:dependency_parser_error}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_dependency_parser_error :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_parser_error
+  (** Input JSON data of type {!type:dependency_parser_error}. *)
+
+val dependency_parser_error_of_string :
+  string -> dependency_parser_error
+  (** Deserialize JSON data of type {!type:dependency_parser_error}. *)
+
+val write_sca_error :
+  Buffer.t -> sca_error -> unit
+  (** Output a JSON value of type {!type:sca_error}. *)
+
+val string_of_sca_error :
+  ?len:int -> sca_error -> string
+  (** Serialize a value of type {!type:sca_error}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_error :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_error
+  (** Input JSON data of type {!type:sca_error}. *)
+
+val sca_error_of_string :
+  string -> sca_error
+  (** Deserialize JSON data of type {!type:sca_error}. *)
+
+val write_unresolved_subproject :
+  Buffer.t -> unresolved_subproject -> unit
+  (** Output a JSON value of type {!type:unresolved_subproject}. *)
+
+val string_of_unresolved_subproject :
+  ?len:int -> unresolved_subproject -> string
+  (** Serialize a value of type {!type:unresolved_subproject}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_unresolved_subproject :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> unresolved_subproject
+  (** Input JSON data of type {!type:unresolved_subproject}. *)
+
+val unresolved_subproject_of_string :
+  string -> unresolved_subproject
+  (** Deserialize JSON data of type {!type:unresolved_subproject}. *)
+
 val write_snippet :
   Buffer.t -> snippet -> unit
   (** Output a JSON value of type {!type:snippet}. *)
@@ -2024,6 +2273,66 @@ val read_transitive_finding :
 val transitive_finding_of_string :
   string -> transitive_finding
   (** Deserialize JSON data of type {!type:transitive_finding}. *)
+
+val write_downloaded_dependency :
+  Buffer.t -> downloaded_dependency -> unit
+  (** Output a JSON value of type {!type:downloaded_dependency}. *)
+
+val string_of_downloaded_dependency :
+  ?len:int -> downloaded_dependency -> string
+  (** Serialize a value of type {!type:downloaded_dependency}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_downloaded_dependency :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> downloaded_dependency
+  (** Input JSON data of type {!type:downloaded_dependency}. *)
+
+val downloaded_dependency_of_string :
+  string -> downloaded_dependency
+  (** Deserialize JSON data of type {!type:downloaded_dependency}. *)
+
+val write_resolved_dependency :
+  Buffer.t -> resolved_dependency -> unit
+  (** Output a JSON value of type {!type:resolved_dependency}. *)
+
+val string_of_resolved_dependency :
+  ?len:int -> resolved_dependency -> string
+  (** Serialize a value of type {!type:resolved_dependency}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolved_dependency :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolved_dependency
+  (** Input JSON data of type {!type:resolved_dependency}. *)
+
+val resolved_dependency_of_string :
+  string -> resolved_dependency
+  (** Deserialize JSON data of type {!type:resolved_dependency}. *)
+
+val write_transitive_reachability_filter_params :
+  Buffer.t -> transitive_reachability_filter_params -> unit
+  (** Output a JSON value of type {!type:transitive_reachability_filter_params}. *)
+
+val string_of_transitive_reachability_filter_params :
+  ?len:int -> transitive_reachability_filter_params -> string
+  (** Serialize a value of type {!type:transitive_reachability_filter_params}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_transitive_reachability_filter_params :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> transitive_reachability_filter_params
+  (** Input JSON data of type {!type:transitive_reachability_filter_params}. *)
+
+val transitive_reachability_filter_params_of_string :
+  string -> transitive_reachability_filter_params
+  (** Deserialize JSON data of type {!type:transitive_reachability_filter_params}. *)
 
 val write_tr_cache_match_result :
   Buffer.t -> tr_cache_match_result -> unit
@@ -2524,66 +2833,6 @@ val read_skipped_target :
 val skipped_target_of_string :
   string -> skipped_target
   (** Deserialize JSON data of type {!type:skipped_target}. *)
-
-val write_sca_parser_name :
-  Buffer.t -> sca_parser_name -> unit
-  (** Output a JSON value of type {!type:sca_parser_name}. *)
-
-val string_of_sca_parser_name :
-  ?len:int -> sca_parser_name -> string
-  (** Serialize a value of type {!type:sca_parser_name}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_sca_parser_name :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_parser_name
-  (** Input JSON data of type {!type:sca_parser_name}. *)
-
-val sca_parser_name_of_string :
-  string -> sca_parser_name
-  (** Deserialize JSON data of type {!type:sca_parser_name}. *)
-
-val write_resolution_cmd_failed :
-  Buffer.t -> resolution_cmd_failed -> unit
-  (** Output a JSON value of type {!type:resolution_cmd_failed}. *)
-
-val string_of_resolution_cmd_failed :
-  ?len:int -> resolution_cmd_failed -> string
-  (** Serialize a value of type {!type:resolution_cmd_failed}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_resolution_cmd_failed :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_cmd_failed
-  (** Input JSON data of type {!type:resolution_cmd_failed}. *)
-
-val resolution_cmd_failed_of_string :
-  string -> resolution_cmd_failed
-  (** Deserialize JSON data of type {!type:resolution_cmd_failed}. *)
-
-val write_resolution_error_kind :
-  Buffer.t -> resolution_error_kind -> unit
-  (** Output a JSON value of type {!type:resolution_error_kind}. *)
-
-val string_of_resolution_error_kind :
-  ?len:int -> resolution_error_kind -> string
-  (** Serialize a value of type {!type:resolution_error_kind}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_resolution_error_kind :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_error_kind
-  (** Input JSON data of type {!type:resolution_error_kind}. *)
-
-val resolution_error_kind_of_string :
-  string -> resolution_error_kind
-  (** Deserialize JSON data of type {!type:resolution_error_kind}. *)
 
 val write_incompatible_rule :
   Buffer.t -> incompatible_rule -> unit
@@ -3245,66 +3494,6 @@ val scan_config_of_string :
   string -> scan_config
   (** Deserialize JSON data of type {!type:scan_config}. *)
 
-val write_sca_resolution_error :
-  Buffer.t -> sca_resolution_error -> unit
-  (** Output a JSON value of type {!type:sca_resolution_error}. *)
-
-val string_of_sca_resolution_error :
-  ?len:int -> sca_resolution_error -> string
-  (** Serialize a value of type {!type:sca_resolution_error}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_sca_resolution_error :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_resolution_error
-  (** Input JSON data of type {!type:sca_resolution_error}. *)
-
-val sca_resolution_error_of_string :
-  string -> sca_resolution_error
-  (** Deserialize JSON data of type {!type:sca_resolution_error}. *)
-
-val write_dependency_parser_error :
-  Buffer.t -> dependency_parser_error -> unit
-  (** Output a JSON value of type {!type:dependency_parser_error}. *)
-
-val string_of_dependency_parser_error :
-  ?len:int -> dependency_parser_error -> string
-  (** Serialize a value of type {!type:dependency_parser_error}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_dependency_parser_error :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_parser_error
-  (** Input JSON data of type {!type:dependency_parser_error}. *)
-
-val dependency_parser_error_of_string :
-  string -> dependency_parser_error
-  (** Deserialize JSON data of type {!type:dependency_parser_error}. *)
-
-val write_sca_error :
-  Buffer.t -> sca_error -> unit
-  (** Output a JSON value of type {!type:sca_error}. *)
-
-val string_of_sca_error :
-  ?len:int -> sca_error -> string
-  (** Serialize a value of type {!type:sca_error}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_sca_error :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_error
-  (** Input JSON data of type {!type:sca_error}. *)
-
-val sca_error_of_string :
-  string -> sca_error
-  (** Deserialize JSON data of type {!type:sca_error}. *)
-
 val write_sarif_format :
   Buffer.t -> sarif_format -> unit
   (** Output a JSON value of type {!type:sarif_format}. *)
@@ -3364,6 +3553,46 @@ val read_rule_id_and_engine_kind :
 val rule_id_and_engine_kind_of_string :
   string -> rule_id_and_engine_kind
   (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
+
+val write_resolved_subproject :
+  Buffer.t -> resolved_subproject -> unit
+  (** Output a JSON value of type {!type:resolved_subproject}. *)
+
+val string_of_resolved_subproject :
+  ?len:int -> resolved_subproject -> string
+  (** Serialize a value of type {!type:resolved_subproject}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolved_subproject :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolved_subproject
+  (** Input JSON data of type {!type:resolved_subproject}. *)
+
+val resolved_subproject_of_string :
+  string -> resolved_subproject
+  (** Deserialize JSON data of type {!type:resolved_subproject}. *)
+
+val write_resolve_dependencies_params :
+  Buffer.t -> resolve_dependencies_params -> unit
+  (** Output a JSON value of type {!type:resolve_dependencies_params}. *)
+
+val string_of_resolve_dependencies_params :
+  ?len:int -> resolve_dependencies_params -> string
+  (** Serialize a value of type {!type:resolve_dependencies_params}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolve_dependencies_params :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolve_dependencies_params
+  (** Input JSON data of type {!type:resolve_dependencies_params}. *)
+
+val resolve_dependencies_params_of_string :
+  string -> resolve_dependencies_params
+  (** Deserialize JSON data of type {!type:resolve_dependencies_params}. *)
 
 val write_resolution_result :
   Buffer.t -> resolution_result -> unit

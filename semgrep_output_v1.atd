@@ -87,7 +87,7 @@ type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
  *)
 type fpath
      <ocaml attr="deriving show, eq">
-     <python decorator="dataclass(frozen=True)"> =
+     <python decorator="dataclass(frozen=True, order=True)"> =
    string wrap <ocaml module="ATD_string_wrap.Fpath">
 
 type uri = string wrap <ocaml module="ATD_string_wrap.Uri">
@@ -599,7 +599,7 @@ type sca_match_kind = [
    * access third-party code for further investigation
    * (similar to (LockfileOnlyMatch Transitive))
   *)
-  | TransitiveUndetermined
+  | TransitiveUndetermined of transitive_undetermined
 ] < ocaml repr="classic">
 
 type transitive_reachable = {
@@ -611,6 +611,10 @@ type transitive_reachable = {
 
 type transitive_unreachable = {
   (* TODO: some proof that the user can understand *)
+  explanation: string option;
+}
+
+type transitive_undetermined = {
   explanation: string option;
 }
 
@@ -1728,6 +1732,10 @@ type subproject_stats = {
   dependency_sources: dependency_source_file list;
   (* Results of dependency resolution, empty if resolution failed *)
   ?resolved_stats: dependency_resolution_stats option;
+  (* Reason why resolution failed, empty if resolution succeeded *)
+  ?unresolved_reason: unresolved_reason option;
+  (* Errors encountered during subproject resolution *)
+  ~errors: sca_error list
 }
 
 type dependency_source_file = {
@@ -2065,7 +2073,6 @@ type targeting_conf <ocaml attr="deriving show"> = {
   force_novcs_project : bool;
   exclude_minified_files : bool;
   ?baseline_commit : string option;
-  diff_depth : int;
 }
 
 type analyzer <ocaml attr="deriving show"> = string wrap <ocaml module="Analyzer">
@@ -2231,6 +2238,10 @@ type manifest_kind
   (* A Pip Requirements.in in file, which follows the format of requirements.txt
    * https://pip.pypa.io/en/stable/reference/requirements-file-format/ *)
   | RequirementsIn
+  (* A setup.py file, which is a Python file that contains the setup configuration
+   * for a Python project.
+   * https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#setup-py *)
+  | SetupPy
   (* An NPM package.json manifest file
    * https://docs.npmjs.com/cli/v10/configuring-npm/package-json *)
   | PackageJson
@@ -2335,6 +2346,14 @@ type resolution_error_kind
   | ScaParseError of sca_parser_name
 ] <ocaml repr="classic">
 
+type resolution_cmd_failed
+    <ocaml attr="deriving show">
+    <python decorator="dataclass(frozen=True)"> =
+{
+    command: string;
+    message: string;
+}
+
 (* used only from pysemgrep for now
  * TODO? we should merge dependency_{parser,resolution}_error with cli_error
  *)
@@ -2347,21 +2366,102 @@ type sca_error = [
   | SCAResol of sca_resolution_error
 ] <ocaml repr="classic">
 
+(* A subproject defined by some kind of manifest file (e.g., pyproject.toml,
+ * package.json, ...). This may be at the root of the repo being scanned or
+ * may be some other folder.
+ * Used as the unit of analysis for supply chain.
+ *)
+type subproject
+    <python decorator="dataclass(frozen=True, order=True)"> =
+{
+    root_dir: fpath;
+    (* This is used to match code files with subprojects. It is necessary to
+     * have it here, even before a subproject's dependencies are resolved, in
+     * order to decide whether a certain subproject must be resolved given the
+     * changes included in a certain diff scan.
+     * It can be None if this subproject is for a package manager whose
+     * ecosystem is not yet supported (i.e. one that is identified only for
+     * tracking purposes)
+     *)
+    ecosystem: ecosystem option;
+    (* The dependency source is how we resolved the dependencies. This might be a
+     * lockfile/manifest pair (the only current one), but in the future it might
+     * also be dynamic resolution based on a manifest, an SBOM, or something else
+     *)
+    dependency_source: dependency_source;
+}
 
-type resolution_cmd_failed
-    <ocaml attr="deriving show">
+(* A subproject plus its resolved set of dependencies *)
+type resolved_subproject
     <python decorator="dataclass(frozen=True)"> =
 {
-    command: string;
-    message: string;
+   info: subproject;
+   (* The resolution method is how we determined the dependencies from the
+    * dependency source. This might be lockfile parsing, dependency resolution,
+    * SBOM ingest, or something else.
+    *)
+   resolution_method: resolution_method;
+   (* should be similar to info.ecosystem but this time it can't be None *)
+   ecosystem: ecosystem;
+   (* We use this mapping to efficiently find child dependencies from a
+    * FoundDependency. We need to store multiple FoundDependencies per
+    * package/version pair because a package might come from multiple places
+    * in a lockfile
+    *)
+   resolved_dependencies: (dependency_child * resolved_dependency list) list
+      <python repr="dict">;
+   errors: sca_error list;
+}
+
+type resolved_dependency = (found_dependency * downloaded_dependency option)
+
+(* Information about a 3rd-party lib downloaded for Transitive Reachability.
+ * To accompany a found_dependency within the Semgrep CLI, passed back and forth 
+ * from OCaml to Python via RPC. See also SCA_dependency.t in OCaml
+ *)
+type downloaded_dependency = {
+  source_path: fpath;
+}
+
+type unresolved_reason <python decorator="dataclass(frozen=True)"> = [
+  (* Resolution was attempted, but was unsuccessful. *)
+  | UnresolvedFailed <json name="failed">
+  (* Resolution was skipped because the dependency source was not relevant to
+   * the scanned targets. *)
+  | UnresolvedSkipped <json name="skipped">
+  (* Resolution was skipped because the dependency source is not supported. *)
+  | UnresolvedUnsupported <json name="unsupported">
+  (* Resolution was not attempted because a required feature (such as local
+   * builds) was disabled. *)
+  | UnresolvedDisabled <json name="disabled">
+] <ocaml repr="classic">
+
+type unresolved_subproject
+    <python decorator="dataclass(frozen=True)"> =
+{
+   info: subproject;
+   reason: unresolved_reason;
+   (* this is set only when the reason is UnresolvedFailed
+    * TODO: add it in unresolved_reason instead?
+    *)
+   errors: sca_error list;
+}
+
+type resolve_dependencies_params <python decorator="dataclass(frozen=True)"> = {
+  dependency_sources: dependency_source list;
+  download_dependency_source_code: bool;
 }
 
 (* Resolution can either succeed or fail, but in either case errors can be
  * produced (e.g. one resolution method might fail while a worse one succeeds,
- * lockfile parsing might partially fail but recover and still produce results)
+ * lockfile parsing might partially fail but recover and still produce results).
+ *
+ * Resolution can optionally include a `downloaded_dependency` alongside each
+ * `found_dependency`. This should be included if the source code for the
+ * dependency was downloaded and is available to scan later.
 *)
 type resolution_result = [
-  | ResolutionOk of (found_dependency list * resolution_error_kind list)
+  | ResolutionOk of (resolved_dependency list * resolution_error_kind list)
   | ResolutionError of resolution_error_kind list
 ]
 
@@ -2377,6 +2477,12 @@ type transitive_finding = {
   (* TODO: add lots of info to find the third-party code related
    * to this match
    *)
+}
+
+type transitive_reachability_filter_params = {
+  rules_path: fpath;
+  findings: transitive_finding list;
+  dependencies: resolved_dependency list;
 }
 
 (* ----------------------------- *)
@@ -2431,11 +2537,13 @@ type function_call <python decorator="dataclass(frozen=True)"> = [
      the RPC pipe.
   *)
   | CallValidate of fpath
-  | CallResolveDependencies of dependency_source list
+  | CallResolveDependencies of resolve_dependencies_params
   | CallUploadSymbolAnalysis of ((* token *) string * (* scan_id *) int * symbol_analysis)
   | CallDumpRulePartitions of dump_rule_partitions_params
-  | CallTransitiveReachabilityFilter of transitive_finding list
   | CallGetTargets of scanning_roots
+  (* for now, the transitive reachability filter takes only a single dependency graph as input.
+   * it is up to the caller to call it several times, one for each subproject *)
+  | CallTransitiveReachabilityFilter of transitive_reachability_filter_params
 ]
 
 (* ----------------------------- *)

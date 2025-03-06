@@ -394,7 +394,15 @@
             { "$ref": "#/definitions/transitive_unreachable" }
           ]
         },
-        { "const": "TransitiveUndetermined" }
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "TransitiveUndetermined" },
+            { "$ref": "#/definitions/transitive_undetermined" }
+          ]
+        }
       ]
     },
     "transitive_reachable": {
@@ -426,6 +434,23 @@
       }
     },
     "transitive_unreachable": {
+      "type": "object",
+      "required": [ "explanation" ],
+      "properties": {
+        "explanation": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        }
+      }
+    },
+    "transitive_undetermined": {
       "type": "object",
       "required": [ "explanation" ],
       "properties": {
@@ -1381,6 +1406,11 @@
         },
         "resolved_stats": {
           "$ref": "#/definitions/dependency_resolution_stats"
+        },
+        "unresolved_reason": { "$ref": "#/definitions/unresolved_reason" },
+        "errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/sca_error" }
         }
       }
     },
@@ -1721,8 +1751,7 @@
       "required": [
         "exclude", "max_target_bytes", "respect_gitignore",
         "respect_semgrepignore_files", "always_select_explicit_targets",
-        "explicit_targets", "force_novcs_project", "exclude_minified_files",
-        "diff_depth"
+        "explicit_targets", "force_novcs_project", "exclude_minified_files"
       ],
       "properties": {
         "exclude": { "type": "array", "items": { "type": "string" } },
@@ -1738,8 +1767,7 @@
         "force_project_root": { "$ref": "#/definitions/project_root" },
         "force_novcs_project": { "type": "boolean" },
         "exclude_minified_files": { "type": "boolean" },
-        "baseline_commit": { "type": "string" },
-        "diff_depth": { "type": "integer" }
+        "baseline_commit": { "type": "string" }
       }
     },
     "analyzer": { "type": "string" },
@@ -1920,6 +1948,7 @@
     "manifest_kind": {
       "oneOf": [
         { "const": "RequirementsIn" },
+        { "const": "SetupPy" },
         { "const": "PackageJson" },
         { "const": "Gemfile" },
         { "const": "GoMod" },
@@ -2046,6 +2075,14 @@
         }
       ]
     },
+    "resolution_cmd_failed": {
+      "type": "object",
+      "required": [ "command", "message" ],
+      "properties": {
+        "command": { "type": "string" },
+        "message": { "type": "string" }
+      }
+    },
     "sca_resolution_error": {
       "type": "object",
       "required": [ "type_", "dependency_source_file" ],
@@ -2076,12 +2113,114 @@
         }
       ]
     },
-    "resolution_cmd_failed": {
+    "subproject": {
       "type": "object",
-      "required": [ "command", "message" ],
+      "required": [ "root_dir", "ecosystem", "dependency_source" ],
       "properties": {
-        "command": { "type": "string" },
-        "message": { "type": "string" }
+        "root_dir": { "$ref": "#/definitions/fpath" },
+        "ecosystem": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" }, { "$ref": "#/definitions/ecosystem" }
+              ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "dependency_source": { "$ref": "#/definitions/dependency_source" }
+      }
+    },
+    "resolved_subproject": {
+      "type": "object",
+      "required": [
+        "info", "resolution_method", "ecosystem", "resolved_dependencies",
+        "errors"
+      ],
+      "properties": {
+        "info": { "$ref": "#/definitions/subproject" },
+        "resolution_method": { "$ref": "#/definitions/resolution_method" },
+        "ecosystem": { "$ref": "#/definitions/ecosystem" },
+        "resolved_dependencies": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "items": false,
+            "prefixItems": [
+              { "$ref": "#/definitions/dependency_child" },
+              {
+                "type": "array",
+                "items": { "$ref": "#/definitions/resolved_dependency" }
+              }
+            ]
+          }
+        },
+        "errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/sca_error" }
+        }
+      }
+    },
+    "resolved_dependency": {
+      "type": "array",
+      "minItems": 2,
+      "items": false,
+      "prefixItems": [
+        { "$ref": "#/definitions/found_dependency" },
+        {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" },
+                { "$ref": "#/definitions/downloaded_dependency" }
+              ]
+            },
+            { "const": "None" }
+          ]
+        }
+      ]
+    },
+    "downloaded_dependency": {
+      "type": "object",
+      "required": [ "source_path" ],
+      "properties": { "source_path": { "$ref": "#/definitions/fpath" } }
+    },
+    "unresolved_reason": {
+      "oneOf": [
+        { "const": "failed" },
+        { "const": "skipped" },
+        { "const": "unsupported" },
+        { "const": "disabled" }
+      ]
+    },
+    "unresolved_subproject": {
+      "type": "object",
+      "required": [ "info", "reason", "errors" ],
+      "properties": {
+        "info": { "$ref": "#/definitions/subproject" },
+        "reason": { "$ref": "#/definitions/unresolved_reason" },
+        "errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/sca_error" }
+        }
+      }
+    },
+    "resolve_dependencies_params": {
+      "type": "object",
+      "required": [ "dependency_sources", "download_dependency_source_code" ],
+      "properties": {
+        "dependency_sources": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/dependency_source" }
+        },
+        "download_dependency_source_code": { "type": "boolean" }
       }
     },
     "resolution_result": {
@@ -2099,7 +2238,7 @@
               "prefixItems": [
                 {
                   "type": "array",
-                  "items": { "$ref": "#/definitions/found_dependency" }
+                  "items": { "$ref": "#/definitions/resolved_dependency" }
                 },
                 {
                   "type": "array",
@@ -2127,6 +2266,21 @@
       "type": "object",
       "required": [ "m" ],
       "properties": { "m": { "$ref": "#/definitions/core_match" } }
+    },
+    "transitive_reachability_filter_params": {
+      "type": "object",
+      "required": [ "rules_path", "findings", "dependencies" ],
+      "properties": {
+        "rules_path": { "$ref": "#/definitions/fpath" },
+        "findings": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/transitive_finding" }
+        },
+        "dependencies": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/resolved_dependency" }
+        }
+      }
     },
     "symbol": {
       "type": "object",
@@ -2212,10 +2366,7 @@
           "items": false,
           "prefixItems": [
             { "const": "CallResolveDependencies" },
-            {
-              "type": "array",
-              "items": { "$ref": "#/definitions/dependency_source" }
-            }
+            { "$ref": "#/definitions/resolve_dependencies_params" }
           ]
         },
         {
@@ -2250,11 +2401,8 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "CallTransitiveReachabilityFilter" },
-            {
-              "type": "array",
-              "items": { "$ref": "#/definitions/transitive_finding" }
-            }
+            { "const": "CallGetTargets" },
+            { "$ref": "#/definitions/scanning_roots" }
           ]
         },
         {
@@ -2262,8 +2410,8 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "CallGetTargets" },
-            { "$ref": "#/definitions/scanning_roots" }
+            { "const": "CallTransitiveReachabilityFilter" },
+            { "$ref": "#/definitions/transitive_reachability_filter_params" }
           ]
         }
       ]
