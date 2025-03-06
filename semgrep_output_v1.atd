@@ -1861,24 +1861,30 @@ type scan_config = {
 *)
 type tr_cache_key = {
     rule_id: rule_id;
-    (* ex: http://some-website/hello-world.0.1.2.tgz like in found_dependency *)
-    resolved_url: string;
-    (* to bump just in case of problem
+    (* this can be the checksum of the content of the rule (JSON or YAML form) *)
+    rule_version: string;
+    (* does not have to match the Semgrep CLI version; can be bumped only
+     * when we think the match should be recomputed
      * TODO: to be set in Transitive_reachability.ml tr_version constant
      *)
-    tr_version: int;
+    engine_version: int;
+    (* ex: http://some-website/hello-world.0.1.2.tgz like in found_dependency
+     * 'resolved_url' field, but could be anything to describe a particular
+     * package. We could rely on https://github.com/package-url/purl-spec
+     *)
+    package_url: string;
+    (* extra key just in case (e.g., "prod" vs "dev") *)
+    extra: string;
 }
 
 (* The "value" *)
 type tr_cache_match_result = {
-    (* TODO: could define separate sca_transitive_match type? Should only be
-     * one of TransitiveXxx case of sca_match_kind
-     * TODO? add other fields from sca_match or just sca_match_kind is enough?
-     * add location maybe? or make it part of the [transitive_reachable]
-     * and [transitive_unreachable] records?
-     * TODO? make it a list? match_results: ... list; ?
+    (* alt: cache just sca_match? or sca_match_kind? or even define a separate
+     * sca_transitive_match type? which would be smaller than storing
+     * the whole set of matches
+     * alt: cache the whole cli_output? (which also contains the errors)
      *)
-    match_result: sca_match_kind;
+    matches: cli_match list;
 }
 
 (* Sent by the CLI to the POST /api/???? *)

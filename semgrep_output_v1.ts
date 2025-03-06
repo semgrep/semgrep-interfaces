@@ -810,12 +810,14 @@ export type ScanConfig = {
 
 export type TrCacheKey = {
   rule_id: RuleId;
-  resolved_url: string;
-  tr_version: number /*int*/;
+  rule_version: string;
+  engine_version: number /*int*/;
+  package_url: string;
+  extra: string;
 }
 
 export type TrCacheMatchResult = {
-  match_result: ScaMatchKind;
+  matches: CliMatch[];
 }
 
 export type TrQueryCacheRequest = {
@@ -3662,28 +3664,32 @@ export function readScanConfig(x: any, context: any = x): ScanConfig {
 export function writeTrCacheKey(x: TrCacheKey, context: any = x): any {
   return {
     'rule_id': _atd_write_required_field('TrCacheKey', 'rule_id', writeRuleId, x.rule_id, x),
-    'resolved_url': _atd_write_required_field('TrCacheKey', 'resolved_url', _atd_write_string, x.resolved_url, x),
-    'tr_version': _atd_write_required_field('TrCacheKey', 'tr_version', _atd_write_int, x.tr_version, x),
+    'rule_version': _atd_write_required_field('TrCacheKey', 'rule_version', _atd_write_string, x.rule_version, x),
+    'engine_version': _atd_write_required_field('TrCacheKey', 'engine_version', _atd_write_int, x.engine_version, x),
+    'package_url': _atd_write_required_field('TrCacheKey', 'package_url', _atd_write_string, x.package_url, x),
+    'extra': _atd_write_required_field('TrCacheKey', 'extra', _atd_write_string, x.extra, x),
   };
 }
 
 export function readTrCacheKey(x: any, context: any = x): TrCacheKey {
   return {
     rule_id: _atd_read_required_field('TrCacheKey', 'rule_id', readRuleId, x['rule_id'], x),
-    resolved_url: _atd_read_required_field('TrCacheKey', 'resolved_url', _atd_read_string, x['resolved_url'], x),
-    tr_version: _atd_read_required_field('TrCacheKey', 'tr_version', _atd_read_int, x['tr_version'], x),
+    rule_version: _atd_read_required_field('TrCacheKey', 'rule_version', _atd_read_string, x['rule_version'], x),
+    engine_version: _atd_read_required_field('TrCacheKey', 'engine_version', _atd_read_int, x['engine_version'], x),
+    package_url: _atd_read_required_field('TrCacheKey', 'package_url', _atd_read_string, x['package_url'], x),
+    extra: _atd_read_required_field('TrCacheKey', 'extra', _atd_read_string, x['extra'], x),
   };
 }
 
 export function writeTrCacheMatchResult(x: TrCacheMatchResult, context: any = x): any {
   return {
-    'match_result': _atd_write_required_field('TrCacheMatchResult', 'match_result', writeScaMatchKind, x.match_result, x),
+    'matches': _atd_write_required_field('TrCacheMatchResult', 'matches', _atd_write_array(writeCliMatch), x.matches, x),
   };
 }
 
 export function readTrCacheMatchResult(x: any, context: any = x): TrCacheMatchResult {
   return {
-    match_result: _atd_read_required_field('TrCacheMatchResult', 'match_result', readScaMatchKind, x['match_result'], x),
+    matches: _atd_read_required_field('TrCacheMatchResult', 'matches', _atd_read_array(readCliMatch), x['matches'], x),
   };
 }
 

@@ -347,14 +347,42 @@ type transitive_reachability_filter_params =
   dependencies: resolved_dependency list
 }
 
+type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
+  metavars: metavars option;
+  message: string;
+  fix: string option;
+  fixed_lines: string list option;
+  metadata: raw_json;
+  severity: match_severity;
+  fingerprint: string;
+  lines: string;
+  is_ignored: bool option;
+  sca_info: sca_match option;
+  validation_state: validation_state option;
+  historical_info: historical_info option;
+  dataflow_trace: match_dataflow_trace option;
+  engine_kind: engine_of_finding option;
+  extra_extra: raw_json option
+}
+
+type cli_match = Semgrep_output_v1_t.cli_match = {
+  check_id: rule_id;
+  path: fpath;
+  start: position;
+  end_ (*atd end *): position;
+  extra: cli_match_extra
+}
+
 type tr_cache_match_result = Semgrep_output_v1_t.tr_cache_match_result = {
-  match_result: sca_match_kind
+  matches: cli_match list
 }
 
 type tr_cache_key = Semgrep_output_v1_t.tr_cache_key = {
   rule_id: rule_id;
-  resolved_url: string;
-  tr_version: int
+  rule_version: string;
+  engine_version: int;
+  package_url: string;
+  extra: string
 }
 
 type tr_query_cache_response = Semgrep_output_v1_t.tr_query_cache_response = {
@@ -915,32 +943,6 @@ type dump_rule_partitions_params =
   rules: raw_json;
   n_partitions: int;
   output_dir: fpath
-}
-
-type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
-  metavars: metavars option;
-  message: string;
-  fix: string option;
-  fixed_lines: string list option;
-  metadata: raw_json;
-  severity: match_severity;
-  fingerprint: string;
-  lines: string;
-  is_ignored: bool option;
-  sca_info: sca_match option;
-  validation_state: validation_state option;
-  historical_info: historical_info option;
-  dataflow_trace: match_dataflow_trace option;
-  engine_kind: engine_of_finding option;
-  extra_extra: raw_json option
-}
-
-type cli_match = Semgrep_output_v1_t.cli_match = {
-  check_id: rule_id;
-  path: fpath;
-  start: position;
-  end_ (*atd end *): position;
-  extra: cli_match_extra
 }
 
 type cli_output = Semgrep_output_v1_t.cli_output = {
@@ -2333,6 +2335,46 @@ val read_transitive_reachability_filter_params :
 val transitive_reachability_filter_params_of_string :
   string -> transitive_reachability_filter_params
   (** Deserialize JSON data of type {!type:transitive_reachability_filter_params}. *)
+
+val write_cli_match_extra :
+  Buffer.t -> cli_match_extra -> unit
+  (** Output a JSON value of type {!type:cli_match_extra}. *)
+
+val string_of_cli_match_extra :
+  ?len:int -> cli_match_extra -> string
+  (** Serialize a value of type {!type:cli_match_extra}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_cli_match_extra :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match_extra
+  (** Input JSON data of type {!type:cli_match_extra}. *)
+
+val cli_match_extra_of_string :
+  string -> cli_match_extra
+  (** Deserialize JSON data of type {!type:cli_match_extra}. *)
+
+val write_cli_match :
+  Buffer.t -> cli_match -> unit
+  (** Output a JSON value of type {!type:cli_match}. *)
+
+val string_of_cli_match :
+  ?len:int -> cli_match -> string
+  (** Serialize a value of type {!type:cli_match}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_cli_match :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match
+  (** Input JSON data of type {!type:cli_match}. *)
+
+val cli_match_of_string :
+  string -> cli_match
+  (** Deserialize JSON data of type {!type:cli_match}. *)
 
 val write_tr_cache_match_result :
   Buffer.t -> tr_cache_match_result -> unit
@@ -4073,46 +4115,6 @@ val read_dump_rule_partitions_params :
 val dump_rule_partitions_params_of_string :
   string -> dump_rule_partitions_params
   (** Deserialize JSON data of type {!type:dump_rule_partitions_params}. *)
-
-val write_cli_match_extra :
-  Buffer.t -> cli_match_extra -> unit
-  (** Output a JSON value of type {!type:cli_match_extra}. *)
-
-val string_of_cli_match_extra :
-  ?len:int -> cli_match_extra -> string
-  (** Serialize a value of type {!type:cli_match_extra}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cli_match_extra :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match_extra
-  (** Input JSON data of type {!type:cli_match_extra}. *)
-
-val cli_match_extra_of_string :
-  string -> cli_match_extra
-  (** Deserialize JSON data of type {!type:cli_match_extra}. *)
-
-val write_cli_match :
-  Buffer.t -> cli_match -> unit
-  (** Output a JSON value of type {!type:cli_match}. *)
-
-val string_of_cli_match :
-  ?len:int -> cli_match -> string
-  (** Serialize a value of type {!type:cli_match}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cli_match :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match
-  (** Input JSON data of type {!type:cli_match}. *)
-
-val cli_match_of_string :
-  string -> cli_match
-  (** Deserialize JSON data of type {!type:cli_match}. *)
 
 val write_cli_output :
   Buffer.t -> cli_output -> unit

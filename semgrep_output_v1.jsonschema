@@ -1541,18 +1541,25 @@
     },
     "tr_cache_key": {
       "type": "object",
-      "required": [ "rule_id", "resolved_url", "tr_version" ],
+      "required": [
+        "rule_id", "rule_version", "engine_version", "package_url", "extra"
+      ],
       "properties": {
         "rule_id": { "$ref": "#/definitions/rule_id" },
-        "resolved_url": { "type": "string" },
-        "tr_version": { "type": "integer" }
+        "rule_version": { "type": "string" },
+        "engine_version": { "type": "integer" },
+        "package_url": { "type": "string" },
+        "extra": { "type": "string" }
       }
     },
     "tr_cache_match_result": {
       "type": "object",
-      "required": [ "match_result" ],
+      "required": [ "matches" ],
       "properties": {
-        "match_result": { "$ref": "#/definitions/sca_match_kind" }
+        "matches": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/cli_match" }
+        }
       }
     },
     "tr_query_cache_request": {
