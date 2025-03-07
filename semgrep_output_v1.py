@@ -4863,6 +4863,278 @@ class TransitiveReachabilityFilterParams:
 
 
 @dataclass
+class CliMatchExtra:
+    """Original type: cli_match_extra = { ... }"""
+
+    message: str
+    metadata: RawJson
+    severity: MatchSeverity
+    fingerprint: str
+    lines: str
+    metavars: Optional[Metavars] = None
+    fix: Optional[str] = None
+    fixed_lines: Optional[List[str]] = None
+    is_ignored: Optional[bool] = None
+    sca_info: Optional[ScaMatch] = None
+    validation_state: Optional[ValidationState] = None
+    historical_info: Optional[HistoricalInfo] = None
+    dataflow_trace: Optional[MatchDataflowTrace] = None
+    engine_kind: Optional[EngineOfFinding] = None
+    extra_extra: Optional[RawJson] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CliMatchExtra':
+        if isinstance(x, dict):
+            return cls(
+                message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('CliMatchExtra', 'message'),
+                metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else _atd_missing_json_field('CliMatchExtra', 'metadata'),
+                severity=MatchSeverity.from_json(x['severity']) if 'severity' in x else _atd_missing_json_field('CliMatchExtra', 'severity'),
+                fingerprint=_atd_read_string(x['fingerprint']) if 'fingerprint' in x else _atd_missing_json_field('CliMatchExtra', 'fingerprint'),
+                lines=_atd_read_string(x['lines']) if 'lines' in x else _atd_missing_json_field('CliMatchExtra', 'lines'),
+                metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else None,
+                fix=_atd_read_string(x['fix']) if 'fix' in x else None,
+                fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
+                is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else None,
+                sca_info=ScaMatch.from_json(x['sca_info']) if 'sca_info' in x else None,
+                validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
+                historical_info=HistoricalInfo.from_json(x['historical_info']) if 'historical_info' in x else None,
+                dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
+                engine_kind=EngineOfFinding.from_json(x['engine_kind']) if 'engine_kind' in x else None,
+                extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
+            )
+        else:
+            _atd_bad_json('CliMatchExtra', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['message'] = _atd_write_string(self.message)
+        res['metadata'] = (lambda x: x.to_json())(self.metadata)
+        res['severity'] = (lambda x: x.to_json())(self.severity)
+        res['fingerprint'] = _atd_write_string(self.fingerprint)
+        res['lines'] = _atd_write_string(self.lines)
+        if self.metavars is not None:
+            res['metavars'] = (lambda x: x.to_json())(self.metavars)
+        if self.fix is not None:
+            res['fix'] = _atd_write_string(self.fix)
+        if self.fixed_lines is not None:
+            res['fixed_lines'] = _atd_write_list(_atd_write_string)(self.fixed_lines)
+        if self.is_ignored is not None:
+            res['is_ignored'] = _atd_write_bool(self.is_ignored)
+        if self.sca_info is not None:
+            res['sca_info'] = (lambda x: x.to_json())(self.sca_info)
+        if self.validation_state is not None:
+            res['validation_state'] = (lambda x: x.to_json())(self.validation_state)
+        if self.historical_info is not None:
+            res['historical_info'] = (lambda x: x.to_json())(self.historical_info)
+        if self.dataflow_trace is not None:
+            res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
+        if self.engine_kind is not None:
+            res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
+        if self.extra_extra is not None:
+            res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CliMatchExtra':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CliMatch:
+    """Original type: cli_match = { ... }"""
+
+    check_id: RuleId
+    path: Fpath
+    start: Position
+    end: Position
+    extra: CliMatchExtra
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CliMatch':
+        if isinstance(x, dict):
+            return cls(
+                check_id=RuleId.from_json(x['check_id']) if 'check_id' in x else _atd_missing_json_field('CliMatch', 'check_id'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('CliMatch', 'path'),
+                start=Position.from_json(x['start']) if 'start' in x else _atd_missing_json_field('CliMatch', 'start'),
+                end=Position.from_json(x['end']) if 'end' in x else _atd_missing_json_field('CliMatch', 'end'),
+                extra=CliMatchExtra.from_json(x['extra']) if 'extra' in x else _atd_missing_json_field('CliMatch', 'extra'),
+            )
+        else:
+            _atd_bad_json('CliMatch', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['check_id'] = (lambda x: x.to_json())(self.check_id)
+        res['path'] = (lambda x: x.to_json())(self.path)
+        res['start'] = (lambda x: x.to_json())(self.start)
+        res['end'] = (lambda x: x.to_json())(self.end)
+        res['extra'] = (lambda x: x.to_json())(self.extra)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CliMatch':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TrCacheMatchResult:
+    """Original type: tr_cache_match_result = { ... }"""
+
+    matches: List[CliMatch]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TrCacheMatchResult':
+        if isinstance(x, dict):
+            return cls(
+                matches=_atd_read_list(CliMatch.from_json)(x['matches']) if 'matches' in x else _atd_missing_json_field('TrCacheMatchResult', 'matches'),
+            )
+        else:
+            _atd_bad_json('TrCacheMatchResult', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['matches'] = _atd_write_list((lambda x: x.to_json()))(self.matches)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TrCacheMatchResult':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TrCacheKey:
+    """Original type: tr_cache_key = { ... }"""
+
+    rule_id: RuleId
+    rule_version: str
+    engine_version: int
+    package_url: str
+    extra: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TrCacheKey':
+        if isinstance(x, dict):
+            return cls(
+                rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else _atd_missing_json_field('TrCacheKey', 'rule_id'),
+                rule_version=_atd_read_string(x['rule_version']) if 'rule_version' in x else _atd_missing_json_field('TrCacheKey', 'rule_version'),
+                engine_version=_atd_read_int(x['engine_version']) if 'engine_version' in x else _atd_missing_json_field('TrCacheKey', 'engine_version'),
+                package_url=_atd_read_string(x['package_url']) if 'package_url' in x else _atd_missing_json_field('TrCacheKey', 'package_url'),
+                extra=_atd_read_string(x['extra']) if 'extra' in x else _atd_missing_json_field('TrCacheKey', 'extra'),
+            )
+        else:
+            _atd_bad_json('TrCacheKey', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
+        res['rule_version'] = _atd_write_string(self.rule_version)
+        res['engine_version'] = _atd_write_int(self.engine_version)
+        res['package_url'] = _atd_write_string(self.package_url)
+        res['extra'] = _atd_write_string(self.extra)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TrCacheKey':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TrQueryCacheResponse:
+    """Original type: tr_query_cache_response = { ... }"""
+
+    cached: List[Tuple[TrCacheKey, TrCacheMatchResult]]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TrQueryCacheResponse':
+        if isinstance(x, dict):
+            return cls(
+                cached=_atd_read_list((lambda x: (TrCacheKey.from_json(x[0]), TrCacheMatchResult.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['cached']) if 'cached' in x else _atd_missing_json_field('TrQueryCacheResponse', 'cached'),
+            )
+        else:
+            _atd_bad_json('TrQueryCacheResponse', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['cached'] = _atd_write_list((lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.cached)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TrQueryCacheResponse':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TrQueryCacheRequest:
+    """Original type: tr_query_cache_request = { ... }"""
+
+    entries: List[TrCacheKey]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TrQueryCacheRequest':
+        if isinstance(x, dict):
+            return cls(
+                entries=_atd_read_list(TrCacheKey.from_json)(x['entries']) if 'entries' in x else _atd_missing_json_field('TrQueryCacheRequest', 'entries'),
+            )
+        else:
+            _atd_bad_json('TrQueryCacheRequest', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['entries'] = _atd_write_list((lambda x: x.to_json()))(self.entries)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TrQueryCacheRequest':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TrAddCacheRequest:
+    """Original type: tr_add_cache_request = { ... }"""
+
+    new_entries: List[Tuple[TrCacheKey, TrCacheMatchResult]]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TrAddCacheRequest':
+        if isinstance(x, dict):
+            return cls(
+                new_entries=_atd_read_list((lambda x: (TrCacheKey.from_json(x[0]), TrCacheMatchResult.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['new_entries']) if 'new_entries' in x else _atd_missing_json_field('TrAddCacheRequest', 'new_entries'),
+            )
+        else:
+            _atd_bad_json('TrAddCacheRequest', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['new_entries'] = _atd_write_list((lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.new_entries)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TrAddCacheRequest':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Todo:
     """Original type: todo"""
 
@@ -9549,126 +9821,6 @@ class DumpRulePartitionsParams:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'DumpRulePartitionsParams':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class CliMatchExtra:
-    """Original type: cli_match_extra = { ... }"""
-
-    message: str
-    metadata: RawJson
-    severity: MatchSeverity
-    fingerprint: str
-    lines: str
-    metavars: Optional[Metavars] = None
-    fix: Optional[str] = None
-    fixed_lines: Optional[List[str]] = None
-    is_ignored: Optional[bool] = None
-    sca_info: Optional[ScaMatch] = None
-    validation_state: Optional[ValidationState] = None
-    historical_info: Optional[HistoricalInfo] = None
-    dataflow_trace: Optional[MatchDataflowTrace] = None
-    engine_kind: Optional[EngineOfFinding] = None
-    extra_extra: Optional[RawJson] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CliMatchExtra':
-        if isinstance(x, dict):
-            return cls(
-                message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('CliMatchExtra', 'message'),
-                metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else _atd_missing_json_field('CliMatchExtra', 'metadata'),
-                severity=MatchSeverity.from_json(x['severity']) if 'severity' in x else _atd_missing_json_field('CliMatchExtra', 'severity'),
-                fingerprint=_atd_read_string(x['fingerprint']) if 'fingerprint' in x else _atd_missing_json_field('CliMatchExtra', 'fingerprint'),
-                lines=_atd_read_string(x['lines']) if 'lines' in x else _atd_missing_json_field('CliMatchExtra', 'lines'),
-                metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else None,
-                fix=_atd_read_string(x['fix']) if 'fix' in x else None,
-                fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
-                is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else None,
-                sca_info=ScaMatch.from_json(x['sca_info']) if 'sca_info' in x else None,
-                validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
-                historical_info=HistoricalInfo.from_json(x['historical_info']) if 'historical_info' in x else None,
-                dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
-                engine_kind=EngineOfFinding.from_json(x['engine_kind']) if 'engine_kind' in x else None,
-                extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
-            )
-        else:
-            _atd_bad_json('CliMatchExtra', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['message'] = _atd_write_string(self.message)
-        res['metadata'] = (lambda x: x.to_json())(self.metadata)
-        res['severity'] = (lambda x: x.to_json())(self.severity)
-        res['fingerprint'] = _atd_write_string(self.fingerprint)
-        res['lines'] = _atd_write_string(self.lines)
-        if self.metavars is not None:
-            res['metavars'] = (lambda x: x.to_json())(self.metavars)
-        if self.fix is not None:
-            res['fix'] = _atd_write_string(self.fix)
-        if self.fixed_lines is not None:
-            res['fixed_lines'] = _atd_write_list(_atd_write_string)(self.fixed_lines)
-        if self.is_ignored is not None:
-            res['is_ignored'] = _atd_write_bool(self.is_ignored)
-        if self.sca_info is not None:
-            res['sca_info'] = (lambda x: x.to_json())(self.sca_info)
-        if self.validation_state is not None:
-            res['validation_state'] = (lambda x: x.to_json())(self.validation_state)
-        if self.historical_info is not None:
-            res['historical_info'] = (lambda x: x.to_json())(self.historical_info)
-        if self.dataflow_trace is not None:
-            res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
-        if self.engine_kind is not None:
-            res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
-        if self.extra_extra is not None:
-            res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CliMatchExtra':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class CliMatch:
-    """Original type: cli_match = { ... }"""
-
-    check_id: RuleId
-    path: Fpath
-    start: Position
-    end: Position
-    extra: CliMatchExtra
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CliMatch':
-        if isinstance(x, dict):
-            return cls(
-                check_id=RuleId.from_json(x['check_id']) if 'check_id' in x else _atd_missing_json_field('CliMatch', 'check_id'),
-                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('CliMatch', 'path'),
-                start=Position.from_json(x['start']) if 'start' in x else _atd_missing_json_field('CliMatch', 'start'),
-                end=Position.from_json(x['end']) if 'end' in x else _atd_missing_json_field('CliMatch', 'end'),
-                extra=CliMatchExtra.from_json(x['extra']) if 'extra' in x else _atd_missing_json_field('CliMatch', 'extra'),
-            )
-        else:
-            _atd_bad_json('CliMatch', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['check_id'] = (lambda x: x.to_json())(self.check_id)
-        res['path'] = (lambda x: x.to_json())(self.path)
-        res['start'] = (lambda x: x.to_json())(self.start)
-        res['end'] = (lambda x: x.to_json())(self.end)
-        res['extra'] = (lambda x: x.to_json())(self.extra)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CliMatch':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
