@@ -1,0 +1,31 @@
+# This is meant to be installed with 'opam install --deps-only . '
+#
+opam-version: "2.0"
+maintainer: "semgrep"
+authors: "r2c"
+homepage: "n/a"
+bug-reports: "n/a"
+synopsis: "Interfaces for Semgrep"
+dev-repo: "git+https://github.com/semgrep/semgrep-interfaces.git"
+license: "LGPL-2.1-only"
+
+build: []
+install: []
+          
+depends: [
+  "atd" {>= "2.6.0"}
+  "atdpy" {>= "2.12.0"}
+  "atdts" {>= "2.13.0"}
+  "atdgen" {>= "2.10.0"}
+]
+
+#TODO: we don't build on ubuntu or debian ever, and they are not packages there,
+# so let's just ignore it for now
+#["check-jsonschema"] {os-family = "debian"}
+#["check-jsonschema"] {os-family = "ubuntu"}
+depexts: [
+   ["check-jsonschema"] {os-distribution = "alpine"}
+   ["check-jsonschema"] {os = "macos" & os-distribution = "homebrew"}
+   ["check-jsonschema"] {os = "macos" & os-distribution = "macports"}
+   ["check-jsonschema"] {os = "win32" & os-distribution = "macports"}
+]
