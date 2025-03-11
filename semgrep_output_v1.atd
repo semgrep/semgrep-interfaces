@@ -515,6 +515,7 @@ type ecosystem
   (* Deprecated: Mix is a build system, should use Hex, which is the ecosystem *)
   | Mix <json name="mix">
   | Hex <json name="hex">
+  | Opam <json name="opam">
 ]
 
 type transitivity
@@ -2234,6 +2235,7 @@ type lockfile_kind
     | PodfileLock
     | MixLock
     | ConanLock
+    | OpamLocked
 ] <ocaml repr="classic">
 
 (* TODO: use <ocaml repr="classic"> *)
@@ -2296,6 +2298,8 @@ type manifest_kind
   | ConanFilePy
   (* .csproj - https://docs.microsoft.com/en-us/dotnet/core/tools/csproj *)
   | Csproj
+  (* .opam - https://opam.ocaml.org/doc/Manual.html#Package-definitions *)
+  | OpamFile
 ]
 
 type manifest

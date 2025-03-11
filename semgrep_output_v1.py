@@ -534,10 +534,27 @@ class Hex:
 
 
 @dataclass(frozen=True)
+class Opam:
+    """Original type: ecosystem = [ ... | Opam | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Opam'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'opam'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class Ecosystem:
     """Original type: ecosystem = [ ... ]"""
 
-    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub, SwiftPM, Cocoapods, Mix, Hex]
+    value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub, SwiftPM, Cocoapods, Mix, Hex, Opam]
 
     @property
     def kind(self) -> str:
@@ -573,6 +590,8 @@ class Ecosystem:
                 return cls(Mix())
             if x == 'hex':
                 return cls(Hex())
+            if x == 'opam':
+                return cls(Opam())
             _atd_bad_json('Ecosystem', x)
         _atd_bad_json('Ecosystem', x)
 
@@ -932,10 +951,27 @@ class ConanLock:
 
 
 @dataclass(frozen=True)
+class OpamLocked:
+    """Original type: lockfile_kind = [ ... | OpamLocked | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'OpamLocked'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'OpamLocked'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class LockfileKind:
     """Original type: lockfile_kind = [ ... ]"""
 
-    value: Union[PipRequirementsTxt, PoetryLock, PipfileLock, UvLock, NpmPackageLockJson, YarnLock, PnpmLock, GemfileLock, GoMod, CargoLock, MavenDepTree, GradleLockfile, ComposerLock, NugetPackagesLockJson, PubspecLock, SwiftPackageResolved, PodfileLock, MixLock, ConanLock]
+    value: Union[PipRequirementsTxt, PoetryLock, PipfileLock, UvLock, NpmPackageLockJson, YarnLock, PnpmLock, GemfileLock, GoMod, CargoLock, MavenDepTree, GradleLockfile, ComposerLock, NugetPackagesLockJson, PubspecLock, SwiftPackageResolved, PodfileLock, MixLock, ConanLock, OpamLocked]
 
     @property
     def kind(self) -> str:
@@ -983,6 +1019,8 @@ class LockfileKind:
                 return cls(MixLock())
             if x == 'ConanLock':
                 return cls(ConanLock())
+            if x == 'OpamLocked':
+                return cls(OpamLocked())
             _atd_bad_json('LockfileKind', x)
         _atd_bad_json('LockfileKind', x)
 
@@ -1369,10 +1407,27 @@ class Csproj:
 
 
 @dataclass(frozen=True)
+class OpamFile:
+    """Original type: manifest_kind = [ ... | OpamFile | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'OpamFile'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'OpamFile'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class ManifestKind:
     """Original type: manifest_kind = [ ... ]"""
 
-    value: Union[RequirementsIn, SetupPy, PackageJson, Gemfile, GoMod_, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, Podfile, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj]
+    value: Union[RequirementsIn, SetupPy, PackageJson, Gemfile, GoMod_, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, Podfile, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj, OpamFile]
 
     @property
     def kind(self) -> str:
@@ -1422,6 +1477,8 @@ class ManifestKind:
                 return cls(ConanFilePy())
             if x == 'Csproj':
                 return cls(Csproj())
+            if x == 'OpamFile':
+                return cls(OpamFile())
             _atd_bad_json('ManifestKind', x)
         _atd_bad_json('ManifestKind', x)
 

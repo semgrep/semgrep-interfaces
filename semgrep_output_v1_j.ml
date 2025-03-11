@@ -17,7 +17,7 @@ type lockfile_kind = Semgrep_output_v1_t.lockfile_kind =
   | NpmPackageLockJson | YarnLock | PnpmLock | GemfileLock | GoMod
   | CargoLock | MavenDepTree | GradleLockfile | ComposerLock
   | NugetPackagesLockJson | PubspecLock | SwiftPackageResolved | PodfileLock
-  | MixLock | ConanLock
+  | MixLock | ConanLock | OpamLocked
 
   [@@deriving show, eq, yojson]
 
@@ -1603,6 +1603,7 @@ let write_ecosystem = (
       | `Cocoapods -> Buffer.add_string ob "\"cocoapods\""
       | `Mix -> Buffer.add_string ob "\"mix\""
       | `Hex -> Buffer.add_string ob "\"hex\""
+      | `Opam -> Buffer.add_string ob "\"opam\""
 )
 let string_of_ecosystem ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -1666,6 +1667,10 @@ let read_ecosystem = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Hex
+            | "opam" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `Opam
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -1697,6 +1702,8 @@ let read_ecosystem = (
               `Mix
             | "hex" ->
               `Hex
+            | "opam" ->
+              `Opam
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -1799,6 +1806,7 @@ let write_lockfile_kind : _ -> lockfile_kind -> _ = (
       | PodfileLock -> Buffer.add_string ob "\"PodfileLock\""
       | MixLock -> Buffer.add_string ob "\"MixLock\""
       | ConanLock -> Buffer.add_string ob "\"ConanLock\""
+      | OpamLocked -> Buffer.add_string ob "\"OpamLocked\""
 )
 let string_of_lockfile_kind ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -1886,6 +1894,10 @@ let read_lockfile_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (ConanLock : lockfile_kind)
+            | "OpamLocked" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (OpamLocked : lockfile_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -1929,6 +1941,8 @@ let read_lockfile_kind = (
               (MixLock : lockfile_kind)
             | "ConanLock" ->
               (ConanLock : lockfile_kind)
+            | "OpamLocked" ->
+              (OpamLocked : lockfile_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -2126,6 +2140,7 @@ let write_manifest_kind = (
       | `ConanFileTxt -> Buffer.add_string ob "\"ConanFileTxt\""
       | `ConanFilePy -> Buffer.add_string ob "\"ConanFilePy\""
       | `Csproj -> Buffer.add_string ob "\"Csproj\""
+      | `OpamFile -> Buffer.add_string ob "\"OpamFile\""
 )
 let string_of_manifest_kind ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -2217,6 +2232,10 @@ let read_manifest_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Csproj
+            | "OpamFile" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `OpamFile
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -2262,6 +2281,8 @@ let read_manifest_kind = (
               `ConanFilePy
             | "Csproj" ->
               `Csproj
+            | "OpamFile" ->
+              `OpamFile
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
