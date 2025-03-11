@@ -465,7 +465,7 @@ type code_target = Semgrep_output_v1_t.code_target = {
   path: fpath;
   analyzer: analyzer;
   products: product list;
-  lockfile_target: lockfile option
+  dependency_source: dependency_source option
 }
   [@@deriving show]
 
@@ -16952,16 +16952,16 @@ let read__product_list = (
 )
 let _product_list_of_string s =
   read__product_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__lockfile_option = (
+let write__dependency_source_option = (
   Atdgen_runtime.Oj_run.write_std_option (
-    write_lockfile
+    write_dependency_source
   )
 )
-let string_of__lockfile_option ?(len = 1024) x =
+let string_of__dependency_source_option ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__lockfile_option ob x;
+  write__dependency_source_option ob x;
   Buffer.contents ob
-let read__lockfile_option = (
+let read__dependency_source_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     match Yojson.Safe.start_any_variant p lb with
@@ -16974,7 +16974,7 @@ let read__lockfile_option = (
             | "Some" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read_lockfile
+                  read_dependency_source
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -16997,7 +16997,7 @@ let read__lockfile_option = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read_lockfile
+                  read_dependency_source
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -17007,8 +17007,8 @@ let read__lockfile_option = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-let _lockfile_option_of_string s =
-  read__lockfile_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _dependency_source_option_of_string s =
+  read__dependency_source_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_code_target : _ -> code_target -> _ = (
   fun ob (x : code_target) ->
     Buffer.add_char ob '{';
@@ -17040,14 +17040,14 @@ let write_code_target : _ -> code_target -> _ = (
       write__product_list
     )
       ob x.products;
-    (match x.lockfile_target with None -> () | Some x ->
+    (match x.dependency_source with None -> () | Some x ->
       if !is_first then
         is_first := false
       else
         Buffer.add_char ob ',';
-        Buffer.add_string ob "\"lockfile_target\":";
+        Buffer.add_string ob "\"dependency_source\":";
       (
-        write_lockfile
+        write_dependency_source
       )
         ob x;
     );
@@ -17064,7 +17064,7 @@ let read_code_target = (
     let field_path = ref (None) in
     let field_analyzer = ref (None) in
     let field_products = ref (None) in
-    let field_lockfile_target = ref (None) in
+    let field_dependency_source = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -17104,8 +17104,8 @@ let read_code_target = (
                       -1
                     )
               )
-            | 15 -> (
-                if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'k' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'g' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 't' then (
+            | 17 -> (
+                if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'u' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 'e' then (
                   3
                 )
                 else (
@@ -17146,10 +17146,10 @@ let read_code_target = (
             );
           | 3 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_lockfile_target := (
+              field_dependency_source := (
                 Some (
                   (
-                    read_lockfile
+                    read_dependency_source
                   ) p lb
                 )
               );
@@ -17197,8 +17197,8 @@ let read_code_target = (
                         -1
                       )
                 )
-              | 15 -> (
-                  if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'k' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'g' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 't' then (
+              | 17 -> (
+                  if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'u' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 'e' then (
                     3
                   )
                   else (
@@ -17239,10 +17239,10 @@ let read_code_target = (
               );
             | 3 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_lockfile_target := (
+                field_dependency_source := (
                   Some (
                     (
-                      read_lockfile
+                      read_dependency_source
                     ) p lb
                   )
                 );
@@ -17259,7 +17259,7 @@ let read_code_target = (
             path = (match !field_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "path");
             analyzer = (match !field_analyzer with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "analyzer");
             products = (match !field_products with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "products");
-            lockfile_target = !field_lockfile_target;
+            dependency_source = !field_dependency_source;
           }
          : code_target)
       )
@@ -17275,10 +17275,10 @@ let write_target = (
           write_code_target
         ) ob x;
         Buffer.add_char ob ']'
-      | `LockfileTarget x ->
-        Buffer.add_string ob "[\"LockfileTarget\",";
+      | `DependencySourceTarget x ->
+        Buffer.add_string ob "[\"DependencySourceTarget\",";
         (
-          write_lockfile
+          write_dependency_source
         ) ob x;
         Buffer.add_char ob ']'
 )
@@ -17301,15 +17301,15 @@ let read_target = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `CodeTarget x
-            | "LockfileTarget" ->
+            | "DependencySourceTarget" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read_lockfile
+                  read_dependency_source
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `LockfileTarget x
+              `DependencySourceTarget x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -17331,17 +17331,17 @@ let read_target = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `CodeTarget x
-            | "LockfileTarget" ->
+            | "DependencySourceTarget" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read_lockfile
+                  read_dependency_source
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
-              `LockfileTarget x
+              `DependencySourceTarget x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

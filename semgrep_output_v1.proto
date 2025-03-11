@@ -694,7 +694,7 @@ message CodeTarget {
   string path = 3212859;
   string analyzer = 405167385;
   repeated google.protobuf.Any products = 302629094;
-  Lockfile lockfile_target = 293108416;
+  google.protobuf.Any dependency_source = 199211442;
 }
 
 message ScanningRoots {

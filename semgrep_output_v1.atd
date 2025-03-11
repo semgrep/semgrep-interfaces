@@ -2092,7 +2092,7 @@ type analyzer <ocaml attr="deriving show"> = string wrap <ocaml module="Analyzer
 *)
 type target <ocaml attr="deriving show"> = [
   | CodeTarget of code_target
-  | LockfileTarget of lockfile
+  | DependencySourceTarget of dependency_source
 ]
 
 (*
@@ -2109,7 +2109,7 @@ type code_target <ocaml attr="deriving show"> = {
   *)
   analyzer: analyzer;
   products: product list;
-  ?lockfile_target: lockfile option;
+  ?dependency_source: dependency_source option;
 }
 
 type scanning_roots <ocaml attr="deriving show"> = {
