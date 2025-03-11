@@ -465,7 +465,7 @@ type code_target = Semgrep_output_v1_t.code_target = {
   path: fpath;
   analyzer: analyzer;
   products: product list;
-  lockfile_target: lockfile option
+  dependency_source: dependency_source option
 }
   [@@deriving show]
 

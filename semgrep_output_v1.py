@@ -5732,7 +5732,7 @@ class CodeTarget:
     path: Fpath
     analyzer: Analyzer
     products: List[Product]
-    lockfile_target: Optional[Lockfile] = None
+    dependency_source: Optional[DependencySource] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CodeTarget':
@@ -5741,7 +5741,7 @@ class CodeTarget:
                 path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('CodeTarget', 'path'),
                 analyzer=Analyzer.from_json(x['analyzer']) if 'analyzer' in x else _atd_missing_json_field('CodeTarget', 'analyzer'),
                 products=_atd_read_list(Product.from_json)(x['products']) if 'products' in x else _atd_missing_json_field('CodeTarget', 'products'),
-                lockfile_target=Lockfile.from_json(x['lockfile_target']) if 'lockfile_target' in x else None,
+                dependency_source=DependencySource.from_json(x['dependency_source']) if 'dependency_source' in x else None,
             )
         else:
             _atd_bad_json('CodeTarget', x)
@@ -5751,8 +5751,8 @@ class CodeTarget:
         res['path'] = (lambda x: x.to_json())(self.path)
         res['analyzer'] = (lambda x: x.to_json())(self.analyzer)
         res['products'] = _atd_write_list((lambda x: x.to_json()))(self.products)
-        if self.lockfile_target is not None:
-            res['lockfile_target'] = (lambda x: x.to_json())(self.lockfile_target)
+        if self.dependency_source is not None:
+            res['dependency_source'] = (lambda x: x.to_json())(self.dependency_source)
         return res
 
     @classmethod
@@ -5782,18 +5782,18 @@ class CodeTarget_:
 
 
 @dataclass
-class LockfileTarget:
-    """Original type: target = [ ... | LockfileTarget of ... | ... ]"""
+class DependencySourceTarget:
+    """Original type: target = [ ... | DependencySourceTarget of ... | ... ]"""
 
-    value: Lockfile
+    value: DependencySource
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'LockfileTarget'
+        return 'DependencySourceTarget'
 
     def to_json(self) -> Any:
-        return ['LockfileTarget', (lambda x: x.to_json())(self.value)]
+        return ['DependencySourceTarget', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -5803,7 +5803,7 @@ class LockfileTarget:
 class Target:
     """Original type: target = [ ... ]"""
 
-    value: Union[CodeTarget_, LockfileTarget]
+    value: Union[CodeTarget_, DependencySourceTarget]
 
     @property
     def kind(self) -> str:
@@ -5816,8 +5816,8 @@ class Target:
             cons = x[0]
             if cons == 'CodeTarget':
                 return cls(CodeTarget_(CodeTarget.from_json(x[1])))
-            if cons == 'LockfileTarget':
-                return cls(LockfileTarget(Lockfile.from_json(x[1])))
+            if cons == 'DependencySourceTarget':
+                return cls(DependencySourceTarget(DependencySource.from_json(x[1])))
             _atd_bad_json('Target', x)
         _atd_bad_json('Target', x)
 

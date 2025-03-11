@@ -1795,8 +1795,8 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "LockfileTarget" },
-            { "$ref": "#/definitions/lockfile" }
+            { "const": "DependencySourceTarget" },
+            { "$ref": "#/definitions/dependency_source" }
           ]
         }
       ]
@@ -1811,7 +1811,7 @@
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
         },
-        "lockfile_target": { "$ref": "#/definitions/lockfile" }
+        "dependency_source": { "$ref": "#/definitions/dependency_source" }
       }
     },
     "scanning_roots": {

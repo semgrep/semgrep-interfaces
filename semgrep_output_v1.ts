@@ -926,13 +926,13 @@ export type Analyzer = string
 
 export type Target =
 | { kind: 'CodeTarget'; value: CodeTarget }
-| { kind: 'LockfileTarget'; value: Lockfile }
+| { kind: 'DependencySourceTarget'; value: DependencySource }
 
 export type CodeTarget = {
   path: Fpath;
   analyzer: Analyzer;
   products: Product[];
-  lockfile_target?: Lockfile;
+  dependency_source?: DependencySource;
 }
 
 export type ScanningRoots = {
@@ -3976,8 +3976,8 @@ export function writeTarget(x: Target, context: any = x): any {
   switch (x.kind) {
     case 'CodeTarget':
       return ['CodeTarget', writeCodeTarget(x.value, x)]
-    case 'LockfileTarget':
-      return ['LockfileTarget', writeLockfile(x.value, x)]
+    case 'DependencySourceTarget':
+      return ['DependencySourceTarget', writeDependencySource(x.value, x)]
   }
 }
 
@@ -3986,8 +3986,8 @@ export function readTarget(x: any, context: any = x): Target {
   switch (x[0]) {
     case 'CodeTarget':
       return { kind: 'CodeTarget', value: readCodeTarget(x[1], x) }
-    case 'LockfileTarget':
-      return { kind: 'LockfileTarget', value: readLockfile(x[1], x) }
+    case 'DependencySourceTarget':
+      return { kind: 'DependencySourceTarget', value: readDependencySource(x[1], x) }
     default:
       _atd_bad_json('Target', x, context)
       throw new Error('impossible')
@@ -3999,7 +3999,7 @@ export function writeCodeTarget(x: CodeTarget, context: any = x): any {
     'path': _atd_write_required_field('CodeTarget', 'path', writeFpath, x.path, x),
     'analyzer': _atd_write_required_field('CodeTarget', 'analyzer', writeAnalyzer, x.analyzer, x),
     'products': _atd_write_required_field('CodeTarget', 'products', _atd_write_array(writeProduct), x.products, x),
-    'lockfile_target': _atd_write_optional_field(writeLockfile, x.lockfile_target, x),
+    'dependency_source': _atd_write_optional_field(writeDependencySource, x.dependency_source, x),
   };
 }
 
@@ -4008,7 +4008,7 @@ export function readCodeTarget(x: any, context: any = x): CodeTarget {
     path: _atd_read_required_field('CodeTarget', 'path', readFpath, x['path'], x),
     analyzer: _atd_read_required_field('CodeTarget', 'analyzer', readAnalyzer, x['analyzer'], x),
     products: _atd_read_required_field('CodeTarget', 'products', _atd_read_array(readProduct), x['products'], x),
-    lockfile_target: _atd_read_optional_field(readLockfile, x['lockfile_target'], x),
+    dependency_source: _atd_read_optional_field(readDependencySource, x['dependency_source'], x),
   };
 }
 
