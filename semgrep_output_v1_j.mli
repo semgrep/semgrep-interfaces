@@ -17,7 +17,7 @@ type lockfile_kind = Semgrep_output_v1_t.lockfile_kind =
   | NpmPackageLockJson | YarnLock | PnpmLock | GemfileLock | GoMod
   | CargoLock | MavenDepTree | GradleLockfile | ComposerLock
   | NugetPackagesLockJson | PubspecLock | SwiftPackageResolved | PodfileLock
-  | MixLock | ConanLock
+  | MixLock | ConanLock | OpamLocked
 
   [@@deriving show, eq, yojson]
 

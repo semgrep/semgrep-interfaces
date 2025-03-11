@@ -339,7 +339,8 @@
         { "const": "swiftpm" },
         { "const": "cocoapods" },
         { "const": "mix" },
-        { "const": "hex" }
+        { "const": "hex" },
+        { "const": "opam" }
       ]
     },
     "transitivity": {
@@ -1949,7 +1950,8 @@
         { "const": "SwiftPackageResolved" },
         { "const": "PodfileLock" },
         { "const": "MixLock" },
-        { "const": "ConanLock" }
+        { "const": "ConanLock" },
+        { "const": "OpamLocked" }
       ]
     },
     "manifest_kind": {
@@ -1973,7 +1975,8 @@
         { "const": "PyprojectToml" },
         { "const": "ConanFileTxt" },
         { "const": "ConanFilePy" },
-        { "const": "Csproj" }
+        { "const": "Csproj" },
+        { "const": "OpamFile" }
       ]
     },
     "manifest": {

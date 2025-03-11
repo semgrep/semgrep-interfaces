@@ -184,6 +184,7 @@ export type Ecosystem =
 | { kind: 'Cocoapods' /* JSON: "cocoapods" */ }
 | { kind: 'Mix' /* JSON: "mix" */ }
 | { kind: 'Hex' /* JSON: "hex" */ }
+| { kind: 'Opam' /* JSON: "opam" */ }
 
 export type Transitivity =
 | { kind: 'Direct' /* JSON: "direct" */ }
@@ -1010,6 +1011,7 @@ export type LockfileKind =
 | { kind: 'PodfileLock' }
 | { kind: 'MixLock' }
 | { kind: 'ConanLock' }
+| { kind: 'OpamLocked' }
 
 export type ManifestKind =
 | { kind: 'RequirementsIn' }
@@ -1032,6 +1034,7 @@ export type ManifestKind =
 | { kind: 'ConanFileTxt' }
 | { kind: 'ConanFilePy' }
 | { kind: 'Csproj' }
+| { kind: 'OpamFile' }
 
 export type Manifest = {
   kind: ManifestKind;
@@ -1761,6 +1764,8 @@ export function writeEcosystem(x: Ecosystem, context: any = x): any {
       return 'mix'
     case 'Hex':
       return 'hex'
+    case 'Opam':
+      return 'opam'
   }
 }
 
@@ -1792,6 +1797,8 @@ export function readEcosystem(x: any, context: any = x): Ecosystem {
       return { kind: 'Mix' }
     case 'hex':
       return { kind: 'Hex' }
+    case 'opam':
+      return { kind: 'Opam' }
     default:
       _atd_bad_json('Ecosystem', x, context)
       throw new Error('impossible')
@@ -4228,6 +4235,8 @@ export function writeLockfileKind(x: LockfileKind, context: any = x): any {
       return 'MixLock'
     case 'ConanLock':
       return 'ConanLock'
+    case 'OpamLocked':
+      return 'OpamLocked'
   }
 }
 
@@ -4271,6 +4280,8 @@ export function readLockfileKind(x: any, context: any = x): LockfileKind {
       return { kind: 'MixLock' }
     case 'ConanLock':
       return { kind: 'ConanLock' }
+    case 'OpamLocked':
+      return { kind: 'OpamLocked' }
     default:
       _atd_bad_json('LockfileKind', x, context)
       throw new Error('impossible')
@@ -4319,6 +4330,8 @@ export function writeManifestKind(x: ManifestKind, context: any = x): any {
       return 'ConanFilePy'
     case 'Csproj':
       return 'Csproj'
+    case 'OpamFile':
+      return 'OpamFile'
   }
 }
 
@@ -4364,6 +4377,8 @@ export function readManifestKind(x: any, context: any = x): ManifestKind {
       return { kind: 'ConanFilePy' }
     case 'Csproj':
       return { kind: 'Csproj' }
+    case 'OpamFile':
+      return { kind: 'OpamFile' }
     default:
       _atd_bad_json('ManifestKind', x, context)
       throw new Error('impossible')
