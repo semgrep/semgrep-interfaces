@@ -2,6 +2,7 @@
 // Source file: semgrep_output_v1.jsonschema
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // Source file sha256 digest: f2136fb07deb871e16785f77577012d3b1905f2f68ddecabcdeca72b53092b17
 =======
 // Source file sha256 digest: 421019ac6b1fda3ccdc884f9f105fcd58949a0082d889d83c56a69bdad28bda0
@@ -9,6 +10,9 @@
 =======
 // Source file sha256 digest: c5f746ab097b492eccf16194065ddc0b43538f80d33be871ae19a055f913f740
 >>>>>>> aa9138d (Define TR caching comms in ATD (#353))
+=======
+// Source file sha256 digest: 53143ab36c52475c4559c9b2f24bafcb2f8a21f4613a873b08b9396749c58ff5
+>>>>>>> e06dec7 (rebase)
 
 syntax = "proto3";
 
