@@ -9729,10 +9729,28 @@ class RetGetTargets:
 
 
 @dataclass(frozen=True)
+class RetMatchSubprojects:
+    """Original type: function_return = [ ... | RetMatchSubprojects of ... | ... ]"""
+
+    value: List[Subproject]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetMatchSubprojects'
+
+    def to_json(self) -> Any:
+        return ['RetMatchSubprojects', _atd_write_list((lambda x: x.to_json()))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionReturn:
     """Original type: function_return = [ ... ]"""
 
-    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetUploadSymbolAnalysis, RetDumpRulePartitions, RetTransitiveReachabilityFilter, RetGetTargets]
+    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetUploadSymbolAnalysis, RetDumpRulePartitions, RetTransitiveReachabilityFilter, RetGetTargets, RetMatchSubprojects]
 
     @property
     def kind(self) -> str:
@@ -9765,6 +9783,8 @@ class FunctionReturn:
                 return cls(RetTransitiveReachabilityFilter(_atd_read_list(TransitiveFinding.from_json)(x[1])))
             if cons == 'RetGetTargets':
                 return cls(RetGetTargets(TargetDiscoveryResult.from_json(x[1])))
+            if cons == 'RetMatchSubprojects':
+                return cls(RetMatchSubprojects(_atd_read_list(Subproject.from_json)(x[1])))
             _atd_bad_json('FunctionReturn', x)
         _atd_bad_json('FunctionReturn', x)
 
@@ -10156,10 +10176,28 @@ class CallTransitiveReachabilityFilter:
 
 
 @dataclass(frozen=True)
+class CallMatchSubprojects:
+    """Original type: function_call = [ ... | CallMatchSubprojects of ... | ... ]"""
+
+    value: List[Fpath]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallMatchSubprojects'
+
+    def to_json(self) -> Any:
+        return ['CallMatchSubprojects', _atd_write_list((lambda x: x.to_json()))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionCall:
     """Original type: function_call = [ ... ]"""
 
-    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallGetTargets, CallTransitiveReachabilityFilter]
+    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallGetTargets, CallTransitiveReachabilityFilter, CallMatchSubprojects]
 
     @property
     def kind(self) -> str:
@@ -10192,6 +10230,8 @@ class FunctionCall:
                 return cls(CallGetTargets(ScanningRoots.from_json(x[1])))
             if cons == 'CallTransitiveReachabilityFilter':
                 return cls(CallTransitiveReachabilityFilter(TransitiveReachabilityFilterParams.from_json(x[1])))
+            if cons == 'CallMatchSubprojects':
+                return cls(CallMatchSubprojects(_atd_read_list(Fpath.from_json)(x[1])))
             _atd_bad_json('FunctionCall', x)
         _atd_bad_json('FunctionCall', x)
 
