@@ -2382,6 +2382,7 @@ type sca_error = [
  * Used as the unit of analysis for supply chain.
  *)
 type subproject
+    <ocaml attr="deriving show">
     <python decorator="dataclass(frozen=True, order=True)"> =
 {
     root_dir: fpath;

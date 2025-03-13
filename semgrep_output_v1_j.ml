@@ -247,6 +247,7 @@ type subproject = Semgrep_output_v1_t.subproject = {
   ecosystem: ecosystem option;
   dependency_source: dependency_source
 }
+  [@@deriving show]
 
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name = 
     PGemfile_lock | PGo_mod | PGo_sum | PGradle_lockfile | PGradle_build
