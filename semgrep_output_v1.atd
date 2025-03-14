@@ -2382,6 +2382,7 @@ type sca_error = [
  * Used as the unit of analysis for supply chain.
  *)
 type subproject
+    <ocaml attr="deriving show">
     <python decorator="dataclass(frozen=True, order=True)"> =
 {
     root_dir: fpath;
@@ -2554,6 +2555,7 @@ type function_call <python decorator="dataclass(frozen=True)"> = [
   (* for now, the transitive reachability filter takes only a single dependency graph as input.
    * it is up to the caller to call it several times, one for each subproject *)
   | CallTransitiveReachabilityFilter of transitive_reachability_filter_params
+  | CallMatchSubprojects of fpath list
 ]
 
 (* ----------------------------- *)
@@ -2573,6 +2575,7 @@ type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetDumpRulePartitions of bool
   | RetTransitiveReachabilityFilter of transitive_finding list
   | RetGetTargets of target_discovery_result
+  | RetMatchSubprojects of subproject list
 ]
 
 (*****************************************************************************)

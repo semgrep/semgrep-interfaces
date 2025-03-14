@@ -247,6 +247,7 @@ type subproject = Semgrep_output_v1_t.subproject = {
   ecosystem: ecosystem option;
   dependency_source: dependency_source
 }
+  [@@deriving show]
 
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name = 
     PGemfile_lock | PGo_mod | PGo_sum | PGradle_lockfile | PGradle_build
@@ -34705,6 +34706,22 @@ let read_apply_fixes_return = (
 )
 let apply_fixes_return_of_string s =
   read_apply_fixes_return (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__subproject_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_subproject
+  )
+)
+let string_of__subproject_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__subproject_list ob x;
+  Buffer.contents ob
+let read__subproject_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_subproject
+  )
+)
+let _subproject_list_of_string s =
+  read__subproject_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__dependency_source_resolution_result_list = (
   Atdgen_runtime.Oj_run.write_list (
     fun ob x ->
@@ -34844,6 +34861,12 @@ let write_function_return = (
           write_target_discovery_result
         ) ob x;
         Buffer.add_char ob ']'
+      | `RetMatchSubprojects x ->
+        Buffer.add_string ob "[\"RetMatchSubprojects\",";
+        (
+          write__subproject_list
+        ) ob x;
+        Buffer.add_char ob ']'
 )
 let string_of_function_return ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -34954,6 +34977,15 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `RetGetTargets x
+            | "RetMatchSubprojects" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__subproject_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `RetMatchSubprojects x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -35085,6 +35117,17 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `RetGetTargets x
+            | "RetMatchSubprojects" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__subproject_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `RetMatchSubprojects x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -36811,6 +36854,12 @@ let write_function_call = (
           write_transitive_reachability_filter_params
         ) ob x;
         Buffer.add_char ob ']'
+      | `CallMatchSubprojects x ->
+        Buffer.add_string ob "[\"CallMatchSubprojects\",";
+        (
+          write__fpath_list
+        ) ob x;
+        Buffer.add_char ob ']'
 )
 let string_of_function_call ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -37063,6 +37112,15 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `CallTransitiveReachabilityFilter x
+            | "CallMatchSubprojects" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__fpath_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `CallMatchSubprojects x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -37330,6 +37388,17 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `CallTransitiveReachabilityFilter x
+            | "CallMatchSubprojects" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__fpath_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `CallMatchSubprojects x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

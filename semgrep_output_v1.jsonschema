@@ -2423,6 +2423,15 @@
             { "const": "CallTransitiveReachabilityFilter" },
             { "$ref": "#/definitions/transitive_reachability_filter_params" }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CallMatchSubprojects" },
+            { "type": "array", "items": { "$ref": "#/definitions/fpath" } }
+          ]
         }
       ]
     },
@@ -2531,6 +2540,18 @@
           "prefixItems": [
             { "const": "RetGetTargets" },
             { "$ref": "#/definitions/target_discovery_result" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "RetMatchSubprojects" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/subproject" }
+            }
           ]
         }
       ]
