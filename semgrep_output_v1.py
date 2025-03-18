@@ -9877,6 +9877,7 @@ class DumpRulePartitionsParams:
     rules: RawJson
     n_partitions: int
     output_dir: Fpath
+    strategy: Optional[str] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'DumpRulePartitionsParams':
@@ -9885,6 +9886,7 @@ class DumpRulePartitionsParams:
                 rules=RawJson.from_json(x['rules']) if 'rules' in x else _atd_missing_json_field('DumpRulePartitionsParams', 'rules'),
                 n_partitions=_atd_read_int(x['n_partitions']) if 'n_partitions' in x else _atd_missing_json_field('DumpRulePartitionsParams', 'n_partitions'),
                 output_dir=Fpath.from_json(x['output_dir']) if 'output_dir' in x else _atd_missing_json_field('DumpRulePartitionsParams', 'output_dir'),
+                strategy=_atd_read_string(x['strategy']) if 'strategy' in x else None,
             )
         else:
             _atd_bad_json('DumpRulePartitionsParams', x)
@@ -9894,6 +9896,8 @@ class DumpRulePartitionsParams:
         res['rules'] = (lambda x: x.to_json())(self.rules)
         res['n_partitions'] = _atd_write_int(self.n_partitions)
         res['output_dir'] = (lambda x: x.to_json())(self.output_dir)
+        if self.strategy is not None:
+            res['strategy'] = _atd_write_string(self.strategy)
         return res
 
     @classmethod

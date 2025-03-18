@@ -943,7 +943,8 @@ type dump_rule_partitions_params =
   Semgrep_output_v1_t.dump_rule_partitions_params = {
   rules: raw_json;
   n_partitions: int;
-  output_dir: fpath
+  output_dir: fpath;
+  strategy: string option
 }
 
 type cli_output = Semgrep_output_v1_t.cli_output = {

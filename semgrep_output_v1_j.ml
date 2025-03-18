@@ -943,7 +943,8 @@ type dump_rule_partitions_params =
   Semgrep_output_v1_t.dump_rule_partitions_params = {
   rules: raw_json;
   n_partitions: int;
-  output_dir: fpath
+  output_dir: fpath;
+  strategy: string option
 }
 
 type cli_output = Semgrep_output_v1_t.cli_output = {
@@ -35600,6 +35601,17 @@ let write_dump_rule_partitions_params : _ -> dump_rule_partitions_params -> _ = 
       write_fpath
     )
       ob x.output_dir;
+    (match x.strategy with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"strategy\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_dump_rule_partitions_params ?(len = 1024) x =
@@ -35613,6 +35625,7 @@ let read_dump_rule_partitions_params = (
     let field_rules = ref (None) in
     let field_n_partitions = ref (None) in
     let field_output_dir = ref (None) in
+    let field_strategy = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -35625,6 +35638,14 @@ let read_dump_rule_partitions_params = (
             | 5 -> (
                 if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
                   0
+                )
+                else (
+                  -1
+                )
+              )
+            | 8 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = 'y' then (
+                  3
                 )
                 else (
                   -1
@@ -35678,6 +35699,16 @@ let read_dump_rule_partitions_params = (
                 ) p lb
               )
             );
+          | 3 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_strategy := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -35694,6 +35725,14 @@ let read_dump_rule_partitions_params = (
               | 5 -> (
                   if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
                     0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 8 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 't' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = 'y' then (
+                    3
                   )
                   else (
                     -1
@@ -35747,6 +35786,16 @@ let read_dump_rule_partitions_params = (
                   ) p lb
                 )
               );
+            | 3 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_strategy := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -35759,6 +35808,7 @@ let read_dump_rule_partitions_params = (
             rules = (match !field_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rules");
             n_partitions = (match !field_n_partitions with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "n_partitions");
             output_dir = (match !field_output_dir with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "output_dir");
+            strategy = !field_strategy;
           }
          : dump_rule_partitions_params)
       )

@@ -989,6 +989,7 @@ export type DumpRulePartitionsParams = {
   rules: RawJson;
   n_partitions: number /*int*/;
   output_dir: Fpath;
+  strategy?: string;
 }
 
 export type LockfileKind =
@@ -4186,6 +4187,7 @@ export function writeDumpRulePartitionsParams(x: DumpRulePartitionsParams, conte
     'rules': _atd_write_required_field('DumpRulePartitionsParams', 'rules', writeRawJson, x.rules, x),
     'n_partitions': _atd_write_required_field('DumpRulePartitionsParams', 'n_partitions', _atd_write_int, x.n_partitions, x),
     'output_dir': _atd_write_required_field('DumpRulePartitionsParams', 'output_dir', writeFpath, x.output_dir, x),
+    'strategy': _atd_write_optional_field(_atd_write_string, x.strategy, x),
   };
 }
 
@@ -4194,6 +4196,7 @@ export function readDumpRulePartitionsParams(x: any, context: any = x): DumpRule
     rules: _atd_read_required_field('DumpRulePartitionsParams', 'rules', readRawJson, x['rules'], x),
     n_partitions: _atd_read_required_field('DumpRulePartitionsParams', 'n_partitions', _atd_read_int, x['n_partitions'], x),
     output_dir: _atd_read_required_field('DumpRulePartitionsParams', 'output_dir', readFpath, x['output_dir'], x),
+    strategy: _atd_read_optional_field(_atd_read_string, x['strategy'], x),
   };
 }
 
