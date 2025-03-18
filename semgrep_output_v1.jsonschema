@@ -1927,7 +1927,8 @@
       "properties": {
         "rules": { "$ref": "#/definitions/raw_json" },
         "n_partitions": { "type": "integer" },
-        "output_dir": { "$ref": "#/definitions/fpath" }
+        "output_dir": { "$ref": "#/definitions/fpath" },
+        "strategy": { "type": "string" }
       }
     },
     "lockfile_kind": {
