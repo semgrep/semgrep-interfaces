@@ -2227,7 +2227,7 @@ type lockfile_kind
     | YarnLock
     | PnpmLock
     | GemfileLock
-    | GoModLock
+    | GoModLock <json name="GoMod">
     | CargoLock
     | MavenDepTree (* Not a real lockfile *)
     | GradleLockfile
@@ -2258,7 +2258,7 @@ type manifest_kind
   (* A Ruby Gemfile manifest https://bundler.io/v2.5/man/gemfile.5.html *)
   | Gemfile
   (* go.modhttps://go.dev/doc/modules/gomod-ref *)
-  | GoModManifest
+  | GoModManifest  <json name="GoMod">
   (* cargo.toml - https://doc.rust-lang.org/cargo/reference/manifest.html *)
   | CargoToml
   (* A Maven pom.xml manifest file

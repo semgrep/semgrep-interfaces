@@ -2473,7 +2473,7 @@ let write_lockfile_kind : _ -> lockfile_kind -> _ = (
       | YarnLock -> Buffer.add_string ob "\"YarnLock\""
       | PnpmLock -> Buffer.add_string ob "\"PnpmLock\""
       | GemfileLock -> Buffer.add_string ob "\"GemfileLock\""
-      | GoModLock -> Buffer.add_string ob "\"GoModLock\""
+      | GoModLock -> Buffer.add_string ob "\"GoMod\""
       | CargoLock -> Buffer.add_string ob "\"CargoLock\""
       | MavenDepTree -> Buffer.add_string ob "\"MavenDepTree\""
       | GradleLockfile -> Buffer.add_string ob "\"GradleLockfile\""
@@ -2528,7 +2528,7 @@ let read_lockfile_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (GemfileLock : lockfile_kind)
-            | "GoModLock" ->
+            | "GoMod" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (GoModLock : lockfile_kind)
@@ -2597,7 +2597,7 @@ let read_lockfile_kind = (
               (PnpmLock : lockfile_kind)
             | "GemfileLock" ->
               (GemfileLock : lockfile_kind)
-            | "GoModLock" ->
+            | "GoMod" ->
               (GoModLock : lockfile_kind)
             | "CargoLock" ->
               (CargoLock : lockfile_kind)
@@ -2802,7 +2802,7 @@ let write_manifest_kind : _ -> manifest_kind -> _ = (
       | SetupPy -> Buffer.add_string ob "\"SetupPy\""
       | PackageJson -> Buffer.add_string ob "\"PackageJson\""
       | Gemfile -> Buffer.add_string ob "\"Gemfile\""
-      | GoModManifest -> Buffer.add_string ob "\"GoModManifest\""
+      | GoModManifest -> Buffer.add_string ob "\"GoMod\""
       | CargoToml -> Buffer.add_string ob "\"CargoToml\""
       | PomXml -> Buffer.add_string ob "\"PomXml\""
       | BuildGradle -> Buffer.add_string ob "\"BuildGradle\""
@@ -2846,7 +2846,7 @@ let read_manifest_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (Gemfile : manifest_kind)
-            | "GoModManifest" ->
+            | "GoMod" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (GoModManifest : manifest_kind)
@@ -2927,7 +2927,7 @@ let read_manifest_kind = (
               (PackageJson : manifest_kind)
             | "Gemfile" ->
               (Gemfile : manifest_kind)
-            | "GoModManifest" ->
+            | "GoMod" ->
               (GoModManifest : manifest_kind)
             | "CargoToml" ->
               (CargoToml : manifest_kind)

@@ -1001,7 +1001,7 @@ export type LockfileKind =
 | { kind: 'YarnLock' }
 | { kind: 'PnpmLock' }
 | { kind: 'GemfileLock' }
-| { kind: 'GoModLock' }
+| { kind: 'GoModLock' /* JSON: "GoMod" */ }
 | { kind: 'CargoLock' }
 | { kind: 'MavenDepTree' }
 | { kind: 'GradleLockfile' }
@@ -1019,7 +1019,7 @@ export type ManifestKind =
 | { kind: 'SetupPy' }
 | { kind: 'PackageJson' }
 | { kind: 'Gemfile' }
-| { kind: 'GoModManifest' }
+| { kind: 'GoModManifest' /* JSON: "GoMod" */ }
 | { kind: 'CargoToml' }
 | { kind: 'PomXml' }
 | { kind: 'BuildGradle' }
@@ -4219,7 +4219,7 @@ export function writeLockfileKind(x: LockfileKind, context: any = x): any {
     case 'GemfileLock':
       return 'GemfileLock'
     case 'GoModLock':
-      return 'GoModLock'
+      return 'GoMod'
     case 'CargoLock':
       return 'CargoLock'
     case 'MavenDepTree':
@@ -4263,7 +4263,7 @@ export function readLockfileKind(x: any, context: any = x): LockfileKind {
       return { kind: 'PnpmLock' }
     case 'GemfileLock':
       return { kind: 'GemfileLock' }
-    case 'GoModLock':
+    case 'GoMod':
       return { kind: 'GoModLock' }
     case 'CargoLock':
       return { kind: 'CargoLock' }
@@ -4304,7 +4304,7 @@ export function writeManifestKind(x: ManifestKind, context: any = x): any {
     case 'Gemfile':
       return 'Gemfile'
     case 'GoModManifest':
-      return 'GoModManifest'
+      return 'GoMod'
     case 'CargoToml':
       return 'CargoToml'
     case 'PomXml':
@@ -4350,7 +4350,7 @@ export function readManifestKind(x: any, context: any = x): ManifestKind {
       return { kind: 'PackageJson' }
     case 'Gemfile':
       return { kind: 'Gemfile' }
-    case 'GoModManifest':
+    case 'GoMod':
       return { kind: 'GoModManifest' }
     case 'CargoToml':
       return { kind: 'CargoToml' }

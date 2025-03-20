@@ -923,7 +923,7 @@ class GoModLock:
 
     @staticmethod
     def to_json() -> Any:
-        return 'GoModLock'
+        return 'GoMod'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1146,7 +1146,7 @@ class LockfileKind:
                 return cls(PnpmLock())
             if x == 'GemfileLock':
                 return cls(GemfileLock())
-            if x == 'GoModLock':
+            if x == 'GoMod':
                 return cls(GoModLock())
             if x == 'CargoLock':
                 return cls(CargoLock())
@@ -1294,7 +1294,7 @@ class GoModManifest:
 
     @staticmethod
     def to_json() -> Any:
-        return 'GoModManifest'
+        return 'GoMod'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1594,7 +1594,7 @@ class ManifestKind:
                 return cls(PackageJson())
             if x == 'Gemfile':
                 return cls(Gemfile())
-            if x == 'GoModManifest':
+            if x == 'GoMod':
                 return cls(GoModManifest())
             if x == 'CargoToml':
                 return cls(CargoToml())
