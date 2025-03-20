@@ -313,6 +313,91 @@ class DependencyChild:
 
 
 @dataclass(frozen=True)
+class Direct:
+    """Original type: dependency_kind = [ ... | Direct | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Direct'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'direct'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Transitive:
+    """Original type: dependency_kind = [ ... | Transitive | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Transitive'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'transitive'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Unknown:
+    """Original type: dependency_kind = [ ... | Unknown | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Unknown'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'unknown'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class DependencyKind:
+    """Original type: dependency_kind = [ ... ]"""
+
+    value: Union[Direct, Transitive, Unknown]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencyKind':
+        if isinstance(x, str):
+            if x == 'direct':
+                return cls(Direct())
+            if x == 'transitive':
+                return cls(Transitive())
+            if x == 'unknown':
+                return cls(Unknown())
+            _atd_bad_json('DependencyKind', x)
+        _atd_bad_json('DependencyKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencyKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class Npm:
     """Original type: ecosystem = [ ... | Npm | ... ]"""
 
@@ -627,6 +712,70 @@ class Fpath:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class FoundDependency:
+    """Original type: found_dependency = { ... }"""
+
+    package: str
+    version: str
+    ecosystem: Ecosystem
+    allowed_hashes: Dict[str, List[str]]
+    transitivity: DependencyKind
+    resolved_url: Optional[str] = None
+    manifest_path: Optional[Fpath] = None
+    lockfile_path: Optional[Fpath] = None
+    line_number: Optional[int] = None
+    children: Optional[List[DependencyChild]] = None
+    git_ref: Optional[str] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FoundDependency':
+        if isinstance(x, dict):
+            return cls(
+                package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('FoundDependency', 'package'),
+                version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('FoundDependency', 'version'),
+                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('FoundDependency', 'ecosystem'),
+                allowed_hashes=_atd_read_assoc_object_into_dict(_atd_read_list(_atd_read_string))(x['allowed_hashes']) if 'allowed_hashes' in x else _atd_missing_json_field('FoundDependency', 'allowed_hashes'),
+                transitivity=DependencyKind.from_json(x['transitivity']) if 'transitivity' in x else _atd_missing_json_field('FoundDependency', 'transitivity'),
+                resolved_url=_atd_read_string(x['resolved_url']) if 'resolved_url' in x else None,
+                manifest_path=Fpath.from_json(x['manifest_path']) if 'manifest_path' in x else None,
+                lockfile_path=Fpath.from_json(x['lockfile_path']) if 'lockfile_path' in x else None,
+                line_number=_atd_read_int(x['line_number']) if 'line_number' in x else None,
+                children=_atd_read_list(DependencyChild.from_json)(x['children']) if 'children' in x else None,
+                git_ref=_atd_read_string(x['git_ref']) if 'git_ref' in x else None,
+            )
+        else:
+            _atd_bad_json('FoundDependency', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['package'] = _atd_write_string(self.package)
+        res['version'] = _atd_write_string(self.version)
+        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
+        res['allowed_hashes'] = _atd_write_assoc_dict_to_object(_atd_write_list(_atd_write_string))(self.allowed_hashes)
+        res['transitivity'] = (lambda x: x.to_json())(self.transitivity)
+        if self.resolved_url is not None:
+            res['resolved_url'] = _atd_write_string(self.resolved_url)
+        if self.manifest_path is not None:
+            res['manifest_path'] = (lambda x: x.to_json())(self.manifest_path)
+        if self.lockfile_path is not None:
+            res['lockfile_path'] = (lambda x: x.to_json())(self.lockfile_path)
+        if self.line_number is not None:
+            res['line_number'] = _atd_write_int(self.line_number)
+        if self.children is not None:
+            res['children'] = _atd_write_list((lambda x: x.to_json()))(self.children)
+        if self.git_ref is not None:
+            res['git_ref'] = _atd_write_string(self.git_ref)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FoundDependency':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class PipRequirementsTxt:
     """Original type: lockfile_kind = [ ... | PipRequirementsTxt | ... ]"""
@@ -764,17 +913,17 @@ class GemfileLock:
 
 
 @dataclass(frozen=True)
-class GoMod:
-    """Original type: lockfile_kind = [ ... | GoMod | ... ]"""
+class GoModLock:
+    """Original type: lockfile_kind = [ ... | GoModLock | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'GoMod'
+        return 'GoModLock'
 
     @staticmethod
     def to_json() -> Any:
-        return 'GoMod'
+        return 'GoModLock'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -971,7 +1120,7 @@ class OpamLocked:
 class LockfileKind:
     """Original type: lockfile_kind = [ ... ]"""
 
-    value: Union[PipRequirementsTxt, PoetryLock, PipfileLock, UvLock, NpmPackageLockJson, YarnLock, PnpmLock, GemfileLock, GoMod, CargoLock, MavenDepTree, GradleLockfile, ComposerLock, NugetPackagesLockJson, PubspecLock, SwiftPackageResolved, PodfileLock, MixLock, ConanLock, OpamLocked]
+    value: Union[PipRequirementsTxt, PoetryLock, PipfileLock, UvLock, NpmPackageLockJson, YarnLock, PnpmLock, GemfileLock, GoModLock, CargoLock, MavenDepTree, GradleLockfile, ComposerLock, NugetPackagesLockJson, PubspecLock, SwiftPackageResolved, PodfileLock, MixLock, ConanLock, OpamLocked]
 
     @property
     def kind(self) -> str:
@@ -997,8 +1146,8 @@ class LockfileKind:
                 return cls(PnpmLock())
             if x == 'GemfileLock':
                 return cls(GemfileLock())
-            if x == 'GoMod':
-                return cls(GoMod())
+            if x == 'GoModLock':
+                return cls(GoModLock())
             if x == 'CargoLock':
                 return cls(CargoLock())
             if x == 'MavenDepTree':
@@ -1135,17 +1284,17 @@ class Gemfile:
 
 
 @dataclass(frozen=True)
-class GoMod_:
-    """Original type: manifest_kind = [ ... | GoMod | ... ]"""
+class GoModManifest:
+    """Original type: manifest_kind = [ ... | GoModManifest | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'GoMod_'
+        return 'GoModManifest'
 
     @staticmethod
     def to_json() -> Any:
-        return 'GoMod'
+        return 'GoModManifest'
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -1427,7 +1576,7 @@ class OpamFile:
 class ManifestKind:
     """Original type: manifest_kind = [ ... ]"""
 
-    value: Union[RequirementsIn, SetupPy, PackageJson, Gemfile, GoMod_, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, Podfile, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj, OpamFile]
+    value: Union[RequirementsIn, SetupPy, PackageJson, Gemfile, GoModManifest, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, Podfile, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj, OpamFile]
 
     @property
     def kind(self) -> str:
@@ -1445,8 +1594,8 @@ class ManifestKind:
                 return cls(PackageJson())
             if x == 'Gemfile':
                 return cls(Gemfile())
-            if x == 'GoMod':
-                return cls(GoMod_())
+            if x == 'GoModManifest':
+                return cls(GoModManifest())
             if x == 'CargoToml':
                 return cls(CargoToml())
             if x == 'PomXml':
@@ -2323,6 +2472,40 @@ class ScaPattern:
 
 
 @dataclass
+class DependencyMatch:
+    """Original type: dependency_match = { ... }"""
+
+    dependency_pattern: ScaPattern
+    found_dependency: FoundDependency
+    lockfile: Fpath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencyMatch':
+        if isinstance(x, dict):
+            return cls(
+                dependency_pattern=ScaPattern.from_json(x['dependency_pattern']) if 'dependency_pattern' in x else _atd_missing_json_field('DependencyMatch', 'dependency_pattern'),
+                found_dependency=FoundDependency.from_json(x['found_dependency']) if 'found_dependency' in x else _atd_missing_json_field('DependencyMatch', 'found_dependency'),
+                lockfile=Fpath.from_json(x['lockfile']) if 'lockfile' in x else _atd_missing_json_field('DependencyMatch', 'lockfile'),
+            )
+        else:
+            _atd_bad_json('DependencyMatch', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['dependency_pattern'] = (lambda x: x.to_json())(self.dependency_pattern)
+        res['found_dependency'] = (lambda x: x.to_json())(self.found_dependency)
+        res['lockfile'] = (lambda x: x.to_json())(self.lockfile)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencyMatch':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Sha1:
     """Original type: sha1"""
 
@@ -2560,194 +2743,11 @@ class TransitiveUnreachable:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass(frozen=True)
-class Direct:
-    """Original type: transitivity = [ ... | Direct | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Direct'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'direct'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Transitive:
-    """Original type: transitivity = [ ... | Transitive | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Transitive'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'transitive'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Unknown:
-    """Original type: transitivity = [ ... | Unknown | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'Unknown'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'unknown'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
-class Transitivity:
-    """Original type: transitivity = [ ... ]"""
-
-    value: Union[Direct, Transitive, Unknown]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Transitivity':
-        if isinstance(x, str):
-            if x == 'direct':
-                return cls(Direct())
-            if x == 'transitive':
-                return cls(Transitive())
-            if x == 'unknown':
-                return cls(Unknown())
-            _atd_bad_json('Transitivity', x)
-        _atd_bad_json('Transitivity', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Transitivity':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class FoundDependency:
-    """Original type: found_dependency = { ... }"""
-
-    package: str
-    version: str
-    ecosystem: Ecosystem
-    allowed_hashes: Dict[str, List[str]]
-    transitivity: Transitivity
-    resolved_url: Optional[str] = None
-    manifest_path: Optional[Fpath] = None
-    lockfile_path: Optional[Fpath] = None
-    line_number: Optional[int] = None
-    children: Optional[List[DependencyChild]] = None
-    git_ref: Optional[str] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'FoundDependency':
-        if isinstance(x, dict):
-            return cls(
-                package=_atd_read_string(x['package']) if 'package' in x else _atd_missing_json_field('FoundDependency', 'package'),
-                version=_atd_read_string(x['version']) if 'version' in x else _atd_missing_json_field('FoundDependency', 'version'),
-                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('FoundDependency', 'ecosystem'),
-                allowed_hashes=_atd_read_assoc_object_into_dict(_atd_read_list(_atd_read_string))(x['allowed_hashes']) if 'allowed_hashes' in x else _atd_missing_json_field('FoundDependency', 'allowed_hashes'),
-                transitivity=Transitivity.from_json(x['transitivity']) if 'transitivity' in x else _atd_missing_json_field('FoundDependency', 'transitivity'),
-                resolved_url=_atd_read_string(x['resolved_url']) if 'resolved_url' in x else None,
-                manifest_path=Fpath.from_json(x['manifest_path']) if 'manifest_path' in x else None,
-                lockfile_path=Fpath.from_json(x['lockfile_path']) if 'lockfile_path' in x else None,
-                line_number=_atd_read_int(x['line_number']) if 'line_number' in x else None,
-                children=_atd_read_list(DependencyChild.from_json)(x['children']) if 'children' in x else None,
-                git_ref=_atd_read_string(x['git_ref']) if 'git_ref' in x else None,
-            )
-        else:
-            _atd_bad_json('FoundDependency', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['package'] = _atd_write_string(self.package)
-        res['version'] = _atd_write_string(self.version)
-        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
-        res['allowed_hashes'] = _atd_write_assoc_dict_to_object(_atd_write_list(_atd_write_string))(self.allowed_hashes)
-        res['transitivity'] = (lambda x: x.to_json())(self.transitivity)
-        if self.resolved_url is not None:
-            res['resolved_url'] = _atd_write_string(self.resolved_url)
-        if self.manifest_path is not None:
-            res['manifest_path'] = (lambda x: x.to_json())(self.manifest_path)
-        if self.lockfile_path is not None:
-            res['lockfile_path'] = (lambda x: x.to_json())(self.lockfile_path)
-        if self.line_number is not None:
-            res['line_number'] = _atd_write_int(self.line_number)
-        if self.children is not None:
-            res['children'] = _atd_write_list((lambda x: x.to_json()))(self.children)
-        if self.git_ref is not None:
-            res['git_ref'] = _atd_write_string(self.git_ref)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'FoundDependency':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class DependencyMatch:
-    """Original type: dependency_match = { ... }"""
-
-    dependency_pattern: ScaPattern
-    found_dependency: FoundDependency
-    lockfile: Fpath
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'DependencyMatch':
-        if isinstance(x, dict):
-            return cls(
-                dependency_pattern=ScaPattern.from_json(x['dependency_pattern']) if 'dependency_pattern' in x else _atd_missing_json_field('DependencyMatch', 'dependency_pattern'),
-                found_dependency=FoundDependency.from_json(x['found_dependency']) if 'found_dependency' in x else _atd_missing_json_field('DependencyMatch', 'found_dependency'),
-                lockfile=Fpath.from_json(x['lockfile']) if 'lockfile' in x else _atd_missing_json_field('DependencyMatch', 'lockfile'),
-            )
-        else:
-            _atd_bad_json('DependencyMatch', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['dependency_pattern'] = (lambda x: x.to_json())(self.dependency_pattern)
-        res['found_dependency'] = (lambda x: x.to_json())(self.found_dependency)
-        res['lockfile'] = (lambda x: x.to_json())(self.lockfile)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'DependencyMatch':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass
 class LockfileOnlyMatch:
     """Original type: sca_match_kind = [ ... | LockfileOnlyMatch of ... | ... ]"""
 
-    value: Transitivity
+    value: DependencyKind
 
     @property
     def kind(self) -> str:
@@ -2871,7 +2871,7 @@ class ScaMatchKind:
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'LockfileOnlyMatch':
-                return cls(LockfileOnlyMatch(Transitivity.from_json(x[1])))
+                return cls(LockfileOnlyMatch(DependencyKind.from_json(x[1])))
             if cons == 'TransitiveReachable':
                 return cls(TransitiveReachable_(TransitiveReachable.from_json(x[1])))
             if cons == 'TransitiveUnreachable':

@@ -343,7 +343,7 @@
         { "const": "opam" }
       ]
     },
-    "transitivity": {
+    "dependency_kind": {
       "oneOf": [
         { "const": "direct" },
         { "const": "transitive" },
@@ -372,7 +372,7 @@
           "items": false,
           "prefixItems": [
             { "const": "LockfileOnlyMatch" },
-            { "$ref": "#/definitions/transitivity" }
+            { "$ref": "#/definitions/dependency_kind" }
           ]
         },
         { "const": "DirectReachable" },
@@ -503,7 +503,7 @@
           }
         },
         "resolved_url": { "type": "string" },
-        "transitivity": { "$ref": "#/definitions/transitivity" },
+        "transitivity": { "$ref": "#/definitions/dependency_kind" },
         "manifest_path": { "$ref": "#/definitions/fpath" },
         "lockfile_path": { "$ref": "#/definitions/fpath" },
         "line_number": { "type": "integer" },
@@ -1941,7 +1941,7 @@
         { "const": "YarnLock" },
         { "const": "PnpmLock" },
         { "const": "GemfileLock" },
-        { "const": "GoMod" },
+        { "const": "GoModLock" },
         { "const": "CargoLock" },
         { "const": "MavenDepTree" },
         { "const": "GradleLockfile" },
@@ -1961,7 +1961,7 @@
         { "const": "SetupPy" },
         { "const": "PackageJson" },
         { "const": "Gemfile" },
-        { "const": "GoMod" },
+        { "const": "GoModManifest" },
         { "const": "CargoToml" },
         { "const": "PomXml" },
         { "const": "BuildGradle" },

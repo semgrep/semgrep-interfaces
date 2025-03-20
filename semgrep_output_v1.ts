@@ -186,7 +186,7 @@ export type Ecosystem =
 | { kind: 'Hex' /* JSON: "hex" */ }
 | { kind: 'Opam' /* JSON: "opam" */ }
 
-export type Transitivity =
+export type DependencyKind =
 | { kind: 'Direct' /* JSON: "direct" */ }
 | { kind: 'Transitive' /* JSON: "transitive" */ }
 | { kind: 'Unknown' /* JSON: "unknown" */ }
@@ -200,7 +200,7 @@ export type ScaMatch = {
 }
 
 export type ScaMatchKind =
-| { kind: 'LockfileOnlyMatch'; value: Transitivity }
+| { kind: 'LockfileOnlyMatch'; value: DependencyKind }
 | { kind: 'DirectReachable' }
 | { kind: 'DirectUnreachable' }
 | { kind: 'TransitiveReachable'; value: TransitiveReachable }
@@ -238,7 +238,7 @@ export type FoundDependency = {
   ecosystem: Ecosystem;
   allowed_hashes: Map<string, string[]>;
   resolved_url?: string;
-  transitivity: Transitivity;
+  transitivity: DependencyKind;
   manifest_path?: Fpath;
   lockfile_path?: Fpath;
   line_number?: number /*int*/;
@@ -1001,7 +1001,7 @@ export type LockfileKind =
 | { kind: 'YarnLock' }
 | { kind: 'PnpmLock' }
 | { kind: 'GemfileLock' }
-| { kind: 'GoMod' }
+| { kind: 'GoModLock' }
 | { kind: 'CargoLock' }
 | { kind: 'MavenDepTree' }
 | { kind: 'GradleLockfile' }
@@ -1019,7 +1019,7 @@ export type ManifestKind =
 | { kind: 'SetupPy' }
 | { kind: 'PackageJson' }
 | { kind: 'Gemfile' }
-| { kind: 'GoMod' }
+| { kind: 'GoModManifest' }
 | { kind: 'CargoToml' }
 | { kind: 'PomXml' }
 | { kind: 'BuildGradle' }
@@ -1808,7 +1808,7 @@ export function readEcosystem(x: any, context: any = x): Ecosystem {
   }
 }
 
-export function writeTransitivity(x: Transitivity, context: any = x): any {
+export function writeDependencyKind(x: DependencyKind, context: any = x): any {
   switch (x.kind) {
     case 'Direct':
       return 'direct'
@@ -1819,7 +1819,7 @@ export function writeTransitivity(x: Transitivity, context: any = x): any {
   }
 }
 
-export function readTransitivity(x: any, context: any = x): Transitivity {
+export function readDependencyKind(x: any, context: any = x): DependencyKind {
   switch (x) {
     case 'direct':
       return { kind: 'Direct' }
@@ -1828,7 +1828,7 @@ export function readTransitivity(x: any, context: any = x): Transitivity {
     case 'unknown':
       return { kind: 'Unknown' }
     default:
-      _atd_bad_json('Transitivity', x, context)
+      _atd_bad_json('DependencyKind', x, context)
       throw new Error('impossible')
   }
 }
@@ -1856,7 +1856,7 @@ export function readScaMatch(x: any, context: any = x): ScaMatch {
 export function writeScaMatchKind(x: ScaMatchKind, context: any = x): any {
   switch (x.kind) {
     case 'LockfileOnlyMatch':
-      return ['LockfileOnlyMatch', writeTransitivity(x.value, x)]
+      return ['LockfileOnlyMatch', writeDependencyKind(x.value, x)]
     case 'DirectReachable':
       return 'DirectReachable'
     case 'DirectUnreachable':
@@ -1886,7 +1886,7 @@ export function readScaMatchKind(x: any, context: any = x): ScaMatchKind {
     _atd_check_json_tuple(2, x, context)
     switch (x[0]) {
       case 'LockfileOnlyMatch':
-        return { kind: 'LockfileOnlyMatch', value: readTransitivity(x[1], x) }
+        return { kind: 'LockfileOnlyMatch', value: readDependencyKind(x[1], x) }
       case 'TransitiveReachable':
         return { kind: 'TransitiveReachable', value: readTransitiveReachable(x[1], x) }
       case 'TransitiveUnreachable':
@@ -1977,7 +1977,7 @@ export function writeFoundDependency(x: FoundDependency, context: any = x): any 
     'ecosystem': _atd_write_required_field('FoundDependency', 'ecosystem', writeEcosystem, x.ecosystem, x),
     'allowed_hashes': _atd_write_required_field('FoundDependency', 'allowed_hashes', _atd_write_assoc_map_to_object(_atd_write_array(_atd_write_string)), x.allowed_hashes, x),
     'resolved_url': _atd_write_optional_field(_atd_write_string, x.resolved_url, x),
-    'transitivity': _atd_write_required_field('FoundDependency', 'transitivity', writeTransitivity, x.transitivity, x),
+    'transitivity': _atd_write_required_field('FoundDependency', 'transitivity', writeDependencyKind, x.transitivity, x),
     'manifest_path': _atd_write_optional_field(writeFpath, x.manifest_path, x),
     'lockfile_path': _atd_write_optional_field(writeFpath, x.lockfile_path, x),
     'line_number': _atd_write_optional_field(_atd_write_int, x.line_number, x),
@@ -1993,7 +1993,7 @@ export function readFoundDependency(x: any, context: any = x): FoundDependency {
     ecosystem: _atd_read_required_field('FoundDependency', 'ecosystem', readEcosystem, x['ecosystem'], x),
     allowed_hashes: _atd_read_required_field('FoundDependency', 'allowed_hashes', _atd_read_assoc_object_into_map(_atd_read_array(_atd_read_string)), x['allowed_hashes'], x),
     resolved_url: _atd_read_optional_field(_atd_read_string, x['resolved_url'], x),
-    transitivity: _atd_read_required_field('FoundDependency', 'transitivity', readTransitivity, x['transitivity'], x),
+    transitivity: _atd_read_required_field('FoundDependency', 'transitivity', readDependencyKind, x['transitivity'], x),
     manifest_path: _atd_read_optional_field(readFpath, x['manifest_path'], x),
     lockfile_path: _atd_read_optional_field(readFpath, x['lockfile_path'], x),
     line_number: _atd_read_optional_field(_atd_read_int, x['line_number'], x),
@@ -4218,8 +4218,8 @@ export function writeLockfileKind(x: LockfileKind, context: any = x): any {
       return 'PnpmLock'
     case 'GemfileLock':
       return 'GemfileLock'
-    case 'GoMod':
-      return 'GoMod'
+    case 'GoModLock':
+      return 'GoModLock'
     case 'CargoLock':
       return 'CargoLock'
     case 'MavenDepTree':
@@ -4263,8 +4263,8 @@ export function readLockfileKind(x: any, context: any = x): LockfileKind {
       return { kind: 'PnpmLock' }
     case 'GemfileLock':
       return { kind: 'GemfileLock' }
-    case 'GoMod':
-      return { kind: 'GoMod' }
+    case 'GoModLock':
+      return { kind: 'GoModLock' }
     case 'CargoLock':
       return { kind: 'CargoLock' }
     case 'MavenDepTree':
@@ -4303,8 +4303,8 @@ export function writeManifestKind(x: ManifestKind, context: any = x): any {
       return 'PackageJson'
     case 'Gemfile':
       return 'Gemfile'
-    case 'GoMod':
-      return 'GoMod'
+    case 'GoModManifest':
+      return 'GoModManifest'
     case 'CargoToml':
       return 'CargoToml'
     case 'PomXml':
@@ -4350,8 +4350,8 @@ export function readManifestKind(x: any, context: any = x): ManifestKind {
       return { kind: 'PackageJson' }
     case 'Gemfile':
       return { kind: 'Gemfile' }
-    case 'GoMod':
-      return { kind: 'GoMod' }
+    case 'GoModManifest':
+      return { kind: 'GoModManifest' }
     case 'CargoToml':
       return { kind: 'CargoToml' }
     case 'PomXml':
