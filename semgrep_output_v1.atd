@@ -495,7 +495,7 @@ type match_intermediate_var <python decorator="dataclass(frozen=True)"> = {
 (* both ecosystem and transitivity below have frozen=True so the generated
  * classes can be hashed and put in sets (see calls to reachable_deps.add()
  * in semgrep SCA code)
- * TODO: use <ocaml repr="classic">, and do the same for manifest
+ * alt: type package_manager
  *)
 type ecosystem
     <python decorator="dataclass(frozen=True)">
@@ -516,20 +516,22 @@ type ecosystem
   | Mix <json name="mix">
   | Hex <json name="hex">
   | Opam <json name="opam">
-]
+] <ocaml repr="classic">
 
-type transitivity
+type dependency_kind
     <python decorator="dataclass(frozen=True)">
     <ocaml attr="deriving show,eq"> =
 [
   (* we depend directly on the 3rd-party library mentioned in the lockfile
    * (e.g., use of log4j library and concrete calls to log4j in 1st-party code).
    * log4j must be declared as a direct dependency in the manifest file.
- *)
+   *)
   | Direct <json name="direct">
   (* we depend indirectly (transitively) on the 3rd-party library
    * (e.g., if we use lodash which itself uses internally log4j then
    * lodash is a Direct dependency and log4j a Transitive one)
+   * alt: Indirect
+   * TODO? add and detect shadow dependencies?
    *)
   | Transitive <json name="transitive">
   (* If there is insufficient information to determine the transitivity,
@@ -537,7 +539,7 @@ type transitivity
    * we leave it Unknown.
    *)
   | Unknown <json name="unknown">
-]
+] <ocaml repr="classic">
 
 (* part of cli_match_extra, core_match_extra, and finding *)
 type sca_match = {
@@ -565,7 +567,7 @@ type sca_match_kind = [
    * the dependency; for a dependency that is both direct and transitive
    * two findings should be generated.
    *)
-  | LockfileOnlyMatch of transitivity
+  | LockfileOnlyMatch of dependency_kind
   (* found the pattern-part of the SCA rule in 1st-party code
    * (reachable as originally defined by Semgrep Inc.)
    * the match location will be in some target code.
@@ -640,7 +642,7 @@ type found_dependency = {
   allowed_hashes: (string * string list) list
     <json repr="object"> <python repr="dict"> <ts repr="map">;
   ?resolved_url: string option;
-  transitivity: transitivity;
+  transitivity: dependency_kind;
   (* Path to the manifest file that defines the project containing this
    * dependency. Examples: package.json, nested/folder/pom.xml
    *)
@@ -2225,7 +2227,7 @@ type lockfile_kind
     | YarnLock
     | PnpmLock
     | GemfileLock
-    | GoMod
+    | GoModLock <json name="GoMod">
     | CargoLock
     | MavenDepTree (* Not a real lockfile *)
     | GradleLockfile
@@ -2239,7 +2241,6 @@ type lockfile_kind
     | OpamLocked
 ] <ocaml repr="classic">
 
-(* TODO: use <ocaml repr="classic"> *)
 type manifest_kind
   <ocaml attr="deriving show, eq">
   <python decorator="dataclass(frozen=True)"> =
@@ -2257,7 +2258,7 @@ type manifest_kind
   (* A Ruby Gemfile manifest https://bundler.io/v2.5/man/gemfile.5.html *)
   | Gemfile
   (* go.modhttps://go.dev/doc/modules/gomod-ref *)
-  | GoMod
+  | GoModManifest  <json name="GoMod">
   (* cargo.toml - https://doc.rust-lang.org/cargo/reference/manifest.html *)
   | CargoToml
   (* A Maven pom.xml manifest file
@@ -2301,7 +2302,7 @@ type manifest_kind
   | Csproj
   (* .opam - https://opam.ocaml.org/doc/Manual.html#Package-definitions *)
   | OpamFile
-]
+] <ocaml repr="classic">
 
 type manifest
     <ocaml attr="deriving show, eq">
