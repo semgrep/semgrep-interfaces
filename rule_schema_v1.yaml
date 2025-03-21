@@ -139,7 +139,15 @@ $defs:
     $ref: "#/$defs/new-pattern"
     properties:
       requires:
-        type: string
+        oneOf:
+          - type: string
+          - type: array
+            items:
+              type: object
+              minProperties: 1
+              maxProperties: 1
+              additionalProperties:
+                type: string
   new-sanitizer-pattern:
     $ref: "#/$defs/new-pattern"
     properties:
