@@ -1091,7 +1091,7 @@ export type ResolvedSubproject = {
 export type ResolvedDependency = [FoundDependency, Option<DownloadedDependency>]
 
 export type DownloadedDependency = {
-  source_path: Fpath;
+  source_paths: Fpath[];
 }
 
 export type UnresolvedReason =
@@ -4587,13 +4587,13 @@ export function readResolvedDependency(x: any, context: any = x): ResolvedDepend
 
 export function writeDownloadedDependency(x: DownloadedDependency, context: any = x): any {
   return {
-    'source_path': _atd_write_required_field('DownloadedDependency', 'source_path', writeFpath, x.source_path, x),
+    'source_paths': _atd_write_required_field('DownloadedDependency', 'source_paths', _atd_write_array(writeFpath), x.source_paths, x),
   };
 }
 
 export function readDownloadedDependency(x: any, context: any = x): DownloadedDependency {
   return {
-    source_path: _atd_read_required_field('DownloadedDependency', 'source_path', readFpath, x['source_path'], x),
+    source_paths: _atd_read_required_field('DownloadedDependency', 'source_paths', _atd_read_array(readFpath), x['source_paths'], x),
   };
 }
 

@@ -2200,8 +2200,13 @@
     },
     "downloaded_dependency": {
       "type": "object",
-      "required": [ "source_path" ],
-      "properties": { "source_path": { "$ref": "#/definitions/fpath" } }
+      "required": [ "source_paths" ],
+      "properties": {
+        "source_paths": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/fpath" }
+        }
+      }
     },
     "unresolved_reason": {
       "oneOf": [

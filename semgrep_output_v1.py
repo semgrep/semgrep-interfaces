@@ -4840,20 +4840,20 @@ class TransitiveFinding:
 class DownloadedDependency:
     """Original type: downloaded_dependency = { ... }"""
 
-    source_path: Fpath
+    source_paths: List[Fpath]
 
     @classmethod
     def from_json(cls, x: Any) -> 'DownloadedDependency':
         if isinstance(x, dict):
             return cls(
-                source_path=Fpath.from_json(x['source_path']) if 'source_path' in x else _atd_missing_json_field('DownloadedDependency', 'source_path'),
+                source_paths=_atd_read_list(Fpath.from_json)(x['source_paths']) if 'source_paths' in x else _atd_missing_json_field('DownloadedDependency', 'source_paths'),
             )
         else:
             _atd_bad_json('DownloadedDependency', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['source_path'] = (lambda x: x.to_json())(self.source_path)
+        res['source_paths'] = _atd_write_list((lambda x: x.to_json()))(self.source_paths)
         return res
 
     @classmethod
