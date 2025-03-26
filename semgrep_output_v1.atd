@@ -2431,9 +2431,13 @@ type resolved_dependency = (found_dependency * downloaded_dependency option)
 (* Information about a 3rd-party lib downloaded for Transitive Reachability.
  * To accompany a found_dependency within the Semgrep CLI, passed back and forth 
  * from OCaml to Python via RPC. See also SCA_dependency.t in OCaml
+ *
+ * Source paths is a list of paths to either folders containing source code
+ * or source code files. It is necessary to use a list here because package
+ * managers like pip may unpack a package into multiple folders.
  *)
 type downloaded_dependency = {
-  source_path: fpath;
+  source_paths: fpath list;
 }
 
 type unresolved_reason <python decorator="dataclass(frozen=True)"> = [

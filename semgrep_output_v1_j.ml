@@ -349,7 +349,7 @@ type transitive_finding = Semgrep_output_v1_t.transitive_finding = {
 }
 
 type downloaded_dependency = Semgrep_output_v1_t.downloaded_dependency = {
-  source_path: fpath
+  source_paths: fpath list
 }
 
 type resolved_dependency = Semgrep_output_v1_t.resolved_dependency
@@ -12077,6 +12077,22 @@ let read_transitive_finding = (
 )
 let transitive_finding_of_string s =
   read_transitive_finding (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__fpath_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_fpath
+  )
+)
+let string_of__fpath_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__fpath_list ob x;
+  Buffer.contents ob
+let read__fpath_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_fpath
+  )
+)
+let _fpath_list_of_string s =
+  read__fpath_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_downloaded_dependency : _ -> downloaded_dependency -> _ = (
   fun ob (x : downloaded_dependency) ->
     Buffer.add_char ob '{';
@@ -12085,11 +12101,11 @@ let write_downloaded_dependency : _ -> downloaded_dependency -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"source_path\":";
+      Buffer.add_string ob "\"source_paths\":";
     (
-      write_fpath
+      write__fpath_list
     )
-      ob x.source_path;
+      ob x.source_paths;
     Buffer.add_char ob '}';
 )
 let string_of_downloaded_dependency ?(len = 1024) x =
@@ -12100,7 +12116,7 @@ let read_downloaded_dependency = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
-    let field_source_path = ref (None) in
+    let field_source_paths = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -12109,7 +12125,7 @@ let read_downloaded_dependency = (
         fun s pos len ->
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          if len = 11 && String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'u' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' then (
+          if len = 12 && String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'u' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 's' then (
             0
           )
           else (
@@ -12121,10 +12137,10 @@ let read_downloaded_dependency = (
       (
         match i with
           | 0 ->
-            field_source_path := (
+            field_source_paths := (
               Some (
                 (
-                  read_fpath
+                  read__fpath_list
                 ) p lb
               )
             );
@@ -12140,7 +12156,7 @@ let read_downloaded_dependency = (
           fun s pos len ->
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            if len = 11 && String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'u' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' then (
+            if len = 12 && String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'u' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'h' && String.unsafe_get s (pos+11) = 's' then (
               0
             )
             else (
@@ -12152,10 +12168,10 @@ let read_downloaded_dependency = (
         (
           match i with
             | 0 ->
-              field_source_path := (
+              field_source_paths := (
                 Some (
                   (
-                    read_fpath
+                    read__fpath_list
                   ) p lb
                 )
               );
@@ -12168,7 +12184,7 @@ let read_downloaded_dependency = (
     with Yojson.End_of_object -> (
         (
           {
-            source_path = (match !field_source_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "source_path");
+            source_paths = (match !field_source_paths with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "source_paths");
           }
          : downloaded_dependency)
       )
@@ -15846,22 +15862,6 @@ let read__x_e1142f7 = (
 )
 let _x_e1142f7_of_string s =
   read__x_e1142f7 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__fpath_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_fpath
-  )
-)
-let string_of__fpath_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__fpath_list ob x;
-  Buffer.contents ob
-let read__fpath_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_fpath
-  )
-)
-let _fpath_list_of_string s =
-  read__fpath_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__config_error_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_config_error
