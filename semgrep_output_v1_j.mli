@@ -349,7 +349,7 @@ type transitive_finding = Semgrep_output_v1_t.transitive_finding = {
 }
 
 type downloaded_dependency = Semgrep_output_v1_t.downloaded_dependency = {
-  source_path: fpath
+  source_paths: fpath list
 }
 
 type resolved_dependency = Semgrep_output_v1_t.resolved_dependency
