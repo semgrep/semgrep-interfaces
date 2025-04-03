@@ -117,7 +117,7 @@ type engine_of_finding = Semgrep_output_v1_t.engine_of_finding
 
 type raw_json = Yojson.Basic.t
 
-type rule_id = Semgrep_output_v1_t.rule_id [@@deriving show]
+type rule_id = Semgrep_output_v1_t.rule_id [@@deriving show, eq]
 
 type sca_pattern = Semgrep_output_v1_t.sca_pattern = {
   ecosystem: ecosystem;

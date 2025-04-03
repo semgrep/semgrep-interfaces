@@ -142,7 +142,7 @@ type location
 
 (* e.g., "javascript.security.do-not-use-eval" *)
 type rule_id
-     <ocaml attr="deriving show">
+     <ocaml attr="deriving show, eq">
      <python decorator="dataclass(frozen=True)"> =
   string wrap <ocaml module="Rule_ID">
 
