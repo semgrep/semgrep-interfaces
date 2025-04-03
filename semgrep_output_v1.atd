@@ -1862,7 +1862,7 @@ type scan_config = {
  * cached entries (e.g., the semgrep engine itself changed enough that
  * some past cached results might be wrong and should be recomputed)
 *)
-type tr_cache_key = {
+type tr_cache_key <ocaml attr="deriving show, eq"> = {
     rule_id: rule_id;
     (* this can be the checksum of the content of the rule (JSON or YAML form) *)
     rule_version: string;

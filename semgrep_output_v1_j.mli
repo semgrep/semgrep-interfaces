@@ -398,6 +398,7 @@ type tr_cache_key = Semgrep_output_v1_t.tr_cache_key = {
   package_url: string;
   extra: string
 }
+  [@@deriving show, eq]
 
 type tr_query_cache_response = Semgrep_output_v1_t.tr_query_cache_response = {
   cached: (tr_cache_key * tr_cache_match_result) list
