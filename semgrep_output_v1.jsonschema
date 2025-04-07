@@ -376,7 +376,6 @@
           ]
         },
         { "const": "DirectReachable" },
-        { "const": "DirectUnreachable" },
         {
           "type": "array",
           "minItems": 2,
@@ -408,18 +407,22 @@
     },
     "transitive_reachable": {
       "type": "object",
-      "required": [ "explanation", "callgraph_reachable" ],
+      "required": [ "matches", "callgraph_reachable", "explanation" ],
       "properties": {
-        "explanation": {
-          "oneOf": [
-            {
-              "type": "array",
-              "minItems": 2,
-              "items": false,
-              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
-            },
-            { "const": "None" }
-          ]
+        "matches": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "items": false,
+            "prefixItems": [
+              { "type": "string" },
+              {
+                "type": "array",
+                "items": { "$ref": "#/definitions/cli_match" }
+              }
+            ]
+          }
         },
         "callgraph_reachable": {
           "oneOf": [
@@ -431,13 +434,28 @@
             },
             { "const": "None" }
           ]
+        },
+        "explanation": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
         }
       }
     },
     "transitive_unreachable": {
       "type": "object",
-      "required": [ "explanation" ],
+      "required": [ "analyzed_packages", "explanation" ],
       "properties": {
+        "analyzed_packages": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
         "explanation": {
           "oneOf": [
             {
@@ -2003,8 +2021,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "ManifestOnlyDependencySource" },
-            { "$ref": "#/definitions/manifest" }
+            { "const": "ManifestOnly" }, { "$ref": "#/definitions/manifest" }
           ]
         },
         {
@@ -2012,8 +2029,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "LockfileOnlyDependencySource" },
-            { "$ref": "#/definitions/lockfile" }
+            { "const": "LockfileOnly" }, { "$ref": "#/definitions/lockfile" }
           ]
         },
         {
@@ -2021,7 +2037,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "ManifestLockfileDependencySource" },
+            { "const": "ManifestLockfile" },
             {
               "type": "array",
               "minItems": 2,
@@ -2038,7 +2054,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "MultiLockfileDependencySource" },
+            { "const": "MultiLockfile" },
             {
               "type": "array",
               "items": { "$ref": "#/definitions/dependency_source" }

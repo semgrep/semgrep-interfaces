@@ -573,13 +573,6 @@ type sca_match_kind = [
    * the match location will be in some target code.
    *)
   | DirectReachable
-  (* This is a "positive" finding in the sense that semgrep was
-   * able to prove that the finding is "safe" and
-   * can be ignored because it is not used in the 1st-party code
-   * directly. Note that this match kind considers only first-party
-   * code.
-   *)
-  | DirectUnreachable
   (* found the pattern-part of the SCA rule in third-party code
    * and ultimately found a path from 1st party code to this vulnerable
    * third-party code.
@@ -594,6 +587,10 @@ type sca_match_kind = [
    * of the SCA rule in 3rd party code, or if there is
    * it's in third-party code that is not accessed from the
    * 1st-party code (e.g., via callgraph analysis)
+   * Note that there is no need for DirectUnreachable because semgrep
+   * would never generate such a finding. We have TransitiveUnreachable
+   * because semgrep first generates some Undetermined that we then
+   * retag as DirectUnreachable.
    *)
   | TransitiveUnreachable of transitive_unreachable
   (* could not decide because of the engine limitations (e.g.,
@@ -606,14 +603,30 @@ type sca_match_kind = [
 ] < ocaml repr="classic">
 
 type transitive_reachable = {
-  (* TODO: some proof that the user can understand *)
-  explanation: string option;
+  (* The matches we found in 3rd party libraries.
+   * Ideally the location in cli_match are relative to the root of the project
+   * so one can display matches as package@/path/to/finding.py
+   * TODO: include matched code? 3rd party libraries are usually OSS
+   * so maybe ok to store code for once in our DBs? Otherwise The App will
+   * have to redownload and reaccess the package code (or maybe we
+   * could give a github URL?)
+   *)
+  matches: (string (* package uri? *) * cli_match list) list;
+  (* LATER: add callgraph information so one can see the path from 1st party code
+   * to the vulnerable intermediate 3rd party function.
+   * This is set to None for now.
+   *)
   callgraph_reachable: bool option;
-  (* LATER: add trace information *)
+  (* some extra explanation that the user can understand *)
+  explanation: string option;
 }
 
 type transitive_unreachable = {
-  (* TODO: some proof that the user can understand *)
+  (* We didn't find any findings in all the 3rd party libraries that are using
+   * the 3rd party vulnerable library. This is a "proof of work".
+   *)
+  analyzed_packages: string (* package uri? *) list;
+  (* some extra explanation that the user can understand *)
   explanation: string option;
 }
 
@@ -1890,17 +1903,17 @@ type tr_cache_match_result = {
     matches: cli_match list;
 }
 
-(* Sent by the CLI to the POST /api/???? *)
+(* Sent by the CLI to the POST /api/cli/tr_cache/lookup *)
 type tr_query_cache_request = {
     entries: tr_cache_key list;
 }
 
-(* Response by the backend the the POST /api/???? *)
+(* Response by the backend the the POST /api/cli/tr_cache/lookup *)
 type tr_query_cache_response = {
     cached: (tr_cache_key * tr_cache_match_result) list;   
 }
 
-(* Sent by the CLI to the POST /api/??? *)
+(* Sent by the CLI to the POST /api/cli/tr_cache *)
 type tr_add_cache_request = {
    new_entries: (tr_cache_key * tr_cache_match_result) list;
 }
@@ -2320,14 +2333,13 @@ type lockfile
     path: fpath;
 }
 
-(* TODO? use a record instead of an ADT? *)
 type dependency_source
     <ocaml attr="deriving show">
     <python decorator="dataclass(frozen=True)"> =
 [
-  | ManifestOnlyDependencySource of manifest
-  | LockfileOnlyDependencySource of lockfile
-  | ManifestLockfileDependencySource of (manifest * lockfile)
+  | ManifestOnly of manifest
+  | LockfileOnly of lockfile
+  | ManifestLockfile of (manifest * lockfile)
   (* The dependency_source should be LockfileOnly or ManifestLockfile,
    * but not ManifestOnlyDependencySource.
    * Right now this variant is only used by pysemgrep; it is
@@ -2339,7 +2351,7 @@ type dependency_source
    * TODO? add a <python repr="tuple"> so the list is converted instead in a
    * Tuple[DependencySource, ...] which is hashable.
    *)
-  | MultiLockfileDependencySource of dependency_source list
+  | MultiLockfile of dependency_source list
 ] <ocaml repr="classic">
 
 (* alt: sca_error_kind *)                        
