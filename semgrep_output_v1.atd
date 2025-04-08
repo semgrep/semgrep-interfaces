@@ -611,7 +611,7 @@ type transitive_reachable = {
    * have to redownload and reaccess the package code (or maybe we
    * could give a github URL?)
    *)
-  matches: (string (* package uri? *) * cli_match list) list;
+  matches: (found_dependency * cli_match list) list;
   (* LATER: add callgraph information so one can see the path from 1st party code
    * to the vulnerable intermediate 3rd party function.
    * This is set to None for now.
@@ -625,7 +625,7 @@ type transitive_unreachable = {
   (* We didn't find any findings in all the 3rd party libraries that are using
    * the 3rd party vulnerable library. This is a "proof of work".
    *)
-  analyzed_packages: string (* package uri? *) list;
+  analyzed_packages: found_dependency list;
   (* some extra explanation that the user can understand *)
   explanation: string option;
 }

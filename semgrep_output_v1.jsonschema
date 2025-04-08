@@ -416,7 +416,7 @@
             "minItems": 2,
             "items": false,
             "prefixItems": [
-              { "type": "string" },
+              { "$ref": "#/definitions/found_dependency" },
               {
                 "type": "array",
                 "items": { "$ref": "#/definitions/cli_match" }
@@ -454,7 +454,7 @@
       "properties": {
         "analyzed_packages": {
           "type": "array",
-          "items": { "type": "string" }
+          "items": { "$ref": "#/definitions/found_dependency" }
         },
         "explanation": {
           "oneOf": [

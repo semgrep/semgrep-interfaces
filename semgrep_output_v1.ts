@@ -207,13 +207,13 @@ export type ScaMatchKind =
 | { kind: 'TransitiveUndetermined'; value: TransitiveUndetermined }
 
 export type TransitiveReachable = {
-  matches: [string, CliMatch[]][];
+  matches: [FoundDependency, CliMatch[]][];
   callgraph_reachable: Option<boolean>;
   explanation: Option<string>;
 }
 
 export type TransitiveUnreachable = {
-  analyzed_packages: string[];
+  analyzed_packages: FoundDependency[];
   explanation: Option<string>;
 }
 
@@ -1899,7 +1899,7 @@ export function readScaMatchKind(x: any, context: any = x): ScaMatchKind {
 
 export function writeTransitiveReachable(x: TransitiveReachable, context: any = x): any {
   return {
-    'matches': _atd_write_required_field('TransitiveReachable', 'matches', _atd_write_array(((x, context) => [_atd_write_string(x[0], x), _atd_write_array(writeCliMatch)(x[1], x)])), x.matches, x),
+    'matches': _atd_write_required_field('TransitiveReachable', 'matches', _atd_write_array(((x, context) => [writeFoundDependency(x[0], x), _atd_write_array(writeCliMatch)(x[1], x)])), x.matches, x),
     'callgraph_reachable': _atd_write_required_field('TransitiveReachable', 'callgraph_reachable', _atd_write_option(_atd_write_bool), x.callgraph_reachable, x),
     'explanation': _atd_write_required_field('TransitiveReachable', 'explanation', _atd_write_option(_atd_write_string), x.explanation, x),
   };
@@ -1907,7 +1907,7 @@ export function writeTransitiveReachable(x: TransitiveReachable, context: any = 
 
 export function readTransitiveReachable(x: any, context: any = x): TransitiveReachable {
   return {
-    matches: _atd_read_required_field('TransitiveReachable', 'matches', _atd_read_array(((x, context): [string, CliMatch[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_string(x[0], x), _atd_read_array(readCliMatch)(x[1], x)] })), x['matches'], x),
+    matches: _atd_read_required_field('TransitiveReachable', 'matches', _atd_read_array(((x, context): [FoundDependency, CliMatch[]] => { _atd_check_json_tuple(2, x, context); return [readFoundDependency(x[0], x), _atd_read_array(readCliMatch)(x[1], x)] })), x['matches'], x),
     callgraph_reachable: _atd_read_required_field('TransitiveReachable', 'callgraph_reachable', _atd_read_option(_atd_read_bool), x['callgraph_reachable'], x),
     explanation: _atd_read_required_field('TransitiveReachable', 'explanation', _atd_read_option(_atd_read_string), x['explanation'], x),
   };
@@ -1915,14 +1915,14 @@ export function readTransitiveReachable(x: any, context: any = x): TransitiveRea
 
 export function writeTransitiveUnreachable(x: TransitiveUnreachable, context: any = x): any {
   return {
-    'analyzed_packages': _atd_write_required_field('TransitiveUnreachable', 'analyzed_packages', _atd_write_array(_atd_write_string), x.analyzed_packages, x),
+    'analyzed_packages': _atd_write_required_field('TransitiveUnreachable', 'analyzed_packages', _atd_write_array(writeFoundDependency), x.analyzed_packages, x),
     'explanation': _atd_write_required_field('TransitiveUnreachable', 'explanation', _atd_write_option(_atd_write_string), x.explanation, x),
   };
 }
 
 export function readTransitiveUnreachable(x: any, context: any = x): TransitiveUnreachable {
   return {
-    analyzed_packages: _atd_read_required_field('TransitiveUnreachable', 'analyzed_packages', _atd_read_array(_atd_read_string), x['analyzed_packages'], x),
+    analyzed_packages: _atd_read_required_field('TransitiveUnreachable', 'analyzed_packages', _atd_read_array(readFoundDependency), x['analyzed_packages'], x),
     explanation: _atd_read_required_field('TransitiveUnreachable', 'explanation', _atd_read_option(_atd_read_string), x['explanation'], x),
   };
 }

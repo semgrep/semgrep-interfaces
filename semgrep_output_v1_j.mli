@@ -159,7 +159,7 @@ type transitive_undetermined = Semgrep_output_v1_t.transitive_undetermined = {
 }
 
 type transitive_unreachable = Semgrep_output_v1_t.transitive_unreachable = {
-  analyzed_packages: string list;
+  analyzed_packages: found_dependency list;
   explanation: string option
 }
 
@@ -229,7 +229,7 @@ and sca_match_kind = Semgrep_output_v1_t.sca_match_kind =
 
 
 and transitive_reachable = Semgrep_output_v1_t.transitive_reachable = {
-  matches: (string * cli_match list) list;
+  matches: (found_dependency * cli_match list) list;
   callgraph_reachable: bool option;
   explanation: string option
 }

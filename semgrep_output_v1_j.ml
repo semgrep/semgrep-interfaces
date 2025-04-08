@@ -159,7 +159,7 @@ type transitive_undetermined = Semgrep_output_v1_t.transitive_undetermined = {
 }
 
 type transitive_unreachable = Semgrep_output_v1_t.transitive_unreachable = {
-  analyzed_packages: string list;
+  analyzed_packages: found_dependency list;
   explanation: string option
 }
 
@@ -229,7 +229,7 @@ and sca_match_kind = Semgrep_output_v1_t.sca_match_kind =
 
 
 and transitive_reachable = Semgrep_output_v1_t.transitive_reachable = {
-  matches: (string * cli_match list) list;
+  matches: (found_dependency * cli_match list) list;
   callgraph_reachable: bool option;
   explanation: string option
 }
@@ -2521,6 +2521,22 @@ let read_found_dependency = (
 )
 let found_dependency_of_string s =
   read_found_dependency (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__found_dependency_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_found_dependency
+  )
+)
+let string_of__found_dependency_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__found_dependency_list ob x;
+  Buffer.contents ob
+let read__found_dependency_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_found_dependency
+  )
+)
+let _found_dependency_list_of_string s =
+  read__found_dependency_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_lockfile_kind : _ -> lockfile_kind -> _ = (
   fun ob (x : lockfile_kind) ->
     match x with
@@ -6109,7 +6125,7 @@ let write_transitive_unreachable : _ -> transitive_unreachable -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"analyzed_packages\":";
     (
-      write__string_list
+      write__found_dependency_list
     )
       ob x.analyzed_packages;
     if !is_first then
@@ -6170,7 +6186,7 @@ let read_transitive_unreachable = (
             field_analyzed_packages := (
               Some (
                 (
-                  read__string_list
+                  read__found_dependency_list
                 ) p lb
               )
             );
@@ -6223,7 +6239,7 @@ let read_transitive_unreachable = (
               field_analyzed_packages := (
                 Some (
                   (
-                    read__string_list
+                    read__found_dependency_list
                   ) p lb
                 )
               );
@@ -7154,6 +7170,28 @@ and string_of__cli_match_list ?(len = 1024) x =
   let ob = Buffer.create len in
   write__cli_match_list ob x;
   Buffer.contents ob
+and write__list_caa51bb ob x = (
+  Atdgen_runtime.Oj_run.write_list (
+    fun ob x ->
+      Buffer.add_char ob '[';
+      (let x, _ = x in
+      (
+        write_found_dependency
+      ) ob x
+      );
+      Buffer.add_char ob ',';
+      (let _, x = x in
+      (
+        write__cli_match_list
+      ) ob x
+      );
+      Buffer.add_char ob ']';
+  )
+) ob x
+and string_of__list_caa51bb ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__list_caa51bb ob x;
+  Buffer.contents ob
 and write__sca_match_kind_option ob x = (
   Atdgen_runtime.Oj_run.write_std_option (
     write_sca_match_kind
@@ -7171,28 +7209,6 @@ and write__sca_match_option ob x = (
 and string_of__sca_match_option ?(len = 1024) x =
   let ob = Buffer.create len in
   write__sca_match_option ob x;
-  Buffer.contents ob
-and write__string_cli_match_list_list ob x = (
-  Atdgen_runtime.Oj_run.write_list (
-    fun ob x ->
-      Buffer.add_char ob '[';
-      (let x, _ = x in
-      (
-        Yojson.Safe.write_string
-      ) ob x
-      );
-      Buffer.add_char ob ',';
-      (let _, x = x in
-      (
-        write__cli_match_list
-      ) ob x
-      );
-      Buffer.add_char ob ']';
-  )
-) ob x
-and string_of__string_cli_match_list_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__string_cli_match_list_list ob x;
   Buffer.contents ob
 and write_cli_match : _ -> cli_match -> _ = (
   fun ob (x : cli_match) ->
@@ -7514,7 +7530,7 @@ and write_transitive_reachable : _ -> transitive_reachable -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"matches\":";
     (
-      write__string_cli_match_list_list
+      write__list_caa51bb
     )
       ob x.matches;
     if !is_first then
@@ -7548,6 +7564,54 @@ let rec read__cli_match_list p lb = (
 ) p lb
 and _cli_match_list_of_string s =
   read__cli_match_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+and read__list_caa51bb p lb = (
+  Atdgen_runtime.Oj_run.read_list (
+    fun p lb ->
+      Yojson.Safe.read_space p lb;
+      let std_tuple = Yojson.Safe.start_any_tuple p lb in
+      let len = ref 0 in
+      let end_of_tuple = ref false in
+      (try
+        let x0 =
+          let x =
+            (
+              read_found_dependency
+            ) p lb
+          in
+          incr len;
+          Yojson.Safe.read_space p lb;
+          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+          x
+        in
+        let x1 =
+          let x =
+            (
+              read__cli_match_list
+            ) p lb
+          in
+          incr len;
+          (try
+            Yojson.Safe.read_space p lb;
+            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+          with Yojson.End_of_tuple -> end_of_tuple := true);
+          x
+        in
+        if not !end_of_tuple then (
+          try
+            while true do
+              Yojson.Safe.skip_json p lb;
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+            done
+          with Yojson.End_of_tuple -> ()
+        );
+        (x0, x1)
+      with Yojson.End_of_tuple ->
+        Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+  )
+) p lb
+and _list_caa51bb_of_string s =
+  read__list_caa51bb (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 and read__sca_match_kind_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
@@ -7644,54 +7708,6 @@ and read__sca_match_option = (
 )
 and _sca_match_option_of_string s =
   read__sca_match_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-and read__string_cli_match_list_list p lb = (
-  Atdgen_runtime.Oj_run.read_list (
-    fun p lb ->
-      Yojson.Safe.read_space p lb;
-      let std_tuple = Yojson.Safe.start_any_tuple p lb in
-      let len = ref 0 in
-      let end_of_tuple = ref false in
-      (try
-        let x0 =
-          let x =
-            (
-              Atdgen_runtime.Oj_run.read_string
-            ) p lb
-          in
-          incr len;
-          Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          x
-        in
-        let x1 =
-          let x =
-            (
-              read__cli_match_list
-            ) p lb
-          in
-          incr len;
-          (try
-            Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          with Yojson.End_of_tuple -> end_of_tuple := true);
-          x
-        in
-        if not !end_of_tuple then (
-          try
-            while true do
-              Yojson.Safe.skip_json p lb;
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-            done
-          with Yojson.End_of_tuple -> ()
-        );
-        (x0, x1)
-      with Yojson.End_of_tuple ->
-        Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
-  )
-) p lb
-and _string_cli_match_list_list_of_string s =
-  read__string_cli_match_list_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 and read_cli_match = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
@@ -9021,7 +9037,7 @@ and read_transitive_reachable = (
             field_matches := (
               Some (
                 (
-                  read__string_cli_match_list_list
+                  read__list_caa51bb
                 ) p lb
               )
             );
@@ -9090,7 +9106,7 @@ and read_transitive_reachable = (
               field_matches := (
                 Some (
                   (
-                    read__string_cli_match_list_list
+                    read__list_caa51bb
                   ) p lb
                 )
               );
@@ -32254,22 +32270,6 @@ let read_cli_error = (
 )
 let cli_error_of_string s =
   read_cli_error (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__found_dependency_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_found_dependency
-  )
-)
-let string_of__found_dependency_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__found_dependency_list ob x;
-  Buffer.contents ob
-let read__found_dependency_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_found_dependency
-  )
-)
-let _found_dependency_list_of_string s =
-  read__found_dependency_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__x_a534bf0 = (
   Atdgen_runtime.Oj_run.write_assoc_list (
     Yojson.Safe.write_string

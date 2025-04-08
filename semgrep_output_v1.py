@@ -2688,14 +2688,14 @@ class TransitiveUndetermined:
 class TransitiveUnreachable:
     """Original type: transitive_unreachable = { ... }"""
 
-    analyzed_packages: List[str]
+    analyzed_packages: List[FoundDependency]
     explanation: Optional[str]
 
     @classmethod
     def from_json(cls, x: Any) -> 'TransitiveUnreachable':
         if isinstance(x, dict):
             return cls(
-                analyzed_packages=_atd_read_list(_atd_read_string)(x['analyzed_packages']) if 'analyzed_packages' in x else _atd_missing_json_field('TransitiveUnreachable', 'analyzed_packages'),
+                analyzed_packages=_atd_read_list(FoundDependency.from_json)(x['analyzed_packages']) if 'analyzed_packages' in x else _atd_missing_json_field('TransitiveUnreachable', 'analyzed_packages'),
                 explanation=_atd_read_option(_atd_read_string)(x['explanation']) if 'explanation' in x else _atd_missing_json_field('TransitiveUnreachable', 'explanation'),
             )
         else:
@@ -2703,7 +2703,7 @@ class TransitiveUnreachable:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['analyzed_packages'] = _atd_write_list(_atd_write_string)(self.analyzed_packages)
+        res['analyzed_packages'] = _atd_write_list((lambda x: x.to_json()))(self.analyzed_packages)
         res['explanation'] = _atd_write_option(_atd_write_string)(self.explanation)
         return res
 
@@ -3325,7 +3325,7 @@ class ScaMatchKind:
 class TransitiveReachable:
     """Original type: transitive_reachable = { ... }"""
 
-    matches: List[Tuple[str, List[CliMatch]]]
+    matches: List[Tuple[FoundDependency, List[CliMatch]]]
     callgraph_reachable: Optional[bool]
     explanation: Optional[str]
 
@@ -3333,7 +3333,7 @@ class TransitiveReachable:
     def from_json(cls, x: Any) -> 'TransitiveReachable':
         if isinstance(x, dict):
             return cls(
-                matches=_atd_read_list((lambda x: (_atd_read_string(x[0]), _atd_read_list(CliMatch.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['matches']) if 'matches' in x else _atd_missing_json_field('TransitiveReachable', 'matches'),
+                matches=_atd_read_list((lambda x: (FoundDependency.from_json(x[0]), _atd_read_list(CliMatch.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['matches']) if 'matches' in x else _atd_missing_json_field('TransitiveReachable', 'matches'),
                 callgraph_reachable=_atd_read_option(_atd_read_bool)(x['callgraph_reachable']) if 'callgraph_reachable' in x else _atd_missing_json_field('TransitiveReachable', 'callgraph_reachable'),
                 explanation=_atd_read_option(_atd_read_string)(x['explanation']) if 'explanation' in x else _atd_missing_json_field('TransitiveReachable', 'explanation'),
             )
@@ -3342,7 +3342,7 @@ class TransitiveReachable:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['matches'] = _atd_write_list((lambda x: [_atd_write_string(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.matches)
+        res['matches'] = _atd_write_list((lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.matches)
         res['callgraph_reachable'] = _atd_write_option(_atd_write_bool)(self.callgraph_reachable)
         res['explanation'] = _atd_write_option(_atd_write_string)(self.explanation)
         return res
