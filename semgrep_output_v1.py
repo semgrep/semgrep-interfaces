@@ -2657,37 +2657,6 @@ class Metavars:
 
 
 @dataclass
-class TransitiveReachable:
-    """Original type: transitive_reachable = { ... }"""
-
-    explanation: Optional[str]
-    callgraph_reachable: Optional[bool]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'TransitiveReachable':
-        if isinstance(x, dict):
-            return cls(
-                explanation=_atd_read_option(_atd_read_string)(x['explanation']) if 'explanation' in x else _atd_missing_json_field('TransitiveReachable', 'explanation'),
-                callgraph_reachable=_atd_read_option(_atd_read_bool)(x['callgraph_reachable']) if 'callgraph_reachable' in x else _atd_missing_json_field('TransitiveReachable', 'callgraph_reachable'),
-            )
-        else:
-            _atd_bad_json('TransitiveReachable', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['explanation'] = _atd_write_option(_atd_write_string)(self.explanation)
-        res['callgraph_reachable'] = _atd_write_option(_atd_write_bool)(self.callgraph_reachable)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'TransitiveReachable':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class TransitiveUndetermined:
     """Original type: transitive_undetermined = { ... }"""
 
@@ -2719,12 +2688,14 @@ class TransitiveUndetermined:
 class TransitiveUnreachable:
     """Original type: transitive_unreachable = { ... }"""
 
+    analyzed_packages: List[FoundDependency]
     explanation: Optional[str]
 
     @classmethod
     def from_json(cls, x: Any) -> 'TransitiveUnreachable':
         if isinstance(x, dict):
             return cls(
+                analyzed_packages=_atd_read_list(FoundDependency.from_json)(x['analyzed_packages']) if 'analyzed_packages' in x else _atd_missing_json_field('TransitiveUnreachable', 'analyzed_packages'),
                 explanation=_atd_read_option(_atd_read_string)(x['explanation']) if 'explanation' in x else _atd_missing_json_field('TransitiveUnreachable', 'explanation'),
             )
         else:
@@ -2732,201 +2703,12 @@ class TransitiveUnreachable:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
+        res['analyzed_packages'] = _atd_write_list((lambda x: x.to_json()))(self.analyzed_packages)
         res['explanation'] = _atd_write_option(_atd_write_string)(self.explanation)
         return res
 
     @classmethod
     def from_json_string(cls, x: str) -> 'TransitiveUnreachable':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class LockfileOnlyMatch:
-    """Original type: sca_match_kind = [ ... | LockfileOnlyMatch of ... | ... ]"""
-
-    value: DependencyKind
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'LockfileOnlyMatch'
-
-    def to_json(self) -> Any:
-        return ['LockfileOnlyMatch', (lambda x: x.to_json())(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class DirectReachable:
-    """Original type: sca_match_kind = [ ... | DirectReachable | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'DirectReachable'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'DirectReachable'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class DirectUnreachable:
-    """Original type: sca_match_kind = [ ... | DirectUnreachable | ... ]"""
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'DirectUnreachable'
-
-    @staticmethod
-    def to_json() -> Any:
-        return 'DirectUnreachable'
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class TransitiveReachable_:
-    """Original type: sca_match_kind = [ ... | TransitiveReachable of ... | ... ]"""
-
-    value: TransitiveReachable
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'TransitiveReachable_'
-
-    def to_json(self) -> Any:
-        return ['TransitiveReachable', (lambda x: x.to_json())(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class TransitiveUnreachable_:
-    """Original type: sca_match_kind = [ ... | TransitiveUnreachable of ... | ... ]"""
-
-    value: TransitiveUnreachable
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'TransitiveUnreachable_'
-
-    def to_json(self) -> Any:
-        return ['TransitiveUnreachable', (lambda x: x.to_json())(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class TransitiveUndetermined_:
-    """Original type: sca_match_kind = [ ... | TransitiveUndetermined of ... | ... ]"""
-
-    value: TransitiveUndetermined
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'TransitiveUndetermined_'
-
-    def to_json(self) -> Any:
-        return ['TransitiveUndetermined', (lambda x: x.to_json())(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class ScaMatchKind:
-    """Original type: sca_match_kind = [ ... ]"""
-
-    value: Union[LockfileOnlyMatch, DirectReachable, DirectUnreachable, TransitiveReachable_, TransitiveUnreachable_, TransitiveUndetermined_]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return self.value.kind
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ScaMatchKind':
-        if isinstance(x, str):
-            if x == 'DirectReachable':
-                return cls(DirectReachable())
-            if x == 'DirectUnreachable':
-                return cls(DirectUnreachable())
-            _atd_bad_json('ScaMatchKind', x)
-        if isinstance(x, List) and len(x) == 2:
-            cons = x[0]
-            if cons == 'LockfileOnlyMatch':
-                return cls(LockfileOnlyMatch(DependencyKind.from_json(x[1])))
-            if cons == 'TransitiveReachable':
-                return cls(TransitiveReachable_(TransitiveReachable.from_json(x[1])))
-            if cons == 'TransitiveUnreachable':
-                return cls(TransitiveUnreachable_(TransitiveUnreachable.from_json(x[1])))
-            if cons == 'TransitiveUndetermined':
-                return cls(TransitiveUndetermined_(TransitiveUndetermined.from_json(x[1])))
-            _atd_bad_json('ScaMatchKind', x)
-        _atd_bad_json('ScaMatchKind', x)
-
-    def to_json(self) -> Any:
-        return self.value.to_json()
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ScaMatchKind':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class ScaMatch:
-    """Original type: sca_match = { ... }"""
-
-    reachability_rule: bool
-    sca_finding_schema: int
-    dependency_match: DependencyMatch
-    reachable: bool
-    kind: Optional[ScaMatchKind] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ScaMatch':
-        if isinstance(x, dict):
-            return cls(
-                reachability_rule=_atd_read_bool(x['reachability_rule']) if 'reachability_rule' in x else _atd_missing_json_field('ScaMatch', 'reachability_rule'),
-                sca_finding_schema=_atd_read_int(x['sca_finding_schema']) if 'sca_finding_schema' in x else _atd_missing_json_field('ScaMatch', 'sca_finding_schema'),
-                dependency_match=DependencyMatch.from_json(x['dependency_match']) if 'dependency_match' in x else _atd_missing_json_field('ScaMatch', 'dependency_match'),
-                reachable=_atd_read_bool(x['reachable']) if 'reachable' in x else _atd_missing_json_field('ScaMatch', 'reachable'),
-                kind=ScaMatchKind.from_json(x['kind']) if 'kind' in x else None,
-            )
-        else:
-            _atd_bad_json('ScaMatch', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['reachability_rule'] = _atd_write_bool(self.reachability_rule)
-        res['sca_finding_schema'] = _atd_write_int(self.sca_finding_schema)
-        res['dependency_match'] = (lambda x: x.to_json())(self.dependency_match)
-        res['reachable'] = _atd_write_bool(self.reachable)
-        if self.kind is not None:
-            res['kind'] = (lambda x: x.to_json())(self.kind)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ScaMatch':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -3038,72 +2820,72 @@ class ValidationState:
 
 
 @dataclass(frozen=True)
-class ManifestOnlyDependencySource:
-    """Original type: dependency_source = [ ... | ManifestOnlyDependencySource of ... | ... ]"""
+class ManifestOnly:
+    """Original type: dependency_source = [ ... | ManifestOnly of ... | ... ]"""
 
     value: Manifest
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'ManifestOnlyDependencySource'
+        return 'ManifestOnly'
 
     def to_json(self) -> Any:
-        return ['ManifestOnlyDependencySource', (lambda x: x.to_json())(self.value)]
+        return ['ManifestOnly', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
 @dataclass(frozen=True)
-class LockfileOnlyDependencySource:
-    """Original type: dependency_source = [ ... | LockfileOnlyDependencySource of ... | ... ]"""
+class LockfileOnly:
+    """Original type: dependency_source = [ ... | LockfileOnly of ... | ... ]"""
 
     value: Lockfile
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'LockfileOnlyDependencySource'
+        return 'LockfileOnly'
 
     def to_json(self) -> Any:
-        return ['LockfileOnlyDependencySource', (lambda x: x.to_json())(self.value)]
+        return ['LockfileOnly', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
 @dataclass(frozen=True)
-class ManifestLockfileDependencySource:
-    """Original type: dependency_source = [ ... | ManifestLockfileDependencySource of ... | ... ]"""
+class ManifestLockfile:
+    """Original type: dependency_source = [ ... | ManifestLockfile of ... | ... ]"""
 
     value: Tuple[Manifest, Lockfile]
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'ManifestLockfileDependencySource'
+        return 'ManifestLockfile'
 
     def to_json(self) -> Any:
-        return ['ManifestLockfileDependencySource', (lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
+        return ['ManifestLockfile', (lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
 
 
 @dataclass(frozen=True)
-class MultiLockfileDependencySource:
-    """Original type: dependency_source = [ ... | MultiLockfileDependencySource of ... | ... ]"""
+class MultiLockfile:
+    """Original type: dependency_source = [ ... | MultiLockfile of ... | ... ]"""
 
     value: List[DependencySource]
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
-        return 'MultiLockfileDependencySource'
+        return 'MultiLockfile'
 
     def to_json(self) -> Any:
-        return ['MultiLockfileDependencySource', _atd_write_list((lambda x: x.to_json()))(self.value)]
+        return ['MultiLockfile', _atd_write_list((lambda x: x.to_json()))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -3113,7 +2895,7 @@ class MultiLockfileDependencySource:
 class DependencySource:
     """Original type: dependency_source = [ ... ]"""
 
-    value: Union[ManifestOnlyDependencySource, LockfileOnlyDependencySource, ManifestLockfileDependencySource, MultiLockfileDependencySource]
+    value: Union[ManifestOnly, LockfileOnly, ManifestLockfile, MultiLockfile]
 
     @property
     def kind(self) -> str:
@@ -3124,14 +2906,14 @@ class DependencySource:
     def from_json(cls, x: Any) -> 'DependencySource':
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
-            if cons == 'ManifestOnlyDependencySource':
-                return cls(ManifestOnlyDependencySource(Manifest.from_json(x[1])))
-            if cons == 'LockfileOnlyDependencySource':
-                return cls(LockfileOnlyDependencySource(Lockfile.from_json(x[1])))
-            if cons == 'ManifestLockfileDependencySource':
-                return cls(ManifestLockfileDependencySource((lambda x: (Manifest.from_json(x[0]), Lockfile.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
-            if cons == 'MultiLockfileDependencySource':
-                return cls(MultiLockfileDependencySource(_atd_read_list(DependencySource.from_json)(x[1])))
+            if cons == 'ManifestOnly':
+                return cls(ManifestOnly(Manifest.from_json(x[1])))
+            if cons == 'LockfileOnly':
+                return cls(LockfileOnly(Lockfile.from_json(x[1])))
+            if cons == 'ManifestLockfile':
+                return cls(ManifestLockfile((lambda x: (Manifest.from_json(x[0]), Lockfile.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+            if cons == 'MultiLockfile':
+                return cls(MultiLockfile(_atd_read_list(DependencySource.from_json)(x[1])))
             _atd_bad_json('DependencySource', x)
         _atd_bad_json('DependencySource', x)
 
@@ -3246,6 +3028,327 @@ class MatchDataflowTrace:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'MatchDataflowTrace':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class CliMatch:
+    """Original type: cli_match = { ... }"""
+
+    check_id: RuleId
+    path: Fpath
+    start: Position
+    end: Position
+    extra: CliMatchExtra
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CliMatch':
+        if isinstance(x, dict):
+            return cls(
+                check_id=RuleId.from_json(x['check_id']) if 'check_id' in x else _atd_missing_json_field('CliMatch', 'check_id'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('CliMatch', 'path'),
+                start=Position.from_json(x['start']) if 'start' in x else _atd_missing_json_field('CliMatch', 'start'),
+                end=Position.from_json(x['end']) if 'end' in x else _atd_missing_json_field('CliMatch', 'end'),
+                extra=CliMatchExtra.from_json(x['extra']) if 'extra' in x else _atd_missing_json_field('CliMatch', 'extra'),
+            )
+        else:
+            _atd_bad_json('CliMatch', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['check_id'] = (lambda x: x.to_json())(self.check_id)
+        res['path'] = (lambda x: x.to_json())(self.path)
+        res['start'] = (lambda x: x.to_json())(self.start)
+        res['end'] = (lambda x: x.to_json())(self.end)
+        res['extra'] = (lambda x: x.to_json())(self.extra)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CliMatch':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+@dataclass
+class CliMatchExtra:
+    """Original type: cli_match_extra = { ... }"""
+
+    message: str
+    metadata: RawJson
+    severity: MatchSeverity
+    fingerprint: str
+    lines: str
+    metavars: Optional[Metavars] = None
+    fix: Optional[str] = None
+    fixed_lines: Optional[List[str]] = None
+    is_ignored: Optional[bool] = None
+    sca_info: Optional[ScaMatch] = None
+    validation_state: Optional[ValidationState] = None
+    historical_info: Optional[HistoricalInfo] = None
+    dataflow_trace: Optional[MatchDataflowTrace] = None
+    engine_kind: Optional[EngineOfFinding] = None
+    extra_extra: Optional[RawJson] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CliMatchExtra':
+        if isinstance(x, dict):
+            return cls(
+                message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('CliMatchExtra', 'message'),
+                metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else _atd_missing_json_field('CliMatchExtra', 'metadata'),
+                severity=MatchSeverity.from_json(x['severity']) if 'severity' in x else _atd_missing_json_field('CliMatchExtra', 'severity'),
+                fingerprint=_atd_read_string(x['fingerprint']) if 'fingerprint' in x else _atd_missing_json_field('CliMatchExtra', 'fingerprint'),
+                lines=_atd_read_string(x['lines']) if 'lines' in x else _atd_missing_json_field('CliMatchExtra', 'lines'),
+                metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else None,
+                fix=_atd_read_string(x['fix']) if 'fix' in x else None,
+                fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
+                is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else None,
+                sca_info=ScaMatch.from_json(x['sca_info']) if 'sca_info' in x else None,
+                validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
+                historical_info=HistoricalInfo.from_json(x['historical_info']) if 'historical_info' in x else None,
+                dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
+                engine_kind=EngineOfFinding.from_json(x['engine_kind']) if 'engine_kind' in x else None,
+                extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
+            )
+        else:
+            _atd_bad_json('CliMatchExtra', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['message'] = _atd_write_string(self.message)
+        res['metadata'] = (lambda x: x.to_json())(self.metadata)
+        res['severity'] = (lambda x: x.to_json())(self.severity)
+        res['fingerprint'] = _atd_write_string(self.fingerprint)
+        res['lines'] = _atd_write_string(self.lines)
+        if self.metavars is not None:
+            res['metavars'] = (lambda x: x.to_json())(self.metavars)
+        if self.fix is not None:
+            res['fix'] = _atd_write_string(self.fix)
+        if self.fixed_lines is not None:
+            res['fixed_lines'] = _atd_write_list(_atd_write_string)(self.fixed_lines)
+        if self.is_ignored is not None:
+            res['is_ignored'] = _atd_write_bool(self.is_ignored)
+        if self.sca_info is not None:
+            res['sca_info'] = (lambda x: x.to_json())(self.sca_info)
+        if self.validation_state is not None:
+            res['validation_state'] = (lambda x: x.to_json())(self.validation_state)
+        if self.historical_info is not None:
+            res['historical_info'] = (lambda x: x.to_json())(self.historical_info)
+        if self.dataflow_trace is not None:
+            res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
+        if self.engine_kind is not None:
+            res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
+        if self.extra_extra is not None:
+            res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CliMatchExtra':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+@dataclass
+class ScaMatch:
+    """Original type: sca_match = { ... }"""
+
+    reachability_rule: bool
+    sca_finding_schema: int
+    dependency_match: DependencyMatch
+    reachable: bool
+    kind: Optional[ScaMatchKind] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaMatch':
+        if isinstance(x, dict):
+            return cls(
+                reachability_rule=_atd_read_bool(x['reachability_rule']) if 'reachability_rule' in x else _atd_missing_json_field('ScaMatch', 'reachability_rule'),
+                sca_finding_schema=_atd_read_int(x['sca_finding_schema']) if 'sca_finding_schema' in x else _atd_missing_json_field('ScaMatch', 'sca_finding_schema'),
+                dependency_match=DependencyMatch.from_json(x['dependency_match']) if 'dependency_match' in x else _atd_missing_json_field('ScaMatch', 'dependency_match'),
+                reachable=_atd_read_bool(x['reachable']) if 'reachable' in x else _atd_missing_json_field('ScaMatch', 'reachable'),
+                kind=ScaMatchKind.from_json(x['kind']) if 'kind' in x else None,
+            )
+        else:
+            _atd_bad_json('ScaMatch', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['reachability_rule'] = _atd_write_bool(self.reachability_rule)
+        res['sca_finding_schema'] = _atd_write_int(self.sca_finding_schema)
+        res['dependency_match'] = (lambda x: x.to_json())(self.dependency_match)
+        res['reachable'] = _atd_write_bool(self.reachable)
+        if self.kind is not None:
+            res['kind'] = (lambda x: x.to_json())(self.kind)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaMatch':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+@dataclass
+class LockfileOnlyMatch:
+    """Original type: sca_match_kind = [ ... | LockfileOnlyMatch of ... | ... ]"""
+
+    value: DependencyKind
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'LockfileOnlyMatch'
+
+    def to_json(self) -> Any:
+        return ['LockfileOnlyMatch', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DirectReachable:
+    """Original type: sca_match_kind = [ ... | DirectReachable | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'DirectReachable'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'DirectReachable'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TransitiveReachable_:
+    """Original type: sca_match_kind = [ ... | TransitiveReachable of ... | ... ]"""
+
+    value: TransitiveReachable
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'TransitiveReachable_'
+
+    def to_json(self) -> Any:
+        return ['TransitiveReachable', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TransitiveUnreachable_:
+    """Original type: sca_match_kind = [ ... | TransitiveUnreachable of ... | ... ]"""
+
+    value: TransitiveUnreachable
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'TransitiveUnreachable_'
+
+    def to_json(self) -> Any:
+        return ['TransitiveUnreachable', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TransitiveUndetermined_:
+    """Original type: sca_match_kind = [ ... | TransitiveUndetermined of ... | ... ]"""
+
+    value: TransitiveUndetermined
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'TransitiveUndetermined_'
+
+    def to_json(self) -> Any:
+        return ['TransitiveUndetermined', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScaMatchKind:
+    """Original type: sca_match_kind = [ ... ]"""
+
+    value: Union[LockfileOnlyMatch, DirectReachable, TransitiveReachable_, TransitiveUnreachable_, TransitiveUndetermined_]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaMatchKind':
+        if isinstance(x, str):
+            if x == 'DirectReachable':
+                return cls(DirectReachable())
+            _atd_bad_json('ScaMatchKind', x)
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'LockfileOnlyMatch':
+                return cls(LockfileOnlyMatch(DependencyKind.from_json(x[1])))
+            if cons == 'TransitiveReachable':
+                return cls(TransitiveReachable_(TransitiveReachable.from_json(x[1])))
+            if cons == 'TransitiveUnreachable':
+                return cls(TransitiveUnreachable_(TransitiveUnreachable.from_json(x[1])))
+            if cons == 'TransitiveUndetermined':
+                return cls(TransitiveUndetermined_(TransitiveUndetermined.from_json(x[1])))
+            _atd_bad_json('ScaMatchKind', x)
+        _atd_bad_json('ScaMatchKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaMatchKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+@dataclass
+class TransitiveReachable:
+    """Original type: transitive_reachable = { ... }"""
+
+    matches: List[Tuple[FoundDependency, List[CliMatch]]]
+    callgraph_reachable: Optional[bool]
+    explanation: Optional[str]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TransitiveReachable':
+        if isinstance(x, dict):
+            return cls(
+                matches=_atd_read_list((lambda x: (FoundDependency.from_json(x[0]), _atd_read_list(CliMatch.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['matches']) if 'matches' in x else _atd_missing_json_field('TransitiveReachable', 'matches'),
+                callgraph_reachable=_atd_read_option(_atd_read_bool)(x['callgraph_reachable']) if 'callgraph_reachable' in x else _atd_missing_json_field('TransitiveReachable', 'callgraph_reachable'),
+                explanation=_atd_read_option(_atd_read_string)(x['explanation']) if 'explanation' in x else _atd_missing_json_field('TransitiveReachable', 'explanation'),
+            )
+        else:
+            _atd_bad_json('TransitiveReachable', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['matches'] = _atd_write_list((lambda x: [(lambda x: x.to_json())(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.matches)
+        res['callgraph_reachable'] = _atd_write_option(_atd_write_bool)(self.callgraph_reachable)
+        res['explanation'] = _atd_write_option(_atd_write_string)(self.explanation)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TransitiveReachable':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -4913,126 +5016,6 @@ class TransitiveReachabilityFilterParams:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'TransitiveReachabilityFilterParams':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class CliMatchExtra:
-    """Original type: cli_match_extra = { ... }"""
-
-    message: str
-    metadata: RawJson
-    severity: MatchSeverity
-    fingerprint: str
-    lines: str
-    metavars: Optional[Metavars] = None
-    fix: Optional[str] = None
-    fixed_lines: Optional[List[str]] = None
-    is_ignored: Optional[bool] = None
-    sca_info: Optional[ScaMatch] = None
-    validation_state: Optional[ValidationState] = None
-    historical_info: Optional[HistoricalInfo] = None
-    dataflow_trace: Optional[MatchDataflowTrace] = None
-    engine_kind: Optional[EngineOfFinding] = None
-    extra_extra: Optional[RawJson] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CliMatchExtra':
-        if isinstance(x, dict):
-            return cls(
-                message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('CliMatchExtra', 'message'),
-                metadata=RawJson.from_json(x['metadata']) if 'metadata' in x else _atd_missing_json_field('CliMatchExtra', 'metadata'),
-                severity=MatchSeverity.from_json(x['severity']) if 'severity' in x else _atd_missing_json_field('CliMatchExtra', 'severity'),
-                fingerprint=_atd_read_string(x['fingerprint']) if 'fingerprint' in x else _atd_missing_json_field('CliMatchExtra', 'fingerprint'),
-                lines=_atd_read_string(x['lines']) if 'lines' in x else _atd_missing_json_field('CliMatchExtra', 'lines'),
-                metavars=Metavars.from_json(x['metavars']) if 'metavars' in x else None,
-                fix=_atd_read_string(x['fix']) if 'fix' in x else None,
-                fixed_lines=_atd_read_list(_atd_read_string)(x['fixed_lines']) if 'fixed_lines' in x else None,
-                is_ignored=_atd_read_bool(x['is_ignored']) if 'is_ignored' in x else None,
-                sca_info=ScaMatch.from_json(x['sca_info']) if 'sca_info' in x else None,
-                validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
-                historical_info=HistoricalInfo.from_json(x['historical_info']) if 'historical_info' in x else None,
-                dataflow_trace=MatchDataflowTrace.from_json(x['dataflow_trace']) if 'dataflow_trace' in x else None,
-                engine_kind=EngineOfFinding.from_json(x['engine_kind']) if 'engine_kind' in x else None,
-                extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
-            )
-        else:
-            _atd_bad_json('CliMatchExtra', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['message'] = _atd_write_string(self.message)
-        res['metadata'] = (lambda x: x.to_json())(self.metadata)
-        res['severity'] = (lambda x: x.to_json())(self.severity)
-        res['fingerprint'] = _atd_write_string(self.fingerprint)
-        res['lines'] = _atd_write_string(self.lines)
-        if self.metavars is not None:
-            res['metavars'] = (lambda x: x.to_json())(self.metavars)
-        if self.fix is not None:
-            res['fix'] = _atd_write_string(self.fix)
-        if self.fixed_lines is not None:
-            res['fixed_lines'] = _atd_write_list(_atd_write_string)(self.fixed_lines)
-        if self.is_ignored is not None:
-            res['is_ignored'] = _atd_write_bool(self.is_ignored)
-        if self.sca_info is not None:
-            res['sca_info'] = (lambda x: x.to_json())(self.sca_info)
-        if self.validation_state is not None:
-            res['validation_state'] = (lambda x: x.to_json())(self.validation_state)
-        if self.historical_info is not None:
-            res['historical_info'] = (lambda x: x.to_json())(self.historical_info)
-        if self.dataflow_trace is not None:
-            res['dataflow_trace'] = (lambda x: x.to_json())(self.dataflow_trace)
-        if self.engine_kind is not None:
-            res['engine_kind'] = (lambda x: x.to_json())(self.engine_kind)
-        if self.extra_extra is not None:
-            res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CliMatchExtra':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class CliMatch:
-    """Original type: cli_match = { ... }"""
-
-    check_id: RuleId
-    path: Fpath
-    start: Position
-    end: Position
-    extra: CliMatchExtra
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CliMatch':
-        if isinstance(x, dict):
-            return cls(
-                check_id=RuleId.from_json(x['check_id']) if 'check_id' in x else _atd_missing_json_field('CliMatch', 'check_id'),
-                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('CliMatch', 'path'),
-                start=Position.from_json(x['start']) if 'start' in x else _atd_missing_json_field('CliMatch', 'start'),
-                end=Position.from_json(x['end']) if 'end' in x else _atd_missing_json_field('CliMatch', 'end'),
-                extra=CliMatchExtra.from_json(x['extra']) if 'extra' in x else _atd_missing_json_field('CliMatch', 'extra'),
-            )
-        else:
-            _atd_bad_json('CliMatch', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['check_id'] = (lambda x: x.to_json())(self.check_id)
-        res['path'] = (lambda x: x.to_json())(self.path)
-        res['start'] = (lambda x: x.to_json())(self.start)
-        res['end'] = (lambda x: x.to_json())(self.end)
-        res['extra'] = (lambda x: x.to_json())(self.extra)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CliMatch':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

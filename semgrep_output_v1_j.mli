@@ -154,44 +154,23 @@ type metavar_value = Semgrep_output_v1_t.metavar_value = {
 
 type metavars = Semgrep_output_v1_t.metavars
 
-type transitive_reachable = Semgrep_output_v1_t.transitive_reachable = {
-  explanation: string option;
-  callgraph_reachable: bool option
-}
-
 type transitive_undetermined = Semgrep_output_v1_t.transitive_undetermined = {
   explanation: string option
 }
 
 type transitive_unreachable = Semgrep_output_v1_t.transitive_unreachable = {
+  analyzed_packages: found_dependency list;
   explanation: string option
-}
-
-type sca_match_kind = Semgrep_output_v1_t.sca_match_kind = 
-    LockfileOnlyMatch of dependency_kind
-  | DirectReachable
-  | DirectUnreachable
-  | TransitiveReachable of transitive_reachable
-  | TransitiveUnreachable of transitive_unreachable
-  | TransitiveUndetermined of transitive_undetermined
-
-
-type sca_match = Semgrep_output_v1_t.sca_match = {
-  reachability_rule: bool;
-  sca_finding_schema: int;
-  dependency_match: dependency_match;
-  reachable: bool;
-  kind: sca_match_kind option
 }
 
 type validation_state = Semgrep_output_v1_t.validation_state
   [@@deriving show, eq]
 
 type dependency_source = Semgrep_output_v1_t.dependency_source = 
-    ManifestOnlyDependencySource of manifest
-  | LockfileOnlyDependencySource of lockfile
-  | ManifestLockfileDependencySource of (manifest * lockfile)
-  | MultiLockfileDependencySource of dependency_source list
+    ManifestOnly of manifest
+  | LockfileOnly of lockfile
+  | ManifestLockfile of (manifest * lockfile)
+  | MultiLockfile of dependency_source list
 
   [@@deriving show]
 
@@ -205,6 +184,54 @@ type match_dataflow_trace = Semgrep_output_v1_t.match_dataflow_trace = {
   taint_source: match_call_trace option;
   intermediate_vars: match_intermediate_var list option;
   taint_sink: match_call_trace option
+}
+
+type cli_match = Semgrep_output_v1_t.cli_match = {
+  check_id: rule_id;
+  path: fpath;
+  start: position;
+  end_ (*atd end *): position;
+  extra: cli_match_extra
+}
+
+and cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
+  metavars: metavars option;
+  message: string;
+  fix: string option;
+  fixed_lines: string list option;
+  metadata: raw_json;
+  severity: match_severity;
+  fingerprint: string;
+  lines: string;
+  is_ignored: bool option;
+  sca_info: sca_match option;
+  validation_state: validation_state option;
+  historical_info: historical_info option;
+  dataflow_trace: match_dataflow_trace option;
+  engine_kind: engine_of_finding option;
+  extra_extra: raw_json option
+}
+
+and sca_match = Semgrep_output_v1_t.sca_match = {
+  reachability_rule: bool;
+  sca_finding_schema: int;
+  dependency_match: dependency_match;
+  reachable: bool;
+  kind: sca_match_kind option
+}
+
+and sca_match_kind = Semgrep_output_v1_t.sca_match_kind = 
+    LockfileOnlyMatch of dependency_kind
+  | DirectReachable
+  | TransitiveReachable of transitive_reachable
+  | TransitiveUnreachable of transitive_unreachable
+  | TransitiveUndetermined of transitive_undetermined
+
+
+and transitive_reachable = Semgrep_output_v1_t.transitive_reachable = {
+  matches: (found_dependency * cli_match list) list;
+  callgraph_reachable: bool option;
+  explanation: string option
 }
 
 type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
@@ -359,32 +386,6 @@ type transitive_reachability_filter_params =
   rules_path: fpath;
   findings: transitive_finding list;
   dependencies: resolved_dependency list
-}
-
-type cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
-  metavars: metavars option;
-  message: string;
-  fix: string option;
-  fixed_lines: string list option;
-  metadata: raw_json;
-  severity: match_severity;
-  fingerprint: string;
-  lines: string;
-  is_ignored: bool option;
-  sca_info: sca_match option;
-  validation_state: validation_state option;
-  historical_info: historical_info option;
-  dataflow_trace: match_dataflow_trace option;
-  engine_kind: engine_of_finding option;
-  extra_extra: raw_json option
-}
-
-type cli_match = Semgrep_output_v1_t.cli_match = {
-  check_id: rule_id;
-  path: fpath;
-  start: position;
-  end_ (*atd end *): position;
-  extra: cli_match_extra
 }
 
 type tr_cache_match_result = Semgrep_output_v1_t.tr_cache_match_result = {
@@ -1612,26 +1613,6 @@ val metavars_of_string :
   string -> metavars
   (** Deserialize JSON data of type {!type:metavars}. *)
 
-val write_transitive_reachable :
-  Buffer.t -> transitive_reachable -> unit
-  (** Output a JSON value of type {!type:transitive_reachable}. *)
-
-val string_of_transitive_reachable :
-  ?len:int -> transitive_reachable -> string
-  (** Serialize a value of type {!type:transitive_reachable}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_transitive_reachable :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> transitive_reachable
-  (** Input JSON data of type {!type:transitive_reachable}. *)
-
-val transitive_reachable_of_string :
-  string -> transitive_reachable
-  (** Deserialize JSON data of type {!type:transitive_reachable}. *)
-
 val write_transitive_undetermined :
   Buffer.t -> transitive_undetermined -> unit
   (** Output a JSON value of type {!type:transitive_undetermined}. *)
@@ -1671,46 +1652,6 @@ val read_transitive_unreachable :
 val transitive_unreachable_of_string :
   string -> transitive_unreachable
   (** Deserialize JSON data of type {!type:transitive_unreachable}. *)
-
-val write_sca_match_kind :
-  Buffer.t -> sca_match_kind -> unit
-  (** Output a JSON value of type {!type:sca_match_kind}. *)
-
-val string_of_sca_match_kind :
-  ?len:int -> sca_match_kind -> string
-  (** Serialize a value of type {!type:sca_match_kind}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_sca_match_kind :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_match_kind
-  (** Input JSON data of type {!type:sca_match_kind}. *)
-
-val sca_match_kind_of_string :
-  string -> sca_match_kind
-  (** Deserialize JSON data of type {!type:sca_match_kind}. *)
-
-val write_sca_match :
-  Buffer.t -> sca_match -> unit
-  (** Output a JSON value of type {!type:sca_match}. *)
-
-val string_of_sca_match :
-  ?len:int -> sca_match -> string
-  (** Serialize a value of type {!type:sca_match}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_sca_match :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_match
-  (** Input JSON data of type {!type:sca_match}. *)
-
-val sca_match_of_string :
-  string -> sca_match
-  (** Deserialize JSON data of type {!type:sca_match}. *)
 
 val write_validation_state :
   Buffer.t -> validation_state -> unit
@@ -1791,6 +1732,106 @@ val read_match_dataflow_trace :
 val match_dataflow_trace_of_string :
   string -> match_dataflow_trace
   (** Deserialize JSON data of type {!type:match_dataflow_trace}. *)
+
+val write_cli_match :
+  Buffer.t -> cli_match -> unit
+  (** Output a JSON value of type {!type:cli_match}. *)
+
+val string_of_cli_match :
+  ?len:int -> cli_match -> string
+  (** Serialize a value of type {!type:cli_match}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_cli_match :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match
+  (** Input JSON data of type {!type:cli_match}. *)
+
+val cli_match_of_string :
+  string -> cli_match
+  (** Deserialize JSON data of type {!type:cli_match}. *)
+
+val write_cli_match_extra :
+  Buffer.t -> cli_match_extra -> unit
+  (** Output a JSON value of type {!type:cli_match_extra}. *)
+
+val string_of_cli_match_extra :
+  ?len:int -> cli_match_extra -> string
+  (** Serialize a value of type {!type:cli_match_extra}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_cli_match_extra :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match_extra
+  (** Input JSON data of type {!type:cli_match_extra}. *)
+
+val cli_match_extra_of_string :
+  string -> cli_match_extra
+  (** Deserialize JSON data of type {!type:cli_match_extra}. *)
+
+val write_sca_match :
+  Buffer.t -> sca_match -> unit
+  (** Output a JSON value of type {!type:sca_match}. *)
+
+val string_of_sca_match :
+  ?len:int -> sca_match -> string
+  (** Serialize a value of type {!type:sca_match}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_match :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_match
+  (** Input JSON data of type {!type:sca_match}. *)
+
+val sca_match_of_string :
+  string -> sca_match
+  (** Deserialize JSON data of type {!type:sca_match}. *)
+
+val write_sca_match_kind :
+  Buffer.t -> sca_match_kind -> unit
+  (** Output a JSON value of type {!type:sca_match_kind}. *)
+
+val string_of_sca_match_kind :
+  ?len:int -> sca_match_kind -> string
+  (** Serialize a value of type {!type:sca_match_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_match_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_match_kind
+  (** Input JSON data of type {!type:sca_match_kind}. *)
+
+val sca_match_kind_of_string :
+  string -> sca_match_kind
+  (** Deserialize JSON data of type {!type:sca_match_kind}. *)
+
+val write_transitive_reachable :
+  Buffer.t -> transitive_reachable -> unit
+  (** Output a JSON value of type {!type:transitive_reachable}. *)
+
+val string_of_transitive_reachable :
+  ?len:int -> transitive_reachable -> string
+  (** Serialize a value of type {!type:transitive_reachable}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_transitive_reachable :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> transitive_reachable
+  (** Input JSON data of type {!type:transitive_reachable}. *)
+
+val transitive_reachable_of_string :
+  string -> transitive_reachable
+  (** Deserialize JSON data of type {!type:transitive_reachable}. *)
 
 val write_core_match_extra :
   Buffer.t -> core_match_extra -> unit
@@ -2351,46 +2392,6 @@ val read_transitive_reachability_filter_params :
 val transitive_reachability_filter_params_of_string :
   string -> transitive_reachability_filter_params
   (** Deserialize JSON data of type {!type:transitive_reachability_filter_params}. *)
-
-val write_cli_match_extra :
-  Buffer.t -> cli_match_extra -> unit
-  (** Output a JSON value of type {!type:cli_match_extra}. *)
-
-val string_of_cli_match_extra :
-  ?len:int -> cli_match_extra -> string
-  (** Serialize a value of type {!type:cli_match_extra}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cli_match_extra :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match_extra
-  (** Input JSON data of type {!type:cli_match_extra}. *)
-
-val cli_match_extra_of_string :
-  string -> cli_match_extra
-  (** Deserialize JSON data of type {!type:cli_match_extra}. *)
-
-val write_cli_match :
-  Buffer.t -> cli_match -> unit
-  (** Output a JSON value of type {!type:cli_match}. *)
-
-val string_of_cli_match :
-  ?len:int -> cli_match -> string
-  (** Serialize a value of type {!type:cli_match}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cli_match :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_match
-  (** Input JSON data of type {!type:cli_match}. *)
-
-val cli_match_of_string :
-  string -> cli_match
-  (** Deserialize JSON data of type {!type:cli_match}. *)
 
 val write_tr_cache_match_result :
   Buffer.t -> tr_cache_match_result -> unit

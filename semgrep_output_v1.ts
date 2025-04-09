@@ -202,17 +202,18 @@ export type ScaMatch = {
 export type ScaMatchKind =
 | { kind: 'LockfileOnlyMatch'; value: DependencyKind }
 | { kind: 'DirectReachable' }
-| { kind: 'DirectUnreachable' }
 | { kind: 'TransitiveReachable'; value: TransitiveReachable }
 | { kind: 'TransitiveUnreachable'; value: TransitiveUnreachable }
 | { kind: 'TransitiveUndetermined'; value: TransitiveUndetermined }
 
 export type TransitiveReachable = {
-  explanation: Option<string>;
+  matches: [FoundDependency, CliMatch[]][];
   callgraph_reachable: Option<boolean>;
+  explanation: Option<string>;
 }
 
 export type TransitiveUnreachable = {
+  analyzed_packages: FoundDependency[];
   explanation: Option<string>;
 }
 
@@ -1048,10 +1049,10 @@ export type Lockfile = {
 }
 
 export type DependencySource =
-| { kind: 'ManifestOnlyDependencySource'; value: Manifest }
-| { kind: 'LockfileOnlyDependencySource'; value: Lockfile }
-| { kind: 'ManifestLockfileDependencySource'; value: [Manifest, Lockfile] }
-| { kind: 'MultiLockfileDependencySource'; value: DependencySource[] }
+| { kind: 'ManifestOnly'; value: Manifest }
+| { kind: 'LockfileOnly'; value: Lockfile }
+| { kind: 'ManifestLockfile'; value: [Manifest, Lockfile] }
+| { kind: 'MultiLockfile'; value: DependencySource[] }
 
 export type ResolutionErrorKind =
 | { kind: 'UnsupportedManifest' }
@@ -1859,8 +1860,6 @@ export function writeScaMatchKind(x: ScaMatchKind, context: any = x): any {
       return ['LockfileOnlyMatch', writeDependencyKind(x.value, x)]
     case 'DirectReachable':
       return 'DirectReachable'
-    case 'DirectUnreachable':
-      return 'DirectUnreachable'
     case 'TransitiveReachable':
       return ['TransitiveReachable', writeTransitiveReachable(x.value, x)]
     case 'TransitiveUnreachable':
@@ -1875,8 +1874,6 @@ export function readScaMatchKind(x: any, context: any = x): ScaMatchKind {
     switch (x) {
       case 'DirectReachable':
         return { kind: 'DirectReachable' }
-      case 'DirectUnreachable':
-        return { kind: 'DirectUnreachable' }
       default:
         _atd_bad_json('ScaMatchKind', x, context)
         throw new Error('impossible')
@@ -1902,26 +1899,30 @@ export function readScaMatchKind(x: any, context: any = x): ScaMatchKind {
 
 export function writeTransitiveReachable(x: TransitiveReachable, context: any = x): any {
   return {
-    'explanation': _atd_write_required_field('TransitiveReachable', 'explanation', _atd_write_option(_atd_write_string), x.explanation, x),
+    'matches': _atd_write_required_field('TransitiveReachable', 'matches', _atd_write_array(((x, context) => [writeFoundDependency(x[0], x), _atd_write_array(writeCliMatch)(x[1], x)])), x.matches, x),
     'callgraph_reachable': _atd_write_required_field('TransitiveReachable', 'callgraph_reachable', _atd_write_option(_atd_write_bool), x.callgraph_reachable, x),
+    'explanation': _atd_write_required_field('TransitiveReachable', 'explanation', _atd_write_option(_atd_write_string), x.explanation, x),
   };
 }
 
 export function readTransitiveReachable(x: any, context: any = x): TransitiveReachable {
   return {
-    explanation: _atd_read_required_field('TransitiveReachable', 'explanation', _atd_read_option(_atd_read_string), x['explanation'], x),
+    matches: _atd_read_required_field('TransitiveReachable', 'matches', _atd_read_array(((x, context): [FoundDependency, CliMatch[]] => { _atd_check_json_tuple(2, x, context); return [readFoundDependency(x[0], x), _atd_read_array(readCliMatch)(x[1], x)] })), x['matches'], x),
     callgraph_reachable: _atd_read_required_field('TransitiveReachable', 'callgraph_reachable', _atd_read_option(_atd_read_bool), x['callgraph_reachable'], x),
+    explanation: _atd_read_required_field('TransitiveReachable', 'explanation', _atd_read_option(_atd_read_string), x['explanation'], x),
   };
 }
 
 export function writeTransitiveUnreachable(x: TransitiveUnreachable, context: any = x): any {
   return {
+    'analyzed_packages': _atd_write_required_field('TransitiveUnreachable', 'analyzed_packages', _atd_write_array(writeFoundDependency), x.analyzed_packages, x),
     'explanation': _atd_write_required_field('TransitiveUnreachable', 'explanation', _atd_write_option(_atd_write_string), x.explanation, x),
   };
 }
 
 export function readTransitiveUnreachable(x: any, context: any = x): TransitiveUnreachable {
   return {
+    analyzed_packages: _atd_read_required_field('TransitiveUnreachable', 'analyzed_packages', _atd_read_array(readFoundDependency), x['analyzed_packages'], x),
     explanation: _atd_read_required_field('TransitiveUnreachable', 'explanation', _atd_read_option(_atd_read_string), x['explanation'], x),
   };
 }
@@ -4420,28 +4421,28 @@ export function readLockfile(x: any, context: any = x): Lockfile {
 
 export function writeDependencySource(x: DependencySource, context: any = x): any {
   switch (x.kind) {
-    case 'ManifestOnlyDependencySource':
-      return ['ManifestOnlyDependencySource', writeManifest(x.value, x)]
-    case 'LockfileOnlyDependencySource':
-      return ['LockfileOnlyDependencySource', writeLockfile(x.value, x)]
-    case 'ManifestLockfileDependencySource':
-      return ['ManifestLockfileDependencySource', ((x, context) => [writeManifest(x[0], x), writeLockfile(x[1], x)])(x.value, x)]
-    case 'MultiLockfileDependencySource':
-      return ['MultiLockfileDependencySource', _atd_write_array(writeDependencySource)(x.value, x)]
+    case 'ManifestOnly':
+      return ['ManifestOnly', writeManifest(x.value, x)]
+    case 'LockfileOnly':
+      return ['LockfileOnly', writeLockfile(x.value, x)]
+    case 'ManifestLockfile':
+      return ['ManifestLockfile', ((x, context) => [writeManifest(x[0], x), writeLockfile(x[1], x)])(x.value, x)]
+    case 'MultiLockfile':
+      return ['MultiLockfile', _atd_write_array(writeDependencySource)(x.value, x)]
   }
 }
 
 export function readDependencySource(x: any, context: any = x): DependencySource {
   _atd_check_json_tuple(2, x, context)
   switch (x[0]) {
-    case 'ManifestOnlyDependencySource':
-      return { kind: 'ManifestOnlyDependencySource', value: readManifest(x[1], x) }
-    case 'LockfileOnlyDependencySource':
-      return { kind: 'LockfileOnlyDependencySource', value: readLockfile(x[1], x) }
-    case 'ManifestLockfileDependencySource':
-      return { kind: 'ManifestLockfileDependencySource', value: ((x, context): [Manifest, Lockfile] => { _atd_check_json_tuple(2, x, context); return [readManifest(x[0], x), readLockfile(x[1], x)] })(x[1], x) }
-    case 'MultiLockfileDependencySource':
-      return { kind: 'MultiLockfileDependencySource', value: _atd_read_array(readDependencySource)(x[1], x) }
+    case 'ManifestOnly':
+      return { kind: 'ManifestOnly', value: readManifest(x[1], x) }
+    case 'LockfileOnly':
+      return { kind: 'LockfileOnly', value: readLockfile(x[1], x) }
+    case 'ManifestLockfile':
+      return { kind: 'ManifestLockfile', value: ((x, context): [Manifest, Lockfile] => { _atd_check_json_tuple(2, x, context); return [readManifest(x[0], x), readLockfile(x[1], x)] })(x[1], x) }
+    case 'MultiLockfile':
+      return { kind: 'MultiLockfile', value: _atd_read_array(readDependencySource)(x[1], x) }
     default:
       _atd_bad_json('DependencySource', x, context)
       throw new Error('impossible')
