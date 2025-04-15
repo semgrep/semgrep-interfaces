@@ -1785,6 +1785,7 @@
         "max_target_bytes": { "type": "integer" },
         "respect_gitignore": { "type": "boolean" },
         "respect_semgrepignore_files": { "type": "boolean" },
+        "semgrepignore_filename": { "type": "string" },
         "always_select_explicit_targets": { "type": "boolean" },
         "explicit_targets": {
           "type": "array",

@@ -464,6 +464,7 @@ type targeting_conf = Semgrep_output_v1_t.targeting_conf = {
   max_target_bytes: int;
   respect_gitignore: bool;
   respect_semgrepignore_files: bool;
+  semgrepignore_filename: string option;
   always_select_explicit_targets: bool;
   explicit_targets: string list;
   force_project_root: project_root option;
@@ -16529,6 +16530,17 @@ let write_targeting_conf : _ -> targeting_conf -> _ = (
       Yojson.Safe.write_bool
     )
       ob x.respect_semgrepignore_files;
+    (match x.semgrepignore_filename with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"semgrepignore_filename\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
     if !is_first then
       is_first := false
     else
@@ -16602,6 +16614,7 @@ let read_targeting_conf = (
     let field_max_target_bytes = ref (None) in
     let field_respect_gitignore = ref (None) in
     let field_respect_semgrepignore_files = ref (None) in
+    let field_semgrepignore_filename = ref (None) in
     let field_always_select_explicit_targets = ref (None) in
     let field_explicit_targets = ref (None) in
     let field_force_project_root = ref (None) in
@@ -16635,7 +16648,7 @@ let read_targeting_conf = (
               )
             | 15 -> (
                 if String.unsafe_get s pos = 'b' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'c' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'm' && String.unsafe_get s (pos+12) = 'm' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 't' then (
-                  10
+                  11
                 )
                 else (
                   -1
@@ -16645,7 +16658,7 @@ let read_targeting_conf = (
                 match String.unsafe_get s pos with
                   | 'e' -> (
                       if String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'g' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 's' then (
-                        6
+                        7
                       )
                       else (
                         -1
@@ -16673,7 +16686,7 @@ let read_targeting_conf = (
               )
             | 18 -> (
                 if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'j' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 'c' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'o' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 't' then (
-                  7
+                  8
                 )
                 else (
                   -1
@@ -16681,19 +16694,33 @@ let read_targeting_conf = (
               )
             | 19 -> (
                 if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'v' && String.unsafe_get s (pos+9) = 'c' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'p' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'o' && String.unsafe_get s (pos+15) = 'j' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 't' then (
-                  8
+                  9
                 )
                 else (
                   -1
                 )
               )
             | 22 -> (
-                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'm' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'f' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' && String.unsafe_get s (pos+16) = '_' && String.unsafe_get s (pos+17) = 'f' && String.unsafe_get s (pos+18) = 'i' && String.unsafe_get s (pos+19) = 'l' && String.unsafe_get s (pos+20) = 'e' && String.unsafe_get s (pos+21) = 's' then (
-                  9
-                )
-                else (
-                  -1
-                )
+                match String.unsafe_get s pos with
+                  | 'e' -> (
+                      if String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'm' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'f' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' && String.unsafe_get s (pos+16) = '_' && String.unsafe_get s (pos+17) = 'f' && String.unsafe_get s (pos+18) = 'i' && String.unsafe_get s (pos+19) = 'l' && String.unsafe_get s (pos+20) = 'e' && String.unsafe_get s (pos+21) = 's' then (
+                        10
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 's' -> (
+                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'f' && String.unsafe_get s (pos+15) = 'i' && String.unsafe_get s (pos+16) = 'l' && String.unsafe_get s (pos+17) = 'e' && String.unsafe_get s (pos+18) = 'n' && String.unsafe_get s (pos+19) = 'a' && String.unsafe_get s (pos+20) = 'm' && String.unsafe_get s (pos+21) = 'e' then (
+                        5
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
               )
             | 27 -> (
                 if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'm' && String.unsafe_get s (pos+11) = 'g' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'p' && String.unsafe_get s (pos+15) = 'i' && String.unsafe_get s (pos+16) = 'g' && String.unsafe_get s (pos+17) = 'n' && String.unsafe_get s (pos+18) = 'o' && String.unsafe_get s (pos+19) = 'r' && String.unsafe_get s (pos+20) = 'e' && String.unsafe_get s (pos+21) = '_' && String.unsafe_get s (pos+22) = 'f' && String.unsafe_get s (pos+23) = 'i' && String.unsafe_get s (pos+24) = 'l' && String.unsafe_get s (pos+25) = 'e' && String.unsafe_get s (pos+26) = 's' then (
@@ -16705,7 +16732,7 @@ let read_targeting_conf = (
               )
             | 30 -> (
                 if String.unsafe_get s pos = 'a' && String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'w' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'y' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'l' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 'c' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'x' && String.unsafe_get s (pos+16) = 'p' && String.unsafe_get s (pos+17) = 'l' && String.unsafe_get s (pos+18) = 'i' && String.unsafe_get s (pos+19) = 'c' && String.unsafe_get s (pos+20) = 'i' && String.unsafe_get s (pos+21) = 't' && String.unsafe_get s (pos+22) = '_' && String.unsafe_get s (pos+23) = 't' && String.unsafe_get s (pos+24) = 'a' && String.unsafe_get s (pos+25) = 'r' && String.unsafe_get s (pos+26) = 'g' && String.unsafe_get s (pos+27) = 'e' && String.unsafe_get s (pos+28) = 't' && String.unsafe_get s (pos+29) = 's' then (
-                  5
+                  6
                 )
                 else (
                   -1
@@ -16762,6 +16789,16 @@ let read_targeting_conf = (
               )
             );
           | 5 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_semgrepignore_filename := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
+          | 6 ->
             field_always_select_explicit_targets := (
               Some (
                 (
@@ -16769,7 +16806,7 @@ let read_targeting_conf = (
                 ) p lb
               )
             );
-          | 6 ->
+          | 7 ->
             field_explicit_targets := (
               Some (
                 (
@@ -16777,7 +16814,7 @@ let read_targeting_conf = (
                 ) p lb
               )
             );
-          | 7 ->
+          | 8 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_force_project_root := (
                 Some (
@@ -16787,7 +16824,7 @@ let read_targeting_conf = (
                 )
               );
             )
-          | 8 ->
+          | 9 ->
             field_force_novcs_project := (
               Some (
                 (
@@ -16795,7 +16832,7 @@ let read_targeting_conf = (
                 ) p lb
               )
             );
-          | 9 ->
+          | 10 ->
             field_exclude_minified_files := (
               Some (
                 (
@@ -16803,7 +16840,7 @@ let read_targeting_conf = (
                 ) p lb
               )
             );
-          | 10 ->
+          | 11 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_baseline_commit := (
                 Some (
@@ -16844,7 +16881,7 @@ let read_targeting_conf = (
                 )
               | 15 -> (
                   if String.unsafe_get s pos = 'b' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'c' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'm' && String.unsafe_get s (pos+12) = 'm' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 't' then (
-                    10
+                    11
                   )
                   else (
                     -1
@@ -16854,7 +16891,7 @@ let read_targeting_conf = (
                   match String.unsafe_get s pos with
                     | 'e' -> (
                         if String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'g' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 's' then (
-                          6
+                          7
                         )
                         else (
                           -1
@@ -16882,7 +16919,7 @@ let read_targeting_conf = (
                 )
               | 18 -> (
                   if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'j' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 'c' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = 'o' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 't' then (
-                    7
+                    8
                   )
                   else (
                     -1
@@ -16890,19 +16927,33 @@ let read_targeting_conf = (
                 )
               | 19 -> (
                   if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'v' && String.unsafe_get s (pos+9) = 'c' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'p' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'o' && String.unsafe_get s (pos+15) = 'j' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 't' then (
-                    8
+                    9
                   )
                   else (
                     -1
                   )
                 )
               | 22 -> (
-                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'm' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'f' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' && String.unsafe_get s (pos+16) = '_' && String.unsafe_get s (pos+17) = 'f' && String.unsafe_get s (pos+18) = 'i' && String.unsafe_get s (pos+19) = 'l' && String.unsafe_get s (pos+20) = 'e' && String.unsafe_get s (pos+21) = 's' then (
-                    9
-                  )
-                  else (
-                    -1
-                  )
+                  match String.unsafe_get s pos with
+                    | 'e' -> (
+                        if String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'm' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'f' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' && String.unsafe_get s (pos+16) = '_' && String.unsafe_get s (pos+17) = 'f' && String.unsafe_get s (pos+18) = 'i' && String.unsafe_get s (pos+19) = 'l' && String.unsafe_get s (pos+20) = 'e' && String.unsafe_get s (pos+21) = 's' then (
+                          10
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 's' -> (
+                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'f' && String.unsafe_get s (pos+15) = 'i' && String.unsafe_get s (pos+16) = 'l' && String.unsafe_get s (pos+17) = 'e' && String.unsafe_get s (pos+18) = 'n' && String.unsafe_get s (pos+19) = 'a' && String.unsafe_get s (pos+20) = 'm' && String.unsafe_get s (pos+21) = 'e' then (
+                          5
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
                 )
               | 27 -> (
                   if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'm' && String.unsafe_get s (pos+11) = 'g' && String.unsafe_get s (pos+12) = 'r' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'p' && String.unsafe_get s (pos+15) = 'i' && String.unsafe_get s (pos+16) = 'g' && String.unsafe_get s (pos+17) = 'n' && String.unsafe_get s (pos+18) = 'o' && String.unsafe_get s (pos+19) = 'r' && String.unsafe_get s (pos+20) = 'e' && String.unsafe_get s (pos+21) = '_' && String.unsafe_get s (pos+22) = 'f' && String.unsafe_get s (pos+23) = 'i' && String.unsafe_get s (pos+24) = 'l' && String.unsafe_get s (pos+25) = 'e' && String.unsafe_get s (pos+26) = 's' then (
@@ -16914,7 +16965,7 @@ let read_targeting_conf = (
                 )
               | 30 -> (
                   if String.unsafe_get s pos = 'a' && String.unsafe_get s (pos+1) = 'l' && String.unsafe_get s (pos+2) = 'w' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'y' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'l' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 'c' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'x' && String.unsafe_get s (pos+16) = 'p' && String.unsafe_get s (pos+17) = 'l' && String.unsafe_get s (pos+18) = 'i' && String.unsafe_get s (pos+19) = 'c' && String.unsafe_get s (pos+20) = 'i' && String.unsafe_get s (pos+21) = 't' && String.unsafe_get s (pos+22) = '_' && String.unsafe_get s (pos+23) = 't' && String.unsafe_get s (pos+24) = 'a' && String.unsafe_get s (pos+25) = 'r' && String.unsafe_get s (pos+26) = 'g' && String.unsafe_get s (pos+27) = 'e' && String.unsafe_get s (pos+28) = 't' && String.unsafe_get s (pos+29) = 's' then (
-                    5
+                    6
                   )
                   else (
                     -1
@@ -16971,6 +17022,16 @@ let read_targeting_conf = (
                 )
               );
             | 5 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_semgrepignore_filename := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
+            | 6 ->
               field_always_select_explicit_targets := (
                 Some (
                   (
@@ -16978,7 +17039,7 @@ let read_targeting_conf = (
                   ) p lb
                 )
               );
-            | 6 ->
+            | 7 ->
               field_explicit_targets := (
                 Some (
                   (
@@ -16986,7 +17047,7 @@ let read_targeting_conf = (
                   ) p lb
                 )
               );
-            | 7 ->
+            | 8 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_force_project_root := (
                   Some (
@@ -16996,7 +17057,7 @@ let read_targeting_conf = (
                   )
                 );
               )
-            | 8 ->
+            | 9 ->
               field_force_novcs_project := (
                 Some (
                   (
@@ -17004,7 +17065,7 @@ let read_targeting_conf = (
                   ) p lb
                 )
               );
-            | 9 ->
+            | 10 ->
               field_exclude_minified_files := (
                 Some (
                   (
@@ -17012,7 +17073,7 @@ let read_targeting_conf = (
                   ) p lb
                 )
               );
-            | 10 ->
+            | 11 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_baseline_commit := (
                   Some (
@@ -17036,6 +17097,7 @@ let read_targeting_conf = (
             max_target_bytes = (match !field_max_target_bytes with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "max_target_bytes");
             respect_gitignore = (match !field_respect_gitignore with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "respect_gitignore");
             respect_semgrepignore_files = (match !field_respect_semgrepignore_files with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "respect_semgrepignore_files");
+            semgrepignore_filename = !field_semgrepignore_filename;
             always_select_explicit_targets = (match !field_always_select_explicit_targets with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "always_select_explicit_targets");
             explicit_targets = (match !field_explicit_targets with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "explicit_targets");
             force_project_root = !field_force_project_root;
