@@ -2087,6 +2087,7 @@ type targeting_conf <ocaml attr="deriving show"> = {
   max_target_bytes : int;
   respect_gitignore : bool;
   respect_semgrepignore_files : bool;
+  ?semgrepignore_filename : string option;
   always_select_explicit_targets : bool;
   (* This is a hash table in Find_targets.conf: *)
   explicit_targets : string list;

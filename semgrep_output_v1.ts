@@ -915,6 +915,7 @@ export type TargetingConf = {
   max_target_bytes: number /*int*/;
   respect_gitignore: boolean;
   respect_semgrepignore_files: boolean;
+  semgrepignore_filename?: string;
   always_select_explicit_targets: boolean;
   explicit_targets: string[];
   force_project_root?: ProjectRoot;
@@ -3943,6 +3944,7 @@ export function writeTargetingConf(x: TargetingConf, context: any = x): any {
     'max_target_bytes': _atd_write_required_field('TargetingConf', 'max_target_bytes', _atd_write_int, x.max_target_bytes, x),
     'respect_gitignore': _atd_write_required_field('TargetingConf', 'respect_gitignore', _atd_write_bool, x.respect_gitignore, x),
     'respect_semgrepignore_files': _atd_write_required_field('TargetingConf', 'respect_semgrepignore_files', _atd_write_bool, x.respect_semgrepignore_files, x),
+    'semgrepignore_filename': _atd_write_optional_field(_atd_write_string, x.semgrepignore_filename, x),
     'always_select_explicit_targets': _atd_write_required_field('TargetingConf', 'always_select_explicit_targets', _atd_write_bool, x.always_select_explicit_targets, x),
     'explicit_targets': _atd_write_required_field('TargetingConf', 'explicit_targets', _atd_write_array(_atd_write_string), x.explicit_targets, x),
     'force_project_root': _atd_write_optional_field(writeProjectRoot, x.force_project_root, x),
@@ -3959,6 +3961,7 @@ export function readTargetingConf(x: any, context: any = x): TargetingConf {
     max_target_bytes: _atd_read_required_field('TargetingConf', 'max_target_bytes', _atd_read_int, x['max_target_bytes'], x),
     respect_gitignore: _atd_read_required_field('TargetingConf', 'respect_gitignore', _atd_read_bool, x['respect_gitignore'], x),
     respect_semgrepignore_files: _atd_read_required_field('TargetingConf', 'respect_semgrepignore_files', _atd_read_bool, x['respect_semgrepignore_files'], x),
+    semgrepignore_filename: _atd_read_optional_field(_atd_read_string, x['semgrepignore_filename'], x),
     always_select_explicit_targets: _atd_read_required_field('TargetingConf', 'always_select_explicit_targets', _atd_read_bool, x['always_select_explicit_targets'], x),
     explicit_targets: _atd_read_required_field('TargetingConf', 'explicit_targets', _atd_read_array(_atd_read_string), x['explicit_targets'], x),
     force_project_root: _atd_read_optional_field(readProjectRoot, x['force_project_root'], x),
