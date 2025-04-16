@@ -151,7 +151,8 @@
     ],
     "maturity": "ga",
     "exts": [
-      ".cs"
+      ".cs",
+      ".cshtml"
     ],
     "example_ext": null,
     "excluded_exts": [],
@@ -285,7 +286,8 @@
     ],
     "maturity": "ga",
     "exts": [
-      ".java"
+      ".java",
+      ".jsp"
     ],
     "example_ext": null,
     "excluded_exts": [],
@@ -304,9 +306,12 @@
     "maturity": "ga",
     "exts": [
       ".cjs",
+      ".ejs",
       ".js",
       ".jsx",
-      ".mjs"
+      ".mjs",
+      ".mustache",
+      ".pug"
     ],
     "example_ext": ".jsx",
     "excluded_exts": [
@@ -663,6 +668,7 @@
     ],
     "maturity": "ga",
     "exts": [
+      ".erb",
       ".rb"
     ],
     "example_ext": null,
@@ -701,7 +707,8 @@
     ],
     "maturity": "ga",
     "exts": [
-      ".scala"
+      ".scala",
+      ".sbt"
     ],
     "example_ext": null,
     "excluded_exts": [],
