@@ -1989,6 +1989,9 @@ type core_output = {
 type core_output_extra = {
    (* since semgrep 1.108.0 *)
    ?symbol_analysis: symbol_analysis option;
+   (* since semgrep TODO *)
+   (* additional messages (not errors) from the match engine *)
+   ?match_msgs: string list option;
 }
 
 (* TODO: now only core_match_extra differ, otherwise it's just like cli_match *)
