@@ -99,7 +99,6 @@ type rule = {
       *)
      ?validators: validator list option;
 
-     (* later: equivalences: ... *)
      ?options: rule_options option;
 
      (* TODO? impose more constraints on metadata? standard fields?
