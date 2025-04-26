@@ -490,10 +490,15 @@ type targeting_conf = Semgrep_output_v1_t.targeting_conf = {
 
 type product = Semgrep_output_v1_t.product [@@deriving eq, ord, show]
 
+type ppath = Semgrep_output_v1_t.ppath [@@deriving show, eq]
+
+type fppath = Semgrep_output_v1_t.fppath = { fpath: fpath; ppath: ppath }
+  [@@deriving show, eq]
+
 type analyzer = Semgrep_output_v1_t.analyzer [@@deriving show]
 
 type code_target = Semgrep_output_v1_t.code_target = {
-  path: fpath;
+  path: fppath;
   analyzer: analyzer;
   products: product list;
   dependency_source: dependency_source option
@@ -587,7 +592,7 @@ type core_error = Semgrep_output_v1_t.core_error = {
 }
 
 type target_discovery_result = Semgrep_output_v1_t.target_discovery_result = {
-  target_paths: fpath list;
+  target_paths: fppath list;
   errors: core_error list;
   skipped: skipped_target list
 }
@@ -17272,6 +17277,200 @@ let read_product = (
 )
 let product_of_string s =
   read_product (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__x_751ecc1 = (
+  fun ob x -> (
+    let x = ( Ppath.unwrap ) x in (
+      Yojson.Safe.write_string
+    ) ob x)
+)
+let string_of__x_751ecc1 ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__x_751ecc1 ob x;
+  Buffer.contents ob
+let read__x_751ecc1 = (
+  fun p lb ->
+    let x = (
+      Atdgen_runtime.Oj_run.read_string
+    ) p lb in
+    ( Ppath.wrap ) x
+)
+let _x_751ecc1_of_string s =
+  read__x_751ecc1 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_ppath = (
+  write__x_751ecc1
+)
+let string_of_ppath ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_ppath ob x;
+  Buffer.contents ob
+let read_ppath = (
+  read__x_751ecc1
+)
+let ppath_of_string s =
+  read_ppath (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_fppath : _ -> fppath -> _ = (
+  fun ob (x : fppath) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"fpath\":";
+    (
+      write_fpath
+    )
+      ob x.fpath;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"ppath\":";
+    (
+      write_ppath
+    )
+      ob x.ppath;
+    Buffer.add_char ob '}';
+)
+let string_of_fppath ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_fppath ob x;
+  Buffer.contents ob
+let read_fppath = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_fpath = ref (None) in
+    let field_ppath = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          if len = 5 then (
+            match String.unsafe_get s pos with
+              | 'f' -> (
+                  if String.unsafe_get s (pos+1) = 'p' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'h' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 'p' -> (
+                  if String.unsafe_get s (pos+1) = 'p' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'h' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+          )
+          else (
+            -1
+          )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_fpath := (
+              Some (
+                (
+                  read_fpath
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_ppath := (
+              Some (
+                (
+                  read_ppath
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            if len = 5 then (
+              match String.unsafe_get s pos with
+                | 'f' -> (
+                    if String.unsafe_get s (pos+1) = 'p' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'h' then (
+                      0
+                    )
+                    else (
+                      -1
+                    )
+                  )
+                | 'p' -> (
+                    if String.unsafe_get s (pos+1) = 'p' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'h' then (
+                      1
+                    )
+                    else (
+                      -1
+                    )
+                  )
+                | _ -> (
+                    -1
+                  )
+            )
+            else (
+              -1
+            )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_fpath := (
+                Some (
+                  (
+                    read_fpath
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_ppath := (
+                Some (
+                  (
+                    read_ppath
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            fpath = (match !field_fpath with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "fpath");
+            ppath = (match !field_ppath with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "ppath");
+          }
+         : fppath)
+      )
+)
+let fppath_of_string s =
+  read_fppath (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__x_7982d5d = (
   fun ob x -> (
     let x = ( Analyzer.unwrap ) x in (
@@ -17386,7 +17585,7 @@ let write_code_target : _ -> code_target -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"path\":";
     (
-      write_fpath
+      write_fppath
     )
       ob x.path;
     if !is_first then
@@ -17491,7 +17690,7 @@ let read_code_target = (
             field_path := (
               Some (
                 (
-                  read_fpath
+                  read_fppath
                 ) p lb
               )
             );
@@ -17584,7 +17783,7 @@ let read_code_target = (
               field_path := (
                 Some (
                   (
-                    read_fpath
+                    read_fppath
                   ) p lb
                 )
               );
@@ -19870,6 +20069,22 @@ let read__skipped_target_list = (
 )
 let _skipped_target_list_of_string s =
   read__skipped_target_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__fppath_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_fppath
+  )
+)
+let string_of__fppath_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__fppath_list ob x;
+  Buffer.contents ob
+let read__fppath_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_fppath
+  )
+)
+let _fppath_list_of_string s =
+  read__fppath_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__core_error_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_core_error
@@ -19896,7 +20111,7 @@ let write_target_discovery_result : _ -> target_discovery_result -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"target_paths\":";
     (
-      write__fpath_list
+      write__fppath_list
     )
       ob x.target_paths;
     if !is_first then
@@ -19975,7 +20190,7 @@ let read_target_discovery_result = (
             field_target_paths := (
               Some (
                 (
-                  read__fpath_list
+                  read__fppath_list
                 ) p lb
               )
             );
@@ -20044,7 +20259,7 @@ let read_target_discovery_result = (
               field_target_paths := (
                 Some (
                   (
-                    read__fpath_list
+                    read__fppath_list
                   ) p lb
                 )
               );

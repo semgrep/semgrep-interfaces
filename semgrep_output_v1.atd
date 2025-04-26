@@ -92,6 +92,19 @@ type fpath
      <python decorator="dataclass(frozen=True, order=True)"> =
    string wrap <ocaml module="ATD_string_wrap.Fpath">
 
+type ppath
+     <ocaml attr="deriving show, eq">
+     <python decorator="dataclass(frozen=True, order=True)"> =
+   string wrap <ocaml module="Ppath">
+
+(* Same as Fppath.t: a nice filesystem path + the path relative to the
+   project root provided for pattern-based filtering purposes. *)
+type fppath
+     <ocaml attr="deriving show, eq"> = {
+  fpath: fpath;
+  ppath: ppath;
+}
+
 type uri
   <ocaml attr="deriving ord"> =
   string wrap <ocaml module="ATD_string_wrap.Uri">
@@ -952,7 +965,7 @@ type skipped_rule = {
 (* Result of get_targets internal RPC, similar to scanned_and_skipped but
    more complete *)
 type target_discovery_result = {
-  target_paths: fpath list;
+  target_paths: fppath list;
   errors: core_error list;
   skipped: skipped_target list;
 }
@@ -2189,11 +2202,11 @@ type target <ocaml attr="deriving show"> = [
   A normal semgrep target, optionally with an associated [lockfile]
   The lockfile means: the code in this file has its dependencies
   specified by this lockfile
-  We dont' want to commit to a specific way of associating these in
+  We don't want to commit to a specific way of associating these in
   semgrep-core, so we leave it up to the caller (pysemgrep or osemgrep) to do it.
 *)
 type code_target <ocaml attr="deriving show"> = {
-  path: fpath (* source file *);
+  path: fppath (* source file *);
   (* Must be a valid target analyzer as defined in Analyzer.mli.
      examples: "ocaml", "python", but also "spacegrep" or "regexp".
   *)
