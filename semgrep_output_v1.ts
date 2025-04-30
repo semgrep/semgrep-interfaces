@@ -1127,6 +1127,10 @@ export type TransitiveReachabilityFilterParams = {
   dependencies: ResolvedDependency[];
 }
 
+export type SymbolAnalysisUploadResponse = {
+  upload_url: string;
+}
+
 export type Symbol = {
   fqn: string[];
 }
@@ -4707,6 +4711,18 @@ export function readTransitiveReachabilityFilterParams(x: any, context: any = x)
     rules_path: _atd_read_required_field('TransitiveReachabilityFilterParams', 'rules_path', readFpath, x['rules_path'], x),
     findings: _atd_read_required_field('TransitiveReachabilityFilterParams', 'findings', _atd_read_array(readTransitiveFinding), x['findings'], x),
     dependencies: _atd_read_required_field('TransitiveReachabilityFilterParams', 'dependencies', _atd_read_array(readResolvedDependency), x['dependencies'], x),
+  };
+}
+
+export function writeSymbolAnalysisUploadResponse(x: SymbolAnalysisUploadResponse, context: any = x): any {
+  return {
+    'upload_url': _atd_write_required_field('SymbolAnalysisUploadResponse', 'upload_url', _atd_write_string, x.upload_url, x),
+  };
+}
+
+export function readSymbolAnalysisUploadResponse(x: any, context: any = x): SymbolAnalysisUploadResponse {
+  return {
+    upload_url: _atd_read_required_field('SymbolAnalysisUploadResponse', 'upload_url', _atd_read_string, x['upload_url'], x),
   };
 }
 
