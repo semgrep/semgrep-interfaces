@@ -591,7 +591,7 @@ type symbol_usage = Semgrep_output_v1_t.symbol_usage = {
 
 type symbol_analysis_upload_response =
   Semgrep_output_v1_t.symbol_analysis_upload_response = {
-  upload_url: string
+  upload_url: uri
 }
 
 type symbol_analysis = Semgrep_output_v1_t.symbol_analysis [@@deriving show]

@@ -591,7 +591,7 @@ type symbol_usage = Semgrep_output_v1_t.symbol_usage = {
 
 type symbol_analysis_upload_response =
   Semgrep_output_v1_t.symbol_analysis_upload_response = {
-  upload_url: string
+  upload_url: uri
 }
 
 type symbol_analysis = Semgrep_output_v1_t.symbol_analysis [@@deriving show]
@@ -20249,7 +20249,7 @@ let write_symbol_analysis_upload_response : _ -> symbol_analysis_upload_response
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"upload_url\":";
     (
-      Yojson.Safe.write_string
+      write_uri
     )
       ob x.upload_url;
     Buffer.add_char ob '}';
@@ -20286,7 +20286,7 @@ let read_symbol_analysis_upload_response = (
             field_upload_url := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read_uri
                 ) p lb
               )
             );
@@ -20317,7 +20317,7 @@ let read_symbol_analysis_upload_response = (
               field_upload_url := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read_uri
                   ) p lb
                 )
               );

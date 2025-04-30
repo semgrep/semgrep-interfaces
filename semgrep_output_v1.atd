@@ -2521,8 +2521,6 @@ type transitive_reachability_filter_params = {
 type symbol_analysis_upload_response = {
   upload_url: uri; (* Presigned AWS URL for uploading symbol analysis data *)
 }
-  upload_url: string;
-}
 
 (* ----------------------------- *)
 (* Symbol analysis *)

@@ -1128,7 +1128,7 @@ export type TransitiveReachabilityFilterParams = {
 }
 
 export type SymbolAnalysisUploadResponse = {
-  upload_url: string;
+  upload_url: Uri;
 }
 
 export type Symbol = {
@@ -4716,13 +4716,13 @@ export function readTransitiveReachabilityFilterParams(x: any, context: any = x)
 
 export function writeSymbolAnalysisUploadResponse(x: SymbolAnalysisUploadResponse, context: any = x): any {
   return {
-    'upload_url': _atd_write_required_field('SymbolAnalysisUploadResponse', 'upload_url', _atd_write_string, x.upload_url, x),
+    'upload_url': _atd_write_required_field('SymbolAnalysisUploadResponse', 'upload_url', writeUri, x.upload_url, x),
   };
 }
 
 export function readSymbolAnalysisUploadResponse(x: any, context: any = x): SymbolAnalysisUploadResponse {
   return {
-    upload_url: _atd_read_required_field('SymbolAnalysisUploadResponse', 'upload_url', _atd_read_string, x['upload_url'], x),
+    upload_url: _atd_read_required_field('SymbolAnalysisUploadResponse', 'upload_url', readUri, x['upload_url'], x),
   };
 }
 

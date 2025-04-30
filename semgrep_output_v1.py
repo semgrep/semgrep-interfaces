@@ -7166,20 +7166,20 @@ class SymbolUsage:
 class SymbolAnalysisUploadResponse:
     """Original type: symbol_analysis_upload_response = { ... }"""
 
-    upload_url: str
+    upload_url: Uri
 
     @classmethod
     def from_json(cls, x: Any) -> 'SymbolAnalysisUploadResponse':
         if isinstance(x, dict):
             return cls(
-                upload_url=_atd_read_string(x['upload_url']) if 'upload_url' in x else _atd_missing_json_field('SymbolAnalysisUploadResponse', 'upload_url'),
+                upload_url=Uri.from_json(x['upload_url']) if 'upload_url' in x else _atd_missing_json_field('SymbolAnalysisUploadResponse', 'upload_url'),
             )
         else:
             _atd_bad_json('SymbolAnalysisUploadResponse', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['upload_url'] = _atd_write_string(self.upload_url)
+        res['upload_url'] = (lambda x: x.to_json())(self.upload_url)
         return res
 
     @classmethod
