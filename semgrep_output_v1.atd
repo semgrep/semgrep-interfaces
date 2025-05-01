@@ -2514,6 +2514,13 @@ type transitive_reachability_filter_params = {
   findings: transitive_finding list;
   dependencies: resolved_dependency list;
 }
+(* ----------------------------- *)
+(* Symbol analysis upload response*)
+(* ----------------------------- *)
+
+type symbol_analysis_upload_response = {
+  upload_url: uri; (* Presigned AWS URL for uploading symbol analysis data *)
+}
 
 (* ----------------------------- *)
 (* Symbol analysis *)

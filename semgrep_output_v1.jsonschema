@@ -2315,6 +2315,11 @@
         }
       }
     },
+    "symbol_analysis_upload_response": {
+      "type": "object",
+      "required": [ "upload_url" ],
+      "properties": { "upload_url": { "$ref": "#/definitions/uri" } }
+    },
     "symbol": {
       "type": "object",
       "required": [ "fqn" ],

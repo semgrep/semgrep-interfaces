@@ -589,6 +589,11 @@ type symbol_usage = Semgrep_output_v1_t.symbol_usage = {
 }
   [@@deriving show]
 
+type symbol_analysis_upload_response =
+  Semgrep_output_v1_t.symbol_analysis_upload_response = {
+  upload_url: uri
+}
+
 type symbol_analysis = Semgrep_output_v1_t.symbol_analysis [@@deriving show]
 
 type resolution_method = Semgrep_output_v1_t.resolution_method
@@ -3053,6 +3058,26 @@ val read_symbol_usage :
 val symbol_usage_of_string :
   string -> symbol_usage
   (** Deserialize JSON data of type {!type:symbol_usage}. *)
+
+val write_symbol_analysis_upload_response :
+  Buffer.t -> symbol_analysis_upload_response -> unit
+  (** Output a JSON value of type {!type:symbol_analysis_upload_response}. *)
+
+val string_of_symbol_analysis_upload_response :
+  ?len:int -> symbol_analysis_upload_response -> string
+  (** Serialize a value of type {!type:symbol_analysis_upload_response}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_symbol_analysis_upload_response :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> symbol_analysis_upload_response
+  (** Input JSON data of type {!type:symbol_analysis_upload_response}. *)
+
+val symbol_analysis_upload_response_of_string :
+  string -> symbol_analysis_upload_response
+  (** Deserialize JSON data of type {!type:symbol_analysis_upload_response}. *)
 
 val write_symbol_analysis :
   Buffer.t -> symbol_analysis -> unit
