@@ -711,6 +711,14 @@ $defs:
             type: array
             items:
               type: string
+          fqn:
+            title: A fully qualified name
+            type: string
+          fqns:
+            title: A list of fully qualified names
+            type: array
+            items:
+              type: string
         required:
           - metavariable
         anyOf:
@@ -721,6 +729,11 @@ $defs:
               - module
           - required:
               - modules
+        - oneOf:
+          - required:
+              - fqn
+          - required:
+              - fqns
         additionalProperties: false
     required:
       - semgrep-internal-metavariable-name
