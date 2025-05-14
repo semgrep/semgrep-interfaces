@@ -579,6 +579,7 @@ export type ProjectMetadata = {
   is_sca_scan?: boolean;
   is_code_scan?: boolean;
   is_secrets_scan?: boolean;
+  project_id?: string;
 }
 
 export type ScanMetadata = {
@@ -3003,6 +3004,7 @@ export function writeProjectMetadata(x: ProjectMetadata, context: any = x): any 
     'is_sca_scan': _atd_write_optional_field(_atd_write_bool, x.is_sca_scan, x),
     'is_code_scan': _atd_write_optional_field(_atd_write_bool, x.is_code_scan, x),
     'is_secrets_scan': _atd_write_optional_field(_atd_write_bool, x.is_secrets_scan, x),
+    'project_id': _atd_write_optional_field(_atd_write_string, x.project_id, x),
   };
 }
 
@@ -3034,6 +3036,7 @@ export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
     is_sca_scan: _atd_read_optional_field(_atd_read_bool, x['is_sca_scan'], x),
     is_code_scan: _atd_read_optional_field(_atd_read_bool, x['is_code_scan'], x),
     is_secrets_scan: _atd_read_optional_field(_atd_read_bool, x['is_secrets_scan'], x),
+    project_id: _atd_read_optional_field(_atd_read_string, x['project_id'], x),
   };
 }
 

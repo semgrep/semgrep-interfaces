@@ -1149,7 +1149,8 @@
         "is_full_scan": { "type": "boolean" },
         "is_sca_scan": { "type": "boolean" },
         "is_code_scan": { "type": "boolean" },
-        "is_secrets_scan": { "type": "boolean" }
+        "is_secrets_scan": { "type": "boolean" },
+        "project_id": { "type": "string" }
       }
     },
     "scan_metadata": {
