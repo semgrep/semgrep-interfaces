@@ -1442,6 +1442,10 @@ type project_metadata = {
     ?is_code_scan: bool option;
     (* since 1.41.0 *)
     ?is_secrets_scan: bool option;
+
+    (* Identifies a semgrep project where findings belong to. *)
+    ?project_id: string option;
+
 }
 
 type scan_metadata = {

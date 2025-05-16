@@ -715,7 +715,8 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   is_full_scan: bool;
   is_sca_scan: bool option;
   is_code_scan: bool option;
-  is_secrets_scan: bool option
+  is_secrets_scan: bool option;
+  project_id: string option
 }
 
 type ci_config_from_repo = Semgrep_output_v1_t.ci_config_from_repo = {

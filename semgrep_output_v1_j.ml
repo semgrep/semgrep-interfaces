@@ -715,7 +715,8 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   is_full_scan: bool;
   is_sca_scan: bool option;
   is_code_scan: bool option;
-  is_secrets_scan: bool option
+  is_secrets_scan: bool option;
+  project_id: string option
 }
 
 type ci_config_from_repo = Semgrep_output_v1_t.ci_config_from_repo = {
@@ -24076,6 +24077,17 @@ let write_project_metadata : _ -> project_metadata -> _ = (
       )
         ob x;
     );
+    (match x.project_id with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"project_id\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_project_metadata ?(len = 1024) x =
@@ -24112,6 +24124,7 @@ let read_project_metadata = (
     let field_is_sca_scan = ref (None) in
     let field_is_code_scan = ref (None) in
     let field_is_secrets_scan = ref (None) in
+    let field_project_id = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -24202,6 +24215,14 @@ let read_project_metadata = (
                   | 'c' -> (
                       if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'j' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'b' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'l' then (
                         14
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 'p' -> (
+                      if String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'j' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'd' then (
+                        26
                       )
                       else (
                         -1
@@ -24616,6 +24637,16 @@ let read_project_metadata = (
                 )
               );
             )
+          | 26 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_project_id := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -24710,6 +24741,14 @@ let read_project_metadata = (
                     | 'c' -> (
                         if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'j' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'b' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'l' then (
                           14
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'p' -> (
+                        if String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'j' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'd' then (
+                          26
                         )
                         else (
                           -1
@@ -25124,6 +25163,16 @@ let read_project_metadata = (
                   )
                 );
               )
+            | 26 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_project_id := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -25159,6 +25208,7 @@ let read_project_metadata = (
             is_sca_scan = !field_is_sca_scan;
             is_code_scan = !field_is_code_scan;
             is_secrets_scan = !field_is_secrets_scan;
+            project_id = !field_project_id;
           }
          : project_metadata)
       )
