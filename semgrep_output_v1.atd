@@ -1305,7 +1305,6 @@ type scan_response = {
 type scan_response_cached = {
     info: scan_info;
     config_url: uri;
-    engine_params: engine_configuration;
 }
 
 (* meta info about the scan *)

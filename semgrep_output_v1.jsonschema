@@ -1037,11 +1037,10 @@
     },
     "scan_response_cached": {
       "type": "object",
-      "required": [ "info", "config_url", "engine_params" ],
+      "required": [ "info", "config_url" ],
       "properties": {
         "info": { "$ref": "#/definitions/scan_info" },
-        "config_url": { "$ref": "#/definitions/uri" },
-        "engine_params": { "$ref": "#/definitions/engine_configuration" }
+        "config_url": { "$ref": "#/definitions/uri" }
       }
     },
     "scan_info": {

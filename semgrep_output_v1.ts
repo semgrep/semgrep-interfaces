@@ -515,7 +515,6 @@ export type ScanResponse = {
 export type ScanResponseCached = {
   info: ScanInfo;
   config_url: Uri;
-  engine_params: EngineConfiguration;
 }
 
 export type ScanInfo = {
@@ -2881,7 +2880,6 @@ export function writeScanResponseCached(x: ScanResponseCached, context: any = x)
   return {
     'info': _atd_write_required_field('ScanResponseCached', 'info', writeScanInfo, x.info, x),
     'config_url': _atd_write_required_field('ScanResponseCached', 'config_url', writeUri, x.config_url, x),
-    'engine_params': _atd_write_required_field('ScanResponseCached', 'engine_params', writeEngineConfiguration, x.engine_params, x),
   };
 }
 
@@ -2889,7 +2887,6 @@ export function readScanResponseCached(x: any, context: any = x): ScanResponseCa
   return {
     info: _atd_read_required_field('ScanResponseCached', 'info', readScanInfo, x['info'], x),
     config_url: _atd_read_required_field('ScanResponseCached', 'config_url', readUri, x['config_url'], x),
-    engine_params: _atd_read_required_field('ScanResponseCached', 'engine_params', readEngineConfiguration, x['engine_params'], x),
   };
 }
 
