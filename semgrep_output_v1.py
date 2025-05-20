@@ -7586,40 +7586,6 @@ class ScanInfo:
 
 
 @dataclass
-class ScanConfiguration:
-    """Original type: scan_configuration = { ... }"""
-
-    rules: RawJson
-    triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
-    triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ScanConfiguration':
-        if isinstance(x, dict):
-            return cls(
-                rules=RawJson.from_json(x['rules']) if 'rules' in x else _atd_missing_json_field('ScanConfiguration', 'rules'),
-                triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
-                triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
-            )
-        else:
-            _atd_bad_json('ScanConfiguration', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['rules'] = (lambda x: x.to_json())(self.rules)
-        res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
-        res['triage_ignored_match_based_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_match_based_ids)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ScanConfiguration':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class Glob:
     """Original type: glob"""
 
@@ -7747,6 +7713,74 @@ class EngineConfiguration:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'EngineConfiguration':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScanResponseCached:
+    """Original type: scan_response_cached = { ... }"""
+
+    info: ScanInfo
+    config_url: Uri
+    engine_params: EngineConfiguration
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScanResponseCached':
+        if isinstance(x, dict):
+            return cls(
+                info=ScanInfo.from_json(x['info']) if 'info' in x else _atd_missing_json_field('ScanResponseCached', 'info'),
+                config_url=Uri.from_json(x['config_url']) if 'config_url' in x else _atd_missing_json_field('ScanResponseCached', 'config_url'),
+                engine_params=EngineConfiguration.from_json(x['engine_params']) if 'engine_params' in x else _atd_missing_json_field('ScanResponseCached', 'engine_params'),
+            )
+        else:
+            _atd_bad_json('ScanResponseCached', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['info'] = (lambda x: x.to_json())(self.info)
+        res['config_url'] = (lambda x: x.to_json())(self.config_url)
+        res['engine_params'] = (lambda x: x.to_json())(self.engine_params)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScanResponseCached':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScanConfiguration:
+    """Original type: scan_configuration = { ... }"""
+
+    rules: RawJson
+    triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
+    triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScanConfiguration':
+        if isinstance(x, dict):
+            return cls(
+                rules=RawJson.from_json(x['rules']) if 'rules' in x else _atd_missing_json_field('ScanConfiguration', 'rules'),
+                triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
+                triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
+            )
+        else:
+            _atd_bad_json('ScanConfiguration', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['rules'] = (lambda x: x.to_json())(self.rules)
+        res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
+        res['triage_ignored_match_based_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_match_based_ids)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScanConfiguration':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:

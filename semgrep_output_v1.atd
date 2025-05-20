@@ -1302,6 +1302,12 @@ type scan_response = {
     (* TODO: ~actions: action list; *)
 }
 
+type scan_response_cached = {
+    info: scan_info;
+    config_url: uri;
+    engine_params: engine_configuration;
+}
+
 (* meta info about the scan *)
 type scan_info = {
     ?id: int option; (* the scan id, null for dry-runs *)

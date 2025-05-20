@@ -1035,6 +1035,15 @@
         "engine_params": { "$ref": "#/definitions/engine_configuration" }
       }
     },
+    "scan_response_cached": {
+      "type": "object",
+      "required": [ "info", "config_url", "engine_params" ],
+      "properties": {
+        "info": { "$ref": "#/definitions/scan_info" },
+        "config_url": { "$ref": "#/definitions/uri" },
+        "engine_params": { "$ref": "#/definitions/engine_configuration" }
+      }
+    },
     "scan_info": {
       "type": "object",
       "required": [ "enabled_products", "deployment_id", "deployment_name" ],

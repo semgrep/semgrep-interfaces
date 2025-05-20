@@ -512,6 +512,12 @@ export type ScanResponse = {
   engine_params: EngineConfiguration;
 }
 
+export type ScanResponseCached = {
+  info: ScanInfo;
+  config_url: Uri;
+  engine_params: EngineConfiguration;
+}
+
 export type ScanInfo = {
   id?: number /*int*/;
   enabled_products: Product[];
@@ -2868,6 +2874,22 @@ export function readScanResponse(x: any, context: any = x): ScanResponse {
     info: _atd_read_required_field('ScanResponse', 'info', readScanInfo, x['info'], x),
     config: _atd_read_required_field('ScanResponse', 'config', readScanConfiguration, x['config'], x),
     engine_params: _atd_read_required_field('ScanResponse', 'engine_params', readEngineConfiguration, x['engine_params'], x),
+  };
+}
+
+export function writeScanResponseCached(x: ScanResponseCached, context: any = x): any {
+  return {
+    'info': _atd_write_required_field('ScanResponseCached', 'info', writeScanInfo, x.info, x),
+    'config_url': _atd_write_required_field('ScanResponseCached', 'config_url', writeUri, x.config_url, x),
+    'engine_params': _atd_write_required_field('ScanResponseCached', 'engine_params', writeEngineConfiguration, x.engine_params, x),
+  };
+}
+
+export function readScanResponseCached(x: any, context: any = x): ScanResponseCached {
+  return {
+    info: _atd_read_required_field('ScanResponseCached', 'info', readScanInfo, x['info'], x),
+    config_url: _atd_read_required_field('ScanResponseCached', 'config_url', readUri, x['config_url'], x),
+    engine_params: _atd_read_required_field('ScanResponseCached', 'engine_params', readEngineConfiguration, x['engine_params'], x),
   };
 }
 
