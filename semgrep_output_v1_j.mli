@@ -686,7 +686,8 @@ type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
   unique_id: uuid;
   requested_products: product list;
   dry_run: bool;
-  sms_scan_id: string option
+  sms_scan_id: string option;
+  found_file_extensions: string list
 }
 
 type project_metadata = Semgrep_output_v1_t.project_metadata = {

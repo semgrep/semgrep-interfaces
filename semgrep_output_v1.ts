@@ -588,6 +588,7 @@ export type ScanMetadata = {
   requested_products: Product[];
   dry_run: boolean;
   sms_scan_id?: string;
+  found_file_extensions: string[];
 }
 
 export type CiConfigFromRepo = {
@@ -3047,6 +3048,7 @@ export function writeScanMetadata(x: ScanMetadata, context: any = x): any {
     'requested_products': _atd_write_required_field('ScanMetadata', 'requested_products', _atd_write_array(writeProduct), x.requested_products, x),
     'dry_run': _atd_write_field_with_default(_atd_write_bool, false, x.dry_run, x),
     'sms_scan_id': _atd_write_optional_field(_atd_write_string, x.sms_scan_id, x),
+    'found_file_extensions': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.found_file_extensions, x),
   };
 }
 
@@ -3057,6 +3059,7 @@ export function readScanMetadata(x: any, context: any = x): ScanMetadata {
     requested_products: _atd_read_required_field('ScanMetadata', 'requested_products', _atd_read_array(readProduct), x['requested_products'], x),
     dry_run: _atd_read_field_with_default(_atd_read_bool, false, x['dry_run'], x),
     sms_scan_id: _atd_read_optional_field(_atd_read_string, x['sms_scan_id'], x),
+    found_file_extensions: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['found_file_extensions'], x),
   };
 }
 

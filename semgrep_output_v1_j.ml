@@ -686,7 +686,8 @@ type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
   unique_id: uuid;
   requested_products: product list;
   dry_run: bool;
-  sms_scan_id: string option
+  sms_scan_id: string option;
+  found_file_extensions: string list
 }
 
 type project_metadata = Semgrep_output_v1_t.project_metadata = {
@@ -23458,6 +23459,15 @@ let write_scan_metadata : _ -> scan_metadata -> _ = (
       )
         ob x;
     );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"found_file_extensions\":";
+    (
+      write__string_list
+    )
+      ob x.found_file_extensions;
     Buffer.add_char ob '}';
 )
 let string_of_scan_metadata ?(len = 1024) x =
@@ -23473,6 +23483,7 @@ let read_scan_metadata = (
     let field_requested_products = ref (None) in
     let field_dry_run = ref (false) in
     let field_sms_scan_id = ref (None) in
+    let field_found_file_extensions = ref ([]) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -23528,6 +23539,14 @@ let read_scan_metadata = (
                   -1
                 )
               )
+            | 21 -> (
+                if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'u' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'f' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'l' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'x' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'n' && String.unsafe_get s (pos+16) = 's' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 'o' && String.unsafe_get s (pos+19) = 'n' && String.unsafe_get s (pos+20) = 's' then (
+                  5
+                )
+                else (
+                  -1
+                )
+              )
             | _ -> (
                 -1
               )
@@ -23576,6 +23595,14 @@ let read_scan_metadata = (
                     Atdgen_runtime.Oj_run.read_string
                   ) p lb
                 )
+              );
+            )
+          | 5 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_found_file_extensions := (
+                (
+                  read__string_list
+                ) p lb
               );
             )
           | _ -> (
@@ -23637,6 +23664,14 @@ let read_scan_metadata = (
                     -1
                   )
                 )
+              | 21 -> (
+                  if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'u' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'f' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'l' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'x' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'n' && String.unsafe_get s (pos+16) = 's' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 'o' && String.unsafe_get s (pos+19) = 'n' && String.unsafe_get s (pos+20) = 's' then (
+                    5
+                  )
+                  else (
+                    -1
+                  )
+                )
               | _ -> (
                   -1
                 )
@@ -23687,6 +23722,14 @@ let read_scan_metadata = (
                   )
                 );
               )
+            | 5 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_found_file_extensions := (
+                  (
+                    read__string_list
+                  ) p lb
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -23701,6 +23744,7 @@ let read_scan_metadata = (
             requested_products = (match !field_requested_products with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "requested_products");
             dry_run = !field_dry_run;
             sms_scan_id = !field_sms_scan_id;
+            found_file_extensions = !field_found_file_extensions;
           }
          : scan_metadata)
       )

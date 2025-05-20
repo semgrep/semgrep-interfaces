@@ -7796,6 +7796,7 @@ class ScanMetadata:
     requested_products: List[Product]
     dry_run: bool = field(default_factory=lambda: False)
     sms_scan_id: Optional[str] = None
+    found_file_extensions: List[str] = field(default_factory=lambda: [])
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanMetadata':
@@ -7806,6 +7807,7 @@ class ScanMetadata:
                 requested_products=_atd_read_list(Product.from_json)(x['requested_products']) if 'requested_products' in x else _atd_missing_json_field('ScanMetadata', 'requested_products'),
                 dry_run=_atd_read_bool(x['dry_run']) if 'dry_run' in x else False,
                 sms_scan_id=_atd_read_string(x['sms_scan_id']) if 'sms_scan_id' in x else None,
+                found_file_extensions=_atd_read_list(_atd_read_string)(x['found_file_extensions']) if 'found_file_extensions' in x else [],
             )
         else:
             _atd_bad_json('ScanMetadata', x)
@@ -7818,6 +7820,7 @@ class ScanMetadata:
         res['dry_run'] = _atd_write_bool(self.dry_run)
         if self.sms_scan_id is not None:
             res['sms_scan_id'] = _atd_write_string(self.sms_scan_id)
+        res['found_file_extensions'] = _atd_write_list(_atd_write_string)(self.found_file_extensions)
         return res
 
     @classmethod

@@ -1164,7 +1164,11 @@
           "items": { "$ref": "#/definitions/product" }
         },
         "dry_run": { "type": "boolean" },
-        "sms_scan_id": { "type": "string" }
+        "sms_scan_id": { "type": "string" },
+        "found_file_extensions": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
       }
     },
     "ci_config_from_repo": {
