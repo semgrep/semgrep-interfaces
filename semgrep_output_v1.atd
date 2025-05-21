@@ -1303,7 +1303,6 @@ type scan_response = {
 }
 
 type scan_response_cached = {
-    info: scan_info;
     config_id: string;
     config_url: uri;
 }

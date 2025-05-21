@@ -638,17 +638,16 @@ type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
   skipped: skipped_target list option
 }
 
+type scan_response_cached = Semgrep_output_v1_t.scan_response_cached = {
+  config_id: string;
+  config_url: uri
+}
+
 type scan_info = Semgrep_output_v1_t.scan_info = {
   id: int option;
   enabled_products: product list;
   deployment_id: int;
   deployment_name: string
-}
-
-type scan_response_cached = Semgrep_output_v1_t.scan_response_cached = {
-  info: scan_info;
-  config_id: string;
-  config_url: uri
 }
 
 type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
@@ -3273,26 +3272,6 @@ val scanned_and_skipped_of_string :
   string -> scanned_and_skipped
   (** Deserialize JSON data of type {!type:scanned_and_skipped}. *)
 
-val write_scan_info :
-  Buffer.t -> scan_info -> unit
-  (** Output a JSON value of type {!type:scan_info}. *)
-
-val string_of_scan_info :
-  ?len:int -> scan_info -> string
-  (** Serialize a value of type {!type:scan_info}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_scan_info :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scan_info
-  (** Input JSON data of type {!type:scan_info}. *)
-
-val scan_info_of_string :
-  string -> scan_info
-  (** Deserialize JSON data of type {!type:scan_info}. *)
-
 val write_scan_response_cached :
   Buffer.t -> scan_response_cached -> unit
   (** Output a JSON value of type {!type:scan_response_cached}. *)
@@ -3312,6 +3291,26 @@ val read_scan_response_cached :
 val scan_response_cached_of_string :
   string -> scan_response_cached
   (** Deserialize JSON data of type {!type:scan_response_cached}. *)
+
+val write_scan_info :
+  Buffer.t -> scan_info -> unit
+  (** Output a JSON value of type {!type:scan_info}. *)
+
+val string_of_scan_info :
+  ?len:int -> scan_info -> string
+  (** Serialize a value of type {!type:scan_info}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_scan_info :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scan_info
+  (** Input JSON data of type {!type:scan_info}. *)
+
+val scan_info_of_string :
+  string -> scan_info
+  (** Deserialize JSON data of type {!type:scan_info}. *)
 
 val write_scan_configuration :
   Buffer.t -> scan_configuration -> unit

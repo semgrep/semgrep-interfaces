@@ -7548,6 +7548,37 @@ class ScannedAndSkipped:
 
 
 @dataclass
+class ScanResponseCached:
+    """Original type: scan_response_cached = { ... }"""
+
+    config_id: str
+    config_url: Uri
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScanResponseCached':
+        if isinstance(x, dict):
+            return cls(
+                config_id=_atd_read_string(x['config_id']) if 'config_id' in x else _atd_missing_json_field('ScanResponseCached', 'config_id'),
+                config_url=Uri.from_json(x['config_url']) if 'config_url' in x else _atd_missing_json_field('ScanResponseCached', 'config_url'),
+            )
+        else:
+            _atd_bad_json('ScanResponseCached', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['config_id'] = _atd_write_string(self.config_id)
+        res['config_url'] = (lambda x: x.to_json())(self.config_url)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScanResponseCached':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class ScanInfo:
     """Original type: scan_info = { ... }"""
 
@@ -7579,40 +7610,6 @@ class ScanInfo:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ScanInfo':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class ScanResponseCached:
-    """Original type: scan_response_cached = { ... }"""
-
-    info: ScanInfo
-    config_id: str
-    config_url: Uri
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'ScanResponseCached':
-        if isinstance(x, dict):
-            return cls(
-                info=ScanInfo.from_json(x['info']) if 'info' in x else _atd_missing_json_field('ScanResponseCached', 'info'),
-                config_id=_atd_read_string(x['config_id']) if 'config_id' in x else _atd_missing_json_field('ScanResponseCached', 'config_id'),
-                config_url=Uri.from_json(x['config_url']) if 'config_url' in x else _atd_missing_json_field('ScanResponseCached', 'config_url'),
-            )
-        else:
-            _atd_bad_json('ScanResponseCached', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['info'] = (lambda x: x.to_json())(self.info)
-        res['config_id'] = _atd_write_string(self.config_id)
-        res['config_url'] = (lambda x: x.to_json())(self.config_url)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'ScanResponseCached':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
