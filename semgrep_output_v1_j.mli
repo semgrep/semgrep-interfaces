@@ -735,6 +735,14 @@ type scan_request = Semgrep_output_v1_t.scan_request = {
   project_config: ci_config_from_repo option
 }
 
+type scan_configuration_cached =
+  Semgrep_output_v1_t.scan_configuration_cached = {
+  rules: raw_json;
+  engine_params: engine_configuration;
+  triage_ignored_syntactic_ids: string list;
+  triage_ignored_match_based_ids: string list
+}
+
 type ci_env = Semgrep_output_v1_t.ci_env
 
 type ci_config = Semgrep_output_v1_t.ci_config = {
@@ -3504,6 +3512,26 @@ val read_scan_request :
 val scan_request_of_string :
   string -> scan_request
   (** Deserialize JSON data of type {!type:scan_request}. *)
+
+val write_scan_configuration_cached :
+  Buffer.t -> scan_configuration_cached -> unit
+  (** Output a JSON value of type {!type:scan_configuration_cached}. *)
+
+val string_of_scan_configuration_cached :
+  ?len:int -> scan_configuration_cached -> string
+  (** Serialize a value of type {!type:scan_configuration_cached}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_scan_configuration_cached :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> scan_configuration_cached
+  (** Input JSON data of type {!type:scan_configuration_cached}. *)
+
+val scan_configuration_cached_of_string :
+  string -> scan_configuration_cached
+  (** Deserialize JSON data of type {!type:scan_configuration_cached}. *)
 
 val write_ci_env :
   Buffer.t -> ci_env -> unit

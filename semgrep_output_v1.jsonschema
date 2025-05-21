@@ -1072,6 +1072,22 @@
         }
       }
     },
+    "scan_configuration_cached": {
+      "type": "object",
+      "required": [ "rules", "engine_params" ],
+      "properties": {
+        "rules": { "$ref": "#/definitions/raw_json" },
+        "engine_params": { "$ref": "#/definitions/engine_configuration" },
+        "triage_ignored_syntactic_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "triage_ignored_match_based_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
     "engine_configuration": {
       "type": "object",
       "required": [],

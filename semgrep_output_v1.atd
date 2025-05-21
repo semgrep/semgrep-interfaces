@@ -1329,6 +1329,12 @@ type scan_configuration = {
     inherit triage_ignored;
 }
 
+type scan_configuration_cached = {
+    rules: raw_json;
+    engine_params: engine_configuration;
+    inherit triage_ignored;
+}
+
 (* settings for the cli *)
 type engine_configuration = {
     inherit features;
