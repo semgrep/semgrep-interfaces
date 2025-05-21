@@ -7590,6 +7590,7 @@ class ScanResponseCached:
     """Original type: scan_response_cached = { ... }"""
 
     info: ScanInfo
+    config_id: str
     config_url: Uri
 
     @classmethod
@@ -7597,6 +7598,7 @@ class ScanResponseCached:
         if isinstance(x, dict):
             return cls(
                 info=ScanInfo.from_json(x['info']) if 'info' in x else _atd_missing_json_field('ScanResponseCached', 'info'),
+                config_id=_atd_read_string(x['config_id']) if 'config_id' in x else _atd_missing_json_field('ScanResponseCached', 'config_id'),
                 config_url=Uri.from_json(x['config_url']) if 'config_url' in x else _atd_missing_json_field('ScanResponseCached', 'config_url'),
             )
         else:
@@ -7605,6 +7607,7 @@ class ScanResponseCached:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['info'] = (lambda x: x.to_json())(self.info)
+        res['config_id'] = _atd_write_string(self.config_id)
         res['config_url'] = (lambda x: x.to_json())(self.config_url)
         return res
 

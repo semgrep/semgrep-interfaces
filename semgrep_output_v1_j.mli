@@ -647,6 +647,7 @@ type scan_info = Semgrep_output_v1_t.scan_info = {
 
 type scan_response_cached = Semgrep_output_v1_t.scan_response_cached = {
   info: scan_info;
+  config_id: string;
   config_url: uri
 }
 

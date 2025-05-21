@@ -647,6 +647,7 @@ type scan_info = Semgrep_output_v1_t.scan_info = {
 
 type scan_response_cached = Semgrep_output_v1_t.scan_response_cached = {
   info: scan_info;
+  config_id: string;
   config_url: uri
 }
 
@@ -22089,6 +22090,15 @@ let write_scan_response_cached : _ -> scan_response_cached -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
+      Buffer.add_string ob "\"config_id\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.config_id;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
       Buffer.add_string ob "\"config_url\":";
     (
       write_uri
@@ -22105,6 +22115,7 @@ let read_scan_response_cached = (
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
     let field_info = ref (None) in
+    let field_config_id = ref (None) in
     let field_config_url = ref (None) in
     try
       Yojson.Safe.read_space p lb;
@@ -22123,9 +22134,17 @@ let read_scan_response_cached = (
                   -1
                 )
               )
+            | 9 -> (
+                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'd' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
             | 10 -> (
                 if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'l' then (
-                  1
+                  2
                 )
                 else (
                   -1
@@ -22148,6 +22167,14 @@ let read_scan_response_cached = (
               )
             );
           | 1 ->
+            field_config_id := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | 2 ->
             field_config_url := (
               Some (
                 (
@@ -22176,9 +22203,17 @@ let read_scan_response_cached = (
                     -1
                   )
                 )
+              | 9 -> (
+                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'd' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
               | 10 -> (
                   if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'l' then (
-                    1
+                    2
                   )
                   else (
                     -1
@@ -22201,6 +22236,14 @@ let read_scan_response_cached = (
                 )
               );
             | 1 ->
+              field_config_id := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | 2 ->
               field_config_url := (
                 Some (
                   (
@@ -22218,6 +22261,7 @@ let read_scan_response_cached = (
         (
           {
             info = (match !field_info with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "info");
+            config_id = (match !field_config_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "config_id");
             config_url = (match !field_config_url with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "config_url");
           }
          : scan_response_cached)
