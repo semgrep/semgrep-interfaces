@@ -736,6 +736,7 @@ type scan_request = Semgrep_output_v1_t.scan_request = {
 
 type scan_configuration_cached =
   Semgrep_output_v1_t.scan_configuration_cached = {
+  info: scan_info;
   rules: raw_json;
   engine_params: engine_configuration;
   triage_ignored_syntactic_ids: string list;
@@ -25830,6 +25831,15 @@ let write_scan_configuration_cached : _ -> scan_configuration_cached -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
+      Buffer.add_string ob "\"info\":";
+    (
+      write_scan_info
+    )
+      ob x.info;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
       Buffer.add_string ob "\"rules\":";
     (
       write_raw_json
@@ -25872,6 +25882,7 @@ let read_scan_configuration_cached = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
+    let field_info = ref (None) in
     let field_rules = ref (None) in
     let field_engine_params = ref (None) in
     let field_triage_ignored_syntactic_ids = ref ([]) in
@@ -25885,9 +25896,17 @@ let read_scan_configuration_cached = (
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
+            | 4 -> (
+                if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'f' && String.unsafe_get s (pos+3) = 'o' then (
+                  0
+                )
+                else (
+                  -1
+                )
+              )
             | 5 -> (
                 if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
-                  0
+                  1
                 )
                 else (
                   -1
@@ -25895,7 +25914,7 @@ let read_scan_configuration_cached = (
               )
             | 13 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'm' && String.unsafe_get s (pos+12) = 's' then (
-                  1
+                  2
                 )
                 else (
                   -1
@@ -25903,7 +25922,7 @@ let read_scan_configuration_cached = (
               )
             | 28 -> (
                 if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 's' && String.unsafe_get s (pos+16) = 'y' && String.unsafe_get s (pos+17) = 'n' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 'a' && String.unsafe_get s (pos+20) = 'c' && String.unsafe_get s (pos+21) = 't' && String.unsafe_get s (pos+22) = 'i' && String.unsafe_get s (pos+23) = 'c' && String.unsafe_get s (pos+24) = '_' && String.unsafe_get s (pos+25) = 'i' && String.unsafe_get s (pos+26) = 'd' && String.unsafe_get s (pos+27) = 's' then (
-                  2
+                  3
                 )
                 else (
                   -1
@@ -25911,7 +25930,7 @@ let read_scan_configuration_cached = (
               )
             | 30 -> (
                 if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'm' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 't' && String.unsafe_get s (pos+18) = 'c' && String.unsafe_get s (pos+19) = 'h' && String.unsafe_get s (pos+20) = '_' && String.unsafe_get s (pos+21) = 'b' && String.unsafe_get s (pos+22) = 'a' && String.unsafe_get s (pos+23) = 's' && String.unsafe_get s (pos+24) = 'e' && String.unsafe_get s (pos+25) = 'd' && String.unsafe_get s (pos+26) = '_' && String.unsafe_get s (pos+27) = 'i' && String.unsafe_get s (pos+28) = 'd' && String.unsafe_get s (pos+29) = 's' then (
-                  3
+                  4
                 )
                 else (
                   -1
@@ -25926,6 +25945,14 @@ let read_scan_configuration_cached = (
       (
         match i with
           | 0 ->
+            field_info := (
+              Some (
+                (
+                  read_scan_info
+                ) p lb
+              )
+            );
+          | 1 ->
             field_rules := (
               Some (
                 (
@@ -25933,7 +25960,7 @@ let read_scan_configuration_cached = (
                 ) p lb
               )
             );
-          | 1 ->
+          | 2 ->
             field_engine_params := (
               Some (
                 (
@@ -25941,7 +25968,7 @@ let read_scan_configuration_cached = (
                 ) p lb
               )
             );
-          | 2 ->
+          | 3 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_triage_ignored_syntactic_ids := (
                 (
@@ -25949,7 +25976,7 @@ let read_scan_configuration_cached = (
                 ) p lb
               );
             )
-          | 3 ->
+          | 4 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_triage_ignored_match_based_ids := (
                 (
@@ -25970,9 +25997,17 @@ let read_scan_configuration_cached = (
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
+              | 4 -> (
+                  if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'f' && String.unsafe_get s (pos+3) = 'o' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
               | 5 -> (
                   if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
-                    0
+                    1
                   )
                   else (
                     -1
@@ -25980,7 +26015,7 @@ let read_scan_configuration_cached = (
                 )
               | 13 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'm' && String.unsafe_get s (pos+12) = 's' then (
-                    1
+                    2
                   )
                   else (
                     -1
@@ -25988,7 +26023,7 @@ let read_scan_configuration_cached = (
                 )
               | 28 -> (
                   if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 's' && String.unsafe_get s (pos+16) = 'y' && String.unsafe_get s (pos+17) = 'n' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 'a' && String.unsafe_get s (pos+20) = 'c' && String.unsafe_get s (pos+21) = 't' && String.unsafe_get s (pos+22) = 'i' && String.unsafe_get s (pos+23) = 'c' && String.unsafe_get s (pos+24) = '_' && String.unsafe_get s (pos+25) = 'i' && String.unsafe_get s (pos+26) = 'd' && String.unsafe_get s (pos+27) = 's' then (
-                    2
+                    3
                   )
                   else (
                     -1
@@ -25996,7 +26031,7 @@ let read_scan_configuration_cached = (
                 )
               | 30 -> (
                   if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'g' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = '_' && String.unsafe_get s (pos+15) = 'm' && String.unsafe_get s (pos+16) = 'a' && String.unsafe_get s (pos+17) = 't' && String.unsafe_get s (pos+18) = 'c' && String.unsafe_get s (pos+19) = 'h' && String.unsafe_get s (pos+20) = '_' && String.unsafe_get s (pos+21) = 'b' && String.unsafe_get s (pos+22) = 'a' && String.unsafe_get s (pos+23) = 's' && String.unsafe_get s (pos+24) = 'e' && String.unsafe_get s (pos+25) = 'd' && String.unsafe_get s (pos+26) = '_' && String.unsafe_get s (pos+27) = 'i' && String.unsafe_get s (pos+28) = 'd' && String.unsafe_get s (pos+29) = 's' then (
-                    3
+                    4
                   )
                   else (
                     -1
@@ -26011,6 +26046,14 @@ let read_scan_configuration_cached = (
         (
           match i with
             | 0 ->
+              field_info := (
+                Some (
+                  (
+                    read_scan_info
+                  ) p lb
+                )
+              );
+            | 1 ->
               field_rules := (
                 Some (
                   (
@@ -26018,7 +26061,7 @@ let read_scan_configuration_cached = (
                   ) p lb
                 )
               );
-            | 1 ->
+            | 2 ->
               field_engine_params := (
                 Some (
                   (
@@ -26026,7 +26069,7 @@ let read_scan_configuration_cached = (
                   ) p lb
                 )
               );
-            | 2 ->
+            | 3 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_triage_ignored_syntactic_ids := (
                   (
@@ -26034,7 +26077,7 @@ let read_scan_configuration_cached = (
                   ) p lb
                 );
               )
-            | 3 ->
+            | 4 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_triage_ignored_match_based_ids := (
                   (
@@ -26051,6 +26094,7 @@ let read_scan_configuration_cached = (
     with Yojson.End_of_object -> (
         (
           {
+            info = (match !field_info with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "info");
             rules = (match !field_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rules");
             engine_params = (match !field_engine_params with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "engine_params");
             triage_ignored_syntactic_ids = !field_triage_ignored_syntactic_ids;

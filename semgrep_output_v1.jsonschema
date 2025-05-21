@@ -1073,8 +1073,9 @@
     },
     "scan_configuration_cached": {
       "type": "object",
-      "required": [ "rules", "engine_params" ],
+      "required": [ "info", "rules", "engine_params" ],
       "properties": {
+        "info": { "$ref": "#/definitions/scan_info" },
         "rules": { "$ref": "#/definitions/raw_json" },
         "engine_params": { "$ref": "#/definitions/engine_configuration" },
         "triage_ignored_syntactic_ids": {

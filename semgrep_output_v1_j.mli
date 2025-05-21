@@ -736,6 +736,7 @@ type scan_request = Semgrep_output_v1_t.scan_request = {
 
 type scan_configuration_cached =
   Semgrep_output_v1_t.scan_configuration_cached = {
+  info: scan_info;
   rules: raw_json;
   engine_params: engine_configuration;
   triage_ignored_syntactic_ids: string list;

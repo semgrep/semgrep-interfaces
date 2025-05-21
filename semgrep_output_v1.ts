@@ -531,6 +531,7 @@ export type ScanConfiguration = {
 }
 
 export type ScanConfigurationCached = {
+  info: ScanInfo;
   rules: RawJson;
   engine_params: EngineConfiguration;
   triage_ignored_syntactic_ids: string[];
@@ -2933,6 +2934,7 @@ export function readScanConfiguration(x: any, context: any = x): ScanConfigurati
 
 export function writeScanConfigurationCached(x: ScanConfigurationCached, context: any = x): any {
   return {
+    'info': _atd_write_required_field('ScanConfigurationCached', 'info', writeScanInfo, x.info, x),
     'rules': _atd_write_required_field('ScanConfigurationCached', 'rules', writeRawJson, x.rules, x),
     'engine_params': _atd_write_required_field('ScanConfigurationCached', 'engine_params', writeEngineConfiguration, x.engine_params, x),
     'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
@@ -2942,6 +2944,7 @@ export function writeScanConfigurationCached(x: ScanConfigurationCached, context
 
 export function readScanConfigurationCached(x: any, context: any = x): ScanConfigurationCached {
   return {
+    info: _atd_read_required_field('ScanConfigurationCached', 'info', readScanInfo, x['info'], x),
     rules: _atd_read_required_field('ScanConfigurationCached', 'rules', readRawJson, x['rules'], x),
     engine_params: _atd_read_required_field('ScanConfigurationCached', 'engine_params', readEngineConfiguration, x['engine_params'], x),
     triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),

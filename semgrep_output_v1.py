@@ -8042,6 +8042,7 @@ class ScanRequest:
 class ScanConfigurationCached:
     """Original type: scan_configuration_cached = { ... }"""
 
+    info: ScanInfo
     rules: RawJson
     engine_params: EngineConfiguration
     triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
@@ -8051,6 +8052,7 @@ class ScanConfigurationCached:
     def from_json(cls, x: Any) -> 'ScanConfigurationCached':
         if isinstance(x, dict):
             return cls(
+                info=ScanInfo.from_json(x['info']) if 'info' in x else _atd_missing_json_field('ScanConfigurationCached', 'info'),
                 rules=RawJson.from_json(x['rules']) if 'rules' in x else _atd_missing_json_field('ScanConfigurationCached', 'rules'),
                 engine_params=EngineConfiguration.from_json(x['engine_params']) if 'engine_params' in x else _atd_missing_json_field('ScanConfigurationCached', 'engine_params'),
                 triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
@@ -8061,6 +8063,7 @@ class ScanConfigurationCached:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
+        res['info'] = (lambda x: x.to_json())(self.info)
         res['rules'] = (lambda x: x.to_json())(self.rules)
         res['engine_params'] = (lambda x: x.to_json())(self.engine_params)
         res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
