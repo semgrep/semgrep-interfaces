@@ -395,6 +395,8 @@ export type CliOutput = {
   engine_requested?: EngineKind;
   interfile_languages_used?: string[];
   skipped_rules: SkippedRule[];
+  resolved_subprojects?: ResolvedSubproject[];
+  unresolved_subprojects?: UnresolvedSubproject[];
 }
 
 export type CliOutputExtra = {
@@ -405,6 +407,8 @@ export type CliOutputExtra = {
   engine_requested?: EngineKind;
   interfile_languages_used?: string[];
   skipped_rules: SkippedRule[];
+  resolved_subprojects?: ResolvedSubproject[];
+  unresolved_subprojects?: UnresolvedSubproject[];
 }
 
 export type ConfigErrorReason =
@@ -867,6 +871,8 @@ export type CoreOutput = {
   engine_requested?: EngineKind;
   interfile_languages_used?: string[];
   skipped_rules: SkippedRule[];
+  resolved_subprojects?: ResolvedSubproject[];
+  unresolved_subprojects?: UnresolvedSubproject[];
   symbol_analysis?: SymbolAnalysis;
 }
 
@@ -2473,6 +2479,8 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
     'interfile_languages_used': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.interfile_languages_used, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
+    'resolved_subprojects': _atd_write_optional_field(_atd_write_array(writeResolvedSubproject), x.resolved_subprojects, x),
+    'unresolved_subprojects': _atd_write_optional_field(_atd_write_array(writeUnresolvedSubproject), x.unresolved_subprojects, x),
   };
 }
 
@@ -2488,6 +2496,8 @@ export function readCliOutput(x: any, context: any = x): CliOutput {
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
     interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
+    resolved_subprojects: _atd_read_optional_field(_atd_read_array(readResolvedSubproject), x['resolved_subprojects'], x),
+    unresolved_subprojects: _atd_read_optional_field(_atd_read_array(readUnresolvedSubproject), x['unresolved_subprojects'], x),
   };
 }
 
@@ -2500,6 +2510,8 @@ export function writeCliOutputExtra(x: CliOutputExtra, context: any = x): any {
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
     'interfile_languages_used': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.interfile_languages_used, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
+    'resolved_subprojects': _atd_write_optional_field(_atd_write_array(writeResolvedSubproject), x.resolved_subprojects, x),
+    'unresolved_subprojects': _atd_write_optional_field(_atd_write_array(writeUnresolvedSubproject), x.unresolved_subprojects, x),
   };
 }
 
@@ -2512,6 +2524,8 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
     interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
+    resolved_subprojects: _atd_read_optional_field(_atd_read_array(readResolvedSubproject), x['resolved_subprojects'], x),
+    unresolved_subprojects: _atd_read_optional_field(_atd_read_array(readUnresolvedSubproject), x['unresolved_subprojects'], x),
   };
 }
 
@@ -3817,6 +3831,8 @@ export function writeCoreOutput(x: CoreOutput, context: any = x): any {
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
     'interfile_languages_used': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.interfile_languages_used, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
+    'resolved_subprojects': _atd_write_optional_field(_atd_write_array(writeResolvedSubproject), x.resolved_subprojects, x),
+    'unresolved_subprojects': _atd_write_optional_field(_atd_write_array(writeUnresolvedSubproject), x.unresolved_subprojects, x),
     'symbol_analysis': _atd_write_optional_field(writeSymbolAnalysis, x.symbol_analysis, x),
   };
 }
@@ -3833,6 +3849,8 @@ export function readCoreOutput(x: any, context: any = x): CoreOutput {
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
     interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
+    resolved_subprojects: _atd_read_optional_field(_atd_read_array(readResolvedSubproject), x['resolved_subprojects'], x),
+    unresolved_subprojects: _atd_read_optional_field(_atd_read_array(readUnresolvedSubproject), x['unresolved_subprojects'], x),
     symbol_analysis: _atd_read_optional_field(readSymbolAnalysis, x['symbol_analysis'], x),
   };
 }

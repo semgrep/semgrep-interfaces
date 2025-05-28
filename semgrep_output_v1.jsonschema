@@ -32,6 +32,14 @@
     "skipped_rules": {
       "type": "array",
       "items": { "$ref": "#/definitions/skipped_rule" }
+    },
+    "resolved_subprojects": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/resolved_subproject" }
+    },
+    "unresolved_subprojects": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/unresolved_subproject" }
     }
   },
   "definitions": {
@@ -800,6 +808,14 @@
         "skipped_rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
+        },
+        "resolved_subprojects": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/resolved_subproject" }
+        },
+        "unresolved_subprojects": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/unresolved_subproject" }
         }
       }
     },
@@ -1705,6 +1721,14 @@
         "skipped_rules": {
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
+        },
+        "resolved_subprojects": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/resolved_subproject" }
+        },
+        "unresolved_subprojects": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/unresolved_subproject" }
         },
         "symbol_analysis": { "$ref": "#/definitions/symbol_analysis" }
       }
