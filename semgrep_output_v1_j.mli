@@ -37,10 +37,10 @@ type found_dependency = Semgrep_output_v1_t.found_dependency = {
 
 type lockfile_kind = Semgrep_output_v1_t.lockfile_kind = 
     PipRequirementsTxt | PoetryLock | PipfileLock | UvLock
-  | NpmPackageLockJson | YarnLock | PnpmLock | GemfileLock | GoModLock
-  | CargoLock | MavenDepTree | GradleLockfile | ComposerLock
-  | NugetPackagesLockJson | PubspecLock | SwiftPackageResolved | PodfileLock
-  | MixLock | ConanLock | OpamLocked
+  | NpmPackageLockJson | YarnLock | PnpmLock | BunLock | BunBinaryLock
+  | GemfileLock | GoModLock | CargoLock | MavenDepTree | GradleLockfile
+  | ComposerLock | NugetPackagesLockJson | PubspecLock | SwiftPackageResolved
+  | PodfileLock | MixLock | ConanLock | OpamLocked
 
   [@@deriving show, eq, yojson]
 

@@ -896,6 +896,40 @@ class PnpmLock:
 
 
 @dataclass(frozen=True)
+class BunLock:
+    """Original type: lockfile_kind = [ ... | BunLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'BunLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'BunLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class BunBinaryLock:
+    """Original type: lockfile_kind = [ ... | BunBinaryLock | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'BunBinaryLock'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'BunBinaryLock'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class GemfileLock:
     """Original type: lockfile_kind = [ ... | GemfileLock | ... ]"""
 
@@ -1120,7 +1154,7 @@ class OpamLocked:
 class LockfileKind:
     """Original type: lockfile_kind = [ ... ]"""
 
-    value: Union[PipRequirementsTxt, PoetryLock, PipfileLock, UvLock, NpmPackageLockJson, YarnLock, PnpmLock, GemfileLock, GoModLock, CargoLock, MavenDepTree, GradleLockfile, ComposerLock, NugetPackagesLockJson, PubspecLock, SwiftPackageResolved, PodfileLock, MixLock, ConanLock, OpamLocked]
+    value: Union[PipRequirementsTxt, PoetryLock, PipfileLock, UvLock, NpmPackageLockJson, YarnLock, PnpmLock, BunLock, BunBinaryLock, GemfileLock, GoModLock, CargoLock, MavenDepTree, GradleLockfile, ComposerLock, NugetPackagesLockJson, PubspecLock, SwiftPackageResolved, PodfileLock, MixLock, ConanLock, OpamLocked]
 
     @property
     def kind(self) -> str:
@@ -1144,6 +1178,10 @@ class LockfileKind:
                 return cls(YarnLock())
             if x == 'PnpmLock':
                 return cls(PnpmLock())
+            if x == 'BunLock':
+                return cls(BunLock())
+            if x == 'BunBinaryLock':
+                return cls(BunBinaryLock())
             if x == 'GemfileLock':
                 return cls(GemfileLock())
             if x == 'GoMod':

@@ -1003,6 +1003,8 @@ export type LockfileKind =
 | { kind: 'NpmPackageLockJson' }
 | { kind: 'YarnLock' }
 | { kind: 'PnpmLock' }
+| { kind: 'BunLock' }
+| { kind: 'BunBinaryLock' }
 | { kind: 'GemfileLock' }
 | { kind: 'GoModLock' /* JSON: "GoMod" */ }
 | { kind: 'CargoLock' }
@@ -4227,6 +4229,10 @@ export function writeLockfileKind(x: LockfileKind, context: any = x): any {
       return 'YarnLock'
     case 'PnpmLock':
       return 'PnpmLock'
+    case 'BunLock':
+      return 'BunLock'
+    case 'BunBinaryLock':
+      return 'BunBinaryLock'
     case 'GemfileLock':
       return 'GemfileLock'
     case 'GoModLock':
@@ -4272,6 +4278,10 @@ export function readLockfileKind(x: any, context: any = x): LockfileKind {
       return { kind: 'YarnLock' }
     case 'PnpmLock':
       return { kind: 'PnpmLock' }
+    case 'BunLock':
+      return { kind: 'BunLock' }
+    case 'BunBinaryLock':
+      return { kind: 'BunBinaryLock' }
     case 'GemfileLock':
       return { kind: 'GemfileLock' }
     case 'GoMod':

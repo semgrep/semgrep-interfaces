@@ -37,10 +37,10 @@ type found_dependency = Semgrep_output_v1_t.found_dependency = {
 
 type lockfile_kind = Semgrep_output_v1_t.lockfile_kind = 
     PipRequirementsTxt | PoetryLock | PipfileLock | UvLock
-  | NpmPackageLockJson | YarnLock | PnpmLock | GemfileLock | GoModLock
-  | CargoLock | MavenDepTree | GradleLockfile | ComposerLock
-  | NugetPackagesLockJson | PubspecLock | SwiftPackageResolved | PodfileLock
-  | MixLock | ConanLock | OpamLocked
+  | NpmPackageLockJson | YarnLock | PnpmLock | BunLock | BunBinaryLock
+  | GemfileLock | GoModLock | CargoLock | MavenDepTree | GradleLockfile
+  | ComposerLock | NugetPackagesLockJson | PubspecLock | SwiftPackageResolved
+  | PodfileLock | MixLock | ConanLock | OpamLocked
 
   [@@deriving show, eq, yojson]
 
@@ -2554,6 +2554,8 @@ let write_lockfile_kind : _ -> lockfile_kind -> _ = (
       | NpmPackageLockJson -> Buffer.add_string ob "\"NpmPackageLockJson\""
       | YarnLock -> Buffer.add_string ob "\"YarnLock\""
       | PnpmLock -> Buffer.add_string ob "\"PnpmLock\""
+      | BunLock -> Buffer.add_string ob "\"BunLock\""
+      | BunBinaryLock -> Buffer.add_string ob "\"BunBinaryLock\""
       | GemfileLock -> Buffer.add_string ob "\"GemfileLock\""
       | GoModLock -> Buffer.add_string ob "\"GoMod\""
       | CargoLock -> Buffer.add_string ob "\"CargoLock\""
@@ -2606,6 +2608,14 @@ let read_lockfile_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (PnpmLock : lockfile_kind)
+            | "BunLock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (BunLock : lockfile_kind)
+            | "BunBinaryLock" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (BunBinaryLock : lockfile_kind)
             | "GemfileLock" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -2677,6 +2687,10 @@ let read_lockfile_kind = (
               (YarnLock : lockfile_kind)
             | "PnpmLock" ->
               (PnpmLock : lockfile_kind)
+            | "BunLock" ->
+              (BunLock : lockfile_kind)
+            | "BunBinaryLock" ->
+              (BunBinaryLock : lockfile_kind)
             | "GemfileLock" ->
               (GemfileLock : lockfile_kind)
             | "GoMod" ->

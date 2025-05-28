@@ -2244,6 +2244,8 @@ type lockfile_kind
     | NpmPackageLockJson
     | YarnLock
     | PnpmLock
+    | BunLock
+    | BunBinaryLock (* Bun's deprecated binary bun.lockb format *)
     | GemfileLock
     | GoModLock <json name="GoMod">
     | CargoLock
