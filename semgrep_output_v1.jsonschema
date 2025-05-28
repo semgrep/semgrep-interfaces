@@ -1960,6 +1960,8 @@
         { "const": "NpmPackageLockJson" },
         { "const": "YarnLock" },
         { "const": "PnpmLock" },
+        { "const": "BunLock" },
+        { "const": "BunBinaryLock" },
         { "const": "GemfileLock" },
         { "const": "GoMod" },
         { "const": "CargoLock" },
