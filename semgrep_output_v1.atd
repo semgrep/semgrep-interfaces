@@ -1077,7 +1077,7 @@ type cli_output_extra = {
     ~skipped_rules: skipped_rule list;
 
     (* SCA subproject resolution results 
-     * EXPERIMENTAL: since: 1.109.0 *)
+     * EXPERIMENTAL: since: 1.123.0 *)
     ?resolved_subprojects: resolved_subproject list option;
     ?unresolved_subprojects: unresolved_subproject list option;
 }
