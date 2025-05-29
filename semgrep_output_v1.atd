@@ -937,6 +937,57 @@ type target_discovery_result = {
 (*****************************************************************************)
 (* coupling: with semgrep_metrics.atd performance section *)
 
+type rule_time = {
+  rule_id : rule_id;
+  rule_time : float;
+}
+
+type file_time = {
+  file_path : fpath;
+  file_time : float;
+}
+
+type quick_stats = {
+  mean : float;
+  std_dev : float;
+}
+
+type quick_prefilter_stats = {
+  prefiltering_time : float;
+  rules_with_prefilter: float;
+  rules_with_findings : float;
+  rules_run_per_file : quick_stats;
+}
+
+type quick_parsing_stats = {
+  per_file_time : quick_stats;
+  (* top N files taking more than 1s to parse *)
+  very_slow_files : file_time list;
+}
+
+type quick_pro_naming_stats = {
+  per_file_time : quick_stats;
+}
+
+type quick_rule_stats = {
+  (* how long it takes to run one rule on one file *)
+  rule_on_file_time : quick_stats;
+  matching_time : float;
+  dataflow_time : float;
+  (* top N rules taking more than 1s per-file to run *)
+  very_slow_rules : rule_time list;
+  (* top N files taking more than 1s per-rule to run *)
+  very_slow_files : file_time list;
+}
+
+type quick_profile = {
+  prefilter_stats : quick_prefilter_stats;
+  parsing_stats : quick_parsing_stats;
+  naming_stats : quick_pro_naming_stats;
+  rule_stats : quick_rule_stats;
+  max_memory_bytes : int option;
+}
+
 (* coupling: if you change the JSON schema below, you probably need to
  * also modify perf/run-benchmarks.
  * Run locally  $ ./run-benchmarks --dummy --upload
@@ -1023,6 +1074,7 @@ type cli_output = {
 type cli_output_extra = {
     (* targeting information *)
     paths: scanned_and_skipped;
+    ?quick_time: quick_profile option;
     (* profiling information *)
     ?time: profile option;
     (* debugging (rule writing) information.
