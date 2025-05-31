@@ -1128,6 +1128,7 @@ export type TransitiveReachabilityFilterParams = {
   rules_path: Fpath;
   findings: TransitiveFinding[];
   dependencies: ResolvedDependency[];
+  write_to_cache: boolean;
 }
 
 export type SymbolAnalysisUploadResponse = {
@@ -4716,6 +4717,7 @@ export function writeTransitiveReachabilityFilterParams(x: TransitiveReachabilit
     'rules_path': _atd_write_required_field('TransitiveReachabilityFilterParams', 'rules_path', writeFpath, x.rules_path, x),
     'findings': _atd_write_required_field('TransitiveReachabilityFilterParams', 'findings', _atd_write_array(writeTransitiveFinding), x.findings, x),
     'dependencies': _atd_write_required_field('TransitiveReachabilityFilterParams', 'dependencies', _atd_write_array(writeResolvedDependency), x.dependencies, x),
+    'write_to_cache': _atd_write_required_field('TransitiveReachabilityFilterParams', 'write_to_cache', _atd_write_bool, x.write_to_cache, x),
   };
 }
 
@@ -4724,6 +4726,7 @@ export function readTransitiveReachabilityFilterParams(x: any, context: any = x)
     rules_path: _atd_read_required_field('TransitiveReachabilityFilterParams', 'rules_path', readFpath, x['rules_path'], x),
     findings: _atd_read_required_field('TransitiveReachabilityFilterParams', 'findings', _atd_read_array(readTransitiveFinding), x['findings'], x),
     dependencies: _atd_read_required_field('TransitiveReachabilityFilterParams', 'dependencies', _atd_read_array(readResolvedDependency), x['dependencies'], x),
+    write_to_cache: _atd_read_required_field('TransitiveReachabilityFilterParams', 'write_to_cache', _atd_read_bool, x['write_to_cache'], x),
   };
 }
 

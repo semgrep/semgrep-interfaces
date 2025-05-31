@@ -385,7 +385,8 @@ type transitive_reachability_filter_params =
   Semgrep_output_v1_t.transitive_reachability_filter_params = {
   rules_path: fpath;
   findings: transitive_finding list;
-  dependencies: resolved_dependency list
+  dependencies: resolved_dependency list;
+  write_to_cache: bool
 }
 
 type tr_cache_match_result = Semgrep_output_v1_t.tr_cache_match_result = {
@@ -13922,6 +13923,15 @@ let write_transitive_reachability_filter_params : _ -> transitive_reachability_f
       write__resolved_dependency_list
     )
       ob x.dependencies;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"write_to_cache\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.write_to_cache;
     Buffer.add_char ob '}';
 )
 let string_of_transitive_reachability_filter_params ?(len = 1024) x =
@@ -13935,6 +13945,7 @@ let read_transitive_reachability_filter_params = (
     let field_rules_path = ref (None) in
     let field_findings = ref (None) in
     let field_dependencies = ref (None) in
+    let field_write_to_cache = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -13963,6 +13974,14 @@ let read_transitive_reachability_filter_params = (
             | 12 -> (
                 if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 's' then (
                   2
+                )
+                else (
+                  -1
+                )
+              )
+            | 14 -> (
+                if String.unsafe_get s pos = 'w' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'c' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'c' && String.unsafe_get s (pos+12) = 'h' && String.unsafe_get s (pos+13) = 'e' then (
+                  3
                 )
                 else (
                   -1
@@ -13997,6 +14016,14 @@ let read_transitive_reachability_filter_params = (
               Some (
                 (
                   read__resolved_dependency_list
+                ) p lb
+              )
+            );
+          | 3 ->
+            field_write_to_cache := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
                 ) p lb
               )
             );
@@ -14037,6 +14064,14 @@ let read_transitive_reachability_filter_params = (
                     -1
                   )
                 )
+              | 14 -> (
+                  if String.unsafe_get s pos = 'w' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'c' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'c' && String.unsafe_get s (pos+12) = 'h' && String.unsafe_get s (pos+13) = 'e' then (
+                    3
+                  )
+                  else (
+                    -1
+                  )
+                )
               | _ -> (
                   -1
                 )
@@ -14069,6 +14104,14 @@ let read_transitive_reachability_filter_params = (
                   ) p lb
                 )
               );
+            | 3 ->
+              field_write_to_cache := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -14081,6 +14124,7 @@ let read_transitive_reachability_filter_params = (
             rules_path = (match !field_rules_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rules_path");
             findings = (match !field_findings with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "findings");
             dependencies = (match !field_dependencies with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "dependencies");
+            write_to_cache = (match !field_write_to_cache with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "write_to_cache");
           }
          : transitive_reachability_filter_params)
       )

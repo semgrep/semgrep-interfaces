@@ -2305,7 +2305,9 @@
     },
     "transitive_reachability_filter_params": {
       "type": "object",
-      "required": [ "rules_path", "findings", "dependencies" ],
+      "required": [
+        "rules_path", "findings", "dependencies", "write_to_cache"
+      ],
       "properties": {
         "rules_path": { "$ref": "#/definitions/fpath" },
         "findings": {
@@ -2315,7 +2317,8 @@
         "dependencies": {
           "type": "array",
           "items": { "$ref": "#/definitions/resolved_dependency" }
-        }
+        },
+        "write_to_cache": { "type": "boolean" }
       }
     },
     "symbol_analysis_upload_response": {
