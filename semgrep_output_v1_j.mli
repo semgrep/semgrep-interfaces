@@ -994,8 +994,7 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list;
-  resolved_subprojects: resolved_subproject list option;
-  unresolved_subprojects: unresolved_subproject list option
+  subprojects: subproject_stats list option
 }
 
 type apply_fixes_params = Semgrep_output_v1_t.apply_fixes_params = {
@@ -1061,8 +1060,7 @@ type core_output = Semgrep_output_v1_t.core_output = {
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list;
-  resolved_subprojects: resolved_subproject list option;
-  unresolved_subprojects: unresolved_subproject list option;
+  subprojects: subproject_stats list option;
   symbol_analysis: symbol_analysis option
 }
 
@@ -1074,8 +1072,7 @@ type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list;
-  resolved_subprojects: resolved_subproject list option;
-  unresolved_subprojects: unresolved_subproject list option
+  subprojects: subproject_stats list option
 }
 
 type ci_scan_results_response_error =

@@ -33,13 +33,9 @@
       "type": "array",
       "items": { "$ref": "#/definitions/skipped_rule" }
     },
-    "resolved_subprojects": {
+    "subprojects": {
       "type": "array",
-      "items": { "$ref": "#/definitions/resolved_subproject" }
-    },
-    "unresolved_subprojects": {
-      "type": "array",
-      "items": { "$ref": "#/definitions/unresolved_subproject" }
+      "items": { "$ref": "#/definitions/subproject_stats" }
     }
   },
   "definitions": {
@@ -809,13 +805,9 @@
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
         },
-        "resolved_subprojects": {
+        "subprojects": {
           "type": "array",
-          "items": { "$ref": "#/definitions/resolved_subproject" }
-        },
-        "unresolved_subprojects": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/unresolved_subproject" }
+          "items": { "$ref": "#/definitions/subproject_stats" }
         }
       }
     },
@@ -1722,13 +1714,9 @@
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
         },
-        "resolved_subprojects": {
+        "subprojects": {
           "type": "array",
-          "items": { "$ref": "#/definitions/resolved_subproject" }
-        },
-        "unresolved_subprojects": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/unresolved_subproject" }
+          "items": { "$ref": "#/definitions/subproject_stats" }
         },
         "symbol_analysis": { "$ref": "#/definitions/symbol_analysis" }
       }

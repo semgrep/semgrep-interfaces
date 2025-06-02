@@ -994,8 +994,7 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list;
-  resolved_subprojects: resolved_subproject list option;
-  unresolved_subprojects: unresolved_subproject list option
+  subprojects: subproject_stats list option
 }
 
 type apply_fixes_params = Semgrep_output_v1_t.apply_fixes_params = {
@@ -1061,8 +1060,7 @@ type core_output = Semgrep_output_v1_t.core_output = {
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list;
-  resolved_subprojects: resolved_subproject list option;
-  unresolved_subprojects: unresolved_subproject list option;
+  subprojects: subproject_stats list option;
   symbol_analysis: symbol_analysis option
 }
 
@@ -1074,8 +1072,7 @@ type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list;
-  resolved_subprojects: resolved_subproject list option;
-  unresolved_subprojects: unresolved_subproject list option
+  subprojects: subproject_stats list option
 }
 
 type ci_scan_results_response_error =
@@ -36283,32 +36280,16 @@ let read_dump_rule_partitions_params = (
 )
 let dump_rule_partitions_params_of_string s =
   read_dump_rule_partitions_params (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__unresolved_subproject_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_unresolved_subproject
-  )
-)
-let string_of__unresolved_subproject_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__unresolved_subproject_list ob x;
-  Buffer.contents ob
-let read__unresolved_subproject_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_unresolved_subproject
-  )
-)
-let _unresolved_subproject_list_of_string s =
-  read__unresolved_subproject_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__unresolved_subproject_list_option = (
+let write__subproject_stats_list_option = (
   Atdgen_runtime.Oj_run.write_std_option (
-    write__unresolved_subproject_list
+    write__subproject_stats_list
   )
 )
-let string_of__unresolved_subproject_list_option ?(len = 1024) x =
+let string_of__subproject_stats_list_option ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__unresolved_subproject_list_option ob x;
+  write__subproject_stats_list_option ob x;
   Buffer.contents ob
-let read__unresolved_subproject_list_option = (
+let read__subproject_stats_list_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     match Yojson.Safe.start_any_variant p lb with
@@ -36321,7 +36302,7 @@ let read__unresolved_subproject_list_option = (
             | "Some" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read__unresolved_subproject_list
+                  read__subproject_stats_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -36344,7 +36325,7 @@ let read__unresolved_subproject_list_option = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read__unresolved_subproject_list
+                  read__subproject_stats_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -36354,8 +36335,8 @@ let read__unresolved_subproject_list_option = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-let _unresolved_subproject_list_option_of_string s =
-  read__unresolved_subproject_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _subproject_stats_list_option_of_string s =
+  read__subproject_stats_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__skipped_rule_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_skipped_rule
@@ -36372,79 +36353,6 @@ let read__skipped_rule_list = (
 )
 let _skipped_rule_list_of_string s =
   read__skipped_rule_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__resolved_subproject_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_resolved_subproject
-  )
-)
-let string_of__resolved_subproject_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__resolved_subproject_list ob x;
-  Buffer.contents ob
-let read__resolved_subproject_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_resolved_subproject
-  )
-)
-let _resolved_subproject_list_of_string s =
-  read__resolved_subproject_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__resolved_subproject_list_option = (
-  Atdgen_runtime.Oj_run.write_std_option (
-    write__resolved_subproject_list
-  )
-)
-let string_of__resolved_subproject_list_option ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__resolved_subproject_list_option ob x;
-  Buffer.contents ob
-let read__resolved_subproject_list_option = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__resolved_subproject_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Double_quote -> (
-          match Yojson.Safe.finish_string p lb with
-            | "None" ->
-              (None : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-      | `Square_bracket -> (
-          match Atdgen_runtime.Oj_run.read_string p lb with
-            | "Some" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_comma p lb;
-              Yojson.Safe.read_space p lb;
-              let x = (
-                  read__resolved_subproject_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_rbr p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
-)
-let _resolved_subproject_list_option_of_string s =
-  read__resolved_subproject_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__profile_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     write_profile
@@ -36795,25 +36703,14 @@ let write_cli_output : _ -> cli_output -> _ = (
       write__skipped_rule_list
     )
       ob x.skipped_rules;
-    (match x.resolved_subprojects with None -> () | Some x ->
+    (match x.subprojects with None -> () | Some x ->
       if !is_first then
         is_first := false
       else
         Buffer.add_char ob ',';
-        Buffer.add_string ob "\"resolved_subprojects\":";
+        Buffer.add_string ob "\"subprojects\":";
       (
-        write__resolved_subproject_list
-      )
-        ob x;
-    );
-    (match x.unresolved_subprojects with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"unresolved_subprojects\":";
-      (
-        write__unresolved_subproject_list
+        write__subproject_stats_list
       )
         ob x;
     );
@@ -36837,8 +36734,7 @@ let read_cli_output = (
     let field_engine_requested = ref (None) in
     let field_interfile_languages_used = ref (None) in
     let field_skipped_rules = ref ([]) in
-    let field_resolved_subprojects = ref (None) in
-    let field_unresolved_subprojects = ref (None) in
+    let field_subprojects = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -36894,6 +36790,14 @@ let read_cli_output = (
                       -1
                     )
               )
+            | 11 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'b' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'j' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 's' then (
+                  10
+                )
+                else (
+                  -1
+                )
+              )
             | 12 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
                   5
@@ -36921,22 +36825,6 @@ let read_cli_output = (
             | 16 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
                   7
-                )
-                else (
-                  -1
-                )
-              )
-            | 20 -> (
-                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'v' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'b' && String.unsafe_get s (pos+12) = 'p' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'o' && String.unsafe_get s (pos+15) = 'j' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 's' then (
-                  10
-                )
-                else (
-                  -1
-                )
-              )
-            | 22 -> (
-                if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'v' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'd' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'b' && String.unsafe_get s (pos+14) = 'p' && String.unsafe_get s (pos+15) = 'r' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 'j' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = 'c' && String.unsafe_get s (pos+20) = 't' && String.unsafe_get s (pos+21) = 's' then (
-                  11
                 )
                 else (
                   -1
@@ -37052,20 +36940,10 @@ let read_cli_output = (
             )
           | 10 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_resolved_subprojects := (
+              field_subprojects := (
                 Some (
                   (
-                    read__resolved_subproject_list
-                  ) p lb
-                )
-              );
-            )
-          | 11 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_unresolved_subprojects := (
-                Some (
-                  (
-                    read__unresolved_subproject_list
+                    read__subproject_stats_list
                   ) p lb
                 )
               );
@@ -37129,6 +37007,14 @@ let read_cli_output = (
                         -1
                       )
                 )
+              | 11 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'b' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'j' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 's' then (
+                    10
+                  )
+                  else (
+                    -1
+                  )
+                )
               | 12 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
                     5
@@ -37156,22 +37042,6 @@ let read_cli_output = (
               | 16 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
                     7
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 20 -> (
-                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'v' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'b' && String.unsafe_get s (pos+12) = 'p' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'o' && String.unsafe_get s (pos+15) = 'j' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 's' then (
-                    10
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 22 -> (
-                  if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'v' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'd' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'b' && String.unsafe_get s (pos+14) = 'p' && String.unsafe_get s (pos+15) = 'r' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 'j' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = 'c' && String.unsafe_get s (pos+20) = 't' && String.unsafe_get s (pos+21) = 's' then (
-                    11
                   )
                   else (
                     -1
@@ -37287,20 +37157,10 @@ let read_cli_output = (
               )
             | 10 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_resolved_subprojects := (
+                field_subprojects := (
                   Some (
                     (
-                      read__resolved_subproject_list
-                    ) p lb
-                  )
-                );
-              )
-            | 11 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_unresolved_subprojects := (
-                  Some (
-                    (
-                      read__unresolved_subproject_list
+                      read__subproject_stats_list
                     ) p lb
                   )
                 );
@@ -37324,8 +37184,7 @@ let read_cli_output = (
             engine_requested = !field_engine_requested;
             interfile_languages_used = !field_interfile_languages_used;
             skipped_rules = !field_skipped_rules;
-            resolved_subprojects = !field_resolved_subprojects;
-            unresolved_subprojects = !field_unresolved_subprojects;
+            subprojects = !field_subprojects;
           }
          : cli_output)
       )
@@ -39784,25 +39643,14 @@ let write_core_output : _ -> core_output -> _ = (
       write__skipped_rule_list
     )
       ob x.skipped_rules;
-    (match x.resolved_subprojects with None -> () | Some x ->
+    (match x.subprojects with None -> () | Some x ->
       if !is_first then
         is_first := false
       else
         Buffer.add_char ob ',';
-        Buffer.add_string ob "\"resolved_subprojects\":";
+        Buffer.add_string ob "\"subprojects\":";
       (
-        write__resolved_subproject_list
-      )
-        ob x;
-    );
-    (match x.unresolved_subprojects with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"unresolved_subprojects\":";
-      (
-        write__unresolved_subproject_list
+        write__subproject_stats_list
       )
         ob x;
     );
@@ -39837,8 +39685,7 @@ let read_core_output = (
     let field_engine_requested = ref (None) in
     let field_interfile_languages_used = ref (None) in
     let field_skipped_rules = ref ([]) in
-    let field_resolved_subprojects = ref (None) in
-    let field_unresolved_subprojects = ref (None) in
+    let field_subprojects = ref (None) in
     let field_symbol_analysis = ref (None) in
     try
       Yojson.Safe.read_space p lb;
@@ -39895,6 +39742,14 @@ let read_core_output = (
                       -1
                     )
               )
+            | 11 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'b' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'j' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 's' then (
+                  10
+                )
+                else (
+                  -1
+                )
+              )
             | 12 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
                   5
@@ -39923,7 +39778,7 @@ let read_core_output = (
                     )
                   | 's' -> (
                       if String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'y' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 's' then (
-                        12
+                        11
                       )
                       else (
                         -1
@@ -39936,22 +39791,6 @@ let read_core_output = (
             | 16 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
                   7
-                )
-                else (
-                  -1
-                )
-              )
-            | 20 -> (
-                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'v' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'b' && String.unsafe_get s (pos+12) = 'p' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'o' && String.unsafe_get s (pos+15) = 'j' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 's' then (
-                  10
-                )
-                else (
-                  -1
-                )
-              )
-            | 22 -> (
-                if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'v' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'd' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'b' && String.unsafe_get s (pos+14) = 'p' && String.unsafe_get s (pos+15) = 'r' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 'j' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = 'c' && String.unsafe_get s (pos+20) = 't' && String.unsafe_get s (pos+21) = 's' then (
-                  11
                 )
                 else (
                   -1
@@ -40065,25 +39904,15 @@ let read_core_output = (
             )
           | 10 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_resolved_subprojects := (
+              field_subprojects := (
                 Some (
                   (
-                    read__resolved_subproject_list
+                    read__subproject_stats_list
                   ) p lb
                 )
               );
             )
           | 11 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_unresolved_subprojects := (
-                Some (
-                  (
-                    read__unresolved_subproject_list
-                  ) p lb
-                )
-              );
-            )
-          | 12 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_symbol_analysis := (
                 Some (
@@ -40152,6 +39981,14 @@ let read_core_output = (
                         -1
                       )
                 )
+              | 11 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'b' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'j' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 's' then (
+                    10
+                  )
+                  else (
+                    -1
+                  )
+                )
               | 12 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
                     5
@@ -40180,7 +40017,7 @@ let read_core_output = (
                       )
                     | 's' -> (
                         if String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'y' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 's' then (
-                          12
+                          11
                         )
                         else (
                           -1
@@ -40193,22 +40030,6 @@ let read_core_output = (
               | 16 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
                     7
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 20 -> (
-                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'v' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'b' && String.unsafe_get s (pos+12) = 'p' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'o' && String.unsafe_get s (pos+15) = 'j' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 's' then (
-                    10
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 22 -> (
-                  if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'v' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'd' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'b' && String.unsafe_get s (pos+14) = 'p' && String.unsafe_get s (pos+15) = 'r' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 'j' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = 'c' && String.unsafe_get s (pos+20) = 't' && String.unsafe_get s (pos+21) = 's' then (
-                    11
                   )
                   else (
                     -1
@@ -40322,25 +40143,15 @@ let read_core_output = (
               )
             | 10 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_resolved_subprojects := (
+                field_subprojects := (
                   Some (
                     (
-                      read__resolved_subproject_list
+                      read__subproject_stats_list
                     ) p lb
                   )
                 );
               )
             | 11 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_unresolved_subprojects := (
-                  Some (
-                    (
-                      read__unresolved_subproject_list
-                    ) p lb
-                  )
-                );
-              )
-            | 12 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_symbol_analysis := (
                   Some (
@@ -40369,8 +40180,7 @@ let read_core_output = (
             engine_requested = !field_engine_requested;
             interfile_languages_used = !field_interfile_languages_used;
             skipped_rules = !field_skipped_rules;
-            resolved_subprojects = !field_resolved_subprojects;
-            unresolved_subprojects = !field_unresolved_subprojects;
+            subprojects = !field_subprojects;
             symbol_analysis = !field_symbol_analysis;
           }
          : core_output)
@@ -40455,25 +40265,14 @@ let write_cli_output_extra : _ -> cli_output_extra -> _ = (
       write__skipped_rule_list
     )
       ob x.skipped_rules;
-    (match x.resolved_subprojects with None -> () | Some x ->
+    (match x.subprojects with None -> () | Some x ->
       if !is_first then
         is_first := false
       else
         Buffer.add_char ob ',';
-        Buffer.add_string ob "\"resolved_subprojects\":";
+        Buffer.add_string ob "\"subprojects\":";
       (
-        write__resolved_subproject_list
-      )
-        ob x;
-    );
-    (match x.unresolved_subprojects with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"unresolved_subprojects\":";
-      (
-        write__unresolved_subproject_list
+        write__subproject_stats_list
       )
         ob x;
     );
@@ -40494,8 +40293,7 @@ let read_cli_output_extra = (
     let field_engine_requested = ref (None) in
     let field_interfile_languages_used = ref (None) in
     let field_skipped_rules = ref ([]) in
-    let field_resolved_subprojects = ref (None) in
-    let field_unresolved_subprojects = ref (None) in
+    let field_subprojects = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -40516,6 +40314,14 @@ let read_cli_output_extra = (
             | 5 -> (
                 if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' && String.unsafe_get s (pos+4) = 's' then (
                   0
+                )
+                else (
+                  -1
+                )
+              )
+            | 11 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'b' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'j' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 's' then (
+                  7
                 )
                 else (
                   -1
@@ -40548,22 +40354,6 @@ let read_cli_output_extra = (
             | 16 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
                   4
-                )
-                else (
-                  -1
-                )
-              )
-            | 20 -> (
-                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'v' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'b' && String.unsafe_get s (pos+12) = 'p' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'o' && String.unsafe_get s (pos+15) = 'j' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 's' then (
-                  7
-                )
-                else (
-                  -1
-                )
-              )
-            | 22 -> (
-                if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'v' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'd' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'b' && String.unsafe_get s (pos+14) = 'p' && String.unsafe_get s (pos+15) = 'r' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 'j' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = 'c' && String.unsafe_get s (pos+20) = 't' && String.unsafe_get s (pos+21) = 's' then (
-                  8
                 )
                 else (
                   -1
@@ -40653,20 +40443,10 @@ let read_cli_output_extra = (
             )
           | 7 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_resolved_subprojects := (
+              field_subprojects := (
                 Some (
                   (
-                    read__resolved_subproject_list
-                  ) p lb
-                )
-              );
-            )
-          | 8 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_unresolved_subprojects := (
-                Some (
-                  (
-                    read__unresolved_subproject_list
+                    read__subproject_stats_list
                   ) p lb
                 )
               );
@@ -40700,6 +40480,14 @@ let read_cli_output_extra = (
                     -1
                   )
                 )
+              | 11 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'b' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'j' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 's' then (
+                    7
+                  )
+                  else (
+                    -1
+                  )
+                )
               | 12 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'x' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'o' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 's' then (
                     2
@@ -40727,22 +40515,6 @@ let read_cli_output_extra = (
               | 16 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
                     4
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 20 -> (
-                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'v' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 's' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'b' && String.unsafe_get s (pos+12) = 'p' && String.unsafe_get s (pos+13) = 'r' && String.unsafe_get s (pos+14) = 'o' && String.unsafe_get s (pos+15) = 'j' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 't' && String.unsafe_get s (pos+19) = 's' then (
-                    7
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 22 -> (
-                  if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'v' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'd' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 's' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'b' && String.unsafe_get s (pos+14) = 'p' && String.unsafe_get s (pos+15) = 'r' && String.unsafe_get s (pos+16) = 'o' && String.unsafe_get s (pos+17) = 'j' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = 'c' && String.unsafe_get s (pos+20) = 't' && String.unsafe_get s (pos+21) = 's' then (
-                    8
                   )
                   else (
                     -1
@@ -40832,20 +40604,10 @@ let read_cli_output_extra = (
               )
             | 7 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_resolved_subprojects := (
+                field_subprojects := (
                   Some (
                     (
-                      read__resolved_subproject_list
-                    ) p lb
-                  )
-                );
-              )
-            | 8 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_unresolved_subprojects := (
-                  Some (
-                    (
-                      read__unresolved_subproject_list
+                      read__subproject_stats_list
                     ) p lb
                   )
                 );
@@ -40866,8 +40628,7 @@ let read_cli_output_extra = (
             engine_requested = !field_engine_requested;
             interfile_languages_used = !field_interfile_languages_used;
             skipped_rules = !field_skipped_rules;
-            resolved_subprojects = !field_resolved_subprojects;
-            unresolved_subprojects = !field_unresolved_subprojects;
+            subprojects = !field_subprojects;
           }
          : cli_output_extra)
       )
