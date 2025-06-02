@@ -2519,6 +2519,7 @@ type transitive_reachability_filter_params = {
   rules_path: fpath;
   findings: transitive_finding list;
   dependencies: resolved_dependency list;
+  write_to_cache: bool;
 }
 (* ----------------------------- *)
 (* Symbol analysis upload response*)

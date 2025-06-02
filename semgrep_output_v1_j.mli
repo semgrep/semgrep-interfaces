@@ -385,7 +385,8 @@ type transitive_reachability_filter_params =
   Semgrep_output_v1_t.transitive_reachability_filter_params = {
   rules_path: fpath;
   findings: transitive_finding list;
-  dependencies: resolved_dependency list
+  dependencies: resolved_dependency list;
+  write_to_cache: bool
 }
 
 type tr_cache_match_result = Semgrep_output_v1_t.tr_cache_match_result = {

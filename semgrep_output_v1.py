@@ -5033,6 +5033,7 @@ class TransitiveReachabilityFilterParams:
     rules_path: Fpath
     findings: List[TransitiveFinding]
     dependencies: List[ResolvedDependency]
+    write_to_cache: bool
 
     @classmethod
     def from_json(cls, x: Any) -> 'TransitiveReachabilityFilterParams':
@@ -5041,6 +5042,7 @@ class TransitiveReachabilityFilterParams:
                 rules_path=Fpath.from_json(x['rules_path']) if 'rules_path' in x else _atd_missing_json_field('TransitiveReachabilityFilterParams', 'rules_path'),
                 findings=_atd_read_list(TransitiveFinding.from_json)(x['findings']) if 'findings' in x else _atd_missing_json_field('TransitiveReachabilityFilterParams', 'findings'),
                 dependencies=_atd_read_list(ResolvedDependency.from_json)(x['dependencies']) if 'dependencies' in x else _atd_missing_json_field('TransitiveReachabilityFilterParams', 'dependencies'),
+                write_to_cache=_atd_read_bool(x['write_to_cache']) if 'write_to_cache' in x else _atd_missing_json_field('TransitiveReachabilityFilterParams', 'write_to_cache'),
             )
         else:
             _atd_bad_json('TransitiveReachabilityFilterParams', x)
@@ -5050,6 +5052,7 @@ class TransitiveReachabilityFilterParams:
         res['rules_path'] = (lambda x: x.to_json())(self.rules_path)
         res['findings'] = _atd_write_list((lambda x: x.to_json()))(self.findings)
         res['dependencies'] = _atd_write_list((lambda x: x.to_json()))(self.dependencies)
+        res['write_to_cache'] = _atd_write_bool(self.write_to_cache)
         return res
 
     @classmethod
