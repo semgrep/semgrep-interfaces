@@ -632,19 +632,13 @@ type dependency_resolution_stats =
 type subproject_stats = Semgrep_output_v1_t.subproject_stats = {
   subproject_id: string;
   dependency_sources: dependency_source_file list;
-  resolved_stats: dependency_resolution_stats;
-  unresolved_reason: unresolved_reason;
+  resolved_stats: dependency_resolution_stats option;
+  unresolved_reason: unresolved_reason option;
   errors: sca_error list
 }
 
 type supply_chain_stats = Semgrep_output_v1_t.supply_chain_stats = {
   subprojects_stats: subproject_stats list
-}
-
-type subproject_stats_public = Semgrep_output_v1_t.subproject_stats_public = {
-  dependency_sources: dependency_source_file list;
-  resolved_stats: dependency_resolution_stats;
-  unresolved_reason: unresolved_reason
 }
 
 type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
@@ -989,6 +983,14 @@ type dump_rule_partitions_params =
   strategy: string option
 }
 
+type cli_output_subproject_info =
+  Semgrep_output_v1_t.cli_output_subproject_info = {
+  dependency_sources: fpath list;
+  resolved: bool;
+  unresolved_reason: unresolved_reason option;
+  resolved_stats: dependency_resolution_stats option
+}
+
 type cli_output = Semgrep_output_v1_t.cli_output = {
   version: version option;
   results: cli_match list;
@@ -1000,7 +1002,7 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list;
-  subprojects: subproject_stats_public list option
+  subprojects: cli_output_subproject_info list option
 }
 
 type apply_fixes_params = Semgrep_output_v1_t.apply_fixes_params = {
@@ -1066,7 +1068,7 @@ type core_output = Semgrep_output_v1_t.core_output = {
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list;
-  subprojects: subproject_stats_public list option;
+  subprojects: cli_output_subproject_info list option;
   symbol_analysis: symbol_analysis option
 }
 
@@ -1078,7 +1080,7 @@ type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list;
-  subprojects: subproject_stats_public list option
+  subprojects: cli_output_subproject_info list option
 }
 
 type ci_scan_results_response_error =
@@ -3243,26 +3245,6 @@ val supply_chain_stats_of_string :
   string -> supply_chain_stats
   (** Deserialize JSON data of type {!type:supply_chain_stats}. *)
 
-val write_subproject_stats_public :
-  Buffer.t -> subproject_stats_public -> unit
-  (** Output a JSON value of type {!type:subproject_stats_public}. *)
-
-val string_of_subproject_stats_public :
-  ?len:int -> subproject_stats_public -> string
-  (** Serialize a value of type {!type:subproject_stats_public}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_subproject_stats_public :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> subproject_stats_public
-  (** Input JSON data of type {!type:subproject_stats_public}. *)
-
-val subproject_stats_public_of_string :
-  string -> subproject_stats_public
-  (** Deserialize JSON data of type {!type:subproject_stats_public}. *)
-
 val write_skipped_rule :
   Buffer.t -> skipped_rule -> unit
   (** Output a JSON value of type {!type:skipped_rule}. *)
@@ -4202,6 +4184,26 @@ val read_dump_rule_partitions_params :
 val dump_rule_partitions_params_of_string :
   string -> dump_rule_partitions_params
   (** Deserialize JSON data of type {!type:dump_rule_partitions_params}. *)
+
+val write_cli_output_subproject_info :
+  Buffer.t -> cli_output_subproject_info -> unit
+  (** Output a JSON value of type {!type:cli_output_subproject_info}. *)
+
+val string_of_cli_output_subproject_info :
+  ?len:int -> cli_output_subproject_info -> string
+  (** Serialize a value of type {!type:cli_output_subproject_info}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_cli_output_subproject_info :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_output_subproject_info
+  (** Input JSON data of type {!type:cli_output_subproject_info}. *)
+
+val cli_output_subproject_info_of_string :
+  string -> cli_output_subproject_info
+  (** Deserialize JSON data of type {!type:cli_output_subproject_info}. *)
 
 val write_cli_output :
   Buffer.t -> cli_output -> unit

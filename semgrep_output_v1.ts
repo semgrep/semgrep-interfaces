@@ -395,7 +395,7 @@ export type CliOutput = {
   engine_requested?: EngineKind;
   interfile_languages_used?: string[];
   skipped_rules: SkippedRule[];
-  subprojects?: SubprojectStatsPublic[];
+  subprojects?: CliOutputSubprojectInfo[];
 }
 
 export type CliOutputExtra = {
@@ -406,7 +406,7 @@ export type CliOutputExtra = {
   engine_requested?: EngineKind;
   interfile_languages_used?: string[];
   skipped_rules: SkippedRule[];
-  subprojects?: SubprojectStatsPublic[];
+  subprojects?: CliOutputSubprojectInfo[];
 }
 
 export type ConfigErrorReason =
@@ -736,17 +736,18 @@ export type SupplyChainStats = {
   subprojects_stats: SubprojectStats[];
 }
 
-export type SubprojectStatsPublic = {
-  dependency_sources: DependencySourceFile[];
-  resolved_stats: DependencyResolutionStats;
-  unresolved_reason: UnresolvedReason;
+export type CliOutputSubprojectInfo = {
+  dependency_sources: Fpath[];
+  resolved: boolean;
+  unresolved_reason?: UnresolvedReason;
+  resolved_stats?: DependencyResolutionStats;
 }
 
 export type SubprojectStats = {
   subproject_id: string;
   dependency_sources: DependencySourceFile[];
-  resolved_stats: DependencyResolutionStats;
-  unresolved_reason: UnresolvedReason;
+  resolved_stats?: DependencyResolutionStats;
+  unresolved_reason?: UnresolvedReason;
   errors: ScaError[];
 }
 
@@ -875,7 +876,7 @@ export type CoreOutput = {
   engine_requested?: EngineKind;
   interfile_languages_used?: string[];
   skipped_rules: SkippedRule[];
-  subprojects?: SubprojectStatsPublic[];
+  subprojects?: CliOutputSubprojectInfo[];
   symbol_analysis?: SymbolAnalysis;
 }
 
@@ -2482,7 +2483,7 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
     'interfile_languages_used': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.interfile_languages_used, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
-    'subprojects': _atd_write_optional_field(_atd_write_array(writeSubprojectStatsPublic), x.subprojects, x),
+    'subprojects': _atd_write_optional_field(_atd_write_array(writeCliOutputSubprojectInfo), x.subprojects, x),
   };
 }
 
@@ -2498,7 +2499,7 @@ export function readCliOutput(x: any, context: any = x): CliOutput {
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
     interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
-    subprojects: _atd_read_optional_field(_atd_read_array(readSubprojectStatsPublic), x['subprojects'], x),
+    subprojects: _atd_read_optional_field(_atd_read_array(readCliOutputSubprojectInfo), x['subprojects'], x),
   };
 }
 
@@ -2511,7 +2512,7 @@ export function writeCliOutputExtra(x: CliOutputExtra, context: any = x): any {
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
     'interfile_languages_used': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.interfile_languages_used, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
-    'subprojects': _atd_write_optional_field(_atd_write_array(writeSubprojectStatsPublic), x.subprojects, x),
+    'subprojects': _atd_write_optional_field(_atd_write_array(writeCliOutputSubprojectInfo), x.subprojects, x),
   };
 }
 
@@ -2524,7 +2525,7 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
     interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
-    subprojects: _atd_read_optional_field(_atd_read_array(readSubprojectStatsPublic), x['subprojects'], x),
+    subprojects: _atd_read_optional_field(_atd_read_array(readCliOutputSubprojectInfo), x['subprojects'], x),
   };
 }
 
@@ -3483,19 +3484,21 @@ export function readSupplyChainStats(x: any, context: any = x): SupplyChainStats
   };
 }
 
-export function writeSubprojectStatsPublic(x: SubprojectStatsPublic, context: any = x): any {
+export function writeCliOutputSubprojectInfo(x: CliOutputSubprojectInfo, context: any = x): any {
   return {
-    'dependency_sources': _atd_write_required_field('SubprojectStatsPublic', 'dependency_sources', _atd_write_array(writeDependencySourceFile), x.dependency_sources, x),
-    'resolved_stats': _atd_write_required_field('SubprojectStatsPublic', 'resolved_stats', writeDependencyResolutionStats, x.resolved_stats, x),
-    'unresolved_reason': _atd_write_required_field('SubprojectStatsPublic', 'unresolved_reason', writeUnresolvedReason, x.unresolved_reason, x),
+    'dependency_sources': _atd_write_required_field('CliOutputSubprojectInfo', 'dependency_sources', _atd_write_array(writeFpath), x.dependency_sources, x),
+    'resolved': _atd_write_required_field('CliOutputSubprojectInfo', 'resolved', _atd_write_bool, x.resolved, x),
+    'unresolved_reason': _atd_write_optional_field(writeUnresolvedReason, x.unresolved_reason, x),
+    'resolved_stats': _atd_write_optional_field(writeDependencyResolutionStats, x.resolved_stats, x),
   };
 }
 
-export function readSubprojectStatsPublic(x: any, context: any = x): SubprojectStatsPublic {
+export function readCliOutputSubprojectInfo(x: any, context: any = x): CliOutputSubprojectInfo {
   return {
-    dependency_sources: _atd_read_required_field('SubprojectStatsPublic', 'dependency_sources', _atd_read_array(readDependencySourceFile), x['dependency_sources'], x),
-    resolved_stats: _atd_read_required_field('SubprojectStatsPublic', 'resolved_stats', readDependencyResolutionStats, x['resolved_stats'], x),
-    unresolved_reason: _atd_read_required_field('SubprojectStatsPublic', 'unresolved_reason', readUnresolvedReason, x['unresolved_reason'], x),
+    dependency_sources: _atd_read_required_field('CliOutputSubprojectInfo', 'dependency_sources', _atd_read_array(readFpath), x['dependency_sources'], x),
+    resolved: _atd_read_required_field('CliOutputSubprojectInfo', 'resolved', _atd_read_bool, x['resolved'], x),
+    unresolved_reason: _atd_read_optional_field(readUnresolvedReason, x['unresolved_reason'], x),
+    resolved_stats: _atd_read_optional_field(readDependencyResolutionStats, x['resolved_stats'], x),
   };
 }
 
@@ -3503,8 +3506,8 @@ export function writeSubprojectStats(x: SubprojectStats, context: any = x): any 
   return {
     'subproject_id': _atd_write_required_field('SubprojectStats', 'subproject_id', _atd_write_string, x.subproject_id, x),
     'dependency_sources': _atd_write_required_field('SubprojectStats', 'dependency_sources', _atd_write_array(writeDependencySourceFile), x.dependency_sources, x),
-    'resolved_stats': _atd_write_required_field('SubprojectStats', 'resolved_stats', writeDependencyResolutionStats, x.resolved_stats, x),
-    'unresolved_reason': _atd_write_required_field('SubprojectStats', 'unresolved_reason', writeUnresolvedReason, x.unresolved_reason, x),
+    'resolved_stats': _atd_write_optional_field(writeDependencyResolutionStats, x.resolved_stats, x),
+    'unresolved_reason': _atd_write_optional_field(writeUnresolvedReason, x.unresolved_reason, x),
     'errors': _atd_write_field_with_default(_atd_write_array(writeScaError), [], x.errors, x),
   };
 }
@@ -3513,8 +3516,8 @@ export function readSubprojectStats(x: any, context: any = x): SubprojectStats {
   return {
     subproject_id: _atd_read_required_field('SubprojectStats', 'subproject_id', _atd_read_string, x['subproject_id'], x),
     dependency_sources: _atd_read_required_field('SubprojectStats', 'dependency_sources', _atd_read_array(readDependencySourceFile), x['dependency_sources'], x),
-    resolved_stats: _atd_read_required_field('SubprojectStats', 'resolved_stats', readDependencyResolutionStats, x['resolved_stats'], x),
-    unresolved_reason: _atd_read_required_field('SubprojectStats', 'unresolved_reason', readUnresolvedReason, x['unresolved_reason'], x),
+    resolved_stats: _atd_read_optional_field(readDependencyResolutionStats, x['resolved_stats'], x),
+    unresolved_reason: _atd_read_optional_field(readUnresolvedReason, x['unresolved_reason'], x),
     errors: _atd_read_field_with_default(_atd_read_array(readScaError), [], x['errors'], x),
   };
 }
@@ -3846,7 +3849,7 @@ export function writeCoreOutput(x: CoreOutput, context: any = x): any {
     'engine_requested': _atd_write_optional_field(writeEngineKind, x.engine_requested, x),
     'interfile_languages_used': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.interfile_languages_used, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
-    'subprojects': _atd_write_optional_field(_atd_write_array(writeSubprojectStatsPublic), x.subprojects, x),
+    'subprojects': _atd_write_optional_field(_atd_write_array(writeCliOutputSubprojectInfo), x.subprojects, x),
     'symbol_analysis': _atd_write_optional_field(writeSymbolAnalysis, x.symbol_analysis, x),
   };
 }
@@ -3863,7 +3866,7 @@ export function readCoreOutput(x: any, context: any = x): CoreOutput {
     engine_requested: _atd_read_optional_field(readEngineKind, x['engine_requested'], x),
     interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
-    subprojects: _atd_read_optional_field(_atd_read_array(readSubprojectStatsPublic), x['subprojects'], x),
+    subprojects: _atd_read_optional_field(_atd_read_array(readCliOutputSubprojectInfo), x['subprojects'], x),
     symbol_analysis: _atd_read_optional_field(readSymbolAnalysis, x['symbol_analysis'], x),
   };
 }

@@ -1079,7 +1079,7 @@ type cli_output_extra = {
     (* SCA subproject resolution results. Note: this is only available when
      * logged in.
      * EXPERIMENTAL: since: 1.123.0 *)
-    ?subprojects: subproject_stats_public list option;
+    ?subprojects: cli_output_subproject_info list option;
 }
 
 (*****************************************************************************)
@@ -1770,17 +1770,19 @@ type supply_chain_stats = {
 }
 
 (* This is the public version of subproject_stats, which is used in the CLI
- * output. It is used to display the subproject stats in the CLI.
- *)
-type subproject_stats_public = {
-  (* Files used to determine the subproject's dependencies (lockfiles, manifest
-   * files, etc)
-   *)
-  dependency_sources: dependency_source_file list;
-  (* Results of dependency resolution, empty if resolution failed *)
-  resolved_stats: dependency_resolution_stats;
+ * output. This is distinguised from subproject_stats below in order to produce
+ * more normal-looking JSON and to avoid including unnecessary fields. *)
+type cli_output_subproject_info = {
+  (* We use fpath here rather than the dependency_source_file
+   * type because ATD makes strange-looking JSON output for the
+   * dependency_source_file type.  *)
+  dependency_sources: fpath list;
+  (* true if the subproject's dependencies were resolved successfully *)
+  resolved: bool;
   (* Reason why resolution failed, empty if resolution succeeded *)
-  unresolved_reason: unresolved_reason;
+  ?unresolved_reason: unresolved_reason option;
+  (* Results of dependency resolution, empty if resolution failed *)
+  ?resolved_stats: dependency_resolution_stats option;
 }
 
 type subproject_stats = {
@@ -1790,7 +1792,14 @@ type subproject_stats = {
    * different dependency sources indicate a different subproject context.
    *)
   subproject_id: string;
-  inherit subproject_stats_public;
+  (* Files used to determine the subproject's dependencies (lockfiles, manifest
+   * files, etc)
+   *)
+  dependency_sources: dependency_source_file list;
+  (* Results of dependency resolution, empty if resolution failed *)
+  ?resolved_stats: dependency_resolution_stats option;
+  (* Reason why resolution failed, empty if resolution succeeded *)
+  ?unresolved_reason: unresolved_reason option;
   (* Errors encountered during subproject resolution *)
   ~errors: sca_error list
 }

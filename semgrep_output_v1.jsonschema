@@ -35,7 +35,7 @@
     },
     "subprojects": {
       "type": "array",
-      "items": { "$ref": "#/definitions/subproject_stats_public" }
+      "items": { "$ref": "#/definitions/cli_output_subproject_info" }
     }
   },
   "definitions": {
@@ -807,7 +807,7 @@
         },
         "subprojects": {
           "type": "array",
-          "items": { "$ref": "#/definitions/subproject_stats_public" }
+          "items": { "$ref": "#/definitions/cli_output_subproject_info" }
         }
       }
     },
@@ -1423,28 +1423,24 @@
         }
       }
     },
-    "subproject_stats_public": {
+    "cli_output_subproject_info": {
       "type": "object",
-      "required": [
-        "dependency_sources", "resolved_stats", "unresolved_reason"
-      ],
+      "required": [ "dependency_sources", "resolved" ],
       "properties": {
         "dependency_sources": {
           "type": "array",
-          "items": { "$ref": "#/definitions/dependency_source_file" }
+          "items": { "$ref": "#/definitions/fpath" }
         },
+        "resolved": { "type": "boolean" },
+        "unresolved_reason": { "$ref": "#/definitions/unresolved_reason" },
         "resolved_stats": {
           "$ref": "#/definitions/dependency_resolution_stats"
-        },
-        "unresolved_reason": { "$ref": "#/definitions/unresolved_reason" }
+        }
       }
     },
     "subproject_stats": {
       "type": "object",
-      "required": [
-        "subproject_id", "dependency_sources", "resolved_stats",
-        "unresolved_reason"
-      ],
+      "required": [ "subproject_id", "dependency_sources" ],
       "properties": {
         "subproject_id": { "type": "string" },
         "dependency_sources": {
@@ -1735,7 +1731,7 @@
         },
         "subprojects": {
           "type": "array",
-          "items": { "$ref": "#/definitions/subproject_stats_public" }
+          "items": { "$ref": "#/definitions/cli_output_subproject_info" }
         },
         "symbol_analysis": { "$ref": "#/definitions/symbol_analysis" }
       }
