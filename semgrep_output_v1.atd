@@ -1076,9 +1076,10 @@ type cli_output_extra = {
     (* EXPERIMENTAL: since: 1.37.0 *)
     ~skipped_rules: skipped_rule list;
 
-    (* SCA subproject resolution results 
+    (* SCA subproject resolution results. Note: this is only available when
+     * logged in.
      * EXPERIMENTAL: since: 1.123.0 *)
-    ?subprojects: subproject_stats list option;
+    ?subprojects: subproject_stats_public list option;
 }
 
 (*****************************************************************************)
@@ -1768,6 +1769,20 @@ type supply_chain_stats = {
   subprojects_stats: subproject_stats list;
 }
 
+(* This is the public version of subproject_stats, which is used in the CLI
+ * output. It is used to display the subproject stats in the CLI.
+ *)
+type subproject_stats_public = {
+  (* Files used to determine the subproject's dependencies (lockfiles, manifest
+   * files, etc)
+   *)
+  dependency_sources: dependency_source_file list;
+  (* Results of dependency resolution, empty if resolution failed *)
+  resolved_stats: dependency_resolution_stats;
+  (* Reason why resolution failed, empty if resolution succeeded *)
+  unresolved_reason: unresolved_reason;
+}
+
 type subproject_stats = {
   (* The `subproject_id` is derived as a stable hash of the sorted paths of
    * `dependency_source_file`s.  Any change to the set of dependency sources
@@ -1775,14 +1790,7 @@ type subproject_stats = {
    * different dependency sources indicate a different subproject context.
    *)
   subproject_id: string;
-  (* Files used to determine the subproject's dependencies (lockfiles, manifest
-   * files, etc)
-   *)
-  dependency_sources: dependency_source_file list;
-  (* Results of dependency resolution, empty if resolution failed *)
-  ?resolved_stats: dependency_resolution_stats option;
-  (* Reason why resolution failed, empty if resolution succeeded *)
-  ?unresolved_reason: unresolved_reason option;
+  inherit subproject_stats_public;
   (* Errors encountered during subproject resolution *)
   ~errors: sca_error list
 }

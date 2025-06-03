@@ -7458,8 +7458,8 @@ class SubprojectStats:
 
     subproject_id: str
     dependency_sources: List[DependencySourceFile]
-    resolved_stats: Optional[DependencyResolutionStats] = None
-    unresolved_reason: Optional[UnresolvedReason] = None
+    resolved_stats: DependencyResolutionStats
+    unresolved_reason: UnresolvedReason
     errors: List[ScaError] = field(default_factory=lambda: [])
 
     @classmethod
@@ -7468,8 +7468,8 @@ class SubprojectStats:
             return cls(
                 subproject_id=_atd_read_string(x['subproject_id']) if 'subproject_id' in x else _atd_missing_json_field('SubprojectStats', 'subproject_id'),
                 dependency_sources=_atd_read_list(DependencySourceFile.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('SubprojectStats', 'dependency_sources'),
-                resolved_stats=DependencyResolutionStats.from_json(x['resolved_stats']) if 'resolved_stats' in x else None,
-                unresolved_reason=UnresolvedReason.from_json(x['unresolved_reason']) if 'unresolved_reason' in x else None,
+                resolved_stats=DependencyResolutionStats.from_json(x['resolved_stats']) if 'resolved_stats' in x else _atd_missing_json_field('SubprojectStats', 'resolved_stats'),
+                unresolved_reason=UnresolvedReason.from_json(x['unresolved_reason']) if 'unresolved_reason' in x else _atd_missing_json_field('SubprojectStats', 'unresolved_reason'),
                 errors=_atd_read_list(ScaError.from_json)(x['errors']) if 'errors' in x else [],
             )
         else:
@@ -7479,10 +7479,8 @@ class SubprojectStats:
         res: Dict[str, Any] = {}
         res['subproject_id'] = _atd_write_string(self.subproject_id)
         res['dependency_sources'] = _atd_write_list((lambda x: x.to_json()))(self.dependency_sources)
-        if self.resolved_stats is not None:
-            res['resolved_stats'] = (lambda x: x.to_json())(self.resolved_stats)
-        if self.unresolved_reason is not None:
-            res['unresolved_reason'] = (lambda x: x.to_json())(self.unresolved_reason)
+        res['resolved_stats'] = (lambda x: x.to_json())(self.resolved_stats)
+        res['unresolved_reason'] = (lambda x: x.to_json())(self.unresolved_reason)
         res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
         return res
 
@@ -7516,6 +7514,40 @@ class SupplyChainStats:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'SupplyChainStats':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class SubprojectStatsPublic:
+    """Original type: subproject_stats_public = { ... }"""
+
+    dependency_sources: List[DependencySourceFile]
+    resolved_stats: DependencyResolutionStats
+    unresolved_reason: UnresolvedReason
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SubprojectStatsPublic':
+        if isinstance(x, dict):
+            return cls(
+                dependency_sources=_atd_read_list(DependencySourceFile.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('SubprojectStatsPublic', 'dependency_sources'),
+                resolved_stats=DependencyResolutionStats.from_json(x['resolved_stats']) if 'resolved_stats' in x else _atd_missing_json_field('SubprojectStatsPublic', 'resolved_stats'),
+                unresolved_reason=UnresolvedReason.from_json(x['unresolved_reason']) if 'unresolved_reason' in x else _atd_missing_json_field('SubprojectStatsPublic', 'unresolved_reason'),
+            )
+        else:
+            _atd_bad_json('SubprojectStatsPublic', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['dependency_sources'] = _atd_write_list((lambda x: x.to_json()))(self.dependency_sources)
+        res['resolved_stats'] = (lambda x: x.to_json())(self.resolved_stats)
+        res['unresolved_reason'] = (lambda x: x.to_json())(self.unresolved_reason)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SubprojectStatsPublic':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -9982,7 +10014,7 @@ class CliOutput:
     engine_requested: Optional[EngineKind] = None
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
-    subprojects: Optional[List[SubprojectStats]] = None
+    subprojects: Optional[List[SubprojectStatsPublic]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutput':
@@ -9998,7 +10030,7 @@ class CliOutput:
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
-                subprojects=_atd_read_list(SubprojectStats.from_json)(x['subprojects']) if 'subprojects' in x else None,
+                subprojects=_atd_read_list(SubprojectStatsPublic.from_json)(x['subprojects']) if 'subprojects' in x else None,
             )
         else:
             _atd_bad_json('CliOutput', x)
@@ -10551,7 +10583,7 @@ class CoreOutput:
     engine_requested: Optional[EngineKind] = None
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
-    subprojects: Optional[List[SubprojectStats]] = None
+    subprojects: Optional[List[SubprojectStatsPublic]] = None
     symbol_analysis: Optional[SymbolAnalysis] = None
 
     @classmethod
@@ -10568,7 +10600,7 @@ class CoreOutput:
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
-                subprojects=_atd_read_list(SubprojectStats.from_json)(x['subprojects']) if 'subprojects' in x else None,
+                subprojects=_atd_read_list(SubprojectStatsPublic.from_json)(x['subprojects']) if 'subprojects' in x else None,
                 symbol_analysis=SymbolAnalysis.from_json(x['symbol_analysis']) if 'symbol_analysis' in x else None,
             )
         else:
@@ -10616,7 +10648,7 @@ class CliOutputExtra:
     engine_requested: Optional[EngineKind] = None
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
-    subprojects: Optional[List[SubprojectStats]] = None
+    subprojects: Optional[List[SubprojectStatsPublic]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutputExtra':
@@ -10629,7 +10661,7 @@ class CliOutputExtra:
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
-                subprojects=_atd_read_list(SubprojectStats.from_json)(x['subprojects']) if 'subprojects' in x else None,
+                subprojects=_atd_read_list(SubprojectStatsPublic.from_json)(x['subprojects']) if 'subprojects' in x else None,
             )
         else:
             _atd_bad_json('CliOutputExtra', x)
