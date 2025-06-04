@@ -5,3 +5,4 @@
       See https://atd.readthedocs.io/en/latest/atdgen-tutorial.html#smooth-protocol-upgrades
 	  Note that the types related to the semgrep-core JSON output or the
 	  semgrep-core RPC do not need to be backward compatible!
+- [ ] Any accompanying changes in `semgrep-proprietary` are approved and ready to merge once this PR is merged
