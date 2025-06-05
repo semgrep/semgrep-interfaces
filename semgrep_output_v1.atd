@@ -75,7 +75,9 @@
  *)
 
 (* escape hatch *)
-type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
+type raw_json
+  <ocaml module="JSON.Yojson" t="t">
+  <ocaml attr="deriving eq, ord, show"> = abstract
 
 (*****************************************************************************)
 (* String aliases *)
@@ -86,18 +88,26 @@ type raw_json <ocaml module="Yojson.Basic" t="t"> = abstract
  * See libs/commons/ATD_string_wrap.ml for more info on those ATD_string_wrap.
  *)
 type fpath
-     <ocaml attr="deriving show, eq">
+     <ocaml attr="deriving eq, ord, show">
      <python decorator="dataclass(frozen=True, order=True)"> =
    string wrap <ocaml module="ATD_string_wrap.Fpath">
 
-type uri = string wrap <ocaml module="ATD_string_wrap.Uri">
+type uri
+  <ocaml attr="deriving ord"> =
+  string wrap <ocaml module="ATD_string_wrap.Uri">
 
-type sha1 = string wrap <ocaml module="ATD_string_wrap.Sha1">
+type sha1
+  <ocaml attr="deriving ord"> =
+  string wrap <ocaml module="ATD_string_wrap.Sha1">
 
-type uuid = string wrap <ocaml module="ATD_string_wrap.Uuidm">
+type uuid
+  <ocaml attr="deriving ord"> =
+  string wrap <ocaml module="ATD_string_wrap.Uuidm">
 
 (* RFC 3339 format *)
-type datetime = string wrap <ocaml module="ATD_string_wrap.Datetime">
+type datetime
+  <ocaml attr="deriving ord"> =
+  string wrap <ocaml module="ATD_string_wrap.Datetime">
 
 type glob = string
 
@@ -111,7 +121,7 @@ type version <ocaml attr="deriving show"> = string (* e.g., "1.1.0" *)
 (*****************************************************************************)
 (* Note that there is no filename here like in 'location' below *)
 type position
-    <ocaml attr="deriving show">
+    <ocaml attr="deriving ord, show">
     <python decorator="dataclass(frozen=True, order=True)"> =
 {
   line: int; (* starts from 1 *)
@@ -128,7 +138,7 @@ type position
 
 (* a.k.a range *)
 type location
-     <ocaml attr="deriving show">
+     <ocaml attr="deriving ord, show">
      <python decorator="dataclass(frozen=True)"> =
 {
   path: fpath;
@@ -142,7 +152,7 @@ type location
 
 (* e.g., "javascript.security.do-not-use-eval" *)
 type rule_id
-     <ocaml attr="deriving show, eq">
+     <ocaml attr="deriving show, eq, ord">
      <python decorator="dataclass(frozen=True)"> =
   string wrap <ocaml module="Rule_ID">
 
@@ -160,7 +170,7 @@ type rule_id
    coupling: with 'severity' in 'rule_schema_v2.atd'
 *)
 type match_severity
-    <ocaml attr="deriving show, eq">
+    <ocaml attr="deriving eq, ord, show">
     <python decorator="dataclass(frozen=True)"> =
 [
   | Error <json name="ERROR">
@@ -206,7 +216,7 @@ type error_severity
    Interfile_taint = requires interfile taint
    Other_pro_feature = requires some non-taint pro feature *)
 type pro_feature
-    <ocaml attr="deriving show">
+    <ocaml attr="deriving ord, show">
     <python decorator="dataclass(frozen=True)"> =
 {
   interproc_taint: bool;
@@ -228,7 +238,7 @@ type pro_feature
    we're leaving them as is
 *)
 type engine_of_finding
-   <ocaml attr="deriving show">
+   <ocaml attr="deriving ord, show">
    <python decorator="dataclass(frozen=True)"> =
 [
   | OSS
@@ -238,7 +248,7 @@ type engine_of_finding
 ]
 
 type engine_kind
-   <ocaml attr="deriving show">
+   <ocaml attr="deriving ord, show">
    <python decorator="dataclass(frozen=True)"> =
 [
   | OSS
@@ -249,7 +259,7 @@ type rule_id_and_engine_kind <python decorator="dataclass(frozen=True)"> =
   (rule_id * engine_kind)
 
 type product
-    <ocaml attr="deriving show, eq">
+    <ocaml attr="deriving eq, ord, show">
     <python decorator="dataclass(frozen=True)"> =
 [
   | SAST (* a.k.a. Code *) <json name="sast">
@@ -324,15 +334,20 @@ type cli_match_extra = {
 (* Name/value map of the matched metavariables.
  * The leading '$' must be included in the metavariable name.
 *)
-type metavars = (string * metavar_value) list
-  <json repr="object"> <python repr="dict"> <ts repr="map">
+type metavars <ocaml attr="deriving ord"> =
+  (string * metavar_value) list
+    <json repr="object">
+    <python repr="dict">
+    <ts repr="map">
 
 (* TODO: should just inherit location. Maybe it was optimized to not contain
  * the filename, which might be redundant with the information in core_match,
  * but with deep-semgrep a metavar could also refer to code in another file,
  * so simpler to generalize and 'inherit location'.
  *)
-type metavar_value <python decorator="dataclass(frozen=True)"> = {
+type metavar_value
+  <ocaml attr="deriving ord">
+  <python decorator="dataclass(frozen=True)"> = {
   (* for certain metavariable like $...ARGS, 'end' may be equal to 'start'
    * to represent an empty metavariable value. The rest of the Python
    * code (message metavariable substitution and autofix) works
@@ -344,7 +359,9 @@ type metavar_value <python decorator="dataclass(frozen=True)"> = {
   ?propagated_value: svalue_value option;
 }
 
-type svalue_value <python decorator="dataclass(frozen=True)"> = {
+type svalue_value
+  <ocaml attr="deriving ord">
+  <python decorator="dataclass(frozen=True)"> = {
   ?svalue_start: position option;
   ?svalue_end: position option;
   svalue_abstract_content: string; (* value? *)
@@ -451,7 +468,9 @@ type matching_operation
  *  taint_sink = CliCall("bar()" @l9, ["v"], CliLoc "sink(v) @l5")
  *)
 
-type match_dataflow_trace <python decorator="dataclass(frozen=True)"> = {
+type match_dataflow_trace
+  <ocaml attr="deriving ord">
+  <python decorator="dataclass(frozen=True)"> = {
   ?taint_source: match_call_trace option;
   (* Intermediate variables which are involved in the dataflow. This
    * explains how the taint flows from the source to the sink. *)
@@ -466,9 +485,11 @@ type match_dataflow_trace <python decorator="dataclass(frozen=True)"> = {
  * maybe this saves some effort to the user of this type which do not
  * need to read the file to get the content.
  *)
-type loc_and_content = (location * string)
+type loc_and_content <ocaml attr="deriving ord"> = (location * string)
 
-type match_call_trace <python decorator="dataclass(frozen=True, order=True)"> =
+type match_call_trace
+  <ocaml attr="deriving ord">
+  <python decorator="dataclass(frozen=True, order=True)"> =
 [
   | CliLoc of loc_and_content
   | CliCall of (loc_and_content * match_intermediate_var list * match_call_trace)
@@ -478,7 +499,9 @@ type match_call_trace <python decorator="dataclass(frozen=True, order=True)"> =
 (* This type happens to be mostly the same as a loc_and_content for now, but
  * it's split out because Iago has plans to extend this with more information
 *)
-type match_intermediate_var <python decorator="dataclass(frozen=True)"> = {
+type match_intermediate_var
+  <ocaml attr="deriving ord">
+  <python decorator="dataclass(frozen=True)"> = {
   location: location;
   (* Unlike abstract_content, this is the actual text read from the
    * corresponding source file *)
@@ -499,7 +522,7 @@ type match_intermediate_var <python decorator="dataclass(frozen=True)"> = {
  *)
 type ecosystem
     <python decorator="dataclass(frozen=True)">
-    <ocaml attr="deriving show,eq"> =
+    <ocaml attr="deriving eq, ord, show"> =
 [
   | Npm <json name="npm">
   | Pypi  <json name="pypi">
@@ -520,7 +543,7 @@ type ecosystem
 
 type dependency_kind
     <python decorator="dataclass(frozen=True)">
-    <ocaml attr="deriving show,eq"> =
+    <ocaml attr="deriving ord, eq, show"> =
 [
   (* we depend directly on the 3rd-party library mentioned in the lockfile
    * (e.g., use of log4j library and concrete calls to log4j in 1st-party code).
@@ -561,7 +584,7 @@ type sca_match = {
  * TODO? have a Direct of xxx and Transitive of sca_transitive_match_kind?
  * better so can be reused in other types such as tr_cache_result?
 *)
-type sca_match_kind = [
+type sca_match_kind <ocaml attr="deriving ord"> = [
   (* This is used for "parity" or "upgrade-only" rules. transitivity
    * indicates whether the match is for a direct or transitive usage of
    * the dependency; for a dependency that is both direct and transitive
@@ -621,7 +644,7 @@ type transitive_reachable = {
   explanation: string option;
 }
 
-type transitive_unreachable = {
+type transitive_unreachable <ocaml attr="deriving ord"> = {
   (* We didn't find any findings in all the 3rd party libraries that are using
    * the 3rd party vulnerable library. This is a "proof of work".
    *)
@@ -630,24 +653,24 @@ type transitive_unreachable = {
   explanation: string option;
 }
 
-type transitive_undetermined = {
+type transitive_undetermined <ocaml attr="deriving ord"> = {
   explanation: string option;
 }
 
-type dependency_match = {
+type dependency_match <ocaml attr="deriving ord"> = {
   dependency_pattern: sca_pattern;
   found_dependency: found_dependency;
   lockfile: fpath;
 }
 
-type sca_pattern = {
+type sca_pattern <ocaml attr="deriving ord"> = {
   ecosystem: ecosystem;
   package: string;
   semver_range: string;
 }
 
 (* alt: sca_dependency? *)
-type found_dependency = {
+type found_dependency <ocaml attr="deriving ord"> = {
   package: string;
   version: string;
   ecosystem: ecosystem;
@@ -683,7 +706,9 @@ type found_dependency = {
   ?git_ref: string option;
 }
 
-type dependency_child <python decorator="dataclass(frozen=True)"> = {
+type dependency_child
+  <ocaml attr="deriving ord">
+  <python decorator="dataclass(frozen=True)"> = {
   package: string;
   version: string;
 }
@@ -700,7 +725,7 @@ type dependency_child <python decorator="dataclass(frozen=True)"> = {
  * TODO: use <ocaml repr="classic">
 *)
 type validation_state
-    <ocaml attr="deriving show, eq">
+    <ocaml attr="deriving eq, ord, show">
     <python decorator="dataclass(frozen=True)"> =
 [
   | Confirmed_valid <json name="CONFIRMED_VALID">
@@ -710,7 +735,7 @@ type validation_state
 ]
 
 (* part of cli_match_extra *)
-type historical_info = {
+type historical_info <ocaml attr="deriving ord"> = {
   (* Git commit at which the finding is present. Used by "historical" scans,
    * which scan non-HEAD commits in the git history. Relevant for finding, e.g.,
    * secrets which are buried in the git history which we wouldn't find at HEAD

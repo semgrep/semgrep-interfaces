@@ -1,25 +1,26 @@
 (* Auto-generated from "semgrep_output_v1.atd" *)
 [@@@ocaml.warning "-27-32-33-35-39"]
 
-type datetime = Semgrep_output_v1_t.datetime
+type datetime = Semgrep_output_v1_t.datetime [@@deriving ord]
 
 type dependency_child = Semgrep_output_v1_t.dependency_child = {
   package: string;
   version: string
 }
+  [@@deriving ord]
 
 type dependency_kind = Semgrep_output_v1_t.dependency_kind = 
     Direct | Transitive | Unknown
 
-  [@@deriving show,eq]
+  [@@deriving ord, eq, show]
 
 type ecosystem = Semgrep_output_v1_t.ecosystem = 
     Npm | Pypi | Gem | Gomod | Cargo | Maven | Composer | Nuget | Pub
   | SwiftPM | Cocoapods | Mix | Hex | Opam
 
-  [@@deriving show,eq]
+  [@@deriving eq, ord, show]
 
-type fpath = Semgrep_output_v1_t.fpath [@@deriving show, eq]
+type fpath = Semgrep_output_v1_t.fpath [@@deriving eq, ord, show]
 
 type found_dependency = Semgrep_output_v1_t.found_dependency = {
   package: string;
@@ -34,6 +35,7 @@ type found_dependency = Semgrep_output_v1_t.found_dependency = {
   children: dependency_child list option;
   git_ref: string option
 }
+  [@@deriving ord]
 
 type lockfile_kind = Semgrep_output_v1_t.lockfile_kind = 
     PipRequirementsTxt | PoetryLock | PipfileLock | UvLock
@@ -65,7 +67,7 @@ type manifest = Semgrep_output_v1_t.manifest = {
   [@@deriving show, eq]
 
 type match_severity = Semgrep_output_v1_t.match_severity
-  [@@deriving show, eq]
+  [@@deriving eq, ord, show]
 
 type matching_operation = Semgrep_output_v1_t.matching_operation = 
     And
@@ -89,61 +91,66 @@ type position = Semgrep_output_v1_t.position = {
   col: int;
   offset: int
 }
-  [@@deriving show]
+  [@@deriving ord, show]
 
 type location = Semgrep_output_v1_t.location = {
   path: fpath;
   start: position;
   end_ (*atd end *): position
 }
-  [@@deriving show]
+  [@@deriving ord, show]
 
-type loc_and_content = Semgrep_output_v1_t.loc_and_content
+type loc_and_content = Semgrep_output_v1_t.loc_and_content [@@deriving ord]
 
 type match_intermediate_var = Semgrep_output_v1_t.match_intermediate_var = {
   location: location;
   content: string
 }
+  [@@deriving ord]
 
 type pro_feature = Semgrep_output_v1_t.pro_feature = {
   interproc_taint: bool;
   interfile_taint: bool;
   proprietary_language: bool
 }
-  [@@deriving show]
+  [@@deriving ord, show]
 
 type engine_of_finding = Semgrep_output_v1_t.engine_of_finding
-  [@@deriving show]
+  [@@deriving ord, show]
 
-type raw_json = Yojson.Basic.t
+type raw_json = JSON.Yojson.t [@@deriving eq, ord, show]
 
-type rule_id = Semgrep_output_v1_t.rule_id [@@deriving show, eq]
+type rule_id = Semgrep_output_v1_t.rule_id [@@deriving show, eq, ord]
 
 type sca_pattern = Semgrep_output_v1_t.sca_pattern = {
   ecosystem: ecosystem;
   package: string;
   semver_range: string
 }
+  [@@deriving ord]
 
 type dependency_match = Semgrep_output_v1_t.dependency_match = {
   dependency_pattern: sca_pattern;
   found_dependency: found_dependency;
   lockfile: fpath
 }
+  [@@deriving ord]
 
-type sha1 = Semgrep_output_v1_t.sha1
+type sha1 = Semgrep_output_v1_t.sha1 [@@deriving ord]
 
 type historical_info = Semgrep_output_v1_t.historical_info = {
   git_commit: sha1;
   git_blob: sha1 option;
   git_commit_timestamp: datetime
 }
+  [@@deriving ord]
 
 type svalue_value = Semgrep_output_v1_t.svalue_value = {
   svalue_start: position option;
   svalue_end: position option;
   svalue_abstract_content: string
 }
+  [@@deriving ord]
 
 type metavar_value = Semgrep_output_v1_t.metavar_value = {
   start: position;
@@ -151,20 +158,23 @@ type metavar_value = Semgrep_output_v1_t.metavar_value = {
   abstract_content: string;
   propagated_value: svalue_value option
 }
+  [@@deriving ord]
 
-type metavars = Semgrep_output_v1_t.metavars
+type metavars = Semgrep_output_v1_t.metavars [@@deriving ord]
 
 type transitive_undetermined = Semgrep_output_v1_t.transitive_undetermined = {
   explanation: string option
 }
+  [@@deriving ord]
 
 type transitive_unreachable = Semgrep_output_v1_t.transitive_unreachable = {
   analyzed_packages: found_dependency list;
   explanation: string option
 }
+  [@@deriving ord]
 
 type validation_state = Semgrep_output_v1_t.validation_state
-  [@@deriving show, eq]
+  [@@deriving eq, ord, show]
 
 type dependency_source = Semgrep_output_v1_t.dependency_source = 
     ManifestOnly of manifest
@@ -179,12 +189,14 @@ type match_call_trace = Semgrep_output_v1_t.match_call_trace =
   | CliCall
       of (loc_and_content * match_intermediate_var list * match_call_trace)
 
+  [@@deriving ord]
 
 type match_dataflow_trace = Semgrep_output_v1_t.match_dataflow_trace = {
   taint_source: match_call_trace option;
   intermediate_vars: match_intermediate_var list option;
   taint_sink: match_call_trace option
 }
+  [@@deriving ord]
 
 type cli_match = Semgrep_output_v1_t.cli_match = {
   check_id: rule_id;
@@ -227,6 +239,7 @@ and sca_match_kind = Semgrep_output_v1_t.sca_match_kind =
   | TransitiveUnreachable of transitive_unreachable
   | TransitiveUndetermined of transitive_undetermined
 
+  [@@deriving ord]
 
 and transitive_reachable = Semgrep_output_v1_t.transitive_reachable = {
   matches: (found_dependency * cli_match list) list;
@@ -273,9 +286,9 @@ type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
 
 type version = Semgrep_output_v1_t.version [@@deriving show]
 
-type uuid = Semgrep_output_v1_t.uuid
+type uuid = Semgrep_output_v1_t.uuid [@@deriving ord]
 
-type uri = Semgrep_output_v1_t.uri
+type uri = Semgrep_output_v1_t.uri [@@deriving ord]
 
 type unresolved_reason = Semgrep_output_v1_t.unresolved_reason = 
     UnresolvedFailed | UnresolvedSkipped | UnresolvedUnsupported
@@ -475,7 +488,7 @@ type targeting_conf = Semgrep_output_v1_t.targeting_conf = {
 }
   [@@deriving show]
 
-type product = Semgrep_output_v1_t.product [@@deriving show, eq]
+type product = Semgrep_output_v1_t.product [@@deriving eq, ord, show]
 
 type analyzer = Semgrep_output_v1_t.analyzer [@@deriving show]
 
@@ -779,7 +792,7 @@ type sarif_format = Semgrep_output_v1_t.sarif_format = {
   show_dataflow_traces: bool
 }
 
-type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving show]
+type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving ord, show]
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
 
