@@ -9969,6 +9969,45 @@ class DumpRulePartitionsParams:
 
 
 @dataclass
+class CliOutputSubprojectInfo:
+    """Original type: cli_output_subproject_info = { ... }"""
+
+    dependency_sources: List[Fpath]
+    resolved: bool
+    unresolved_reason: Optional[UnresolvedReason] = None
+    resolved_stats: Optional[DependencyResolutionStats] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CliOutputSubprojectInfo':
+        if isinstance(x, dict):
+            return cls(
+                dependency_sources=_atd_read_list(Fpath.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('CliOutputSubprojectInfo', 'dependency_sources'),
+                resolved=_atd_read_bool(x['resolved']) if 'resolved' in x else _atd_missing_json_field('CliOutputSubprojectInfo', 'resolved'),
+                unresolved_reason=UnresolvedReason.from_json(x['unresolved_reason']) if 'unresolved_reason' in x else None,
+                resolved_stats=DependencyResolutionStats.from_json(x['resolved_stats']) if 'resolved_stats' in x else None,
+            )
+        else:
+            _atd_bad_json('CliOutputSubprojectInfo', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['dependency_sources'] = _atd_write_list((lambda x: x.to_json()))(self.dependency_sources)
+        res['resolved'] = _atd_write_bool(self.resolved)
+        if self.unresolved_reason is not None:
+            res['unresolved_reason'] = (lambda x: x.to_json())(self.unresolved_reason)
+        if self.resolved_stats is not None:
+            res['resolved_stats'] = (lambda x: x.to_json())(self.resolved_stats)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CliOutputSubprojectInfo':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class CliOutput:
     """Original type: cli_output = { ... }"""
 
@@ -9982,6 +10021,7 @@ class CliOutput:
     engine_requested: Optional[EngineKind] = None
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
+    subprojects: Optional[List[CliOutputSubprojectInfo]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutput':
@@ -9997,6 +10037,7 @@ class CliOutput:
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
+                subprojects=_atd_read_list(CliOutputSubprojectInfo.from_json)(x['subprojects']) if 'subprojects' in x else None,
             )
         else:
             _atd_bad_json('CliOutput', x)
@@ -10019,6 +10060,8 @@ class CliOutput:
         if self.interfile_languages_used is not None:
             res['interfile_languages_used'] = _atd_write_list(_atd_write_string)(self.interfile_languages_used)
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
+        if self.subprojects is not None:
+            res['subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects)
         return res
 
     @classmethod
@@ -10547,6 +10590,7 @@ class CoreOutput:
     engine_requested: Optional[EngineKind] = None
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
+    subprojects: Optional[List[CliOutputSubprojectInfo]] = None
     symbol_analysis: Optional[SymbolAnalysis] = None
 
     @classmethod
@@ -10563,6 +10607,7 @@ class CoreOutput:
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
+                subprojects=_atd_read_list(CliOutputSubprojectInfo.from_json)(x['subprojects']) if 'subprojects' in x else None,
                 symbol_analysis=SymbolAnalysis.from_json(x['symbol_analysis']) if 'symbol_analysis' in x else None,
             )
         else:
@@ -10585,6 +10630,8 @@ class CoreOutput:
         if self.interfile_languages_used is not None:
             res['interfile_languages_used'] = _atd_write_list(_atd_write_string)(self.interfile_languages_used)
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
+        if self.subprojects is not None:
+            res['subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects)
         if self.symbol_analysis is not None:
             res['symbol_analysis'] = (lambda x: x.to_json())(self.symbol_analysis)
         return res
@@ -10608,6 +10655,7 @@ class CliOutputExtra:
     engine_requested: Optional[EngineKind] = None
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
+    subprojects: Optional[List[CliOutputSubprojectInfo]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutputExtra':
@@ -10620,6 +10668,7 @@ class CliOutputExtra:
                 engine_requested=EngineKind.from_json(x['engine_requested']) if 'engine_requested' in x else None,
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
+                subprojects=_atd_read_list(CliOutputSubprojectInfo.from_json)(x['subprojects']) if 'subprojects' in x else None,
             )
         else:
             _atd_bad_json('CliOutputExtra', x)
@@ -10638,6 +10687,8 @@ class CliOutputExtra:
         if self.interfile_languages_used is not None:
             res['interfile_languages_used'] = _atd_write_list(_atd_write_string)(self.interfile_languages_used)
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
+        if self.subprojects is not None:
+            res['subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects)
         return res
 
     @classmethod
