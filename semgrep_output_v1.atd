@@ -1075,6 +1075,11 @@ type cli_output_extra = {
 
     (* EXPERIMENTAL: since: 1.37.0 *)
     ~skipped_rules: skipped_rule list;
+
+    (* SCA subproject resolution results. Note: this is only available when
+     * logged in.
+     * EXPERIMENTAL: since: 1.125.0 *)
+    ?subprojects: cli_output_subproject_info list option;
 }
 
 (*****************************************************************************)
@@ -1762,6 +1767,22 @@ type sca_parser_name <ocaml attr="deriving show"> = [
 
 type supply_chain_stats = {
   subprojects_stats: subproject_stats list;
+}
+
+(* This is the public version of subproject_stats, which is used in the CLI
+ * output. This is distinguised from subproject_stats below in order to produce
+ * more normal-looking JSON and to avoid including unnecessary fields. *)
+type cli_output_subproject_info = {
+  (* We use fpath here rather than the dependency_source_file
+   * type because ATD makes strange-looking JSON output for the
+   * dependency_source_file type.  *)
+  dependency_sources: fpath list;
+  (* true if the subproject's dependencies were resolved successfully *)
+  resolved: bool;
+  (* Reason why resolution failed, empty if resolution succeeded *)
+  ?unresolved_reason: unresolved_reason option;
+  (* Results of dependency resolution, empty if resolution failed *)
+  ?resolved_stats: dependency_resolution_stats option;
 }
 
 type subproject_stats = {
