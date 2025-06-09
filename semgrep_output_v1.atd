@@ -1288,6 +1288,8 @@ type features = {
       See https://www.notion.so/semgrep/Semgrep-Code-Reconnaissance-Toolbox-18a3009241a880f2a439eed6b2cffe66?pvs=4
     *)
    ~symbol_analysis: bool;
+   (* Whether to enable transitive reachability analysis for SCA findings *)
+   ~transitive_reachability_enabled: bool;
 }
 
 type triage_ignored = {

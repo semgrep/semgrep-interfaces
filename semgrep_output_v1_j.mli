@@ -682,6 +682,7 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   path_to_transitivity: bool;
   scan_all_deps_in_diff_scan: bool;
   symbol_analysis: bool;
+  transitive_reachability_enabled: bool;
   ignored_files: string list;
   product_ignored_files: product_ignored_files option;
   generic_slow_rollout: bool;
@@ -755,7 +756,8 @@ type ci_config = Semgrep_output_v1_t.ci_config = {
   dependency_query: bool;
   path_to_transitivity: bool;
   scan_all_deps_in_diff_scan: bool;
-  symbol_analysis: bool
+  symbol_analysis: bool;
+  transitive_reachability_enabled: bool
 }
 
 type action = Semgrep_output_v1_t.action
@@ -778,6 +780,7 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
   path_to_transitivity: bool;
   scan_all_deps_in_diff_scan: bool;
   symbol_analysis: bool;
+  transitive_reachability_enabled: bool;
   triage_ignored_syntactic_ids: string list;
   triage_ignored_match_based_ids: string list;
   ignored_files: string list;
@@ -1018,7 +1021,8 @@ type features = Semgrep_output_v1_t.features = {
   dependency_query: bool;
   path_to_transitivity: bool;
   scan_all_deps_in_diff_scan: bool;
-  symbol_analysis: bool
+  symbol_analysis: bool;
+  transitive_reachability_enabled: bool
 }
 
 type diff_file = Semgrep_output_v1_t.diff_file = {
