@@ -1078,7 +1078,7 @@ type cli_output_extra = {
 
     (* SCA subproject resolution results. Note: this is only available when
      * logged in.
-     * EXPERIMENTAL: since: 1.123.0 *)
+     * EXPERIMENTAL: since: 1.125.0 *)
     ?subprojects: cli_output_subproject_info list option;
 }
 
