@@ -995,7 +995,8 @@
         "dependency_query": { "type": "boolean" },
         "path_to_transitivity": { "type": "boolean" },
         "scan_all_deps_in_diff_scan": { "type": "boolean" },
-        "symbol_analysis": { "type": "boolean" }
+        "symbol_analysis": { "type": "boolean" },
+        "transitive_reachability_enabled": { "type": "boolean" }
       }
     },
     "triage_ignored": {
@@ -1081,6 +1082,7 @@
         "path_to_transitivity": { "type": "boolean" },
         "scan_all_deps_in_diff_scan": { "type": "boolean" },
         "symbol_analysis": { "type": "boolean" },
+        "transitive_reachability_enabled": { "type": "boolean" },
         "ignored_files": { "type": "array", "items": { "type": "string" } },
         "product_ignored_files": {
           "$ref": "#/definitions/product_ignored_files"
@@ -1560,6 +1562,7 @@
         "path_to_transitivity": { "type": "boolean" },
         "scan_all_deps_in_diff_scan": { "type": "boolean" },
         "symbol_analysis": { "type": "boolean" },
+        "transitive_reachability_enabled": { "type": "boolean" },
         "triage_ignored_syntactic_ids": {
           "type": "array",
           "items": { "type": "string" }
@@ -1690,7 +1693,8 @@
         "dependency_query": { "type": "boolean" },
         "path_to_transitivity": { "type": "boolean" },
         "scan_all_deps_in_diff_scan": { "type": "boolean" },
-        "symbol_analysis": { "type": "boolean" }
+        "symbol_analysis": { "type": "boolean" },
+        "transitive_reachability_enabled": { "type": "boolean" }
       }
     },
     "ci_env": {
