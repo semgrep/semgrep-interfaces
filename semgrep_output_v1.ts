@@ -371,9 +371,26 @@ export type Profile = {
   rules: RuleId[];
   rules_parse_time: number;
   profiling_times: Map<string, number>;
+  parsing_time?: ParsingTime;
   targets: TargetTimes[];
   total_bytes: number /*int*/;
   max_memory_bytes?: number /*int*/;
+}
+
+export type FileTime = {
+  fpath: Fpath;
+  ftime: number;
+}
+
+export type SummaryStats = {
+  mean: number;
+  std_dev: number;
+}
+
+export type ParsingTime = {
+  total_time: number;
+  per_file_time: SummaryStats;
+  very_slow_files: FileTime[];
 }
 
 export type TargetTimes = {
@@ -2438,6 +2455,7 @@ export function writeProfile(x: Profile, context: any = x): any {
     'rules': _atd_write_required_field('Profile', 'rules', _atd_write_array(writeRuleId), x.rules, x),
     'rules_parse_time': _atd_write_required_field('Profile', 'rules_parse_time', _atd_write_float, x.rules_parse_time, x),
     'profiling_times': _atd_write_required_field('Profile', 'profiling_times', _atd_write_assoc_map_to_object(_atd_write_float), x.profiling_times, x),
+    'parsing_time': _atd_write_optional_field(writeParsingTime, x.parsing_time, x),
     'targets': _atd_write_required_field('Profile', 'targets', _atd_write_array(writeTargetTimes), x.targets, x),
     'total_bytes': _atd_write_required_field('Profile', 'total_bytes', _atd_write_int, x.total_bytes, x),
     'max_memory_bytes': _atd_write_optional_field(_atd_write_int, x.max_memory_bytes, x),
@@ -2449,9 +2467,54 @@ export function readProfile(x: any, context: any = x): Profile {
     rules: _atd_read_required_field('Profile', 'rules', _atd_read_array(readRuleId), x['rules'], x),
     rules_parse_time: _atd_read_required_field('Profile', 'rules_parse_time', _atd_read_float, x['rules_parse_time'], x),
     profiling_times: _atd_read_required_field('Profile', 'profiling_times', _atd_read_assoc_object_into_map(_atd_read_float), x['profiling_times'], x),
+    parsing_time: _atd_read_optional_field(readParsingTime, x['parsing_time'], x),
     targets: _atd_read_required_field('Profile', 'targets', _atd_read_array(readTargetTimes), x['targets'], x),
     total_bytes: _atd_read_required_field('Profile', 'total_bytes', _atd_read_int, x['total_bytes'], x),
     max_memory_bytes: _atd_read_optional_field(_atd_read_int, x['max_memory_bytes'], x),
+  };
+}
+
+export function writeFileTime(x: FileTime, context: any = x): any {
+  return {
+    'fpath': _atd_write_required_field('FileTime', 'fpath', writeFpath, x.fpath, x),
+    'ftime': _atd_write_required_field('FileTime', 'ftime', _atd_write_float, x.ftime, x),
+  };
+}
+
+export function readFileTime(x: any, context: any = x): FileTime {
+  return {
+    fpath: _atd_read_required_field('FileTime', 'fpath', readFpath, x['fpath'], x),
+    ftime: _atd_read_required_field('FileTime', 'ftime', _atd_read_float, x['ftime'], x),
+  };
+}
+
+export function writeSummaryStats(x: SummaryStats, context: any = x): any {
+  return {
+    'mean': _atd_write_required_field('SummaryStats', 'mean', _atd_write_float, x.mean, x),
+    'std_dev': _atd_write_required_field('SummaryStats', 'std_dev', _atd_write_float, x.std_dev, x),
+  };
+}
+
+export function readSummaryStats(x: any, context: any = x): SummaryStats {
+  return {
+    mean: _atd_read_required_field('SummaryStats', 'mean', _atd_read_float, x['mean'], x),
+    std_dev: _atd_read_required_field('SummaryStats', 'std_dev', _atd_read_float, x['std_dev'], x),
+  };
+}
+
+export function writeParsingTime(x: ParsingTime, context: any = x): any {
+  return {
+    'total_time': _atd_write_required_field('ParsingTime', 'total_time', _atd_write_float, x.total_time, x),
+    'per_file_time': _atd_write_required_field('ParsingTime', 'per_file_time', writeSummaryStats, x.per_file_time, x),
+    'very_slow_files': _atd_write_required_field('ParsingTime', 'very_slow_files', _atd_write_array(writeFileTime), x.very_slow_files, x),
+  };
+}
+
+export function readParsingTime(x: any, context: any = x): ParsingTime {
+  return {
+    total_time: _atd_read_required_field('ParsingTime', 'total_time', _atd_read_float, x['total_time'], x),
+    per_file_time: _atd_read_required_field('ParsingTime', 'per_file_time', readSummaryStats, x['per_file_time'], x),
+    very_slow_files: _atd_read_required_field('ParsingTime', 'very_slow_files', _atd_read_array(readFileTime), x['very_slow_files'], x),
   };
 }
 

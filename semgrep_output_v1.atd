@@ -1003,12 +1003,30 @@ type profile = {
       <python repr="dict">
       <ts repr="map">;
 
+    ?parsing_time : parsing_time option;
+
     targets: target_times list;
     total_bytes: int;
 
     (* maximum amount of memory used by Semgrep(-core) during its execution *)
     ?max_memory_bytes : int option;
   }
+
+type file_time <ocaml attr="deriving show"> = {
+    fpath: fpath;
+    ftime: float;
+}
+
+type summary_stats = {
+    mean: float;
+    std_dev: float;
+}
+
+type parsing_time = {
+    total_time: float;
+    per_file_time: summary_stats;
+    very_slow_files: file_time list; (* ascending order *)
+}
 
 type target_times = {
     path: fpath;
