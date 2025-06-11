@@ -641,6 +641,11 @@ type supply_chain_stats = Semgrep_output_v1_t.supply_chain_stats = {
   subprojects_stats: subproject_stats list
 }
 
+type summary_stats = Semgrep_output_v1_t.summary_stats = {
+  mean: float;
+  std_dev: float
+}
+
 type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
   rule_id: rule_id;
   details: string;
@@ -815,10 +820,23 @@ type resolve_dependencies_params =
 
 type resolution_result = Semgrep_output_v1_t.resolution_result
 
+type file_time = Semgrep_output_v1_t.file_time = {
+  fpath: fpath;
+  ftime: float
+}
+  [@@deriving show]
+
+type parsing_time = Semgrep_output_v1_t.parsing_time = {
+  total_time: float;
+  per_file_time: summary_stats;
+  very_slow_files: file_time list
+}
+
 type profile = Semgrep_output_v1_t.profile = {
   rules: rule_id list;
   rules_parse_time: float;
   profiling_times: (string * float) list;
+  parsing_time: parsing_time option;
   targets: target_times list;
   total_bytes: int;
   max_memory_bytes: int option
@@ -3249,6 +3267,26 @@ val supply_chain_stats_of_string :
   string -> supply_chain_stats
   (** Deserialize JSON data of type {!type:supply_chain_stats}. *)
 
+val write_summary_stats :
+  Buffer.t -> summary_stats -> unit
+  (** Output a JSON value of type {!type:summary_stats}. *)
+
+val string_of_summary_stats :
+  ?len:int -> summary_stats -> string
+  (** Serialize a value of type {!type:summary_stats}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_summary_stats :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> summary_stats
+  (** Input JSON data of type {!type:summary_stats}. *)
+
+val summary_stats_of_string :
+  string -> summary_stats
+  (** Deserialize JSON data of type {!type:summary_stats}. *)
+
 val write_skipped_rule :
   Buffer.t -> skipped_rule -> unit
   (** Output a JSON value of type {!type:skipped_rule}. *)
@@ -3728,6 +3766,46 @@ val read_resolution_result :
 val resolution_result_of_string :
   string -> resolution_result
   (** Deserialize JSON data of type {!type:resolution_result}. *)
+
+val write_file_time :
+  Buffer.t -> file_time -> unit
+  (** Output a JSON value of type {!type:file_time}. *)
+
+val string_of_file_time :
+  ?len:int -> file_time -> string
+  (** Serialize a value of type {!type:file_time}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_file_time :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> file_time
+  (** Input JSON data of type {!type:file_time}. *)
+
+val file_time_of_string :
+  string -> file_time
+  (** Deserialize JSON data of type {!type:file_time}. *)
+
+val write_parsing_time :
+  Buffer.t -> parsing_time -> unit
+  (** Output a JSON value of type {!type:parsing_time}. *)
+
+val string_of_parsing_time :
+  ?len:int -> parsing_time -> string
+  (** Serialize a value of type {!type:parsing_time}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_parsing_time :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> parsing_time
+  (** Input JSON data of type {!type:parsing_time}. *)
+
+val parsing_time_of_string :
+  string -> parsing_time
+  (** Deserialize JSON data of type {!type:parsing_time}. *)
 
 val write_profile :
   Buffer.t -> profile -> unit

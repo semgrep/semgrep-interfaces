@@ -761,12 +761,41 @@
           "type": "object",
           "additionalProperties": { "type": "number" }
         },
+        "parsing_time": { "$ref": "#/definitions/parsing_time" },
         "targets": {
           "type": "array",
           "items": { "$ref": "#/definitions/target_times" }
         },
         "total_bytes": { "type": "integer" },
         "max_memory_bytes": { "type": "integer" }
+      }
+    },
+    "file_time": {
+      "type": "object",
+      "required": [ "fpath", "ftime" ],
+      "properties": {
+        "fpath": { "$ref": "#/definitions/fpath" },
+        "ftime": { "type": "number" }
+      }
+    },
+    "summary_stats": {
+      "type": "object",
+      "required": [ "mean", "std_dev" ],
+      "properties": {
+        "mean": { "type": "number" },
+        "std_dev": { "type": "number" }
+      }
+    },
+    "parsing_time": {
+      "type": "object",
+      "required": [ "total_time", "per_file_time", "very_slow_files" ],
+      "properties": {
+        "total_time": { "type": "number" },
+        "per_file_time": { "$ref": "#/definitions/summary_stats" },
+        "very_slow_files": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/file_time" }
+        }
       }
     },
     "target_times": {

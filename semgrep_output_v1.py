@@ -7523,6 +7523,37 @@ class SupplyChainStats:
 
 
 @dataclass
+class SummaryStats:
+    """Original type: summary_stats = { ... }"""
+
+    mean: float
+    std_dev: float
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SummaryStats':
+        if isinstance(x, dict):
+            return cls(
+                mean=_atd_read_float(x['mean']) if 'mean' in x else _atd_missing_json_field('SummaryStats', 'mean'),
+                std_dev=_atd_read_float(x['std_dev']) if 'std_dev' in x else _atd_missing_json_field('SummaryStats', 'std_dev'),
+            )
+        else:
+            _atd_bad_json('SummaryStats', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['mean'] = _atd_write_float(self.mean)
+        res['std_dev'] = _atd_write_float(self.std_dev)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SummaryStats':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class SkippedRule:
     """Original type: skipped_rule = { ... }"""
 
@@ -8599,6 +8630,71 @@ class ResolutionResult:
 
 
 @dataclass
+class FileTime:
+    """Original type: file_time = { ... }"""
+
+    fpath: Fpath
+    ftime: float
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FileTime':
+        if isinstance(x, dict):
+            return cls(
+                fpath=Fpath.from_json(x['fpath']) if 'fpath' in x else _atd_missing_json_field('FileTime', 'fpath'),
+                ftime=_atd_read_float(x['ftime']) if 'ftime' in x else _atd_missing_json_field('FileTime', 'ftime'),
+            )
+        else:
+            _atd_bad_json('FileTime', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['fpath'] = (lambda x: x.to_json())(self.fpath)
+        res['ftime'] = _atd_write_float(self.ftime)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FileTime':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ParsingTime:
+    """Original type: parsing_time = { ... }"""
+
+    total_time: float
+    per_file_time: SummaryStats
+    very_slow_files: List[FileTime]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ParsingTime':
+        if isinstance(x, dict):
+            return cls(
+                total_time=_atd_read_float(x['total_time']) if 'total_time' in x else _atd_missing_json_field('ParsingTime', 'total_time'),
+                per_file_time=SummaryStats.from_json(x['per_file_time']) if 'per_file_time' in x else _atd_missing_json_field('ParsingTime', 'per_file_time'),
+                very_slow_files=_atd_read_list(FileTime.from_json)(x['very_slow_files']) if 'very_slow_files' in x else _atd_missing_json_field('ParsingTime', 'very_slow_files'),
+            )
+        else:
+            _atd_bad_json('ParsingTime', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['total_time'] = _atd_write_float(self.total_time)
+        res['per_file_time'] = (lambda x: x.to_json())(self.per_file_time)
+        res['very_slow_files'] = _atd_write_list((lambda x: x.to_json()))(self.very_slow_files)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ParsingTime':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Profile:
     """Original type: profile = { ... }"""
 
@@ -8607,6 +8703,7 @@ class Profile:
     profiling_times: Dict[str, float]
     targets: List[TargetTimes]
     total_bytes: int
+    parsing_time: Optional[ParsingTime] = None
     max_memory_bytes: Optional[int] = None
 
     @classmethod
@@ -8618,6 +8715,7 @@ class Profile:
                 profiling_times=_atd_read_assoc_object_into_dict(_atd_read_float)(x['profiling_times']) if 'profiling_times' in x else _atd_missing_json_field('Profile', 'profiling_times'),
                 targets=_atd_read_list(TargetTimes.from_json)(x['targets']) if 'targets' in x else _atd_missing_json_field('Profile', 'targets'),
                 total_bytes=_atd_read_int(x['total_bytes']) if 'total_bytes' in x else _atd_missing_json_field('Profile', 'total_bytes'),
+                parsing_time=ParsingTime.from_json(x['parsing_time']) if 'parsing_time' in x else None,
                 max_memory_bytes=_atd_read_int(x['max_memory_bytes']) if 'max_memory_bytes' in x else None,
             )
         else:
@@ -8630,6 +8728,8 @@ class Profile:
         res['profiling_times'] = _atd_write_assoc_dict_to_object(_atd_write_float)(self.profiling_times)
         res['targets'] = _atd_write_list((lambda x: x.to_json()))(self.targets)
         res['total_bytes'] = _atd_write_int(self.total_bytes)
+        if self.parsing_time is not None:
+            res['parsing_time'] = (lambda x: x.to_json())(self.parsing_time)
         if self.max_memory_bytes is not None:
             res['max_memory_bytes'] = _atd_write_int(self.max_memory_bytes)
         return res
