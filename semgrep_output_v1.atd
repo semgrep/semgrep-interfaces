@@ -1371,6 +1371,10 @@ type scan_configuration = {
      * TODO? can we type this better *)
     rules: raw_json; 
     inherit triage_ignored;
+    (* From 1.126.0.
+     * Customers in FIPS environments have specific hash function requirements
+     * that this flag will override.  See SAF-2057 for details. *)
+    ~fips_mode: bool;
 }
 
 (* settings for the cli *)
@@ -2094,6 +2098,7 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
    * --core-opts flag.
    *)
   ?extra_extra: raw_json option;
+  ~fips_mode: bool;
 }
 
 (* See Semgrep_error_code.ml *)

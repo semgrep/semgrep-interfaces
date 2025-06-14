@@ -543,6 +543,7 @@ export type ScanConfiguration = {
   rules: RawJson;
   triage_ignored_syntactic_ids: string[];
   triage_ignored_match_based_ids: string[];
+  fips_mode: boolean;
 }
 
 export type EngineConfiguration = {
@@ -926,6 +927,7 @@ export type CoreMatchExtra = {
   validation_state?: ValidationState;
   historical_info?: HistoricalInfo;
   extra_extra?: RawJson;
+  fips_mode: boolean;
 }
 
 export type CoreError = {
@@ -2981,6 +2983,7 @@ export function writeScanConfiguration(x: ScanConfiguration, context: any = x): 
     'rules': _atd_write_required_field('ScanConfiguration', 'rules', writeRawJson, x.rules, x),
     'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
     'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
+    'fips_mode': _atd_write_field_with_default(_atd_write_bool, false, x.fips_mode, x),
   };
 }
 
@@ -2989,6 +2992,7 @@ export function readScanConfiguration(x: any, context: any = x): ScanConfigurati
     rules: _atd_read_required_field('ScanConfiguration', 'rules', readRawJson, x['rules'], x),
     triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),
     triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
+    fips_mode: _atd_read_field_with_default(_atd_read_bool, false, x['fips_mode'], x),
   };
 }
 
@@ -3992,6 +3996,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
     'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
+    'fips_mode': _atd_write_field_with_default(_atd_write_bool, false, x.fips_mode, x),
   };
 }
 
@@ -4009,6 +4014,7 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
+    fips_mode: _atd_read_field_with_default(_atd_read_bool, false, x['fips_mode'], x),
   };
 }
 
