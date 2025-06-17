@@ -1098,7 +1098,8 @@
         "triage_ignored_match_based_ids": {
           "type": "array",
           "items": { "type": "string" }
-        }
+        },
+        "fips_mode": { "type": "boolean" }
       }
     },
     "engine_configuration": {
@@ -1802,7 +1803,8 @@
         "sca_match": { "$ref": "#/definitions/sca_match" },
         "validation_state": { "$ref": "#/definitions/validation_state" },
         "historical_info": { "$ref": "#/definitions/historical_info" },
-        "extra_extra": { "$ref": "#/definitions/raw_json" }
+        "extra_extra": { "$ref": "#/definitions/raw_json" },
+        "fips_mode": { "type": "boolean" }
       }
     },
     "core_error": {

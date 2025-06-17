@@ -3409,6 +3409,7 @@ class CoreMatchExtra:
     validation_state: Optional[ValidationState] = None
     historical_info: Optional[HistoricalInfo] = None
     extra_extra: Optional[RawJson] = None
+    fips_mode: bool = field(default_factory=lambda: False)
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreMatchExtra':
@@ -3426,6 +3427,7 @@ class CoreMatchExtra:
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
                 historical_info=HistoricalInfo.from_json(x['historical_info']) if 'historical_info' in x else None,
                 extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
+                fips_mode=_atd_read_bool(x['fips_mode']) if 'fips_mode' in x else False,
             )
         else:
             _atd_bad_json('CoreMatchExtra', x)
@@ -3453,6 +3455,7 @@ class CoreMatchExtra:
             res['historical_info'] = (lambda x: x.to_json())(self.historical_info)
         if self.extra_extra is not None:
             res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
+        res['fips_mode'] = _atd_write_bool(self.fips_mode)
         return res
 
     @classmethod
@@ -7664,6 +7667,7 @@ class ScanConfiguration:
     rules: RawJson
     triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
     triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
+    fips_mode: bool = field(default_factory=lambda: False)
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanConfiguration':
@@ -7672,6 +7676,7 @@ class ScanConfiguration:
                 rules=RawJson.from_json(x['rules']) if 'rules' in x else _atd_missing_json_field('ScanConfiguration', 'rules'),
                 triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
                 triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
+                fips_mode=_atd_read_bool(x['fips_mode']) if 'fips_mode' in x else False,
             )
         else:
             _atd_bad_json('ScanConfiguration', x)
@@ -7681,6 +7686,7 @@ class ScanConfiguration:
         res['rules'] = (lambda x: x.to_json())(self.rules)
         res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
         res['triage_ignored_match_based_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_match_based_ids)
+        res['fips_mode'] = _atd_write_bool(self.fips_mode)
         return res
 
     @classmethod
