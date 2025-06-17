@@ -8633,6 +8633,52 @@ class ResolutionResult:
 
 
 @dataclass
+class PrefilteringStats:
+    """Original type: prefiltering_stats = { ... }"""
+
+    project_level_time: float
+    file_level_time: float
+    rules: int
+    rules_with_project_prefilters: int
+    rules_with_file_prefilters: int
+    rules_selected: int
+    rules_matched: int
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'PrefilteringStats':
+        if isinstance(x, dict):
+            return cls(
+                project_level_time=_atd_read_float(x['project_level_time']) if 'project_level_time' in x else _atd_missing_json_field('PrefilteringStats', 'project_level_time'),
+                file_level_time=_atd_read_float(x['file_level_time']) if 'file_level_time' in x else _atd_missing_json_field('PrefilteringStats', 'file_level_time'),
+                rules=_atd_read_int(x['rules']) if 'rules' in x else _atd_missing_json_field('PrefilteringStats', 'rules'),
+                rules_with_project_prefilters=_atd_read_int(x['rules_with_project_prefilters']) if 'rules_with_project_prefilters' in x else _atd_missing_json_field('PrefilteringStats', 'rules_with_project_prefilters'),
+                rules_with_file_prefilters=_atd_read_int(x['rules_with_file_prefilters']) if 'rules_with_file_prefilters' in x else _atd_missing_json_field('PrefilteringStats', 'rules_with_file_prefilters'),
+                rules_selected=_atd_read_int(x['rules_selected']) if 'rules_selected' in x else _atd_missing_json_field('PrefilteringStats', 'rules_selected'),
+                rules_matched=_atd_read_int(x['rules_matched']) if 'rules_matched' in x else _atd_missing_json_field('PrefilteringStats', 'rules_matched'),
+            )
+        else:
+            _atd_bad_json('PrefilteringStats', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['project_level_time'] = _atd_write_float(self.project_level_time)
+        res['file_level_time'] = _atd_write_float(self.file_level_time)
+        res['rules'] = _atd_write_int(self.rules)
+        res['rules_with_project_prefilters'] = _atd_write_int(self.rules_with_project_prefilters)
+        res['rules_with_file_prefilters'] = _atd_write_int(self.rules_with_file_prefilters)
+        res['rules_selected'] = _atd_write_int(self.rules_selected)
+        res['rules_matched'] = _atd_write_int(self.rules_matched)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'PrefilteringStats':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class FileTime:
     """Original type: file_time = { ... }"""
 
@@ -8707,6 +8753,7 @@ class Profile:
     targets: List[TargetTimes]
     total_bytes: int
     parsing_time: Optional[ParsingTime] = None
+    prefiltering: Optional[PrefilteringStats] = None
     max_memory_bytes: Optional[int] = None
 
     @classmethod
@@ -8719,6 +8766,7 @@ class Profile:
                 targets=_atd_read_list(TargetTimes.from_json)(x['targets']) if 'targets' in x else _atd_missing_json_field('Profile', 'targets'),
                 total_bytes=_atd_read_int(x['total_bytes']) if 'total_bytes' in x else _atd_missing_json_field('Profile', 'total_bytes'),
                 parsing_time=ParsingTime.from_json(x['parsing_time']) if 'parsing_time' in x else None,
+                prefiltering=PrefilteringStats.from_json(x['prefiltering']) if 'prefiltering' in x else None,
                 max_memory_bytes=_atd_read_int(x['max_memory_bytes']) if 'max_memory_bytes' in x else None,
             )
         else:
@@ -8733,6 +8781,8 @@ class Profile:
         res['total_bytes'] = _atd_write_int(self.total_bytes)
         if self.parsing_time is not None:
             res['parsing_time'] = (lambda x: x.to_json())(self.parsing_time)
+        if self.prefiltering is not None:
+            res['prefiltering'] = (lambda x: x.to_json())(self.prefiltering)
         if self.max_memory_bytes is not None:
             res['max_memory_bytes'] = _atd_write_int(self.max_memory_bytes)
         return res
