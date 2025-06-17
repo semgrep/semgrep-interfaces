@@ -762,6 +762,7 @@
           "additionalProperties": { "type": "number" }
         },
         "parsing_time": { "$ref": "#/definitions/parsing_time" },
+        "prefiltering": { "$ref": "#/definitions/prefiltering_stats" },
         "targets": {
           "type": "array",
           "items": { "$ref": "#/definitions/target_times" }
@@ -809,6 +810,22 @@
         "match_times": { "type": "array", "items": { "type": "number" } },
         "parse_times": { "type": "array", "items": { "type": "number" } },
         "run_time": { "type": "number" }
+      }
+    },
+    "prefiltering_stats": {
+      "type": "object",
+      "required": [
+        "project_level_time", "file_level_time",
+        "rules_with_project_prefilters", "rules_with_file_prefilters",
+        "rules_selected", "rules_matched"
+      ],
+      "properties": {
+        "project_level_time": { "type": "number" },
+        "file_level_time": { "type": "number" },
+        "rules_with_project_prefilters": { "type": "integer" },
+        "rules_with_file_prefilters": { "type": "integer" },
+        "rules_selected": { "type": "integer" },
+        "rules_matched": { "type": "integer" }
       }
     },
     "cli_output_extra": {

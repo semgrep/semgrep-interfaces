@@ -1004,6 +1004,7 @@ type profile = {
       <ts repr="map">;
 
     ?parsing_time : parsing_time option;
+    ?prefiltering : prefiltering_stats option;
 
     targets: target_times list;
     total_bytes: int;
@@ -1043,6 +1044,15 @@ type target_times = {
     parse_times: float list;
     (* run time for all rules on target *)
     run_time: float;
+}
+
+type prefiltering_stats <ocaml attr="deriving show"> = {
+  project_level_time: float;
+  file_level_time: float;
+  rules_with_project_prefilters: int;
+  rules_with_file_prefilters: int;
+  rules_selected: int;
+  rules_matched: int;
 }
 
 (*****************************************************************************)

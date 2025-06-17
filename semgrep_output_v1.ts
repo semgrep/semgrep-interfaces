@@ -372,6 +372,7 @@ export type Profile = {
   rules_parse_time: number;
   profiling_times: Map<string, number>;
   parsing_time?: ParsingTime;
+  prefiltering?: PrefilteringStats;
   targets: TargetTimes[];
   total_bytes: number /*int*/;
   max_memory_bytes?: number /*int*/;
@@ -399,6 +400,15 @@ export type TargetTimes = {
   match_times: number[];
   parse_times: number[];
   run_time: number;
+}
+
+export type PrefilteringStats = {
+  project_level_time: number;
+  file_level_time: number;
+  rules_with_project_prefilters: number /*int*/;
+  rules_with_file_prefilters: number /*int*/;
+  rules_selected: number /*int*/;
+  rules_matched: number /*int*/;
 }
 
 export type CliOutput = {
@@ -2456,6 +2466,7 @@ export function writeProfile(x: Profile, context: any = x): any {
     'rules_parse_time': _atd_write_required_field('Profile', 'rules_parse_time', _atd_write_float, x.rules_parse_time, x),
     'profiling_times': _atd_write_required_field('Profile', 'profiling_times', _atd_write_assoc_map_to_object(_atd_write_float), x.profiling_times, x),
     'parsing_time': _atd_write_optional_field(writeParsingTime, x.parsing_time, x),
+    'prefiltering': _atd_write_optional_field(writePrefilteringStats, x.prefiltering, x),
     'targets': _atd_write_required_field('Profile', 'targets', _atd_write_array(writeTargetTimes), x.targets, x),
     'total_bytes': _atd_write_required_field('Profile', 'total_bytes', _atd_write_int, x.total_bytes, x),
     'max_memory_bytes': _atd_write_optional_field(_atd_write_int, x.max_memory_bytes, x),
@@ -2468,6 +2479,7 @@ export function readProfile(x: any, context: any = x): Profile {
     rules_parse_time: _atd_read_required_field('Profile', 'rules_parse_time', _atd_read_float, x['rules_parse_time'], x),
     profiling_times: _atd_read_required_field('Profile', 'profiling_times', _atd_read_assoc_object_into_map(_atd_read_float), x['profiling_times'], x),
     parsing_time: _atd_read_optional_field(readParsingTime, x['parsing_time'], x),
+    prefiltering: _atd_read_optional_field(readPrefilteringStats, x['prefiltering'], x),
     targets: _atd_read_required_field('Profile', 'targets', _atd_read_array(readTargetTimes), x['targets'], x),
     total_bytes: _atd_read_required_field('Profile', 'total_bytes', _atd_read_int, x['total_bytes'], x),
     max_memory_bytes: _atd_read_optional_field(_atd_read_int, x['max_memory_bytes'], x),
@@ -2535,6 +2547,28 @@ export function readTargetTimes(x: any, context: any = x): TargetTimes {
     match_times: _atd_read_required_field('TargetTimes', 'match_times', _atd_read_array(_atd_read_float), x['match_times'], x),
     parse_times: _atd_read_required_field('TargetTimes', 'parse_times', _atd_read_array(_atd_read_float), x['parse_times'], x),
     run_time: _atd_read_required_field('TargetTimes', 'run_time', _atd_read_float, x['run_time'], x),
+  };
+}
+
+export function writePrefilteringStats(x: PrefilteringStats, context: any = x): any {
+  return {
+    'project_level_time': _atd_write_required_field('PrefilteringStats', 'project_level_time', _atd_write_float, x.project_level_time, x),
+    'file_level_time': _atd_write_required_field('PrefilteringStats', 'file_level_time', _atd_write_float, x.file_level_time, x),
+    'rules_with_project_prefilters': _atd_write_required_field('PrefilteringStats', 'rules_with_project_prefilters', _atd_write_int, x.rules_with_project_prefilters, x),
+    'rules_with_file_prefilters': _atd_write_required_field('PrefilteringStats', 'rules_with_file_prefilters', _atd_write_int, x.rules_with_file_prefilters, x),
+    'rules_selected': _atd_write_required_field('PrefilteringStats', 'rules_selected', _atd_write_int, x.rules_selected, x),
+    'rules_matched': _atd_write_required_field('PrefilteringStats', 'rules_matched', _atd_write_int, x.rules_matched, x),
+  };
+}
+
+export function readPrefilteringStats(x: any, context: any = x): PrefilteringStats {
+  return {
+    project_level_time: _atd_read_required_field('PrefilteringStats', 'project_level_time', _atd_read_float, x['project_level_time'], x),
+    file_level_time: _atd_read_required_field('PrefilteringStats', 'file_level_time', _atd_read_float, x['file_level_time'], x),
+    rules_with_project_prefilters: _atd_read_required_field('PrefilteringStats', 'rules_with_project_prefilters', _atd_read_int, x['rules_with_project_prefilters'], x),
+    rules_with_file_prefilters: _atd_read_required_field('PrefilteringStats', 'rules_with_file_prefilters', _atd_read_int, x['rules_with_file_prefilters'], x),
+    rules_selected: _atd_read_required_field('PrefilteringStats', 'rules_selected', _atd_read_int, x['rules_selected'], x),
+    rules_matched: _atd_read_required_field('PrefilteringStats', 'rules_matched', _atd_read_int, x['rules_matched'], x),
   };
 }
 
