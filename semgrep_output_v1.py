@@ -8888,6 +8888,49 @@ class ResolutionResult:
 
 
 @dataclass
+class PrefilteringStats:
+    """Original type: prefiltering_stats = { ... }"""
+
+    project_level_time: float
+    file_level_time: float
+    rules_with_project_prefilters_ratio: float
+    rules_with_file_prefilters_ratio: float
+    rules_selected_ratio: float
+    rules_matched_ratio: float
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'PrefilteringStats':
+        if isinstance(x, dict):
+            return cls(
+                project_level_time=_atd_read_float(x['project_level_time']) if 'project_level_time' in x else _atd_missing_json_field('PrefilteringStats', 'project_level_time'),
+                file_level_time=_atd_read_float(x['file_level_time']) if 'file_level_time' in x else _atd_missing_json_field('PrefilteringStats', 'file_level_time'),
+                rules_with_project_prefilters_ratio=_atd_read_float(x['rules_with_project_prefilters_ratio']) if 'rules_with_project_prefilters_ratio' in x else _atd_missing_json_field('PrefilteringStats', 'rules_with_project_prefilters_ratio'),
+                rules_with_file_prefilters_ratio=_atd_read_float(x['rules_with_file_prefilters_ratio']) if 'rules_with_file_prefilters_ratio' in x else _atd_missing_json_field('PrefilteringStats', 'rules_with_file_prefilters_ratio'),
+                rules_selected_ratio=_atd_read_float(x['rules_selected_ratio']) if 'rules_selected_ratio' in x else _atd_missing_json_field('PrefilteringStats', 'rules_selected_ratio'),
+                rules_matched_ratio=_atd_read_float(x['rules_matched_ratio']) if 'rules_matched_ratio' in x else _atd_missing_json_field('PrefilteringStats', 'rules_matched_ratio'),
+            )
+        else:
+            _atd_bad_json('PrefilteringStats', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['project_level_time'] = _atd_write_float(self.project_level_time)
+        res['file_level_time'] = _atd_write_float(self.file_level_time)
+        res['rules_with_project_prefilters_ratio'] = _atd_write_float(self.rules_with_project_prefilters_ratio)
+        res['rules_with_file_prefilters_ratio'] = _atd_write_float(self.rules_with_file_prefilters_ratio)
+        res['rules_selected_ratio'] = _atd_write_float(self.rules_selected_ratio)
+        res['rules_matched_ratio'] = _atd_write_float(self.rules_matched_ratio)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'PrefilteringStats':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class ParsingTime:
     """Original type: parsing_time = { ... }"""
 
@@ -9010,6 +9053,7 @@ class Profile:
     matching_time: Optional[MatchingTime] = None
     tainting_time: Optional[TaintingTime] = None
     fixpoint_timeouts: Optional[List[CoreError]] = None
+    prefiltering: Optional[PrefilteringStats] = None
     max_memory_bytes: Optional[int] = None
 
     @classmethod
@@ -9026,6 +9070,7 @@ class Profile:
                 matching_time=MatchingTime.from_json(x['matching_time']) if 'matching_time' in x else None,
                 tainting_time=TaintingTime.from_json(x['tainting_time']) if 'tainting_time' in x else None,
                 fixpoint_timeouts=_atd_read_list(CoreError.from_json)(x['fixpoint_timeouts']) if 'fixpoint_timeouts' in x else None,
+                prefiltering=PrefilteringStats.from_json(x['prefiltering']) if 'prefiltering' in x else None,
                 max_memory_bytes=_atd_read_int(x['max_memory_bytes']) if 'max_memory_bytes' in x else None,
             )
         else:
@@ -9048,6 +9093,8 @@ class Profile:
             res['tainting_time'] = (lambda x: x.to_json())(self.tainting_time)
         if self.fixpoint_timeouts is not None:
             res['fixpoint_timeouts'] = _atd_write_list((lambda x: x.to_json()))(self.fixpoint_timeouts)
+        if self.prefiltering is not None:
+            res['prefiltering'] = (lambda x: x.to_json())(self.prefiltering)
         if self.max_memory_bytes is not None:
             res['max_memory_bytes'] = _atd_write_int(self.max_memory_bytes)
         return res

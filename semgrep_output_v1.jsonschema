@@ -779,6 +779,7 @@
           "type": "array",
           "items": { "$ref": "#/definitions/core_error" }
         },
+        "prefiltering": { "$ref": "#/definitions/prefiltering_stats" },
         "targets": {
           "type": "array",
           "items": { "$ref": "#/definitions/target_times" }
@@ -901,6 +902,23 @@
         "match_times": { "type": "array", "items": { "type": "number" } },
         "parse_times": { "type": "array", "items": { "type": "number" } },
         "run_time": { "type": "number" }
+      }
+    },
+    "prefiltering_stats": {
+      "type": "object",
+      "required": [
+        "project_level_time", "file_level_time",
+        "rules_with_project_prefilters_ratio",
+        "rules_with_file_prefilters_ratio", "rules_selected_ratio",
+        "rules_matched_ratio"
+      ],
+      "properties": {
+        "project_level_time": { "type": "number" },
+        "file_level_time": { "type": "number" },
+        "rules_with_project_prefilters_ratio": { "type": "number" },
+        "rules_with_file_prefilters_ratio": { "type": "number" },
+        "rules_selected_ratio": { "type": "number" },
+        "rules_matched_ratio": { "type": "number" }
       }
     },
     "cli_output_extra": {
