@@ -1038,9 +1038,15 @@ type summary_stats = {
     std_dev: float;
 }
 
+type very_slow_stats = {
+    time_ratio: float;
+    count_ratio: float;
+}
+
 type parsing_time = {
     total_time: float;
     per_file_time: summary_stats;
+    ?very_slow_stats: very_slow_stats option;
     very_slow_files: file_time list; (* ascending order *)
 }
 
@@ -1048,18 +1054,21 @@ type parsing_time = {
 type scanning_time = {
   total_time : float;
   per_file_time: summary_stats;
+  very_slow_stats: very_slow_stats;
   very_slow_files: file_time list; (* ascending order *)
 }
 
 type matching_time = {
   total_time : float;
   per_file_and_rule_time : summary_stats;
+  very_slow_stats: very_slow_stats;
   very_slow_rules_on_files: file_rule_time list; (* ascending order *)
 }
 
 type tainting_time = {
   total_time : float;
   per_def_and_rule_time : summary_stats;
+  very_slow_stats: very_slow_stats;
   very_slow_rules_on_defs: def_rule_time list; (* ascending order *)
 }
 
