@@ -927,7 +927,6 @@ export type CoreMatchExtra = {
   validation_state?: ValidationState;
   historical_info?: HistoricalInfo;
   extra_extra?: RawJson;
-  fips_mode: boolean;
 }
 
 export type CoreError = {
@@ -3996,7 +3995,6 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
     'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
-    'fips_mode': _atd_write_field_with_default(_atd_write_bool, false, x.fips_mode, x),
   };
 }
 
@@ -4014,7 +4012,6 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
-    fips_mode: _atd_read_field_with_default(_atd_read_bool, false, x['fips_mode'], x),
   };
 }
 

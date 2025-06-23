@@ -259,8 +259,7 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   sca_match: sca_match option;
   validation_state: validation_state option;
   historical_info: historical_info option;
-  extra_extra: raw_json option;
-  fips_mode: bool
+  extra_extra: raw_json option
 }
 
 type core_match = Semgrep_output_v1_t.core_match = {
@@ -9344,15 +9343,6 @@ let write_core_match_extra : _ -> core_match_extra -> _ = (
       )
         ob x;
     );
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"fips_mode\":";
-    (
-      Yojson.Safe.write_bool
-    )
-      ob x.fips_mode;
     Buffer.add_char ob '}';
 )
 let string_of_core_match_extra ?(len = 1024) x =
@@ -9375,7 +9365,6 @@ let read_core_match_extra = (
     let field_validation_state = ref (None) in
     let field_historical_info = ref (None) in
     let field_extra_extra = ref (None) in
-    let field_fips_mode = ref (false) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -9443,26 +9432,12 @@ let read_core_match_extra = (
                     )
               )
             | 9 -> (
-                match String.unsafe_get s pos with
-                  | 'f' -> (
-                      if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'm' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = 'e' then (
-                        12
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | 's' -> (
-                      if String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' then (
-                        8
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | _ -> (
-                      -1
-                    )
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' then (
+                  8
+                )
+                else (
+                  -1
+                )
               )
             | 10 -> (
                 if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'd' then (
@@ -9645,14 +9620,6 @@ let read_core_match_extra = (
                 )
               );
             )
-          | 12 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_fips_mode := (
-                (
-                  Atdgen_runtime.Oj_run.read_bool
-                ) p lb
-              );
-            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -9724,26 +9691,12 @@ let read_core_match_extra = (
                       )
                 )
               | 9 -> (
-                  match String.unsafe_get s pos with
-                    | 'f' -> (
-                        if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'm' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = 'e' then (
-                          12
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 's' -> (
-                        if String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' then (
-                          8
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'c' && String.unsafe_get s (pos+8) = 'h' then (
+                    8
+                  )
+                  else (
+                    -1
+                  )
                 )
               | 10 -> (
                   if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'd' then (
@@ -9926,14 +9879,6 @@ let read_core_match_extra = (
                   )
                 );
               )
-            | 12 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_fips_mode := (
-                  (
-                    Atdgen_runtime.Oj_run.read_bool
-                  ) p lb
-                );
-              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -9955,7 +9900,6 @@ let read_core_match_extra = (
             validation_state = !field_validation_state;
             historical_info = !field_historical_info;
             extra_extra = !field_extra_extra;
-            fips_mode = !field_fips_mode;
           }
          : core_match_extra)
       )

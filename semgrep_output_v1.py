@@ -3409,7 +3409,6 @@ class CoreMatchExtra:
     validation_state: Optional[ValidationState] = None
     historical_info: Optional[HistoricalInfo] = None
     extra_extra: Optional[RawJson] = None
-    fips_mode: bool = field(default_factory=lambda: False)
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreMatchExtra':
@@ -3427,7 +3426,6 @@ class CoreMatchExtra:
                 validation_state=ValidationState.from_json(x['validation_state']) if 'validation_state' in x else None,
                 historical_info=HistoricalInfo.from_json(x['historical_info']) if 'historical_info' in x else None,
                 extra_extra=RawJson.from_json(x['extra_extra']) if 'extra_extra' in x else None,
-                fips_mode=_atd_read_bool(x['fips_mode']) if 'fips_mode' in x else False,
             )
         else:
             _atd_bad_json('CoreMatchExtra', x)
@@ -3455,7 +3453,6 @@ class CoreMatchExtra:
             res['historical_info'] = (lambda x: x.to_json())(self.historical_info)
         if self.extra_extra is not None:
             res['extra_extra'] = (lambda x: x.to_json())(self.extra_extra)
-        res['fips_mode'] = _atd_write_bool(self.fips_mode)
         return res
 
     @classmethod

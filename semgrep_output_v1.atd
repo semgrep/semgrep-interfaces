@@ -2098,7 +2098,6 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
    * --core-opts flag.
    *)
   ?extra_extra: raw_json option;
-  ~fips_mode: bool;
 }
 
 (* See Semgrep_error_code.ml *)
