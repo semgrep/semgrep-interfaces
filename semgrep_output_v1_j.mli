@@ -259,8 +259,7 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   sca_match: sca_match option;
   validation_state: validation_state option;
   historical_info: historical_info option;
-  extra_extra: raw_json option;
-  fips_mode: bool
+  extra_extra: raw_json option
 }
 
 type core_match = Semgrep_output_v1_t.core_match = {
