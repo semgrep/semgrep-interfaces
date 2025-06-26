@@ -1004,6 +1004,7 @@ type profile = {
       <ts repr="map">;
 
     ?parsing_time : parsing_time option;
+    ?prefiltering : prefiltering_stats option;
 
     targets: target_times list;
     total_bytes: int;
@@ -1043,6 +1044,26 @@ type target_times = {
     parse_times: float list;
     (* run time for all rules on target *)
     run_time: float;
+}
+
+type prefiltering_stats <ocaml attr="deriving show"> = {
+  project_level_time: float;
+    (** The time (seconds) it took to execute project-level prefilters *)
+  file_level_time: float;
+    (** The time (seconds) it took to execute file-level prefilters *)
+  rules : int;
+    (** The number of rules (total) *)
+  rules_with_project_prefilters: int;
+    (** The number of rules which the engine generated a project-level prefilter
+        for *)
+  rules_with_file_prefilters: int;
+    (** The number of rules which the engine generated a file-level prefilter
+        for *)
+  rules_selected: int;
+    (** The number of rules which executed beyond prefiltering on at least one
+        target *)
+  rules_matched: int;
+    (** The number of rules which generated at least one match *)
 }
 
 (*****************************************************************************)
