@@ -2501,11 +2501,10 @@
             { "const": "CallUploadSymbolAnalysis" },
             {
               "type": "array",
-              "minItems": 3,
+              "minItems": 2,
               "items": false,
               "prefixItems": [
                 { "type": "string" },
-                { "type": "integer" },
                 { "$ref": "#/definitions/symbol_analysis" }
               ]
             }

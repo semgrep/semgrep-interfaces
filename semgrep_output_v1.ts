@@ -1192,7 +1192,7 @@ export type FunctionCall =
 | { kind: 'CallSarifFormat'; value: [SarifFormat, FormatContext, CliOutput] }
 | { kind: 'CallValidate'; value: Fpath }
 | { kind: 'CallResolveDependencies'; value: ResolveDependenciesParams }
-| { kind: 'CallUploadSymbolAnalysis'; value: [string, number /*int*/, SymbolAnalysis] }
+| { kind: 'CallUploadSymbolAnalysis'; value: [string, SymbolAnalysis] }
 | { kind: 'CallDumpRulePartitions'; value: DumpRulePartitionsParams }
 | { kind: 'CallGetTargets'; value: ScanningRoots }
 | { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveReachabilityFilterParams }
@@ -4932,7 +4932,7 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
     case 'CallResolveDependencies':
       return ['CallResolveDependencies', writeResolveDependenciesParams(x.value, x)]
     case 'CallUploadSymbolAnalysis':
-      return ['CallUploadSymbolAnalysis', ((x, context) => [_atd_write_string(x[0], x), _atd_write_int(x[1], x), writeSymbolAnalysis(x[2], x)])(x.value, x)]
+      return ['CallUploadSymbolAnalysis', ((x, context) => [_atd_write_string(x[0], x), writeSymbolAnalysis(x[1], x)])(x.value, x)]
     case 'CallDumpRulePartitions':
       return ['CallDumpRulePartitions', writeDumpRulePartitionsParams(x.value, x)]
     case 'CallGetTargets':
@@ -4968,7 +4968,7 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
       case 'CallResolveDependencies':
         return { kind: 'CallResolveDependencies', value: readResolveDependenciesParams(x[1], x) }
       case 'CallUploadSymbolAnalysis':
-        return { kind: 'CallUploadSymbolAnalysis', value: ((x, context): [string, number /*int*/, SymbolAnalysis] => { _atd_check_json_tuple(3, x, context); return [_atd_read_string(x[0], x), _atd_read_int(x[1], x), readSymbolAnalysis(x[2], x)] })(x[1], x) }
+        return { kind: 'CallUploadSymbolAnalysis', value: ((x, context): [string, SymbolAnalysis] => { _atd_check_json_tuple(2, x, context); return [_atd_read_string(x[0], x), readSymbolAnalysis(x[1], x)] })(x[1], x) }
       case 'CallDumpRulePartitions':
         return { kind: 'CallDumpRulePartitions', value: readDumpRulePartitionsParams(x[1], x) }
       case 'CallGetTargets':

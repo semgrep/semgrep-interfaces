@@ -10378,7 +10378,7 @@ class CallResolveDependencies:
 class CallUploadSymbolAnalysis:
     """Original type: function_call = [ ... | CallUploadSymbolAnalysis of ... | ... ]"""
 
-    value: Tuple[str, int, SymbolAnalysis]
+    value: Tuple[str, SymbolAnalysis]
 
     @property
     def kind(self) -> str:
@@ -10386,7 +10386,7 @@ class CallUploadSymbolAnalysis:
         return 'CallUploadSymbolAnalysis'
 
     def to_json(self) -> Any:
-        return ['CallUploadSymbolAnalysis', (lambda x: [_atd_write_string(x[0]), _atd_write_int(x[1]), (lambda x: x.to_json())(x[2])] if isinstance(x, tuple) and len(x) == 3 else _atd_bad_python('tuple of length 3', x))(self.value)]
+        return ['CallUploadSymbolAnalysis', (lambda x: [_atd_write_string(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -10494,7 +10494,7 @@ class FunctionCall:
             if cons == 'CallResolveDependencies':
                 return cls(CallResolveDependencies(ResolveDependenciesParams.from_json(x[1])))
             if cons == 'CallUploadSymbolAnalysis':
-                return cls(CallUploadSymbolAnalysis((lambda x: (_atd_read_string(x[0]), _atd_read_int(x[1]), SymbolAnalysis.from_json(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
+                return cls(CallUploadSymbolAnalysis((lambda x: (_atd_read_string(x[0]), SymbolAnalysis.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
             if cons == 'CallDumpRulePartitions':
                 return cls(CallDumpRulePartitions(DumpRulePartitionsParams.from_json(x[1])))
             if cons == 'CallGetTargets':

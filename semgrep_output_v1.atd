@@ -2661,7 +2661,7 @@ type function_call <python decorator="dataclass(frozen=True)"> = [
   *)
   | CallValidate of fpath
   | CallResolveDependencies of resolve_dependencies_params
-  | CallUploadSymbolAnalysis of ((* token *) string * (* scan_id *) int * symbol_analysis)
+  | CallUploadSymbolAnalysis of ((* token *) string * symbol_analysis)
   | CallDumpRulePartitions of dump_rule_partitions_params
   | CallGetTargets of scanning_roots
   (* for now, the transitive reachability filter takes only a single dependency graph as input.

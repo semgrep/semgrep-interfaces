@@ -38733,19 +38733,13 @@ let write_function_call = (
         (
           fun ob x ->
             Buffer.add_char ob '[';
-            (let x, _, _ = x in
+            (let x, _ = x in
             (
               Yojson.Safe.write_string
             ) ob x
             );
             Buffer.add_char ob ',';
-            (let _, x, _ = x in
-            (
-              Yojson.Safe.write_int
-            ) ob x
-            );
-            Buffer.add_char ob ',';
-            (let _, _, x = x in
+            (let _, x = x in
             (
               write_symbol_analysis
             ) ob x
@@ -38964,17 +38958,6 @@ let read_function_call = (
                       let x1 =
                         let x =
                           (
-                            Atdgen_runtime.Oj_run.read_int
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x2 =
-                        let x =
-                          (
                             read_symbol_analysis
                           ) p lb
                         in
@@ -38994,9 +38977,9 @@ let read_function_call = (
                           done
                         with Yojson.End_of_tuple -> ()
                       );
-                      (x0, x1, x2)
+                      (x0, x1)
                     with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1; 2 ]);
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -39234,17 +39217,6 @@ let read_function_call = (
                       let x1 =
                         let x =
                           (
-                            Atdgen_runtime.Oj_run.read_int
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x2 =
-                        let x =
-                          (
                             read_symbol_analysis
                           ) p lb
                         in
@@ -39264,9 +39236,9 @@ let read_function_call = (
                           done
                         with Yojson.End_of_tuple -> ()
                       );
-                      (x0, x1, x2)
+                      (x0, x1)
                     with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1; 2 ]);
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
