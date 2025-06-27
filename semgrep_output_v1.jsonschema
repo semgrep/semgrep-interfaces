@@ -1776,14 +1776,18 @@
           "type": "array",
           "items": { "$ref": "#/definitions/cli_output_subproject_info" }
         },
-        "symbol_analysis": { "$ref": "#/definitions/symbol_analysis" }
+        "ungrouped_symbol_analysis": {
+          "$ref": "#/definitions/ungrouped_symbol_analysis"
+        }
       }
     },
     "core_output_extra": {
       "type": "object",
       "required": [],
       "properties": {
-        "symbol_analysis": { "$ref": "#/definitions/symbol_analysis" }
+        "ungrouped_symbol_analysis": {
+          "$ref": "#/definitions/ungrouped_symbol_analysis"
+        }
       }
     },
     "core_match": {
@@ -2414,9 +2418,24 @@
         }
       }
     },
-    "symbol_analysis": {
+    "ungrouped_symbol_analysis": {
       "type": "array",
       "items": { "$ref": "#/definitions/symbol_usage" }
+    },
+    "subproject_symbol_analysis": {
+      "type": "object",
+      "required": [ "subproject_root_dir", "symbol_analysis" ],
+      "properties": {
+        "subproject_root_dir": { "$ref": "#/definitions/fpath" },
+        "symbol_analysis": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/symbol_usage" }
+        }
+      }
+    },
+    "symbol_analysis": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/subproject_symbol_analysis" }
     },
     "function_call": {
       "oneOf": [

@@ -4545,6 +4545,86 @@ class UnresolvedSubproject:
 
 
 @dataclass
+class Symbol:
+    """Original type: symbol = { ... }"""
+
+    fqn: List[str]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Symbol':
+        if isinstance(x, dict):
+            return cls(
+                fqn=_atd_read_list(_atd_read_string)(x['fqn']) if 'fqn' in x else _atd_missing_json_field('Symbol', 'fqn'),
+            )
+        else:
+            _atd_bad_json('Symbol', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['fqn'] = _atd_write_list(_atd_write_string)(self.fqn)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Symbol':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class SymbolUsage:
+    """Original type: symbol_usage = { ... }"""
+
+    symbol: Symbol
+    locs: List[Location]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SymbolUsage':
+        if isinstance(x, dict):
+            return cls(
+                symbol=Symbol.from_json(x['symbol']) if 'symbol' in x else _atd_missing_json_field('SymbolUsage', 'symbol'),
+                locs=_atd_read_list(Location.from_json)(x['locs']) if 'locs' in x else _atd_missing_json_field('SymbolUsage', 'locs'),
+            )
+        else:
+            _atd_bad_json('SymbolUsage', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['symbol'] = (lambda x: x.to_json())(self.symbol)
+        res['locs'] = _atd_write_list((lambda x: x.to_json()))(self.locs)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SymbolUsage':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class UngroupedSymbolAnalysis:
+    """Original type: ungrouped_symbol_analysis"""
+
+    value: List[SymbolUsage]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'UngroupedSymbolAnalysis':
+        return cls(_atd_read_list(SymbolUsage.from_json)(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_list((lambda x: x.to_json()))(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'UngroupedSymbolAnalysis':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Snippet:
     """Original type: snippet = { ... }"""
 
@@ -7197,65 +7277,6 @@ class Tag:
 
 
 @dataclass
-class Symbol:
-    """Original type: symbol = { ... }"""
-
-    fqn: List[str]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Symbol':
-        if isinstance(x, dict):
-            return cls(
-                fqn=_atd_read_list(_atd_read_string)(x['fqn']) if 'fqn' in x else _atd_missing_json_field('Symbol', 'fqn'),
-            )
-        else:
-            _atd_bad_json('Symbol', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['fqn'] = _atd_write_list(_atd_write_string)(self.fqn)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Symbol':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class SymbolUsage:
-    """Original type: symbol_usage = { ... }"""
-
-    symbol: Symbol
-    locs: List[Location]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'SymbolUsage':
-        if isinstance(x, dict):
-            return cls(
-                symbol=Symbol.from_json(x['symbol']) if 'symbol' in x else _atd_missing_json_field('SymbolUsage', 'symbol'),
-                locs=_atd_read_list(Location.from_json)(x['locs']) if 'locs' in x else _atd_missing_json_field('SymbolUsage', 'locs'),
-            )
-        else:
-            _atd_bad_json('SymbolUsage', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['symbol'] = (lambda x: x.to_json())(self.symbol)
-        res['locs'] = _atd_write_list((lambda x: x.to_json()))(self.locs)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'SymbolUsage':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class SymbolAnalysisUploadResponse:
     """Original type: symbol_analysis_upload_response = { ... }"""
 
@@ -7284,14 +7305,45 @@ class SymbolAnalysisUploadResponse:
 
 
 @dataclass
+class SubprojectSymbolAnalysis:
+    """Original type: subproject_symbol_analysis = { ... }"""
+
+    subproject_root_dir: Fpath
+    symbol_analysis: List[SymbolUsage]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SubprojectSymbolAnalysis':
+        if isinstance(x, dict):
+            return cls(
+                subproject_root_dir=Fpath.from_json(x['subproject_root_dir']) if 'subproject_root_dir' in x else _atd_missing_json_field('SubprojectSymbolAnalysis', 'subproject_root_dir'),
+                symbol_analysis=_atd_read_list(SymbolUsage.from_json)(x['symbol_analysis']) if 'symbol_analysis' in x else _atd_missing_json_field('SubprojectSymbolAnalysis', 'symbol_analysis'),
+            )
+        else:
+            _atd_bad_json('SubprojectSymbolAnalysis', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['subproject_root_dir'] = (lambda x: x.to_json())(self.subproject_root_dir)
+        res['symbol_analysis'] = _atd_write_list((lambda x: x.to_json()))(self.symbol_analysis)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SubprojectSymbolAnalysis':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class SymbolAnalysis:
     """Original type: symbol_analysis"""
 
-    value: List[SymbolUsage]
+    value: List[SubprojectSymbolAnalysis]
 
     @classmethod
     def from_json(cls, x: Any) -> 'SymbolAnalysis':
-        return cls(_atd_read_list(SymbolUsage.from_json)(x))
+        return cls(_atd_read_list(SubprojectSymbolAnalysis.from_json)(x))
 
     def to_json(self) -> Any:
         return _atd_write_list((lambda x: x.to_json()))(self.value)
@@ -10718,21 +10770,21 @@ class DeploymentResponse:
 class CoreOutputExtra:
     """Original type: core_output_extra = { ... }"""
 
-    symbol_analysis: Optional[SymbolAnalysis] = None
+    ungrouped_symbol_analysis: Optional[UngroupedSymbolAnalysis] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreOutputExtra':
         if isinstance(x, dict):
             return cls(
-                symbol_analysis=SymbolAnalysis.from_json(x['symbol_analysis']) if 'symbol_analysis' in x else None,
+                ungrouped_symbol_analysis=UngroupedSymbolAnalysis.from_json(x['ungrouped_symbol_analysis']) if 'ungrouped_symbol_analysis' in x else None,
             )
         else:
             _atd_bad_json('CoreOutputExtra', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        if self.symbol_analysis is not None:
-            res['symbol_analysis'] = (lambda x: x.to_json())(self.symbol_analysis)
+        if self.ungrouped_symbol_analysis is not None:
+            res['ungrouped_symbol_analysis'] = (lambda x: x.to_json())(self.ungrouped_symbol_analysis)
         return res
 
     @classmethod
@@ -10758,7 +10810,7 @@ class CoreOutput:
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
     subprojects: Optional[List[CliOutputSubprojectInfo]] = None
-    symbol_analysis: Optional[SymbolAnalysis] = None
+    ungrouped_symbol_analysis: Optional[UngroupedSymbolAnalysis] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CoreOutput':
@@ -10775,7 +10827,7 @@ class CoreOutput:
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
                 subprojects=_atd_read_list(CliOutputSubprojectInfo.from_json)(x['subprojects']) if 'subprojects' in x else None,
-                symbol_analysis=SymbolAnalysis.from_json(x['symbol_analysis']) if 'symbol_analysis' in x else None,
+                ungrouped_symbol_analysis=UngroupedSymbolAnalysis.from_json(x['ungrouped_symbol_analysis']) if 'ungrouped_symbol_analysis' in x else None,
             )
         else:
             _atd_bad_json('CoreOutput', x)
@@ -10799,8 +10851,8 @@ class CoreOutput:
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         if self.subprojects is not None:
             res['subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects)
-        if self.symbol_analysis is not None:
-            res['symbol_analysis'] = (lambda x: x.to_json())(self.symbol_analysis)
+        if self.ungrouped_symbol_analysis is not None:
+            res['ungrouped_symbol_analysis'] = (lambda x: x.to_json())(self.ungrouped_symbol_analysis)
         return res
 
     @classmethod
