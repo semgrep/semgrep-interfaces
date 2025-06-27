@@ -351,6 +351,19 @@ type unresolved_subproject = Semgrep_output_v1_t.unresolved_subproject = {
   errors: sca_error list
 }
 
+type symbol = Semgrep_output_v1_t.symbol = { fqn: string list }
+  [@@deriving show]
+
+type symbol_usage = Semgrep_output_v1_t.symbol_usage = {
+  symbol: symbol;
+  locs: location list
+}
+  [@@deriving show]
+
+type ungrouped_symbol_analysis =
+  Semgrep_output_v1_t.ungrouped_symbol_analysis
+  [@@deriving show]
+
 type snippet = Semgrep_output_v1_t.snippet = { line: int; text: string }
 
 type killing_parent_kind = Semgrep_output_v1_t.killing_parent_kind
@@ -594,19 +607,17 @@ type target_discovery_result = Semgrep_output_v1_t.target_discovery_result = {
 
 type tag = Semgrep_output_v1_t.tag
 
-type symbol = Semgrep_output_v1_t.symbol = { fqn: string list }
-  [@@deriving show]
-
-type symbol_usage = Semgrep_output_v1_t.symbol_usage = {
-  symbol: symbol;
-  locs: location list
-}
-  [@@deriving show]
-
 type symbol_analysis_upload_response =
   Semgrep_output_v1_t.symbol_analysis_upload_response = {
   upload_url: uri
 }
+
+type subproject_symbol_analysis =
+  Semgrep_output_v1_t.subproject_symbol_analysis = {
+  subproject_root_dir: fpath;
+  symbol_analysis: symbol_usage list
+}
+  [@@deriving show]
 
 type symbol_analysis = Semgrep_output_v1_t.symbol_analysis [@@deriving show]
 
@@ -1077,7 +1088,7 @@ type deployment_response = Semgrep_output_v1_t.deployment_response = {
 }
 
 type core_output_extra = Semgrep_output_v1_t.core_output_extra = {
-  symbol_analysis: symbol_analysis option
+  ungrouped_symbol_analysis: ungrouped_symbol_analysis option
 }
 
 type core_output = Semgrep_output_v1_t.core_output = {
@@ -1092,7 +1103,7 @@ type core_output = Semgrep_output_v1_t.core_output = {
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list;
   subprojects: cli_output_subproject_info list option;
-  symbol_analysis: symbol_analysis option
+  ungrouped_symbol_analysis: ungrouped_symbol_analysis option
 }
 
 type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
@@ -12479,6 +12490,301 @@ let read_unresolved_subproject = (
 )
 let unresolved_subproject_of_string s =
   read_unresolved_subproject (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_symbol : _ -> symbol -> _ = (
+  fun ob (x : symbol) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"fqn\":";
+    (
+      write__string_list
+    )
+      ob x.fqn;
+    Buffer.add_char ob '}';
+)
+let string_of_symbol ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_symbol ob x;
+  Buffer.contents ob
+let read_symbol = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_fqn = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          if len = 3 && String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'q' && String.unsafe_get s (pos+2) = 'n' then (
+            0
+          )
+          else (
+            -1
+          )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_fqn := (
+              Some (
+                (
+                  read__string_list
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            if len = 3 && String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'q' && String.unsafe_get s (pos+2) = 'n' then (
+              0
+            )
+            else (
+              -1
+            )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_fqn := (
+                Some (
+                  (
+                    read__string_list
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            fqn = (match !field_fqn with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "fqn");
+          }
+         : symbol)
+      )
+)
+let symbol_of_string s =
+  read_symbol (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__location_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_location
+  )
+)
+let string_of__location_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__location_list ob x;
+  Buffer.contents ob
+let read__location_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_location
+  )
+)
+let _location_list_of_string s =
+  read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_symbol_usage : _ -> symbol_usage -> _ = (
+  fun ob (x : symbol_usage) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"symbol\":";
+    (
+      write_symbol
+    )
+      ob x.symbol;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"locs\":";
+    (
+      write__location_list
+    )
+      ob x.locs;
+    Buffer.add_char ob '}';
+)
+let string_of_symbol_usage ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_symbol_usage ob x;
+  Buffer.contents ob
+let read_symbol_usage = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_symbol = ref (None) in
+    let field_locs = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 4 -> (
+                if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 's' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | 6 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'l' then (
+                  0
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_symbol := (
+              Some (
+                (
+                  read_symbol
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_locs := (
+              Some (
+                (
+                  read__location_list
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 4 -> (
+                  if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 's' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 6 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'l' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_symbol := (
+                Some (
+                  (
+                    read_symbol
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_locs := (
+                Some (
+                  (
+                    read__location_list
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            symbol = (match !field_symbol with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "symbol");
+            locs = (match !field_locs with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "locs");
+          }
+         : symbol_usage)
+      )
+)
+let symbol_usage_of_string s =
+  read_symbol_usage (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__symbol_usage_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_symbol_usage
+  )
+)
+let string_of__symbol_usage_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__symbol_usage_list ob x;
+  Buffer.contents ob
+let read__symbol_usage_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_symbol_usage
+  )
+)
+let _symbol_usage_list_of_string s =
+  read__symbol_usage_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_ungrouped_symbol_analysis = (
+  write__symbol_usage_list
+)
+let string_of_ungrouped_symbol_analysis ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_ungrouped_symbol_analysis ob x;
+  Buffer.contents ob
+let read_ungrouped_symbol_analysis = (
+  read__symbol_usage_list
+)
+let ungrouped_symbol_analysis_of_string s =
+  read_ungrouped_symbol_analysis (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_snippet : _ -> snippet -> _ = (
   fun ob (x : snippet) ->
     Buffer.add_char ob '{';
@@ -19075,22 +19381,6 @@ let read_incompatible_rule = (
 )
 let incompatible_rule_of_string s =
   read_incompatible_rule (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__location_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_location
-  )
-)
-let string_of__location_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__location_list ob x;
-  Buffer.contents ob
-let read__location_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_location
-  )
-)
-let _location_list_of_string s =
-  read__location_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_error_type : _ -> error_type -> _ = (
   fun ob (x : error_type) ->
     match x with
@@ -20094,257 +20384,6 @@ let read_tag = (
 )
 let tag_of_string s =
   read_tag (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_symbol : _ -> symbol -> _ = (
-  fun ob (x : symbol) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"fqn\":";
-    (
-      write__string_list
-    )
-      ob x.fqn;
-    Buffer.add_char ob '}';
-)
-let string_of_symbol ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_symbol ob x;
-  Buffer.contents ob
-let read_symbol = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_fqn = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          if len = 3 && String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'q' && String.unsafe_get s (pos+2) = 'n' then (
-            0
-          )
-          else (
-            -1
-          )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_fqn := (
-              Some (
-                (
-                  read__string_list
-                ) p lb
-              )
-            );
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            if len = 3 && String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'q' && String.unsafe_get s (pos+2) = 'n' then (
-              0
-            )
-            else (
-              -1
-            )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_fqn := (
-                Some (
-                  (
-                    read__string_list
-                  ) p lb
-                )
-              );
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            fqn = (match !field_fqn with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "fqn");
-          }
-         : symbol)
-      )
-)
-let symbol_of_string s =
-  read_symbol (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_symbol_usage : _ -> symbol_usage -> _ = (
-  fun ob (x : symbol_usage) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"symbol\":";
-    (
-      write_symbol
-    )
-      ob x.symbol;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"locs\":";
-    (
-      write__location_list
-    )
-      ob x.locs;
-    Buffer.add_char ob '}';
-)
-let string_of_symbol_usage ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_symbol_usage ob x;
-  Buffer.contents ob
-let read_symbol_usage = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_symbol = ref (None) in
-    let field_locs = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          match len with
-            | 4 -> (
-                if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 's' then (
-                  1
-                )
-                else (
-                  -1
-                )
-              )
-            | 6 -> (
-                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'l' then (
-                  0
-                )
-                else (
-                  -1
-                )
-              )
-            | _ -> (
-                -1
-              )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            field_symbol := (
-              Some (
-                (
-                  read_symbol
-                ) p lb
-              )
-            );
-          | 1 ->
-            field_locs := (
-              Some (
-                (
-                  read__location_list
-                ) p lb
-              )
-            );
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            match len with
-              | 4 -> (
-                  if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 's' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 6 -> (
-                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'l' then (
-                    0
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              field_symbol := (
-                Some (
-                  (
-                    read_symbol
-                  ) p lb
-                )
-              );
-            | 1 ->
-              field_locs := (
-                Some (
-                  (
-                    read__location_list
-                  ) p lb
-                )
-              );
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            symbol = (match !field_symbol with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "symbol");
-            locs = (match !field_locs with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "locs");
-          }
-         : symbol_usage)
-      )
-)
-let symbol_usage_of_string s =
-  read_symbol_usage (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_symbol_analysis_upload_response : _ -> symbol_analysis_upload_response -> _ = (
   fun ob (x : symbol_analysis_upload_response) ->
     Buffer.add_char ob '{';
@@ -20443,31 +20482,184 @@ let read_symbol_analysis_upload_response = (
 )
 let symbol_analysis_upload_response_of_string s =
   read_symbol_analysis_upload_response (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__symbol_usage_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_symbol_usage
-  )
+let write_subproject_symbol_analysis : _ -> subproject_symbol_analysis -> _ = (
+  fun ob (x : subproject_symbol_analysis) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"subproject_root_dir\":";
+    (
+      write_fpath
+    )
+      ob x.subproject_root_dir;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"symbol_analysis\":";
+    (
+      write__symbol_usage_list
+    )
+      ob x.symbol_analysis;
+    Buffer.add_char ob '}';
 )
-let string_of__symbol_usage_list ?(len = 1024) x =
+let string_of_subproject_symbol_analysis ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__symbol_usage_list ob x;
+  write_subproject_symbol_analysis ob x;
   Buffer.contents ob
-let read__symbol_usage_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_symbol_usage
+let read_subproject_symbol_analysis = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_subproject_root_dir = ref (None) in
+    let field_symbol_analysis = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 15 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'y' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 's' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | 19 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'b' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'j' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = '_' && String.unsafe_get s (pos+16) = 'd' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 'r' then (
+                  0
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_subproject_root_dir := (
+              Some (
+                (
+                  read_fpath
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_symbol_analysis := (
+              Some (
+                (
+                  read__symbol_usage_list
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 15 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'y' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 's' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 19 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'b' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'j' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = '_' && String.unsafe_get s (pos+16) = 'd' && String.unsafe_get s (pos+17) = 'i' && String.unsafe_get s (pos+18) = 'r' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_subproject_root_dir := (
+                Some (
+                  (
+                    read_fpath
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_symbol_analysis := (
+                Some (
+                  (
+                    read__symbol_usage_list
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            subproject_root_dir = (match !field_subproject_root_dir with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "subproject_root_dir");
+            symbol_analysis = (match !field_symbol_analysis with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "symbol_analysis");
+          }
+         : subproject_symbol_analysis)
+      )
+)
+let subproject_symbol_analysis_of_string s =
+  read_subproject_symbol_analysis (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__subproject_symbol_analysis_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    write_subproject_symbol_analysis
   )
 )
-let _symbol_usage_list_of_string s =
-  read__symbol_usage_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let string_of__subproject_symbol_analysis_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__subproject_symbol_analysis_list ob x;
+  Buffer.contents ob
+let read__subproject_symbol_analysis_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    read_subproject_symbol_analysis
+  )
+)
+let _subproject_symbol_analysis_list_of_string s =
+  read__subproject_symbol_analysis_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_symbol_analysis = (
-  write__symbol_usage_list
+  write__subproject_symbol_analysis_list
 )
 let string_of_symbol_analysis ?(len = 1024) x =
   let ob = Buffer.create len in
   write_symbol_analysis ob x;
   Buffer.contents ob
 let read_symbol_analysis = (
-  read__symbol_usage_list
+  read__subproject_symbol_analysis_list
 )
 let symbol_analysis_of_string s =
   read_symbol_analysis (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
@@ -40525,16 +40717,16 @@ let read_deployment_response = (
 )
 let deployment_response_of_string s =
   read_deployment_response (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__symbol_analysis_option = (
+let write__ungrouped_symbol_analysis_option = (
   Atdgen_runtime.Oj_run.write_std_option (
-    write_symbol_analysis
+    write_ungrouped_symbol_analysis
   )
 )
-let string_of__symbol_analysis_option ?(len = 1024) x =
+let string_of__ungrouped_symbol_analysis_option ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__symbol_analysis_option ob x;
+  write__ungrouped_symbol_analysis_option ob x;
   Buffer.contents ob
-let read__symbol_analysis_option = (
+let read__ungrouped_symbol_analysis_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     match Yojson.Safe.start_any_variant p lb with
@@ -40547,7 +40739,7 @@ let read__symbol_analysis_option = (
             | "Some" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  read_symbol_analysis
+                  read_ungrouped_symbol_analysis
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -40570,7 +40762,7 @@ let read__symbol_analysis_option = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read_symbol_analysis
+                  read_ungrouped_symbol_analysis
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -40580,20 +40772,20 @@ let read__symbol_analysis_option = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-let _symbol_analysis_option_of_string s =
-  read__symbol_analysis_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _ungrouped_symbol_analysis_option_of_string s =
+  read__ungrouped_symbol_analysis_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_core_output_extra : _ -> core_output_extra -> _ = (
   fun ob (x : core_output_extra) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
-    (match x.symbol_analysis with None -> () | Some x ->
+    (match x.ungrouped_symbol_analysis with None -> () | Some x ->
       if !is_first then
         is_first := false
       else
         Buffer.add_char ob ',';
-        Buffer.add_string ob "\"symbol_analysis\":";
+        Buffer.add_string ob "\"ungrouped_symbol_analysis\":";
       (
-        write_symbol_analysis
+        write_ungrouped_symbol_analysis
       )
         ob x;
     );
@@ -40607,7 +40799,7 @@ let read_core_output_extra = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
-    let field_symbol_analysis = ref (None) in
+    let field_ungrouped_symbol_analysis = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -40616,7 +40808,7 @@ let read_core_output_extra = (
         fun s pos len ->
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          if len = 15 && String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'y' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 's' then (
+          if len = 25 && String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'u' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'y' && String.unsafe_get s (pos+12) = 'm' && String.unsafe_get s (pos+13) = 'b' && String.unsafe_get s (pos+14) = 'o' && String.unsafe_get s (pos+15) = 'l' && String.unsafe_get s (pos+16) = '_' && String.unsafe_get s (pos+17) = 'a' && String.unsafe_get s (pos+18) = 'n' && String.unsafe_get s (pos+19) = 'a' && String.unsafe_get s (pos+20) = 'l' && String.unsafe_get s (pos+21) = 'y' && String.unsafe_get s (pos+22) = 's' && String.unsafe_get s (pos+23) = 'i' && String.unsafe_get s (pos+24) = 's' then (
             0
           )
           else (
@@ -40629,10 +40821,10 @@ let read_core_output_extra = (
         match i with
           | 0 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_symbol_analysis := (
+              field_ungrouped_symbol_analysis := (
                 Some (
                   (
-                    read_symbol_analysis
+                    read_ungrouped_symbol_analysis
                   ) p lb
                 )
               );
@@ -40649,7 +40841,7 @@ let read_core_output_extra = (
           fun s pos len ->
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            if len = 15 && String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'y' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 's' then (
+            if len = 25 && String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'u' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'y' && String.unsafe_get s (pos+12) = 'm' && String.unsafe_get s (pos+13) = 'b' && String.unsafe_get s (pos+14) = 'o' && String.unsafe_get s (pos+15) = 'l' && String.unsafe_get s (pos+16) = '_' && String.unsafe_get s (pos+17) = 'a' && String.unsafe_get s (pos+18) = 'n' && String.unsafe_get s (pos+19) = 'a' && String.unsafe_get s (pos+20) = 'l' && String.unsafe_get s (pos+21) = 'y' && String.unsafe_get s (pos+22) = 's' && String.unsafe_get s (pos+23) = 'i' && String.unsafe_get s (pos+24) = 's' then (
               0
             )
             else (
@@ -40662,10 +40854,10 @@ let read_core_output_extra = (
           match i with
             | 0 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_symbol_analysis := (
+                field_ungrouped_symbol_analysis := (
                   Some (
                     (
-                      read_symbol_analysis
+                      read_ungrouped_symbol_analysis
                     ) p lb
                   )
                 );
@@ -40679,7 +40871,7 @@ let read_core_output_extra = (
     with Yojson.End_of_object -> (
         (
           {
-            symbol_analysis = !field_symbol_analysis;
+            ungrouped_symbol_analysis = !field_ungrouped_symbol_analysis;
           }
          : core_output_extra)
       )
@@ -40801,14 +40993,14 @@ let write_core_output : _ -> core_output -> _ = (
       )
         ob x;
     );
-    (match x.symbol_analysis with None -> () | Some x ->
+    (match x.ungrouped_symbol_analysis with None -> () | Some x ->
       if !is_first then
         is_first := false
       else
         Buffer.add_char ob ',';
-        Buffer.add_string ob "\"symbol_analysis\":";
+        Buffer.add_string ob "\"ungrouped_symbol_analysis\":";
       (
-        write_symbol_analysis
+        write_ungrouped_symbol_analysis
       )
         ob x;
     );
@@ -40833,7 +41025,7 @@ let read_core_output = (
     let field_interfile_languages_used = ref (None) in
     let field_skipped_rules = ref ([]) in
     let field_subprojects = ref (None) in
-    let field_symbol_analysis = ref (None) in
+    let field_ungrouped_symbol_analysis = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -40914,26 +41106,12 @@ let read_core_output = (
                 )
               )
             | 15 -> (
-                match String.unsafe_get s pos with
-                  | 'r' -> (
-                      if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'y' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'g' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 'e' then (
-                        6
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | 's' -> (
-                      if String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'y' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 's' then (
-                        11
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | _ -> (
-                      -1
-                    )
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'y' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'g' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 'e' then (
+                  6
+                )
+                else (
+                  -1
+                )
               )
             | 16 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
@@ -40946,6 +41124,14 @@ let read_core_output = (
             | 24 -> (
                 if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'f' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'l' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 'g' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 'a' && String.unsafe_get s (pos+16) = 'g' && String.unsafe_get s (pos+17) = 'e' && String.unsafe_get s (pos+18) = 's' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 'u' && String.unsafe_get s (pos+21) = 's' && String.unsafe_get s (pos+22) = 'e' && String.unsafe_get s (pos+23) = 'd' then (
                   8
+                )
+                else (
+                  -1
+                )
+              )
+            | 25 -> (
+                if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'u' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'y' && String.unsafe_get s (pos+12) = 'm' && String.unsafe_get s (pos+13) = 'b' && String.unsafe_get s (pos+14) = 'o' && String.unsafe_get s (pos+15) = 'l' && String.unsafe_get s (pos+16) = '_' && String.unsafe_get s (pos+17) = 'a' && String.unsafe_get s (pos+18) = 'n' && String.unsafe_get s (pos+19) = 'a' && String.unsafe_get s (pos+20) = 'l' && String.unsafe_get s (pos+21) = 'y' && String.unsafe_get s (pos+22) = 's' && String.unsafe_get s (pos+23) = 'i' && String.unsafe_get s (pos+24) = 's' then (
+                  11
                 )
                 else (
                   -1
@@ -41061,10 +41247,10 @@ let read_core_output = (
             )
           | 11 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_symbol_analysis := (
+              field_ungrouped_symbol_analysis := (
                 Some (
                   (
-                    read_symbol_analysis
+                    read_ungrouped_symbol_analysis
                   ) p lb
                 )
               );
@@ -41153,26 +41339,12 @@ let read_core_output = (
                   )
                 )
               | 15 -> (
-                  match String.unsafe_get s pos with
-                    | 'r' -> (
-                        if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'y' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'g' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 'e' then (
-                          6
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 's' -> (
-                        if String.unsafe_get s (pos+1) = 'y' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'l' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'n' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'y' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 's' then (
-                          11
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'y' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'g' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 'e' then (
+                    6
+                  )
+                  else (
+                    -1
+                  )
                 )
               | 16 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'q' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 's' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'd' then (
@@ -41185,6 +41357,14 @@ let read_core_output = (
               | 24 -> (
                   if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'f' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'l' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'l' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 'g' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 'a' && String.unsafe_get s (pos+16) = 'g' && String.unsafe_get s (pos+17) = 'e' && String.unsafe_get s (pos+18) = 's' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 'u' && String.unsafe_get s (pos+21) = 's' && String.unsafe_get s (pos+22) = 'e' && String.unsafe_get s (pos+23) = 'd' then (
                     8
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 25 -> (
+                  if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'r' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'u' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 's' && String.unsafe_get s (pos+11) = 'y' && String.unsafe_get s (pos+12) = 'm' && String.unsafe_get s (pos+13) = 'b' && String.unsafe_get s (pos+14) = 'o' && String.unsafe_get s (pos+15) = 'l' && String.unsafe_get s (pos+16) = '_' && String.unsafe_get s (pos+17) = 'a' && String.unsafe_get s (pos+18) = 'n' && String.unsafe_get s (pos+19) = 'a' && String.unsafe_get s (pos+20) = 'l' && String.unsafe_get s (pos+21) = 'y' && String.unsafe_get s (pos+22) = 's' && String.unsafe_get s (pos+23) = 'i' && String.unsafe_get s (pos+24) = 's' then (
+                    11
                   )
                   else (
                     -1
@@ -41300,10 +41480,10 @@ let read_core_output = (
               )
             | 11 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_symbol_analysis := (
+                field_ungrouped_symbol_analysis := (
                   Some (
                     (
-                      read_symbol_analysis
+                      read_ungrouped_symbol_analysis
                     ) p lb
                   )
                 );
@@ -41328,7 +41508,7 @@ let read_core_output = (
             interfile_languages_used = !field_interfile_languages_used;
             skipped_rules = !field_skipped_rules;
             subprojects = !field_subprojects;
-            symbol_analysis = !field_symbol_analysis;
+            ungrouped_symbol_analysis = !field_ungrouped_symbol_analysis;
           }
          : core_output)
       )
