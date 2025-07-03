@@ -5732,6 +5732,58 @@ class Product:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True, order=True)
+class Ppath:
+    """Original type: ppath"""
+
+    value: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Ppath':
+        return cls(_atd_read_string(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_string(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Ppath':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Fppath:
+    """Original type: fppath = { ... }"""
+
+    fpath: Fpath
+    ppath: Ppath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Fppath':
+        if isinstance(x, dict):
+            return cls(
+                fpath=Fpath.from_json(x['fpath']) if 'fpath' in x else _atd_missing_json_field('Fppath', 'fpath'),
+                ppath=Ppath.from_json(x['ppath']) if 'ppath' in x else _atd_missing_json_field('Fppath', 'ppath'),
+            )
+        else:
+            _atd_bad_json('Fppath', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['fpath'] = (lambda x: x.to_json())(self.fpath)
+        res['ppath'] = (lambda x: x.to_json())(self.ppath)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Fppath':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class Analyzer:
     """Original type: analyzer"""
@@ -5757,7 +5809,7 @@ class Analyzer:
 class CodeTarget:
     """Original type: code_target = { ... }"""
 
-    path: Fpath
+    path: Fppath
     analyzer: Analyzer
     products: List[Product]
     dependency_source: Optional[DependencySource] = None
@@ -5766,7 +5818,7 @@ class CodeTarget:
     def from_json(cls, x: Any) -> 'CodeTarget':
         if isinstance(x, dict):
             return cls(
-                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('CodeTarget', 'path'),
+                path=Fppath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('CodeTarget', 'path'),
                 analyzer=Analyzer.from_json(x['analyzer']) if 'analyzer' in x else _atd_missing_json_field('CodeTarget', 'analyzer'),
                 products=_atd_read_list(Product.from_json)(x['products']) if 'products' in x else _atd_missing_json_field('CodeTarget', 'products'),
                 dependency_source=DependencySource.from_json(x['dependency_source']) if 'dependency_source' in x else None,
@@ -7093,7 +7145,7 @@ class CoreError:
 class TargetDiscoveryResult:
     """Original type: target_discovery_result = { ... }"""
 
-    target_paths: List[Fpath]
+    target_paths: List[Fppath]
     errors: List[CoreError]
     skipped: List[SkippedTarget]
 
@@ -7101,7 +7153,7 @@ class TargetDiscoveryResult:
     def from_json(cls, x: Any) -> 'TargetDiscoveryResult':
         if isinstance(x, dict):
             return cls(
-                target_paths=_atd_read_list(Fpath.from_json)(x['target_paths']) if 'target_paths' in x else _atd_missing_json_field('TargetDiscoveryResult', 'target_paths'),
+                target_paths=_atd_read_list(Fppath.from_json)(x['target_paths']) if 'target_paths' in x else _atd_missing_json_field('TargetDiscoveryResult', 'target_paths'),
                 errors=_atd_read_list(CoreError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('TargetDiscoveryResult', 'errors'),
                 skipped=_atd_read_list(SkippedTarget.from_json)(x['skipped']) if 'skipped' in x else _atd_missing_json_field('TargetDiscoveryResult', 'skipped'),
             )

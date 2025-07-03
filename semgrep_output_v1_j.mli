@@ -490,10 +490,15 @@ type targeting_conf = Semgrep_output_v1_t.targeting_conf = {
 
 type product = Semgrep_output_v1_t.product [@@deriving eq, ord, show]
 
+type ppath = Semgrep_output_v1_t.ppath [@@deriving show, eq]
+
+type fppath = Semgrep_output_v1_t.fppath = { fpath: fpath; ppath: ppath }
+  [@@deriving show, eq]
+
 type analyzer = Semgrep_output_v1_t.analyzer [@@deriving show]
 
 type code_target = Semgrep_output_v1_t.code_target = {
-  path: fpath;
+  path: fppath;
   analyzer: analyzer;
   products: product list;
   dependency_source: dependency_source option
@@ -587,7 +592,7 @@ type core_error = Semgrep_output_v1_t.core_error = {
 }
 
 type target_discovery_result = Semgrep_output_v1_t.target_discovery_result = {
-  target_paths: fpath list;
+  target_paths: fppath list;
   errors: core_error list;
   skipped: skipped_target list
 }
@@ -2787,6 +2792,46 @@ val read_product :
 val product_of_string :
   string -> product
   (** Deserialize JSON data of type {!type:product}. *)
+
+val write_ppath :
+  Buffer.t -> ppath -> unit
+  (** Output a JSON value of type {!type:ppath}. *)
+
+val string_of_ppath :
+  ?len:int -> ppath -> string
+  (** Serialize a value of type {!type:ppath}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_ppath :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ppath
+  (** Input JSON data of type {!type:ppath}. *)
+
+val ppath_of_string :
+  string -> ppath
+  (** Deserialize JSON data of type {!type:ppath}. *)
+
+val write_fppath :
+  Buffer.t -> fppath -> unit
+  (** Output a JSON value of type {!type:fppath}. *)
+
+val string_of_fppath :
+  ?len:int -> fppath -> string
+  (** Serialize a value of type {!type:fppath}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_fppath :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> fppath
+  (** Input JSON data of type {!type:fppath}. *)
+
+val fppath_of_string :
+  string -> fppath
+  (** Deserialize JSON data of type {!type:fppath}. *)
 
 val write_analyzer :
   Buffer.t -> analyzer -> unit

@@ -18,6 +18,13 @@ export type RawJson = any
 
 export type Fpath = string
 
+export type Ppath = string
+
+export type Fppath = {
+  fpath: Fpath;
+  ppath: Ppath;
+}
+
 export type Uri = string
 
 export type Sha1 = string
@@ -362,7 +369,7 @@ export type SkippedRule = {
 }
 
 export type TargetDiscoveryResult = {
-  target_paths: Fpath[];
+  target_paths: Fppath[];
   errors: CoreError[];
   skipped: SkippedTarget[];
 }
@@ -964,7 +971,7 @@ export type Target =
 | { kind: 'DependencySourceTarget'; value: DependencySource }
 
 export type CodeTarget = {
-  path: Fpath;
+  path: Fppath;
   analyzer: Analyzer;
   products: Product[];
   dependency_source?: DependencySource;
@@ -1233,6 +1240,28 @@ export function writeFpath(x: Fpath, context: any = x): any {
 
 export function readFpath(x: any, context: any = x): Fpath {
   return _atd_read_string(x, context);
+}
+
+export function writePpath(x: Ppath, context: any = x): any {
+  return _atd_write_string(x, context);
+}
+
+export function readPpath(x: any, context: any = x): Ppath {
+  return _atd_read_string(x, context);
+}
+
+export function writeFppath(x: Fppath, context: any = x): any {
+  return {
+    'fpath': _atd_write_required_field('Fppath', 'fpath', writeFpath, x.fpath, x),
+    'ppath': _atd_write_required_field('Fppath', 'ppath', writePpath, x.ppath, x),
+  };
+}
+
+export function readFppath(x: any, context: any = x): Fppath {
+  return {
+    fpath: _atd_read_required_field('Fppath', 'fpath', readFpath, x['fpath'], x),
+    ppath: _atd_read_required_field('Fppath', 'ppath', readPpath, x['ppath'], x),
+  };
 }
 
 export function writeUri(x: Uri, context: any = x): any {
@@ -2437,7 +2466,7 @@ export function readSkippedRule(x: any, context: any = x): SkippedRule {
 
 export function writeTargetDiscoveryResult(x: TargetDiscoveryResult, context: any = x): any {
   return {
-    'target_paths': _atd_write_required_field('TargetDiscoveryResult', 'target_paths', _atd_write_array(writeFpath), x.target_paths, x),
+    'target_paths': _atd_write_required_field('TargetDiscoveryResult', 'target_paths', _atd_write_array(writeFppath), x.target_paths, x),
     'errors': _atd_write_required_field('TargetDiscoveryResult', 'errors', _atd_write_array(writeCoreError), x.errors, x),
     'skipped': _atd_write_required_field('TargetDiscoveryResult', 'skipped', _atd_write_array(writeSkippedTarget), x.skipped, x),
   };
@@ -2445,7 +2474,7 @@ export function writeTargetDiscoveryResult(x: TargetDiscoveryResult, context: an
 
 export function readTargetDiscoveryResult(x: any, context: any = x): TargetDiscoveryResult {
   return {
-    target_paths: _atd_read_required_field('TargetDiscoveryResult', 'target_paths', _atd_read_array(readFpath), x['target_paths'], x),
+    target_paths: _atd_read_required_field('TargetDiscoveryResult', 'target_paths', _atd_read_array(readFppath), x['target_paths'], x),
     errors: _atd_read_required_field('TargetDiscoveryResult', 'errors', _atd_read_array(readCoreError), x['errors'], x),
     skipped: _atd_read_required_field('TargetDiscoveryResult', 'skipped', _atd_read_array(readSkippedTarget), x['skipped'], x),
   };
@@ -4125,7 +4154,7 @@ export function readTarget(x: any, context: any = x): Target {
 
 export function writeCodeTarget(x: CodeTarget, context: any = x): any {
   return {
-    'path': _atd_write_required_field('CodeTarget', 'path', writeFpath, x.path, x),
+    'path': _atd_write_required_field('CodeTarget', 'path', writeFppath, x.path, x),
     'analyzer': _atd_write_required_field('CodeTarget', 'analyzer', writeAnalyzer, x.analyzer, x),
     'products': _atd_write_required_field('CodeTarget', 'products', _atd_write_array(writeProduct), x.products, x),
     'dependency_source': _atd_write_optional_field(writeDependencySource, x.dependency_source, x),
@@ -4134,7 +4163,7 @@ export function writeCodeTarget(x: CodeTarget, context: any = x): any {
 
 export function readCodeTarget(x: any, context: any = x): CodeTarget {
   return {
-    path: _atd_read_required_field('CodeTarget', 'path', readFpath, x['path'], x),
+    path: _atd_read_required_field('CodeTarget', 'path', readFppath, x['path'], x),
     analyzer: _atd_read_required_field('CodeTarget', 'analyzer', readAnalyzer, x['analyzer'], x),
     products: _atd_read_required_field('CodeTarget', 'products', _atd_read_array(readProduct), x['products'], x),
     dependency_source: _atd_read_optional_field(readDependencySource, x['dependency_source'], x),
