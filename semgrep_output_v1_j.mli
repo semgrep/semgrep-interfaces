@@ -55,6 +55,7 @@ type manifest_kind = Semgrep_output_v1_t.manifest_kind =
   | CargoToml | PomXml | BuildGradle | SettingsGradle | ComposerJson
   | NugetManifestJson | PubspecYaml | PackageSwift | Podfile | MixExs
   | Pipfile | PyprojectToml | ConanFileTxt | ConanFilePy | Csproj | OpamFile
+  | BuildSbt
 
   [@@deriving show, eq]
 

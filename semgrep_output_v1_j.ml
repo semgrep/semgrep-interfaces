@@ -55,6 +55,7 @@ type manifest_kind = Semgrep_output_v1_t.manifest_kind =
   | CargoToml | PomXml | BuildGradle | SettingsGradle | ComposerJson
   | NugetManifestJson | PubspecYaml | PackageSwift | Podfile | MixExs
   | Pipfile | PyprojectToml | ConanFileTxt | ConanFilePy | Csproj | OpamFile
+  | BuildSbt
 
   [@@deriving show, eq]
 
@@ -2901,6 +2902,7 @@ let write_manifest_kind : _ -> manifest_kind -> _ = (
       | ConanFilePy -> Buffer.add_string ob "\"ConanFilePy\""
       | Csproj -> Buffer.add_string ob "\"Csproj\""
       | OpamFile -> Buffer.add_string ob "\"OpamFile\""
+      | BuildSbt -> Buffer.add_string ob "\"BuildSbt\""
 )
 let string_of_manifest_kind ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -2996,6 +2998,10 @@ let read_manifest_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (OpamFile : manifest_kind)
+            | "BuildSbt" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (BuildSbt : manifest_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -3043,6 +3049,8 @@ let read_manifest_kind = (
               (Csproj : manifest_kind)
             | "OpamFile" ->
               (OpamFile : manifest_kind)
+            | "BuildSbt" ->
+              (BuildSbt : manifest_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
