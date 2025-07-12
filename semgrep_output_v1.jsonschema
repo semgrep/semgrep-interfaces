@@ -41,6 +41,15 @@
   "definitions": {
     "raw_json": {},
     "fpath": { "type": "string" },
+    "ppath": { "type": "string" },
+    "fppath": {
+      "type": "object",
+      "required": [ "fpath", "ppath" ],
+      "properties": {
+        "fpath": { "$ref": "#/definitions/fpath" },
+        "ppath": { "$ref": "#/definitions/ppath" }
+      }
+    },
     "uri": { "type": "string" },
     "sha1": { "type": "string" },
     "uuid": { "type": "string" },
@@ -733,7 +742,7 @@
       "properties": {
         "target_paths": {
           "type": "array",
-          "items": { "$ref": "#/definitions/fpath" }
+          "items": { "$ref": "#/definitions/fppath" }
         },
         "errors": {
           "type": "array",
@@ -1886,7 +1895,7 @@
       "type": "object",
       "required": [ "path", "analyzer", "products" ],
       "properties": {
-        "path": { "$ref": "#/definitions/fpath" },
+        "path": { "$ref": "#/definitions/fppath" },
         "analyzer": { "$ref": "#/definitions/analyzer" },
         "products": {
           "type": "array",
