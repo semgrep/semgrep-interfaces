@@ -7889,6 +7889,7 @@ class ScanConfiguration:
     rules: RawJson
     triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
     triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
+    project_merge_base: Optional[Sha1] = None
     fips_mode: bool = field(default_factory=lambda: False)
 
     @classmethod
@@ -7898,6 +7899,7 @@ class ScanConfiguration:
                 rules=RawJson.from_json(x['rules']) if 'rules' in x else _atd_missing_json_field('ScanConfiguration', 'rules'),
                 triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
                 triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
+                project_merge_base=Sha1.from_json(x['project_merge_base']) if 'project_merge_base' in x else None,
                 fips_mode=_atd_read_bool(x['fips_mode']) if 'fips_mode' in x else False,
             )
         else:
@@ -7908,6 +7910,8 @@ class ScanConfiguration:
         res['rules'] = (lambda x: x.to_json())(self.rules)
         res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
         res['triage_ignored_match_based_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_match_based_ids)
+        if self.project_merge_base is not None:
+            res['project_merge_base'] = (lambda x: x.to_json())(self.project_merge_base)
         res['fips_mode'] = _atd_write_bool(self.fips_mode)
         return res
 
@@ -8156,6 +8160,7 @@ class ProjectMetadata:
     org_id: Optional[str] = None
     repo_display_name: Optional[str] = None
     commit_timestamp: Optional[Datetime] = None
+    base_branch_head_commit: Optional[Sha1] = None
     base_sha: Optional[Sha1] = None
     start_sha: Optional[Sha1] = None
     is_sca_scan: Optional[bool] = None
@@ -8188,6 +8193,7 @@ class ProjectMetadata:
                 org_id=_atd_read_string(x['org_id']) if 'org_id' in x else None,
                 repo_display_name=_atd_read_string(x['repo_display_name']) if 'repo_display_name' in x else None,
                 commit_timestamp=Datetime.from_json(x['commit_timestamp']) if 'commit_timestamp' in x else None,
+                base_branch_head_commit=Sha1.from_json(x['base_branch_head_commit']) if 'base_branch_head_commit' in x else None,
                 base_sha=Sha1.from_json(x['base_sha']) if 'base_sha' in x else None,
                 start_sha=Sha1.from_json(x['start_sha']) if 'start_sha' in x else None,
                 is_sca_scan=_atd_read_bool(x['is_sca_scan']) if 'is_sca_scan' in x else None,
@@ -8225,6 +8231,8 @@ class ProjectMetadata:
             res['repo_display_name'] = _atd_write_string(self.repo_display_name)
         if self.commit_timestamp is not None:
             res['commit_timestamp'] = (lambda x: x.to_json())(self.commit_timestamp)
+        if self.base_branch_head_commit is not None:
+            res['base_branch_head_commit'] = (lambda x: x.to_json())(self.base_branch_head_commit)
         if self.base_sha is not None:
             res['base_sha'] = (lambda x: x.to_json())(self.base_sha)
         if self.start_sha is not None:

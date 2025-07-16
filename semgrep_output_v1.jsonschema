@@ -1186,6 +1186,7 @@
           "type": "array",
           "items": { "type": "string" }
         },
+        "project_merge_base": { "$ref": "#/definitions/sha1" },
         "fips_mode": { "type": "boolean" }
       }
     },
@@ -1271,6 +1272,7 @@
         "pull_request_author_image_url": { "$ref": "#/definitions/uri" },
         "pull_request_id": { "type": [ "string", "null" ] },
         "pull_request_title": { "type": [ "string", "null" ] },
+        "base_branch_head_commit": { "$ref": "#/definitions/sha1" },
         "base_sha": { "$ref": "#/definitions/sha1" },
         "start_sha": { "$ref": "#/definitions/sha1" },
         "is_full_scan": { "type": "boolean" },
