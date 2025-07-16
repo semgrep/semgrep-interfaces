@@ -543,6 +543,7 @@ export type ScanConfiguration = {
   rules: RawJson;
   triage_ignored_syntactic_ids: string[];
   triage_ignored_match_based_ids: string[];
+  project_merge_base?: Sha1;
   fips_mode: boolean;
 }
 
@@ -2982,6 +2983,7 @@ export function writeScanConfiguration(x: ScanConfiguration, context: any = x): 
     'rules': _atd_write_required_field('ScanConfiguration', 'rules', writeRawJson, x.rules, x),
     'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
     'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
+    'project_merge_base': _atd_write_optional_field(writeSha1, x.project_merge_base, x),
     'fips_mode': _atd_write_field_with_default(_atd_write_bool, false, x.fips_mode, x),
   };
 }
@@ -2991,6 +2993,7 @@ export function readScanConfiguration(x: any, context: any = x): ScanConfigurati
     rules: _atd_read_required_field('ScanConfiguration', 'rules', readRawJson, x['rules'], x),
     triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),
     triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
+    project_merge_base: _atd_read_optional_field(readSha1, x['project_merge_base'], x),
     fips_mode: _atd_read_field_with_default(_atd_read_bool, false, x['fips_mode'], x),
   };
 }

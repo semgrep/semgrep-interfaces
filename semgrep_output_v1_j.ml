@@ -668,6 +668,7 @@ type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
   rules: raw_json;
   triage_ignored_syntactic_ids: string list;
   triage_ignored_match_based_ids: string list;
+  project_merge_base: sha1 option;
   fips_mode: bool
 }
 
@@ -22357,6 +22358,17 @@ let write_scan_configuration : _ -> scan_configuration -> _ = (
       write__string_list
     )
       ob x.triage_ignored_match_based_ids;
+    (match x.project_merge_base with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"project_merge_base\":";
+      (
+        write_sha1
+      )
+        ob x;
+    );
     if !is_first then
       is_first := false
     else
@@ -22379,6 +22391,7 @@ let read_scan_configuration = (
     let field_rules = ref (None) in
     let field_triage_ignored_syntactic_ids = ref ([]) in
     let field_triage_ignored_match_based_ids = ref ([]) in
+    let field_project_merge_base = ref (None) in
     let field_fips_mode = ref (false) in
     try
       Yojson.Safe.read_space p lb;
@@ -22399,6 +22412,14 @@ let read_scan_configuration = (
               )
             | 9 -> (
                 if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'm' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = 'e' then (
+                  4
+                )
+                else (
+                  -1
+                )
+              )
+            | 18 -> (
+                if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'j' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'm' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'g' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'b' && String.unsafe_get s (pos+15) = 'a' && String.unsafe_get s (pos+16) = 's' && String.unsafe_get s (pos+17) = 'e' then (
                   3
                 )
                 else (
@@ -22455,6 +22476,16 @@ let read_scan_configuration = (
             )
           | 3 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_project_merge_base := (
+                Some (
+                  (
+                    read_sha1
+                  ) p lb
+                )
+              );
+            )
+          | 4 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_fips_mode := (
                 (
                   Atdgen_runtime.Oj_run.read_bool
@@ -22484,6 +22515,14 @@ let read_scan_configuration = (
                 )
               | 9 -> (
                   if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'm' && String.unsafe_get s (pos+6) = 'o' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = 'e' then (
+                    4
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 18 -> (
+                  if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 'j' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'm' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'g' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'b' && String.unsafe_get s (pos+15) = 'a' && String.unsafe_get s (pos+16) = 's' && String.unsafe_get s (pos+17) = 'e' then (
                     3
                   )
                   else (
@@ -22540,6 +22579,16 @@ let read_scan_configuration = (
               )
             | 3 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_project_merge_base := (
+                  Some (
+                    (
+                      read_sha1
+                    ) p lb
+                  )
+                );
+              )
+            | 4 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_fips_mode := (
                   (
                     Atdgen_runtime.Oj_run.read_bool
@@ -22558,6 +22607,7 @@ let read_scan_configuration = (
             rules = (match !field_rules with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rules");
             triage_ignored_syntactic_ids = !field_triage_ignored_syntactic_ids;
             triage_ignored_match_based_ids = !field_triage_ignored_match_based_ids;
+            project_merge_base = !field_project_merge_base;
             fips_mode = !field_fips_mode;
           }
          : scan_configuration)

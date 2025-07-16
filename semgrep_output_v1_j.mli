@@ -668,6 +668,7 @@ type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
   rules: raw_json;
   triage_ignored_syntactic_ids: string list;
   triage_ignored_match_based_ids: string list;
+  project_merge_base: sha1 option;
   fips_mode: bool
 }
 

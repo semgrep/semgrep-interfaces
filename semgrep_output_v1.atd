@@ -1369,8 +1369,10 @@ type scan_configuration = {
     (* Rules sent from the backend. Note that those rules are in JSON
      * form not YAML (which led to some speedup in pysemgrep)
      * TODO? can we type this better *)
-    rules: raw_json; 
+    rules: raw_json;
     inherit triage_ignored;
+    (* From 1.129.0, tells us what merge base to use if it's a diff scan *)
+    ?project_merge_base: sha1 option;
     (* From 1.126.0.
      * Customers in FIPS environments have specific hash function requirements
      * that this flag will override.  See SAF-2057 for details. *)
@@ -1453,11 +1455,13 @@ type project_metadata = {
     (* TODO: the branch should use a standard format? like refs/... ? or it can
      * be a basic branch name like 'foobar'?
      *)
+    (* ALT: head_branch, head_commit *)
     branch: string nullable;
     commit: sha1 nullable;
     commit_title: string nullable;
     (* since 1.38.0 *)
     ?commit_timestamp: datetime option;
+
 
     (* TODO? inherit contributor instead? *)
     (* TODO? Emile.mailbox in OCaml *)
@@ -1479,7 +1483,8 @@ type project_metadata = {
     pull_request_id: string nullable;
     pull_request_title: string nullable;
 
-    (* Gitlab only *)
+    (* Used to be gitlab only, but is now used by the app to help determine
+    merge base *)
     ?base_sha: sha1 option;
     ?start_sha: sha1 option;
 

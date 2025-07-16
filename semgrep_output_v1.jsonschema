@@ -1099,6 +1099,7 @@
           "type": "array",
           "items": { "type": "string" }
         },
+        "project_merge_base": { "$ref": "#/definitions/sha1" },
         "fips_mode": { "type": "boolean" }
       }
     },
