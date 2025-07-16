@@ -673,6 +673,7 @@ type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
   rules: raw_json;
   triage_ignored_syntactic_ids: string list;
   triage_ignored_match_based_ids: string list;
+  project_merge_base: sha1 option;
   fips_mode: bool
 }
 
@@ -726,6 +727,8 @@ type project_metadata = Semgrep_output_v1_t.project_metadata = {
   commit: sha1 option;
   commit_title: string option;
   commit_timestamp: datetime option;
+  base_branch: string option;
+  base_commit: sha1 option;
   commit_author_email: string option;
   commit_author_name: string option;
   commit_author_username: string option;

@@ -550,6 +550,7 @@ export type ScanConfiguration = {
   rules: RawJson;
   triage_ignored_syntactic_ids: string[];
   triage_ignored_match_based_ids: string[];
+  project_merge_base?: Sha1;
   fips_mode: boolean;
 }
 
@@ -592,6 +593,8 @@ export type ProjectMetadata = {
   commit: (Sha1 | null);
   commit_title: (string | null);
   commit_timestamp?: Datetime;
+  base_branch?: string;
+  base_commit?: Sha1;
   commit_author_email: (string | null);
   commit_author_name: (string | null);
   commit_author_username: (string | null);
@@ -3011,6 +3014,7 @@ export function writeScanConfiguration(x: ScanConfiguration, context: any = x): 
     'rules': _atd_write_required_field('ScanConfiguration', 'rules', writeRawJson, x.rules, x),
     'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
     'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
+    'project_merge_base': _atd_write_optional_field(writeSha1, x.project_merge_base, x),
     'fips_mode': _atd_write_field_with_default(_atd_write_bool, false, x.fips_mode, x),
   };
 }
@@ -3020,6 +3024,7 @@ export function readScanConfiguration(x: any, context: any = x): ScanConfigurati
     rules: _atd_read_required_field('ScanConfiguration', 'rules', readRawJson, x['rules'], x),
     triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),
     triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
+    project_merge_base: _atd_read_optional_field(readSha1, x['project_merge_base'], x),
     fips_mode: _atd_read_field_with_default(_atd_read_bool, false, x['fips_mode'], x),
   };
 }
@@ -3108,6 +3113,8 @@ export function writeProjectMetadata(x: ProjectMetadata, context: any = x): any 
     'commit': _atd_write_required_field('ProjectMetadata', 'commit', _atd_write_nullable(writeSha1), x.commit, x),
     'commit_title': _atd_write_required_field('ProjectMetadata', 'commit_title', _atd_write_nullable(_atd_write_string), x.commit_title, x),
     'commit_timestamp': _atd_write_optional_field(writeDatetime, x.commit_timestamp, x),
+    'base_branch': _atd_write_optional_field(_atd_write_string, x.base_branch, x),
+    'base_commit': _atd_write_optional_field(writeSha1, x.base_commit, x),
     'commit_author_email': _atd_write_required_field('ProjectMetadata', 'commit_author_email', _atd_write_nullable(_atd_write_string), x.commit_author_email, x),
     'commit_author_name': _atd_write_required_field('ProjectMetadata', 'commit_author_name', _atd_write_nullable(_atd_write_string), x.commit_author_name, x),
     'commit_author_username': _atd_write_required_field('ProjectMetadata', 'commit_author_username', _atd_write_nullable(_atd_write_string), x.commit_author_username, x),
@@ -3140,6 +3147,8 @@ export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
     commit: _atd_read_required_field('ProjectMetadata', 'commit', _atd_read_nullable(readSha1), x['commit'], x),
     commit_title: _atd_read_required_field('ProjectMetadata', 'commit_title', _atd_read_nullable(_atd_read_string), x['commit_title'], x),
     commit_timestamp: _atd_read_optional_field(readDatetime, x['commit_timestamp'], x),
+    base_branch: _atd_read_optional_field(_atd_read_string, x['base_branch'], x),
+    base_commit: _atd_read_optional_field(readSha1, x['base_commit'], x),
     commit_author_email: _atd_read_required_field('ProjectMetadata', 'commit_author_email', _atd_read_nullable(_atd_read_string), x['commit_author_email'], x),
     commit_author_name: _atd_read_required_field('ProjectMetadata', 'commit_author_name', _atd_read_nullable(_atd_read_string), x['commit_author_name'], x),
     commit_author_username: _atd_read_required_field('ProjectMetadata', 'commit_author_username', _atd_read_nullable(_atd_read_string), x['commit_author_username'], x),
