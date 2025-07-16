@@ -906,11 +906,11 @@ export type CoreOutput = {
   interfile_languages_used?: string[];
   skipped_rules: SkippedRule[];
   subprojects?: CliOutputSubprojectInfo[];
-  symbol_analysis?: SymbolAnalysis;
+  ungrouped_symbol_analysis?: UngroupedSymbolAnalysis;
 }
 
 export type CoreOutputExtra = {
-  symbol_analysis?: SymbolAnalysis;
+  ungrouped_symbol_analysis?: UngroupedSymbolAnalysis;
 }
 
 export type CoreMatch = {
@@ -1183,7 +1183,14 @@ export type SymbolUsage = {
   locs: Location[];
 }
 
-export type SymbolAnalysis = SymbolUsage[]
+export type UngroupedSymbolAnalysis = SymbolUsage[]
+
+export type SubprojectSymbolAnalysis = {
+  subproject_root_dir: Fpath;
+  symbol_analysis: SymbolUsage[];
+}
+
+export type SymbolAnalysis = SubprojectSymbolAnalysis[]
 
 export type FunctionCall =
 | { kind: 'CallContributions' }
@@ -3957,7 +3964,7 @@ export function writeCoreOutput(x: CoreOutput, context: any = x): any {
     'interfile_languages_used': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.interfile_languages_used, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
     'subprojects': _atd_write_optional_field(_atd_write_array(writeCliOutputSubprojectInfo), x.subprojects, x),
-    'symbol_analysis': _atd_write_optional_field(writeSymbolAnalysis, x.symbol_analysis, x),
+    'ungrouped_symbol_analysis': _atd_write_optional_field(writeUngroupedSymbolAnalysis, x.ungrouped_symbol_analysis, x),
   };
 }
 
@@ -3974,19 +3981,19 @@ export function readCoreOutput(x: any, context: any = x): CoreOutput {
     interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
     subprojects: _atd_read_optional_field(_atd_read_array(readCliOutputSubprojectInfo), x['subprojects'], x),
-    symbol_analysis: _atd_read_optional_field(readSymbolAnalysis, x['symbol_analysis'], x),
+    ungrouped_symbol_analysis: _atd_read_optional_field(readUngroupedSymbolAnalysis, x['ungrouped_symbol_analysis'], x),
   };
 }
 
 export function writeCoreOutputExtra(x: CoreOutputExtra, context: any = x): any {
   return {
-    'symbol_analysis': _atd_write_optional_field(writeSymbolAnalysis, x.symbol_analysis, x),
+    'ungrouped_symbol_analysis': _atd_write_optional_field(writeUngroupedSymbolAnalysis, x.ungrouped_symbol_analysis, x),
   };
 }
 
 export function readCoreOutputExtra(x: any, context: any = x): CoreOutputExtra {
   return {
-    symbol_analysis: _atd_read_optional_field(readSymbolAnalysis, x['symbol_analysis'], x),
+    ungrouped_symbol_analysis: _atd_read_optional_field(readUngroupedSymbolAnalysis, x['ungrouped_symbol_analysis'], x),
   };
 }
 
@@ -4909,12 +4916,34 @@ export function readSymbolUsage(x: any, context: any = x): SymbolUsage {
   };
 }
 
-export function writeSymbolAnalysis(x: SymbolAnalysis, context: any = x): any {
+export function writeUngroupedSymbolAnalysis(x: UngroupedSymbolAnalysis, context: any = x): any {
   return _atd_write_array(writeSymbolUsage)(x, context);
 }
 
-export function readSymbolAnalysis(x: any, context: any = x): SymbolAnalysis {
+export function readUngroupedSymbolAnalysis(x: any, context: any = x): UngroupedSymbolAnalysis {
   return _atd_read_array(readSymbolUsage)(x, context);
+}
+
+export function writeSubprojectSymbolAnalysis(x: SubprojectSymbolAnalysis, context: any = x): any {
+  return {
+    'subproject_root_dir': _atd_write_required_field('SubprojectSymbolAnalysis', 'subproject_root_dir', writeFpath, x.subproject_root_dir, x),
+    'symbol_analysis': _atd_write_required_field('SubprojectSymbolAnalysis', 'symbol_analysis', _atd_write_array(writeSymbolUsage), x.symbol_analysis, x),
+  };
+}
+
+export function readSubprojectSymbolAnalysis(x: any, context: any = x): SubprojectSymbolAnalysis {
+  return {
+    subproject_root_dir: _atd_read_required_field('SubprojectSymbolAnalysis', 'subproject_root_dir', readFpath, x['subproject_root_dir'], x),
+    symbol_analysis: _atd_read_required_field('SubprojectSymbolAnalysis', 'symbol_analysis', _atd_read_array(readSymbolUsage), x['symbol_analysis'], x),
+  };
+}
+
+export function writeSymbolAnalysis(x: SymbolAnalysis, context: any = x): any {
+  return _atd_write_array(writeSubprojectSymbolAnalysis)(x, context);
+}
+
+export function readSymbolAnalysis(x: any, context: any = x): SymbolAnalysis {
+  return _atd_read_array(readSubprojectSymbolAnalysis)(x, context);
 }
 
 export function writeFunctionCall(x: FunctionCall, context: any = x): any {
