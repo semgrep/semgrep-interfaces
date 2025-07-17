@@ -771,6 +771,9 @@
           "additionalProperties": { "type": "number" }
         },
         "parsing_time": { "$ref": "#/definitions/parsing_time" },
+        "scanning_time": { "$ref": "#/definitions/scanning_time" },
+        "matching_time": { "$ref": "#/definitions/matching_time" },
+        "tainting_time": { "$ref": "#/definitions/tainting_time" },
         "targets": {
           "type": "array",
           "items": { "$ref": "#/definitions/target_times" }
@@ -787,6 +790,25 @@
         "ftime": { "type": "number" }
       }
     },
+    "file_rule_time": {
+      "type": "object",
+      "required": [ "fpath", "rule_id", "time" ],
+      "properties": {
+        "fpath": { "$ref": "#/definitions/fpath" },
+        "rule_id": { "$ref": "#/definitions/rule_id" },
+        "time": { "type": "number" }
+      }
+    },
+    "def_rule_time": {
+      "type": "object",
+      "required": [ "fpath", "fline", "rule_id", "time" ],
+      "properties": {
+        "fpath": { "$ref": "#/definitions/fpath" },
+        "fline": { "type": "integer" },
+        "rule_id": { "$ref": "#/definitions/rule_id" },
+        "time": { "type": "number" }
+      }
+    },
     "summary_stats": {
       "type": "object",
       "required": [ "mean", "std_dev" ],
@@ -795,15 +817,71 @@
         "std_dev": { "type": "number" }
       }
     },
+    "very_slow_stats": {
+      "type": "object",
+      "required": [ "time_ratio", "count_ratio" ],
+      "properties": {
+        "time_ratio": { "type": "number" },
+        "count_ratio": { "type": "number" }
+      }
+    },
     "parsing_time": {
       "type": "object",
       "required": [ "total_time", "per_file_time", "very_slow_files" ],
       "properties": {
         "total_time": { "type": "number" },
         "per_file_time": { "$ref": "#/definitions/summary_stats" },
+        "very_slow_stats": { "$ref": "#/definitions/very_slow_stats" },
         "very_slow_files": {
           "type": "array",
           "items": { "$ref": "#/definitions/file_time" }
+        }
+      }
+    },
+    "scanning_time": {
+      "type": "object",
+      "required": [
+        "total_time", "per_file_time", "very_slow_stats", "very_slow_files"
+      ],
+      "properties": {
+        "total_time": { "type": "number" },
+        "per_file_time": { "$ref": "#/definitions/summary_stats" },
+        "very_slow_stats": { "$ref": "#/definitions/very_slow_stats" },
+        "very_slow_files": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/file_time" }
+        }
+      }
+    },
+    "matching_time": {
+      "type": "object",
+      "required": [
+        "total_time", "per_file_and_rule_time", "very_slow_stats",
+        "very_slow_rules_on_files"
+      ],
+      "properties": {
+        "total_time": { "type": "number" },
+        "per_file_and_rule_time": { "$ref": "#/definitions/summary_stats" },
+        "very_slow_stats": { "$ref": "#/definitions/very_slow_stats" },
+        "very_slow_rules_on_files": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/file_rule_time" }
+        }
+      }
+    },
+    "tainting_time": {
+      "type": "object",
+      "required": [
+        "total_time", "per_def_and_rule_time", "very_slow_stats",
+        "very_slow_rules_on_defs"
+      ],
+      "properties": {
+        "total_time": { "type": "number" },
+        "per_def_and_rule_time": { "$ref": "#/definitions/summary_stats" },
+        "very_slow_stats": { "$ref": "#/definitions/very_slow_stats" },
+        "very_slow_rules_on_defs": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/def_rule_time" }
         }
       }
     },

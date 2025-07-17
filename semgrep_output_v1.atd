@@ -1016,7 +1016,14 @@ type profile = {
       <python repr="dict">
       <ts repr="map">;
 
+    (* EXPERIMENTAL *)
     ?parsing_time : parsing_time option;
+    (* EXPERIMENTAL *)
+    ?scanning_time : scanning_time option;
+    (* EXPERIMENTAL *)
+    ?matching_time : matching_time option;
+    (* EXPERIMENTAL *)
+    ?tainting_time : tainting_time option;
 
     targets: target_times list;
     total_bytes: int;
@@ -1025,20 +1032,76 @@ type profile = {
     ?max_memory_bytes : int option;
   }
 
+(* EXPERIMENTAL *)
 type file_time <ocaml attr="deriving show"> = {
     fpath: fpath;
     ftime: float;
 }
 
+(* EXPERIMENTAL *)
+type file_rule_time <ocaml attr="deriving show"> = {
+    fpath: fpath;
+    rule_id: rule_id;
+    time: float;
+}
+
+(* EXPERIMENTAL *)
+type def_rule_time <ocaml attr="deriving show"> = {
+    fpath: fpath;
+    fline : int;
+    rule_id: rule_id;
+    time: float;
+}
+
+(* EXPERIMENTAL *)
 type summary_stats = {
     mean: float;
     std_dev: float;
 }
 
+(* These ratios are numbers in [0, 1], and we would hope that both 'time_ratio'
+  and 'count_ratio' are very close to 0. In bad cases, we may see the 'count_ratio'
+  being close to 0 while the 'time_ratio' is above 0.5, meaning that a small number
+  of very slow files/etc represent a large amount of the total processing time.  *)
+(* EXPERIMENTAL *)
+type very_slow_stats = {
+    time_ratio: float;
+    (* Ratio "sum of very slow time" / "total time" *)
+    count_ratio: float;
+    (* Ratio "very slow count" / "total count" *)
+}
+
+(* EXPERIMENTAL *)
 type parsing_time = {
     total_time: float;
     per_file_time: summary_stats;
+    ?very_slow_stats: very_slow_stats option;
     very_slow_files: file_time list; (* ascending order *)
+}
+
+(* Scanning time (includes matching and tainting) *)
+(* EXPERIMENTAL *)
+type scanning_time = {
+  total_time : float;
+  per_file_time: summary_stats;
+  very_slow_stats: very_slow_stats;
+  very_slow_files: file_time list; (* ascending order *)
+}
+
+(* EXPERIMENTAL *)
+type matching_time = {
+  total_time : float;
+  per_file_and_rule_time : summary_stats;
+  very_slow_stats: very_slow_stats;
+  very_slow_rules_on_files: file_rule_time list; (* ascending order *)
+}
+
+(* EXPERIMENTAL *)
+type tainting_time = {
+  total_time : float;
+  per_def_and_rule_time : summary_stats;
+  very_slow_stats: very_slow_stats;
+  very_slow_rules_on_defs: def_rule_time list; (* ascending order *)
 }
 
 type target_times = {
