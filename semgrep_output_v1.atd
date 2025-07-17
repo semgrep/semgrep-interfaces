@@ -1017,6 +1017,9 @@ type profile = {
       <ts repr="map">;
 
     ?parsing_time : parsing_time option;
+    ?scanning_time : scanning_time option;
+    ?matching_time : matching_time option;
+    ?tainting_time : tainting_time option;
 
     targets: target_times list;
     total_bytes: int;
@@ -1030,15 +1033,56 @@ type file_time <ocaml attr="deriving show"> = {
     ftime: float;
 }
 
+type file_rule_time <ocaml attr="deriving show"> = {
+    fpath: fpath;
+    rule_id: rule_id;
+    fr_time: float;
+}
+
+type def_rule_time <ocaml attr="deriving show"> = {
+    fpath: fpath;
+    fline : int;
+    rule_id: rule_id;
+    dr_time: float;
+}
+
 type summary_stats = {
     mean: float;
     std_dev: float;
 }
 
+type very_slow_stats = {
+    time_ratio: float;
+    count_ratio: float;
+}
+
 type parsing_time = {
     total_time: float;
     per_file_time: summary_stats;
+    ?very_slow_stats: very_slow_stats option;
     very_slow_files: file_time list; (* ascending order *)
+}
+
+(* Scanning time (includes matching and tainting) *)
+type scanning_time = {
+  total_time : float;
+  per_file_time: summary_stats;
+  very_slow_stats: very_slow_stats;
+  very_slow_files: file_time list; (* ascending order *)
+}
+
+type matching_time = {
+  total_time : float;
+  per_file_and_rule_time : summary_stats;
+  very_slow_stats: very_slow_stats;
+  very_slow_rules_on_files: file_rule_time list; (* ascending order *)
+}
+
+type tainting_time = {
+  total_time : float;
+  per_def_and_rule_time : summary_stats;
+  very_slow_stats: very_slow_stats;
+  very_slow_rules_on_defs: def_rule_time list; (* ascending order *)
 }
 
 type target_times = {

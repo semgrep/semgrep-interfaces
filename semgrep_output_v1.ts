@@ -379,6 +379,9 @@ export type Profile = {
   rules_parse_time: number;
   profiling_times: Map<string, number>;
   parsing_time?: ParsingTime;
+  scanning_time?: ScanningTime;
+  matching_time?: MatchingTime;
+  tainting_time?: TaintingTime;
   targets: TargetTimes[];
   total_bytes: number /*int*/;
   max_memory_bytes?: number /*int*/;
@@ -389,15 +392,55 @@ export type FileTime = {
   ftime: number;
 }
 
+export type FileRuleTime = {
+  fpath: Fpath;
+  rule_id: RuleId;
+  fr_time: number;
+}
+
+export type DefRuleTime = {
+  fpath: Fpath;
+  fline: number /*int*/;
+  rule_id: RuleId;
+  dr_time: number;
+}
+
 export type SummaryStats = {
   mean: number;
   std_dev: number;
 }
 
+export type VerySlowStats = {
+  time_ratio: number;
+  count_ratio: number;
+}
+
 export type ParsingTime = {
   total_time: number;
   per_file_time: SummaryStats;
+  very_slow_stats?: VerySlowStats;
   very_slow_files: FileTime[];
+}
+
+export type ScanningTime = {
+  total_time: number;
+  per_file_time: SummaryStats;
+  very_slow_stats: VerySlowStats;
+  very_slow_files: FileTime[];
+}
+
+export type MatchingTime = {
+  total_time: number;
+  per_file_and_rule_time: SummaryStats;
+  very_slow_stats: VerySlowStats;
+  very_slow_rules_on_files: FileRuleTime[];
+}
+
+export type TaintingTime = {
+  total_time: number;
+  per_def_and_rule_time: SummaryStats;
+  very_slow_stats: VerySlowStats;
+  very_slow_rules_on_defs: DefRuleTime[];
 }
 
 export type TargetTimes = {
@@ -2486,6 +2529,9 @@ export function writeProfile(x: Profile, context: any = x): any {
     'rules_parse_time': _atd_write_required_field('Profile', 'rules_parse_time', _atd_write_float, x.rules_parse_time, x),
     'profiling_times': _atd_write_required_field('Profile', 'profiling_times', _atd_write_assoc_map_to_object(_atd_write_float), x.profiling_times, x),
     'parsing_time': _atd_write_optional_field(writeParsingTime, x.parsing_time, x),
+    'scanning_time': _atd_write_optional_field(writeScanningTime, x.scanning_time, x),
+    'matching_time': _atd_write_optional_field(writeMatchingTime, x.matching_time, x),
+    'tainting_time': _atd_write_optional_field(writeTaintingTime, x.tainting_time, x),
     'targets': _atd_write_required_field('Profile', 'targets', _atd_write_array(writeTargetTimes), x.targets, x),
     'total_bytes': _atd_write_required_field('Profile', 'total_bytes', _atd_write_int, x.total_bytes, x),
     'max_memory_bytes': _atd_write_optional_field(_atd_write_int, x.max_memory_bytes, x),
@@ -2498,6 +2544,9 @@ export function readProfile(x: any, context: any = x): Profile {
     rules_parse_time: _atd_read_required_field('Profile', 'rules_parse_time', _atd_read_float, x['rules_parse_time'], x),
     profiling_times: _atd_read_required_field('Profile', 'profiling_times', _atd_read_assoc_object_into_map(_atd_read_float), x['profiling_times'], x),
     parsing_time: _atd_read_optional_field(readParsingTime, x['parsing_time'], x),
+    scanning_time: _atd_read_optional_field(readScanningTime, x['scanning_time'], x),
+    matching_time: _atd_read_optional_field(readMatchingTime, x['matching_time'], x),
+    tainting_time: _atd_read_optional_field(readTaintingTime, x['tainting_time'], x),
     targets: _atd_read_required_field('Profile', 'targets', _atd_read_array(readTargetTimes), x['targets'], x),
     total_bytes: _atd_read_required_field('Profile', 'total_bytes', _atd_read_int, x['total_bytes'], x),
     max_memory_bytes: _atd_read_optional_field(_atd_read_int, x['max_memory_bytes'], x),
@@ -2518,6 +2567,40 @@ export function readFileTime(x: any, context: any = x): FileTime {
   };
 }
 
+export function writeFileRuleTime(x: FileRuleTime, context: any = x): any {
+  return {
+    'fpath': _atd_write_required_field('FileRuleTime', 'fpath', writeFpath, x.fpath, x),
+    'rule_id': _atd_write_required_field('FileRuleTime', 'rule_id', writeRuleId, x.rule_id, x),
+    'fr_time': _atd_write_required_field('FileRuleTime', 'fr_time', _atd_write_float, x.fr_time, x),
+  };
+}
+
+export function readFileRuleTime(x: any, context: any = x): FileRuleTime {
+  return {
+    fpath: _atd_read_required_field('FileRuleTime', 'fpath', readFpath, x['fpath'], x),
+    rule_id: _atd_read_required_field('FileRuleTime', 'rule_id', readRuleId, x['rule_id'], x),
+    fr_time: _atd_read_required_field('FileRuleTime', 'fr_time', _atd_read_float, x['fr_time'], x),
+  };
+}
+
+export function writeDefRuleTime(x: DefRuleTime, context: any = x): any {
+  return {
+    'fpath': _atd_write_required_field('DefRuleTime', 'fpath', writeFpath, x.fpath, x),
+    'fline': _atd_write_required_field('DefRuleTime', 'fline', _atd_write_int, x.fline, x),
+    'rule_id': _atd_write_required_field('DefRuleTime', 'rule_id', writeRuleId, x.rule_id, x),
+    'dr_time': _atd_write_required_field('DefRuleTime', 'dr_time', _atd_write_float, x.dr_time, x),
+  };
+}
+
+export function readDefRuleTime(x: any, context: any = x): DefRuleTime {
+  return {
+    fpath: _atd_read_required_field('DefRuleTime', 'fpath', readFpath, x['fpath'], x),
+    fline: _atd_read_required_field('DefRuleTime', 'fline', _atd_read_int, x['fline'], x),
+    rule_id: _atd_read_required_field('DefRuleTime', 'rule_id', readRuleId, x['rule_id'], x),
+    dr_time: _atd_read_required_field('DefRuleTime', 'dr_time', _atd_read_float, x['dr_time'], x),
+  };
+}
+
 export function writeSummaryStats(x: SummaryStats, context: any = x): any {
   return {
     'mean': _atd_write_required_field('SummaryStats', 'mean', _atd_write_float, x.mean, x),
@@ -2532,10 +2615,25 @@ export function readSummaryStats(x: any, context: any = x): SummaryStats {
   };
 }
 
+export function writeVerySlowStats(x: VerySlowStats, context: any = x): any {
+  return {
+    'time_ratio': _atd_write_required_field('VerySlowStats', 'time_ratio', _atd_write_float, x.time_ratio, x),
+    'count_ratio': _atd_write_required_field('VerySlowStats', 'count_ratio', _atd_write_float, x.count_ratio, x),
+  };
+}
+
+export function readVerySlowStats(x: any, context: any = x): VerySlowStats {
+  return {
+    time_ratio: _atd_read_required_field('VerySlowStats', 'time_ratio', _atd_read_float, x['time_ratio'], x),
+    count_ratio: _atd_read_required_field('VerySlowStats', 'count_ratio', _atd_read_float, x['count_ratio'], x),
+  };
+}
+
 export function writeParsingTime(x: ParsingTime, context: any = x): any {
   return {
     'total_time': _atd_write_required_field('ParsingTime', 'total_time', _atd_write_float, x.total_time, x),
     'per_file_time': _atd_write_required_field('ParsingTime', 'per_file_time', writeSummaryStats, x.per_file_time, x),
+    'very_slow_stats': _atd_write_optional_field(writeVerySlowStats, x.very_slow_stats, x),
     'very_slow_files': _atd_write_required_field('ParsingTime', 'very_slow_files', _atd_write_array(writeFileTime), x.very_slow_files, x),
   };
 }
@@ -2544,7 +2642,62 @@ export function readParsingTime(x: any, context: any = x): ParsingTime {
   return {
     total_time: _atd_read_required_field('ParsingTime', 'total_time', _atd_read_float, x['total_time'], x),
     per_file_time: _atd_read_required_field('ParsingTime', 'per_file_time', readSummaryStats, x['per_file_time'], x),
+    very_slow_stats: _atd_read_optional_field(readVerySlowStats, x['very_slow_stats'], x),
     very_slow_files: _atd_read_required_field('ParsingTime', 'very_slow_files', _atd_read_array(readFileTime), x['very_slow_files'], x),
+  };
+}
+
+export function writeScanningTime(x: ScanningTime, context: any = x): any {
+  return {
+    'total_time': _atd_write_required_field('ScanningTime', 'total_time', _atd_write_float, x.total_time, x),
+    'per_file_time': _atd_write_required_field('ScanningTime', 'per_file_time', writeSummaryStats, x.per_file_time, x),
+    'very_slow_stats': _atd_write_required_field('ScanningTime', 'very_slow_stats', writeVerySlowStats, x.very_slow_stats, x),
+    'very_slow_files': _atd_write_required_field('ScanningTime', 'very_slow_files', _atd_write_array(writeFileTime), x.very_slow_files, x),
+  };
+}
+
+export function readScanningTime(x: any, context: any = x): ScanningTime {
+  return {
+    total_time: _atd_read_required_field('ScanningTime', 'total_time', _atd_read_float, x['total_time'], x),
+    per_file_time: _atd_read_required_field('ScanningTime', 'per_file_time', readSummaryStats, x['per_file_time'], x),
+    very_slow_stats: _atd_read_required_field('ScanningTime', 'very_slow_stats', readVerySlowStats, x['very_slow_stats'], x),
+    very_slow_files: _atd_read_required_field('ScanningTime', 'very_slow_files', _atd_read_array(readFileTime), x['very_slow_files'], x),
+  };
+}
+
+export function writeMatchingTime(x: MatchingTime, context: any = x): any {
+  return {
+    'total_time': _atd_write_required_field('MatchingTime', 'total_time', _atd_write_float, x.total_time, x),
+    'per_file_and_rule_time': _atd_write_required_field('MatchingTime', 'per_file_and_rule_time', writeSummaryStats, x.per_file_and_rule_time, x),
+    'very_slow_stats': _atd_write_required_field('MatchingTime', 'very_slow_stats', writeVerySlowStats, x.very_slow_stats, x),
+    'very_slow_rules_on_files': _atd_write_required_field('MatchingTime', 'very_slow_rules_on_files', _atd_write_array(writeFileRuleTime), x.very_slow_rules_on_files, x),
+  };
+}
+
+export function readMatchingTime(x: any, context: any = x): MatchingTime {
+  return {
+    total_time: _atd_read_required_field('MatchingTime', 'total_time', _atd_read_float, x['total_time'], x),
+    per_file_and_rule_time: _atd_read_required_field('MatchingTime', 'per_file_and_rule_time', readSummaryStats, x['per_file_and_rule_time'], x),
+    very_slow_stats: _atd_read_required_field('MatchingTime', 'very_slow_stats', readVerySlowStats, x['very_slow_stats'], x),
+    very_slow_rules_on_files: _atd_read_required_field('MatchingTime', 'very_slow_rules_on_files', _atd_read_array(readFileRuleTime), x['very_slow_rules_on_files'], x),
+  };
+}
+
+export function writeTaintingTime(x: TaintingTime, context: any = x): any {
+  return {
+    'total_time': _atd_write_required_field('TaintingTime', 'total_time', _atd_write_float, x.total_time, x),
+    'per_def_and_rule_time': _atd_write_required_field('TaintingTime', 'per_def_and_rule_time', writeSummaryStats, x.per_def_and_rule_time, x),
+    'very_slow_stats': _atd_write_required_field('TaintingTime', 'very_slow_stats', writeVerySlowStats, x.very_slow_stats, x),
+    'very_slow_rules_on_defs': _atd_write_required_field('TaintingTime', 'very_slow_rules_on_defs', _atd_write_array(writeDefRuleTime), x.very_slow_rules_on_defs, x),
+  };
+}
+
+export function readTaintingTime(x: any, context: any = x): TaintingTime {
+  return {
+    total_time: _atd_read_required_field('TaintingTime', 'total_time', _atd_read_float, x['total_time'], x),
+    per_def_and_rule_time: _atd_read_required_field('TaintingTime', 'per_def_and_rule_time', readSummaryStats, x['per_def_and_rule_time'], x),
+    very_slow_stats: _atd_read_required_field('TaintingTime', 'very_slow_stats', readVerySlowStats, x['very_slow_stats'], x),
+    very_slow_rules_on_defs: _atd_read_required_field('TaintingTime', 'very_slow_rules_on_defs', _atd_read_array(readDefRuleTime), x['very_slow_rules_on_defs'], x),
   };
 }
 
