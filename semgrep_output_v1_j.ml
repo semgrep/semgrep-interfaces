@@ -611,7 +611,7 @@ type def_rule_time = Semgrep_output_v1_t.def_rule_time = {
   fpath: fpath;
   fline: int;
   rule_id: rule_id;
-  dr_time: float
+  time: float
 }
   [@@deriving show]
 
@@ -869,7 +869,7 @@ type parsing_time = Semgrep_output_v1_t.parsing_time = {
 type file_rule_time = Semgrep_output_v1_t.file_rule_time = {
   fpath: fpath;
   rule_id: rule_id;
-  fr_time: float
+  time: float
 }
   [@@deriving show]
 
@@ -20683,11 +20683,11 @@ let write_def_rule_time : _ -> def_rule_time -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"dr_time\":";
+      Buffer.add_string ob "\"time\":";
     (
       Yojson.Safe.write_std_float
     )
-      ob x.dr_time;
+      ob x.time;
     Buffer.add_char ob '}';
 )
 let string_of_def_rule_time ?(len = 1024) x =
@@ -20701,7 +20701,7 @@ let read_def_rule_time = (
     let field_fpath = ref (None) in
     let field_fline = ref (None) in
     let field_rule_id = ref (None) in
-    let field_dr_time = ref (None) in
+    let field_time = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -20711,6 +20711,14 @@ let read_def_rule_time = (
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
+            | 4 -> (
+                if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'e' then (
+                  3
+                )
+                else (
+                  -1
+                )
+              )
             | 5 -> (
                 if String.unsafe_get s pos = 'f' then (
                   match String.unsafe_get s (pos+1) with
@@ -20739,26 +20747,12 @@ let read_def_rule_time = (
                 )
               )
             | 7 -> (
-                match String.unsafe_get s pos with
-                  | 'd' -> (
-                      if String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'm' && String.unsafe_get s (pos+6) = 'e' then (
-                        3
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | 'r' -> (
-                      if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
-                        2
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | _ -> (
-                      -1
-                    )
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
+                  2
+                )
+                else (
+                  -1
+                )
               )
             | _ -> (
                 -1
@@ -20793,7 +20787,7 @@ let read_def_rule_time = (
               )
             );
           | 3 ->
-            field_dr_time := (
+            field_time := (
               Some (
                 (
                   Atdgen_runtime.Oj_run.read_number
@@ -20813,6 +20807,14 @@ let read_def_rule_time = (
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
+              | 4 -> (
+                  if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'e' then (
+                    3
+                  )
+                  else (
+                    -1
+                  )
+                )
               | 5 -> (
                   if String.unsafe_get s pos = 'f' then (
                     match String.unsafe_get s (pos+1) with
@@ -20841,26 +20843,12 @@ let read_def_rule_time = (
                   )
                 )
               | 7 -> (
-                  match String.unsafe_get s pos with
-                    | 'd' -> (
-                        if String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'm' && String.unsafe_get s (pos+6) = 'e' then (
-                          3
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 'r' -> (
-                        if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
-                          2
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
+                    2
+                  )
+                  else (
+                    -1
+                  )
                 )
               | _ -> (
                   -1
@@ -20895,7 +20883,7 @@ let read_def_rule_time = (
                 )
               );
             | 3 ->
-              field_dr_time := (
+              field_time := (
                 Some (
                   (
                     Atdgen_runtime.Oj_run.read_number
@@ -20914,7 +20902,7 @@ let read_def_rule_time = (
             fpath = (match !field_fpath with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "fpath");
             fline = (match !field_fline with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "fline");
             rule_id = (match !field_rule_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rule_id");
-            dr_time = (match !field_dr_time with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "dr_time");
+            time = (match !field_time with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "time");
           }
          : def_rule_time)
       )
@@ -30903,11 +30891,11 @@ let write_file_rule_time : _ -> file_rule_time -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"fr_time\":";
+      Buffer.add_string ob "\"time\":";
     (
       Yojson.Safe.write_std_float
     )
-      ob x.fr_time;
+      ob x.time;
     Buffer.add_char ob '}';
 )
 let string_of_file_rule_time ?(len = 1024) x =
@@ -30920,7 +30908,7 @@ let read_file_rule_time = (
     Yojson.Safe.read_lcurl p lb;
     let field_fpath = ref (None) in
     let field_rule_id = ref (None) in
-    let field_fr_time = ref (None) in
+    let field_time = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -30930,6 +30918,14 @@ let read_file_rule_time = (
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
+            | 4 -> (
+                if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'e' then (
+                  2
+                )
+                else (
+                  -1
+                )
+              )
             | 5 -> (
                 if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'p' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'h' then (
                   0
@@ -30939,26 +30935,12 @@ let read_file_rule_time = (
                 )
               )
             | 7 -> (
-                match String.unsafe_get s pos with
-                  | 'f' -> (
-                      if String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'm' && String.unsafe_get s (pos+6) = 'e' then (
-                        2
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | 'r' -> (
-                      if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
-                        1
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | _ -> (
-                      -1
-                    )
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
+                  1
+                )
+                else (
+                  -1
+                )
               )
             | _ -> (
                 -1
@@ -30985,7 +30967,7 @@ let read_file_rule_time = (
               )
             );
           | 2 ->
-            field_fr_time := (
+            field_time := (
               Some (
                 (
                   Atdgen_runtime.Oj_run.read_number
@@ -31005,6 +30987,14 @@ let read_file_rule_time = (
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
+              | 4 -> (
+                  if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'e' then (
+                    2
+                  )
+                  else (
+                    -1
+                  )
+                )
               | 5 -> (
                   if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'p' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'h' then (
                     0
@@ -31014,26 +31004,12 @@ let read_file_rule_time = (
                   )
                 )
               | 7 -> (
-                  match String.unsafe_get s pos with
-                    | 'f' -> (
-                        if String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'm' && String.unsafe_get s (pos+6) = 'e' then (
-                          2
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 'r' -> (
-                        if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
-                          1
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
                 )
               | _ -> (
                   -1
@@ -31060,7 +31036,7 @@ let read_file_rule_time = (
                 )
               );
             | 2 ->
-              field_fr_time := (
+              field_time := (
                 Some (
                   (
                     Atdgen_runtime.Oj_run.read_number
@@ -31078,7 +31054,7 @@ let read_file_rule_time = (
           {
             fpath = (match !field_fpath with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "fpath");
             rule_id = (match !field_rule_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rule_id");
-            fr_time = (match !field_fr_time with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "fr_time");
+            time = (match !field_time with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "time");
           }
          : file_rule_time)
       )

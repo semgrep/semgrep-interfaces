@@ -792,21 +792,21 @@
     },
     "file_rule_time": {
       "type": "object",
-      "required": [ "fpath", "rule_id", "fr_time" ],
+      "required": [ "fpath", "rule_id", "time" ],
       "properties": {
         "fpath": { "$ref": "#/definitions/fpath" },
         "rule_id": { "$ref": "#/definitions/rule_id" },
-        "fr_time": { "type": "number" }
+        "time": { "type": "number" }
       }
     },
     "def_rule_time": {
       "type": "object",
-      "required": [ "fpath", "fline", "rule_id", "dr_time" ],
+      "required": [ "fpath", "fline", "rule_id", "time" ],
       "properties": {
         "fpath": { "$ref": "#/definitions/fpath" },
         "fline": { "type": "integer" },
         "rule_id": { "$ref": "#/definitions/rule_id" },
-        "dr_time": { "type": "number" }
+        "time": { "type": "number" }
       }
     },
     "summary_stats": {

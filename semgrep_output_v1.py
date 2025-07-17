@@ -7244,7 +7244,7 @@ class DefRuleTime:
     fpath: Fpath
     fline: int
     rule_id: RuleId
-    dr_time: float
+    time: float
 
     @classmethod
     def from_json(cls, x: Any) -> 'DefRuleTime':
@@ -7253,7 +7253,7 @@ class DefRuleTime:
                 fpath=Fpath.from_json(x['fpath']) if 'fpath' in x else _atd_missing_json_field('DefRuleTime', 'fpath'),
                 fline=_atd_read_int(x['fline']) if 'fline' in x else _atd_missing_json_field('DefRuleTime', 'fline'),
                 rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else _atd_missing_json_field('DefRuleTime', 'rule_id'),
-                dr_time=_atd_read_float(x['dr_time']) if 'dr_time' in x else _atd_missing_json_field('DefRuleTime', 'dr_time'),
+                time=_atd_read_float(x['time']) if 'time' in x else _atd_missing_json_field('DefRuleTime', 'time'),
             )
         else:
             _atd_bad_json('DefRuleTime', x)
@@ -7263,7 +7263,7 @@ class DefRuleTime:
         res['fpath'] = (lambda x: x.to_json())(self.fpath)
         res['fline'] = _atd_write_int(self.fline)
         res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
-        res['dr_time'] = _atd_write_float(self.dr_time)
+        res['time'] = _atd_write_float(self.time)
         return res
 
     @classmethod
@@ -8901,7 +8901,7 @@ class FileRuleTime:
 
     fpath: Fpath
     rule_id: RuleId
-    fr_time: float
+    time: float
 
     @classmethod
     def from_json(cls, x: Any) -> 'FileRuleTime':
@@ -8909,7 +8909,7 @@ class FileRuleTime:
             return cls(
                 fpath=Fpath.from_json(x['fpath']) if 'fpath' in x else _atd_missing_json_field('FileRuleTime', 'fpath'),
                 rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else _atd_missing_json_field('FileRuleTime', 'rule_id'),
-                fr_time=_atd_read_float(x['fr_time']) if 'fr_time' in x else _atd_missing_json_field('FileRuleTime', 'fr_time'),
+                time=_atd_read_float(x['time']) if 'time' in x else _atd_missing_json_field('FileRuleTime', 'time'),
             )
         else:
             _atd_bad_json('FileRuleTime', x)
@@ -8918,7 +8918,7 @@ class FileRuleTime:
         res: Dict[str, Any] = {}
         res['fpath'] = (lambda x: x.to_json())(self.fpath)
         res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
-        res['fr_time'] = _atd_write_float(self.fr_time)
+        res['time'] = _atd_write_float(self.time)
         return res
 
     @classmethod

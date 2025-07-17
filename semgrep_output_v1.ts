@@ -395,14 +395,14 @@ export type FileTime = {
 export type FileRuleTime = {
   fpath: Fpath;
   rule_id: RuleId;
-  fr_time: number;
+  time: number;
 }
 
 export type DefRuleTime = {
   fpath: Fpath;
   fline: number /*int*/;
   rule_id: RuleId;
-  dr_time: number;
+  time: number;
 }
 
 export type SummaryStats = {
@@ -2571,7 +2571,7 @@ export function writeFileRuleTime(x: FileRuleTime, context: any = x): any {
   return {
     'fpath': _atd_write_required_field('FileRuleTime', 'fpath', writeFpath, x.fpath, x),
     'rule_id': _atd_write_required_field('FileRuleTime', 'rule_id', writeRuleId, x.rule_id, x),
-    'fr_time': _atd_write_required_field('FileRuleTime', 'fr_time', _atd_write_float, x.fr_time, x),
+    'time': _atd_write_required_field('FileRuleTime', 'time', _atd_write_float, x.time, x),
   };
 }
 
@@ -2579,7 +2579,7 @@ export function readFileRuleTime(x: any, context: any = x): FileRuleTime {
   return {
     fpath: _atd_read_required_field('FileRuleTime', 'fpath', readFpath, x['fpath'], x),
     rule_id: _atd_read_required_field('FileRuleTime', 'rule_id', readRuleId, x['rule_id'], x),
-    fr_time: _atd_read_required_field('FileRuleTime', 'fr_time', _atd_read_float, x['fr_time'], x),
+    time: _atd_read_required_field('FileRuleTime', 'time', _atd_read_float, x['time'], x),
   };
 }
 
@@ -2588,7 +2588,7 @@ export function writeDefRuleTime(x: DefRuleTime, context: any = x): any {
     'fpath': _atd_write_required_field('DefRuleTime', 'fpath', writeFpath, x.fpath, x),
     'fline': _atd_write_required_field('DefRuleTime', 'fline', _atd_write_int, x.fline, x),
     'rule_id': _atd_write_required_field('DefRuleTime', 'rule_id', writeRuleId, x.rule_id, x),
-    'dr_time': _atd_write_required_field('DefRuleTime', 'dr_time', _atd_write_float, x.dr_time, x),
+    'time': _atd_write_required_field('DefRuleTime', 'time', _atd_write_float, x.time, x),
   };
 }
 
@@ -2597,7 +2597,7 @@ export function readDefRuleTime(x: any, context: any = x): DefRuleTime {
     fpath: _atd_read_required_field('DefRuleTime', 'fpath', readFpath, x['fpath'], x),
     fline: _atd_read_required_field('DefRuleTime', 'fline', _atd_read_int, x['fline'], x),
     rule_id: _atd_read_required_field('DefRuleTime', 'rule_id', readRuleId, x['rule_id'], x),
-    dr_time: _atd_read_required_field('DefRuleTime', 'dr_time', _atd_read_float, x['dr_time'], x),
+    time: _atd_read_required_field('DefRuleTime', 'time', _atd_read_float, x['time'], x),
   };
 }
 

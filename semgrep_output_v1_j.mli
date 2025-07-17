@@ -611,7 +611,7 @@ type def_rule_time = Semgrep_output_v1_t.def_rule_time = {
   fpath: fpath;
   fline: int;
   rule_id: rule_id;
-  dr_time: float
+  time: float
 }
   [@@deriving show]
 
@@ -869,7 +869,7 @@ type parsing_time = Semgrep_output_v1_t.parsing_time = {
 type file_rule_time = Semgrep_output_v1_t.file_rule_time = {
   fpath: fpath;
   rule_id: rule_id;
-  fr_time: float
+  time: float
 }
   [@@deriving show]
 
