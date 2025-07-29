@@ -593,6 +593,7 @@ export type ScanConfiguration = {
   rules: RawJson;
   triage_ignored_syntactic_ids: string[];
   triage_ignored_match_based_ids: string[];
+  project_merge_base?: Sha1;
   fips_mode: boolean;
 }
 
@@ -645,6 +646,7 @@ export type ProjectMetadata = {
   pull_request_author_image_url: (Uri | null);
   pull_request_id: (string | null);
   pull_request_title: (string | null);
+  base_branch_head_commit?: Sha1;
   base_sha?: Sha1;
   start_sha?: Sha1;
   is_full_scan: boolean;
@@ -3164,6 +3166,7 @@ export function writeScanConfiguration(x: ScanConfiguration, context: any = x): 
     'rules': _atd_write_required_field('ScanConfiguration', 'rules', writeRawJson, x.rules, x),
     'triage_ignored_syntactic_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_syntactic_ids, x),
     'triage_ignored_match_based_ids': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.triage_ignored_match_based_ids, x),
+    'project_merge_base': _atd_write_optional_field(writeSha1, x.project_merge_base, x),
     'fips_mode': _atd_write_field_with_default(_atd_write_bool, false, x.fips_mode, x),
   };
 }
@@ -3173,6 +3176,7 @@ export function readScanConfiguration(x: any, context: any = x): ScanConfigurati
     rules: _atd_read_required_field('ScanConfiguration', 'rules', readRawJson, x['rules'], x),
     triage_ignored_syntactic_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_syntactic_ids'], x),
     triage_ignored_match_based_ids: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['triage_ignored_match_based_ids'], x),
+    project_merge_base: _atd_read_optional_field(readSha1, x['project_merge_base'], x),
     fips_mode: _atd_read_field_with_default(_atd_read_bool, false, x['fips_mode'], x),
   };
 }
@@ -3271,6 +3275,7 @@ export function writeProjectMetadata(x: ProjectMetadata, context: any = x): any 
     'pull_request_author_image_url': _atd_write_required_field('ProjectMetadata', 'pull_request_author_image_url', _atd_write_nullable(writeUri), x.pull_request_author_image_url, x),
     'pull_request_id': _atd_write_required_field('ProjectMetadata', 'pull_request_id', _atd_write_nullable(_atd_write_string), x.pull_request_id, x),
     'pull_request_title': _atd_write_required_field('ProjectMetadata', 'pull_request_title', _atd_write_nullable(_atd_write_string), x.pull_request_title, x),
+    'base_branch_head_commit': _atd_write_optional_field(writeSha1, x.base_branch_head_commit, x),
     'base_sha': _atd_write_optional_field(writeSha1, x.base_sha, x),
     'start_sha': _atd_write_optional_field(writeSha1, x.start_sha, x),
     'is_full_scan': _atd_write_required_field('ProjectMetadata', 'is_full_scan', _atd_write_bool, x.is_full_scan, x),
@@ -3303,6 +3308,7 @@ export function readProjectMetadata(x: any, context: any = x): ProjectMetadata {
     pull_request_author_image_url: _atd_read_required_field('ProjectMetadata', 'pull_request_author_image_url', _atd_read_nullable(readUri), x['pull_request_author_image_url'], x),
     pull_request_id: _atd_read_required_field('ProjectMetadata', 'pull_request_id', _atd_read_nullable(_atd_read_string), x['pull_request_id'], x),
     pull_request_title: _atd_read_required_field('ProjectMetadata', 'pull_request_title', _atd_read_nullable(_atd_read_string), x['pull_request_title'], x),
+    base_branch_head_commit: _atd_read_optional_field(readSha1, x['base_branch_head_commit'], x),
     base_sha: _atd_read_optional_field(readSha1, x['base_sha'], x),
     start_sha: _atd_read_optional_field(readSha1, x['start_sha'], x),
     is_full_scan: _atd_read_required_field('ProjectMetadata', 'is_full_scan', _atd_read_bool, x['is_full_scan'], x),

@@ -1445,8 +1445,10 @@ type scan_configuration = {
     (* Rules sent from the backend. Note that those rules are in JSON
      * form not YAML (which led to some speedup in pysemgrep)
      * TODO? can we type this better *)
-    rules: raw_json; 
+    rules: raw_json;
     inherit triage_ignored;
+    (* From 1.131.0, tells us what merge base to use if it's a diff scan *)
+    ?project_merge_base: sha1 option;
     (* From 1.126.0.
      * Customers in FIPS environments have specific hash function requirements
      * that this flag will override.  See SAF-2057 for details. *)
@@ -1529,6 +1531,7 @@ type project_metadata = {
     (* TODO: the branch should use a standard format? like refs/... ? or it can
      * be a basic branch name like 'foobar'?
      *)
+    (* ALT: head_branch, head_commit *)
     branch: string nullable;
     commit: sha1 nullable;
     commit_title: string nullable;
@@ -1555,8 +1558,18 @@ type project_metadata = {
     pull_request_id: string nullable;
     pull_request_title: string nullable;
 
-    (* Gitlab only *)
+    (* the latest commit in the base branch of a PR, used to determine the git
+    merge base on the app side if needed. This should really be called base_sha
+    but that term is already misused below for something thats gitlab only *)
+
+    ?base_branch_head_commit: sha1 option;
+
+    (* This is gitlab only, and is actually only the baseline commit sha if
+    provided, OR it's the git merge-base if not provided. It is NOT the head
+    commit of the base branch *)
     ?base_sha: sha1 option;
+    (* this is CI_MERGE_REQUEST_DIFF_BASE_SHA which is strictly the git merge
+    base *)
     ?start_sha: sha1 option;
 
     (* Check if the current Git repository has enough to determine the
