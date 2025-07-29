@@ -1447,7 +1447,7 @@ type scan_configuration = {
      * TODO? can we type this better *)
     rules: raw_json;
     inherit triage_ignored;
-    (* From 1.129.0, tells us what merge base to use if it's a diff scan *)
+    (* From 1.131.0, tells us what merge base to use if it's a diff scan *)
     ?project_merge_base: sha1 option;
     (* From 1.126.0.
      * Customers in FIPS environments have specific hash function requirements
