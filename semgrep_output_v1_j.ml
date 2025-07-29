@@ -38306,6 +38306,63 @@ let read__dependency_source_resolution_result_list = (
 )
 let _dependency_source_resolution_result_list_of_string s =
   read__dependency_source_resolution_result_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__core_error_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_core_error
+  )
+)
+let string_of__core_error_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__core_error_option ob x;
+  Buffer.contents ob
+let read__core_error_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_core_error
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_core_error
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _core_error_option_of_string s =
+  read__core_error_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_function_return = (
   fun ob x ->
     match x with
@@ -38342,7 +38399,7 @@ let write_function_return = (
       | `RetValidate x ->
         Buffer.add_string ob "[\"RetValidate\",";
         (
-          Yojson.Safe.write_bool
+          write__core_error_option
         ) ob x;
         Buffer.add_char ob ']'
       | `RetResolveDependencies x ->
@@ -38440,7 +38497,7 @@ let read_function_return = (
             | "RetValidate" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
-                  Atdgen_runtime.Oj_run.read_bool
+                  read__core_error_option
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -38570,7 +38627,7 @@ let read_function_return = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  Atdgen_runtime.Oj_run.read_bool
+                  read__core_error_option
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
