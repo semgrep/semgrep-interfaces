@@ -10085,7 +10085,7 @@ class RetSarifFormat:
 class RetValidate:
     """Original type: function_return = [ ... | RetValidate of ... | ... ]"""
 
-    value: bool
+    value: Optional[CoreError]
 
     @property
     def kind(self) -> str:
@@ -10093,7 +10093,7 @@ class RetValidate:
         return 'RetValidate'
 
     def to_json(self) -> Any:
-        return ['RetValidate', _atd_write_bool(self.value)]
+        return ['RetValidate', _atd_write_option((lambda x: x.to_json()))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -10233,7 +10233,7 @@ class FunctionReturn:
             if cons == 'RetSarifFormat':
                 return cls(RetSarifFormat(_atd_read_string(x[1])))
             if cons == 'RetValidate':
-                return cls(RetValidate(_atd_read_bool(x[1])))
+                return cls(RetValidate(_atd_read_option(CoreError.from_json)(x[1])))
             if cons == 'RetResolveDependencies':
                 return cls(RetResolveDependencies(_atd_read_list((lambda x: (DependencySource.from_json(x[0]), ResolutionResult.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x[1])))
             if cons == 'RetUploadSymbolAnalysis':

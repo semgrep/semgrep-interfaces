@@ -2666,7 +2666,21 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "RetValidate" }, { "type": "boolean" }
+            { "const": "RetValidate" },
+            {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": false,
+                  "prefixItems": [
+                    { "const": "Some" },
+                    { "$ref": "#/definitions/core_error" }
+                  ]
+                },
+                { "const": "None" }
+              ]
+            }
           ]
         },
         {
