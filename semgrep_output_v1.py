@@ -6785,6 +6785,23 @@ class OutOfMemory:
 
 
 @dataclass(frozen=True, order=True)
+class FixpointTimeout:
+    """Original type: error_type = [ ... | FixpointTimeout | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'FixpointTimeout'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Fixpoint timeout'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
 class StackOverflow:
     """Original type: error_type = [ ... | StackOverflow | ... ]"""
 
@@ -6962,7 +6979,7 @@ class DependencyResolutionError:
 class ErrorType:
     """Original type: error_type = [ ... ]"""
 
-    value: Union[LexicalError, ParseError, OtherParseError, AstBuilderError, RuleParseError, SemgrepWarning, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, StackOverflow, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0, DependencyResolutionError]
+    value: Union[LexicalError, ParseError, OtherParseError, AstBuilderError, RuleParseError, SemgrepWarning, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, FixpointTimeout, StackOverflow, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0, DependencyResolutionError]
 
     @property
     def kind(self) -> str:
@@ -7004,6 +7021,8 @@ class ErrorType:
                 return cls(Timeout())
             if x == 'Out of memory':
                 return cls(OutOfMemory())
+            if x == 'Fixpoint timeout':
+                return cls(FixpointTimeout())
             if x == 'Stack overflow':
                 return cls(StackOverflow())
             if x == 'Timeout during interfile analysis':
@@ -8987,6 +9006,7 @@ class Profile:
     scanning_time: Optional[ScanningTime] = None
     matching_time: Optional[MatchingTime] = None
     tainting_time: Optional[TaintingTime] = None
+    fixpoint_timeouts: Optional[List[CoreError]] = None
     max_memory_bytes: Optional[int] = None
 
     @classmethod
@@ -9002,6 +9022,7 @@ class Profile:
                 scanning_time=ScanningTime.from_json(x['scanning_time']) if 'scanning_time' in x else None,
                 matching_time=MatchingTime.from_json(x['matching_time']) if 'matching_time' in x else None,
                 tainting_time=TaintingTime.from_json(x['tainting_time']) if 'tainting_time' in x else None,
+                fixpoint_timeouts=_atd_read_list(CoreError.from_json)(x['fixpoint_timeouts']) if 'fixpoint_timeouts' in x else None,
                 max_memory_bytes=_atd_read_int(x['max_memory_bytes']) if 'max_memory_bytes' in x else None,
             )
         else:
@@ -9022,6 +9043,8 @@ class Profile:
             res['matching_time'] = (lambda x: x.to_json())(self.matching_time)
         if self.tainting_time is not None:
             res['tainting_time'] = (lambda x: x.to_json())(self.tainting_time)
+        if self.fixpoint_timeouts is not None:
+            res['fixpoint_timeouts'] = _atd_write_list((lambda x: x.to_json()))(self.fixpoint_timeouts)
         if self.max_memory_bytes is not None:
             res['max_memory_bytes'] = _atd_write_int(self.max_memory_bytes)
         return res

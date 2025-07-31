@@ -571,6 +571,7 @@ type error_type = Semgrep_output_v1_t.error_type =
   | FatalError
   | Timeout
   | OutOfMemory
+  | FixpointTimeout
   | StackOverflow
   | TimeoutDuringInterfile
   | OutOfMemoryDuringInterfile
@@ -890,6 +891,7 @@ type profile = Semgrep_output_v1_t.profile = {
   scanning_time: scanning_time option;
   matching_time: matching_time option;
   tainting_time: tainting_time option;
+  fixpoint_timeouts: core_error list option;
   targets: target_times list;
   total_bytes: int;
   max_memory_bytes: int option
@@ -19509,6 +19511,7 @@ let write_error_type : _ -> error_type -> _ = (
       | FatalError -> Buffer.add_string ob "\"Fatal error\""
       | Timeout -> Buffer.add_string ob "\"Timeout\""
       | OutOfMemory -> Buffer.add_string ob "\"Out of memory\""
+      | FixpointTimeout -> Buffer.add_string ob "\"Fixpoint timeout\""
       | StackOverflow -> Buffer.add_string ob "\"Stack overflow\""
       | TimeoutDuringInterfile -> Buffer.add_string ob "\"Timeout during interfile analysis\""
       | OutOfMemoryDuringInterfile -> Buffer.add_string ob "\"OOM during interfile analysis\""
@@ -19614,6 +19617,10 @@ let read_error_type = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (OutOfMemory : error_type)
+            | "Fixpoint timeout" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (FixpointTimeout : error_type)
             | "Stack overflow" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -19711,6 +19718,8 @@ let read_error_type = (
               (Timeout : error_type)
             | "Out of memory" ->
               (OutOfMemory : error_type)
+            | "Fixpoint timeout" ->
+              (FixpointTimeout : error_type)
             | "Stack overflow" ->
               (StackOverflow : error_type)
             | "Timeout during interfile analysis" ->
@@ -31708,6 +31717,63 @@ let read__matching_time_option = (
 )
 let _matching_time_option_of_string s =
   read__matching_time_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__core_error_list_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write__core_error_list
+  )
+)
+let string_of__core_error_list_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__core_error_list_option ob x;
+  Buffer.contents ob
+let read__core_error_list_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__core_error_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__core_error_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _core_error_list_option_of_string s =
+  read__core_error_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_profile : _ -> profile -> _ = (
   fun ob (x : profile) ->
     Buffer.add_char ob '{';
@@ -31783,6 +31849,17 @@ let write_profile : _ -> profile -> _ = (
       )
         ob x;
     );
+    (match x.fixpoint_timeouts with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"fixpoint_timeouts\":";
+      (
+        write__core_error_list
+      )
+        ob x;
+    );
     if !is_first then
       is_first := false
     else
@@ -31829,6 +31906,7 @@ let read_profile = (
     let field_scanning_time = ref (None) in
     let field_matching_time = ref (None) in
     let field_tainting_time = ref (None) in
+    let field_fixpoint_timeouts = ref (None) in
     let field_targets = ref (None) in
     let field_total_bytes = ref (None) in
     let field_max_memory_bytes = ref (None) in
@@ -31851,7 +31929,7 @@ let read_profile = (
               )
             | 7 -> (
                 if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = 's' then (
-                  7
+                  8
                 )
                 else (
                   -1
@@ -31859,7 +31937,7 @@ let read_profile = (
               )
             | 11 -> (
                 if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'y' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' then (
-                  8
+                  9
                 )
                 else (
                   -1
@@ -31915,7 +31993,7 @@ let read_profile = (
                 match String.unsafe_get s pos with
                   | 'm' -> (
                       if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'b' && String.unsafe_get s (pos+12) = 'y' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 's' then (
-                        9
+                        10
                       )
                       else (
                         -1
@@ -31932,6 +32010,14 @@ let read_profile = (
                   | _ -> (
                       -1
                     )
+              )
+            | 17 -> (
+                if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'm' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 't' && String.unsafe_get s (pos+16) = 's' then (
+                  7
+                )
+                else (
+                  -1
+                )
               )
             | _ -> (
                 -1
@@ -32006,6 +32092,16 @@ let read_profile = (
               );
             )
           | 7 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_fixpoint_timeouts := (
+                Some (
+                  (
+                    read__core_error_list
+                  ) p lb
+                )
+              );
+            )
+          | 8 ->
             field_targets := (
               Some (
                 (
@@ -32013,7 +32109,7 @@ let read_profile = (
                 ) p lb
               )
             );
-          | 8 ->
+          | 9 ->
             field_total_bytes := (
               Some (
                 (
@@ -32021,7 +32117,7 @@ let read_profile = (
                 ) p lb
               )
             );
-          | 9 ->
+          | 10 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_max_memory_bytes := (
                 Some (
@@ -32054,7 +32150,7 @@ let read_profile = (
                 )
               | 7 -> (
                   if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'g' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = 's' then (
-                    7
+                    8
                   )
                   else (
                     -1
@@ -32062,7 +32158,7 @@ let read_profile = (
                 )
               | 11 -> (
                   if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'y' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 's' then (
-                    8
+                    9
                   )
                   else (
                     -1
@@ -32118,7 +32214,7 @@ let read_profile = (
                   match String.unsafe_get s pos with
                     | 'm' -> (
                         if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'b' && String.unsafe_get s (pos+12) = 'y' && String.unsafe_get s (pos+13) = 't' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 's' then (
-                          9
+                          10
                         )
                         else (
                           -1
@@ -32135,6 +32231,14 @@ let read_profile = (
                     | _ -> (
                         -1
                       )
+                )
+              | 17 -> (
+                  if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'm' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'o' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 't' && String.unsafe_get s (pos+16) = 's' then (
+                    7
+                  )
+                  else (
+                    -1
+                  )
                 )
               | _ -> (
                   -1
@@ -32209,6 +32313,16 @@ let read_profile = (
                 );
               )
             | 7 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_fixpoint_timeouts := (
+                  Some (
+                    (
+                      read__core_error_list
+                    ) p lb
+                  )
+                );
+              )
+            | 8 ->
               field_targets := (
                 Some (
                   (
@@ -32216,7 +32330,7 @@ let read_profile = (
                   ) p lb
                 )
               );
-            | 8 ->
+            | 9 ->
               field_total_bytes := (
                 Some (
                   (
@@ -32224,7 +32338,7 @@ let read_profile = (
                   ) p lb
                 )
               );
-            | 9 ->
+            | 10 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_max_memory_bytes := (
                   Some (
@@ -32250,6 +32364,7 @@ let read_profile = (
             scanning_time = !field_scanning_time;
             matching_time = !field_matching_time;
             tainting_time = !field_tainting_time;
+            fixpoint_timeouts = !field_fixpoint_timeouts;
             targets = (match !field_targets with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "targets");
             total_bytes = (match !field_total_bytes with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "total_bytes");
             max_memory_bytes = !field_max_memory_bytes;
