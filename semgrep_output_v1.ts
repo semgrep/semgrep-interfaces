@@ -288,6 +288,7 @@ export type ErrorType =
 | { kind: 'FatalError' /* JSON: "Fatal error" */ }
 | { kind: 'Timeout' }
 | { kind: 'OutOfMemory' /* JSON: "Out of memory" */ }
+| { kind: 'FixpointTimeout' /* JSON: "Fixpoint timeout" */ }
 | { kind: 'StackOverflow' /* JSON: "Stack overflow" */ }
 | { kind: 'TimeoutDuringInterfile' /* JSON: "Timeout during interfile analysis" */ }
 | { kind: 'OutOfMemoryDuringInterfile' /* JSON: "OOM during interfile analysis" */ }
@@ -382,6 +383,7 @@ export type Profile = {
   scanning_time?: ScanningTime;
   matching_time?: MatchingTime;
   tainting_time?: TaintingTime;
+  fixpoint_timeouts?: CoreError[];
   targets: TargetTimes[];
   total_bytes: number /*int*/;
   max_memory_bytes?: number /*int*/;
@@ -2211,6 +2213,8 @@ export function writeErrorType(x: ErrorType, context: any = x): any {
       return 'Timeout'
     case 'OutOfMemory':
       return 'Out of memory'
+    case 'FixpointTimeout':
+      return 'Fixpoint timeout'
     case 'StackOverflow':
       return 'Stack overflow'
     case 'TimeoutDuringInterfile':
@@ -2269,6 +2273,8 @@ export function readErrorType(x: any, context: any = x): ErrorType {
         return { kind: 'Timeout' }
       case 'Out of memory':
         return { kind: 'OutOfMemory' }
+      case 'Fixpoint timeout':
+        return { kind: 'FixpointTimeout' }
       case 'Stack overflow':
         return { kind: 'StackOverflow' }
       case 'Timeout during interfile analysis':
@@ -2534,6 +2540,7 @@ export function writeProfile(x: Profile, context: any = x): any {
     'scanning_time': _atd_write_optional_field(writeScanningTime, x.scanning_time, x),
     'matching_time': _atd_write_optional_field(writeMatchingTime, x.matching_time, x),
     'tainting_time': _atd_write_optional_field(writeTaintingTime, x.tainting_time, x),
+    'fixpoint_timeouts': _atd_write_optional_field(_atd_write_array(writeCoreError), x.fixpoint_timeouts, x),
     'targets': _atd_write_required_field('Profile', 'targets', _atd_write_array(writeTargetTimes), x.targets, x),
     'total_bytes': _atd_write_required_field('Profile', 'total_bytes', _atd_write_int, x.total_bytes, x),
     'max_memory_bytes': _atd_write_optional_field(_atd_write_int, x.max_memory_bytes, x),
@@ -2549,6 +2556,7 @@ export function readProfile(x: any, context: any = x): Profile {
     scanning_time: _atd_read_optional_field(readScanningTime, x['scanning_time'], x),
     matching_time: _atd_read_optional_field(readMatchingTime, x['matching_time'], x),
     tainting_time: _atd_read_optional_field(readTaintingTime, x['tainting_time'], x),
+    fixpoint_timeouts: _atd_read_optional_field(_atd_read_array(readCoreError), x['fixpoint_timeouts'], x),
     targets: _atd_read_required_field('Profile', 'targets', _atd_read_array(readTargetTimes), x['targets'], x),
     total_bytes: _atd_read_required_field('Profile', 'total_bytes', _atd_read_int, x['total_bytes'], x),
     max_memory_bytes: _atd_read_optional_field(_atd_read_int, x['max_memory_bytes'], x),

@@ -571,6 +571,7 @@ type error_type = Semgrep_output_v1_t.error_type =
   | FatalError
   | Timeout
   | OutOfMemory
+  | FixpointTimeout
   | StackOverflow
   | TimeoutDuringInterfile
   | OutOfMemoryDuringInterfile
@@ -890,6 +891,7 @@ type profile = Semgrep_output_v1_t.profile = {
   scanning_time: scanning_time option;
   matching_time: matching_time option;
   tainting_time: tainting_time option;
+  fixpoint_timeouts: core_error list option;
   targets: target_times list;
   total_bytes: int;
   max_memory_bytes: int option
