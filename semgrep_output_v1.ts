@@ -1249,7 +1249,7 @@ export type FunctionReturn =
 | { kind: 'RetContributions'; value: Contributions }
 | { kind: 'RetFormatter'; value: string }
 | { kind: 'RetSarifFormat'; value: string }
-| { kind: 'RetValidate'; value: boolean }
+| { kind: 'RetValidate'; value: Option<CoreError> }
 | { kind: 'RetResolveDependencies'; value: [DependencySource, ResolutionResult][] }
 | { kind: 'RetUploadSymbolAnalysis'; value: string }
 | { kind: 'RetDumpRulePartitions'; value: boolean }
@@ -5156,7 +5156,7 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
     case 'RetSarifFormat':
       return ['RetSarifFormat', _atd_write_string(x.value, x)]
     case 'RetValidate':
-      return ['RetValidate', _atd_write_bool(x.value, x)]
+      return ['RetValidate', _atd_write_option(writeCoreError)(x.value, x)]
     case 'RetResolveDependencies':
       return ['RetResolveDependencies', _atd_write_array(((x, context) => [writeDependencySource(x[0], x), writeResolutionResult(x[1], x)]))(x.value, x)]
     case 'RetUploadSymbolAnalysis':
@@ -5186,7 +5186,7 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
     case 'RetSarifFormat':
       return { kind: 'RetSarifFormat', value: _atd_read_string(x[1], x) }
     case 'RetValidate':
-      return { kind: 'RetValidate', value: _atd_read_bool(x[1], x) }
+      return { kind: 'RetValidate', value: _atd_read_option(readCoreError)(x[1], x) }
     case 'RetResolveDependencies':
       return { kind: 'RetResolveDependencies', value: _atd_read_array(((x, context): [DependencySource, ResolutionResult] => { _atd_check_json_tuple(2, x, context); return [readDependencySource(x[0], x), readResolutionResult(x[1], x)] }))(x[1], x) }
     case 'RetUploadSymbolAnalysis':
