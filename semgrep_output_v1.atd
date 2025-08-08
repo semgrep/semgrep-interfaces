@@ -2761,7 +2761,7 @@ type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetFormatter of string
   (* alt: reuse RetFormatter *)
   | RetSarifFormat of string
-  | RetValidate of bool
+  | RetValidate of (* rule validation error, if validation failed *) core_error option
   | RetResolveDependencies of (dependency_source * resolution_result) list
   | RetUploadSymbolAnalysis of (* success msg *) string
   | RetDumpRulePartitions of bool
