@@ -803,6 +803,8 @@ type error_type
   | FatalError (* missing file, OCaml errors, etc. *) <json name="Fatal error">
   | Timeout <json name="Timeout">
   | OutOfMemory <json name="Out of memory">
+  (* since semgrep 1.132.0 *)
+  | FixpointTimeout <json name="Fixpoint timeout">
   (* since semgrep 1.86.0 *)
   | StackOverflow <json name="Stack overflow">
   (* pro-engine specific *)
@@ -1024,6 +1026,13 @@ type profile = {
     ?matching_time : matching_time option;
     (* EXPERIMENTAL *)
     ?tainting_time : tainting_time option;
+
+    (* EXPERIMENTAL: Dafatlow fixpoint-function timeouts
+
+      Happen more often than we would like, and it's mainly Semgrep devs that
+      will use this info for debugging, so for now we are reporting these
+      timeouts as part of the profiling report. *)
+    ?fixpoint_timeouts : core_error list option;
 
     targets: target_times list;
     total_bytes: int;

@@ -588,6 +588,7 @@
         { "const": "Fatal error" },
         { "const": "Timeout" },
         { "const": "Out of memory" },
+        { "const": "Fixpoint timeout" },
         { "const": "Stack overflow" },
         { "const": "Timeout during interfile analysis" },
         { "const": "OOM during interfile analysis" },
@@ -774,6 +775,10 @@
         "scanning_time": { "$ref": "#/definitions/scanning_time" },
         "matching_time": { "$ref": "#/definitions/matching_time" },
         "tainting_time": { "$ref": "#/definitions/tainting_time" },
+        "fixpoint_timeouts": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/core_error" }
+        },
         "targets": {
           "type": "array",
           "items": { "$ref": "#/definitions/target_times" }
