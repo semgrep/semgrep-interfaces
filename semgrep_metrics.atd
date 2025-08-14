@@ -273,7 +273,6 @@ type mcp = {
     ?deployment_id <ocaml mutable>: int option;
     ?session_id <ocaml mutable>: string option;
     ?num_findings <ocaml mutable>: int option;
-    ?num_rules <ocaml mutable>: int option;
 }
 
 (*****************************************************************************)
