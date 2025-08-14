@@ -8120,6 +8120,7 @@ class ScanMetadata:
     cli_version: Version
     unique_id: Uuid
     requested_products: List[Product]
+    compress_config: bool = field(default_factory=lambda: False)
     dry_run: bool = field(default_factory=lambda: False)
     sms_scan_id: Optional[str] = None
 
@@ -8130,6 +8131,7 @@ class ScanMetadata:
                 cli_version=Version.from_json(x['cli_version']) if 'cli_version' in x else _atd_missing_json_field('ScanMetadata', 'cli_version'),
                 unique_id=Uuid.from_json(x['unique_id']) if 'unique_id' in x else _atd_missing_json_field('ScanMetadata', 'unique_id'),
                 requested_products=_atd_read_list(Product.from_json)(x['requested_products']) if 'requested_products' in x else _atd_missing_json_field('ScanMetadata', 'requested_products'),
+                compress_config=_atd_read_bool(x['compress_config']) if 'compress_config' in x else False,
                 dry_run=_atd_read_bool(x['dry_run']) if 'dry_run' in x else False,
                 sms_scan_id=_atd_read_string(x['sms_scan_id']) if 'sms_scan_id' in x else None,
             )
@@ -8141,6 +8143,7 @@ class ScanMetadata:
         res['cli_version'] = (lambda x: x.to_json())(self.cli_version)
         res['unique_id'] = (lambda x: x.to_json())(self.unique_id)
         res['requested_products'] = _atd_write_list((lambda x: x.to_json()))(self.requested_products)
+        res['compress_config'] = _atd_write_bool(self.compress_config)
         res['dry_run'] = _atd_write_bool(self.dry_run)
         if self.sms_scan_id is not None:
             res['sms_scan_id'] = _atd_write_string(self.sms_scan_id)

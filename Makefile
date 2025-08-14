@@ -80,6 +80,7 @@ setup:
 .PHONY: setup-PYTHON
 setup-PYTHON:
 	pip install check-jsonschema
+	pip install mypy
 
 # The tests require semgrep-core, among other things.
 .PHONY: test

@@ -746,6 +746,7 @@ type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
   cli_version: version;
   unique_id: uuid;
   requested_products: product list;
+  compress_config: bool;
   dry_run: bool;
   sms_scan_id: string option
 }
@@ -25215,6 +25216,15 @@ let write_scan_metadata : _ -> scan_metadata -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
+      Buffer.add_string ob "\"compress_config\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.compress_config;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
       Buffer.add_string ob "\"dry_run\":";
     (
       Yojson.Safe.write_bool
@@ -25244,6 +25254,7 @@ let read_scan_metadata = (
     let field_cli_version = ref (None) in
     let field_unique_id = ref (None) in
     let field_requested_products = ref (None) in
+    let field_compress_config = ref (false) in
     let field_dry_run = ref (false) in
     let field_sms_scan_id = ref (None) in
     try
@@ -25257,7 +25268,7 @@ let read_scan_metadata = (
           match len with
             | 7 -> (
                 if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'y' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'u' && String.unsafe_get s (pos+6) = 'n' then (
-                  3
+                  4
                 )
                 else (
                   -1
@@ -25283,7 +25294,7 @@ let read_scan_metadata = (
                     )
                   | 's' -> (
                       if String.unsafe_get s (pos+1) = 'm' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'd' then (
-                        4
+                        5
                       )
                       else (
                         -1
@@ -25292,6 +25303,14 @@ let read_scan_metadata = (
                   | _ -> (
                       -1
                     )
+              )
+            | 15 -> (
+                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'c' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 'f' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'g' then (
+                  3
+                )
+                else (
+                  -1
+                )
               )
             | 18 -> (
                 if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'q' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'p' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 't' && String.unsafe_get s (pos+17) = 's' then (
@@ -25335,13 +25354,21 @@ let read_scan_metadata = (
             );
           | 3 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_dry_run := (
+              field_compress_config := (
                 (
                   Atdgen_runtime.Oj_run.read_bool
                 ) p lb
               );
             )
           | 4 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_dry_run := (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              );
+            )
+          | 5 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_sms_scan_id := (
                 Some (
@@ -25366,7 +25393,7 @@ let read_scan_metadata = (
             match len with
               | 7 -> (
                   if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'y' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'u' && String.unsafe_get s (pos+6) = 'n' then (
-                    3
+                    4
                   )
                   else (
                     -1
@@ -25392,7 +25419,7 @@ let read_scan_metadata = (
                       )
                     | 's' -> (
                         if String.unsafe_get s (pos+1) = 'm' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'c' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'd' then (
-                          4
+                          5
                         )
                         else (
                           -1
@@ -25401,6 +25428,14 @@ let read_scan_metadata = (
                     | _ -> (
                         -1
                       )
+                )
+              | 15 -> (
+                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'c' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 'f' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'g' then (
+                    3
+                  )
+                  else (
+                    -1
+                  )
                 )
               | 18 -> (
                   if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'q' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'p' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 't' && String.unsafe_get s (pos+17) = 's' then (
@@ -25444,13 +25479,21 @@ let read_scan_metadata = (
               );
             | 3 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_dry_run := (
+                field_compress_config := (
                   (
                     Atdgen_runtime.Oj_run.read_bool
                   ) p lb
                 );
               )
             | 4 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_dry_run := (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                );
+              )
+            | 5 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_sms_scan_id := (
                   Some (
@@ -25472,6 +25515,7 @@ let read_scan_metadata = (
             cli_version = (match !field_cli_version with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "cli_version");
             unique_id = (match !field_unique_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "unique_id");
             requested_products = (match !field_requested_products with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "requested_products");
+            compress_config = !field_compress_config;
             dry_run = !field_dry_run;
             sms_scan_id = !field_sms_scan_id;
           }

@@ -1297,6 +1297,7 @@
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
         },
+        "compress_config": { "type": "boolean" },
         "dry_run": { "type": "boolean" },
         "sms_scan_id": { "type": "string" }
       }
