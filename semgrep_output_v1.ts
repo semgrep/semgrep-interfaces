@@ -662,6 +662,7 @@ export type ScanMetadata = {
   cli_version: Version;
   unique_id: Uuid;
   requested_products: Product[];
+  compress_config: boolean;
   dry_run: boolean;
   sms_scan_id?: string;
 }
@@ -3332,6 +3333,7 @@ export function writeScanMetadata(x: ScanMetadata, context: any = x): any {
     'cli_version': _atd_write_required_field('ScanMetadata', 'cli_version', writeVersion, x.cli_version, x),
     'unique_id': _atd_write_required_field('ScanMetadata', 'unique_id', writeUuid, x.unique_id, x),
     'requested_products': _atd_write_required_field('ScanMetadata', 'requested_products', _atd_write_array(writeProduct), x.requested_products, x),
+    'compress_config': _atd_write_field_with_default(_atd_write_bool, false, x.compress_config, x),
     'dry_run': _atd_write_field_with_default(_atd_write_bool, false, x.dry_run, x),
     'sms_scan_id': _atd_write_optional_field(_atd_write_string, x.sms_scan_id, x),
   };
@@ -3342,6 +3344,7 @@ export function readScanMetadata(x: any, context: any = x): ScanMetadata {
     cli_version: _atd_read_required_field('ScanMetadata', 'cli_version', readVersion, x['cli_version'], x),
     unique_id: _atd_read_required_field('ScanMetadata', 'unique_id', readUuid, x['unique_id'], x),
     requested_products: _atd_read_required_field('ScanMetadata', 'requested_products', _atd_read_array(readProduct), x['requested_products'], x),
+    compress_config: _atd_read_field_with_default(_atd_read_bool, false, x['compress_config'], x),
     dry_run: _atd_read_field_with_default(_atd_read_bool, false, x['dry_run'], x),
     sms_scan_id: _atd_read_optional_field(_atd_read_string, x['sms_scan_id'], x),
   };
