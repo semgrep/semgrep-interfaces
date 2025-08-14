@@ -1604,7 +1604,7 @@ type scan_metadata = {
   cli_version: version;
   unique_id: uuid; (* client generated uuid for the scan *)
   requested_products: product list;
-  (* since 1.132.0 *)
+  (* since 1.133.0 *)
   ~compress_config: bool;
   (* since 1.47.0 *)
   ~dry_run: bool;
