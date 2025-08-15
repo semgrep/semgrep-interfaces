@@ -57,8 +57,26 @@ $defs:
               - const: lax
               - const: strict
               - const: default
+              - const: custom
+          value:
+            type: number
+            description: "Custom KLD threshold value (required when mode is 'custom')"
         required:
           - kind
+        allOf:
+          - if:
+              properties:
+                mode:
+                  const: custom
+            then:
+              required: [ value ]
+          - if:
+              properties:
+                mode:
+                  enum: [ lax, strict, default ]
+            then:
+              not:
+                required: [ value ]
         additionalProperties: false
       - type: object
         properties:
