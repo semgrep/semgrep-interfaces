@@ -1624,8 +1624,6 @@ type scan_metadata = {
   cli_version: version;
   unique_id: uuid; (* client generated uuid for the scan *)
   requested_products: product list;
-  (* since 1.133.0 *)
-  ~compress_config: bool;
   (* since 1.47.0 *)
   ~dry_run: bool;
   (* unique id associated with the scan in Semgrep Managed Scanning *)

@@ -746,7 +746,6 @@ type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
   cli_version: version;
   unique_id: uuid;
   requested_products: product list;
-  compress_config: bool;
   dry_run: bool;
   sms_scan_id: string option
 }
