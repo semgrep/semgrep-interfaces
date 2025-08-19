@@ -863,6 +863,16 @@ type resolve_dependencies_params =
 
 type resolution_result = Semgrep_output_v1_t.resolution_result
 
+type prefiltering_stats = Semgrep_output_v1_t.prefiltering_stats = {
+  project_level_time: float;
+  file_level_time: float;
+  rules_with_project_prefilters_ratio: float;
+  rules_with_file_prefilters_ratio: float;
+  rules_selected_ratio: float;
+  rules_matched_ratio: float
+}
+  [@@deriving show]
+
 type parsing_time = Semgrep_output_v1_t.parsing_time = {
   total_time: float;
   per_file_time: summary_stats;
@@ -893,6 +903,7 @@ type profile = Semgrep_output_v1_t.profile = {
   matching_time: matching_time option;
   tainting_time: tainting_time option;
   fixpoint_timeouts: core_error list option;
+  prefiltering: prefiltering_stats option;
   targets: target_times list;
   total_bytes: int;
   max_memory_bytes: int option
@@ -3962,6 +3973,26 @@ val read_resolution_result :
 val resolution_result_of_string :
   string -> resolution_result
   (** Deserialize JSON data of type {!type:resolution_result}. *)
+
+val write_prefiltering_stats :
+  Buffer.t -> prefiltering_stats -> unit
+  (** Output a JSON value of type {!type:prefiltering_stats}. *)
+
+val string_of_prefiltering_stats :
+  ?len:int -> prefiltering_stats -> string
+  (** Serialize a value of type {!type:prefiltering_stats}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_prefiltering_stats :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> prefiltering_stats
+  (** Input JSON data of type {!type:prefiltering_stats}. *)
+
+val prefiltering_stats_of_string :
+  string -> prefiltering_stats
+  (** Deserialize JSON data of type {!type:prefiltering_stats}. *)
 
 val write_parsing_time :
   Buffer.t -> parsing_time -> unit

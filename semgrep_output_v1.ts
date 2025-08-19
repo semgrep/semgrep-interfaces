@@ -384,6 +384,7 @@ export type Profile = {
   matching_time?: MatchingTime;
   tainting_time?: TaintingTime;
   fixpoint_timeouts?: CoreError[];
+  prefiltering?: PrefilteringStats;
   targets: TargetTimes[];
   total_bytes: number /*int*/;
   max_memory_bytes?: number /*int*/;
@@ -451,6 +452,15 @@ export type TargetTimes = {
   match_times: number[];
   parse_times: number[];
   run_time: number;
+}
+
+export type PrefilteringStats = {
+  project_level_time: number;
+  file_level_time: number;
+  rules_with_project_prefilters_ratio: number;
+  rules_with_file_prefilters_ratio: number;
+  rules_selected_ratio: number;
+  rules_matched_ratio: number;
 }
 
 export type CliOutput = {
@@ -2542,6 +2552,7 @@ export function writeProfile(x: Profile, context: any = x): any {
     'matching_time': _atd_write_optional_field(writeMatchingTime, x.matching_time, x),
     'tainting_time': _atd_write_optional_field(writeTaintingTime, x.tainting_time, x),
     'fixpoint_timeouts': _atd_write_optional_field(_atd_write_array(writeCoreError), x.fixpoint_timeouts, x),
+    'prefiltering': _atd_write_optional_field(writePrefilteringStats, x.prefiltering, x),
     'targets': _atd_write_required_field('Profile', 'targets', _atd_write_array(writeTargetTimes), x.targets, x),
     'total_bytes': _atd_write_required_field('Profile', 'total_bytes', _atd_write_int, x.total_bytes, x),
     'max_memory_bytes': _atd_write_optional_field(_atd_write_int, x.max_memory_bytes, x),
@@ -2558,6 +2569,7 @@ export function readProfile(x: any, context: any = x): Profile {
     matching_time: _atd_read_optional_field(readMatchingTime, x['matching_time'], x),
     tainting_time: _atd_read_optional_field(readTaintingTime, x['tainting_time'], x),
     fixpoint_timeouts: _atd_read_optional_field(_atd_read_array(readCoreError), x['fixpoint_timeouts'], x),
+    prefiltering: _atd_read_optional_field(readPrefilteringStats, x['prefiltering'], x),
     targets: _atd_read_required_field('Profile', 'targets', _atd_read_array(readTargetTimes), x['targets'], x),
     total_bytes: _atd_read_required_field('Profile', 'total_bytes', _atd_read_int, x['total_bytes'], x),
     max_memory_bytes: _atd_read_optional_field(_atd_read_int, x['max_memory_bytes'], x),
@@ -2729,6 +2741,28 @@ export function readTargetTimes(x: any, context: any = x): TargetTimes {
     match_times: _atd_read_required_field('TargetTimes', 'match_times', _atd_read_array(_atd_read_float), x['match_times'], x),
     parse_times: _atd_read_required_field('TargetTimes', 'parse_times', _atd_read_array(_atd_read_float), x['parse_times'], x),
     run_time: _atd_read_required_field('TargetTimes', 'run_time', _atd_read_float, x['run_time'], x),
+  };
+}
+
+export function writePrefilteringStats(x: PrefilteringStats, context: any = x): any {
+  return {
+    'project_level_time': _atd_write_required_field('PrefilteringStats', 'project_level_time', _atd_write_float, x.project_level_time, x),
+    'file_level_time': _atd_write_required_field('PrefilteringStats', 'file_level_time', _atd_write_float, x.file_level_time, x),
+    'rules_with_project_prefilters_ratio': _atd_write_required_field('PrefilteringStats', 'rules_with_project_prefilters_ratio', _atd_write_float, x.rules_with_project_prefilters_ratio, x),
+    'rules_with_file_prefilters_ratio': _atd_write_required_field('PrefilteringStats', 'rules_with_file_prefilters_ratio', _atd_write_float, x.rules_with_file_prefilters_ratio, x),
+    'rules_selected_ratio': _atd_write_required_field('PrefilteringStats', 'rules_selected_ratio', _atd_write_float, x.rules_selected_ratio, x),
+    'rules_matched_ratio': _atd_write_required_field('PrefilteringStats', 'rules_matched_ratio', _atd_write_float, x.rules_matched_ratio, x),
+  };
+}
+
+export function readPrefilteringStats(x: any, context: any = x): PrefilteringStats {
+  return {
+    project_level_time: _atd_read_required_field('PrefilteringStats', 'project_level_time', _atd_read_float, x['project_level_time'], x),
+    file_level_time: _atd_read_required_field('PrefilteringStats', 'file_level_time', _atd_read_float, x['file_level_time'], x),
+    rules_with_project_prefilters_ratio: _atd_read_required_field('PrefilteringStats', 'rules_with_project_prefilters_ratio', _atd_read_float, x['rules_with_project_prefilters_ratio'], x),
+    rules_with_file_prefilters_ratio: _atd_read_required_field('PrefilteringStats', 'rules_with_file_prefilters_ratio', _atd_read_float, x['rules_with_file_prefilters_ratio'], x),
+    rules_selected_ratio: _atd_read_required_field('PrefilteringStats', 'rules_selected_ratio', _atd_read_float, x['rules_selected_ratio'], x),
+    rules_matched_ratio: _atd_read_required_field('PrefilteringStats', 'rules_matched_ratio', _atd_read_float, x['rules_matched_ratio'], x),
   };
 }
 
