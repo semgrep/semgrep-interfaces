@@ -984,6 +984,16 @@ type cli_error = Semgrep_output_v1_t.cli_error = {
   help: string option
 }
 
+type ci_scan_metadata = Semgrep_output_v1_t.ci_scan_metadata = {
+  scan_id: int;
+  deployment_id: int;
+  repository_id: int;
+  repository_ref_id: int;
+  enabled_products: product list;
+  git_commit: sha1 option;
+  git_ref: string option
+}
+
 type ci_scan_dependencies = Semgrep_output_v1_t.ci_scan_dependencies
 
 type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
@@ -994,7 +1004,8 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   renamed_paths: fpath list;
   rule_ids: rule_id list;
   contributions: contributions option;
-  dependencies: ci_scan_dependencies option
+  dependencies: ci_scan_dependencies option;
+  metadata: ci_scan_metadata option
 }
 
 type ci_scan_failure = Semgrep_output_v1_t.ci_scan_failure = {
@@ -4232,6 +4243,26 @@ val read_cli_error :
 val cli_error_of_string :
   string -> cli_error
   (** Deserialize JSON data of type {!type:cli_error}. *)
+
+val write_ci_scan_metadata :
+  Buffer.t -> ci_scan_metadata -> unit
+  (** Output a JSON value of type {!type:ci_scan_metadata}. *)
+
+val string_of_ci_scan_metadata :
+  ?len:int -> ci_scan_metadata -> string
+  (** Serialize a value of type {!type:ci_scan_metadata}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_ci_scan_metadata :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_scan_metadata
+  (** Input JSON data of type {!type:ci_scan_metadata}. *)
+
+val ci_scan_metadata_of_string :
+  string -> ci_scan_metadata
+  (** Deserialize JSON data of type {!type:ci_scan_metadata}. *)
 
 val write_ci_scan_dependencies :
   Buffer.t -> ci_scan_dependencies -> unit

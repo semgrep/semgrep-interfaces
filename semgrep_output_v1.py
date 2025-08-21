@@ -9481,6 +9481,52 @@ class CliError:
 
 
 @dataclass
+class CiScanMetadata:
+    """Original type: ci_scan_metadata = { ... }"""
+
+    scan_id: int
+    deployment_id: int
+    repository_id: int
+    repository_ref_id: int
+    enabled_products: List[Product]
+    git_commit: Optional[Sha1]
+    git_ref: Optional[str]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiScanMetadata':
+        if isinstance(x, dict):
+            return cls(
+                scan_id=_atd_read_int(x['scan_id']) if 'scan_id' in x else _atd_missing_json_field('CiScanMetadata', 'scan_id'),
+                deployment_id=_atd_read_int(x['deployment_id']) if 'deployment_id' in x else _atd_missing_json_field('CiScanMetadata', 'deployment_id'),
+                repository_id=_atd_read_int(x['repository_id']) if 'repository_id' in x else _atd_missing_json_field('CiScanMetadata', 'repository_id'),
+                repository_ref_id=_atd_read_int(x['repository_ref_id']) if 'repository_ref_id' in x else _atd_missing_json_field('CiScanMetadata', 'repository_ref_id'),
+                enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else _atd_missing_json_field('CiScanMetadata', 'enabled_products'),
+                git_commit=_atd_read_nullable(Sha1.from_json)(x['git_commit']) if 'git_commit' in x else _atd_missing_json_field('CiScanMetadata', 'git_commit'),
+                git_ref=_atd_read_nullable(_atd_read_string)(x['git_ref']) if 'git_ref' in x else _atd_missing_json_field('CiScanMetadata', 'git_ref'),
+            )
+        else:
+            _atd_bad_json('CiScanMetadata', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['scan_id'] = _atd_write_int(self.scan_id)
+        res['deployment_id'] = _atd_write_int(self.deployment_id)
+        res['repository_id'] = _atd_write_int(self.repository_id)
+        res['repository_ref_id'] = _atd_write_int(self.repository_ref_id)
+        res['enabled_products'] = _atd_write_list((lambda x: x.to_json()))(self.enabled_products)
+        res['git_commit'] = _atd_write_nullable((lambda x: x.to_json()))(self.git_commit)
+        res['git_ref'] = _atd_write_nullable(_atd_write_string)(self.git_ref)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiScanMetadata':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class CiScanDependencies:
     """Original type: ci_scan_dependencies"""
 
@@ -9513,6 +9559,7 @@ class CiScanResults:
     rule_ids: List[RuleId]
     contributions: Optional[Contributions] = None
     dependencies: Optional[CiScanDependencies] = None
+    metadata: Optional[CiScanMetadata] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanResults':
@@ -9526,6 +9573,7 @@ class CiScanResults:
                 rule_ids=_atd_read_list(RuleId.from_json)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('CiScanResults', 'rule_ids'),
                 contributions=Contributions.from_json(x['contributions']) if 'contributions' in x else None,
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
+                metadata=CiScanMetadata.from_json(x['metadata']) if 'metadata' in x else None,
             )
         else:
             _atd_bad_json('CiScanResults', x)
@@ -9542,6 +9590,8 @@ class CiScanResults:
             res['contributions'] = (lambda x: x.to_json())(self.contributions)
         if self.dependencies is not None:
             res['dependencies'] = (lambda x: x.to_json())(self.dependencies)
+        if self.metadata is not None:
+            res['metadata'] = (lambda x: x.to_json())(self.metadata)
         return res
 
     @classmethod

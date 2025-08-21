@@ -723,6 +723,17 @@ export type CiScanResults = {
   rule_ids: RuleId[];
   contributions?: Contributions;
   dependencies?: CiScanDependencies;
+  metadata?: CiScanMetadata;
+}
+
+export type CiScanMetadata = {
+  scan_id: number /*int*/;
+  deployment_id: number /*int*/;
+  repository_id: number /*int*/;
+  repository_ref_id: number /*int*/;
+  enabled_products: Product[];
+  git_commit: (Sha1 | null);
+  git_ref: (string | null);
 }
 
 export type Contributor = {
@@ -3483,6 +3494,7 @@ export function writeCiScanResults(x: CiScanResults, context: any = x): any {
     'rule_ids': _atd_write_required_field('CiScanResults', 'rule_ids', _atd_write_array(writeRuleId), x.rule_ids, x),
     'contributions': _atd_write_optional_field(writeContributions, x.contributions, x),
     'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
+    'metadata': _atd_write_optional_field(writeCiScanMetadata, x.metadata, x),
   };
 }
 
@@ -3496,6 +3508,31 @@ export function readCiScanResults(x: any, context: any = x): CiScanResults {
     rule_ids: _atd_read_required_field('CiScanResults', 'rule_ids', _atd_read_array(readRuleId), x['rule_ids'], x),
     contributions: _atd_read_optional_field(readContributions, x['contributions'], x),
     dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
+    metadata: _atd_read_optional_field(readCiScanMetadata, x['metadata'], x),
+  };
+}
+
+export function writeCiScanMetadata(x: CiScanMetadata, context: any = x): any {
+  return {
+    'scan_id': _atd_write_required_field('CiScanMetadata', 'scan_id', _atd_write_int, x.scan_id, x),
+    'deployment_id': _atd_write_required_field('CiScanMetadata', 'deployment_id', _atd_write_int, x.deployment_id, x),
+    'repository_id': _atd_write_required_field('CiScanMetadata', 'repository_id', _atd_write_int, x.repository_id, x),
+    'repository_ref_id': _atd_write_required_field('CiScanMetadata', 'repository_ref_id', _atd_write_int, x.repository_ref_id, x),
+    'enabled_products': _atd_write_required_field('CiScanMetadata', 'enabled_products', _atd_write_array(writeProduct), x.enabled_products, x),
+    'git_commit': _atd_write_required_field('CiScanMetadata', 'git_commit', _atd_write_nullable(writeSha1), x.git_commit, x),
+    'git_ref': _atd_write_required_field('CiScanMetadata', 'git_ref', _atd_write_nullable(_atd_write_string), x.git_ref, x),
+  };
+}
+
+export function readCiScanMetadata(x: any, context: any = x): CiScanMetadata {
+  return {
+    scan_id: _atd_read_required_field('CiScanMetadata', 'scan_id', _atd_read_int, x['scan_id'], x),
+    deployment_id: _atd_read_required_field('CiScanMetadata', 'deployment_id', _atd_read_int, x['deployment_id'], x),
+    repository_id: _atd_read_required_field('CiScanMetadata', 'repository_id', _atd_read_int, x['repository_id'], x),
+    repository_ref_id: _atd_read_required_field('CiScanMetadata', 'repository_ref_id', _atd_read_int, x['repository_ref_id'], x),
+    enabled_products: _atd_read_required_field('CiScanMetadata', 'enabled_products', _atd_read_array(readProduct), x['enabled_products'], x),
+    git_commit: _atd_read_required_field('CiScanMetadata', 'git_commit', _atd_read_nullable(readSha1), x['git_commit'], x),
+    git_ref: _atd_read_required_field('CiScanMetadata', 'git_ref', _atd_read_nullable(_atd_read_string), x['git_ref'], x),
   };
 }
 

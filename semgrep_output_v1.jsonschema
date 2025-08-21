@@ -1400,7 +1400,27 @@
           "items": { "$ref": "#/definitions/rule_id" }
         },
         "contributions": { "$ref": "#/definitions/contributions" },
-        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" }
+        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" },
+        "metadata": { "$ref": "#/definitions/ci_scan_metadata" }
+      }
+    },
+    "ci_scan_metadata": {
+      "type": "object",
+      "required": [
+        "scan_id", "deployment_id", "repository_id", "repository_ref_id",
+        "enabled_products", "git_commit", "git_ref"
+      ],
+      "properties": {
+        "scan_id": { "type": "integer" },
+        "deployment_id": { "type": "integer" },
+        "repository_id": { "type": "integer" },
+        "repository_ref_id": { "type": "integer" },
+        "enabled_products": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/product" }
+        },
+        "git_commit": { "$ref": "#/definitions/sha1" },
+        "git_ref": { "type": [ "string", "null" ] }
       }
     },
     "contributor": {
