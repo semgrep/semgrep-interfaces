@@ -986,9 +986,11 @@ type cli_error = Semgrep_output_v1_t.cli_error = {
 
 type ci_scan_metadata = Semgrep_output_v1_t.ci_scan_metadata = {
   scan_id: int;
+  deployment_id: int;
   repository_id: int;
-  git_ref: string;
-  git_commit: string
+  enabled_products: product list;
+  git_commit: string;
+  git_ref: string
 }
 
 type ci_scan_dependencies = Semgrep_output_v1_t.ci_scan_dependencies

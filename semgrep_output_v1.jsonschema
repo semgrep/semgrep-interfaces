@@ -1406,12 +1406,20 @@
     },
     "ci_scan_metadata": {
       "type": "object",
-      "required": [ "scan_id", "repository_id", "git_ref", "git_commit" ],
+      "required": [
+        "scan_id", "deployment_id", "repository_id", "enabled_products",
+        "git_commit", "git_ref"
+      ],
       "properties": {
         "scan_id": { "type": "integer" },
+        "deployment_id": { "type": "integer" },
         "repository_id": { "type": "integer" },
-        "git_ref": { "type": "string" },
-        "git_commit": { "type": "string" }
+        "enabled_products": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/product" }
+        },
+        "git_commit": { "type": "string" },
+        "git_ref": { "type": "string" }
       }
     },
     "contributor": {

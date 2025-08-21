@@ -9485,18 +9485,22 @@ class CiScanMetadata:
     """Original type: ci_scan_metadata = { ... }"""
 
     scan_id: int
+    deployment_id: int
     repository_id: int
-    git_ref: str
+    enabled_products: List[Product]
     git_commit: str
+    git_ref: str
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanMetadata':
         if isinstance(x, dict):
             return cls(
                 scan_id=_atd_read_int(x['scan_id']) if 'scan_id' in x else _atd_missing_json_field('CiScanMetadata', 'scan_id'),
+                deployment_id=_atd_read_int(x['deployment_id']) if 'deployment_id' in x else _atd_missing_json_field('CiScanMetadata', 'deployment_id'),
                 repository_id=_atd_read_int(x['repository_id']) if 'repository_id' in x else _atd_missing_json_field('CiScanMetadata', 'repository_id'),
-                git_ref=_atd_read_string(x['git_ref']) if 'git_ref' in x else _atd_missing_json_field('CiScanMetadata', 'git_ref'),
+                enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else _atd_missing_json_field('CiScanMetadata', 'enabled_products'),
                 git_commit=_atd_read_string(x['git_commit']) if 'git_commit' in x else _atd_missing_json_field('CiScanMetadata', 'git_commit'),
+                git_ref=_atd_read_string(x['git_ref']) if 'git_ref' in x else _atd_missing_json_field('CiScanMetadata', 'git_ref'),
             )
         else:
             _atd_bad_json('CiScanMetadata', x)
@@ -9504,9 +9508,11 @@ class CiScanMetadata:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['scan_id'] = _atd_write_int(self.scan_id)
+        res['deployment_id'] = _atd_write_int(self.deployment_id)
         res['repository_id'] = _atd_write_int(self.repository_id)
-        res['git_ref'] = _atd_write_string(self.git_ref)
+        res['enabled_products'] = _atd_write_list((lambda x: x.to_json()))(self.enabled_products)
         res['git_commit'] = _atd_write_string(self.git_commit)
+        res['git_ref'] = _atd_write_string(self.git_ref)
         return res
 
     @classmethod
