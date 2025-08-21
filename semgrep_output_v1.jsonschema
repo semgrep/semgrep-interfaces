@@ -1400,7 +1400,18 @@
           "items": { "$ref": "#/definitions/rule_id" }
         },
         "contributions": { "$ref": "#/definitions/contributions" },
-        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" }
+        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" },
+        "metadata": { "$ref": "#/definitions/ci_scan_metadata" }
+      }
+    },
+    "ci_scan_metadata": {
+      "type": "object",
+      "required": [ "scan_id", "repository_id", "git_ref", "git_commit" ],
+      "properties": {
+        "scan_id": { "type": "integer" },
+        "repository_id": { "type": "integer" },
+        "git_ref": { "type": "string" },
+        "git_commit": { "type": "string" }
       }
     },
     "contributor": {

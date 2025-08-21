@@ -984,6 +984,13 @@ type cli_error = Semgrep_output_v1_t.cli_error = {
   help: string option
 }
 
+type ci_scan_metadata = Semgrep_output_v1_t.ci_scan_metadata = {
+  scan_id: int;
+  repository_id: int;
+  git_ref: string;
+  git_commit: string
+}
+
 type ci_scan_dependencies = Semgrep_output_v1_t.ci_scan_dependencies
 
 type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
@@ -994,7 +1001,8 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   renamed_paths: fpath list;
   rule_ids: rule_id list;
   contributions: contributions option;
-  dependencies: ci_scan_dependencies option
+  dependencies: ci_scan_dependencies option;
+  metadata: ci_scan_metadata option
 }
 
 type ci_scan_failure = Semgrep_output_v1_t.ci_scan_failure = {
@@ -36186,6 +36194,257 @@ let read_cli_error = (
 )
 let cli_error_of_string s =
   read_cli_error (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_ci_scan_metadata : _ -> ci_scan_metadata -> _ = (
+  fun ob (x : ci_scan_metadata) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"scan_id\":";
+    (
+      Yojson.Safe.write_int
+    )
+      ob x.scan_id;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"repository_id\":";
+    (
+      Yojson.Safe.write_int
+    )
+      ob x.repository_id;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"git_ref\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.git_ref;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"git_commit\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.git_commit;
+    Buffer.add_char ob '}';
+)
+let string_of_ci_scan_metadata ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_ci_scan_metadata ob x;
+  Buffer.contents ob
+let read_ci_scan_metadata = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_scan_id = ref (None) in
+    let field_repository_id = ref (None) in
+    let field_git_ref = ref (None) in
+    let field_git_commit = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 7 -> (
+                match String.unsafe_get s pos with
+                  | 'g' -> (
+                      if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'f' then (
+                        2
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 's' -> (
+                      if String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
+                        0
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
+              )
+            | 10 -> (
+                if String.unsafe_get s pos = 'g' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 't' then (
+                  3
+                )
+                else (
+                  -1
+                )
+              )
+            | 13 -> (
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'd' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_scan_id := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_int
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_repository_id := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_int
+                ) p lb
+              )
+            );
+          | 2 ->
+            field_git_ref := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | 3 ->
+            field_git_commit := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 7 -> (
+                  match String.unsafe_get s pos with
+                    | 'g' -> (
+                        if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'f' then (
+                          2
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 's' -> (
+                        if String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
+                          0
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
+                )
+              | 10 -> (
+                  if String.unsafe_get s pos = 'g' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'c' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 't' then (
+                    3
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 13 -> (
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'o' && String.unsafe_get s (pos+8) = 'r' && String.unsafe_get s (pos+9) = 'y' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'd' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_scan_id := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_int
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_repository_id := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_int
+                  ) p lb
+                )
+              );
+            | 2 ->
+              field_git_ref := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | 3 ->
+              field_git_commit := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            scan_id = (match !field_scan_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "scan_id");
+            repository_id = (match !field_repository_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "repository_id");
+            git_ref = (match !field_git_ref with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "git_ref");
+            git_commit = (match !field_git_commit with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "git_commit");
+          }
+         : ci_scan_metadata)
+      )
+)
+let ci_scan_metadata_of_string s =
+  read_ci_scan_metadata (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__x_a534bf0 = (
   Atdgen_runtime.Oj_run.write_assoc_list (
     Yojson.Safe.write_string
@@ -36291,6 +36550,63 @@ let read__contributions_option = (
 )
 let _contributions_option_of_string s =
   read__contributions_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__ci_scan_metadata_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_ci_scan_metadata
+  )
+)
+let string_of__ci_scan_metadata_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__ci_scan_metadata_option ob x;
+  Buffer.contents ob
+let read__ci_scan_metadata_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Yojson.Safe.start_any_variant p lb with
+      | `Edgy_bracket -> (
+          match Yojson.Safe.read_ident p lb with
+            | "None" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (None : _ option)
+            | "Some" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_ci_scan_metadata
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_ci_scan_metadata
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _ci_scan_metadata_option_of_string s =
+  read__ci_scan_metadata_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__ci_scan_dependencies_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     write_ci_scan_dependencies
@@ -36428,6 +36744,17 @@ let write_ci_scan_results : _ -> ci_scan_results -> _ = (
       )
         ob x;
     );
+    (match x.metadata with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"metadata\":";
+      (
+        write_ci_scan_metadata
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_ci_scan_results ?(len = 1024) x =
@@ -36446,6 +36773,7 @@ let read_ci_scan_results = (
     let field_rule_ids = ref (None) in
     let field_contributions = ref (None) in
     let field_dependencies = ref (None) in
+    let field_metadata = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -36476,6 +36804,14 @@ let read_ci_scan_results = (
                   | 'f' -> (
                       if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = 's' then (
                         0
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 'm' -> (
+                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'a' then (
+                        8
                       )
                       else (
                         -1
@@ -36607,6 +36943,16 @@ let read_ci_scan_results = (
                 )
               );
             )
+          | 8 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_metadata := (
+                Some (
+                  (
+                    read_ci_scan_metadata
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -36641,6 +36987,14 @@ let read_ci_scan_results = (
                     | 'f' -> (
                         if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = 's' then (
                           0
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'm' -> (
+                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'a' then (
+                          8
                         )
                         else (
                           -1
@@ -36772,6 +37126,16 @@ let read_ci_scan_results = (
                   )
                 );
               )
+            | 8 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_metadata := (
+                  Some (
+                    (
+                      read_ci_scan_metadata
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -36789,6 +37153,7 @@ let read_ci_scan_results = (
             rule_ids = (match !field_rule_ids with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rule_ids");
             contributions = !field_contributions;
             dependencies = !field_dependencies;
+            metadata = !field_metadata;
           }
          : ci_scan_results)
       )
