@@ -747,7 +747,9 @@ type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
   unique_id: uuid;
   requested_products: product list;
   dry_run: bool;
-  sms_scan_id: string option
+  sms_scan_id: string option;
+  ecosystems: string list;
+  packages: string list
 }
 
 type project_metadata = Semgrep_output_v1_t.project_metadata = {
@@ -25254,6 +25256,24 @@ let write_scan_metadata : _ -> scan_metadata -> _ = (
       )
         ob x;
     );
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"ecosystems\":";
+    (
+      write__string_list
+    )
+      ob x.ecosystems;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"packages\":";
+    (
+      write__string_list
+    )
+      ob x.packages;
     Buffer.add_char ob '}';
 )
 let string_of_scan_metadata ?(len = 1024) x =
@@ -25269,6 +25289,8 @@ let read_scan_metadata = (
     let field_requested_products = ref (None) in
     let field_dry_run = ref (false) in
     let field_sms_scan_id = ref (None) in
+    let field_ecosystems = ref ([]) in
+    let field_packages = ref ([]) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -25286,9 +25308,25 @@ let read_scan_metadata = (
                   -1
                 )
               )
+            | 8 -> (
+                if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'k' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 's' then (
+                  6
+                )
+                else (
+                  -1
+                )
+              )
             | 9 -> (
                 if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'q' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'd' then (
                   1
+                )
+                else (
+                  -1
+                )
+              )
+            | 10 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'y' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'm' && String.unsafe_get s (pos+9) = 's' then (
+                  5
                 )
                 else (
                   -1
@@ -25374,6 +25412,22 @@ let read_scan_metadata = (
                 )
               );
             )
+          | 5 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_ecosystems := (
+                (
+                  read__string_list
+                ) p lb
+              );
+            )
+          | 6 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_packages := (
+                (
+                  read__string_list
+                ) p lb
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -25395,9 +25449,25 @@ let read_scan_metadata = (
                     -1
                   )
                 )
+              | 8 -> (
+                  if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'k' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 's' then (
+                    6
+                  )
+                  else (
+                    -1
+                  )
+                )
               | 9 -> (
                   if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'q' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'd' then (
                     1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 10 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'y' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'm' && String.unsafe_get s (pos+9) = 's' then (
+                    5
                   )
                   else (
                     -1
@@ -25483,6 +25553,22 @@ let read_scan_metadata = (
                   )
                 );
               )
+            | 5 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_ecosystems := (
+                  (
+                    read__string_list
+                  ) p lb
+                );
+              )
+            | 6 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_packages := (
+                  (
+                    read__string_list
+                  ) p lb
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -25497,6 +25583,8 @@ let read_scan_metadata = (
             requested_products = (match !field_requested_products with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "requested_products");
             dry_run = !field_dry_run;
             sms_scan_id = !field_sms_scan_id;
+            ecosystems = !field_ecosystems;
+            packages = !field_packages;
           }
          : scan_metadata)
       )
