@@ -1746,8 +1746,7 @@ type ci_scan_results = {
     * it to /results *)
    ?dependencies: ci_scan_dependencies option;
 
-   (* filled in by the backend to associate contributions with their corresponding
-    * source repository and driving scan*)
+   (* filled in by the backend to associate scan results with the driving scan*)
    ?metadata: ci_scan_metadata option;
 }
 
@@ -1759,6 +1758,7 @@ type ci_scan_metadata = {
   scan_id: int;
   deployment_id: int;
   repository_id: int;
+  repository_ref_id: int;
   enabled_products: product list;
   git_commit: string;
   git_ref: string;
