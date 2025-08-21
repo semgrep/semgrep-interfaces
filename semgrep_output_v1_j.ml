@@ -990,8 +990,8 @@ type ci_scan_metadata = Semgrep_output_v1_t.ci_scan_metadata = {
   repository_id: int;
   repository_ref_id: int;
   enabled_products: product list;
-  git_commit: string;
-  git_ref: string
+  git_commit: sha1 option;
+  git_ref: string option
 }
 
 type ci_scan_dependencies = Semgrep_output_v1_t.ci_scan_dependencies
@@ -36252,7 +36252,7 @@ let write_ci_scan_metadata : _ -> ci_scan_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"git_commit\":";
     (
-      Yojson.Safe.write_string
+      write__sha1_nullable
     )
       ob x.git_commit;
     if !is_first then
@@ -36261,7 +36261,7 @@ let write_ci_scan_metadata : _ -> ci_scan_metadata -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"git_ref\":";
     (
-      Yojson.Safe.write_string
+      write__string_nullable
     )
       ob x.git_ref;
     Buffer.add_char ob '}';
@@ -36410,7 +36410,7 @@ let read_ci_scan_metadata = (
             field_git_commit := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read__sha1_nullable
                 ) p lb
               )
             );
@@ -36418,7 +36418,7 @@ let read_ci_scan_metadata = (
             field_git_ref := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read__string_nullable
                 ) p lb
               )
             );
@@ -36555,7 +36555,7 @@ let read_ci_scan_metadata = (
               field_git_commit := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read__sha1_nullable
                   ) p lb
                 )
               );
@@ -36563,7 +36563,7 @@ let read_ci_scan_metadata = (
               field_git_ref := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read__string_nullable
                   ) p lb
                 )
               );

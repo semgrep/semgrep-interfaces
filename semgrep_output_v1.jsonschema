@@ -1419,8 +1419,8 @@
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
         },
-        "git_commit": { "type": "string" },
-        "git_ref": { "type": "string" }
+        "git_commit": { "$ref": "#/definitions/sha1" },
+        "git_ref": { "type": [ "string", "null" ] }
       }
     },
     "contributor": {

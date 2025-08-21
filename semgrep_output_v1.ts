@@ -732,8 +732,8 @@ export type CiScanMetadata = {
   repository_id: number /*int*/;
   repository_ref_id: number /*int*/;
   enabled_products: Product[];
-  git_commit: string;
-  git_ref: string;
+  git_commit: (Sha1 | null);
+  git_ref: (string | null);
 }
 
 export type Contributor = {
@@ -3519,8 +3519,8 @@ export function writeCiScanMetadata(x: CiScanMetadata, context: any = x): any {
     'repository_id': _atd_write_required_field('CiScanMetadata', 'repository_id', _atd_write_int, x.repository_id, x),
     'repository_ref_id': _atd_write_required_field('CiScanMetadata', 'repository_ref_id', _atd_write_int, x.repository_ref_id, x),
     'enabled_products': _atd_write_required_field('CiScanMetadata', 'enabled_products', _atd_write_array(writeProduct), x.enabled_products, x),
-    'git_commit': _atd_write_required_field('CiScanMetadata', 'git_commit', _atd_write_string, x.git_commit, x),
-    'git_ref': _atd_write_required_field('CiScanMetadata', 'git_ref', _atd_write_string, x.git_ref, x),
+    'git_commit': _atd_write_required_field('CiScanMetadata', 'git_commit', _atd_write_nullable(writeSha1), x.git_commit, x),
+    'git_ref': _atd_write_required_field('CiScanMetadata', 'git_ref', _atd_write_nullable(_atd_write_string), x.git_ref, x),
   };
 }
 
@@ -3531,8 +3531,8 @@ export function readCiScanMetadata(x: any, context: any = x): CiScanMetadata {
     repository_id: _atd_read_required_field('CiScanMetadata', 'repository_id', _atd_read_int, x['repository_id'], x),
     repository_ref_id: _atd_read_required_field('CiScanMetadata', 'repository_ref_id', _atd_read_int, x['repository_ref_id'], x),
     enabled_products: _atd_read_required_field('CiScanMetadata', 'enabled_products', _atd_read_array(readProduct), x['enabled_products'], x),
-    git_commit: _atd_read_required_field('CiScanMetadata', 'git_commit', _atd_read_string, x['git_commit'], x),
-    git_ref: _atd_read_required_field('CiScanMetadata', 'git_ref', _atd_read_string, x['git_ref'], x),
+    git_commit: _atd_read_required_field('CiScanMetadata', 'git_commit', _atd_read_nullable(readSha1), x['git_commit'], x),
+    git_ref: _atd_read_required_field('CiScanMetadata', 'git_ref', _atd_read_nullable(_atd_read_string), x['git_ref'], x),
   };
 }
 

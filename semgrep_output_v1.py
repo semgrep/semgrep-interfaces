@@ -9489,8 +9489,8 @@ class CiScanMetadata:
     repository_id: int
     repository_ref_id: int
     enabled_products: List[Product]
-    git_commit: str
-    git_ref: str
+    git_commit: Optional[Sha1]
+    git_ref: Optional[str]
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanMetadata':
@@ -9501,8 +9501,8 @@ class CiScanMetadata:
                 repository_id=_atd_read_int(x['repository_id']) if 'repository_id' in x else _atd_missing_json_field('CiScanMetadata', 'repository_id'),
                 repository_ref_id=_atd_read_int(x['repository_ref_id']) if 'repository_ref_id' in x else _atd_missing_json_field('CiScanMetadata', 'repository_ref_id'),
                 enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else _atd_missing_json_field('CiScanMetadata', 'enabled_products'),
-                git_commit=_atd_read_string(x['git_commit']) if 'git_commit' in x else _atd_missing_json_field('CiScanMetadata', 'git_commit'),
-                git_ref=_atd_read_string(x['git_ref']) if 'git_ref' in x else _atd_missing_json_field('CiScanMetadata', 'git_ref'),
+                git_commit=_atd_read_nullable(Sha1.from_json)(x['git_commit']) if 'git_commit' in x else _atd_missing_json_field('CiScanMetadata', 'git_commit'),
+                git_ref=_atd_read_nullable(_atd_read_string)(x['git_ref']) if 'git_ref' in x else _atd_missing_json_field('CiScanMetadata', 'git_ref'),
             )
         else:
             _atd_bad_json('CiScanMetadata', x)
@@ -9514,8 +9514,8 @@ class CiScanMetadata:
         res['repository_id'] = _atd_write_int(self.repository_id)
         res['repository_ref_id'] = _atd_write_int(self.repository_ref_id)
         res['enabled_products'] = _atd_write_list((lambda x: x.to_json()))(self.enabled_products)
-        res['git_commit'] = _atd_write_string(self.git_commit)
-        res['git_ref'] = _atd_write_string(self.git_ref)
+        res['git_commit'] = _atd_write_nullable((lambda x: x.to_json()))(self.git_commit)
+        res['git_ref'] = _atd_write_nullable(_atd_write_string)(self.git_ref)
         return res
 
     @classmethod
