@@ -1745,6 +1745,21 @@ type ci_scan_results = {
    (* this data was originally sent to /complete, but we want to start sending
     * it to /results *)
    ?dependencies: ci_scan_dependencies option;
+
+   (* filled in by the backend to associate contributions with their corresponding
+    * source repository and driving scan*)
+   ?metadata: ci_scan_metadata option;
+}
+
+(* Scan metadata populated by the backend after receiving
+ * the scan results from the CLI via POST request to
+ * /scans/<int:scan_id>/results
+ *)
+type ci_scan_metadata = {
+  scan_id: int;
+  repository_id: int;
+  git_ref: string;
+  git_commit: string;
 }
 
 (* See https://semgrep.dev/docs/usage-limits
