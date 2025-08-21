@@ -989,7 +989,7 @@ type ci_scan_metadata = Semgrep_output_v1_t.ci_scan_metadata = {
   deployment_id: int;
   repository_id: int;
   repository_ref_id: int;
-  enabled_products: product list;
+  using_products: product list;
   git_commit: string;
   git_ref: string
 }
@@ -36241,11 +36241,11 @@ let write_ci_scan_metadata : _ -> ci_scan_metadata -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"enabled_products\":";
+      Buffer.add_string ob "\"using_products\":";
     (
       write__product_list
     )
-      ob x.enabled_products;
+      ob x.using_products;
     if !is_first then
       is_first := false
     else
@@ -36278,7 +36278,7 @@ let read_ci_scan_metadata = (
     let field_deployment_id = ref (None) in
     let field_repository_id = ref (None) in
     let field_repository_ref_id = ref (None) in
-    let field_enabled_products = ref (None) in
+    let field_using_products = ref (None) in
     let field_git_commit = ref (None) in
     let field_git_ref = ref (None) in
     try
@@ -36342,8 +36342,8 @@ let read_ci_scan_metadata = (
                       -1
                     )
               )
-            | 16 -> (
-                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'c' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 's' then (
+            | 14 -> (
+                if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'd' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'c' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 's' then (
                   4
                 )
                 else (
@@ -36399,7 +36399,7 @@ let read_ci_scan_metadata = (
               )
             );
           | 4 ->
-            field_enabled_products := (
+            field_using_products := (
               Some (
                 (
                   read__product_list
@@ -36487,8 +36487,8 @@ let read_ci_scan_metadata = (
                         -1
                       )
                 )
-              | 16 -> (
-                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'u' && String.unsafe_get s (pos+13) = 'c' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 's' then (
+              | 14 -> (
+                  if String.unsafe_get s pos = 'u' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'g' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'p' && String.unsafe_get s (pos+7) = 'r' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'd' && String.unsafe_get s (pos+10) = 'u' && String.unsafe_get s (pos+11) = 'c' && String.unsafe_get s (pos+12) = 't' && String.unsafe_get s (pos+13) = 's' then (
                     4
                   )
                   else (
@@ -36544,7 +36544,7 @@ let read_ci_scan_metadata = (
                 )
               );
             | 4 ->
-              field_enabled_products := (
+              field_using_products := (
                 Some (
                   (
                     read__product_list
@@ -36580,7 +36580,7 @@ let read_ci_scan_metadata = (
             deployment_id = (match !field_deployment_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "deployment_id");
             repository_id = (match !field_repository_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "repository_id");
             repository_ref_id = (match !field_repository_ref_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "repository_ref_id");
-            enabled_products = (match !field_enabled_products with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "enabled_products");
+            using_products = (match !field_using_products with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "using_products");
             git_commit = (match !field_git_commit with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "git_commit");
             git_ref = (match !field_git_ref with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "git_ref");
           }

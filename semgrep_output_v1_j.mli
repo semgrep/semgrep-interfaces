@@ -989,7 +989,7 @@ type ci_scan_metadata = Semgrep_output_v1_t.ci_scan_metadata = {
   deployment_id: int;
   repository_id: int;
   repository_ref_id: int;
-  enabled_products: product list;
+  using_products: product list;
   git_commit: string;
   git_ref: string
 }
