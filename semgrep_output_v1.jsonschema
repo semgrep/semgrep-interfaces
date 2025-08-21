@@ -1408,14 +1408,14 @@
       "type": "object",
       "required": [
         "scan_id", "deployment_id", "repository_id", "repository_ref_id",
-        "using_products", "git_commit", "git_ref"
+        "enabled_products", "git_commit", "git_ref"
       ],
       "properties": {
         "scan_id": { "type": "integer" },
         "deployment_id": { "type": "integer" },
         "repository_id": { "type": "integer" },
         "repository_ref_id": { "type": "integer" },
-        "using_products": {
+        "enabled_products": {
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
         },
