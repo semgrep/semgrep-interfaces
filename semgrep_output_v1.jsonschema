@@ -588,6 +588,7 @@
         { "const": "Fatal error" },
         { "const": "Timeout" },
         { "const": "Out of memory" },
+        { "const": "Fixpoint timeout" },
         { "const": "Stack overflow" },
         { "const": "Timeout during interfile analysis" },
         { "const": "OOM during interfile analysis" },
@@ -771,6 +772,14 @@
           "additionalProperties": { "type": "number" }
         },
         "parsing_time": { "$ref": "#/definitions/parsing_time" },
+        "scanning_time": { "$ref": "#/definitions/scanning_time" },
+        "matching_time": { "$ref": "#/definitions/matching_time" },
+        "tainting_time": { "$ref": "#/definitions/tainting_time" },
+        "fixpoint_timeouts": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/core_error" }
+        },
+        "prefiltering": { "$ref": "#/definitions/prefiltering_stats" },
         "targets": {
           "type": "array",
           "items": { "$ref": "#/definitions/target_times" }
@@ -787,6 +796,25 @@
         "ftime": { "type": "number" }
       }
     },
+    "file_rule_time": {
+      "type": "object",
+      "required": [ "fpath", "rule_id", "time" ],
+      "properties": {
+        "fpath": { "$ref": "#/definitions/fpath" },
+        "rule_id": { "$ref": "#/definitions/rule_id" },
+        "time": { "type": "number" }
+      }
+    },
+    "def_rule_time": {
+      "type": "object",
+      "required": [ "fpath", "fline", "rule_id", "time" ],
+      "properties": {
+        "fpath": { "$ref": "#/definitions/fpath" },
+        "fline": { "type": "integer" },
+        "rule_id": { "$ref": "#/definitions/rule_id" },
+        "time": { "type": "number" }
+      }
+    },
     "summary_stats": {
       "type": "object",
       "required": [ "mean", "std_dev" ],
@@ -795,15 +823,71 @@
         "std_dev": { "type": "number" }
       }
     },
+    "very_slow_stats": {
+      "type": "object",
+      "required": [ "time_ratio", "count_ratio" ],
+      "properties": {
+        "time_ratio": { "type": "number" },
+        "count_ratio": { "type": "number" }
+      }
+    },
     "parsing_time": {
       "type": "object",
       "required": [ "total_time", "per_file_time", "very_slow_files" ],
       "properties": {
         "total_time": { "type": "number" },
         "per_file_time": { "$ref": "#/definitions/summary_stats" },
+        "very_slow_stats": { "$ref": "#/definitions/very_slow_stats" },
         "very_slow_files": {
           "type": "array",
           "items": { "$ref": "#/definitions/file_time" }
+        }
+      }
+    },
+    "scanning_time": {
+      "type": "object",
+      "required": [
+        "total_time", "per_file_time", "very_slow_stats", "very_slow_files"
+      ],
+      "properties": {
+        "total_time": { "type": "number" },
+        "per_file_time": { "$ref": "#/definitions/summary_stats" },
+        "very_slow_stats": { "$ref": "#/definitions/very_slow_stats" },
+        "very_slow_files": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/file_time" }
+        }
+      }
+    },
+    "matching_time": {
+      "type": "object",
+      "required": [
+        "total_time", "per_file_and_rule_time", "very_slow_stats",
+        "very_slow_rules_on_files"
+      ],
+      "properties": {
+        "total_time": { "type": "number" },
+        "per_file_and_rule_time": { "$ref": "#/definitions/summary_stats" },
+        "very_slow_stats": { "$ref": "#/definitions/very_slow_stats" },
+        "very_slow_rules_on_files": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/file_rule_time" }
+        }
+      }
+    },
+    "tainting_time": {
+      "type": "object",
+      "required": [
+        "total_time", "per_def_and_rule_time", "very_slow_stats",
+        "very_slow_rules_on_defs"
+      ],
+      "properties": {
+        "total_time": { "type": "number" },
+        "per_def_and_rule_time": { "$ref": "#/definitions/summary_stats" },
+        "very_slow_stats": { "$ref": "#/definitions/very_slow_stats" },
+        "very_slow_rules_on_defs": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/def_rule_time" }
         }
       }
     },
@@ -818,6 +902,23 @@
         "match_times": { "type": "array", "items": { "type": "number" } },
         "parse_times": { "type": "array", "items": { "type": "number" } },
         "run_time": { "type": "number" }
+      }
+    },
+    "prefiltering_stats": {
+      "type": "object",
+      "required": [
+        "project_level_time", "file_level_time",
+        "rules_with_project_prefilters_ratio",
+        "rules_with_file_prefilters_ratio", "rules_selected_ratio",
+        "rules_matched_ratio"
+      ],
+      "properties": {
+        "project_level_time": { "type": "number" },
+        "file_level_time": { "type": "number" },
+        "rules_with_project_prefilters_ratio": { "type": "number" },
+        "rules_with_file_prefilters_ratio": { "type": "number" },
+        "rules_selected_ratio": { "type": "number" },
+        "rules_matched_ratio": { "type": "number" }
       }
     },
     "cli_output_extra": {
@@ -1108,6 +1209,7 @@
           "type": "array",
           "items": { "type": "string" }
         },
+        "project_merge_base": { "$ref": "#/definitions/sha1" },
         "fips_mode": { "type": "boolean" }
       }
     },
@@ -1193,6 +1295,7 @@
         "pull_request_author_image_url": { "$ref": "#/definitions/uri" },
         "pull_request_id": { "type": [ "string", "null" ] },
         "pull_request_title": { "type": [ "string", "null" ] },
+        "base_branch_head_commit": { "$ref": "#/definitions/sha1" },
         "base_sha": { "$ref": "#/definitions/sha1" },
         "start_sha": { "$ref": "#/definitions/sha1" },
         "is_full_scan": { "type": "boolean" },
@@ -1297,7 +1400,27 @@
           "items": { "$ref": "#/definitions/rule_id" }
         },
         "contributions": { "$ref": "#/definitions/contributions" },
-        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" }
+        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" },
+        "metadata": { "$ref": "#/definitions/ci_scan_metadata" }
+      }
+    },
+    "ci_scan_metadata": {
+      "type": "object",
+      "required": [
+        "scan_id", "deployment_id", "repository_id", "repository_ref_id",
+        "enabled_products", "git_commit", "git_ref"
+      ],
+      "properties": {
+        "scan_id": { "type": "integer" },
+        "deployment_id": { "type": "integer" },
+        "repository_id": { "type": "integer" },
+        "repository_ref_id": { "type": "integer" },
+        "enabled_products": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/product" }
+        },
+        "git_commit": { "$ref": "#/definitions/sha1" },
+        "git_ref": { "type": [ "string", "null" ] }
       }
     },
     "contributor": {
@@ -2605,7 +2728,21 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "RetValidate" }, { "type": "boolean" }
+            { "const": "RetValidate" },
+            {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": false,
+                  "prefixItems": [
+                    { "const": "Some" },
+                    { "$ref": "#/definitions/core_error" }
+                  ]
+                },
+                { "const": "None" }
+              ]
+            }
           ]
         },
         {

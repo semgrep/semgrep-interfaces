@@ -803,6 +803,8 @@ type error_type
   | FatalError (* missing file, OCaml errors, etc. *) <json name="Fatal error">
   | Timeout <json name="Timeout">
   | OutOfMemory <json name="Out of memory">
+  (* since semgrep 1.132.0 *)
+  | FixpointTimeout <json name="Fixpoint timeout">
   (* since semgrep 1.86.0 *)
   | StackOverflow <json name="Stack overflow">
   (* pro-engine specific *)
@@ -1016,7 +1018,23 @@ type profile = {
       <python repr="dict">
       <ts repr="map">;
 
+    (* EXPERIMENTAL *)
     ?parsing_time : parsing_time option;
+    (* EXPERIMENTAL *)
+    ?scanning_time : scanning_time option;
+    (* EXPERIMENTAL *)
+    ?matching_time : matching_time option;
+    (* EXPERIMENTAL *)
+    ?tainting_time : tainting_time option;
+
+    (* EXPERIMENTAL: Dafatlow fixpoint-function timeouts
+
+      Happen more often than we would like, and it's mainly Semgrep devs that
+      will use this info for debugging, so for now we are reporting these
+      timeouts as part of the profiling report. *)
+    ?fixpoint_timeouts : core_error list option;
+
+    ?prefiltering : prefiltering_stats option;
 
     targets: target_times list;
     total_bytes: int;
@@ -1025,20 +1043,76 @@ type profile = {
     ?max_memory_bytes : int option;
   }
 
+(* EXPERIMENTAL *)
 type file_time <ocaml attr="deriving show"> = {
     fpath: fpath;
     ftime: float;
 }
 
+(* EXPERIMENTAL *)
+type file_rule_time <ocaml attr="deriving show"> = {
+    fpath: fpath;
+    rule_id: rule_id;
+    time: float;
+}
+
+(* EXPERIMENTAL *)
+type def_rule_time <ocaml attr="deriving show"> = {
+    fpath: fpath;
+    fline : int;
+    rule_id: rule_id;
+    time: float;
+}
+
+(* EXPERIMENTAL *)
 type summary_stats = {
     mean: float;
     std_dev: float;
 }
 
+(* These ratios are numbers in [0, 1], and we would hope that both 'time_ratio'
+  and 'count_ratio' are very close to 0. In bad cases, we may see the 'count_ratio'
+  being close to 0 while the 'time_ratio' is above 0.5, meaning that a small number
+  of very slow files/etc represent a large amount of the total processing time.  *)
+(* EXPERIMENTAL *)
+type very_slow_stats = {
+    time_ratio: float;
+    (* Ratio "sum of very slow time" / "total time" *)
+    count_ratio: float;
+    (* Ratio "very slow count" / "total count" *)
+}
+
+(* EXPERIMENTAL *)
 type parsing_time = {
     total_time: float;
     per_file_time: summary_stats;
+    ?very_slow_stats: very_slow_stats option;
     very_slow_files: file_time list; (* ascending order *)
+}
+
+(* Scanning time (includes matching and tainting) *)
+(* EXPERIMENTAL *)
+type scanning_time = {
+  total_time : float;
+  per_file_time: summary_stats;
+  very_slow_stats: very_slow_stats;
+  very_slow_files: file_time list; (* ascending order *)
+}
+
+(* EXPERIMENTAL *)
+type matching_time = {
+  total_time : float;
+  per_file_and_rule_time : summary_stats;
+  very_slow_stats: very_slow_stats;
+  very_slow_rules_on_files: file_rule_time list; (* ascending order *)
+}
+
+(* EXPERIMENTAL *)
+type tainting_time = {
+  total_time : float;
+  per_def_and_rule_time : summary_stats;
+  very_slow_stats: very_slow_stats;
+  very_slow_rules_on_defs: def_rule_time list; (* ascending order *)
 }
 
 type target_times = {
@@ -1056,6 +1130,24 @@ type target_times = {
     parse_times: float list;
     (* run time for all rules on target *)
     run_time: float;
+}
+
+type prefiltering_stats <ocaml attr="deriving show"> = {
+  project_level_time: float;
+    (** The time (seconds) it took to execute project-level prefilters *)
+  file_level_time: float;
+    (** The time (seconds) it took to execute file-level prefilters *)
+  rules_with_project_prefilters_ratio: float;
+    (** The ratio of rules which the engine generated a project-level prefilter
+        for *)
+  rules_with_file_prefilters_ratio: float;
+    (** The ratio of rules which the engine generated a file-level prefilter
+        for *)
+  rules_selected_ratio: float;
+    (** The ratio of rules which executed beyond prefiltering on at least one
+        target *)
+  rules_matched_ratio: float;
+    (** The ratio of rules which generated at least one match *)
 }
 
 (*****************************************************************************)
@@ -1382,8 +1474,10 @@ type scan_configuration = {
     (* Rules sent from the backend. Note that those rules are in JSON
      * form not YAML (which led to some speedup in pysemgrep)
      * TODO? can we type this better *)
-    rules: raw_json; 
+    rules: raw_json;
     inherit triage_ignored;
+    (* From 1.131.0, tells us what merge base to use if it's a diff scan *)
+    ?project_merge_base: sha1 option;
     (* From 1.126.0.
      * Customers in FIPS environments have specific hash function requirements
      * that this flag will override.  See SAF-2057 for details. *)
@@ -1466,6 +1560,7 @@ type project_metadata = {
     (* TODO: the branch should use a standard format? like refs/... ? or it can
      * be a basic branch name like 'foobar'?
      *)
+    (* ALT: head_branch, head_commit *)
     branch: string nullable;
     commit: sha1 nullable;
     commit_title: string nullable;
@@ -1492,8 +1587,18 @@ type project_metadata = {
     pull_request_id: string nullable;
     pull_request_title: string nullable;
 
-    (* Gitlab only *)
+    (* the latest commit in the base branch of a PR, used to determine the git
+    merge base on the app side if needed. This should really be called base_sha
+    but that term is already misused below for something thats gitlab only *)
+
+    ?base_branch_head_commit: sha1 option;
+
+    (* This is gitlab only, and is actually only the baseline commit sha if
+    provided, OR it's the git merge-base if not provided. It is NOT the head
+    commit of the base branch *)
     ?base_sha: sha1 option;
+    (* this is CI_MERGE_REQUEST_DIFF_BASE_SHA which is strictly the git merge
+    base *)
     ?start_sha: sha1 option;
 
     (* Check if the current Git repository has enough to determine the
@@ -1515,12 +1620,13 @@ type project_metadata = {
 
 }
 
+(* Scan metadata generated by the CLI during the scan process. *)
 type scan_metadata = {
   cli_version: version;
   unique_id: uuid; (* client generated uuid for the scan *)
   requested_products: product list;
   (* since 1.47.0 *)
-  ~dry_run: bool; 
+  ~dry_run: bool;
   (* unique id associated with the scan in Semgrep Managed Scanning *)
   (* since 1.96.0 *)
   ?sms_scan_id: string option;
@@ -1640,6 +1746,23 @@ type ci_scan_results = {
    (* this data was originally sent to /complete, but we want to start sending
     * it to /results *)
    ?dependencies: ci_scan_dependencies option;
+
+   (* filled in by the backend to associate scan results with the driving scan*)
+   ?metadata: ci_scan_metadata option;
+}
+
+(* Scan metadata populated by the backend after receiving
+ * the scan results from the CLI via POST request to
+ * /scans/<int:scan_id>/results
+ *)
+type ci_scan_metadata = {
+  scan_id: int;
+  deployment_id: int;
+  repository_id: int; (* stored as int in our app db *)
+  repository_ref_id: int; (* stored id for a branch or tag *)
+  enabled_products: product list;
+  git_commit: sha1 nullable;
+  git_ref: string nullable;
 }
 
 (* See https://semgrep.dev/docs/usage-limits
@@ -2694,7 +2817,7 @@ type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetFormatter of string
   (* alt: reuse RetFormatter *)
   | RetSarifFormat of string
-  | RetValidate of bool
+  | RetValidate of (* rule validation error, if validation failed *) core_error option
   | RetResolveDependencies of (dependency_source * resolution_result) list
   | RetUploadSymbolAnalysis of (* success msg *) string
   | RetDumpRulePartitions of bool

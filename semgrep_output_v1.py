@@ -3576,6 +3576,37 @@ class MatchingExplanation:
 
 
 @dataclass
+class VerySlowStats:
+    """Original type: very_slow_stats = { ... }"""
+
+    time_ratio: float
+    count_ratio: float
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'VerySlowStats':
+        if isinstance(x, dict):
+            return cls(
+                time_ratio=_atd_read_float(x['time_ratio']) if 'time_ratio' in x else _atd_missing_json_field('VerySlowStats', 'time_ratio'),
+                count_ratio=_atd_read_float(x['count_ratio']) if 'count_ratio' in x else _atd_missing_json_field('VerySlowStats', 'count_ratio'),
+            )
+        else:
+            _atd_bad_json('VerySlowStats', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['time_ratio'] = _atd_write_float(self.time_ratio)
+        res['count_ratio'] = _atd_write_float(self.count_ratio)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'VerySlowStats':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Version:
     """Original type: version"""
 
@@ -6834,6 +6865,23 @@ class OutOfMemory:
 
 
 @dataclass(frozen=True, order=True)
+class FixpointTimeout:
+    """Original type: error_type = [ ... | FixpointTimeout | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'FixpointTimeout'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'Fixpoint timeout'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
 class StackOverflow:
     """Original type: error_type = [ ... | StackOverflow | ... ]"""
 
@@ -7011,7 +7059,7 @@ class DependencyResolutionError:
 class ErrorType:
     """Original type: error_type = [ ... ]"""
 
-    value: Union[LexicalError, ParseError, OtherParseError, AstBuilderError, RuleParseError, SemgrepWarning, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, StackOverflow, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0, DependencyResolutionError]
+    value: Union[LexicalError, ParseError, OtherParseError, AstBuilderError, RuleParseError, SemgrepWarning, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, FixpointTimeout, StackOverflow, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0, DependencyResolutionError]
 
     @property
     def kind(self) -> str:
@@ -7053,6 +7101,8 @@ class ErrorType:
                 return cls(Timeout())
             if x == 'Out of memory':
                 return cls(OutOfMemory())
+            if x == 'Fixpoint timeout':
+                return cls(FixpointTimeout())
             if x == 'Stack overflow':
                 return cls(StackOverflow())
             if x == 'Timeout during interfile analysis':
@@ -7249,6 +7299,111 @@ class TargetDiscoveryResult:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'TargetDiscoveryResult':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class SummaryStats:
+    """Original type: summary_stats = { ... }"""
+
+    mean: float
+    std_dev: float
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SummaryStats':
+        if isinstance(x, dict):
+            return cls(
+                mean=_atd_read_float(x['mean']) if 'mean' in x else _atd_missing_json_field('SummaryStats', 'mean'),
+                std_dev=_atd_read_float(x['std_dev']) if 'std_dev' in x else _atd_missing_json_field('SummaryStats', 'std_dev'),
+            )
+        else:
+            _atd_bad_json('SummaryStats', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['mean'] = _atd_write_float(self.mean)
+        res['std_dev'] = _atd_write_float(self.std_dev)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SummaryStats':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class DefRuleTime:
+    """Original type: def_rule_time = { ... }"""
+
+    fpath: Fpath
+    fline: int
+    rule_id: RuleId
+    time: float
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DefRuleTime':
+        if isinstance(x, dict):
+            return cls(
+                fpath=Fpath.from_json(x['fpath']) if 'fpath' in x else _atd_missing_json_field('DefRuleTime', 'fpath'),
+                fline=_atd_read_int(x['fline']) if 'fline' in x else _atd_missing_json_field('DefRuleTime', 'fline'),
+                rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else _atd_missing_json_field('DefRuleTime', 'rule_id'),
+                time=_atd_read_float(x['time']) if 'time' in x else _atd_missing_json_field('DefRuleTime', 'time'),
+            )
+        else:
+            _atd_bad_json('DefRuleTime', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['fpath'] = (lambda x: x.to_json())(self.fpath)
+        res['fline'] = _atd_write_int(self.fline)
+        res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
+        res['time'] = _atd_write_float(self.time)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DefRuleTime':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class TaintingTime:
+    """Original type: tainting_time = { ... }"""
+
+    total_time: float
+    per_def_and_rule_time: SummaryStats
+    very_slow_stats: VerySlowStats
+    very_slow_rules_on_defs: List[DefRuleTime]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'TaintingTime':
+        if isinstance(x, dict):
+            return cls(
+                total_time=_atd_read_float(x['total_time']) if 'total_time' in x else _atd_missing_json_field('TaintingTime', 'total_time'),
+                per_def_and_rule_time=SummaryStats.from_json(x['per_def_and_rule_time']) if 'per_def_and_rule_time' in x else _atd_missing_json_field('TaintingTime', 'per_def_and_rule_time'),
+                very_slow_stats=VerySlowStats.from_json(x['very_slow_stats']) if 'very_slow_stats' in x else _atd_missing_json_field('TaintingTime', 'very_slow_stats'),
+                very_slow_rules_on_defs=_atd_read_list(DefRuleTime.from_json)(x['very_slow_rules_on_defs']) if 'very_slow_rules_on_defs' in x else _atd_missing_json_field('TaintingTime', 'very_slow_rules_on_defs'),
+            )
+        else:
+            _atd_bad_json('TaintingTime', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['total_time'] = _atd_write_float(self.total_time)
+        res['per_def_and_rule_time'] = (lambda x: x.to_json())(self.per_def_and_rule_time)
+        res['very_slow_stats'] = (lambda x: x.to_json())(self.very_slow_stats)
+        res['very_slow_rules_on_defs'] = _atd_write_list((lambda x: x.to_json()))(self.very_slow_rules_on_defs)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'TaintingTime':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -7627,37 +7782,6 @@ class SupplyChainStats:
 
 
 @dataclass
-class SummaryStats:
-    """Original type: summary_stats = { ... }"""
-
-    mean: float
-    std_dev: float
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'SummaryStats':
-        if isinstance(x, dict):
-            return cls(
-                mean=_atd_read_float(x['mean']) if 'mean' in x else _atd_missing_json_field('SummaryStats', 'mean'),
-                std_dev=_atd_read_float(x['std_dev']) if 'std_dev' in x else _atd_missing_json_field('SummaryStats', 'std_dev'),
-            )
-        else:
-            _atd_bad_json('SummaryStats', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['mean'] = _atd_write_float(self.mean)
-        res['std_dev'] = _atd_write_float(self.std_dev)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'SummaryStats':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class SkippedRule:
     """Original type: skipped_rule = { ... }"""
 
@@ -7685,6 +7809,74 @@ class SkippedRule:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'SkippedRule':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class FileTime:
+    """Original type: file_time = { ... }"""
+
+    fpath: Fpath
+    ftime: float
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FileTime':
+        if isinstance(x, dict):
+            return cls(
+                fpath=Fpath.from_json(x['fpath']) if 'fpath' in x else _atd_missing_json_field('FileTime', 'fpath'),
+                ftime=_atd_read_float(x['ftime']) if 'ftime' in x else _atd_missing_json_field('FileTime', 'ftime'),
+            )
+        else:
+            _atd_bad_json('FileTime', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['fpath'] = (lambda x: x.to_json())(self.fpath)
+        res['ftime'] = _atd_write_float(self.ftime)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FileTime':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ScanningTime:
+    """Original type: scanning_time = { ... }"""
+
+    total_time: float
+    per_file_time: SummaryStats
+    very_slow_stats: VerySlowStats
+    very_slow_files: List[FileTime]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScanningTime':
+        if isinstance(x, dict):
+            return cls(
+                total_time=_atd_read_float(x['total_time']) if 'total_time' in x else _atd_missing_json_field('ScanningTime', 'total_time'),
+                per_file_time=SummaryStats.from_json(x['per_file_time']) if 'per_file_time' in x else _atd_missing_json_field('ScanningTime', 'per_file_time'),
+                very_slow_stats=VerySlowStats.from_json(x['very_slow_stats']) if 'very_slow_stats' in x else _atd_missing_json_field('ScanningTime', 'very_slow_stats'),
+                very_slow_files=_atd_read_list(FileTime.from_json)(x['very_slow_files']) if 'very_slow_files' in x else _atd_missing_json_field('ScanningTime', 'very_slow_files'),
+            )
+        else:
+            _atd_bad_json('ScanningTime', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['total_time'] = _atd_write_float(self.total_time)
+        res['per_file_time'] = (lambda x: x.to_json())(self.per_file_time)
+        res['very_slow_stats'] = (lambda x: x.to_json())(self.very_slow_stats)
+        res['very_slow_files'] = _atd_write_list((lambda x: x.to_json()))(self.very_slow_files)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScanningTime':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -7768,6 +7960,7 @@ class ScanConfiguration:
     rules: RawJson
     triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
     triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
+    project_merge_base: Optional[Sha1] = None
     fips_mode: bool = field(default_factory=lambda: False)
 
     @classmethod
@@ -7777,6 +7970,7 @@ class ScanConfiguration:
                 rules=RawJson.from_json(x['rules']) if 'rules' in x else _atd_missing_json_field('ScanConfiguration', 'rules'),
                 triage_ignored_syntactic_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_syntactic_ids']) if 'triage_ignored_syntactic_ids' in x else [],
                 triage_ignored_match_based_ids=_atd_read_list(_atd_read_string)(x['triage_ignored_match_based_ids']) if 'triage_ignored_match_based_ids' in x else [],
+                project_merge_base=Sha1.from_json(x['project_merge_base']) if 'project_merge_base' in x else None,
                 fips_mode=_atd_read_bool(x['fips_mode']) if 'fips_mode' in x else False,
             )
         else:
@@ -7787,6 +7981,8 @@ class ScanConfiguration:
         res['rules'] = (lambda x: x.to_json())(self.rules)
         res['triage_ignored_syntactic_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_syntactic_ids)
         res['triage_ignored_match_based_ids'] = _atd_write_list(_atd_write_string)(self.triage_ignored_match_based_ids)
+        if self.project_merge_base is not None:
+            res['project_merge_base'] = (lambda x: x.to_json())(self.project_merge_base)
         res['fips_mode'] = _atd_write_bool(self.fips_mode)
         return res
 
@@ -8035,6 +8231,7 @@ class ProjectMetadata:
     org_id: Optional[str] = None
     repo_display_name: Optional[str] = None
     commit_timestamp: Optional[Datetime] = None
+    base_branch_head_commit: Optional[Sha1] = None
     base_sha: Optional[Sha1] = None
     start_sha: Optional[Sha1] = None
     is_sca_scan: Optional[bool] = None
@@ -8067,6 +8264,7 @@ class ProjectMetadata:
                 org_id=_atd_read_string(x['org_id']) if 'org_id' in x else None,
                 repo_display_name=_atd_read_string(x['repo_display_name']) if 'repo_display_name' in x else None,
                 commit_timestamp=Datetime.from_json(x['commit_timestamp']) if 'commit_timestamp' in x else None,
+                base_branch_head_commit=Sha1.from_json(x['base_branch_head_commit']) if 'base_branch_head_commit' in x else None,
                 base_sha=Sha1.from_json(x['base_sha']) if 'base_sha' in x else None,
                 start_sha=Sha1.from_json(x['start_sha']) if 'start_sha' in x else None,
                 is_sca_scan=_atd_read_bool(x['is_sca_scan']) if 'is_sca_scan' in x else None,
@@ -8104,6 +8302,8 @@ class ProjectMetadata:
             res['repo_display_name'] = _atd_write_string(self.repo_display_name)
         if self.commit_timestamp is not None:
             res['commit_timestamp'] = (lambda x: x.to_json())(self.commit_timestamp)
+        if self.base_branch_head_commit is not None:
+            res['base_branch_head_commit'] = (lambda x: x.to_json())(self.base_branch_head_commit)
         if self.base_sha is not None:
             res['base_sha'] = (lambda x: x.to_json())(self.base_sha)
         if self.start_sha is not None:
@@ -8737,30 +8937,42 @@ class ResolutionResult:
 
 
 @dataclass
-class FileTime:
-    """Original type: file_time = { ... }"""
+class PrefilteringStats:
+    """Original type: prefiltering_stats = { ... }"""
 
-    fpath: Fpath
-    ftime: float
+    project_level_time: float
+    file_level_time: float
+    rules_with_project_prefilters_ratio: float
+    rules_with_file_prefilters_ratio: float
+    rules_selected_ratio: float
+    rules_matched_ratio: float
 
     @classmethod
-    def from_json(cls, x: Any) -> 'FileTime':
+    def from_json(cls, x: Any) -> 'PrefilteringStats':
         if isinstance(x, dict):
             return cls(
-                fpath=Fpath.from_json(x['fpath']) if 'fpath' in x else _atd_missing_json_field('FileTime', 'fpath'),
-                ftime=_atd_read_float(x['ftime']) if 'ftime' in x else _atd_missing_json_field('FileTime', 'ftime'),
+                project_level_time=_atd_read_float(x['project_level_time']) if 'project_level_time' in x else _atd_missing_json_field('PrefilteringStats', 'project_level_time'),
+                file_level_time=_atd_read_float(x['file_level_time']) if 'file_level_time' in x else _atd_missing_json_field('PrefilteringStats', 'file_level_time'),
+                rules_with_project_prefilters_ratio=_atd_read_float(x['rules_with_project_prefilters_ratio']) if 'rules_with_project_prefilters_ratio' in x else _atd_missing_json_field('PrefilteringStats', 'rules_with_project_prefilters_ratio'),
+                rules_with_file_prefilters_ratio=_atd_read_float(x['rules_with_file_prefilters_ratio']) if 'rules_with_file_prefilters_ratio' in x else _atd_missing_json_field('PrefilteringStats', 'rules_with_file_prefilters_ratio'),
+                rules_selected_ratio=_atd_read_float(x['rules_selected_ratio']) if 'rules_selected_ratio' in x else _atd_missing_json_field('PrefilteringStats', 'rules_selected_ratio'),
+                rules_matched_ratio=_atd_read_float(x['rules_matched_ratio']) if 'rules_matched_ratio' in x else _atd_missing_json_field('PrefilteringStats', 'rules_matched_ratio'),
             )
         else:
-            _atd_bad_json('FileTime', x)
+            _atd_bad_json('PrefilteringStats', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['fpath'] = (lambda x: x.to_json())(self.fpath)
-        res['ftime'] = _atd_write_float(self.ftime)
+        res['project_level_time'] = _atd_write_float(self.project_level_time)
+        res['file_level_time'] = _atd_write_float(self.file_level_time)
+        res['rules_with_project_prefilters_ratio'] = _atd_write_float(self.rules_with_project_prefilters_ratio)
+        res['rules_with_file_prefilters_ratio'] = _atd_write_float(self.rules_with_file_prefilters_ratio)
+        res['rules_selected_ratio'] = _atd_write_float(self.rules_selected_ratio)
+        res['rules_matched_ratio'] = _atd_write_float(self.rules_matched_ratio)
         return res
 
     @classmethod
-    def from_json_string(cls, x: str) -> 'FileTime':
+    def from_json_string(cls, x: str) -> 'PrefilteringStats':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -8774,6 +8986,7 @@ class ParsingTime:
     total_time: float
     per_file_time: SummaryStats
     very_slow_files: List[FileTime]
+    very_slow_stats: Optional[VerySlowStats] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ParsingTime':
@@ -8782,6 +8995,7 @@ class ParsingTime:
                 total_time=_atd_read_float(x['total_time']) if 'total_time' in x else _atd_missing_json_field('ParsingTime', 'total_time'),
                 per_file_time=SummaryStats.from_json(x['per_file_time']) if 'per_file_time' in x else _atd_missing_json_field('ParsingTime', 'per_file_time'),
                 very_slow_files=_atd_read_list(FileTime.from_json)(x['very_slow_files']) if 'very_slow_files' in x else _atd_missing_json_field('ParsingTime', 'very_slow_files'),
+                very_slow_stats=VerySlowStats.from_json(x['very_slow_stats']) if 'very_slow_stats' in x else None,
             )
         else:
             _atd_bad_json('ParsingTime', x)
@@ -8791,10 +9005,83 @@ class ParsingTime:
         res['total_time'] = _atd_write_float(self.total_time)
         res['per_file_time'] = (lambda x: x.to_json())(self.per_file_time)
         res['very_slow_files'] = _atd_write_list((lambda x: x.to_json()))(self.very_slow_files)
+        if self.very_slow_stats is not None:
+            res['very_slow_stats'] = (lambda x: x.to_json())(self.very_slow_stats)
         return res
 
     @classmethod
     def from_json_string(cls, x: str) -> 'ParsingTime':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class FileRuleTime:
+    """Original type: file_rule_time = { ... }"""
+
+    fpath: Fpath
+    rule_id: RuleId
+    time: float
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FileRuleTime':
+        if isinstance(x, dict):
+            return cls(
+                fpath=Fpath.from_json(x['fpath']) if 'fpath' in x else _atd_missing_json_field('FileRuleTime', 'fpath'),
+                rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else _atd_missing_json_field('FileRuleTime', 'rule_id'),
+                time=_atd_read_float(x['time']) if 'time' in x else _atd_missing_json_field('FileRuleTime', 'time'),
+            )
+        else:
+            _atd_bad_json('FileRuleTime', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['fpath'] = (lambda x: x.to_json())(self.fpath)
+        res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
+        res['time'] = _atd_write_float(self.time)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FileRuleTime':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class MatchingTime:
+    """Original type: matching_time = { ... }"""
+
+    total_time: float
+    per_file_and_rule_time: SummaryStats
+    very_slow_stats: VerySlowStats
+    very_slow_rules_on_files: List[FileRuleTime]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'MatchingTime':
+        if isinstance(x, dict):
+            return cls(
+                total_time=_atd_read_float(x['total_time']) if 'total_time' in x else _atd_missing_json_field('MatchingTime', 'total_time'),
+                per_file_and_rule_time=SummaryStats.from_json(x['per_file_and_rule_time']) if 'per_file_and_rule_time' in x else _atd_missing_json_field('MatchingTime', 'per_file_and_rule_time'),
+                very_slow_stats=VerySlowStats.from_json(x['very_slow_stats']) if 'very_slow_stats' in x else _atd_missing_json_field('MatchingTime', 'very_slow_stats'),
+                very_slow_rules_on_files=_atd_read_list(FileRuleTime.from_json)(x['very_slow_rules_on_files']) if 'very_slow_rules_on_files' in x else _atd_missing_json_field('MatchingTime', 'very_slow_rules_on_files'),
+            )
+        else:
+            _atd_bad_json('MatchingTime', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['total_time'] = _atd_write_float(self.total_time)
+        res['per_file_and_rule_time'] = (lambda x: x.to_json())(self.per_file_and_rule_time)
+        res['very_slow_stats'] = (lambda x: x.to_json())(self.very_slow_stats)
+        res['very_slow_rules_on_files'] = _atd_write_list((lambda x: x.to_json()))(self.very_slow_rules_on_files)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'MatchingTime':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -8811,6 +9098,11 @@ class Profile:
     targets: List[TargetTimes]
     total_bytes: int
     parsing_time: Optional[ParsingTime] = None
+    scanning_time: Optional[ScanningTime] = None
+    matching_time: Optional[MatchingTime] = None
+    tainting_time: Optional[TaintingTime] = None
+    fixpoint_timeouts: Optional[List[CoreError]] = None
+    prefiltering: Optional[PrefilteringStats] = None
     max_memory_bytes: Optional[int] = None
 
     @classmethod
@@ -8823,6 +9115,11 @@ class Profile:
                 targets=_atd_read_list(TargetTimes.from_json)(x['targets']) if 'targets' in x else _atd_missing_json_field('Profile', 'targets'),
                 total_bytes=_atd_read_int(x['total_bytes']) if 'total_bytes' in x else _atd_missing_json_field('Profile', 'total_bytes'),
                 parsing_time=ParsingTime.from_json(x['parsing_time']) if 'parsing_time' in x else None,
+                scanning_time=ScanningTime.from_json(x['scanning_time']) if 'scanning_time' in x else None,
+                matching_time=MatchingTime.from_json(x['matching_time']) if 'matching_time' in x else None,
+                tainting_time=TaintingTime.from_json(x['tainting_time']) if 'tainting_time' in x else None,
+                fixpoint_timeouts=_atd_read_list(CoreError.from_json)(x['fixpoint_timeouts']) if 'fixpoint_timeouts' in x else None,
+                prefiltering=PrefilteringStats.from_json(x['prefiltering']) if 'prefiltering' in x else None,
                 max_memory_bytes=_atd_read_int(x['max_memory_bytes']) if 'max_memory_bytes' in x else None,
             )
         else:
@@ -8837,6 +9134,16 @@ class Profile:
         res['total_bytes'] = _atd_write_int(self.total_bytes)
         if self.parsing_time is not None:
             res['parsing_time'] = (lambda x: x.to_json())(self.parsing_time)
+        if self.scanning_time is not None:
+            res['scanning_time'] = (lambda x: x.to_json())(self.scanning_time)
+        if self.matching_time is not None:
+            res['matching_time'] = (lambda x: x.to_json())(self.matching_time)
+        if self.tainting_time is not None:
+            res['tainting_time'] = (lambda x: x.to_json())(self.tainting_time)
+        if self.fixpoint_timeouts is not None:
+            res['fixpoint_timeouts'] = _atd_write_list((lambda x: x.to_json()))(self.fixpoint_timeouts)
+        if self.prefiltering is not None:
+            res['prefiltering'] = (lambda x: x.to_json())(self.prefiltering)
         if self.max_memory_bytes is not None:
             res['max_memory_bytes'] = _atd_write_int(self.max_memory_bytes)
         return res
@@ -9226,6 +9533,52 @@ class CliError:
 
 
 @dataclass
+class CiScanMetadata:
+    """Original type: ci_scan_metadata = { ... }"""
+
+    scan_id: int
+    deployment_id: int
+    repository_id: int
+    repository_ref_id: int
+    enabled_products: List[Product]
+    git_commit: Optional[Sha1]
+    git_ref: Optional[str]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiScanMetadata':
+        if isinstance(x, dict):
+            return cls(
+                scan_id=_atd_read_int(x['scan_id']) if 'scan_id' in x else _atd_missing_json_field('CiScanMetadata', 'scan_id'),
+                deployment_id=_atd_read_int(x['deployment_id']) if 'deployment_id' in x else _atd_missing_json_field('CiScanMetadata', 'deployment_id'),
+                repository_id=_atd_read_int(x['repository_id']) if 'repository_id' in x else _atd_missing_json_field('CiScanMetadata', 'repository_id'),
+                repository_ref_id=_atd_read_int(x['repository_ref_id']) if 'repository_ref_id' in x else _atd_missing_json_field('CiScanMetadata', 'repository_ref_id'),
+                enabled_products=_atd_read_list(Product.from_json)(x['enabled_products']) if 'enabled_products' in x else _atd_missing_json_field('CiScanMetadata', 'enabled_products'),
+                git_commit=_atd_read_nullable(Sha1.from_json)(x['git_commit']) if 'git_commit' in x else _atd_missing_json_field('CiScanMetadata', 'git_commit'),
+                git_ref=_atd_read_nullable(_atd_read_string)(x['git_ref']) if 'git_ref' in x else _atd_missing_json_field('CiScanMetadata', 'git_ref'),
+            )
+        else:
+            _atd_bad_json('CiScanMetadata', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['scan_id'] = _atd_write_int(self.scan_id)
+        res['deployment_id'] = _atd_write_int(self.deployment_id)
+        res['repository_id'] = _atd_write_int(self.repository_id)
+        res['repository_ref_id'] = _atd_write_int(self.repository_ref_id)
+        res['enabled_products'] = _atd_write_list((lambda x: x.to_json()))(self.enabled_products)
+        res['git_commit'] = _atd_write_nullable((lambda x: x.to_json()))(self.git_commit)
+        res['git_ref'] = _atd_write_nullable(_atd_write_string)(self.git_ref)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiScanMetadata':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class CiScanDependencies:
     """Original type: ci_scan_dependencies"""
 
@@ -9258,6 +9611,7 @@ class CiScanResults:
     rule_ids: List[RuleId]
     contributions: Optional[Contributions] = None
     dependencies: Optional[CiScanDependencies] = None
+    metadata: Optional[CiScanMetadata] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanResults':
@@ -9271,6 +9625,7 @@ class CiScanResults:
                 rule_ids=_atd_read_list(RuleId.from_json)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('CiScanResults', 'rule_ids'),
                 contributions=Contributions.from_json(x['contributions']) if 'contributions' in x else None,
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
+                metadata=CiScanMetadata.from_json(x['metadata']) if 'metadata' in x else None,
             )
         else:
             _atd_bad_json('CiScanResults', x)
@@ -9287,6 +9642,8 @@ class CiScanResults:
             res['contributions'] = (lambda x: x.to_json())(self.contributions)
         if self.dependencies is not None:
             res['dependencies'] = (lambda x: x.to_json())(self.dependencies)
+        if self.metadata is not None:
+            res['metadata'] = (lambda x: x.to_json())(self.metadata)
         return res
 
     @classmethod
@@ -9900,7 +10257,7 @@ class RetSarifFormat:
 class RetValidate:
     """Original type: function_return = [ ... | RetValidate of ... | ... ]"""
 
-    value: bool
+    value: Optional[CoreError]
 
     @property
     def kind(self) -> str:
@@ -9908,7 +10265,7 @@ class RetValidate:
         return 'RetValidate'
 
     def to_json(self) -> Any:
-        return ['RetValidate', _atd_write_bool(self.value)]
+        return ['RetValidate', _atd_write_option((lambda x: x.to_json()))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -10048,7 +10405,7 @@ class FunctionReturn:
             if cons == 'RetSarifFormat':
                 return cls(RetSarifFormat(_atd_read_string(x[1])))
             if cons == 'RetValidate':
-                return cls(RetValidate(_atd_read_bool(x[1])))
+                return cls(RetValidate(_atd_read_option(CoreError.from_json)(x[1])))
             if cons == 'RetResolveDependencies':
                 return cls(RetResolveDependencies(_atd_read_list((lambda x: (DependencySource.from_json(x[0]), ResolutionResult.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x[1])))
             if cons == 'RetUploadSymbolAnalysis':
