@@ -868,7 +868,6 @@ class ParseStat:
 class Mcp:
     """Original type: mcp = { ... }"""
 
-    deployment_id: Optional[int] = None
     session_id: Optional[str] = None
     num_findings: Optional[int] = None
 
@@ -876,7 +875,6 @@ class Mcp:
     def from_json(cls, x: Any) -> 'Mcp':
         if isinstance(x, dict):
             return cls(
-                deployment_id=_atd_read_int(x['deployment_id']) if 'deployment_id' in x else None,
                 session_id=_atd_read_string(x['session_id']) if 'session_id' in x else None,
                 num_findings=_atd_read_int(x['num_findings']) if 'num_findings' in x else None,
             )
@@ -885,8 +883,6 @@ class Mcp:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        if self.deployment_id is not None:
-            res['deployment_id'] = _atd_write_int(self.deployment_id)
         if self.session_id is not None:
             res['session_id'] = _atd_write_string(self.session_id)
         if self.num_findings is not None:
