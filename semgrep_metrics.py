@@ -865,6 +865,39 @@ class ParseStat:
 
 
 @dataclass
+class Mcp:
+    """Original type: mcp = { ... }"""
+
+    session_id: Optional[str] = None
+    num_findings: Optional[int] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Mcp':
+        if isinstance(x, dict):
+            return cls(
+                session_id=_atd_read_string(x['session_id']) if 'session_id' in x else None,
+                num_findings=_atd_read_int(x['num_findings']) if 'num_findings' in x else None,
+            )
+        else:
+            _atd_bad_json('Mcp', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        if self.session_id is not None:
+            res['session_id'] = _atd_write_string(self.session_id)
+        if self.num_findings is not None:
+            res['num_findings'] = _atd_write_int(self.num_findings)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Mcp':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Extension:
     """Original type: extension = { ... }"""
 
@@ -1066,6 +1099,7 @@ class Payload:
     errors: Errors
     value: Value
     extension: Extension
+    mcp: Mcp
     parse_rate: List[Tuple[str, ParseStat]] = field(default_factory=lambda: [])
 
     @classmethod
@@ -1081,6 +1115,7 @@ class Payload:
                 errors=Errors.from_json(x['errors']) if 'errors' in x else _atd_missing_json_field('Payload', 'errors'),
                 value=Value.from_json(x['value']) if 'value' in x else _atd_missing_json_field('Payload', 'value'),
                 extension=Extension.from_json(x['extension']) if 'extension' in x else _atd_missing_json_field('Payload', 'extension'),
+                mcp=Mcp.from_json(x['mcp']) if 'mcp' in x else _atd_missing_json_field('Payload', 'mcp'),
                 parse_rate=_atd_read_assoc_object_into_list(ParseStat.from_json)(x['parse_rate']) if 'parse_rate' in x else [],
             )
         else:
@@ -1097,6 +1132,7 @@ class Payload:
         res['errors'] = (lambda x: x.to_json())(self.errors)
         res['value'] = (lambda x: x.to_json())(self.value)
         res['extension'] = (lambda x: x.to_json())(self.extension)
+        res['mcp'] = (lambda x: x.to_json())(self.mcp)
         res['parse_rate'] = _atd_write_assoc_list_to_object((lambda x: x.to_json()))(self.parse_rate)
         return res
 
