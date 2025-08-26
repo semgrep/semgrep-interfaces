@@ -2692,6 +2692,8 @@ type unresolved_subproject
 type resolve_dependencies_params <python decorator="dataclass(frozen=True)"> = {
   dependency_sources: dependency_source list;
   download_dependency_source_code: bool;
+  (* whether to allow executing package manager commands *)
+  allow_local_builds: bool;
 }
 
 (* Resolution can either succeed or fail, but in either case errors can be

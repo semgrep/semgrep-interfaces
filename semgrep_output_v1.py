@@ -8790,6 +8790,7 @@ class ResolveDependenciesParams:
 
     dependency_sources: List[DependencySource]
     download_dependency_source_code: bool
+    allow_local_builds: bool
 
     @classmethod
     def from_json(cls, x: Any) -> 'ResolveDependenciesParams':
@@ -8797,6 +8798,7 @@ class ResolveDependenciesParams:
             return cls(
                 dependency_sources=_atd_read_list(DependencySource.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('ResolveDependenciesParams', 'dependency_sources'),
                 download_dependency_source_code=_atd_read_bool(x['download_dependency_source_code']) if 'download_dependency_source_code' in x else _atd_missing_json_field('ResolveDependenciesParams', 'download_dependency_source_code'),
+                allow_local_builds=_atd_read_bool(x['allow_local_builds']) if 'allow_local_builds' in x else _atd_missing_json_field('ResolveDependenciesParams', 'allow_local_builds'),
             )
         else:
             _atd_bad_json('ResolveDependenciesParams', x)
@@ -8805,6 +8807,7 @@ class ResolveDependenciesParams:
         res: Dict[str, Any] = {}
         res['dependency_sources'] = _atd_write_list((lambda x: x.to_json()))(self.dependency_sources)
         res['download_dependency_source_code'] = _atd_write_bool(self.download_dependency_source_code)
+        res['allow_local_builds'] = _atd_write_bool(self.allow_local_builds)
         return res
 
     @classmethod

@@ -857,7 +857,8 @@ type resolved_subproject = Semgrep_output_v1_t.resolved_subproject = {
 type resolve_dependencies_params =
   Semgrep_output_v1_t.resolve_dependencies_params = {
   dependency_sources: dependency_source list;
-  download_dependency_source_code: bool
+  download_dependency_source_code: bool;
+  allow_local_builds: bool
 }
 
 type resolution_result = Semgrep_output_v1_t.resolution_result
