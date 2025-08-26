@@ -2443,13 +2443,17 @@
     },
     "resolve_dependencies_params": {
       "type": "object",
-      "required": [ "dependency_sources", "download_dependency_source_code" ],
+      "required": [
+        "dependency_sources", "download_dependency_source_code",
+        "allow_local_builds"
+      ],
       "properties": {
         "dependency_sources": {
           "type": "array",
           "items": { "$ref": "#/definitions/dependency_source" }
         },
-        "download_dependency_source_code": { "type": "boolean" }
+        "download_dependency_source_code": { "type": "boolean" },
+        "allow_local_builds": { "type": "boolean" }
       }
     },
     "resolution_result": {
