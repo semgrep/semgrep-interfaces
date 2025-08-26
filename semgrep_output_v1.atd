@@ -683,7 +683,8 @@ type sca_pattern <ocaml attr="deriving ord"> = {
 }
 
 (* alt: sca_dependency? *)
-type found_dependency <ocaml attr="deriving ord"> = {
+type found_dependency <ocaml attr="deriving ord">
+    <python decorator="dataclass(frozen=True)"> = {
   package: string;
   version: string;
   ecosystem: ecosystem;
@@ -2651,7 +2652,9 @@ type resolved_subproject
    errors: sca_error list;
 }
 
-type resolved_dependency = (found_dependency * downloaded_dependency option)
+type resolved_dependency 
+    <python decorator="dataclass(frozen=True)"> =
+(found_dependency * downloaded_dependency option)
 
 (* Information about a 3rd-party lib downloaded for Transitive Reachability.
  * To accompany a found_dependency within the Semgrep CLI, passed back and forth 

@@ -712,7 +712,7 @@ class Fpath:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class FoundDependency:
     """Original type: found_dependency = { ... }"""
 
@@ -5036,7 +5036,7 @@ class DownloadedDependency:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
+@dataclass(frozen=True)
 class ResolvedDependency:
     """Original type: resolved_dependency"""
 
