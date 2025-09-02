@@ -1221,6 +1221,7 @@ export type UnresolvedSubproject = {
 export type ResolveDependenciesParams = {
   dependency_sources: DependencySource[];
   download_dependency_source_code: boolean;
+  allow_local_builds: boolean;
 }
 
 export type ResolutionResult =
@@ -5047,6 +5048,7 @@ export function writeResolveDependenciesParams(x: ResolveDependenciesParams, con
   return {
     'dependency_sources': _atd_write_required_field('ResolveDependenciesParams', 'dependency_sources', _atd_write_array(writeDependencySource), x.dependency_sources, x),
     'download_dependency_source_code': _atd_write_required_field('ResolveDependenciesParams', 'download_dependency_source_code', _atd_write_bool, x.download_dependency_source_code, x),
+    'allow_local_builds': _atd_write_required_field('ResolveDependenciesParams', 'allow_local_builds', _atd_write_bool, x.allow_local_builds, x),
   };
 }
 
@@ -5054,6 +5056,7 @@ export function readResolveDependenciesParams(x: any, context: any = x): Resolve
   return {
     dependency_sources: _atd_read_required_field('ResolveDependenciesParams', 'dependency_sources', _atd_read_array(readDependencySource), x['dependency_sources'], x),
     download_dependency_source_code: _atd_read_required_field('ResolveDependenciesParams', 'download_dependency_source_code', _atd_read_bool, x['download_dependency_source_code'], x),
+    allow_local_builds: _atd_read_required_field('ResolveDependenciesParams', 'allow_local_builds', _atd_read_bool, x['allow_local_builds'], x),
   };
 }
 
