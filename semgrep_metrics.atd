@@ -73,6 +73,7 @@ type payload = {
     errors: errors;
     value: value;
     extension: extension;
+    mcp: mcp;
 }
 
 (*****************************************************************************)
@@ -266,6 +267,11 @@ type extension = {
     ?autofixCount <ocaml mutable>: int option;
     (* how many findings have been ignored *)
     ?ignoreCount <ocaml mutable>: int option;
+}
+
+type mcp = {
+    ?session_id <ocaml mutable>: string option;
+    ?num_findings <ocaml mutable>: int option;
 }
 
 (*****************************************************************************)
