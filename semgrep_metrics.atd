@@ -269,6 +269,7 @@ type extension = {
     ?ignoreCount <ocaml mutable>: int option;
 }
 
+(* This is only used for the MCP metrics *)
 type finding = {
   path: string;
   line: int;
