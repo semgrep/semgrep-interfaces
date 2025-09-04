@@ -865,18 +865,70 @@ class ParseStat:
 
 
 @dataclass
+class Finding:
+    """Original type: finding = { ... }"""
+
+    path: str
+    line: int
+    col: int
+    offset: int
+    severity: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Finding':
+        if isinstance(x, dict):
+            return cls(
+                path=_atd_read_string(x['path']) if 'path' in x else _atd_missing_json_field('Finding', 'path'),
+                line=_atd_read_int(x['line']) if 'line' in x else _atd_missing_json_field('Finding', 'line'),
+                col=_atd_read_int(x['col']) if 'col' in x else _atd_missing_json_field('Finding', 'col'),
+                offset=_atd_read_int(x['offset']) if 'offset' in x else _atd_missing_json_field('Finding', 'offset'),
+                severity=_atd_read_string(x['severity']) if 'severity' in x else _atd_missing_json_field('Finding', 'severity'),
+            )
+        else:
+            _atd_bad_json('Finding', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['path'] = _atd_write_string(self.path)
+        res['line'] = _atd_write_int(self.line)
+        res['col'] = _atd_write_int(self.col)
+        res['offset'] = _atd_write_int(self.offset)
+        res['severity'] = _atd_write_string(self.severity)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Finding':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Mcp:
     """Original type: mcp = { ... }"""
 
     session_id: Optional[str] = None
+    num_skipped_rules: Optional[int] = None
+    rules: Optional[List[str]] = None
+    num_scanned_files: Optional[int] = None
     num_findings: Optional[int] = None
+    findings: Optional[List[Tuple[str, Finding]]] = None
+    errors: Optional[List[str]] = None
+    num_lines: Optional[int] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Mcp':
         if isinstance(x, dict):
             return cls(
                 session_id=_atd_read_string(x['session_id']) if 'session_id' in x else None,
+                num_skipped_rules=_atd_read_int(x['num_skipped_rules']) if 'num_skipped_rules' in x else None,
+                rules=_atd_read_list(_atd_read_string)(x['rules']) if 'rules' in x else None,
+                num_scanned_files=_atd_read_int(x['num_scanned_files']) if 'num_scanned_files' in x else None,
                 num_findings=_atd_read_int(x['num_findings']) if 'num_findings' in x else None,
+                findings=_atd_read_assoc_object_into_list(Finding.from_json)(x['findings']) if 'findings' in x else None,
+                errors=_atd_read_list(_atd_read_string)(x['errors']) if 'errors' in x else None,
+                num_lines=_atd_read_int(x['num_lines']) if 'num_lines' in x else None,
             )
         else:
             _atd_bad_json('Mcp', x)
@@ -885,8 +937,20 @@ class Mcp:
         res: Dict[str, Any] = {}
         if self.session_id is not None:
             res['session_id'] = _atd_write_string(self.session_id)
+        if self.num_skipped_rules is not None:
+            res['num_skipped_rules'] = _atd_write_int(self.num_skipped_rules)
+        if self.rules is not None:
+            res['rules'] = _atd_write_list(_atd_write_string)(self.rules)
+        if self.num_scanned_files is not None:
+            res['num_scanned_files'] = _atd_write_int(self.num_scanned_files)
         if self.num_findings is not None:
             res['num_findings'] = _atd_write_int(self.num_findings)
+        if self.findings is not None:
+            res['findings'] = _atd_write_assoc_list_to_object((lambda x: x.to_json()))(self.findings)
+        if self.errors is not None:
+            res['errors'] = _atd_write_list(_atd_write_string)(self.errors)
+        if self.num_lines is not None:
+            res['num_lines'] = _atd_write_int(self.num_lines)
         return res
 
     @classmethod

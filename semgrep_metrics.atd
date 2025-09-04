@@ -269,9 +269,23 @@ type extension = {
     ?ignoreCount <ocaml mutable>: int option;
 }
 
+type finding = {
+  path: string;
+  line: int;
+  col: int;
+  offset: int;
+  severity: string;
+}
+
 type mcp = {
     ?session_id <ocaml mutable>: string option;
+    ?num_skipped_rules <ocaml mutable>: int option;
+    ?rules <ocaml mutable>: string list option;
+    ?num_scanned_files <ocaml mutable>: int option;
     ?num_findings <ocaml mutable>: int option;
+    ?findings <ocaml mutable>: (string (* rule_id *) * finding) list <json repr="object"> option;
+    ?errors <ocaml mutable>: string list option;
+    ?num_lines <ocaml mutable>: int option;
 }
 
 (*****************************************************************************)
