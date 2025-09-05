@@ -42,13 +42,14 @@ $defs:
       - const: entropy_v2
       - const: redos
       - type: object
+        additionalProperties: false
         properties:
           kind:
             const: entropy
         required:
           - kind
-        additionalProperties: false
       - type: object
+        additionalProperties: false
         properties:
           kind:
             const: entropy_v2
@@ -59,14 +60,13 @@ $defs:
               - const: default
         required:
           - kind
-        additionalProperties: false
       - type: object
+        additionalProperties: false
         properties:
           kind:
             const: redos
         required:
           - kind
-        additionalProperties: false
   # EXPERIMENTAL
   aws-request-content:
     properties:
@@ -415,6 +415,7 @@ $defs:
       version:
         type: string
       depends-on-either:
+        additionalProperties: false
         type: array
         properties:
           namespace:
@@ -423,7 +424,6 @@ $defs:
             type: string
           version:
             type: string
-        additionalProperties: false
         required:
           - namespace
           - package
@@ -448,13 +448,16 @@ $defs:
                 - version
   # EXPERIMENTAL
   join-content:
+    additionalProperties: false
     type: object
     title: "Join one or more rules together based on metavariable contents"
     properties:
+      additionalProperties: false
       refs:
         type: array
         items:
           type: object
+          additionalProperties: false
           properties:
             rule:
               type: string
@@ -469,11 +472,11 @@ $defs:
                     type: string
             as:
               type: string
-          additionalProperties: false
       rules:
         type: array
         items:
           type: object
+          additionalProperties: false
           required:
             - id
             - languages
@@ -506,21 +509,20 @@ $defs:
               $ref: "#/$defs/taint-content"
             pattern-sanitizers:
               $ref: "#/$defs/taint-content"
-          additionalProperties: false
       on:
         type: array
         items:
           type: string
-      additionalProperties: false
-    additionalProperties: false
   # This a generic version of metavariable-regex and metavariable-pattern.
   # It is meant to allow a variety of built-in analyzers, each with a
   # name and its own options. For example, this is used for the entropy
   # analyzer.
   metavariable-analysis:
+    additionalProperties: false
     type: object
     properties:
       metavariable-analysis:
+        additionalProperties: false
         type: object
         title: Inspect a metavariable with a given analyzer
         properties:
@@ -532,14 +534,14 @@ $defs:
         required:
           - analyzer
           - metavariable
-        additionalProperties: false
     required:
       - metavariable-analysis
-    additionalProperties: false
   metavariable-regex:
+    additionalProperties: false
     type: object
     properties:
       metavariable-regex:
+        additionalProperties: false
         type: object
         title: Search metavariable value with RegEx
         properties:
@@ -554,14 +556,14 @@ $defs:
         required:
           - metavariable
           - regex
-        additionalProperties: false
     required:
       - metavariable-regex
-    additionalProperties: false
   metavariable-pattern:
+    additionalProperties: false
     type: object
     properties:
       metavariable-pattern:
+        additionalProperties: false
         type: object
         title: Match metavariable value with a pattern formula
         properties:
@@ -623,14 +625,14 @@ $defs:
                     - patterns
                 - required:
                     - pattern-either
-        additionalProperties: false
     required:
       - metavariable-pattern
-    additionalProperties: false
   metavariable-type:
+    additionalProperties: false
     type: object
     properties:
       metavariable-type:
+        additionalProperties: false
         type: object
         title: Filter for metavariables with a certain type
         properties:
@@ -652,17 +654,17 @@ $defs:
               - type
           - required:
               - types
-        additionalProperties: false
     required:
       - metavariable-type
-    additionalProperties: false
   metavariable-name:
+    additionalProperties: false
     type: object
     properties:
       # NOTE: Similar to the semgrep-internal-* variant, but doesn't yet permit
       # a `kind` constraint.
       metavariable-name:
         type: object
+        additionalProperties: false
         title: Filter for metavariables with a certain kind
         properties:
           metavariable:
@@ -683,15 +685,15 @@ $defs:
             - module
         - required:
             - modules
-        additionalProperties: false
     required:
       - metavariable-name
-    additionalProperties: false
   # EXPERIMENTAL variant
   semgrep-internal-metavariable-name:
+    additionalProperties: false
     type: object
     properties:
       semgrep-internal-metavariable-name:
+        additionalProperties: false
         type: object
         title: Filter for metavariables with a certain kind
         properties:
@@ -734,14 +736,14 @@ $defs:
               - fqn
           - required:
               - fqns
-        additionalProperties: false
     required:
       - semgrep-internal-metavariable-name
-    additionalProperties: false
   metavariable-comparison:
+    additionalProperties: false
     type: object
     properties:
       metavariable-comparison:
+        additionalProperties: false
         type: object
         title: Compare metavariables with other metavariables or literals using constant propagation
         properties:
@@ -757,11 +759,10 @@ $defs:
             type: integer
         required:
           - comparison
-        additionalProperties: false
     required:
       - metavariable-comparison
-    additionalProperties: false
   pattern:
+    additionalProperties: false
     type: object
     properties:
       pattern:
@@ -769,8 +770,8 @@ $defs:
         type: string
     required:
       - pattern
-    additionalProperties: false
   pattern-regex:
+    additionalProperties: false
     type: object
     properties:
       pattern-regex:
@@ -778,8 +779,8 @@ $defs:
         type: string
     required:
       - pattern-regex
-    additionalProperties: false
   pattern-not-regex:
+    additionalProperties: false
     type: object
     properties:
       pattern-not-regex:
@@ -787,8 +788,8 @@ $defs:
         type: string
     required:
       - pattern-not-regex
-    additionalProperties: false
   patterns:
+    additionalProperties: false
     type: object
     properties:
       patterns:
@@ -796,8 +797,8 @@ $defs:
         $ref: "#/$defs/patterns-content"
     required:
       - patterns
-    additionalProperties: false
   pattern-either:
+    additionalProperties: false
     type: object
     properties:
       pattern-either:
@@ -805,8 +806,8 @@ $defs:
         $ref: "#/$defs/pattern-either-content"
     required:
       - pattern-either
-    additionalProperties: false
   focus-metavariable:
+    additionalProperties: false
     type: object
     properties:
       focus-metavariable:
@@ -817,19 +818,19 @@ $defs:
             - array
     required:
       - focus-metavariable
-    additionalProperties: false
   pattern-inside:
     type: object
+    additionalProperties: false
     properties:
       pattern-inside:
         title: Return findings only from within snippets Semgrep pattern matches
         $ref: "#/$defs/general-pattern-content"
     required:
       - pattern-inside
-    additionalProperties: false
   # EXPERIMENTAL
   semgrep-internal-pattern-anywhere:
     type: object
+    additionalProperties: false
     properties:
       semgrep-internal-pattern-anywhere:
         title: >-
@@ -841,35 +842,34 @@ $defs:
         $ref: "#/$defs/general-pattern-content"
     required:
       - semgrep-internal-pattern-anywhere
-    additionalProperties: false
   pattern-not-inside:
     type: object
+    additionalProperties: false
     properties:
       pattern-not-inside:
         title: Do not return findings from within snippets Semgrep pattern matches
         $ref: "#/$defs/general-pattern-content"
     required:
       - pattern-not-inside
-    additionalProperties: false
   pattern-not:
     type: object
+    additionalProperties: false
     properties:
       pattern-not:
         title: Do not return finding where Semgrep pattern matches exactly
         $ref: "#/$defs/general-pattern-content"
     required:
       - pattern-not
-    additionalProperties: false
   # DEPRECATED
   pattern-where-python:
     type: object
+    additionalProperties: false
     properties:
       pattern-where-python:
         title: Return finding where Python expression returns true
         type: string
     required:
       - pattern-where-python
-    additionalProperties: false
   path-array:
     type: array
     items:
@@ -945,6 +945,10 @@ properties:
     type: array
     items:
       type: object
+      # IMPORTANT: we are allowing additional fields so that the schema validator will not fail
+      # rules that might be using features the current semgrep version is unaware of. The min-version field
+      # should be used to indicate the earliest semgrep version that supports the rule.
+      additionalProperties: true
       properties:
         id:
           $ref: "#/$defs/id"
@@ -972,13 +976,13 @@ properties:
           $ref: "#/$defs/languages"
         paths:
           title: Path globs this pattern should run on
+          additionalProperties: false
           type: object
           properties:
             include:
               $ref: "#/$defs/path-array"
             exclude:
               $ref: "#/$defs/path-array"
-          additionalProperties: false
         severity:
           title: Severity to report alongside this finding
           enum:
@@ -1017,6 +1021,7 @@ properties:
           type: string
         fix-regex:
           type: object
+          additionalProperties: false
           title: Replacement regex to fix matched code.
           properties:
             count:
@@ -1031,7 +1036,6 @@ properties:
           required:
             - regex
             - replacement
-          additionalProperties: false
         metadata:
           title: Arbitrary structured data for your own reference
           type: object
@@ -1083,11 +1087,6 @@ properties:
             - concat
             - separate
           default: separate
-
-      # IMPORTANT: we are allowing additional fields so that the schema validator will not fail
-      # rules that might be using features the current semgrep version is unaware of. The min-version field
-      # should be used to indicate the earliest semgrep version that supports the rule.
-      additionalProperties: true
 
       allOf:
         # EXPERIMENTAL
