@@ -54,9 +54,10 @@ type lockfile = Semgrep_output_v1_t.lockfile = {
 
 type manifest_kind = Semgrep_output_v1_t.manifest_kind = 
     RequirementsIn | SetupPy | PackageJson | Gemfile | GoModManifest
-  | CargoToml | PomXml | BuildGradle | SettingsGradle | ComposerJson
-  | NugetManifestJson | PubspecYaml | PackageSwift | Podfile | MixExs
-  | Pipfile | PyprojectToml | ConanFileTxt | ConanFilePy | Csproj | OpamFile
+  | CargoToml | PomXml | BuildGradle | BuildGradleKts | SettingsGradle
+  | ComposerJson | NugetManifestJson | PubspecYaml | PackageSwift | Podfile
+  | MixExs | Pipfile | PyprojectToml | ConanFileTxt | ConanFilePy | Csproj
+  | OpamFile
 
   [@@deriving show, eq]
 
@@ -3027,6 +3028,7 @@ let write_manifest_kind : _ -> manifest_kind -> _ = (
       | CargoToml -> Buffer.add_string ob "\"CargoToml\""
       | PomXml -> Buffer.add_string ob "\"PomXml\""
       | BuildGradle -> Buffer.add_string ob "\"BuildGradle\""
+      | BuildGradleKts -> Buffer.add_string ob "\"BuildGradleKts\""
       | SettingsGradle -> Buffer.add_string ob "\"SettingsGradle\""
       | ComposerJson -> Buffer.add_string ob "\"ComposerJson\""
       | NugetManifestJson -> Buffer.add_string ob "\"NugetManifestJson\""
@@ -3083,6 +3085,10 @@ let read_manifest_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (BuildGradle : manifest_kind)
+            | "BuildGradleKts" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (BuildGradleKts : manifest_kind)
             | "SettingsGradle" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
@@ -3156,6 +3162,8 @@ let read_manifest_kind = (
               (PomXml : manifest_kind)
             | "BuildGradle" ->
               (BuildGradle : manifest_kind)
+            | "BuildGradleKts" ->
+              (BuildGradleKts : manifest_kind)
             | "SettingsGradle" ->
               (SettingsGradle : manifest_kind)
             | "ComposerJson" ->

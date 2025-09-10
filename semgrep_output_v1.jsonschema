@@ -2180,6 +2180,7 @@
         { "const": "CargoToml" },
         { "const": "PomXml" },
         { "const": "BuildGradle" },
+        { "const": "BuildGradleKts" },
         { "const": "SettingsGradle" },
         { "const": "ComposerJson" },
         { "const": "NugetManifestJson" },
