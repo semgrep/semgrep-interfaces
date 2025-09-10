@@ -316,6 +316,16 @@ not ambiguous is welcome here.
     ),
     Language(
         comment="",
+        id_="gosu",
+        name="Gosu",
+        keys=["gosu"],
+        exts=[".gs"],
+        maturity=Maturity.DEVELOP,
+        shebangs=[],
+        tags=["is_proprietary"],
+    ),
+    Language(
+        comment="",
         id_="hack",
         name="Hack",
         keys=["hack"],
