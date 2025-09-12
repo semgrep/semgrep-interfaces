@@ -1135,6 +1135,7 @@ export type ManifestKind =
 | { kind: 'CargoToml' }
 | { kind: 'PomXml' }
 | { kind: 'BuildGradle' }
+| { kind: 'BuildGradleKts' }
 | { kind: 'SettingsGradle' }
 | { kind: 'ComposerJson' }
 | { kind: 'NugetManifestJson' }
@@ -4713,6 +4714,8 @@ export function writeManifestKind(x: ManifestKind, context: any = x): any {
       return 'PomXml'
     case 'BuildGradle':
       return 'BuildGradle'
+    case 'BuildGradleKts':
+      return 'BuildGradleKts'
     case 'SettingsGradle':
       return 'SettingsGradle'
     case 'ComposerJson':
@@ -4760,6 +4763,8 @@ export function readManifestKind(x: any, context: any = x): ManifestKind {
       return { kind: 'PomXml' }
     case 'BuildGradle':
       return { kind: 'BuildGradle' }
+    case 'BuildGradleKts':
+      return { kind: 'BuildGradleKts' }
     case 'SettingsGradle':
       return { kind: 'SettingsGradle' }
     case 'ComposerJson':
