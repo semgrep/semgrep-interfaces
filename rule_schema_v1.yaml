@@ -936,6 +936,7 @@ $defs:
         - typescript
         - vue
         - yaml
+        - xml
 required:
   - rules
 properties:
