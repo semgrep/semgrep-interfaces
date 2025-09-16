@@ -1630,6 +1630,8 @@ type scan_metadata = {
   (* unique id associated with the scan in Semgrep Managed Scanning *)
   (* since 1.96.0 *)
   ?sms_scan_id: string option;
+  ~ecosystems: string list;
+  ~packages: string list;
 }
 
 (* Content of a possible .semgrepconfig.yml in the repository.
