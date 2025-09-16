@@ -1390,6 +1390,23 @@ class BuildGradle:
 
 
 @dataclass(frozen=True)
+class BuildGradleKts:
+    """Original type: manifest_kind = [ ... | BuildGradleKts | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'BuildGradleKts'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'BuildGradleKts'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class SettingsGradle:
     """Original type: manifest_kind = [ ... | SettingsGradle | ... ]"""
 
@@ -1614,7 +1631,7 @@ class OpamFile:
 class ManifestKind:
     """Original type: manifest_kind = [ ... ]"""
 
-    value: Union[RequirementsIn, SetupPy, PackageJson, Gemfile, GoModManifest, CargoToml, PomXml, BuildGradle, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, Podfile, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj, OpamFile]
+    value: Union[RequirementsIn, SetupPy, PackageJson, Gemfile, GoModManifest, CargoToml, PomXml, BuildGradle, BuildGradleKts, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, Podfile, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj, OpamFile]
 
     @property
     def kind(self) -> str:
@@ -1640,6 +1657,8 @@ class ManifestKind:
                 return cls(PomXml())
             if x == 'BuildGradle':
                 return cls(BuildGradle())
+            if x == 'BuildGradleKts':
+                return cls(BuildGradleKts())
             if x == 'SettingsGradle':
                 return cls(SettingsGradle())
             if x == 'ComposerJson':

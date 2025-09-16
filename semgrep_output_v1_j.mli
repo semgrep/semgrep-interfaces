@@ -54,9 +54,10 @@ type lockfile = Semgrep_output_v1_t.lockfile = {
 
 type manifest_kind = Semgrep_output_v1_t.manifest_kind = 
     RequirementsIn | SetupPy | PackageJson | Gemfile | GoModManifest
-  | CargoToml | PomXml | BuildGradle | SettingsGradle | ComposerJson
-  | NugetManifestJson | PubspecYaml | PackageSwift | Podfile | MixExs
-  | Pipfile | PyprojectToml | ConanFileTxt | ConanFilePy | Csproj | OpamFile
+  | CargoToml | PomXml | BuildGradle | BuildGradleKts | SettingsGradle
+  | ComposerJson | NugetManifestJson | PubspecYaml | PackageSwift | Podfile
+  | MixExs | Pipfile | PyprojectToml | ConanFileTxt | ConanFilePy | Csproj
+  | OpamFile
 
   [@@deriving show, eq]
 
