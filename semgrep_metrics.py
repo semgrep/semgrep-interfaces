@@ -916,6 +916,9 @@ class Mcp:
     findings: Optional[List[Tuple[str, Finding]]] = None
     errors: Optional[List[str]] = None
     num_lines: Optional[int] = None
+    git_username: Optional[str] = None
+    git_repo: Optional[str] = None
+    git_branch: Optional[str] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Mcp':
@@ -929,6 +932,9 @@ class Mcp:
                 findings=_atd_read_assoc_object_into_list(Finding.from_json)(x['findings']) if 'findings' in x else None,
                 errors=_atd_read_list(_atd_read_string)(x['errors']) if 'errors' in x else None,
                 num_lines=_atd_read_int(x['num_lines']) if 'num_lines' in x else None,
+                git_username=_atd_read_string(x['git_username']) if 'git_username' in x else None,
+                git_repo=_atd_read_string(x['git_repo']) if 'git_repo' in x else None,
+                git_branch=_atd_read_string(x['git_branch']) if 'git_branch' in x else None,
             )
         else:
             _atd_bad_json('Mcp', x)
@@ -951,6 +957,12 @@ class Mcp:
             res['errors'] = _atd_write_list(_atd_write_string)(self.errors)
         if self.num_lines is not None:
             res['num_lines'] = _atd_write_int(self.num_lines)
+        if self.git_username is not None:
+            res['git_username'] = _atd_write_string(self.git_username)
+        if self.git_repo is not None:
+            res['git_repo'] = _atd_write_string(self.git_repo)
+        if self.git_branch is not None:
+            res['git_branch'] = _atd_write_string(self.git_branch)
         return res
 
     @classmethod

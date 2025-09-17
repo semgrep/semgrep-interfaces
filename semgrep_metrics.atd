@@ -278,6 +278,7 @@ type finding = {
   severity: string;
 }
 
+
 type mcp = {
     ?session_id <ocaml mutable>: string option;
     ?num_skipped_rules <ocaml mutable>: int option;
@@ -287,6 +288,9 @@ type mcp = {
     ?findings <ocaml mutable>: (string (* rule_id *) * finding) list <json repr="object"> option;
     ?errors <ocaml mutable>: string list option;
     ?num_lines <ocaml mutable>: int option;
+    ?git_username <ocaml mutable>: string option;
+    ?git_repo <ocaml mutable>: string option;
+    ?git_branch <ocaml mutable>: string option;
 }
 
 (*****************************************************************************)
