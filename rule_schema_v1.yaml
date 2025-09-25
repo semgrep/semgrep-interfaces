@@ -903,6 +903,7 @@ $defs:
             - generic
             - go
             - golang
+            - gosu
             - hack
             - html
             - java

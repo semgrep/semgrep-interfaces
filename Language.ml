@@ -14,6 +14,7 @@ type t =
 | Dockerfile
 | Elixir
 | Go
+| Gosu
 | Hack
 | Html
 | Java
@@ -239,6 +240,19 @@ let list = [
   reverse_exts = None;
   shebangs = [];
   tags = [];
+};
+{
+  id = Gosu;
+  id_string = "gosu";
+  name = "Gosu";
+  keys = [{|gosu|}];
+  exts = [{|.gs|}];
+  maturity = Develop;
+  example_ext = None;
+  excluded_exts = [];
+  reverse_exts = None;
+  shebangs = [];
+  tags = [{|is_proprietary|}];
 };
 {
   id = Hack;
