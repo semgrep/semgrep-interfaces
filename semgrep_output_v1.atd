@@ -278,6 +278,7 @@ type product
   | SAST (* a.k.a. Code *) <json name="sast">
   | SCA  (* a.k.a. SSC *) <json name="sca">
   | Secrets <json name="secrets">
+  | AI (* a.k.a. AI-detection *) <json name="ai">
 ]
 
 type match_based_id <ocaml attr="deriving show, eq"> = string (* ex:"ab023_1"*)
