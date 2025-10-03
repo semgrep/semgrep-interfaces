@@ -88,6 +88,7 @@ export type Product =
 | { kind: 'SAST' /* JSON: "sast" */ }
 | { kind: 'SCA' /* JSON: "sca" */ }
 | { kind: 'Secrets' /* JSON: "secrets" */ }
+| { kind: 'AI' /* JSON: "ai" */ }
 
 export type MatchBasedId = string
 
@@ -1586,6 +1587,8 @@ export function writeProduct(x: Product, context: any = x): any {
       return 'sca'
     case 'Secrets':
       return 'secrets'
+    case 'AI':
+      return 'ai'
   }
 }
 
@@ -1597,6 +1600,8 @@ export function readProduct(x: any, context: any = x): Product {
       return { kind: 'SCA' }
     case 'secrets':
       return { kind: 'Secrets' }
+    case 'ai':
+      return { kind: 'AI' }
     default:
       _atd_bad_json('Product', x, context)
       throw new Error('impossible')

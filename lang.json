@@ -239,25 +239,6 @@
     "tags": []
   },
   {
-    "id": "gosu",
-    "name": "Gosu",
-    "keys": [
-      "gosu"
-    ],
-    "maturity": "develop",
-    "exts": [
-      ".gs"
-    ],
-    "example_ext": null,
-    "excluded_exts": [],
-    "reverse_exts": null,
-    "shebangs": [],
-    "is_target_language": true,
-    "tags": [
-      "is_proprietary"
-    ]
-  },
-  {
     "id": "hack",
     "name": "Hack",
     "keys": [

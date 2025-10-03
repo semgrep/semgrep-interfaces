@@ -17467,6 +17467,7 @@ let write_product = (
       | `SAST -> Buffer.add_string ob "\"sast\""
       | `SCA -> Buffer.add_string ob "\"sca\""
       | `Secrets -> Buffer.add_string ob "\"secrets\""
+      | `AI -> Buffer.add_string ob "\"ai\""
 )
 let string_of_product ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -17490,6 +17491,10 @@ let read_product = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `Secrets
+            | "ai" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `AI
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -17501,6 +17506,8 @@ let read_product = (
               `SCA
             | "secrets" ->
               `Secrets
+            | "ai" ->
+              `AI
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

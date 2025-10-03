@@ -5749,10 +5749,27 @@ class Secrets:
 
 
 @dataclass(frozen=True)
+class AI:
+    """Original type: product = [ ... | AI | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'AI'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'ai'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class Product:
     """Original type: product = [ ... ]"""
 
-    value: Union[SAST, SCA, Secrets]
+    value: Union[SAST, SCA, Secrets, AI]
 
     @property
     def kind(self) -> str:
@@ -5768,6 +5785,8 @@ class Product:
                 return cls(SCA())
             if x == 'secrets':
                 return cls(Secrets())
+            if x == 'ai':
+                return cls(AI())
             _atd_bad_json('Product', x)
         _atd_bad_json('Product', x)
 

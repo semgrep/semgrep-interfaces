@@ -131,7 +131,10 @@
     },
     "product": {
       "oneOf": [
-        { "const": "sast" }, { "const": "sca" }, { "const": "secrets" }
+        { "const": "sast" },
+        { "const": "sca" },
+        { "const": "secrets" },
+        { "const": "ai" }
       ]
     },
     "match_based_id": { "type": "string" },

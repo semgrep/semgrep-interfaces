@@ -14,7 +14,6 @@ type t =
 | Dockerfile
 | Elixir
 | Go
-| Gosu
 | Hack
 | Html
 | Java
