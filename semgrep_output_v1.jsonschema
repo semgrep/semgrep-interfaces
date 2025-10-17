@@ -36,7 +36,8 @@
     "subprojects": {
       "type": "array",
       "items": { "$ref": "#/definitions/cli_output_subproject_info" }
-    }
+    },
+    "mcp_scan_results": { "$ref": "#/definitions/mcp_scan_results" }
   },
   "definitions": {
     "raw_json": {},
@@ -921,6 +922,14 @@
         "rules_matched_ratio": { "type": "number" }
       }
     },
+    "mcp_scan_results": {
+      "type": "object",
+      "required": [ "rules", "total_bytes_scanned" ],
+      "properties": {
+        "rules": { "type": "array", "items": { "type": "string" } },
+        "total_bytes_scanned": { "type": "integer" }
+      }
+    },
     "cli_output_extra": {
       "type": "object",
       "required": [ "paths" ],
@@ -947,7 +956,8 @@
         "subprojects": {
           "type": "array",
           "items": { "$ref": "#/definitions/cli_output_subproject_info" }
-        }
+        },
+        "mcp_scan_results": { "$ref": "#/definitions/mcp_scan_results" }
       }
     },
     "config_error_reason": { "oneOf": [ { "const": "unparsable_rule" } ] },
@@ -1901,6 +1911,7 @@
           "type": "array",
           "items": { "$ref": "#/definitions/cli_output_subproject_info" }
         },
+        "mcp_scan_results": { "$ref": "#/definitions/mcp_scan_results" },
         "symbol_analysis": { "$ref": "#/definitions/symbol_analysis" }
       }
     },

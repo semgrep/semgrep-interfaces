@@ -463,6 +463,11 @@ export type PrefilteringStats = {
   rules_matched_ratio: number;
 }
 
+export type McpScanResults = {
+  rules: string[];
+  total_bytes_scanned: number /*int*/;
+}
+
 export type CliOutput = {
   version?: Version;
   results: CliMatch[];
@@ -475,6 +480,7 @@ export type CliOutput = {
   interfile_languages_used?: string[];
   skipped_rules: SkippedRule[];
   subprojects?: CliOutputSubprojectInfo[];
+  mcp_scan_results?: McpScanResults;
 }
 
 export type CliOutputExtra = {
@@ -486,6 +492,7 @@ export type CliOutputExtra = {
   interfile_languages_used?: string[];
   skipped_rules: SkippedRule[];
   subprojects?: CliOutputSubprojectInfo[];
+  mcp_scan_results?: McpScanResults;
 }
 
 export type ConfigErrorReason =
@@ -976,6 +983,7 @@ export type CoreOutput = {
   interfile_languages_used?: string[];
   skipped_rules: SkippedRule[];
   subprojects?: CliOutputSubprojectInfo[];
+  mcp_scan_results?: McpScanResults;
   symbol_analysis?: SymbolAnalysis;
 }
 
@@ -2780,6 +2788,20 @@ export function readPrefilteringStats(x: any, context: any = x): PrefilteringSta
   };
 }
 
+export function writeMcpScanResults(x: McpScanResults, context: any = x): any {
+  return {
+    'rules': _atd_write_required_field('McpScanResults', 'rules', _atd_write_array(_atd_write_string), x.rules, x),
+    'total_bytes_scanned': _atd_write_required_field('McpScanResults', 'total_bytes_scanned', _atd_write_int, x.total_bytes_scanned, x),
+  };
+}
+
+export function readMcpScanResults(x: any, context: any = x): McpScanResults {
+  return {
+    rules: _atd_read_required_field('McpScanResults', 'rules', _atd_read_array(_atd_read_string), x['rules'], x),
+    total_bytes_scanned: _atd_read_required_field('McpScanResults', 'total_bytes_scanned', _atd_read_int, x['total_bytes_scanned'], x),
+  };
+}
+
 export function writeCliOutput(x: CliOutput, context: any = x): any {
   return {
     'version': _atd_write_optional_field(writeVersion, x.version, x),
@@ -2793,6 +2815,7 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
     'interfile_languages_used': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.interfile_languages_used, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
     'subprojects': _atd_write_optional_field(_atd_write_array(writeCliOutputSubprojectInfo), x.subprojects, x),
+    'mcp_scan_results': _atd_write_optional_field(writeMcpScanResults, x.mcp_scan_results, x),
   };
 }
 
@@ -2809,6 +2832,7 @@ export function readCliOutput(x: any, context: any = x): CliOutput {
     interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
     subprojects: _atd_read_optional_field(_atd_read_array(readCliOutputSubprojectInfo), x['subprojects'], x),
+    mcp_scan_results: _atd_read_optional_field(readMcpScanResults, x['mcp_scan_results'], x),
   };
 }
 
@@ -2822,6 +2846,7 @@ export function writeCliOutputExtra(x: CliOutputExtra, context: any = x): any {
     'interfile_languages_used': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.interfile_languages_used, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
     'subprojects': _atd_write_optional_field(_atd_write_array(writeCliOutputSubprojectInfo), x.subprojects, x),
+    'mcp_scan_results': _atd_write_optional_field(writeMcpScanResults, x.mcp_scan_results, x),
   };
 }
 
@@ -2835,6 +2860,7 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
     interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
     subprojects: _atd_read_optional_field(_atd_read_array(readCliOutputSubprojectInfo), x['subprojects'], x),
+    mcp_scan_results: _atd_read_optional_field(readMcpScanResults, x['mcp_scan_results'], x),
   };
 }
 
@@ -4203,6 +4229,7 @@ export function writeCoreOutput(x: CoreOutput, context: any = x): any {
     'interfile_languages_used': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.interfile_languages_used, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
     'subprojects': _atd_write_optional_field(_atd_write_array(writeCliOutputSubprojectInfo), x.subprojects, x),
+    'mcp_scan_results': _atd_write_optional_field(writeMcpScanResults, x.mcp_scan_results, x),
     'symbol_analysis': _atd_write_optional_field(writeSymbolAnalysis, x.symbol_analysis, x),
   };
 }
@@ -4220,6 +4247,7 @@ export function readCoreOutput(x: any, context: any = x): CoreOutput {
     interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
     subprojects: _atd_read_optional_field(_atd_read_array(readCliOutputSubprojectInfo), x['subprojects'], x),
+    mcp_scan_results: _atd_read_optional_field(readMcpScanResults, x['mcp_scan_results'], x),
     symbol_analysis: _atd_read_optional_field(readSymbolAnalysis, x['symbol_analysis'], x),
   };
 }
