@@ -908,6 +908,7 @@ class Finding:
 class Mcp:
     """Original type: mcp = { ... }"""
 
+    deployment_name: Optional[str] = None
     session_id: Optional[str] = None
     num_skipped_rules: Optional[int] = None
     rules: Optional[List[str]] = None
@@ -925,6 +926,7 @@ class Mcp:
     def from_json(cls, x: Any) -> 'Mcp':
         if isinstance(x, dict):
             return cls(
+                deployment_name=_atd_read_string(x['deployment_name']) if 'deployment_name' in x else None,
                 session_id=_atd_read_string(x['session_id']) if 'session_id' in x else None,
                 num_skipped_rules=_atd_read_int(x['num_skipped_rules']) if 'num_skipped_rules' in x else None,
                 rules=_atd_read_list(_atd_read_string)(x['rules']) if 'rules' in x else None,
@@ -943,6 +945,8 @@ class Mcp:
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
+        if self.deployment_name is not None:
+            res['deployment_name'] = _atd_write_string(self.deployment_name)
         if self.session_id is not None:
             res['session_id'] = _atd_write_string(self.session_id)
         if self.num_skipped_rules is not None:
