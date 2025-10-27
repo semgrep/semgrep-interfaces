@@ -2745,6 +2745,13 @@ type symbol_analysis_upload_response = {
 (* Symbol analysis *)
 (* ----------------------------- *)
 
+(* The input needed to run symbol analysis for a project. *)
+type symbol_analysis_params = {
+    root_path: fpath;
+    targeting_conf: targeting_conf;
+    lang : string;
+}
+
 (* "Symbol analysis" is about determining the third-party functions which
    are used by a given project.
 
@@ -2795,12 +2802,20 @@ type function_call <python decorator="dataclass(frozen=True)"> = [
   | CallValidate of fpath
   | CallResolveDependencies of resolve_dependencies_params
   | CallUploadSymbolAnalysis of ((* token *) string * (* scan_id *) int * symbol_analysis)
+  (* upload a symbol analysis that was already generated during an
+     interfile scan; no need to do this if you called symbol analysis
+     through the CallRunSymbolAnalysis RPC function *)
   | CallDumpRulePartitions of dump_rule_partitions_params
   | CallGetTargets of scanning_roots
   (* for now, the transitive reachability filter takes only a single dependency graph as input.
    * it is up to the caller to call it several times, one for each subproject *)
   | CallTransitiveReachabilityFilter of transitive_reachability_filter_params
   | CallMatchSubprojects of fpath list
+  (* run symbol analysis for the project rooted in the given directory *)
+  | CallRunSymbolAnalysis of symbol_analysis_params
+  (* run symbol analysis for the project rooted in the given directory
+     and uplaod the result to S3 *)
+  | CallRunAndUploadSymbolAnalysis of ((* token *) string * (* scan_id *) int *  symbol_analysis_params)
 ]
 
 (* ----------------------------- *)
@@ -2816,11 +2831,13 @@ type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetSarifFormat of string
   | RetValidate of (* rule validation error, if validation failed *) core_error option
   | RetResolveDependencies of (dependency_source * resolution_result) list
+  (* also used for RunAndUploadSymbolAnalysis *)
   | RetUploadSymbolAnalysis of (* success msg *) string
   | RetDumpRulePartitions of bool
   | RetTransitiveReachabilityFilter of transitive_finding list
   | RetGetTargets of target_discovery_result
   | RetMatchSubprojects of subproject list
+  | RetRunSymbolAnalysis of symbol_analysis
 ]
 
 (*****************************************************************************)
