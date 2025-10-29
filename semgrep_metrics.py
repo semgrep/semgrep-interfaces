@@ -919,6 +919,7 @@ class Mcp:
     git_username: Optional[str] = None
     git_repo: Optional[str] = None
     git_branch: Optional[str] = None
+    tool_name: Optional[str] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Mcp':
@@ -935,6 +936,7 @@ class Mcp:
                 git_username=_atd_read_string(x['git_username']) if 'git_username' in x else None,
                 git_repo=_atd_read_string(x['git_repo']) if 'git_repo' in x else None,
                 git_branch=_atd_read_string(x['git_branch']) if 'git_branch' in x else None,
+                tool_name=_atd_read_string(x['tool_name']) if 'tool_name' in x else None,
             )
         else:
             _atd_bad_json('Mcp', x)
@@ -963,6 +965,8 @@ class Mcp:
             res['git_repo'] = _atd_write_string(self.git_repo)
         if self.git_branch is not None:
             res['git_branch'] = _atd_write_string(self.git_branch)
+        if self.tool_name is not None:
+            res['tool_name'] = _atd_write_string(self.tool_name)
         return res
 
     @classmethod
