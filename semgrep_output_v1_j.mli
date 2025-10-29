@@ -1046,6 +1046,11 @@ type output_format = Semgrep_output_v1_t.output_format =
 
   [@@deriving show]
 
+type mcp_scan_results = Semgrep_output_v1_t.mcp_scan_results = {
+  rules: string list;
+  total_bytes_scanned: int
+}
+
 type match_based_id = Semgrep_output_v1_t.match_based_id
   [@@deriving show, eq]
 
@@ -1104,7 +1109,8 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list;
-  subprojects: cli_output_subproject_info list option
+  subprojects: cli_output_subproject_info list option;
+  mcp_scan_results: mcp_scan_results option
 }
 
 type apply_fixes_params = Semgrep_output_v1_t.apply_fixes_params = {
@@ -1172,6 +1178,7 @@ type core_output = Semgrep_output_v1_t.core_output = {
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list;
   subprojects: cli_output_subproject_info list option;
+  mcp_scan_results: mcp_scan_results option;
   symbol_analysis: symbol_analysis option
 }
 
@@ -1183,7 +1190,8 @@ type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list;
-  subprojects: cli_output_subproject_info list option
+  subprojects: cli_output_subproject_info list option;
+  mcp_scan_results: mcp_scan_results option
 }
 
 type ci_scan_results_response_error =
@@ -4407,6 +4415,26 @@ val read_output_format :
 val output_format_of_string :
   string -> output_format
   (** Deserialize JSON data of type {!type:output_format}. *)
+
+val write_mcp_scan_results :
+  Buffer.t -> mcp_scan_results -> unit
+  (** Output a JSON value of type {!type:mcp_scan_results}. *)
+
+val string_of_mcp_scan_results :
+  ?len:int -> mcp_scan_results -> string
+  (** Serialize a value of type {!type:mcp_scan_results}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_mcp_scan_results :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> mcp_scan_results
+  (** Input JSON data of type {!type:mcp_scan_results}. *)
+
+val mcp_scan_results_of_string :
+  string -> mcp_scan_results
+  (** Deserialize JSON data of type {!type:mcp_scan_results}. *)
 
 val write_match_based_id :
   Buffer.t -> match_based_id -> unit
