@@ -280,6 +280,7 @@ type finding = {
 
 
 type mcp = {
+    ?deployment_name <ocaml mutable>: string option;
     ?session_id <ocaml mutable>: string option;
     ?num_skipped_rules <ocaml mutable>: int option;
     ?rules <ocaml mutable>: string list option;
