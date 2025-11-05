@@ -2544,6 +2544,8 @@ type manifest_kind
   | Csproj
   (* .opam - https://opam.ocaml.org/doc/Manual.html#Package-definitions *)
   | OpamFile
+  (* build.sbt - https://www.scala-sbt.org/1.x/docs/Basic-Def.html *)
+  | BuildSbt
 ] <ocaml repr="classic">
 
 type manifest
