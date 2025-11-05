@@ -10051,6 +10051,37 @@ class OutputFormat:
 
 
 @dataclass
+class McpScanResults:
+    """Original type: mcp_scan_results = { ... }"""
+
+    rules: List[str]
+    total_bytes_scanned: int
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'McpScanResults':
+        if isinstance(x, dict):
+            return cls(
+                rules=_atd_read_list(_atd_read_string)(x['rules']) if 'rules' in x else _atd_missing_json_field('McpScanResults', 'rules'),
+                total_bytes_scanned=_atd_read_int(x['total_bytes_scanned']) if 'total_bytes_scanned' in x else _atd_missing_json_field('McpScanResults', 'total_bytes_scanned'),
+            )
+        else:
+            _atd_bad_json('McpScanResults', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['rules'] = _atd_write_list(_atd_write_string)(self.rules)
+        res['total_bytes_scanned'] = _atd_write_int(self.total_bytes_scanned)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'McpScanResults':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class MatchBasedId:
     """Original type: match_based_id"""
 
@@ -10571,6 +10602,7 @@ class CliOutput:
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
     subprojects: Optional[List[CliOutputSubprojectInfo]] = None
+    mcp_scan_results: Optional[McpScanResults] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutput':
@@ -10587,6 +10619,7 @@ class CliOutput:
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
                 subprojects=_atd_read_list(CliOutputSubprojectInfo.from_json)(x['subprojects']) if 'subprojects' in x else None,
+                mcp_scan_results=McpScanResults.from_json(x['mcp_scan_results']) if 'mcp_scan_results' in x else None,
             )
         else:
             _atd_bad_json('CliOutput', x)
@@ -10611,6 +10644,8 @@ class CliOutput:
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         if self.subprojects is not None:
             res['subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects)
+        if self.mcp_scan_results is not None:
+            res['mcp_scan_results'] = (lambda x: x.to_json())(self.mcp_scan_results)
         return res
 
     @classmethod
@@ -11143,6 +11178,7 @@ class CoreOutput:
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
     subprojects: Optional[List[CliOutputSubprojectInfo]] = None
+    mcp_scan_results: Optional[McpScanResults] = None
     symbol_analysis: Optional[SymbolAnalysis] = None
 
     @classmethod
@@ -11160,6 +11196,7 @@ class CoreOutput:
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
                 subprojects=_atd_read_list(CliOutputSubprojectInfo.from_json)(x['subprojects']) if 'subprojects' in x else None,
+                mcp_scan_results=McpScanResults.from_json(x['mcp_scan_results']) if 'mcp_scan_results' in x else None,
                 symbol_analysis=SymbolAnalysis.from_json(x['symbol_analysis']) if 'symbol_analysis' in x else None,
             )
         else:
@@ -11184,6 +11221,8 @@ class CoreOutput:
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         if self.subprojects is not None:
             res['subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects)
+        if self.mcp_scan_results is not None:
+            res['mcp_scan_results'] = (lambda x: x.to_json())(self.mcp_scan_results)
         if self.symbol_analysis is not None:
             res['symbol_analysis'] = (lambda x: x.to_json())(self.symbol_analysis)
         return res
@@ -11208,6 +11247,7 @@ class CliOutputExtra:
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
     subprojects: Optional[List[CliOutputSubprojectInfo]] = None
+    mcp_scan_results: Optional[McpScanResults] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutputExtra':
@@ -11221,6 +11261,7 @@ class CliOutputExtra:
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
                 subprojects=_atd_read_list(CliOutputSubprojectInfo.from_json)(x['subprojects']) if 'subprojects' in x else None,
+                mcp_scan_results=McpScanResults.from_json(x['mcp_scan_results']) if 'mcp_scan_results' in x else None,
             )
         else:
             _atd_bad_json('CliOutputExtra', x)
@@ -11241,6 +11282,8 @@ class CliOutputExtra:
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         if self.subprojects is not None:
             res['subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects)
+        if self.mcp_scan_results is not None:
+            res['mcp_scan_results'] = (lambda x: x.to_json())(self.mcp_scan_results)
         return res
 
     @classmethod

@@ -1154,6 +1154,11 @@ type prefiltering_stats <ocaml attr="deriving show"> = {
 (* Final 'semgrep scan' output  *)
 (*****************************************************************************)
 
+type mcp_scan_results = {
+  rules: string list;
+  total_bytes_scanned: int;
+}
+
 (* TODO: rename to scan_output at some point *)
 type cli_output = {
     (* since: 0.92 *)
@@ -1203,6 +1208,9 @@ type cli_output_extra = {
      * logged in.
      * EXPERIMENTAL: since: 1.125.0 *)
     ?subprojects: cli_output_subproject_info list option;
+
+    (* MCP scan results. *)
+    ?mcp_scan_results: mcp_scan_results option;
 }
 
 (*****************************************************************************)
