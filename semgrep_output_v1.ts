@@ -481,6 +481,7 @@ export type CliOutput = {
   skipped_rules: SkippedRule[];
   subprojects?: CliOutputSubprojectInfo[];
   mcp_scan_results?: McpScanResults;
+  profiling_results: ProfilingEntry[];
 }
 
 export type CliOutputExtra = {
@@ -493,6 +494,7 @@ export type CliOutputExtra = {
   skipped_rules: SkippedRule[];
   subprojects?: CliOutputSubprojectInfo[];
   mcp_scan_results?: McpScanResults;
+  profiling_results: ProfilingEntry[];
 }
 
 export type ConfigErrorReason =
@@ -984,6 +986,7 @@ export type CoreOutput = {
   skipped_rules: SkippedRule[];
   subprojects?: CliOutputSubprojectInfo[];
   mcp_scan_results?: McpScanResults;
+  profiling_results: ProfilingEntry[];
   symbol_analysis?: SymbolAnalysis;
 }
 
@@ -1292,6 +1295,11 @@ export type FunctionReturn =
 | { kind: 'RetGetTargets'; value: TargetDiscoveryResult }
 | { kind: 'RetMatchSubprojects'; value: Subproject[] }
 
+export type FunctionResult = {
+  function_return: FunctionReturn;
+  profiling_results: ProfilingEntry[];
+}
+
 export type PartialScanResult =
 | { kind: 'PartialScanOk'; value: [CiScanResults, CiScanComplete] }
 | { kind: 'PartialScanError'; value: CiScanFailure }
@@ -1304,6 +1312,12 @@ export type DiffFile = {
 
 export type DiffFiles = {
   cve_diffs: DiffFile[];
+}
+
+export type ProfilingEntry = {
+  name: string;
+  total_time: number;
+  count: number /*int*/;
 }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
@@ -2816,6 +2830,7 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
     'subprojects': _atd_write_optional_field(_atd_write_array(writeCliOutputSubprojectInfo), x.subprojects, x),
     'mcp_scan_results': _atd_write_optional_field(writeMcpScanResults, x.mcp_scan_results, x),
+    'profiling_results': _atd_write_field_with_default(_atd_write_array(writeProfilingEntry), [], x.profiling_results, x),
   };
 }
 
@@ -2833,6 +2848,7 @@ export function readCliOutput(x: any, context: any = x): CliOutput {
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
     subprojects: _atd_read_optional_field(_atd_read_array(readCliOutputSubprojectInfo), x['subprojects'], x),
     mcp_scan_results: _atd_read_optional_field(readMcpScanResults, x['mcp_scan_results'], x),
+    profiling_results: _atd_read_field_with_default(_atd_read_array(readProfilingEntry), [], x['profiling_results'], x),
   };
 }
 
@@ -2847,6 +2863,7 @@ export function writeCliOutputExtra(x: CliOutputExtra, context: any = x): any {
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
     'subprojects': _atd_write_optional_field(_atd_write_array(writeCliOutputSubprojectInfo), x.subprojects, x),
     'mcp_scan_results': _atd_write_optional_field(writeMcpScanResults, x.mcp_scan_results, x),
+    'profiling_results': _atd_write_field_with_default(_atd_write_array(writeProfilingEntry), [], x.profiling_results, x),
   };
 }
 
@@ -2861,6 +2878,7 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
     subprojects: _atd_read_optional_field(_atd_read_array(readCliOutputSubprojectInfo), x['subprojects'], x),
     mcp_scan_results: _atd_read_optional_field(readMcpScanResults, x['mcp_scan_results'], x),
+    profiling_results: _atd_read_field_with_default(_atd_read_array(readProfilingEntry), [], x['profiling_results'], x),
   };
 }
 
@@ -4230,6 +4248,7 @@ export function writeCoreOutput(x: CoreOutput, context: any = x): any {
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
     'subprojects': _atd_write_optional_field(_atd_write_array(writeCliOutputSubprojectInfo), x.subprojects, x),
     'mcp_scan_results': _atd_write_optional_field(writeMcpScanResults, x.mcp_scan_results, x),
+    'profiling_results': _atd_write_field_with_default(_atd_write_array(writeProfilingEntry), [], x.profiling_results, x),
     'symbol_analysis': _atd_write_optional_field(writeSymbolAnalysis, x.symbol_analysis, x),
   };
 }
@@ -4248,6 +4267,7 @@ export function readCoreOutput(x: any, context: any = x): CoreOutput {
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
     subprojects: _atd_read_optional_field(_atd_read_array(readCliOutputSubprojectInfo), x['subprojects'], x),
     mcp_scan_results: _atd_read_optional_field(readMcpScanResults, x['mcp_scan_results'], x),
+    profiling_results: _atd_read_field_with_default(_atd_read_array(readProfilingEntry), [], x['profiling_results'], x),
     symbol_analysis: _atd_read_optional_field(readSymbolAnalysis, x['symbol_analysis'], x),
   };
 }
@@ -5326,6 +5346,20 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
   }
 }
 
+export function writeFunctionResult(x: FunctionResult, context: any = x): any {
+  return {
+    'function_return': _atd_write_required_field('FunctionResult', 'function_return', writeFunctionReturn, x.function_return, x),
+    'profiling_results': _atd_write_required_field('FunctionResult', 'profiling_results', _atd_write_array(writeProfilingEntry), x.profiling_results, x),
+  };
+}
+
+export function readFunctionResult(x: any, context: any = x): FunctionResult {
+  return {
+    function_return: _atd_read_required_field('FunctionResult', 'function_return', readFunctionReturn, x['function_return'], x),
+    profiling_results: _atd_read_required_field('FunctionResult', 'profiling_results', _atd_read_array(readProfilingEntry), x['profiling_results'], x),
+  };
+}
+
 export function writePartialScanResult(x: PartialScanResult, context: any = x): any {
   switch (x.kind) {
     case 'PartialScanOk':
@@ -5373,6 +5407,22 @@ export function writeDiffFiles(x: DiffFiles, context: any = x): any {
 export function readDiffFiles(x: any, context: any = x): DiffFiles {
   return {
     cve_diffs: _atd_read_required_field('DiffFiles', 'cve_diffs', _atd_read_array(readDiffFile), x['cve_diffs'], x),
+  };
+}
+
+export function writeProfilingEntry(x: ProfilingEntry, context: any = x): any {
+  return {
+    'name': _atd_write_required_field('ProfilingEntry', 'name', _atd_write_string, x.name, x),
+    'total_time': _atd_write_required_field('ProfilingEntry', 'total_time', _atd_write_float, x.total_time, x),
+    'count': _atd_write_required_field('ProfilingEntry', 'count', _atd_write_int, x.count, x),
+  };
+}
+
+export function readProfilingEntry(x: any, context: any = x): ProfilingEntry {
+  return {
+    name: _atd_read_required_field('ProfilingEntry', 'name', _atd_read_string, x['name'], x),
+    total_time: _atd_read_required_field('ProfilingEntry', 'total_time', _atd_read_float, x['total_time'], x),
+    count: _atd_read_required_field('ProfilingEntry', 'count', _atd_read_int, x['count'], x),
   };
 }
 

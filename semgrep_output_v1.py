@@ -8913,6 +8913,40 @@ class ResolutionResult:
 
 
 @dataclass
+class ProfilingEntry:
+    """Original type: profiling_entry = { ... }"""
+
+    name: str
+    total_time: float
+    count: int
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ProfilingEntry':
+        if isinstance(x, dict):
+            return cls(
+                name=_atd_read_string(x['name']) if 'name' in x else _atd_missing_json_field('ProfilingEntry', 'name'),
+                total_time=_atd_read_float(x['total_time']) if 'total_time' in x else _atd_missing_json_field('ProfilingEntry', 'total_time'),
+                count=_atd_read_int(x['count']) if 'count' in x else _atd_missing_json_field('ProfilingEntry', 'count'),
+            )
+        else:
+            _atd_bad_json('ProfilingEntry', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['name'] = _atd_write_string(self.name)
+        res['total_time'] = _atd_write_float(self.total_time)
+        res['count'] = _atd_write_int(self.count)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ProfilingEntry':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class PrefilteringStats:
     """Original type: prefiltering_stats = { ... }"""
 
@@ -10439,6 +10473,37 @@ class FunctionReturn:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class FunctionResult:
+    """Original type: function_result = { ... }"""
+
+    function_return: FunctionReturn
+    profiling_results: List[ProfilingEntry]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FunctionResult':
+        if isinstance(x, dict):
+            return cls(
+                function_return=FunctionReturn.from_json(x['function_return']) if 'function_return' in x else _atd_missing_json_field('FunctionResult', 'function_return'),
+                profiling_results=_atd_read_list(ProfilingEntry.from_json)(x['profiling_results']) if 'profiling_results' in x else _atd_missing_json_field('FunctionResult', 'profiling_results'),
+            )
+        else:
+            _atd_bad_json('FunctionResult', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['function_return'] = (lambda x: x.to_json())(self.function_return)
+        res['profiling_results'] = _atd_write_list((lambda x: x.to_json()))(self.profiling_results)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FunctionResult':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class FormatContext:
     """Original type: format_context = { ... }"""
@@ -10603,6 +10668,7 @@ class CliOutput:
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
     subprojects: Optional[List[CliOutputSubprojectInfo]] = None
     mcp_scan_results: Optional[McpScanResults] = None
+    profiling_results: List[ProfilingEntry] = field(default_factory=lambda: [])
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutput':
@@ -10620,6 +10686,7 @@ class CliOutput:
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
                 subprojects=_atd_read_list(CliOutputSubprojectInfo.from_json)(x['subprojects']) if 'subprojects' in x else None,
                 mcp_scan_results=McpScanResults.from_json(x['mcp_scan_results']) if 'mcp_scan_results' in x else None,
+                profiling_results=_atd_read_list(ProfilingEntry.from_json)(x['profiling_results']) if 'profiling_results' in x else [],
             )
         else:
             _atd_bad_json('CliOutput', x)
@@ -10646,6 +10713,7 @@ class CliOutput:
             res['subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects)
         if self.mcp_scan_results is not None:
             res['mcp_scan_results'] = (lambda x: x.to_json())(self.mcp_scan_results)
+        res['profiling_results'] = _atd_write_list((lambda x: x.to_json()))(self.profiling_results)
         return res
 
     @classmethod
@@ -11179,6 +11247,7 @@ class CoreOutput:
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
     subprojects: Optional[List[CliOutputSubprojectInfo]] = None
     mcp_scan_results: Optional[McpScanResults] = None
+    profiling_results: List[ProfilingEntry] = field(default_factory=lambda: [])
     symbol_analysis: Optional[SymbolAnalysis] = None
 
     @classmethod
@@ -11197,6 +11266,7 @@ class CoreOutput:
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
                 subprojects=_atd_read_list(CliOutputSubprojectInfo.from_json)(x['subprojects']) if 'subprojects' in x else None,
                 mcp_scan_results=McpScanResults.from_json(x['mcp_scan_results']) if 'mcp_scan_results' in x else None,
+                profiling_results=_atd_read_list(ProfilingEntry.from_json)(x['profiling_results']) if 'profiling_results' in x else [],
                 symbol_analysis=SymbolAnalysis.from_json(x['symbol_analysis']) if 'symbol_analysis' in x else None,
             )
         else:
@@ -11223,6 +11293,7 @@ class CoreOutput:
             res['subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects)
         if self.mcp_scan_results is not None:
             res['mcp_scan_results'] = (lambda x: x.to_json())(self.mcp_scan_results)
+        res['profiling_results'] = _atd_write_list((lambda x: x.to_json()))(self.profiling_results)
         if self.symbol_analysis is not None:
             res['symbol_analysis'] = (lambda x: x.to_json())(self.symbol_analysis)
         return res
@@ -11248,6 +11319,7 @@ class CliOutputExtra:
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
     subprojects: Optional[List[CliOutputSubprojectInfo]] = None
     mcp_scan_results: Optional[McpScanResults] = None
+    profiling_results: List[ProfilingEntry] = field(default_factory=lambda: [])
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutputExtra':
@@ -11262,6 +11334,7 @@ class CliOutputExtra:
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
                 subprojects=_atd_read_list(CliOutputSubprojectInfo.from_json)(x['subprojects']) if 'subprojects' in x else None,
                 mcp_scan_results=McpScanResults.from_json(x['mcp_scan_results']) if 'mcp_scan_results' in x else None,
+                profiling_results=_atd_read_list(ProfilingEntry.from_json)(x['profiling_results']) if 'profiling_results' in x else [],
             )
         else:
             _atd_bad_json('CliOutputExtra', x)
@@ -11284,6 +11357,7 @@ class CliOutputExtra:
             res['subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects)
         if self.mcp_scan_results is not None:
             res['mcp_scan_results'] = (lambda x: x.to_json())(self.mcp_scan_results)
+        res['profiling_results'] = _atd_write_list((lambda x: x.to_json()))(self.profiling_results)
         return res
 
     @classmethod
