@@ -37,7 +37,11 @@
       "type": "array",
       "items": { "$ref": "#/definitions/cli_output_subproject_info" }
     },
-    "mcp_scan_results": { "$ref": "#/definitions/mcp_scan_results" }
+    "mcp_scan_results": { "$ref": "#/definitions/mcp_scan_results" },
+    "profiling_results": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/profiling_entry" }
+    }
   },
   "definitions": {
     "raw_json": {},
@@ -957,7 +961,11 @@
           "type": "array",
           "items": { "$ref": "#/definitions/cli_output_subproject_info" }
         },
-        "mcp_scan_results": { "$ref": "#/definitions/mcp_scan_results" }
+        "mcp_scan_results": { "$ref": "#/definitions/mcp_scan_results" },
+        "profiling_results": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/profiling_entry" }
+        }
       }
     },
     "config_error_reason": { "oneOf": [ { "const": "unparsable_rule" } ] },
@@ -1912,6 +1920,10 @@
           "items": { "$ref": "#/definitions/cli_output_subproject_info" }
         },
         "mcp_scan_results": { "$ref": "#/definitions/mcp_scan_results" },
+        "profiling_results": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/profiling_entry" }
+        },
         "symbol_analysis": { "$ref": "#/definitions/symbol_analysis" }
       }
     },
@@ -2815,6 +2827,17 @@
         }
       ]
     },
+    "function_result": {
+      "type": "object",
+      "required": [ "function_return", "profiling_results" ],
+      "properties": {
+        "function_return": { "$ref": "#/definitions/function_return" },
+        "profiling_results": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/profiling_entry" }
+        }
+      }
+    },
     "partial_scan_result": {
       "oneOf": [
         {
@@ -2862,6 +2885,15 @@
           "type": "array",
           "items": { "$ref": "#/definitions/diff_file" }
         }
+      }
+    },
+    "profiling_entry": {
+      "type": "object",
+      "required": [ "name", "total_time", "count" ],
+      "properties": {
+        "name": { "type": "string" },
+        "total_time": { "type": "number" },
+        "count": { "type": "integer" }
       }
     }
   }

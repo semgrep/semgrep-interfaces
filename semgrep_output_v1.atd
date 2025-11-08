@@ -1211,6 +1211,10 @@ type cli_output_extra = {
 
     (* MCP scan results. *)
     ?mcp_scan_results: mcp_scan_results option;
+
+    (* How long it took to execute this or that piece of code
+       in semgrep-core *)
+    ~profiling_results: profiling_entry list;
 }
 
 (*****************************************************************************)
@@ -2831,6 +2835,11 @@ type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetMatchSubprojects of subproject list
 ]
 
+type function_result = {
+  function_return: function_return;
+  profiling_results: profiling_entry list;
+}
+
 (*****************************************************************************)
 (* Misc *)
 (*****************************************************************************)
@@ -2849,3 +2858,14 @@ type diff_file <ocaml attr="deriving show"> = {
   url : string (* metadata to help SCA rule generation *)
 }
 type diff_files <ocaml attr="deriving show"> = { cve_diffs : diff_file list;}
+
+(* Profiling info obtained from the OCaml executable, to be aggregated
+   further in pysemgrep. *)
+type profiling_entry = {
+  name: string;
+    (* The name given to piece of code for which we measured how long
+       it took. *)
+  total_time: float;
+    (* Total clock time in seconds. Divide by the count to get the mean. *)
+  count : int;
+}
