@@ -4273,6 +4273,40 @@ class ScaParserName:
 
 
 @dataclass(frozen=True)
+class ResourceInaccessible:
+    """Original type: resource_inaccessible = { ... }"""
+
+    command: str
+    registry_url: Optional[str]
+    message: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResourceInaccessible':
+        if isinstance(x, dict):
+            return cls(
+                command=_atd_read_string(x['command']) if 'command' in x else _atd_missing_json_field('ResourceInaccessible', 'command'),
+                registry_url=_atd_read_option(_atd_read_string)(x['registry_url']) if 'registry_url' in x else _atd_missing_json_field('ResourceInaccessible', 'registry_url'),
+                message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('ResourceInaccessible', 'message'),
+            )
+        else:
+            _atd_bad_json('ResourceInaccessible', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['command'] = _atd_write_string(self.command)
+        res['registry_url'] = _atd_write_option(_atd_write_string)(self.registry_url)
+        res['message'] = _atd_write_string(self.message)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResourceInaccessible':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class ResolutionCmdFailed:
     """Original type: resolution_cmd_failed = { ... }"""
 
@@ -4393,10 +4427,28 @@ class ScaParseError:
 
 
 @dataclass(frozen=True)
+class ResourceInaccessible_:
+    """Original type: resolution_error_kind = [ ... | ResourceInaccessible of ... | ... ]"""
+
+    value: ResourceInaccessible
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ResourceInaccessible_'
+
+    def to_json(self) -> Any:
+        return ['ResourceInaccessible', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class ResolutionErrorKind:
     """Original type: resolution_error_kind = [ ... ]"""
 
-    value: Union[UnsupportedManifest, MissingRequirement, ResolutionCmdFailed_, ParseDependenciesFailed, ScaParseError]
+    value: Union[UnsupportedManifest, MissingRequirement, ResolutionCmdFailed_, ParseDependenciesFailed, ScaParseError, ResourceInaccessible_]
 
     @property
     def kind(self) -> str:
@@ -4419,6 +4471,8 @@ class ResolutionErrorKind:
                 return cls(ParseDependenciesFailed(_atd_read_string(x[1])))
             if cons == 'ScaParseError':
                 return cls(ScaParseError(ScaParserName.from_json(x[1])))
+            if cons == 'ResourceInaccessible':
+                return cls(ResourceInaccessible_(ResourceInaccessible.from_json(x[1])))
             _atd_bad_json('ResolutionErrorKind', x)
         _atd_bad_json('ResolutionErrorKind', x)
 

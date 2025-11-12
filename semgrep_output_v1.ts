@@ -1186,9 +1186,16 @@ export type ResolutionErrorKind =
 | { kind: 'ResolutionCmdFailed'; value: ResolutionCmdFailed }
 | { kind: 'ParseDependenciesFailed'; value: string }
 | { kind: 'ScaParseError'; value: ScaParserName }
+| { kind: 'ResourceInaccessible'; value: ResourceInaccessible }
 
 export type ResolutionCmdFailed = {
   command: string;
+  message: string;
+}
+
+export type ResourceInaccessible = {
+  command: string;
+  registry_url: Option<string>;
   message: string;
 }
 
@@ -4926,6 +4933,8 @@ export function writeResolutionErrorKind(x: ResolutionErrorKind, context: any = 
       return ['ParseDependenciesFailed', _atd_write_string(x.value, x)]
     case 'ScaParseError':
       return ['ScaParseError', writeScaParserName(x.value, x)]
+    case 'ResourceInaccessible':
+      return ['ResourceInaccessible', writeResourceInaccessible(x.value, x)]
   }
 }
 
@@ -4950,6 +4959,8 @@ export function readResolutionErrorKind(x: any, context: any = x): ResolutionErr
         return { kind: 'ParseDependenciesFailed', value: _atd_read_string(x[1], x) }
       case 'ScaParseError':
         return { kind: 'ScaParseError', value: readScaParserName(x[1], x) }
+      case 'ResourceInaccessible':
+        return { kind: 'ResourceInaccessible', value: readResourceInaccessible(x[1], x) }
       default:
         _atd_bad_json('ResolutionErrorKind', x, context)
         throw new Error('impossible')
@@ -4968,6 +4979,22 @@ export function readResolutionCmdFailed(x: any, context: any = x): ResolutionCmd
   return {
     command: _atd_read_required_field('ResolutionCmdFailed', 'command', _atd_read_string, x['command'], x),
     message: _atd_read_required_field('ResolutionCmdFailed', 'message', _atd_read_string, x['message'], x),
+  };
+}
+
+export function writeResourceInaccessible(x: ResourceInaccessible, context: any = x): any {
+  return {
+    'command': _atd_write_required_field('ResourceInaccessible', 'command', _atd_write_string, x.command, x),
+    'registry_url': _atd_write_required_field('ResourceInaccessible', 'registry_url', _atd_write_option(_atd_write_string), x.registry_url, x),
+    'message': _atd_write_required_field('ResourceInaccessible', 'message', _atd_write_string, x.message, x),
+  };
+}
+
+export function readResourceInaccessible(x: any, context: any = x): ResourceInaccessible {
+  return {
+    command: _atd_read_required_field('ResourceInaccessible', 'command', _atd_read_string, x['command'], x),
+    registry_url: _atd_read_required_field('ResourceInaccessible', 'registry_url', _atd_read_option(_atd_read_string), x['registry_url'], x),
+    message: _atd_read_required_field('ResourceInaccessible', 'message', _atd_read_string, x['message'], x),
   };
 }
 

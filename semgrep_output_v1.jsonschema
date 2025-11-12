@@ -2323,6 +2323,15 @@
             { "const": "ScaParseError" },
             { "$ref": "#/definitions/sca_parser_name" }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ResourceInaccessible" },
+            { "$ref": "#/definitions/resource_inaccessible" }
+          ]
         }
       ]
     },
@@ -2331,6 +2340,25 @@
       "required": [ "command", "message" ],
       "properties": {
         "command": { "type": "string" },
+        "message": { "type": "string" }
+      }
+    },
+    "resource_inaccessible": {
+      "type": "object",
+      "required": [ "command", "registry_url", "message" ],
+      "properties": {
+        "command": { "type": "string" },
+        "registry_url": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        },
         "message": { "type": "string" }
       }
     },

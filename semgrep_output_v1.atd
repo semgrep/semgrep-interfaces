@@ -2599,6 +2599,8 @@ type resolution_error_kind
   (* a lockfile parser failed
    * since semgrep 1.109.0 (to replace dependency_parser_error) *)
   | ScaParseError of sca_parser_name
+  (* unable to access private registry, likely due to missing credentials *)
+  | ResourceInaccessible of resource_inaccessible
 ] <ocaml repr="classic">
 
 type resolution_cmd_failed
@@ -2606,6 +2608,17 @@ type resolution_cmd_failed
     <python decorator="dataclass(frozen=True)"> =
 {
     command: string;
+    message: string;
+}
+
+type resource_inaccessible
+    <ocaml attr="deriving show">
+    <python decorator="dataclass(frozen=True)"> =
+{
+    command: string;
+    (* we attempt to parse out the actual registry URL that we tried to access *)
+    registry_url: string option;
+    (* and just include the entire error message too, just in case *)
     message: string;
 }
 
