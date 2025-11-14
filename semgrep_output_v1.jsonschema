@@ -2218,7 +2218,8 @@
         { "const": "ConanFileTxt" },
         { "const": "ConanFilePy" },
         { "const": "Csproj" },
-        { "const": "OpamFile" }
+        { "const": "OpamFile" },
+        { "const": "BuildSbt" }
       ]
     },
     "manifest": {

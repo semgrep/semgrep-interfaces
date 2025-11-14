@@ -1628,10 +1628,27 @@ class OpamFile:
 
 
 @dataclass(frozen=True)
+class BuildSbt:
+    """Original type: manifest_kind = [ ... | BuildSbt | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'BuildSbt'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'BuildSbt'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class ManifestKind:
     """Original type: manifest_kind = [ ... ]"""
 
-    value: Union[RequirementsIn, SetupPy, PackageJson, Gemfile, GoModManifest, CargoToml, PomXml, BuildGradle, BuildGradleKts, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, Podfile, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj, OpamFile]
+    value: Union[RequirementsIn, SetupPy, PackageJson, Gemfile, GoModManifest, CargoToml, PomXml, BuildGradle, BuildGradleKts, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, Podfile, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj, OpamFile, BuildSbt]
 
     @property
     def kind(self) -> str:
@@ -1685,6 +1702,8 @@ class ManifestKind:
                 return cls(Csproj())
             if x == 'OpamFile':
                 return cls(OpamFile())
+            if x == 'BuildSbt':
+                return cls(BuildSbt())
             _atd_bad_json('ManifestKind', x)
         _atd_bad_json('ManifestKind', x)
 

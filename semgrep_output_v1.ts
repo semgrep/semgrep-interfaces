@@ -1162,6 +1162,7 @@ export type ManifestKind =
 | { kind: 'ConanFilePy' }
 | { kind: 'Csproj' }
 | { kind: 'OpamFile' }
+| { kind: 'BuildSbt' }
 
 export type Manifest = {
   kind: ManifestKind;
@@ -4796,6 +4797,8 @@ export function writeManifestKind(x: ManifestKind, context: any = x): any {
       return 'Csproj'
     case 'OpamFile':
       return 'OpamFile'
+    case 'BuildSbt':
+      return 'BuildSbt'
   }
 }
 
@@ -4845,6 +4848,8 @@ export function readManifestKind(x: any, context: any = x): ManifestKind {
       return { kind: 'Csproj' }
     case 'OpamFile':
       return { kind: 'OpamFile' }
+    case 'BuildSbt':
+      return { kind: 'BuildSbt' }
     default:
       _atd_bad_json('ManifestKind', x, context)
       throw new Error('impossible')
