@@ -861,7 +861,8 @@ type resolve_dependencies_params =
   Semgrep_output_v1_t.resolve_dependencies_params = {
   dependency_sources: dependency_source list;
   download_dependency_source_code: bool;
-  allow_local_builds: bool
+  allow_local_builds: bool;
+  include_dependency_configurations: string list option
 }
 
 type resolution_result = Semgrep_output_v1_t.resolution_result
@@ -30495,6 +30496,15 @@ let write_resolve_dependencies_params : _ -> resolve_dependencies_params -> _ = 
       Yojson.Safe.write_bool
     )
       ob x.allow_local_builds;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"include_dependency_configurations\":";
+    (
+      write__string_list_option
+    )
+      ob x.include_dependency_configurations;
     Buffer.add_char ob '}';
 )
 let string_of_resolve_dependencies_params ?(len = 1024) x =
@@ -30508,6 +30518,7 @@ let read_resolve_dependencies_params = (
     let field_dependency_sources = ref (None) in
     let field_download_dependency_source_code = ref (None) in
     let field_allow_local_builds = ref (None) in
+    let field_include_dependency_configurations = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -30547,6 +30558,14 @@ let read_resolve_dependencies_params = (
                   -1
                 )
               )
+            | 33 -> (
+                if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'p' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'n' && String.unsafe_get s (pos+16) = 'c' && String.unsafe_get s (pos+17) = 'y' && String.unsafe_get s (pos+18) = '_' && String.unsafe_get s (pos+19) = 'c' && String.unsafe_get s (pos+20) = 'o' && String.unsafe_get s (pos+21) = 'n' && String.unsafe_get s (pos+22) = 'f' && String.unsafe_get s (pos+23) = 'i' && String.unsafe_get s (pos+24) = 'g' && String.unsafe_get s (pos+25) = 'u' && String.unsafe_get s (pos+26) = 'r' && String.unsafe_get s (pos+27) = 'a' && String.unsafe_get s (pos+28) = 't' && String.unsafe_get s (pos+29) = 'i' && String.unsafe_get s (pos+30) = 'o' && String.unsafe_get s (pos+31) = 'n' && String.unsafe_get s (pos+32) = 's' then (
+                  3
+                )
+                else (
+                  -1
+                )
+              )
             | _ -> (
                 -1
               )
@@ -30576,6 +30595,14 @@ let read_resolve_dependencies_params = (
               Some (
                 (
                   Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              )
+            );
+          | 3 ->
+            field_include_dependency_configurations := (
+              Some (
+                (
+                  read__string_list_option
                 ) p lb
               )
             );
@@ -30622,6 +30649,14 @@ let read_resolve_dependencies_params = (
                     -1
                   )
                 )
+              | 33 -> (
+                  if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'p' && String.unsafe_get s (pos+11) = 'e' && String.unsafe_get s (pos+12) = 'n' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = 'e' && String.unsafe_get s (pos+15) = 'n' && String.unsafe_get s (pos+16) = 'c' && String.unsafe_get s (pos+17) = 'y' && String.unsafe_get s (pos+18) = '_' && String.unsafe_get s (pos+19) = 'c' && String.unsafe_get s (pos+20) = 'o' && String.unsafe_get s (pos+21) = 'n' && String.unsafe_get s (pos+22) = 'f' && String.unsafe_get s (pos+23) = 'i' && String.unsafe_get s (pos+24) = 'g' && String.unsafe_get s (pos+25) = 'u' && String.unsafe_get s (pos+26) = 'r' && String.unsafe_get s (pos+27) = 'a' && String.unsafe_get s (pos+28) = 't' && String.unsafe_get s (pos+29) = 'i' && String.unsafe_get s (pos+30) = 'o' && String.unsafe_get s (pos+31) = 'n' && String.unsafe_get s (pos+32) = 's' then (
+                    3
+                  )
+                  else (
+                    -1
+                  )
+                )
               | _ -> (
                   -1
                 )
@@ -30654,6 +30689,14 @@ let read_resolve_dependencies_params = (
                   ) p lb
                 )
               );
+            | 3 ->
+              field_include_dependency_configurations := (
+                Some (
+                  (
+                    read__string_list_option
+                  ) p lb
+                )
+              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -30666,6 +30709,7 @@ let read_resolve_dependencies_params = (
             dependency_sources = (match !field_dependency_sources with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "dependency_sources");
             download_dependency_source_code = (match !field_download_dependency_source_code with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "download_dependency_source_code");
             allow_local_builds = (match !field_allow_local_builds with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "allow_local_builds");
+            include_dependency_configurations = (match !field_include_dependency_configurations with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "include_dependency_configurations");
           }
          : resolve_dependencies_params)
       )

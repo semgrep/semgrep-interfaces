@@ -861,7 +861,8 @@ type resolve_dependencies_params =
   Semgrep_output_v1_t.resolve_dependencies_params = {
   dependency_sources: dependency_source list;
   download_dependency_source_code: bool;
-  allow_local_builds: bool
+  allow_local_builds: bool;
+  include_dependency_configurations: string list option
 }
 
 type resolution_result = Semgrep_output_v1_t.resolution_result
