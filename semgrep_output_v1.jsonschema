@@ -2472,7 +2472,7 @@
       "type": "object",
       "required": [
         "dependency_sources", "download_dependency_source_code",
-        "allow_local_builds"
+        "allow_local_builds", "include_dependency_configurations"
       ],
       "properties": {
         "dependency_sources": {
@@ -2480,7 +2480,21 @@
           "items": { "$ref": "#/definitions/dependency_source" }
         },
         "download_dependency_source_code": { "type": "boolean" },
-        "allow_local_builds": { "type": "boolean" }
+        "allow_local_builds": { "type": "boolean" },
+        "include_dependency_configurations": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" },
+                { "type": "array", "items": { "type": "string" } }
+              ]
+            },
+            { "const": "None" }
+          ]
+        }
       }
     },
     "resolution_result": {

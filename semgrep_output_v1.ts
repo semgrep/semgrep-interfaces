@@ -1237,6 +1237,7 @@ export type ResolveDependenciesParams = {
   dependency_sources: DependencySource[];
   download_dependency_source_code: boolean;
   allow_local_builds: boolean;
+  include_dependency_configurations: Option<string[]>;
 }
 
 export type ResolutionResult =
@@ -5113,6 +5114,7 @@ export function writeResolveDependenciesParams(x: ResolveDependenciesParams, con
     'dependency_sources': _atd_write_required_field('ResolveDependenciesParams', 'dependency_sources', _atd_write_array(writeDependencySource), x.dependency_sources, x),
     'download_dependency_source_code': _atd_write_required_field('ResolveDependenciesParams', 'download_dependency_source_code', _atd_write_bool, x.download_dependency_source_code, x),
     'allow_local_builds': _atd_write_required_field('ResolveDependenciesParams', 'allow_local_builds', _atd_write_bool, x.allow_local_builds, x),
+    'include_dependency_configurations': _atd_write_required_field('ResolveDependenciesParams', 'include_dependency_configurations', _atd_write_option(_atd_write_array(_atd_write_string)), x.include_dependency_configurations, x),
   };
 }
 
@@ -5121,6 +5123,7 @@ export function readResolveDependenciesParams(x: any, context: any = x): Resolve
     dependency_sources: _atd_read_required_field('ResolveDependenciesParams', 'dependency_sources', _atd_read_array(readDependencySource), x['dependency_sources'], x),
     download_dependency_source_code: _atd_read_required_field('ResolveDependenciesParams', 'download_dependency_source_code', _atd_read_bool, x['download_dependency_source_code'], x),
     allow_local_builds: _atd_read_required_field('ResolveDependenciesParams', 'allow_local_builds', _atd_read_bool, x['allow_local_builds'], x),
+    include_dependency_configurations: _atd_read_required_field('ResolveDependenciesParams', 'include_dependency_configurations', _atd_read_option(_atd_read_array(_atd_read_string)), x['include_dependency_configurations'], x),
   };
 }
 

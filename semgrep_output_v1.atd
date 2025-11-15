@@ -2134,7 +2134,7 @@ type tr_query_cache_request = {
 
 (* Response by the backend the the POST /api/cli/tr_cache/lookup *)
 type tr_query_cache_response = {
-    cached: (tr_cache_key * tr_cache_match_result) list;   
+    cached: (tr_cache_key * tr_cache_match_result) list;
 }
 
 (* Sent by the CLI to the POST /api/cli/tr_cache *)
@@ -2585,7 +2585,7 @@ type dependency_source
   | MultiLockfile of dependency_source list
 ] <ocaml repr="classic">
 
-(* alt: sca_error_kind *)                        
+(* alt: sca_error_kind *)
 type resolution_error_kind
     <ocaml attr="deriving show">
     <python decorator="dataclass(frozen=True)"> =
@@ -2672,7 +2672,7 @@ type resolved_subproject
 type resolved_dependency = (found_dependency * downloaded_dependency option)
 
 (* Information about a 3rd-party lib downloaded for Transitive Reachability.
- * To accompany a found_dependency within the Semgrep CLI, passed back and forth 
+ * To accompany a found_dependency within the Semgrep CLI, passed back and forth
  * from OCaml to Python via RPC. See also SCA_dependency.t in OCaml
  *
  * Source paths is a list of paths to either folders containing source code
@@ -2712,6 +2712,9 @@ type resolve_dependencies_params <python decorator="dataclass(frozen=True)"> = {
   download_dependency_source_code: bool;
   (* whether to allow executing package manager commands *)
   allow_local_builds: bool;
+  (* the configurations (e.g. gradle configurations) to resolve. If not specified,
+   * all configurations will be resolved. Supported only for Gradle currently. *)
+  include_dependency_configurations: string list option;
 }
 
 (* Resolution can either succeed or fail, but in either case errors can be
