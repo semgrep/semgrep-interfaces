@@ -317,6 +317,13 @@ type sca_parser_name = Semgrep_output_v1_t.sca_parser_name =
 
   [@@deriving show]
 
+type resource_inaccessible = Semgrep_output_v1_t.resource_inaccessible = {
+  command: string;
+  registry_url: string option;
+  message: string
+}
+  [@@deriving show]
+
 type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
   command: string;
   message: string
@@ -329,6 +336,7 @@ type resolution_error_kind = Semgrep_output_v1_t.resolution_error_kind =
   | ResolutionCmdFailed of resolution_cmd_failed
   | ParseDependenciesFailed of string
   | ScaParseError of sca_parser_name
+  | ResourceInaccessible of resource_inaccessible
 
   [@@deriving show]
 
@@ -11618,6 +11626,214 @@ let read_sca_parser_name = (
 )
 let sca_parser_name_of_string s =
   read_sca_parser_name (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_resource_inaccessible : _ -> resource_inaccessible -> _ = (
+  fun ob (x : resource_inaccessible) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"command\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.command;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"registry_url\":";
+    (
+      write__string_option
+    )
+      ob x.registry_url;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"message\":";
+    (
+      Yojson.Safe.write_string
+    )
+      ob x.message;
+    Buffer.add_char ob '}';
+)
+let string_of_resource_inaccessible ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_resource_inaccessible ob x;
+  Buffer.contents ob
+let read_resource_inaccessible = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_command = ref (None) in
+    let field_registry_url = ref (None) in
+    let field_message = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 7 -> (
+                match String.unsafe_get s pos with
+                  | 'c' -> (
+                      if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'd' then (
+                        0
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 'm' -> (
+                      if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
+                        2
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
+              )
+            | 12 -> (
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'y' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'l' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_command := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_registry_url := (
+              Some (
+                (
+                  read__string_option
+                ) p lb
+              )
+            );
+          | 2 ->
+            field_message := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 7 -> (
+                  match String.unsafe_get s pos with
+                    | 'c' -> (
+                        if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'm' && String.unsafe_get s (pos+3) = 'm' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'd' then (
+                          0
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'm' -> (
+                        if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' then (
+                          2
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
+                )
+              | 12 -> (
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 's' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = 'r' && String.unsafe_get s (pos+7) = 'y' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'u' && String.unsafe_get s (pos+10) = 'r' && String.unsafe_get s (pos+11) = 'l' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_command := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_registry_url := (
+                Some (
+                  (
+                    read__string_option
+                  ) p lb
+                )
+              );
+            | 2 ->
+              field_message := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            command = (match !field_command with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "command");
+            registry_url = (match !field_registry_url with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "registry_url");
+            message = (match !field_message with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "message");
+          }
+         : resource_inaccessible)
+      )
+)
+let resource_inaccessible_of_string s =
+  read_resource_inaccessible (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_resolution_cmd_failed : _ -> resolution_cmd_failed -> _ = (
   fun ob (x : resolution_cmd_failed) ->
     Buffer.add_char ob '{';
@@ -11809,6 +12025,12 @@ let write_resolution_error_kind : _ -> resolution_error_kind -> _ = (
           write_sca_parser_name
         ) ob x;
         Buffer.add_char ob ']'
+      | ResourceInaccessible x ->
+        Buffer.add_string ob "[\"ResourceInaccessible\",";
+        (
+          write_resource_inaccessible
+        ) ob x;
+        Buffer.add_char ob ']'
 )
 let string_of_resolution_error_kind ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -11860,6 +12082,15 @@ let read_resolution_error_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               (ScaParseError x : resolution_error_kind)
+            | "ResourceInaccessible" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_resource_inaccessible
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              (ResourceInaccessible x : resolution_error_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -11916,6 +12147,17 @@ let read_resolution_error_kind = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               (ScaParseError x : resolution_error_kind)
+            | "ResourceInaccessible" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_resource_inaccessible
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (ResourceInaccessible x : resolution_error_kind)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
