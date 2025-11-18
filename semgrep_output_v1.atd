@@ -2122,7 +2122,7 @@ type tr_query_cache_request = {
 
 (* Response by the backend the the POST /api/cli/tr_cache/lookup *)
 type tr_query_cache_response = {
-    cached: (tr_cache_key * tr_cache_match_result) list;   
+    cached: (tr_cache_key * tr_cache_match_result) list;
 }
 
 (* Sent by the CLI to the POST /api/cli/tr_cache *)
@@ -2571,7 +2571,7 @@ type dependency_source
   | MultiLockfile of dependency_source list
 ] <ocaml repr="classic">
 
-(* alt: sca_error_kind *)                        
+(* alt: sca_error_kind *)
 type resolution_error_kind
     <ocaml attr="deriving show">
     <python decorator="dataclass(frozen=True)"> =
@@ -2658,7 +2658,7 @@ type resolved_subproject
 type resolved_dependency = (found_dependency * downloaded_dependency option)
 
 (* Information about a 3rd-party lib downloaded for Transitive Reachability.
- * To accompany a found_dependency within the Semgrep CLI, passed back and forth 
+ * To accompany a found_dependency within the Semgrep CLI, passed back and forth
  * from OCaml to Python via RPC. See also SCA_dependency.t in OCaml
  *
  * Source paths is a list of paths to either folders containing source code
@@ -2747,9 +2747,15 @@ type symbol_analysis_upload_response = {
 
 (* The input needed to run symbol analysis for a project. *)
 type symbol_analysis_params = {
+    (* root path of the subproject—usually the directory of the manifest file *)
     root_path: fpath;
-    targeting_conf: targeting_conf;
+
+    (* the language of the files to analyze; this will ideally be
+       optional/ignored in the future *)
     lang : string;
+
+    (* all the files in the subproject to analyze *)
+    files : fpath list;
 }
 
 (* "Symbol analysis" is about determining the third-party functions which
@@ -2813,9 +2819,6 @@ type function_call <python decorator="dataclass(frozen=True)"> = [
   | CallMatchSubprojects of fpath list
   (* run symbol analysis for the project rooted in the given directory *)
   | CallRunSymbolAnalysis of symbol_analysis_params
-  (* run symbol analysis for the project rooted in the given directory
-     and uplaod the result to S3 *)
-  | CallRunAndUploadSymbolAnalysis of ((* token *) string * (* scan_id *) int *  symbol_analysis_params)
 ]
 
 (* ----------------------------- *)
@@ -2831,7 +2834,6 @@ type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetSarifFormat of string
   | RetValidate of (* rule validation error, if validation failed *) core_error option
   | RetResolveDependencies of (dependency_source * resolution_result) list
-  (* also used for RunAndUploadSymbolAnalysis *)
   | RetUploadSymbolAnalysis of (* success msg *) string
   | RetDumpRulePartitions of bool
   | RetTransitiveReachabilityFilter of transitive_finding list
