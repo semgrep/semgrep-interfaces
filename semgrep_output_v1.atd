@@ -1154,6 +1154,11 @@ type prefiltering_stats <ocaml attr="deriving show"> = {
 (* Final 'semgrep scan' output  *)
 (*****************************************************************************)
 
+type mcp_scan_results = {
+  rules: string list;
+  total_bytes_scanned: int;
+}
+
 (* TODO: rename to scan_output at some point *)
 type cli_output = {
     (* since: 0.92 *)
@@ -1203,6 +1208,13 @@ type cli_output_extra = {
      * logged in.
      * EXPERIMENTAL: since: 1.125.0 *)
     ?subprojects: cli_output_subproject_info list option;
+
+    (* MCP scan results. *)
+    ?mcp_scan_results: mcp_scan_results option;
+
+    (* How long it took to execute this or that piece of code
+       in semgrep-core *)
+    ~profiling_results: profiling_entry list;
 }
 
 (*****************************************************************************)
@@ -2532,6 +2544,8 @@ type manifest_kind
   | Csproj
   (* .opam - https://opam.ocaml.org/doc/Manual.html#Package-definitions *)
   | OpamFile
+  (* build.sbt - https://www.scala-sbt.org/1.x/docs/Basic-Def.html *)
+  | BuildSbt
 ] <ocaml repr="classic">
 
 type manifest
@@ -2585,6 +2599,8 @@ type resolution_error_kind
   (* a lockfile parser failed
    * since semgrep 1.109.0 (to replace dependency_parser_error) *)
   | ScaParseError of sca_parser_name
+  (* unable to access private registry, likely due to missing credentials *)
+  | ResourceInaccessible of resource_inaccessible
 ] <ocaml repr="classic">
 
 type resolution_cmd_failed
@@ -2592,6 +2608,17 @@ type resolution_cmd_failed
     <python decorator="dataclass(frozen=True)"> =
 {
     command: string;
+    message: string;
+}
+
+type resource_inaccessible
+    <ocaml attr="deriving show">
+    <python decorator="dataclass(frozen=True)"> =
+{
+    command: string;
+    (* we attempt to parse out the actual registry URL that we tried to access *)
+    registry_url: string option;
+    (* and just include the entire error message too, just in case *)
     message: string;
 }
 
@@ -2842,6 +2869,11 @@ type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetRunSymbolAnalysis of symbol_analysis
 ]
 
+type function_result = {
+  function_return: function_return;
+  profiling_results: profiling_entry list;
+}
+
 (*****************************************************************************)
 (* Misc *)
 (*****************************************************************************)
@@ -2860,3 +2892,14 @@ type diff_file <ocaml attr="deriving show"> = {
   url : string (* metadata to help SCA rule generation *)
 }
 type diff_files <ocaml attr="deriving show"> = { cve_diffs : diff_file list;}
+
+(* Profiling info obtained from the OCaml executable, to be aggregated
+   further in pysemgrep. *)
+type profiling_entry = {
+  name: string;
+    (* The name given to piece of code for which we measured how long
+       it took. *)
+  total_time: float;
+    (* Total clock time in seconds. Divide by the count to get the mean. *)
+  count : int;
+}

@@ -908,6 +908,7 @@ class Finding:
 class Mcp:
     """Original type: mcp = { ... }"""
 
+    deployment_name: Optional[str] = None
     session_id: Optional[str] = None
     num_skipped_rules: Optional[int] = None
     rules: Optional[List[str]] = None
@@ -919,11 +920,13 @@ class Mcp:
     git_username: Optional[str] = None
     git_repo: Optional[str] = None
     git_branch: Optional[str] = None
+    tool_name: Optional[str] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Mcp':
         if isinstance(x, dict):
             return cls(
+                deployment_name=_atd_read_string(x['deployment_name']) if 'deployment_name' in x else None,
                 session_id=_atd_read_string(x['session_id']) if 'session_id' in x else None,
                 num_skipped_rules=_atd_read_int(x['num_skipped_rules']) if 'num_skipped_rules' in x else None,
                 rules=_atd_read_list(_atd_read_string)(x['rules']) if 'rules' in x else None,
@@ -935,12 +938,15 @@ class Mcp:
                 git_username=_atd_read_string(x['git_username']) if 'git_username' in x else None,
                 git_repo=_atd_read_string(x['git_repo']) if 'git_repo' in x else None,
                 git_branch=_atd_read_string(x['git_branch']) if 'git_branch' in x else None,
+                tool_name=_atd_read_string(x['tool_name']) if 'tool_name' in x else None,
             )
         else:
             _atd_bad_json('Mcp', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
+        if self.deployment_name is not None:
+            res['deployment_name'] = _atd_write_string(self.deployment_name)
         if self.session_id is not None:
             res['session_id'] = _atd_write_string(self.session_id)
         if self.num_skipped_rules is not None:
@@ -963,6 +969,8 @@ class Mcp:
             res['git_repo'] = _atd_write_string(self.git_repo)
         if self.git_branch is not None:
             res['git_branch'] = _atd_write_string(self.git_branch)
+        if self.tool_name is not None:
+            res['tool_name'] = _atd_write_string(self.tool_name)
         return res
 
     @classmethod

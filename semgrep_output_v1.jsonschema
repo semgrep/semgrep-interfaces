@@ -36,6 +36,11 @@
     "subprojects": {
       "type": "array",
       "items": { "$ref": "#/definitions/cli_output_subproject_info" }
+    },
+    "mcp_scan_results": { "$ref": "#/definitions/mcp_scan_results" },
+    "profiling_results": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/profiling_entry" }
     }
   },
   "definitions": {
@@ -921,6 +926,14 @@
         "rules_matched_ratio": { "type": "number" }
       }
     },
+    "mcp_scan_results": {
+      "type": "object",
+      "required": [ "rules", "total_bytes_scanned" ],
+      "properties": {
+        "rules": { "type": "array", "items": { "type": "string" } },
+        "total_bytes_scanned": { "type": "integer" }
+      }
+    },
     "cli_output_extra": {
       "type": "object",
       "required": [ "paths" ],
@@ -947,6 +960,11 @@
         "subprojects": {
           "type": "array",
           "items": { "$ref": "#/definitions/cli_output_subproject_info" }
+        },
+        "mcp_scan_results": { "$ref": "#/definitions/mcp_scan_results" },
+        "profiling_results": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/profiling_entry" }
         }
       }
     },
@@ -1901,6 +1919,11 @@
           "type": "array",
           "items": { "$ref": "#/definitions/cli_output_subproject_info" }
         },
+        "mcp_scan_results": { "$ref": "#/definitions/mcp_scan_results" },
+        "profiling_results": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/profiling_entry" }
+        },
         "symbol_analysis": { "$ref": "#/definitions/symbol_analysis" }
       }
     },
@@ -2195,7 +2218,8 @@
         { "const": "ConanFileTxt" },
         { "const": "ConanFilePy" },
         { "const": "Csproj" },
-        { "const": "OpamFile" }
+        { "const": "OpamFile" },
+        { "const": "BuildSbt" }
       ]
     },
     "manifest": {
@@ -2299,6 +2323,15 @@
             { "const": "ScaParseError" },
             { "$ref": "#/definitions/sca_parser_name" }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ResourceInaccessible" },
+            { "$ref": "#/definitions/resource_inaccessible" }
+          ]
         }
       ]
     },
@@ -2307,6 +2340,25 @@
       "required": [ "command", "message" ],
       "properties": {
         "command": { "type": "string" },
+        "message": { "type": "string" }
+      }
+    },
+    "resource_inaccessible": {
+      "type": "object",
+      "required": [ "command", "registry_url", "message" ],
+      "properties": {
+        "command": { "type": "string" },
+        "registry_url": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        },
         "message": { "type": "string" }
       }
     },
@@ -2849,6 +2901,17 @@
         }
       ]
     },
+    "function_result": {
+      "type": "object",
+      "required": [ "function_return", "profiling_results" ],
+      "properties": {
+        "function_return": { "$ref": "#/definitions/function_return" },
+        "profiling_results": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/profiling_entry" }
+        }
+      }
+    },
     "partial_scan_result": {
       "oneOf": [
         {
@@ -2896,6 +2959,15 @@
           "type": "array",
           "items": { "$ref": "#/definitions/diff_file" }
         }
+      }
+    },
+    "profiling_entry": {
+      "type": "object",
+      "required": [ "name", "total_time", "count" ],
+      "properties": {
+        "name": { "type": "string" },
+        "total_time": { "type": "number" },
+        "count": { "type": "integer" }
       }
     }
   }

@@ -57,7 +57,7 @@ type manifest_kind = Semgrep_output_v1_t.manifest_kind =
   | CargoToml | PomXml | BuildGradle | BuildGradleKts | SettingsGradle
   | ComposerJson | NugetManifestJson | PubspecYaml | PackageSwift | Podfile
   | MixExs | Pipfile | PyprojectToml | ConanFileTxt | ConanFilePy | Csproj
-  | OpamFile
+  | OpamFile | BuildSbt
 
   [@@deriving show, eq]
 
@@ -317,6 +317,13 @@ type sca_parser_name = Semgrep_output_v1_t.sca_parser_name =
 
   [@@deriving show]
 
+type resource_inaccessible = Semgrep_output_v1_t.resource_inaccessible = {
+  command: string;
+  registry_url: string option;
+  message: string
+}
+  [@@deriving show]
+
 type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
   command: string;
   message: string
@@ -329,6 +336,7 @@ type resolution_error_kind = Semgrep_output_v1_t.resolution_error_kind =
   | ResolutionCmdFailed of resolution_cmd_failed
   | ParseDependenciesFailed of string
   | ScaParseError of sca_parser_name
+  | ResourceInaccessible of resource_inaccessible
 
   [@@deriving show]
 
@@ -872,6 +880,12 @@ type resolve_dependencies_params =
 
 type resolution_result = Semgrep_output_v1_t.resolution_result
 
+type profiling_entry = Semgrep_output_v1_t.profiling_entry = {
+  name: string;
+  total_time: float;
+  count: int
+}
+
 type prefiltering_stats = Semgrep_output_v1_t.prefiltering_stats = {
   project_level_time: float;
   file_level_time: float;
@@ -1052,6 +1066,11 @@ type output_format = Semgrep_output_v1_t.output_format =
 
   [@@deriving show]
 
+type mcp_scan_results = Semgrep_output_v1_t.mcp_scan_results = {
+  rules: string list;
+  total_bytes_scanned: int
+}
+
 type match_based_id = Semgrep_output_v1_t.match_based_id
   [@@deriving show, eq]
 
@@ -1068,6 +1087,11 @@ type apply_fixes_return = Semgrep_output_v1_t.apply_fixes_return = {
 }
 
 type function_return = Semgrep_output_v1_t.function_return
+
+type function_result = Semgrep_output_v1_t.function_result = {
+  function_return: function_return;
+  profiling_results: profiling_entry list
+}
 
 type format_context = Semgrep_output_v1_t.format_context = {
   is_ci_invocation: bool;
@@ -1110,7 +1134,9 @@ type cli_output = Semgrep_output_v1_t.cli_output = {
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list;
-  subprojects: cli_output_subproject_info list option
+  subprojects: cli_output_subproject_info list option;
+  mcp_scan_results: mcp_scan_results option;
+  profiling_results: profiling_entry list
 }
 
 type apply_fixes_params = Semgrep_output_v1_t.apply_fixes_params = {
@@ -1178,6 +1204,8 @@ type core_output = Semgrep_output_v1_t.core_output = {
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list;
   subprojects: cli_output_subproject_info list option;
+  mcp_scan_results: mcp_scan_results option;
+  profiling_results: profiling_entry list;
   symbol_analysis: symbol_analysis option
 }
 
@@ -1189,7 +1217,9 @@ type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
   engine_requested: engine_kind option;
   interfile_languages_used: string list option;
   skipped_rules: skipped_rule list;
-  subprojects: cli_output_subproject_info list option
+  subprojects: cli_output_subproject_info list option;
+  mcp_scan_results: mcp_scan_results option;
+  profiling_results: profiling_entry list
 }
 
 type ci_scan_results_response_error =
@@ -2193,6 +2223,26 @@ val read_sca_parser_name :
 val sca_parser_name_of_string :
   string -> sca_parser_name
   (** Deserialize JSON data of type {!type:sca_parser_name}. *)
+
+val write_resource_inaccessible :
+  Buffer.t -> resource_inaccessible -> unit
+  (** Output a JSON value of type {!type:resource_inaccessible}. *)
+
+val string_of_resource_inaccessible :
+  ?len:int -> resource_inaccessible -> string
+  (** Serialize a value of type {!type:resource_inaccessible}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resource_inaccessible :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resource_inaccessible
+  (** Input JSON data of type {!type:resource_inaccessible}. *)
+
+val resource_inaccessible_of_string :
+  string -> resource_inaccessible
+  (** Deserialize JSON data of type {!type:resource_inaccessible}. *)
 
 val write_resolution_cmd_failed :
   Buffer.t -> resolution_cmd_failed -> unit
@@ -4014,6 +4064,26 @@ val resolution_result_of_string :
   string -> resolution_result
   (** Deserialize JSON data of type {!type:resolution_result}. *)
 
+val write_profiling_entry :
+  Buffer.t -> profiling_entry -> unit
+  (** Output a JSON value of type {!type:profiling_entry}. *)
+
+val string_of_profiling_entry :
+  ?len:int -> profiling_entry -> string
+  (** Serialize a value of type {!type:profiling_entry}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_profiling_entry :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> profiling_entry
+  (** Input JSON data of type {!type:profiling_entry}. *)
+
+val profiling_entry_of_string :
+  string -> profiling_entry
+  (** Deserialize JSON data of type {!type:profiling_entry}. *)
+
 val write_prefiltering_stats :
   Buffer.t -> prefiltering_stats -> unit
   (** Output a JSON value of type {!type:prefiltering_stats}. *)
@@ -4434,6 +4504,26 @@ val output_format_of_string :
   string -> output_format
   (** Deserialize JSON data of type {!type:output_format}. *)
 
+val write_mcp_scan_results :
+  Buffer.t -> mcp_scan_results -> unit
+  (** Output a JSON value of type {!type:mcp_scan_results}. *)
+
+val string_of_mcp_scan_results :
+  ?len:int -> mcp_scan_results -> string
+  (** Serialize a value of type {!type:mcp_scan_results}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_mcp_scan_results :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> mcp_scan_results
+  (** Input JSON data of type {!type:mcp_scan_results}. *)
+
+val mcp_scan_results_of_string :
+  string -> mcp_scan_results
+  (** Deserialize JSON data of type {!type:mcp_scan_results}. *)
+
 val write_match_based_id :
   Buffer.t -> match_based_id -> unit
   (** Output a JSON value of type {!type:match_based_id}. *)
@@ -4513,6 +4603,26 @@ val read_function_return :
 val function_return_of_string :
   string -> function_return
   (** Deserialize JSON data of type {!type:function_return}. *)
+
+val write_function_result :
+  Buffer.t -> function_result -> unit
+  (** Output a JSON value of type {!type:function_result}. *)
+
+val string_of_function_result :
+  ?len:int -> function_result -> string
+  (** Serialize a value of type {!type:function_result}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_function_result :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> function_result
+  (** Input JSON data of type {!type:function_result}. *)
+
+val function_result_of_string :
+  string -> function_result
+  (** Deserialize JSON data of type {!type:function_result}. *)
 
 val write_format_context :
   Buffer.t -> format_context -> unit
