@@ -120,12 +120,12 @@ type lockfile_kind = Semgrep_output_v1_t.lockfile_kind =
   | GemfileLock
   | GoModLock
   | CargoLock
-  | MavenDepTree (** *)
+  | MavenDepTree (** Not a real lockfile *)
   | GradleLockfile
   | ComposerLock
   | NugetPackagesLockJson
   | PubspecLock
-  | SwiftPackageResolved (** *)
+  | SwiftPackageResolved (** not a real lockfile *)
   | PodfileLock
   | MixLock
   | ConanLock
@@ -140,29 +140,99 @@ type lockfile = Semgrep_output_v1_t.lockfile = {
   [@@deriving show, eq]
 
 type manifest_kind = Semgrep_output_v1_t.manifest_kind = 
-    RequirementsIn (** *)
-  | SetupPy (** *)
-  | PackageJson (** *)
-  | Gemfile (** *)
-  | GoModManifest (** *)
-  | CargoToml (** *)
-  | PomXml (** *)
-  | BuildGradle (** *)
-  | BuildGradleKts (** *)
-  | SettingsGradle (** *)
-  | ComposerJson (** *)
-  | NugetManifestJson (** *)
-  | PubspecYaml (** *)
-  | PackageSwift (** *)
-  | Podfile (** *)
-  | MixExs (** *)
-  | Pipfile (** *)
-  | PyprojectToml (** *)
-  | ConanFileTxt (** *)
-  | ConanFilePy (** *)
-  | Csproj (** *)
-  | OpamFile (** *)
-  | BuildSbt (** *)
+    RequirementsIn
+      (**
+        A Pip Requirements.in in file, which follows the format of
+        requirements.txt
+        https://pip.pypa.io/en/stable/reference/requirements-file-format/
+      *)
+  | SetupPy
+      (**
+        A setup.py file, which is a Python file that contains the setup
+        configuration for a Python project.
+        https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#setup-py
+      *)
+  | PackageJson
+      (**
+        An NPM package.json manifest file
+        https://docs.npmjs.com/cli/v10/configuring-npm/package-json
+      *)
+  | Gemfile
+      (**
+        A Ruby Gemfile manifest https://bundler.io/v2.5/man/gemfile.5.html
+      *)
+  | GoModManifest (** go.mod https://go.dev/doc/modules/gomod-ref *)
+  | CargoToml
+      (**
+        cargo.toml - https://doc.rust-lang.org/cargo/reference/manifest.html
+      *)
+  | PomXml
+      (**
+        A Maven pom.xml manifest file
+        https://maven.apache.org/guides/introduction/introduction-to-the-pom.html
+      *)
+  | BuildGradle
+      (**
+        A Gradle build.gradle build file
+        https://docs.gradle.org/current/userguide/build_file_basics.html
+      *)
+  | BuildGradleKts
+      (**
+        A Gradle build.gradle.kts file, which uses Kotlin instead of Groovy.
+      *)
+  | SettingsGradle
+      (**
+        A Gradle settings.gradle file
+        https://docs.gradle.org/current/userguide/settings_file_basics.html.
+        Multi-project builds are defined by settings.gradle rather than
+        build.gradle:
+        https://docs.gradle.org/current/userguide/multi_project_builds.html#multi_project_builds
+      *)
+  | ComposerJson
+      (** composer.json - https://getcomposer.org/doc/04-schema.md *)
+  | NugetManifestJson
+      (**
+        manifest for nuget. Could not find a reference; this may not actually
+        exist
+      *)
+  | PubspecYaml (** pubspec.yaml - https://dart.dev/tools/pub/pubspec *)
+  | PackageSwift
+      (**
+        Package.swift
+        https://docs.swift.org/package-manager/PackageDescription/PackageDescription.html
+      *)
+  | Podfile
+      (** Podfile - https://guides.cocoapods.org/using/the-podfile.html *)
+  | MixExs
+      (**
+        mix.exs
+        https://hexdocs.pm/elixir/introduction-to-mix.html#project-compilation
+      *)
+  | Pipfile (** Pipfile - https://pipenv.pypa.io/en/latest/pipfile.html *)
+  | PyprojectToml
+      (**
+        pyproject.toml
+        https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
+      *)
+  | ConanFileTxt
+      (**
+        conanfile.txt
+        https://docs.conan.io/2.9/reference/conanfile_txt.html#conanfile-txt
+      *)
+  | ConanFilePy
+      (**
+        conanfile.py - https://docs.conan.io/2.9/reference/conanfile.html
+      *)
+  | Csproj
+      (**
+        .csproj - https://docs.microsoft.com/en-us/dotnet/core/tools/csproj
+      *)
+  | OpamFile
+      (**
+        opam - https://opam.ocaml.org/doc/Manual.html#Package-definitions
+      *)
+  | BuildSbt
+      (** build.sbt - https://www.scala-sbt.org/1.x/docs/Basic-Def.html *)
 
   [@@deriving show, eq]
 
@@ -396,7 +466,17 @@ type dependency_source = Semgrep_output_v1_t.dependency_source =
     ManifestOnly of manifest
   | LockfileOnly of lockfile
   | ManifestLockfile of (manifest * lockfile)
-  | MultiLockfile of dependency_source list (** *)
+  | MultiLockfile of dependency_source list
+      (**
+        The dependency_source should be LockfileOnly or ManifestLockfile, but
+        not ManifestOnlyDependencySource. Right now this variant is only used
+        by pysemgrep; it is deconstructed in multiple LockfileXxx when
+        calling the dynamic resolver. Note that this variant introduces a
+        series of problems in the Python code because atdpy generates a
+        List\[DependencySource\] and List are not hashable in Python. We had
+        to define a special hash function for Subproject to avoid hashing the
+        dependency_source.
+      *)
 
   [@@deriving show]
 
@@ -552,12 +632,21 @@ and transitive_reachable = Semgrep_output_v1_t.transitive_reachable = {
     (** some extra explanation that the user can understand *)
 }
 
-(** *)
+(**
+  See the corresponding comment in cli_match_extra for more information about
+  the fields below.
+*)
 type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   metavars: metavars;
   engine_kind: engine_of_finding;
   is_ignored: bool;
-  message: string option (** *);
+  message: string option
+    (**
+      These fields generally come from the rule, but may be set here if
+      they're being overriden for that particular finding. This would
+      currently occur for rule with a validator for secrets, depending on
+      what the validator might match, but could be expanded in the future.
+    *);
   metadata: raw_json option;
   severity: match_severity option;
   fix: string option;
@@ -565,10 +654,14 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   sca_match: sca_match option;
   validation_state: validation_state option;
   historical_info: historical_info option;
-  extra_extra: raw_json option (** *)
+  extra_extra: raw_json option
+    (**
+      Escape hatch to pass untyped info from semgrep-core to the semgrep
+      output. Useful for quick experiments, especially when combined with
+      semgrep --core-opts flag.
+    *)
 }
 
-(** *)
 type core_match = Semgrep_output_v1_t.core_match = {
   check_id: rule_id;
   path: fpath;
@@ -635,21 +728,55 @@ type uuid = Semgrep_output_v1_t.uuid [@@deriving ord]
 type uri = Semgrep_output_v1_t.uri [@@deriving ord]
 
 type unresolved_reason = Semgrep_output_v1_t.unresolved_reason = 
-    UnresolvedFailed (** *)
-  | UnresolvedSkipped (** *)
-  | UnresolvedUnsupported (** *)
-  | UnresolvedDisabled (** *)
+    UnresolvedFailed (** Resolution was attempted, but was unsuccessful. *)
+  | UnresolvedSkipped
+      (**
+        Resolution was skipped because the dependency source was not relevant
+        to the scanned targets.
+      *)
+  | UnresolvedUnsupported
+      (**
+        Resolution was skipped because the dependency source is not
+        supported.
+      *)
+  | UnresolvedDisabled
+      (**
+        Resolution was not attempted because a required feature (such as
+        local builds) was disabled.
+      *)
 
 
-(** *)
+(**
+  A subproject defined by some kind of manifest file (e.g., pyproject.toml,
+  package.json, ...). This may be at the root of the repo being scanned or
+  may be some other folder. Used as the unit of analysis for supply chain.
+*)
 type subproject = Semgrep_output_v1_t.subproject = {
   root_dir: fpath;
-  ecosystem: ecosystem option (** *);
+  ecosystem: ecosystem option
+    (**
+      This is used to match code files with subprojects. It is necessary to
+      have it here, even before a subproject's dependencies are resolved, in
+      order to decide whether a certain subproject must be resolved given the
+      changes included in a certain diff scan. It can be None if this
+      subproject is for a package manager whose ecosystem is not yet
+      supported (i.e. one that is identified only for tracking purposes)
+    *);
   dependency_source: dependency_source
+    (**
+      The dependency source is how we resolved the dependencies. This might
+      be a lockfile/manifest pair (the only current one), but in the future
+      it might also be dynamic resolution based on a manifest, an SBOM, or
+      something else
+    *)
 }
   [@@deriving show]
 
-(** *)
+(**
+  JSON names are to maintain backwards compatibility with the python enum it
+  is replacing. The P prefix (for parser) is to avoid ambiguity with similar
+  construtor names in the manifest and ecosystem types.
+*)
 type sca_parser_name = Semgrep_output_v1_t.sca_parser_name = 
     PGemfile_lock | PGo_mod | PGo_sum | PGradle_lockfile | PGradle_build
   | PJsondoc | PPipfile | PPnpm_lock | PPoetry_lock | PPyproject_toml
@@ -669,12 +796,20 @@ type resolution_error_kind = Semgrep_output_v1_t.resolution_error_kind =
     UnsupportedManifest
   | MissingRequirement of string
   | ResolutionCmdFailed of resolution_cmd_failed
-  | ParseDependenciesFailed of string (** *)
-  | ScaParseError of sca_parser_name (** *)
+  | ParseDependenciesFailed of string
+      (**
+        when we produce some dependency list in lockfileless scanning (by
+        talking to the package manager) but fail to parse it correctly
+      *)
+  | ScaParseError of sca_parser_name
+      (**
+        a lockfile parser failed since semgrep 1.109.0 (to replace
+        dependency_parser_error)
+      *)
 
   [@@deriving show]
 
-(** *)
+(** used only from pysemgrep for now *)
 type sca_resolution_error = Semgrep_output_v1_t.sca_resolution_error = {
   type_: resolution_error_kind;
   dependency_source_file: fpath
@@ -684,7 +819,11 @@ type dependency_parser_error = Semgrep_output_v1_t.dependency_parser_error = {
   path: fpath;
   parser: sca_parser_name;
   reason: string;
-  line: int option (** *);
+  line: int option
+    (**
+      Not using `position` because this type must be backwards compatible
+      with the python class it is replacing.
+    *);
   col: int option;
   text: string option
 }
@@ -697,15 +836,36 @@ type sca_error = Semgrep_output_v1_t.sca_error =
 type unresolved_subproject = Semgrep_output_v1_t.unresolved_subproject = {
   info: subproject;
   reason: unresolved_reason;
-  errors: sca_error list (** *)
+  errors: sca_error list
+    (** this is set only when the reason is UnresolvedFailed *)
 }
 
-(** *)
+(**
+  Instead of serving snippets here, we could just give the locations of the
+  patterns and matches. For convenience when scripting with this in rule
+  generation, we will just get the source text here.
+*)
 type snippet = Semgrep_output_v1_t.snippet = { line: int; text: string }
 
 type killing_parent_kind = Semgrep_output_v1_t.killing_parent_kind
 
-(** *)
+(**
+  a "killing parent" is a parent operator that could have killed the
+  unexpected match along its way to being returned Intuitively, these are all
+  the sites at which the rule could have removed the unexpected match, but
+  didn't. Note that because of the order of operations, this technically
+  means that in the following pattern:
+  
+{v
+    all:
+      - pattern: A
+      - not: B
+v}
+  
+  the [not] node is a "parent" of the [pattern] node, even though they are
+  siblings in the actual tree. This is because the ranges of the [pattern]
+  are input to the [not] node.
+*)
 type killing_parent = Semgrep_output_v1_t.killing_parent = {
   killing_parent_kind: killing_parent_kind;
   snippet: snippet
@@ -725,21 +885,37 @@ type originating_node_kind = Semgrep_output_v1_t.originating_node_kind
 type unexpected_match_diagnosis =
   Semgrep_output_v1_t.unexpected_match_diagnosis = {
   matched_text: snippet;
-  originating_kind: originating_node_kind (** *);
+  originating_kind: originating_node_kind
+    (**
+      information about the originating pattern in the rule file. This is
+      where the unexpected match came from.
+    *);
   originating_text: snippet;
   killing_parents: killing_parent list
 }
 
 type triage_ignored = Semgrep_output_v1_t.triage_ignored = {
   triage_ignored_syntactic_ids: string list;
-  triage_ignored_match_based_ids: string list (** *)
+  triage_ignored_match_based_ids: string list
 }
 
 type transitive_finding = Semgrep_output_v1_t.transitive_finding = {
-  m: core_match (** *)
+  m: core_match
+    (**
+      the important part is the sca_match in core_match_extra that we need to
+      adjust and especially the sca_match_kind.
+    *)
 }
 
-(** *)
+(**
+  Information about a 3rd-party lib downloaded for Transitive Reachability.
+  To accompany a found_dependency within the Semgrep CLI, passed back and
+  forth from OCaml to Python via RPC. See also SCA_dependency.t in OCaml.
+  
+  Source paths is a list of paths to either folders containing source code or
+  source code files. It is necessary to use a list here because package
+  managers like pip may unpack a package into multiple folders.
+*)
 type downloaded_dependency = Semgrep_output_v1_t.downloaded_dependency = {
   source_paths: fpath list
 }
@@ -754,40 +930,119 @@ type transitive_reachability_filter_params =
   write_to_cache: bool
 }
 
-(** *)
+(** The "value" *)
 type tr_cache_match_result = Semgrep_output_v1_t.tr_cache_match_result = {
-  matches: cli_match list (** *)
+  matches: cli_match list
 }
 
-(** *)
+(**
+  We want essentially to cache semgrep computation on third party packages to
+  quickly know (rule_id x package_version) -> sca_transitive_match_kind to
+  avoid downloading and recomputing each time the same thing.
+  
+  The "key". The rule_id and resolved_url should form a valid key for our TR
+  cache database table. Indeed, semgrep should always return the same result
+  when using the same rule and same resolved_url package. The content at the
+  URL should hopefully not change (we could md5sum it just in case) and the
+  content of the rule_id should also not change (could md5sum it maybe too).
+  
+  I've added tr_version below just in case we want to invalidate past cached
+  entries (e.g., the semgrep engine itself changed enough that some past
+  cached results might be wrong and should be recomputed.
+*)
 type tr_cache_key = Semgrep_output_v1_t.tr_cache_key = {
   rule_id: rule_id;
-  rule_version: string (** *);
-  engine_version: int (** *);
-  package_url: string (** *);
-  extra: string (** *)
+  rule_version: string
+    (**
+      this can be the checksum of the content of the rule (JSON or YAML form)
+    *);
+  engine_version: int
+    (**
+      does not have to match the Semgrep CLI version; can be bumped only when
+      we think the match should be recomputed
+    *);
+  package_url: string
+    (**
+      e.g. http://some-website/hello-world.0.1.2.tgz like in found_dependency
+      [resolved_url] field, but could be anything to describe a particular
+      package. We could rely on https://github.com/package-url/purl-spec
+    *);
+  extra: string (** extra key just in case (e.g., "prod" vs "dev") *)
 }
   [@@deriving show, eq]
 
-(** *)
+(** Response by the backend the the POST /api/cli/tr_cache/lookup *)
 type tr_query_cache_response = Semgrep_output_v1_t.tr_query_cache_response = {
   cached: (tr_cache_key * tr_cache_match_result) list
 }
 
-(** *)
+(** Sent by the CLI to the POST /api/cli/tr_cache/lookup *)
 type tr_query_cache_request = Semgrep_output_v1_t.tr_query_cache_request = {
   entries: tr_cache_key list
 }
 
-(** *)
+(** Sent by the CLI to the POST /api/cli/tr_cache *)
 type tr_add_cache_request = Semgrep_output_v1_t.tr_add_cache_request = {
   new_entries: (tr_cache_key * tr_cache_match_result) list
 }
 
 type todo = Semgrep_output_v1_t.todo
 
+(**
+  EXPERIMENTAL
+  
+  A "matching diagnosis" is a postprocessed interpretation of matching
+  explanations, specific to a particular test-annotated target file.
+  
+  For instance, suppose we have the rule:
+  
+{v
+    1 | all:
+    2 | - pattern: foo(...)
+    3 | - not: foo(goood)
+v}
+  
+  and the following Python annotated target:
+  
+{v
+    1 | # ruleid: my_rule
+    2 | foo()
+    3 | # ok: my_rule
+    4 | foo(good)
+v}
+  
+  We would get an unexpected match on line 4, which would fail the test
+  assertion.
+  
+  By looking at the matching explanation, we can deduce that the match on
+  line 4 must clearly have been introduced by the positive [foo(..)] pattern.
+  The rule-writer probably meant to kill [foo(good)] with the negative
+  [foo(goood)] pattern.
+  
+  This is essentially what matching diagnoses are -- using matching
+  explanations to point out where the erroneous parts of the rule _may_ be.
+  
+  Note that this is a _may_, because an unexpected match could have been
+  killed by the [foo(bad)], but if there were more negative patterns, it
+  could have been killed elsewhere too. All we can do is point out places
+  where the rule-writer _may_ have messed up.
+  
+  So in this case, we would expect an [unexpected_match_diagnosis] with the
+  form:
+  
+{v
+    \{ matched_text = \{ line = 4; text = "foo(bad)" \};
+      originating_kind = Xpattern;
+      originating_text = \{ line = 2; text = "- pattern: foo(...)" \};
+      killing_parents = [
+        \{ killing_parent_kind = Negation;
+          snippet = \{ line = 3; text = "- not: foo(good)" \} \}
+      ]
+    \}
+v}
+*)
 type matching_diagnosis = Semgrep_output_v1_t.matching_diagnosis = {
-  target: fpath (** *);
+  target: fpath (** specifically, the test target *);
   unexpected_match_diagnoses: unexpected_match_diagnosis list;
   unexpected_no_match_diagnoses: unexpected_no_match_diagnosis list
 }
@@ -799,9 +1054,10 @@ type expected_reported = Semgrep_output_v1_t.expected_reported = {
 
 type rule_result = Semgrep_output_v1_t.rule_result = {
   passed: bool;
-  matches: (string * expected_reported) list (** *);
+  matches: (string * expected_reported) list
+    (** (target filename, expected_reported) list *);
   errors: todo list;
-  diagnosis: matching_diagnosis option (** *)
+  diagnosis: matching_diagnosis option (** NEW: since 1.79 *)
 }
 
 type fixtest_result = Semgrep_output_v1_t.fixtest_result = { passed: bool }
@@ -816,21 +1072,35 @@ type config_error = Semgrep_output_v1_t.config_error = {
 }
 
 type checks = Semgrep_output_v1_t.checks = {
-  checks: (string * rule_result) list (** *)
+  checks: (string * rule_result) list (** (rule ID, rule_result) list *)
 }
 
 type tests_result = Semgrep_output_v1_t.tests_result = {
-  results: (string * checks) list (** *);
-  fixtest_results: (string * fixtest_result) list (** *);
+  results: (string * checks) list (** (rule file, checks) list *);
+  fixtest_results: (string * fixtest_result) list
+    (** (target file, fixtest_result) list *);
   config_missing_tests: fpath list;
   config_missing_fixtests: fpath list;
   config_with_errors: config_error list
 }
 
-(** *)
-type project_root = Semgrep_output_v1_t.project_root [@@deriving show]
+(** See Scan_CLI.ml on how to convert command-line options to this *)
+type project_root = Semgrep_output_v1_t.project_root
+  [@@deriving show]
 
-(** *)
+(**
+  This type is similar to the type Find_targets.conf used by osemgrep.
+  
+  We could share the type but it would be slightly more complicated. This
+  solution will be easier to undo when we're fully migrated to osemgrep.
+  
+  It encodes options derived from the pysemgrep command line. Upon receiving
+  this record, semgrep-core will discover the target files like osemgrep
+  does.
+  
+  See Find_targets.mli for the meaning of each field. See Scan_CLI.ml for the
+  mapping between semgrep CLI and this type.
+*)
 type targeting_conf = Semgrep_output_v1_t.targeting_conf = {
   exclude: string list;
   include_: string list option;
@@ -839,8 +1109,13 @@ type targeting_conf = Semgrep_output_v1_t.targeting_conf = {
   respect_semgrepignore_files: bool;
   semgrepignore_filename: string option;
   always_select_explicit_targets: bool;
-  explicit_targets: string list (** *);
-  force_project_root: project_root option (** *);
+  explicit_targets: string list
+    (** This is a hash table in Find_targets.conf *);
+  force_project_root: project_root option
+    (**
+      osemgrep-only option (is it still the case?) (see Git_project.ml and
+      the force_root parameter)
+    *);
   force_novcs_project: bool;
   exclude_minified_files: bool;
   baseline_commit: string option
@@ -861,17 +1136,33 @@ type fppath = Semgrep_output_v1_t.fppath = { fpath: fpath; ppath: ppath }
 (** *)
 type analyzer = Semgrep_output_v1_t.analyzer [@@deriving show]
 
-(** *)
+(**
+  A normal semgrep target, optionally with an associated \[lockfile\] The
+  lockfile means: the code in this file has its dependencies specified by
+  this lockfile We don't want to commit to a specific way of associating
+  these in semgrep-core, so we leave it up to the caller (pysemgrep or
+  osemgrep) to do it.
+*)
 type code_target = Semgrep_output_v1_t.code_target = {
-  path: fppath;
-  analyzer: analyzer (** *);
+  path: fppath (** source file *);
+  analyzer: analyzer
+    (**
+      Must be a valid target analyzer as defined in Analyzer.mli. examples:
+      "ocaml", "python", but also "spacegrep" or "regexp".
+    *);
   products: product list;
   dependency_source: dependency_source option
 }
   [@@deriving show]
 
-(** *)
-type target = Semgrep_output_v1_t.target [@@deriving show]
+(**
+  A target can either be a traditional code target (now with optional
+  associated lockfile) or it can be a lockfile target, which will be used to
+  generate lockfile-only findings. Currently *ALL TARGETS FROM PYSEMGREP ARE
+  CODETARGETS*
+*)
+type target = Semgrep_output_v1_t.target
+  [@@deriving show]
 
 type scanning_roots = Semgrep_output_v1_t.scanning_roots = {
   root_paths: fpath list;
@@ -879,15 +1170,26 @@ type scanning_roots = Semgrep_output_v1_t.scanning_roots = {
 }
   [@@deriving show]
 
-(** *)
-type targets = Semgrep_output_v1_t.targets [@@deriving show]
+(**
+  The same path can be present multiple times in targets below, with
+  different languages each time, so a Python file can be both analyzed with
+  Python rules, but also with generic/regexp rules.
+  
+  alt: we could have a list of languages instead in target above, but because
+  of the way semgrep-core is designed (with its file_and_more type), you
+  could have at most one PL language, and then possibly "generic" and
+  "regexp".
+*)
+type targets = Semgrep_output_v1_t.targets
+  [@@deriving show]
 
 type target_times = Semgrep_output_v1_t.target_times = {
   path: fpath;
   num_bytes: int;
-  match_times: float list (** *);
-  parse_times: float list (** *);
-  run_time: float (** *)
+  match_times: float list
+    (** each elt in the list refers to a rule in profile.rules *);
+  parse_times: float list;
+  run_time: float (** run time for all rules on target *)
 }
 
 (**
@@ -1014,7 +1316,7 @@ v}
 type error_severity = Semgrep_output_v1_t.error_severity
   [@@deriving show, eq]
 
-(** *)
+(** See Semgrep_error_code.ml *)
 type core_error = Semgrep_output_v1_t.core_error = {
   error_type: error_type;
   severity: error_severity;
@@ -1049,22 +1351,25 @@ type def_rule_time = Semgrep_output_v1_t.def_rule_time = {
 }
   [@@deriving show]
 
-(** *)
+(** EXPERIMENTAL *)
 type tainting_time = Semgrep_output_v1_t.tainting_time = {
   total_time: float;
   per_def_and_rule_time: summary_stats;
   very_slow_stats: very_slow_stats;
-  very_slow_rules_on_defs: def_rule_time list (** *)
+  very_slow_rules_on_defs: def_rule_time list (** ascending order *)
 }
 
-(** *)
+(** e.g. "webapp" *)
 type tag = Semgrep_output_v1_t.tag
 
-(** *)
+(** A symbol is a FQN. *)
 type symbol = Semgrep_output_v1_t.symbol = { fqn: string list }
   [@@deriving show]
 
-(** *)
+(**
+  We store the location of the usage, because we may want to be able to know
+  how many uses of the symbol there are, and where.
+*)
 type symbol_usage = Semgrep_output_v1_t.symbol_usage = {
   symbol: symbol;
   locs: location list
@@ -1073,7 +1378,7 @@ type symbol_usage = Semgrep_output_v1_t.symbol_usage = {
 
 type symbol_analysis_upload_response =
   Semgrep_output_v1_t.symbol_analysis_upload_response = {
-  upload_url: uri (** *)
+  upload_url: uri (** Presigned AWS URL for uploading symbol analysis data *)
 }
 
 type symbol_analysis = Semgrep_output_v1_t.symbol_analysis [@@deriving show]
@@ -1098,11 +1403,25 @@ type dependency_resolution_stats =
 }
 
 type subproject_stats = Semgrep_output_v1_t.subproject_stats = {
-  subproject_id: string (** *);
-  dependency_sources: dependency_source_file list (** *);
-  resolved_stats: dependency_resolution_stats option (** *);
-  unresolved_reason: unresolved_reason option (** *);
-  errors: sca_error list (** *)
+  subproject_id: string
+    (**
+      The [subproject_id] is derived as a stable hash of the sorted paths of
+      [dependency_source_file]s. Any change to the set of dependency sources
+      (addition, removal, or modification) results in a new [subproject_id],
+      as different dependency sources indicate a different subproject
+      context.
+    *);
+  dependency_sources: dependency_source_file list
+    (**
+      Files used to determine the subproject's dependencies (lockfiles,
+      manifest files, etc
+    *);
+  resolved_stats: dependency_resolution_stats option
+    (** Results of dependency resolution, empty if resolution failed *);
+  unresolved_reason: unresolved_reason option
+    (** Reason why resolution failed, empty if resolution succeeded *);
+  errors: sca_error list
+    (** Errors encountered during subproject resolution *)
 }
 
 type supply_chain_stats = Semgrep_output_v1_t.supply_chain_stats = {
@@ -1135,105 +1454,184 @@ type scanned_and_skipped = Semgrep_output_v1_t.scanned_and_skipped = {
   skipped: skipped_target list option
 }
 
+(** meta info about the scan *)
 type scan_info = Semgrep_output_v1_t.scan_info = {
-  id: int option (** *);
+  id: int option (** the scan id, null for dry-runs *);
   enabled_products: product list;
   deployment_id: int;
   deployment_name: string
 }
 
-(** *)
+(** config specific to the scan *)
 type scan_configuration = Semgrep_output_v1_t.scan_configuration = {
   rules: raw_json;
   triage_ignored_syntactic_ids: string list;
-  triage_ignored_match_based_ids: string list (** *);
-  project_merge_base: sha1 option (** *);
-  fips_mode: bool (** *)
+  triage_ignored_match_based_ids: string list;
+  project_merge_base: sha1 option
+    (** From 1.131.0, tells us what merge base to use if it's a diff scan *);
+  fips_mode: bool
+    (**
+      From 1.126.0. Customers in FIPS environments have specific hash
+      function requirements that this flag will override. See SAF-2057 for
+      details.
+    *)
 }
 
 type glob = Semgrep_output_v1_t.glob
 
-(** *)
 type product_ignored_files = Semgrep_output_v1_t.product_ignored_files
 
-(** *)
+(**
+  configuration for scanning version control history, e.g., looking back at
+  past git commits for committed credentials which may have been removed
+*)
 type historical_configuration =
   Semgrep_output_v1_t.historical_configuration = {
   enabled: bool;
   lookback_days: int option
 }
 
+(** settings for the cli *)
 type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
-  path_to_transitivity: bool (** *);
-  scan_all_deps_in_diff_scan: bool (** *);
-  symbol_analysis: bool (** *);
-  transitive_reachability_enabled: bool;
-  ignored_files: string list (** *);
-  product_ignored_files: product_ignored_files option (** *);
-  generic_slow_rollout: bool (** *);
-  historical_config: historical_configuration option (** *);
-  always_suppress_errors: bool (** *)
+  path_to_transitivity: bool (** a.k.a. dependency path *);
+  scan_all_deps_in_diff_scan: bool
+    (**
+      normally we resolve dependencies for changed subprojects only in diff
+      scans. This flag causes all subprojects to be resolved in diff scans
+    *);
+  symbol_analysis: bool
+    (**
+      Whether to collect "symbol analysis" info from the repo being scanned
+      See
+      https://www.notion.so/semgrep/Semgrep-Code-Reconnaissance-Toolbox-18a3009241a880f2a439eed6b2cffe66?pvs=4
+    *);
+  transitive_reachability_enabled: bool
+    (**
+      Whether to enable transitive reachability analysis for SCA findings
+    *);
+  ignored_files: string list;
+  product_ignored_files: product_ignored_files option (** from 1.71.0 *);
+  generic_slow_rollout: bool
+    (** for features we only want to turn on for select customers *);
+  historical_config: historical_configuration option (** from 1.63.0 *);
+  always_suppress_errors: bool
+    (**
+      from 1.93. Indicate that fail-open should always be enabled, overriding
+      the CLI flag.
+    *)
 }
 
-(** *)
+(** Response from the backend to the CLI to the POST /api/cli/scans *)
 type scan_response = Semgrep_output_v1_t.scan_response = {
   info: scan_info;
   config: scan_configuration;
   engine_params: engine_configuration
 }
 
-(** *)
+(** Scan metadata generated by the CLI during the scan process. *)
 type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
   cli_version: version;
-  unique_id: uuid (** *);
+  unique_id: uuid (** client generated uuid for the scan *);
   requested_products: product list;
-  dry_run: bool (** *);
-  sms_scan_id: string option (** *);
+  dry_run: bool (** since 1.47.0 *);
+  sms_scan_id: string option
+    (**
+      unique id associated with the scan in Semgrep Managed Scanning. Since
+      1.96.0
+    *);
   ecosystems: string list;
   packages: string list
 }
 
-(** *)
+(**
+  Collect information about a project from the environment, filesystem, git
+  repo, etc. See also semgrep_metrics.atd and PRIVACY.md
+*)
 type project_metadata = Semgrep_output_v1_t.project_metadata = {
-  scan_environment: string (** *);
-  repository: string (** *);
+  scan_environment: string (** TODO: use enum with [<json name="...">] *);
+  repository: string;
   repo_url: uri option;
-  repo_id: string option (** *);
-  org_id: string option (** *);
-  repo_display_name: string option (** *);
-  branch: string option (** *);
+  repo_id: string option
+    (**
+      The two fields below are stable across repository renaming and even org
+      renaming, which can be useful to not report new findings on a repo just
+      because this repo was renamed. Since Semgrep 1.46.0. The string is
+      usually an int, but more general to use a string.
+    *);
+  org_id: string option (** a.k.a repository owner id *);
+  repo_display_name: string option
+    (**
+      Users can set a different name for display and for PR comments. This
+      allows monorepos to be scanned as separate projects.
+    *);
+  branch: string option;
   commit: sha1 option;
   commit_title: string option;
-  commit_timestamp: datetime option (** *);
+  commit_timestamp: datetime option (** since 1.38.0 *);
   commit_author_email: string option;
   commit_author_name: string option;
   commit_author_username: string option;
   commit_author_image_url: uri option;
   ci_job_url: uri option;
-  on: string (** *);
+  on: string
+    (**
+      CI event name
+      ("pull_request"|"pull_request_target"|"push"|"unknown"|...)
+      
+      TODO: use enum
+    *);
   pull_request_author_username: string option;
   pull_request_author_image_url: uri option;
   pull_request_id: string option;
   pull_request_title: string option;
-  base_branch_head_commit: sha1 option (** *);
-  base_sha: sha1 option (** *);
-  start_sha: sha1 option (** *);
-  is_full_scan: bool (** *);
-  is_sca_scan: bool option (** *);
-  is_code_scan: bool option (** *);
-  is_secrets_scan: bool option (** *);
-  project_id: string option (** *)
+  base_branch_head_commit: sha1 option
+    (**
+      the latest commit in the base branch of a PR, used to determine the git
+      merge base on the app side if needed. This should really be called
+      base_sha but that term is already misused below for something that's
+      gitlab only
+    *);
+  base_sha: sha1 option
+    (**
+      This is gitlab only, and is actually only the baseline commit sha if
+      provided, OR it's the git merge-base if not provided. It is NOT the
+      head commit of the base branch
+    *);
+  start_sha: sha1 option
+    (**
+      this is CI_MERGE_REQUEST_DIFF_BASE_SHA which is strictly the git merge
+      base
+    *);
+  is_full_scan: bool
+    (**
+      Check if the current Git repository has enough to determine the
+      merge_base_ref.
+    *);
+  is_sca_scan: bool option (** added later in ci.py (not from meta.py) *);
+  is_code_scan: bool option (** since 1.40.0 *);
+  is_secrets_scan: bool option (** since 1.41.0 *);
+  project_id: string option
+    (** Identifies a semgrep project where findings belong to. *)
 }
 
+(**
+  Content of a possible .semgrepconfig.yml in the repository.
+  
+  This config allows to configure Semgrep per repo, e.g., to store a
+  category/tag like "webapp" in a repo so that the Semgrep WebApp can return
+  a set of relevant rules automatically for this repo in scan_config later
+  when given this ci_config_from_repo in the scan_request.
+*)
 type ci_config_from_repo = Semgrep_output_v1_t.ci_config_from_repo = {
-  version: version (** *);
+  version: version
+    (** version of the .semgrepconfig.yml format. "v1" right now (useful?) *);
   tags: tag list option
 }
 
-(** *)
+(** Sent by the CLI to the POST /api/cli/scans to create a scan. *)
 type scan_request = Semgrep_output_v1_t.scan_request = {
   project_metadata: project_metadata;
   scan_metadata: scan_metadata;
@@ -1242,53 +1640,108 @@ type scan_request = Semgrep_output_v1_t.scan_request = {
 
 type ci_env = Semgrep_output_v1_t.ci_env
 
-(** *)
+(**
+  Note that we should use very simple types below for the configuration of
+  Semgrep: booleans or small enums. No int, as people often don't understand
+  how to set values. For example even if we documented very well the
+  --timeout option in Semgrep, people still didn't know which value to use.
+*)
 type ci_config = Semgrep_output_v1_t.ci_config = {
-  env: ci_env (** *);
+  env: ci_env
+    (**
+      to override environment variables, as lots of the configuration of
+      'semgrep ci' comes from environment variables (e.g., SEMGREP_REPO_URL)
+    *);
   enabled_products: product list;
-  ignored_files: string list (** *);
+  ignored_files: string list (** glob patterns *);
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
-  path_to_transitivity: bool (** *);
-  scan_all_deps_in_diff_scan: bool (** *);
-  symbol_analysis: bool (** *);
+  path_to_transitivity: bool (** a.k.a. dependency path *);
+  scan_all_deps_in_diff_scan: bool
+    (**
+      normally we resolve dependencies for changed subprojects only in diff
+      scans. This flag causes all subprojects to be resolved in diff scans
+    *);
+  symbol_analysis: bool
+    (**
+      Whether to collect "symbol analysis" info from the repo being scanned
+      See
+      https://www.notion.so/semgrep/Semgrep-Code-Reconnaissance-Toolbox-18a3009241a880f2a439eed6b2cffe66?pvs=4
+    *);
   transitive_reachability_enabled: bool
+    (**
+      Whether to enable transitive reachability analysis for SCA findings
+    *)
 }
 
+(**
+  The actions below allow the WebApp to modify the behavior of the CLI
+  dynamically, which is especially useful for old versions of the CLI (e.g.,
+  insist on the deprecation of an old version of the CLI). The action below
+  will be executed by the CLI just after receiving the scan configuration.
+  It's a bit similar to injecting code dynamically, except the possible
+  actions are clearly delimited here (this is not eval()).
+  
+  Note that the version of the CLI is sent to the WebApp in project_metadata
+  so the backend has all the necessary information to send back an
+  appropriate action depending on the CLI version.
+*)
 type action = Semgrep_output_v1_t.action
 
-(** *)
+(** Semgrep config from the WebApp *)
 type ci_config_from_cloud = Semgrep_output_v1_t.ci_config_from_cloud = {
   repo_config: ci_config;
   org_config: ci_config option;
-  dirs_config: (fpath * ci_config) list option (** *);
+  dirs_config: (fpath * ci_config) list option
+    (** for monorepos, to be "monorepo-friendly" like they say in Ruff *);
   actions: action list
 }
 
-(** *)
+(**
+  Response by the backend to the CLI to the POST deployments/scans/config The
+  record is similar to scan_response.
+*)
 type scan_config = Semgrep_output_v1_t.scan_config = {
   deployment_id: int;
   deployment_name: string;
-  policy_names: string list (** *);
-  rule_config: string (** *);
+  policy_names: string list (** e.g. "audit", "comment", "block" *);
+  rule_config: string
+    (** rules raw content in JSON format (but still sent as a string) *);
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
-  path_to_transitivity: bool (** *);
-  scan_all_deps_in_diff_scan: bool (** *);
-  symbol_analysis: bool (** *);
-  transitive_reachability_enabled: bool;
+  path_to_transitivity: bool (** a.k.a. dependency path *);
+  scan_all_deps_in_diff_scan: bool
+    (**
+      normally we resolve dependencies for changed subprojects only in diff
+      scans. This flag causes all subprojects to be resolved in diff scans
+    *);
+  symbol_analysis: bool
+    (**
+      Whether to collect "symbol analysis" info from the repo being scanned
+      See
+      https://www.notion.so/semgrep/Semgrep-Code-Reconnaissance-Toolbox-18a3009241a880f2a439eed6b2cffe66?pvs=4
+    *);
+  transitive_reachability_enabled: bool
+    (**
+      Whether to enable transitive reachability analysis for SCA findings
+    *);
   triage_ignored_syntactic_ids: string list;
-  triage_ignored_match_based_ids: string list (** *);
-  ignored_files: string list (** *);
-  enabled_products: product list option (** *);
-  actions: action list (** *);
-  ci_config_from_cloud: ci_config_from_cloud option (** *)
+  triage_ignored_match_based_ids: string list;
+  ignored_files: string list (** glob patterns *);
+  enabled_products: product list option (** since 1.37.0 *);
+  actions: action list (** since 1.64.0 *);
+  ci_config_from_cloud: ci_config_from_cloud option
+    (** since 1.47.0 but not created by the backend (nor used by the CLI) *)
 }
 
 type sarif_format = Semgrep_output_v1_t.sarif_format = {
-  rules: fpath (** *);
+  rules: fpath
+    (**
+      Path to the rules file. We need it because rules can't be reconstructed
+      from cli_output (which is one of the other param of CallSarifFormat)
+    *);
   is_pro: bool;
   show_dataflow_traces: bool
 }
@@ -1297,13 +1750,24 @@ type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving ord, show]
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
 
-(** *)
+(** A subproject plus its resolved set of dependencies *)
 type resolved_subproject = Semgrep_output_v1_t.resolved_subproject = {
   info: subproject;
-  resolution_method: resolution_method (** *);
-  ecosystem: ecosystem (** *);
+  resolution_method: resolution_method
+    (**
+      The resolution method is how we determined the dependencies from the
+      dependency source. This might be lockfile parsing, dependency
+      resolution, SBOM ingest, or something else.
+    *);
+  ecosystem: ecosystem
+    (** should be similar to info.ecosystem but this time it can't be None *);
   resolved_dependencies: (dependency_child * resolved_dependency list) list
-    (** *);
+    (**
+      We use this mapping to efficiently find child dependencies from a
+      FoundDependency. We need to store multiple FoundDependencies per
+      package/version pair because a package might come from multiple places
+      in a lockfile
+    *);
   errors: sca_error list
 }
 
@@ -1311,25 +1775,58 @@ type resolve_dependencies_params =
   Semgrep_output_v1_t.resolve_dependencies_params = {
   dependency_sources: dependency_source list;
   download_dependency_source_code: bool;
-  allow_local_builds: bool (** *)
+  allow_local_builds: bool
+    (** whether to allow executing package manager commands *)
 }
 
+(**
+  Resolution can either succeed or fail, but in either case errors can be
+  produced (e.g. one resolution method might fail while a worse one succeeds,
+  lockfile parsing might partially fail but recover and still produce
+  results).
+  
+  Resolution can optionally include a [downloaded_dependency] alongside each
+  [found_dependency]. This should be included if the source code for the
+  dependency was downloaded and is available to scan later.
+*)
 type resolution_result = Semgrep_output_v1_t.resolution_result
 
-(** *)
+(**
+  Profiling info obtained from the OCaml executable, to be aggregated further
+  in pysemgrep.
+*)
 type profiling_entry = Semgrep_output_v1_t.profiling_entry = {
-  name: string;
-  total_time: float (** *);
-  count: int (** *)
+  name: string
+    (**
+      The name given to piece of code for which we measured how long it took.
+    *);
+  total_time: float
+    (** Total clock time in seconds. Divide by the count to get the mean. *);
+  count: int
 }
 
 type prefiltering_stats = Semgrep_output_v1_t.prefiltering_stats = {
-  project_level_time: float (** *);
-  file_level_time: float (** *);
-  rules_with_project_prefilters_ratio: float (** *);
-  rules_with_file_prefilters_ratio: float (** *);
-  rules_selected_ratio: float (** *);
-  rules_matched_ratio: float (** *)
+  project_level_time: float
+    (** The time (seconds) it took to execute project-level prefilters *);
+  file_level_time: float
+    (** The time (seconds) it took to execute file-level prefilters *);
+  rules_with_project_prefilters_ratio: float
+    (**
+      The ratio of rules which the engine generated a project-level prefilter
+      for
+    *);
+  rules_with_file_prefilters_ratio: float
+    (**
+      The ratio of rules which the engine generated a file-level prefilter
+      for
+    *);
+  rules_selected_ratio: float
+    (**
+      The ratio of rules which executed beyond prefiltering on at least one
+      target
+    *);
+  rules_matched_ratio: float
+    (** The ratio of rules which generated at least one match *)
 }
   [@@deriving show]
 
@@ -1349,7 +1846,7 @@ type file_rule_time = Semgrep_output_v1_t.file_rule_time = {
 }
   [@@deriving show]
 
-(** *)
+(** EXPERIMENTAL *)
 type matching_time = Semgrep_output_v1_t.matching_time = {
   total_time: float;
   per_file_and_rule_time: summary_stats;
@@ -1402,11 +1899,24 @@ type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
   num_bytes: int
 }
 
+(**
+  The goal is to hash findings independently of their precise location so if
+  a file is moved around or the line numbers change in a file, we do not
+  report new findings but instead detect that the finding actually hashes to
+  a previous old finding. See also match_based_id which is yet another way to
+  hash a finding. See also
+  https://www.notion.so/semgrep/Identifying-unique-findings-match_based_id-and-syntactic_id
+*)
 type finding_hashes = Semgrep_output_v1_t.finding_hashes = {
   start_line_hash: string;
   end_line_hash: string;
-  code_hash: string (** *);
-  pattern_hash: string (** *)
+  code_hash: string
+    (**
+      hash of the syntactic_context/code contents from start_line through
+      end_line
+    *);
+  pattern_hash: string
+    (** hash of the rule pattern with metavariables substituted in *)
 }
 
 type finding = Semgrep_output_v1_t.finding = {
@@ -1417,20 +1927,28 @@ type finding = Semgrep_output_v1_t.finding = {
   end_line: int;
   end_column: int;
   message: string;
-  severity: Yojson.Safe.t (** *);
+  severity: Yojson.Safe.t
+    (**
+      int|string until minimum version exceeds 1.32.0. After 1.32.0 we're
+      always using an int.
+    *);
   index: int;
   commit_date: string;
   syntactic_id: string;
-  match_based_id: string option (** *);
-  hashes: finding_hashes option (** *);
-  metadata: raw_json (** *);
+  match_based_id: string option
+    (** since semgrep 0.98 TODO: use match_based_id option *);
+  hashes: finding_hashes option (** since semgrep 1.14.0 *);
+  metadata: raw_json (** metadata from the rule *);
   is_blocking: bool;
   fixed_lines: string list option;
   sca_info: sca_match option;
-  dataflow_trace: match_dataflow_trace option (** *);
-  validation_state: validation_state option (** *);
-  historical_info: historical_info option (** *);
-  engine_kind: engine_of_finding option (** *)
+  dataflow_trace: match_dataflow_trace option
+    (** Note that this contains code! *);
+  validation_state: validation_state option
+    (** Added in semgrep 1.39.0 see comments in cli_match_extra *);
+  historical_info: historical_info option
+    (** Added in semgrep 1.65.0 see comments in cli_match_extra *);
+  engine_kind: engine_of_finding option (** Added in semgrep 1.70.0 *)
 }
 
 type error_span = Semgrep_output_v1_t.error_span = {
@@ -1450,7 +1968,7 @@ type error_span = Semgrep_output_v1_t.error_span = {
   context_end: position option option
 }
 
-(** *)
+(** See https://semgrep.dev/docs/usage-limits *)
 type contributor = Semgrep_output_v1_t.contributor = {
   commit_author_name: string;
   commit_author_email: string
@@ -1462,7 +1980,10 @@ type contribution = Semgrep_output_v1_t.contribution = {
   contributor: contributor
 }
 
-(** *)
+(**
+  We keep this alias because we need to generate code to parse and write list
+  of contributions.
+*)
 type contributions = Semgrep_output_v1_t.contributions
 
 (** (called SemgrepError in error.py) *)
@@ -1487,12 +2008,15 @@ type cli_error = Semgrep_output_v1_t.cli_error = {
   help: string option
 }
 
-(** *)
+(**
+  Scan metadata populated by the backend after receiving the scan results
+  from the CLI via POST request to /scans/<int:scan_id>/results
+*)
 type ci_scan_metadata = Semgrep_output_v1_t.ci_scan_metadata = {
   scan_id: int;
   deployment_id: int;
-  repository_id: int (** *);
-  repository_ref_id: int (** *);
+  repository_id: int (** stored as int in our app db *);
+  repository_ref_id: int (** stored id for a branch or tag *);
   enabled_products: product list;
   git_commit: sha1 option;
   git_ref: string option
@@ -1507,12 +2031,20 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   searched_paths: fpath list;
   renamed_paths: fpath list;
   rule_ids: rule_id list;
-  contributions: contributions option (** *);
-  dependencies: ci_scan_dependencies option (** *);
-  metadata: ci_scan_metadata option (** *)
+  contributions: contributions option (** since semgrep 1.34.0 *);
+  dependencies: ci_scan_dependencies option
+    (**
+      since semgrep 1.38.0. This data was originally sent to /complete, but
+      we want to start sending it to /results
+    *);
+  metadata: ci_scan_metadata option
+    (**
+      filled in by the backend to associate scan results with the driving
+      scan
+    *)
 }
 
-(** *)
+(** Sent by the CLI to /scans/<scan_id>/error *)
 type ci_scan_failure = Semgrep_output_v1_t.ci_scan_failure = {
   exit_code: int;
   stderr: string
@@ -1525,21 +2057,41 @@ type ci_scan_complete_stats = Semgrep_output_v1_t.ci_scan_complete_stats = {
   unsupported_exts: (string * int) list;
   lockfile_scan_info: (string * int) list;
   parse_rate: (string * parsing_stats) list;
-  engine_requested: string option (** *);
-  findings_by_product: (string * int) list option (** *);
-  supply_chain_stats: supply_chain_stats option (** *)
+  engine_requested: string option
+    (**
+      This is EngineType from python, which is different from engine_kind
+      used in this file.
+    *);
+  findings_by_product: (string * int) list option
+    (**
+      Mirrors numFindingsByProduct in metrics.py See PA-3312 and GROW-104.
+      
+      NOTE: As of 1.56.0 the string used as the mapping key is currently a
+      human-readable product name (i.e. code) vs our typed product enum
+      representation (i.e. sast).
+    *);
+  supply_chain_stats: supply_chain_stats option
+    (**
+      since 1.98.0.
+      
+      In collaboration with the Data Science team, it was suggested that we
+      start to group stats by product for organizational purposes.
+      
+      This field will only be defined for SCA scans.
+    *)
 }
 
+(** Sent by the CLI to /complete *)
 type ci_scan_complete = Semgrep_output_v1_t.ci_scan_complete = {
   exit_code: int;
   stats: ci_scan_complete_stats;
-  dependencies: ci_scan_dependencies option (** *);
-  dependency_parser_errors: dependency_parser_error list option (** *);
-  task_id: string option (** *);
+  dependencies: ci_scan_dependencies option;
+  dependency_parser_errors: dependency_parser_error list option;
+  task_id: string option (** since 1.31.0 *);
   final_attempt: bool option
 }
 
-(** *)
+(** Partial scans. Experimental and for internal use only. *)
 type partial_scan_result = Semgrep_output_v1_t.partial_scan_result
 
 type output_format = Semgrep_output_v1_t.output_format = 
@@ -1551,8 +2103,12 @@ type output_format = Semgrep_output_v1_t.output_format =
   | Gitlab_sast
   | Gitlab_secrets
   | Junit_xml
-  | Files_with_matches (** *)
-  | Incremental (** *)
+  | Files_with_matches (** osemgrep-only *)
+  | Incremental
+      (**
+        used to disable the final display of match results because we
+        displayed them incrementally instead
+      *)
 
   [@@deriving show]
 
@@ -1565,7 +2121,7 @@ type mcp_scan_results = Semgrep_output_v1_t.mcp_scan_results = {
 type match_based_id = Semgrep_output_v1_t.match_based_id
   [@@deriving show, eq]
 
-(** *)
+(** whether a certain feature is available for a deployment *)
 type has_features = Semgrep_output_v1_t.has_features = {
   has_autofix: bool;
   has_deepsemgrep: bool;
@@ -1574,8 +2130,13 @@ type has_features = Semgrep_output_v1_t.has_features = {
 }
 
 type apply_fixes_return = Semgrep_output_v1_t.apply_fixes_return = {
-  modified_file_count: int (** *);
-  fixed_lines: (int * string list) list (** *)
+  modified_file_count: int (** Number of files modified *);
+  fixed_lines: (int * string list) list
+    (**
+      Each item is a pair, where the first item is the index of the
+      associated edit in the input list and the second item is the list of
+      fixed lines associated with that edit.
+    *)
 }
 
 type function_return = Semgrep_output_v1_t.function_return
@@ -1607,29 +2168,65 @@ type dump_rule_partitions_params =
   strategy: string option
 }
 
-(** *)
+(**
+  This is the public version of subproject_stats, which is used in the CLI
+  output. This is distinguised from subproject_stats below in order to
+  produce more normal-looking JSON and to avoid including unnecessary fields.
+*)
 type cli_output_subproject_info =
   Semgrep_output_v1_t.cli_output_subproject_info = {
-  dependency_sources: fpath list (** *);
-  resolved: bool (** *);
-  unresolved_reason: unresolved_reason option (** *);
-  resolved_stats: dependency_resolution_stats option (** *)
+  dependency_sources: fpath list
+    (**
+      We use fpath here rather than the dependency_source_file type because
+      ATD makes strange-looking JSON output for the dependency_source_file
+      type.
+    *);
+  resolved: bool
+    (** true if the subproject's dependencies were resolved successfully *);
+  unresolved_reason: unresolved_reason option
+    (** Reason why resolution failed, empty if resolution succeeded *);
+  resolved_stats: dependency_resolution_stats option
+    (** Results of dependency resolution, empty if resolution failed *)
 }
 
 type cli_output = Semgrep_output_v1_t.cli_output = {
-  version: version option (** *);
+  version: version option (** since: 0.92 *);
   results: cli_match list;
   errors: cli_error list;
-  paths: scanned_and_skipped (** *);
-  time: profile option (** *);
-  explanations: matching_explanation list option (** *);
-  rules_by_engine: rule_id_and_engine_kind list option (** *);
+  paths: scanned_and_skipped (** targeting information *);
+  time: profile option (** profiling information *);
+  explanations: matching_explanation list option
+    (**
+      debugging (rule writing) information. Note that as opposed to the
+      dataflow trace, the explanations are not embedded inside a match
+      because we give also explanations when things are not matching.
+      EXPERIMENTAL: since semgrep 0.109
+    *);
+  rules_by_engine: rule_id_and_engine_kind list option
+    (**
+      These rules, classified by engine used, will let us be transparent in
+      the CLI output over what rules were run with what. EXPERIMENTAL: since:
+      1.11.0
+    *);
   engine_requested: engine_kind option;
-  interfile_languages_used: string list option (** *);
-  skipped_rules: skipped_rule list (** *);
-  subprojects: cli_output_subproject_info list option (** *);
-  mcp_scan_results: mcp_scan_results option (** *);
-  profiling_results: profiling_entry list (** *)
+  interfile_languages_used: string list option
+    (**
+      Reporting just the requested engine isn't granular enough. We want to
+      know what languages had rules that invoked interfile. This is
+      particularly important for tracking the performance impact of new
+      interfile languages EXPERIMENTAL: since 1.49.0
+    *);
+  skipped_rules: skipped_rule list (** EXPERIMENTAL: since: 1.37.0 *);
+  subprojects: cli_output_subproject_info list option
+    (**
+      SCA subproject resolution results. Note: this is only available when
+      logged in. EXPERIMENTAL: since: 1.125.0
+    *);
+  mcp_scan_results: mcp_scan_results option (** MCP scan results. *);
+  profiling_results: profiling_entry list
+    (**
+      How long it took to execute this or that piece of code in semgrep-core
+    *)
 }
 
 type apply_fixes_params = Semgrep_output_v1_t.apply_fixes_params = {
@@ -1643,17 +2240,32 @@ type features = Semgrep_output_v1_t.features = {
   autofix: bool;
   deepsemgrep: bool;
   dependency_query: bool;
-  path_to_transitivity: bool (** *);
-  scan_all_deps_in_diff_scan: bool (** *);
-  symbol_analysis: bool (** *);
+  path_to_transitivity: bool (** a.k.a. dependency path *);
+  scan_all_deps_in_diff_scan: bool
+    (**
+      normally we resolve dependencies for changed subprojects only in diff
+      scans. This flag causes all subprojects to be resolved in diff scans
+    *);
+  symbol_analysis: bool
+    (**
+      Whether to collect "symbol analysis" info from the repo being scanned
+      See
+      https://www.notion.so/semgrep/Semgrep-Code-Reconnaissance-Toolbox-18a3009241a880f2a439eed6b2cffe66?pvs=4
+    *);
   transitive_reachability_enabled: bool
+    (**
+      Whether to enable transitive reachability analysis for SCA findings
+    *)
 }
 
-(** *)
+(**
+  Synthesizing from diffs (see locate_patched_functions in Synthesizing.mli).
+  Was in Input_to_core.atd before.
+*)
 type diff_file = Semgrep_output_v1_t.diff_file = {
   filename: fpath;
-  diffs: string list (** *);
-  url: string (** *)
+  diffs: string list (** start_line-end_line *);
+  url: string (** metadata to help SCA rule generation *)
 }
   [@@deriving show]
 
@@ -1662,16 +2274,24 @@ type diff_files = Semgrep_output_v1_t.diff_files = {
 }
   [@@deriving show]
 
-(** *)
+(**
+  Response by the backend to the CLI to the POST
+  api/agent/deployments/current. Some of the information in deployment_config
+  is now returned directly in scan_response (e.g., the deployment_name)
+*)
 type deployment_config = Semgrep_output_v1_t.deployment_config = {
   id: int;
-  name: string (** *);
+  name: string
+    (** the important piece, the deployment name (e.g., "returntocorp") *);
   organization_id: int;
-  display_name: string (** *);
+  display_name: string
+    (**
+      All three below seem similar to 'name' mostly (e.g., "returntocorp")
+    *);
   scm_name: string;
   slug: string;
-  source_type: string (** *);
-  default_user_role: string (** *);
+  source_type: string (** e.g. "github" *);
+  default_user_role: string (** e.g. "member" *);
   has_autofix: bool;
   has_deepsemgrep: bool;
   has_triage_via_comment: bool;
@@ -1683,39 +2303,91 @@ type deployment_response = Semgrep_output_v1_t.deployment_response = {
   deployment: deployment_config
 }
 
-(** *)
+(**
+  For extra information to put into the `core_output` that we do not
+  necessarily want to share with the cli_output.
+*)
 type core_output_extra = Semgrep_output_v1_t.core_output_extra = {
-  symbol_analysis: symbol_analysis option (** *)
+  symbol_analysis: symbol_analysis option (** since semgrep 1.108.0 *)
 }
 
 type core_output = Semgrep_output_v1_t.core_output = {
   version: version;
   results: core_match list;
-  errors: core_error list (** *);
-  paths: scanned_and_skipped (** *);
-  time: profile option (** *);
-  explanations: matching_explanation list option (** *);
-  rules_by_engine: rule_id_and_engine_kind list option (** *);
+  errors: core_error list
+    (** errors are guaranteed to be duplicate free; see also Report.ml *);
+  paths: scanned_and_skipped (** targeting information *);
+  time: profile option (** profiling information *);
+  explanations: matching_explanation list option
+    (**
+      debugging (rule writing) information. Note that as opposed to the
+      dataflow trace, the explanations are not embedded inside a match
+      because we give also explanations when things are not matching.
+      EXPERIMENTAL: since semgrep 0.109
+    *);
+  rules_by_engine: rule_id_and_engine_kind list option
+    (**
+      These rules, classified by engine used, will let us be transparent in
+      the CLI output over what rules were run with what. EXPERIMENTAL: since:
+      1.11.0
+    *);
   engine_requested: engine_kind option;
-  interfile_languages_used: string list option (** *);
-  skipped_rules: skipped_rule list (** *);
-  subprojects: cli_output_subproject_info list option (** *);
-  mcp_scan_results: mcp_scan_results option (** *);
-  profiling_results: profiling_entry list (** *);
-  symbol_analysis: symbol_analysis option (** *)
+  interfile_languages_used: string list option
+    (**
+      Reporting just the requested engine isn't granular enough. We want to
+      know what languages had rules that invoked interfile. This is
+      particularly important for tracking the performance impact of new
+      interfile languages EXPERIMENTAL: since 1.49.0
+    *);
+  skipped_rules: skipped_rule list (** EXPERIMENTAL: since: 1.37.0 *);
+  subprojects: cli_output_subproject_info list option
+    (**
+      SCA subproject resolution results. Note: this is only available when
+      logged in. EXPERIMENTAL: since: 1.125.0
+    *);
+  mcp_scan_results: mcp_scan_results option (** MCP scan results. *);
+  profiling_results: profiling_entry list
+    (**
+      How long it took to execute this or that piece of code in semgrep-core
+    *);
+  symbol_analysis: symbol_analysis option (** since semgrep 1.108.0 *)
 }
 
 type cli_output_extra = Semgrep_output_v1_t.cli_output_extra = {
-  paths: scanned_and_skipped (** *);
-  time: profile option (** *);
-  explanations: matching_explanation list option (** *);
-  rules_by_engine: rule_id_and_engine_kind list option (** *);
+  paths: scanned_and_skipped (** targeting information *);
+  time: profile option (** profiling information *);
+  explanations: matching_explanation list option
+    (**
+      debugging (rule writing) information. Note that as opposed to the
+      dataflow trace, the explanations are not embedded inside a match
+      because we give also explanations when things are not matching.
+      EXPERIMENTAL: since semgrep 0.109
+    *);
+  rules_by_engine: rule_id_and_engine_kind list option
+    (**
+      These rules, classified by engine used, will let us be transparent in
+      the CLI output over what rules were run with what. EXPERIMENTAL: since:
+      1.11.0
+    *);
   engine_requested: engine_kind option;
-  interfile_languages_used: string list option (** *);
-  skipped_rules: skipped_rule list (** *);
-  subprojects: cli_output_subproject_info list option (** *);
-  mcp_scan_results: mcp_scan_results option (** *);
-  profiling_results: profiling_entry list (** *)
+  interfile_languages_used: string list option
+    (**
+      Reporting just the requested engine isn't granular enough. We want to
+      know what languages had rules that invoked interfile. This is
+      particularly important for tracking the performance impact of new
+      interfile languages EXPERIMENTAL: since 1.49.0
+    *);
+  skipped_rules: skipped_rule list (** EXPERIMENTAL: since: 1.37.0 *);
+  subprojects: cli_output_subproject_info list option
+    (**
+      SCA subproject resolution results. Note: this is only available when
+      logged in. EXPERIMENTAL: since: 1.125.0
+    *);
+  mcp_scan_results: mcp_scan_results option (** MCP scan results. *);
+  profiling_results: profiling_entry list
+    (**
+      How long it took to execute this or that piece of code in semgrep-core
+    *)
 }
 
 type ci_scan_results_response_error =
@@ -1724,7 +2396,7 @@ type ci_scan_results_response_error =
 }
   [@@deriving show]
 
-(** *)
+(** Response by the backend to the CLI to the POST /results *)
 type ci_scan_results_response =
   Semgrep_output_v1_t.ci_scan_results_response = {
   errors: ci_scan_results_response_error list;
@@ -1732,13 +2404,17 @@ type ci_scan_results_response =
 }
   [@@deriving show]
 
-(** *)
+(** Response by the backend to the CLI to the POST /complete *)
 type ci_scan_complete_response =
   Semgrep_output_v1_t.ci_scan_complete_response = {
   success: bool;
   app_block_override: bool;
-  app_block_reason: string (** *);
-  app_blocking_match_based_ids: match_based_id list (** *)
+  app_block_reason: string (** only when app_block_override is true *);
+  app_blocking_match_based_ids: match_based_id list
+    (**
+      since 1.100.0. match_based_ids of findings that semgrep-app determined
+      should cause the scan to block
+    *)
 }
   [@@deriving show]
 

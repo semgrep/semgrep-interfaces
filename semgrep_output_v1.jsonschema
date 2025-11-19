@@ -5,7 +5,10 @@
   "type": "object",
   "required": [ "results", "errors", "paths" ],
   "properties": {
-    "version": { "description": "", "$ref": "#/definitions/version" },
+    "version": {
+      "description": "since: 0.92",
+      "$ref": "#/definitions/version"
+    },
     "results": {
       "type": "array",
       "items": { "$ref": "#/definitions/cli_match" }
@@ -15,42 +18,45 @@
       "items": { "$ref": "#/definitions/cli_error" }
     },
     "paths": {
-      "description": "",
+      "description": "targeting information",
       "$ref": "#/definitions/scanned_and_skipped"
     },
-    "time": { "description": "", "$ref": "#/definitions/profile" },
+    "time": {
+      "description": "profiling information",
+      "$ref": "#/definitions/profile"
+    },
     "explanations": {
-      "description": "",
+      "description": "debugging (rule writing) information. Note that as opposed to the dataflow trace, the explanations are not embedded inside a match because we give also explanations when things are not matching. EXPERIMENTAL: since semgrep 0.109",
       "type": "array",
       "items": { "$ref": "#/definitions/matching_explanation" }
     },
     "rules_by_engine": {
-      "description": "",
+      "description": "These rules, classified by engine used, will let us be transparent in the CLI output over what rules were run with what. EXPERIMENTAL: since: 1.11.0",
       "type": "array",
       "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
     },
     "engine_requested": { "$ref": "#/definitions/engine_kind" },
     "interfile_languages_used": {
-      "description": "",
+      "description": "Reporting just the requested engine isn't granular enough. We want to know what languages had rules that invoked interfile. This is particularly important for tracking the performance impact of new interfile languages EXPERIMENTAL: since 1.49.0",
       "type": "array",
       "items": { "type": "string" }
     },
     "skipped_rules": {
-      "description": "",
+      "description": "EXPERIMENTAL: since: 1.37.0",
       "type": "array",
       "items": { "$ref": "#/definitions/skipped_rule" }
     },
     "subprojects": {
-      "description": "",
+      "description": "SCA subproject resolution results. Note: this is only available when logged in. EXPERIMENTAL: since: 1.125.0",
       "type": "array",
       "items": { "$ref": "#/definitions/cli_output_subproject_info" }
     },
     "mcp_scan_results": {
-      "description": "",
+      "description": "MCP scan results.",
       "$ref": "#/definitions/mcp_scan_results"
     },
     "profiling_results": {
-      "description": "",
+      "description": "How long it took to execute this or that piece of code in semgrep-core",
       "type": "array",
       "items": { "$ref": "#/definitions/profiling_entry" }
     }
@@ -1125,7 +1131,7 @@
       }
     },
     "matching_time": {
-      "description": "",
+      "description": "EXPERIMENTAL",
       "type": "object",
       "required": [
         "total_time", "per_file_and_rule_time", "very_slow_stats",
@@ -1143,7 +1149,7 @@
       }
     },
     "tainting_time": {
-      "description": "",
+      "description": "EXPERIMENTAL",
       "type": "object",
       "required": [
         "total_time", "per_def_and_rule_time", "very_slow_stats",
@@ -1154,7 +1160,7 @@
         "per_def_and_rule_time": { "$ref": "#/definitions/summary_stats" },
         "very_slow_stats": { "$ref": "#/definitions/very_slow_stats" },
         "very_slow_rules_on_defs": {
-          "description": "",
+          "description": "ascending order",
           "type": "array",
           "items": { "$ref": "#/definitions/def_rule_time" }
         }
@@ -1169,16 +1175,15 @@
         "path": { "$ref": "#/definitions/fpath" },
         "num_bytes": { "type": "integer" },
         "match_times": {
-          "description": "",
+          "description": "each elt in the list refers to a rule in profile.rules",
           "type": "array",
           "items": { "type": "number" }
         },
-        "parse_times": {
-          "description": "",
-          "type": "array",
-          "items": { "type": "number" }
-        },
-        "run_time": { "description": "", "type": "number" }
+        "parse_times": { "type": "array", "items": { "type": "number" } },
+        "run_time": {
+          "description": "run time for all rules on target",
+          "type": "number"
+        }
       }
     },
     "prefiltering_stats": {
@@ -1190,18 +1195,30 @@
         "rules_matched_ratio"
       ],
       "properties": {
-        "project_level_time": { "description": "", "type": "number" },
-        "file_level_time": { "description": "", "type": "number" },
+        "project_level_time": {
+          "description": "The time (seconds) it took to execute project-level prefilters",
+          "type": "number"
+        },
+        "file_level_time": {
+          "description": "The time (seconds) it took to execute file-level prefilters",
+          "type": "number"
+        },
         "rules_with_project_prefilters_ratio": {
-          "description": "",
+          "description": "The ratio of rules which the engine generated a project-level prefilter for",
           "type": "number"
         },
         "rules_with_file_prefilters_ratio": {
-          "description": "",
+          "description": "The ratio of rules which the engine generated a file-level prefilter for",
           "type": "number"
         },
-        "rules_selected_ratio": { "description": "", "type": "number" },
-        "rules_matched_ratio": { "description": "", "type": "number" }
+        "rules_selected_ratio": {
+          "description": "The ratio of rules which executed beyond prefiltering on at least one target",
+          "type": "number"
+        },
+        "rules_matched_ratio": {
+          "description": "The ratio of rules which generated at least one match",
+          "type": "number"
+        }
       }
     },
     "mcp_scan_results": {
@@ -1217,42 +1234,45 @@
       "required": [ "paths" ],
       "properties": {
         "paths": {
-          "description": "",
+          "description": "targeting information",
           "$ref": "#/definitions/scanned_and_skipped"
         },
-        "time": { "description": "", "$ref": "#/definitions/profile" },
+        "time": {
+          "description": "profiling information",
+          "$ref": "#/definitions/profile"
+        },
         "explanations": {
-          "description": "",
+          "description": "debugging (rule writing) information. Note that as opposed to the dataflow trace, the explanations are not embedded inside a match because we give also explanations when things are not matching. EXPERIMENTAL: since semgrep 0.109",
           "type": "array",
           "items": { "$ref": "#/definitions/matching_explanation" }
         },
         "rules_by_engine": {
-          "description": "",
+          "description": "These rules, classified by engine used, will let us be transparent in the CLI output over what rules were run with what. EXPERIMENTAL: since: 1.11.0",
           "type": "array",
           "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
         },
         "engine_requested": { "$ref": "#/definitions/engine_kind" },
         "interfile_languages_used": {
-          "description": "",
+          "description": "Reporting just the requested engine isn't granular enough. We want to know what languages had rules that invoked interfile. This is particularly important for tracking the performance impact of new interfile languages EXPERIMENTAL: since 1.49.0",
           "type": "array",
           "items": { "type": "string" }
         },
         "skipped_rules": {
-          "description": "",
+          "description": "EXPERIMENTAL: since: 1.37.0",
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
         },
         "subprojects": {
-          "description": "",
+          "description": "SCA subproject resolution results. Note: this is only available when logged in. EXPERIMENTAL: since: 1.125.0",
           "type": "array",
           "items": { "$ref": "#/definitions/cli_output_subproject_info" }
         },
         "mcp_scan_results": {
-          "description": "",
+          "description": "MCP scan results.",
           "$ref": "#/definitions/mcp_scan_results"
         },
         "profiling_results": {
-          "description": "",
+          "description": "How long it took to execute this or that piece of code in semgrep-core",
           "type": "array",
           "items": { "$ref": "#/definitions/profiling_entry" }
         }
@@ -1275,12 +1295,12 @@
       ],
       "properties": {
         "results": {
-          "description": "",
+          "description": "(rule file, checks) list",
           "type": "object",
           "additionalProperties": { "$ref": "#/definitions/checks" }
         },
         "fixtest_results": {
-          "description": "",
+          "description": "(target file, fixtest_result) list",
           "type": "object",
           "additionalProperties": { "$ref": "#/definitions/fixtest_result" }
         },
@@ -1303,7 +1323,7 @@
       "required": [ "checks" ],
       "properties": {
         "checks": {
-          "description": "",
+          "description": "(rule ID, rule_result) list",
           "type": "object",
           "additionalProperties": { "$ref": "#/definitions/rule_result" }
         }
@@ -1315,7 +1335,7 @@
       "properties": {
         "passed": { "type": "boolean" },
         "matches": {
-          "description": "",
+          "description": "(target filename, expected_reported) list",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/expected_reported"
@@ -1326,7 +1346,7 @@
           "items": { "$ref": "#/definitions/todo" }
         },
         "diagnosis": {
-          "description": "",
+          "description": "NEW: since 1.79",
           "$ref": "#/definitions/matching_diagnosis"
         }
       }
@@ -1346,13 +1366,17 @@
     },
     "todo": { "type": "integer" },
     "matching_diagnosis": {
+      "description": "EXPERIMENTAL\n\nA \"matching diagnosis\" is a postprocessed interpretation of matching explanations, specific to a particular test-annotated target file.\n\nFor instance, suppose we have the rule:\n\n{{{\n    1 | all:\n    2 | - pattern: foo(...)\n    3 | - not: foo(goood)\n}}}\n\nand the following Python annotated target:\n\n{{{\n    1 | # ruleid: my_rule\n    2 | foo()\n    3 | # ok: my_rule\n    4 | foo(good)\n}}}\n\nWe would get an unexpected match on line 4, which would fail the test assertion.\n\nBy looking at the matching explanation, we can deduce that the match on line 4 must clearly have been introduced by the positive {{foo(..)}} pattern. The rule-writer probably meant to kill {{foo(good)}} with the negative {{foo(goood)}} pattern.\n\nThis is essentially what matching diagnoses are -- using matching explanations to point out where the erroneous parts of the rule _may_ be.\n\nNote that this is a _may_, because an unexpected match could have been killed by the {{foo(bad)}} , but if there were more negative patterns, it could have been killed elsewhere too. All we can do is point out places where the rule-writer _may_ have messed up.\n\nSo in this case, we would expect an {{unexpected_match_diagnosis}} with the form:\n\n{{{\n    { matched_text = { line = 4; text = \"foo(bad)\" };\n      originating_kind = Xpattern;\n      originating_text = { line = 2; text = \"- pattern: foo(...)\" };\n      killing_parents = [\n        { killing_parent_kind = Negation;\n          snippet = { line = 3; text = \"- not: foo(good)\" } }\n      ]\n    }\n}}}",
       "type": "object",
       "required": [
         "target", "unexpected_match_diagnoses",
         "unexpected_no_match_diagnoses"
       ],
       "properties": {
-        "target": { "description": "", "$ref": "#/definitions/fpath" },
+        "target": {
+          "description": "specifically, the test target",
+          "$ref": "#/definitions/fpath"
+        },
         "unexpected_match_diagnoses": {
           "type": "array",
           "items": { "$ref": "#/definitions/unexpected_match_diagnosis" }
@@ -1372,7 +1396,7 @@
       "properties": {
         "matched_text": { "$ref": "#/definitions/snippet" },
         "originating_kind": {
-          "description": "",
+          "description": "information about the originating pattern in the rule file. This is where the unexpected match came from.",
           "$ref": "#/definitions/originating_node_kind"
         },
         "originating_text": { "$ref": "#/definitions/snippet" },
@@ -1426,7 +1450,7 @@
       ]
     },
     "snippet": {
-      "description": "",
+      "description": "Instead of serving snippets here, we could just give the locations of the patterns and matches. For convenience when scripting with this in rule generation, we will just get the source text here.",
       "type": "object",
       "required": [ "line", "text" ],
       "properties": {
@@ -1435,7 +1459,7 @@
       }
     },
     "killing_parent": {
-      "description": "",
+      "description": "a \"killing parent\" is a parent operator that could have killed the unexpected match along its way to being returned Intuitively, these are all the sites at which the rule could have removed the unexpected match, but didn't. Note that because of the order of operations, this technically means that in the following pattern:\n\n{{{\n    all:\n      - pattern: A\n      - not: B\n}}}\n\nthe {{not}} node is a \"parent\" of the {{pattern}} node, even though they are siblings in the actual tree. This is because the ranges of the {{pattern}} are input to the {{not}} node.",
       "type": "object",
       "required": [ "killing_parent_kind", "snippet" ],
       "properties": {
@@ -1452,13 +1476,22 @@
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
         "dependency_query": { "type": "boolean" },
-        "path_to_transitivity": { "description": "", "type": "boolean" },
-        "scan_all_deps_in_diff_scan": {
-          "description": "",
+        "path_to_transitivity": {
+          "description": "a.k.a. dependency path",
           "type": "boolean"
         },
-        "symbol_analysis": { "description": "", "type": "boolean" },
-        "transitive_reachability_enabled": { "type": "boolean" }
+        "scan_all_deps_in_diff_scan": {
+          "description": "normally we resolve dependencies for changed subprojects only in diff scans. This flag causes all subprojects to be resolved in diff scans",
+          "type": "boolean"
+        },
+        "symbol_analysis": {
+          "description": "Whether to collect \"symbol analysis\" info from the repo being scanned See https://www.notion.so/semgrep/Semgrep-Code-Reconnaissance-Toolbox-18a3009241a880f2a439eed6b2cffe66?pvs=4",
+          "type": "boolean"
+        },
+        "transitive_reachability_enabled": {
+          "description": "Whether to enable transitive reachability analysis for SCA findings",
+          "type": "boolean"
+        }
       }
     },
     "triage_ignored": {
@@ -1470,13 +1503,13 @@
           "items": { "type": "string" }
         },
         "triage_ignored_match_based_ids": {
-          "description": "",
           "type": "array",
           "items": { "type": "string" }
         }
       }
     },
     "action": {
+      "description": "The actions below allow the WebApp to modify the behavior of the CLI dynamically, which is especially useful for old versions of the CLI (e.g., insist on the deprecation of an old version of the CLI). The action below will be executed by the CLI just after receiving the scan configuration. It's a bit similar to injecting code dynamically, except the possible actions are clearly delimited here (this is not eval()).\n\nNote that the version of the CLI is sent to the WebApp in project_metadata so the backend has all the necessary information to send back an appropriate action depending on the CLI version.",
       "oneOf": [
         {
           "type": "array",
@@ -1489,7 +1522,8 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "Delay" }, { "type": "number" }
+            { "description": "in seconds", "const": "Delay" },
+            { "type": "number" }
           ]
         },
         {
@@ -1497,13 +1531,14 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "Exit" }, { "type": "integer" }
+            { "description": "process exit code", "const": "Exit" },
+            { "type": "integer" }
           ]
         }
       ]
     },
     "scan_response": {
-      "description": "",
+      "description": "Response from the backend to the CLI to the POST /api/cli/scans",
       "type": "object",
       "required": [ "info", "config", "engine_params" ],
       "properties": {
@@ -1513,10 +1548,14 @@
       }
     },
     "scan_info": {
+      "description": "meta info about the scan",
       "type": "object",
       "required": [ "enabled_products", "deployment_id", "deployment_name" ],
       "properties": {
-        "id": { "description": "", "type": "integer" },
+        "id": {
+          "description": "the scan id, null for dry-runs",
+          "type": "integer"
+        },
         "enabled_products": {
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
@@ -1526,7 +1565,7 @@
       }
     },
     "scan_configuration": {
-      "description": "",
+      "description": "config specific to the scan",
       "type": "object",
       "required": [ "rules" ],
       "properties": {
@@ -1536,50 +1575,63 @@
           "items": { "type": "string" }
         },
         "triage_ignored_match_based_ids": {
-          "description": "",
           "type": "array",
           "items": { "type": "string" }
         },
         "project_merge_base": {
-          "description": "",
+          "description": "From 1.131.0, tells us what merge base to use if it's a diff scan",
           "$ref": "#/definitions/sha1"
         },
-        "fips_mode": { "description": "", "type": "boolean" }
+        "fips_mode": {
+          "description": "From 1.126.0. Customers in FIPS environments have specific hash function requirements that this flag will override. See SAF-2057 for details.",
+          "type": "boolean"
+        }
       }
     },
     "engine_configuration": {
+      "description": "settings for the cli",
       "type": "object",
       "required": [],
       "properties": {
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
         "dependency_query": { "type": "boolean" },
-        "path_to_transitivity": { "description": "", "type": "boolean" },
-        "scan_all_deps_in_diff_scan": {
-          "description": "",
+        "path_to_transitivity": {
+          "description": "a.k.a. dependency path",
           "type": "boolean"
         },
-        "symbol_analysis": { "description": "", "type": "boolean" },
-        "transitive_reachability_enabled": { "type": "boolean" },
-        "ignored_files": {
-          "description": "",
-          "type": "array",
-          "items": { "type": "string" }
+        "scan_all_deps_in_diff_scan": {
+          "description": "normally we resolve dependencies for changed subprojects only in diff scans. This flag causes all subprojects to be resolved in diff scans",
+          "type": "boolean"
         },
+        "symbol_analysis": {
+          "description": "Whether to collect \"symbol analysis\" info from the repo being scanned See https://www.notion.so/semgrep/Semgrep-Code-Reconnaissance-Toolbox-18a3009241a880f2a439eed6b2cffe66?pvs=4",
+          "type": "boolean"
+        },
+        "transitive_reachability_enabled": {
+          "description": "Whether to enable transitive reachability analysis for SCA findings",
+          "type": "boolean"
+        },
+        "ignored_files": { "type": "array", "items": { "type": "string" } },
         "product_ignored_files": {
-          "description": "",
+          "description": "from 1.71.0",
           "$ref": "#/definitions/product_ignored_files"
         },
-        "generic_slow_rollout": { "description": "", "type": "boolean" },
+        "generic_slow_rollout": {
+          "description": "for features we only want to turn on for select customers",
+          "type": "boolean"
+        },
         "historical_config": {
-          "description": "",
+          "description": "from 1.63.0",
           "$ref": "#/definitions/historical_configuration"
         },
-        "always_suppress_errors": { "description": "", "type": "boolean" }
+        "always_suppress_errors": {
+          "description": "from 1.93. Indicate that fail-open should always be enabled, overriding the CLI flag.",
+          "type": "boolean"
+        }
       }
     },
     "product_ignored_files": {
-      "description": "",
       "type": "array",
       "items": {
         "type": "array",
@@ -1592,7 +1644,7 @@
       }
     },
     "historical_configuration": {
-      "description": "",
+      "description": "configuration for scanning version control history, e.g., looking back at past git commits for committed credentials which may have been removed",
       "type": "object",
       "required": [ "enabled" ],
       "properties": {
@@ -1601,7 +1653,7 @@
       }
     },
     "scan_request": {
-      "description": "",
+      "description": "Sent by the CLI to the POST /api/cli/scans to create a scan.",
       "type": "object",
       "required": [ "project_metadata", "scan_metadata" ],
       "properties": {
@@ -1611,7 +1663,7 @@
       }
     },
     "project_metadata": {
-      "description": "",
+      "description": "Collect information about a project from the environment, filesystem, git repo, etc. See also semgrep_metrics.atd and PRIVACY.md",
       "type": "object",
       "required": [
         "scan_environment", "repository", "repo_url", "branch", "commit",
@@ -1622,17 +1674,29 @@
         "pull_request_title", "is_full_scan"
       ],
       "properties": {
-        "scan_environment": { "description": "", "type": "string" },
-        "repository": { "description": "", "type": "string" },
+        "scan_environment": {
+          "description": "TODO: use enum with {{<json name=\"...\">}}",
+          "type": "string"
+        },
+        "repository": { "type": "string" },
         "repo_url": { "$ref": "#/definitions/uri" },
-        "repo_id": { "description": "", "type": "string" },
-        "org_id": { "description": "", "type": "string" },
-        "repo_display_name": { "description": "", "type": "string" },
-        "branch": { "description": "", "type": [ "string", "null" ] },
+        "repo_id": {
+          "description": "The two fields below are stable across repository renaming and even org renaming, which can be useful to not report new findings on a repo just because this repo was renamed. Since Semgrep 1.46.0. The string is usually an int, but more general to use a string.",
+          "type": "string"
+        },
+        "org_id": {
+          "description": "a.k.a repository owner id",
+          "type": "string"
+        },
+        "repo_display_name": {
+          "description": "Users can set a different name for display and for PR comments. This allows monorepos to be scanned as separate projects.",
+          "type": "string"
+        },
+        "branch": { "type": [ "string", "null" ] },
         "commit": { "$ref": "#/definitions/sha1" },
         "commit_title": { "type": [ "string", "null" ] },
         "commit_timestamp": {
-          "description": "",
+          "description": "since 1.38.0",
           "$ref": "#/definitions/datetime"
         },
         "commit_author_email": { "type": [ "string", "null" ] },
@@ -1640,50 +1704,81 @@
         "commit_author_username": { "type": [ "string", "null" ] },
         "commit_author_image_url": { "$ref": "#/definitions/uri" },
         "ci_job_url": { "$ref": "#/definitions/uri" },
-        "on": { "description": "", "type": "string" },
+        "on": {
+          "description": "CI event name (\"pull_request\"|\"pull_request_target\"|\"push\"|\"unknown\"|...)\n\nTODO: use enum",
+          "type": "string"
+        },
         "pull_request_author_username": { "type": [ "string", "null" ] },
         "pull_request_author_image_url": { "$ref": "#/definitions/uri" },
         "pull_request_id": { "type": [ "string", "null" ] },
         "pull_request_title": { "type": [ "string", "null" ] },
         "base_branch_head_commit": {
-          "description": "",
+          "description": "the latest commit in the base branch of a PR, used to determine the git merge base on the app side if needed. This should really be called base_sha but that term is already misused below for something that's gitlab only",
           "$ref": "#/definitions/sha1"
         },
-        "base_sha": { "description": "", "$ref": "#/definitions/sha1" },
-        "start_sha": { "description": "", "$ref": "#/definitions/sha1" },
-        "is_full_scan": { "description": "", "type": "boolean" },
-        "is_sca_scan": { "description": "", "type": "boolean" },
-        "is_code_scan": { "description": "", "type": "boolean" },
-        "is_secrets_scan": { "description": "", "type": "boolean" },
-        "project_id": { "description": "", "type": "string" }
+        "base_sha": {
+          "description": "This is gitlab only, and is actually only the baseline commit sha if provided, OR it's the git merge-base if not provided. It is NOT the head commit of the base branch",
+          "$ref": "#/definitions/sha1"
+        },
+        "start_sha": {
+          "description": "this is CI_MERGE_REQUEST_DIFF_BASE_SHA which is strictly the git merge base",
+          "$ref": "#/definitions/sha1"
+        },
+        "is_full_scan": {
+          "description": "Check if the current Git repository has enough to determine the merge_base_ref.",
+          "type": "boolean"
+        },
+        "is_sca_scan": {
+          "description": "added later in ci.py (not from meta.py)",
+          "type": "boolean"
+        },
+        "is_code_scan": { "description": "since 1.40.0", "type": "boolean" },
+        "is_secrets_scan": {
+          "description": "since 1.41.0",
+          "type": "boolean"
+        },
+        "project_id": {
+          "description": "Identifies a semgrep project where findings belong to.",
+          "type": "string"
+        }
       }
     },
     "scan_metadata": {
-      "description": "",
+      "description": "Scan metadata generated by the CLI during the scan process.",
       "type": "object",
       "required": [ "cli_version", "unique_id", "requested_products" ],
       "properties": {
         "cli_version": { "$ref": "#/definitions/version" },
-        "unique_id": { "description": "", "$ref": "#/definitions/uuid" },
+        "unique_id": {
+          "description": "client generated uuid for the scan",
+          "$ref": "#/definitions/uuid"
+        },
         "requested_products": {
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
         },
-        "dry_run": { "description": "", "type": "boolean" },
-        "sms_scan_id": { "description": "", "type": "string" },
+        "dry_run": { "description": "since 1.47.0", "type": "boolean" },
+        "sms_scan_id": {
+          "description": "unique id associated with the scan in Semgrep Managed Scanning. Since 1.96.0",
+          "type": "string"
+        },
         "ecosystems": { "type": "array", "items": { "type": "string" } },
         "packages": { "type": "array", "items": { "type": "string" } }
       }
     },
     "ci_config_from_repo": {
+      "description": "Content of a possible .semgrepconfig.yml in the repository.\n\nThis config allows to configure Semgrep per repo, e.g., to store a category/tag like \"webapp\" in a repo so that the Semgrep WebApp can return a set of relevant rules automatically for this repo in scan_config later when given this ci_config_from_repo in the scan_request.",
       "type": "object",
       "required": [],
       "properties": {
-        "version": { "description": "", "$ref": "#/definitions/version" },
+        "version": {
+          "description": "version of the .semgrepconfig.yml format. \"v1\" right now (useful?)",
+          "$ref": "#/definitions/version"
+        },
         "tags": { "type": "array", "items": { "$ref": "#/definitions/tag" } }
       }
     },
-    "tag": { "description": "", "type": "string" },
+    "tag": { "description": "e.g. \"webapp\"", "type": "string" },
     "finding": {
       "type": "object",
       "required": [
@@ -1699,38 +1794,47 @@
         "end_line": { "type": "integer" },
         "end_column": { "type": "integer" },
         "message": { "type": "string" },
-        "severity": { "description": "" },
+        "severity": {
+          "description": "int|string until minimum version exceeds 1.32.0. After 1.32.0 we're always using an int."
+        },
         "index": { "type": "integer" },
         "commit_date": { "type": "string" },
         "syntactic_id": { "type": "string" },
-        "match_based_id": { "description": "", "type": "string" },
+        "match_based_id": {
+          "description": "since semgrep 0.98 TODO: use match_based_id option",
+          "type": "string"
+        },
         "hashes": {
-          "description": "",
+          "description": "since semgrep 1.14.0",
           "$ref": "#/definitions/finding_hashes"
         },
-        "metadata": { "description": "", "$ref": "#/definitions/raw_json" },
+        "metadata": {
+          "description": "metadata from the rule",
+          "$ref": "#/definitions/raw_json"
+        },
         "is_blocking": { "type": "boolean" },
         "fixed_lines": { "type": "array", "items": { "type": "string" } },
         "sca_info": { "$ref": "#/definitions/sca_match" },
         "dataflow_trace": {
-          "description": "",
+          "description": "Note that this contains code!",
           "$ref": "#/definitions/match_dataflow_trace"
         },
         "validation_state": {
-          "description": "",
+          "description": "Added in semgrep 1.39.0 see comments in cli_match_extra",
           "$ref": "#/definitions/validation_state"
         },
         "historical_info": {
-          "description": "",
+          "description": "Added in semgrep 1.65.0 see comments in cli_match_extra",
           "$ref": "#/definitions/historical_info"
         },
         "engine_kind": {
-          "description": "",
+          "description": "Added in semgrep 1.70.0",
           "$ref": "#/definitions/engine_of_finding"
         }
       }
     },
     "finding_hashes": {
+      "description": "The goal is to hash findings independently of their precise location so if a file is moved around or the line numbers change in a file, we do not report new findings but instead detect that the finding actually hashes to a previous old finding. See also match_based_id which is yet another way to hash a finding. See also https://www.notion.so/semgrep/Identifying-unique-findings-match_based_id-and-syntactic_id",
       "type": "object",
       "required": [
         "start_line_hash", "end_line_hash", "code_hash", "pattern_hash"
@@ -1738,8 +1842,14 @@
       "properties": {
         "start_line_hash": { "type": "string" },
         "end_line_hash": { "type": "string" },
-        "code_hash": { "description": "", "type": "string" },
-        "pattern_hash": { "description": "", "type": "string" }
+        "code_hash": {
+          "description": "hash of the syntactic_context/code contents from start_line through end_line",
+          "type": "string"
+        },
+        "pattern_hash": {
+          "description": "hash of the rule pattern with metavariables substituted in",
+          "type": "string"
+        }
       }
     },
     "ci_scan_results": {
@@ -1771,21 +1881,21 @@
           "items": { "$ref": "#/definitions/rule_id" }
         },
         "contributions": {
-          "description": "",
+          "description": "since semgrep 1.34.0",
           "$ref": "#/definitions/contributions"
         },
         "dependencies": {
-          "description": "",
+          "description": "since semgrep 1.38.0. This data was originally sent to /complete, but we want to start sending it to /results",
           "$ref": "#/definitions/ci_scan_dependencies"
         },
         "metadata": {
-          "description": "",
+          "description": "filled in by the backend to associate scan results with the driving scan",
           "$ref": "#/definitions/ci_scan_metadata"
         }
       }
     },
     "ci_scan_metadata": {
-      "description": "",
+      "description": "Scan metadata populated by the backend after receiving the scan results from the CLI via POST request to /scans/<int:scan_id>/results",
       "type": "object",
       "required": [
         "scan_id", "deployment_id", "repository_id", "repository_ref_id",
@@ -1794,8 +1904,14 @@
       "properties": {
         "scan_id": { "type": "integer" },
         "deployment_id": { "type": "integer" },
-        "repository_id": { "description": "", "type": "integer" },
-        "repository_ref_id": { "description": "", "type": "integer" },
+        "repository_id": {
+          "description": "stored as int in our app db",
+          "type": "integer"
+        },
+        "repository_ref_id": {
+          "description": "stored id for a branch or tag",
+          "type": "integer"
+        },
         "enabled_products": {
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
@@ -1805,7 +1921,7 @@
       }
     },
     "contributor": {
-      "description": "",
+      "description": "See https://semgrep.dev/docs/usage-limits",
       "type": "object",
       "required": [ "commit_author_name", "commit_author_email" ],
       "properties": {
@@ -1823,12 +1939,12 @@
       }
     },
     "contributions": {
-      "description": "",
+      "description": "We keep this alias because we need to generate code to parse and write list of contributions.",
       "type": "array",
       "items": { "$ref": "#/definitions/contribution" }
     },
     "ci_scan_results_response": {
-      "description": "",
+      "description": "Response by the backend to the CLI to the POST /results",
       "type": "object",
       "required": [ "errors" ],
       "properties": {
@@ -1845,21 +1961,18 @@
       "properties": { "message": { "type": "string" } }
     },
     "ci_scan_complete": {
+      "description": "Sent by the CLI to /complete",
       "type": "object",
       "required": [ "exit_code", "stats" ],
       "properties": {
         "exit_code": { "type": "integer" },
         "stats": { "$ref": "#/definitions/ci_scan_complete_stats" },
-        "dependencies": {
-          "description": "",
-          "$ref": "#/definitions/ci_scan_dependencies"
-        },
+        "dependencies": { "$ref": "#/definitions/ci_scan_dependencies" },
         "dependency_parser_errors": {
-          "description": "",
           "type": "array",
           "items": { "$ref": "#/definitions/dependency_parser_error" }
         },
-        "task_id": { "description": "", "type": "string" },
+        "task_id": { "description": "since 1.31.0", "type": "string" },
         "final_attempt": { "type": "boolean" }
       }
     },
@@ -1888,14 +2001,17 @@
           "type": "object",
           "additionalProperties": { "$ref": "#/definitions/parsing_stats" }
         },
-        "engine_requested": { "description": "", "type": "string" },
+        "engine_requested": {
+          "description": "This is EngineType from python, which is different from engine_kind used in this file.",
+          "type": "string"
+        },
         "findings_by_product": {
-          "description": "",
+          "description": "Mirrors numFindingsByProduct in metrics.py See PA-3312 and GROW-104.\n\nNOTE: As of 1.56.0 the string used as the mapping key is currently a human-readable product name (i.e. code) vs our typed product enum representation (i.e. sast).",
           "type": "object",
           "additionalProperties": { "type": "integer" }
         },
         "supply_chain_stats": {
-          "description": "",
+          "description": "since 1.98.0.\n\nIn collaboration with the Data Science team, it was suggested that we start to group stats by product for organizational purposes.\n\nThis field will only be defined for SCA scans.",
           "$ref": "#/definitions/supply_chain_stats"
         }
       }
@@ -1913,15 +2029,18 @@
       }
     },
     "ci_scan_complete_response": {
-      "description": "",
+      "description": "Response by the backend to the CLI to the POST /complete",
       "type": "object",
       "required": [ "success" ],
       "properties": {
         "success": { "type": "boolean" },
         "app_block_override": { "type": "boolean" },
-        "app_block_reason": { "description": "", "type": "string" },
+        "app_block_reason": {
+          "description": "only when app_block_override is true",
+          "type": "string"
+        },
         "app_blocking_match_based_ids": {
-          "description": "",
+          "description": "since 1.100.0. match_based_ids of findings that semgrep-app determined should cause the scan to block",
           "type": "array",
           "items": { "$ref": "#/definitions/match_based_id" }
         }
@@ -1941,13 +2060,16 @@
         "path": { "$ref": "#/definitions/fpath" },
         "parser": { "$ref": "#/definitions/sca_parser_name" },
         "reason": { "type": "string" },
-        "line": { "description": "", "type": "integer" },
+        "line": {
+          "description": "Not using `position` because this type must be backwards compatible with the python class it is replacing.",
+          "type": "integer"
+        },
         "col": { "type": "integer" },
         "text": { "type": "string" }
       }
     },
     "sca_parser_name": {
-      "description": "",
+      "description": "JSON names are to maintain backwards compatibility with the python enum it is replacing. The P prefix (for parser) is to avoid ambiguity with similar construtor names in the manifest and ecosystem types.",
       "oneOf": [
         { "const": "gemfile_lock" },
         { "const": "go_mod" },
@@ -1983,22 +2105,25 @@
       }
     },
     "cli_output_subproject_info": {
-      "description": "",
+      "description": "This is the public version of subproject_stats, which is used in the CLI output. This is distinguised from subproject_stats below in order to produce more normal-looking JSON and to avoid including unnecessary fields.",
       "type": "object",
       "required": [ "dependency_sources", "resolved" ],
       "properties": {
         "dependency_sources": {
-          "description": "",
+          "description": "We use fpath here rather than the dependency_source_file type because ATD makes strange-looking JSON output for the dependency_source_file type.",
           "type": "array",
           "items": { "$ref": "#/definitions/fpath" }
         },
-        "resolved": { "description": "", "type": "boolean" },
+        "resolved": {
+          "description": "true if the subproject's dependencies were resolved successfully",
+          "type": "boolean"
+        },
         "unresolved_reason": {
-          "description": "",
+          "description": "Reason why resolution failed, empty if resolution succeeded",
           "$ref": "#/definitions/unresolved_reason"
         },
         "resolved_stats": {
-          "description": "",
+          "description": "Results of dependency resolution, empty if resolution failed",
           "$ref": "#/definitions/dependency_resolution_stats"
         }
       }
@@ -2007,22 +2132,25 @@
       "type": "object",
       "required": [ "subproject_id", "dependency_sources" ],
       "properties": {
-        "subproject_id": { "description": "", "type": "string" },
+        "subproject_id": {
+          "description": "The {{subproject_id}} is derived as a stable hash of the sorted paths of {{dependency_source_file}} s. Any change to the set of dependency sources (addition, removal, or modification) results in a new {{subproject_id}} , as different dependency sources indicate a different subproject context.",
+          "type": "string"
+        },
         "dependency_sources": {
-          "description": "",
+          "description": "Files used to determine the subproject's dependencies (lockfiles, manifest files, etc",
           "type": "array",
           "items": { "$ref": "#/definitions/dependency_source_file" }
         },
         "resolved_stats": {
-          "description": "",
+          "description": "Results of dependency resolution, empty if resolution failed",
           "$ref": "#/definitions/dependency_resolution_stats"
         },
         "unresolved_reason": {
-          "description": "",
+          "description": "Reason why resolution failed, empty if resolution succeeded",
           "$ref": "#/definitions/unresolved_reason"
         },
         "errors": {
-          "description": "",
+          "description": "Errors encountered during subproject resolution",
           "type": "array",
           "items": { "$ref": "#/definitions/sca_error" }
         }
@@ -2069,12 +2197,18 @@
     },
     "resolution_method": {
       "oneOf": [
-        { "description": "", "const": "LockfileParsing" },
-        { "description": "", "const": "DynamicResolution" }
+        {
+          "description": "we parsed a lockfile that was already included in the repository",
+          "const": "LockfileParsing"
+        },
+        {
+          "description": "we communicated with the package manager to resolve dependencies",
+          "const": "DynamicResolution"
+        }
       ]
     },
     "ci_scan_failure": {
-      "description": "",
+      "description": "Sent by the CLI to /scans/<scan_id>/error",
       "type": "object",
       "required": [ "exit_code", "stderr" ],
       "properties": {
@@ -2083,18 +2217,27 @@
       }
     },
     "deployment_config": {
-      "description": "",
+      "description": "Response by the backend to the CLI to the POST api/agent/deployments/current. Some of the information in deployment_config is now returned directly in scan_response (e.g., the deployment_name)",
       "type": "object",
       "required": [ "id", "name" ],
       "properties": {
         "id": { "type": "integer" },
-        "name": { "description": "", "type": "string" },
+        "name": {
+          "description": "the important piece, the deployment name (e.g., \"returntocorp\")",
+          "type": "string"
+        },
         "organization_id": { "type": "integer" },
-        "display_name": { "description": "", "type": "string" },
+        "display_name": {
+          "description": "All three below seem similar to 'name' mostly (e.g., \"returntocorp\")",
+          "type": "string"
+        },
         "scm_name": { "type": "string" },
         "slug": { "type": "string" },
-        "source_type": { "description": "", "type": "string" },
-        "default_user_role": { "description": "", "type": "string" },
+        "source_type": { "description": "e.g. \"github\"", "type": "string" },
+        "default_user_role": {
+          "description": "e.g. \"member\"",
+          "type": "string"
+        },
         "has_autofix": { "type": "boolean" },
         "has_deepsemgrep": { "type": "boolean" },
         "has_triage_via_comment": { "type": "boolean" },
@@ -2102,7 +2245,7 @@
       }
     },
     "has_features": {
-      "description": "",
+      "description": "whether a certain feature is available for a deployment",
       "type": "object",
       "required": [],
       "properties": {
@@ -2120,7 +2263,7 @@
       }
     },
     "scan_config": {
-      "description": "",
+      "description": "Response by the backend to the CLI to the POST deployments/scans/config The record is similar to scan_response.",
       "type": "object",
       "required": [
         "deployment_id", "deployment_name", "policy_names", "rule_config"
@@ -2129,79 +2272,101 @@
         "deployment_id": { "type": "integer" },
         "deployment_name": { "type": "string" },
         "policy_names": {
-          "description": "",
+          "description": "e.g. \"audit\", \"comment\", \"block\"",
           "type": "array",
           "items": { "type": "string" }
         },
-        "rule_config": { "description": "", "type": "string" },
+        "rule_config": {
+          "description": "rules raw content in JSON format (but still sent as a string)",
+          "type": "string"
+        },
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
         "dependency_query": { "type": "boolean" },
-        "path_to_transitivity": { "description": "", "type": "boolean" },
-        "scan_all_deps_in_diff_scan": {
-          "description": "",
+        "path_to_transitivity": {
+          "description": "a.k.a. dependency path",
           "type": "boolean"
         },
-        "symbol_analysis": { "description": "", "type": "boolean" },
-        "transitive_reachability_enabled": { "type": "boolean" },
+        "scan_all_deps_in_diff_scan": {
+          "description": "normally we resolve dependencies for changed subprojects only in diff scans. This flag causes all subprojects to be resolved in diff scans",
+          "type": "boolean"
+        },
+        "symbol_analysis": {
+          "description": "Whether to collect \"symbol analysis\" info from the repo being scanned See https://www.notion.so/semgrep/Semgrep-Code-Reconnaissance-Toolbox-18a3009241a880f2a439eed6b2cffe66?pvs=4",
+          "type": "boolean"
+        },
+        "transitive_reachability_enabled": {
+          "description": "Whether to enable transitive reachability analysis for SCA findings",
+          "type": "boolean"
+        },
         "triage_ignored_syntactic_ids": {
           "type": "array",
           "items": { "type": "string" }
         },
         "triage_ignored_match_based_ids": {
-          "description": "",
           "type": "array",
           "items": { "type": "string" }
         },
         "ignored_files": {
-          "description": "",
+          "description": "glob patterns",
           "type": "array",
           "items": { "type": "string" }
         },
         "enabled_products": {
-          "description": "",
+          "description": "since 1.37.0",
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
         },
         "actions": {
-          "description": "",
+          "description": "since 1.64.0",
           "type": "array",
           "items": { "$ref": "#/definitions/action" }
         },
         "ci_config_from_cloud": {
-          "description": "",
+          "description": "since 1.47.0 but not created by the backend (nor used by the CLI)",
           "$ref": "#/definitions/ci_config_from_cloud"
         }
       }
     },
     "tr_cache_key": {
-      "description": "",
+      "description": "We want essentially to cache semgrep computation on third party packages to quickly know (rule_id x package_version) -> sca_transitive_match_kind to avoid downloading and recomputing each time the same thing.\n\nThe \"key\". The rule_id and resolved_url should form a valid key for our TR cache database table. Indeed, semgrep should always return the same result when using the same rule and same resolved_url package. The content at the URL should hopefully not change (we could md5sum it just in case) and the content of the rule_id should also not change (could md5sum it maybe too).\n\nI've added tr_version below just in case we want to invalidate past cached entries (e.g., the semgrep engine itself changed enough that some past cached results might be wrong and should be recomputed.",
       "type": "object",
       "required": [
         "rule_id", "rule_version", "engine_version", "package_url", "extra"
       ],
       "properties": {
         "rule_id": { "$ref": "#/definitions/rule_id" },
-        "rule_version": { "description": "", "type": "string" },
-        "engine_version": { "description": "", "type": "integer" },
-        "package_url": { "description": "", "type": "string" },
-        "extra": { "description": "", "type": "string" }
+        "rule_version": {
+          "description": "this can be the checksum of the content of the rule (JSON or YAML form)",
+          "type": "string"
+        },
+        "engine_version": {
+          "description": "does not have to match the Semgrep CLI version; can be bumped only when we think the match should be recomputed",
+          "type": "integer"
+        },
+        "package_url": {
+          "description": "e.g. http://some-website/hello-world.0.1.2.tgz like in found_dependency {{resolved_url}} field, but could be anything to describe a particular package. We could rely on https://github.com/package-url/purl-spec",
+          "type": "string"
+        },
+        "extra": {
+          "description": "extra key just in case (e.g., \"prod\" vs \"dev\")",
+          "type": "string"
+        }
       }
     },
     "tr_cache_match_result": {
-      "description": "",
+      "description": "The \"value\"",
       "type": "object",
       "required": [ "matches" ],
       "properties": {
         "matches": {
-          "description": "",
           "type": "array",
           "items": { "$ref": "#/definitions/cli_match" }
         }
       }
     },
     "tr_query_cache_request": {
-      "description": "",
+      "description": "Sent by the CLI to the POST /api/cli/tr_cache/lookup",
       "type": "object",
       "required": [ "entries" ],
       "properties": {
@@ -2212,7 +2377,7 @@
       }
     },
     "tr_query_cache_response": {
-      "description": "",
+      "description": "Response by the backend the the POST /api/cli/tr_cache/lookup",
       "type": "object",
       "required": [ "cached" ],
       "properties": {
@@ -2231,7 +2396,7 @@
       }
     },
     "tr_add_cache_request": {
-      "description": "",
+      "description": "Sent by the CLI to the POST /api/cli/tr_cache",
       "type": "object",
       "required": [ "new_entries" ],
       "properties": {
@@ -2250,14 +2415,14 @@
       }
     },
     "ci_config_from_cloud": {
-      "description": "",
+      "description": "Semgrep config from the WebApp",
       "type": "object",
       "required": [ "repo_config" ],
       "properties": {
         "repo_config": { "$ref": "#/definitions/ci_config" },
         "org_config": { "$ref": "#/definitions/ci_config" },
         "dirs_config": {
-          "description": "",
+          "description": "for monorepos, to be \"monorepo-friendly\" like they say in Ruff",
           "type": "array",
           "items": {
             "type": "array",
@@ -2276,30 +2441,42 @@
       }
     },
     "ci_config": {
-      "description": "",
+      "description": "Note that we should use very simple types below for the configuration of Semgrep: booleans or small enums. No int, as people often don't understand how to set values. For example even if we documented very well the --timeout option in Semgrep, people still didn't know which value to use.",
       "type": "object",
       "required": [ "env", "enabled_products", "ignored_files" ],
       "properties": {
-        "env": { "description": "", "$ref": "#/definitions/ci_env" },
+        "env": {
+          "description": "to override environment variables, as lots of the configuration of 'semgrep ci' comes from environment variables (e.g., SEMGREP_REPO_URL)",
+          "$ref": "#/definitions/ci_env"
+        },
         "enabled_products": {
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
         },
         "ignored_files": {
-          "description": "",
+          "description": "glob patterns",
           "type": "array",
           "items": { "type": "string" }
         },
         "autofix": { "type": "boolean" },
         "deepsemgrep": { "type": "boolean" },
         "dependency_query": { "type": "boolean" },
-        "path_to_transitivity": { "description": "", "type": "boolean" },
-        "scan_all_deps_in_diff_scan": {
-          "description": "",
+        "path_to_transitivity": {
+          "description": "a.k.a. dependency path",
           "type": "boolean"
         },
-        "symbol_analysis": { "description": "", "type": "boolean" },
-        "transitive_reachability_enabled": { "type": "boolean" }
+        "scan_all_deps_in_diff_scan": {
+          "description": "normally we resolve dependencies for changed subprojects only in diff scans. This flag causes all subprojects to be resolved in diff scans",
+          "type": "boolean"
+        },
+        "symbol_analysis": {
+          "description": "Whether to collect \"symbol analysis\" info from the repo being scanned See https://www.notion.so/semgrep/Semgrep-Code-Reconnaissance-Toolbox-18a3009241a880f2a439eed6b2cffe66?pvs=4",
+          "type": "boolean"
+        },
+        "transitive_reachability_enabled": {
+          "description": "Whether to enable transitive reachability analysis for SCA findings",
+          "type": "boolean"
+        }
       }
     },
     "ci_env": {
@@ -2316,69 +2493,71 @@
           "items": { "$ref": "#/definitions/core_match" }
         },
         "errors": {
-          "description": "",
+          "description": "errors are guaranteed to be duplicate free; see also Report.ml",
           "type": "array",
           "items": { "$ref": "#/definitions/core_error" }
         },
         "paths": {
-          "description": "",
+          "description": "targeting information",
           "$ref": "#/definitions/scanned_and_skipped"
         },
-        "time": { "description": "", "$ref": "#/definitions/profile" },
+        "time": {
+          "description": "profiling information",
+          "$ref": "#/definitions/profile"
+        },
         "explanations": {
-          "description": "",
+          "description": "debugging (rule writing) information. Note that as opposed to the dataflow trace, the explanations are not embedded inside a match because we give also explanations when things are not matching. EXPERIMENTAL: since semgrep 0.109",
           "type": "array",
           "items": { "$ref": "#/definitions/matching_explanation" }
         },
         "rules_by_engine": {
-          "description": "",
+          "description": "These rules, classified by engine used, will let us be transparent in the CLI output over what rules were run with what. EXPERIMENTAL: since: 1.11.0",
           "type": "array",
           "items": { "$ref": "#/definitions/rule_id_and_engine_kind" }
         },
         "engine_requested": { "$ref": "#/definitions/engine_kind" },
         "interfile_languages_used": {
-          "description": "",
+          "description": "Reporting just the requested engine isn't granular enough. We want to know what languages had rules that invoked interfile. This is particularly important for tracking the performance impact of new interfile languages EXPERIMENTAL: since 1.49.0",
           "type": "array",
           "items": { "type": "string" }
         },
         "skipped_rules": {
-          "description": "",
+          "description": "EXPERIMENTAL: since: 1.37.0",
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_rule" }
         },
         "subprojects": {
-          "description": "",
+          "description": "SCA subproject resolution results. Note: this is only available when logged in. EXPERIMENTAL: since: 1.125.0",
           "type": "array",
           "items": { "$ref": "#/definitions/cli_output_subproject_info" }
         },
         "mcp_scan_results": {
-          "description": "",
+          "description": "MCP scan results.",
           "$ref": "#/definitions/mcp_scan_results"
         },
         "profiling_results": {
-          "description": "",
+          "description": "How long it took to execute this or that piece of code in semgrep-core",
           "type": "array",
           "items": { "$ref": "#/definitions/profiling_entry" }
         },
         "symbol_analysis": {
-          "description": "",
+          "description": "since semgrep 1.108.0",
           "$ref": "#/definitions/symbol_analysis"
         }
       }
     },
     "core_output_extra": {
-      "description": "",
+      "description": "For extra information to put into the `core_output` that we do not necessarily want to share with the cli_output.",
       "type": "object",
       "required": [],
       "properties": {
         "symbol_analysis": {
-          "description": "",
+          "description": "since semgrep 1.108.0",
           "$ref": "#/definitions/symbol_analysis"
         }
       }
     },
     "core_match": {
-      "description": "",
       "type": "object",
       "required": [ "check_id", "path", "start", "end", "extra" ],
       "properties": {
@@ -2390,14 +2569,17 @@
       }
     },
     "core_match_extra": {
-      "description": "",
+      "description": "See the corresponding comment in cli_match_extra for more information about the fields below.",
       "type": "object",
       "required": [ "metavars", "engine_kind", "is_ignored" ],
       "properties": {
         "metavars": { "$ref": "#/definitions/metavars" },
         "engine_kind": { "$ref": "#/definitions/engine_of_finding" },
         "is_ignored": { "type": "boolean" },
-        "message": { "description": "", "type": "string" },
+        "message": {
+          "description": "These fields generally come from the rule, but may be set here if they're being overriden for that particular finding. This would currently occur for rule with a validator for secrets, depending on what the validator might match, but could be expanded in the future.",
+          "type": "string"
+        },
         "metadata": { "$ref": "#/definitions/raw_json" },
         "severity": { "$ref": "#/definitions/match_severity" },
         "fix": { "type": "string" },
@@ -2406,13 +2588,13 @@
         "validation_state": { "$ref": "#/definitions/validation_state" },
         "historical_info": { "$ref": "#/definitions/historical_info" },
         "extra_extra": {
-          "description": "",
+          "description": "Escape hatch to pass untyped info from semgrep-core to the semgrep output. Useful for quick experiments, especially when combined with semgrep --core-opts flag.",
           "$ref": "#/definitions/raw_json"
         }
       }
     },
     "core_error": {
-      "description": "",
+      "description": "See Semgrep_error_code.ml",
       "type": "object",
       "required": [ "error_type", "severity", "message" ],
       "properties": {
@@ -2425,7 +2607,7 @@
       }
     },
     "project_root": {
-      "description": "",
+      "description": "See Scan_CLI.ml on how to convert command-line options to this",
       "oneOf": [
         {
           "type": "array",
@@ -2448,7 +2630,7 @@
       ]
     },
     "targeting_conf": {
-      "description": "",
+      "description": "This type is similar to the type Find_targets.conf used by osemgrep.\n\nWe could share the type but it would be slightly more complicated. This solution will be easier to undo when we're fully migrated to osemgrep.\n\nIt encodes options derived from the pysemgrep command line. Upon receiving this record, semgrep-core will discover the target files like osemgrep does.\n\nSee Find_targets.mli for the meaning of each field. See Scan_CLI.ml for the mapping between semgrep CLI and this type.",
       "type": "object",
       "required": [
         "exclude", "max_target_bytes", "respect_gitignore",
@@ -2464,12 +2646,12 @@
         "semgrepignore_filename": { "type": "string" },
         "always_select_explicit_targets": { "type": "boolean" },
         "explicit_targets": {
-          "description": "",
+          "description": "This is a hash table in Find_targets.conf",
           "type": "array",
           "items": { "type": "string" }
         },
         "force_project_root": {
-          "description": "",
+          "description": "osemgrep-only option (is it still the case?) (see Git_project.ml and the force_root parameter)",
           "$ref": "#/definitions/project_root"
         },
         "force_novcs_project": { "type": "boolean" },
@@ -2479,7 +2661,7 @@
     },
     "analyzer": { "description": "", "type": "string" },
     "target": {
-      "description": "",
+      "description": "A target can either be a traditional code target (now with optional associated lockfile) or it can be a lockfile target, which will be used to generate lockfile-only findings. Currently *ALL TARGETS FROM PYSEMGREP ARE CODETARGETS*",
       "oneOf": [
         {
           "type": "array",
@@ -2502,12 +2684,18 @@
       ]
     },
     "code_target": {
-      "description": "",
+      "description": "A normal semgrep target, optionally with an associated [lockfile] The lockfile means: the code in this file has its dependencies specified by this lockfile We don't want to commit to a specific way of associating these in semgrep-core, so we leave it up to the caller (pysemgrep or osemgrep) to do it.",
       "type": "object",
       "required": [ "path", "analyzer", "products" ],
       "properties": {
-        "path": { "$ref": "#/definitions/fppath" },
-        "analyzer": { "description": "", "$ref": "#/definitions/analyzer" },
+        "path": {
+          "description": "source file",
+          "$ref": "#/definitions/fppath"
+        },
+        "analyzer": {
+          "description": "Must be a valid target analyzer as defined in Analyzer.mli. examples: \"ocaml\", \"python\", but also \"spacegrep\" or \"regexp\".",
+          "$ref": "#/definitions/analyzer"
+        },
         "products": {
           "type": "array",
           "items": { "$ref": "#/definitions/product" }
@@ -2527,14 +2715,17 @@
       }
     },
     "targets": {
-      "description": "",
+      "description": "The same path can be present multiple times in targets below, with different languages each time, so a Python file can be both analyzed with Python rules, but also with generic/regexp rules.\n\nalt: we could have a list of languages instead in target above, but because of the way semgrep-core is designed (with its file_and_more type), you could have at most one PL language, and then possibly \"generic\" and \"regexp\".",
       "oneOf": [
         {
           "type": "array",
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "Scanning_roots" },
+            {
+              "description": "list of paths used to discover targets",
+              "const": "Scanning_roots"
+            },
             { "$ref": "#/definitions/scanning_roots" }
           ]
         },
@@ -2543,7 +2734,10 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "Targets" },
+            {
+              "description": "targets already discovered from the scanning roots by pysemgrep",
+              "const": "Targets"
+            },
             { "type": "array", "items": { "$ref": "#/definitions/target" } }
           ]
         }
@@ -2576,9 +2770,12 @@
       "type": "object",
       "required": [ "modified_file_count", "fixed_lines" ],
       "properties": {
-        "modified_file_count": { "description": "", "type": "integer" },
+        "modified_file_count": {
+          "description": "Number of files modified",
+          "type": "integer"
+        },
         "fixed_lines": {
-          "description": "",
+          "description": "Each item is a pair, where the first item is the index of the associated edit in the input list and the second item is the list of fixed lines associated with that edit.",
           "type": "array",
           "items": {
             "type": "array",
@@ -2596,7 +2793,10 @@
       "type": "object",
       "required": [ "rules", "is_pro", "show_dataflow_traces" ],
       "properties": {
-        "rules": { "description": "", "$ref": "#/definitions/fpath" },
+        "rules": {
+          "description": "Path to the rules file. We need it because rules can't be reconstructed from cli_output (which is one of the other param of CallSarifFormat)",
+          "$ref": "#/definitions/fpath"
+        },
         "is_pro": { "type": "boolean" },
         "show_dataflow_traces": { "type": "boolean" }
       }
@@ -2611,8 +2811,11 @@
         { "const": "Gitlab_sast" },
         { "const": "Gitlab_secrets" },
         { "const": "Junit_xml" },
-        { "description": "", "const": "Files_with_matches" },
-        { "description": "", "const": "Incremental" }
+        { "description": "osemgrep-only", "const": "Files_with_matches" },
+        {
+          "description": "used to disable the final display of match results because we displayed them incrementally instead",
+          "const": "Incremental"
+        }
       ]
     },
     "format_context": {
@@ -2651,12 +2854,15 @@
         { "const": "GemfileLock" },
         { "const": "GoMod" },
         { "const": "CargoLock" },
-        { "description": "", "const": "MavenDepTree" },
+        { "description": "Not a real lockfile", "const": "MavenDepTree" },
         { "const": "GradleLockfile" },
         { "const": "ComposerLock" },
         { "const": "NugetPackagesLockJson" },
         { "const": "PubspecLock" },
-        { "description": "", "const": "SwiftPackageResolved" },
+        {
+          "description": "not a real lockfile",
+          "const": "SwiftPackageResolved"
+        },
         { "const": "PodfileLock" },
         { "const": "MixLock" },
         { "const": "ConanLock" },
@@ -2665,29 +2871,98 @@
     },
     "manifest_kind": {
       "oneOf": [
-        { "description": "", "const": "RequirementsIn" },
-        { "description": "", "const": "SetupPy" },
-        { "description": "", "const": "PackageJson" },
-        { "description": "", "const": "Gemfile" },
-        { "description": "", "const": "GoMod" },
-        { "description": "", "const": "CargoToml" },
-        { "description": "", "const": "PomXml" },
-        { "description": "", "const": "BuildGradle" },
-        { "description": "", "const": "BuildGradleKts" },
-        { "description": "", "const": "SettingsGradle" },
-        { "description": "", "const": "ComposerJson" },
-        { "description": "", "const": "NugetManifestJson" },
-        { "description": "", "const": "PubspecYaml" },
-        { "description": "", "const": "PackageSwift" },
-        { "description": "", "const": "Podfile" },
-        { "description": "", "const": "MixExs" },
-        { "description": "", "const": "Pipfile" },
-        { "description": "", "const": "PyprojectToml" },
-        { "description": "", "const": "ConanFileTxt" },
-        { "description": "", "const": "ConanFilePy" },
-        { "description": "", "const": "Csproj" },
-        { "description": "", "const": "OpamFile" },
-        { "description": "", "const": "BuildSbt" }
+        {
+          "description": "A Pip Requirements.in in file, which follows the format of requirements.txt https://pip.pypa.io/en/stable/reference/requirements-file-format/",
+          "const": "RequirementsIn"
+        },
+        {
+          "description": "A setup.py file, which is a Python file that contains the setup configuration for a Python project. https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#setup-py",
+          "const": "SetupPy"
+        },
+        {
+          "description": "An NPM package.json manifest file https://docs.npmjs.com/cli/v10/configuring-npm/package-json",
+          "const": "PackageJson"
+        },
+        {
+          "description": "A Ruby Gemfile manifest https://bundler.io/v2.5/man/gemfile.5.html",
+          "const": "Gemfile"
+        },
+        {
+          "description": "go.mod https://go.dev/doc/modules/gomod-ref",
+          "const": "GoMod"
+        },
+        {
+          "description": "cargo.toml - https://doc.rust-lang.org/cargo/reference/manifest.html",
+          "const": "CargoToml"
+        },
+        {
+          "description": "A Maven pom.xml manifest file https://maven.apache.org/guides/introduction/introduction-to-the-pom.html",
+          "const": "PomXml"
+        },
+        {
+          "description": "A Gradle build.gradle build file https://docs.gradle.org/current/userguide/build_file_basics.html",
+          "const": "BuildGradle"
+        },
+        {
+          "description": "A Gradle build.gradle.kts file, which uses Kotlin instead of Groovy.",
+          "const": "BuildGradleKts"
+        },
+        {
+          "description": "A Gradle settings.gradle file https://docs.gradle.org/current/userguide/settings_file_basics.html. Multi-project builds are defined by settings.gradle rather than build.gradle: https://docs.gradle.org/current/userguide/multi_project_builds.html#multi_project_builds",
+          "const": "SettingsGradle"
+        },
+        {
+          "description": "composer.json - https://getcomposer.org/doc/04-schema.md",
+          "const": "ComposerJson"
+        },
+        {
+          "description": "manifest for nuget. Could not find a reference; this may not actually exist",
+          "const": "NugetManifestJson"
+        },
+        {
+          "description": "pubspec.yaml - https://dart.dev/tools/pub/pubspec",
+          "const": "PubspecYaml"
+        },
+        {
+          "description": "Package.swift https://docs.swift.org/package-manager/PackageDescription/PackageDescription.html",
+          "const": "PackageSwift"
+        },
+        {
+          "description": "Podfile - https://guides.cocoapods.org/using/the-podfile.html",
+          "const": "Podfile"
+        },
+        {
+          "description": "mix.exs https://hexdocs.pm/elixir/introduction-to-mix.html#project-compilation",
+          "const": "MixExs"
+        },
+        {
+          "description": "Pipfile - https://pipenv.pypa.io/en/latest/pipfile.html",
+          "const": "Pipfile"
+        },
+        {
+          "description": "pyproject.toml https://packaging.python.org/en/latest/guides/writing-pyproject-toml/",
+          "const": "PyprojectToml"
+        },
+        {
+          "description": "conanfile.txt https://docs.conan.io/2.9/reference/conanfile_txt.html#conanfile-txt",
+          "const": "ConanFileTxt"
+        },
+        {
+          "description": "conanfile.py - https://docs.conan.io/2.9/reference/conanfile.html",
+          "const": "ConanFilePy"
+        },
+        {
+          "description": ".csproj - https://docs.microsoft.com/en-us/dotnet/core/tools/csproj",
+          "const": "Csproj"
+        },
+        {
+          "description": "opam - https://opam.ocaml.org/doc/Manual.html#Package-definitions",
+          "const": "OpamFile"
+        },
+        {
+          "description": "build.sbt - https://www.scala-sbt.org/1.x/docs/Basic-Def.html",
+          "const": "BuildSbt"
+        }
       ]
     },
     "manifest": {
@@ -2746,7 +3021,10 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "MultiLockfile" },
+            {
+              "description": "The dependency_source should be LockfileOnly or ManifestLockfile, but not ManifestOnlyDependencySource. Right now this variant is only used by pysemgrep; it is deconstructed in multiple LockfileXxx when calling the dynamic resolver. Note that this variant introduces a series of problems in the Python code because atdpy generates a List[DependencySource] and List are not hashable in Python. We had to define a special hash function for Subproject to avoid hashing the dependency_source.",
+              "const": "MultiLockfile"
+            },
             {
               "type": "array",
               "items": { "$ref": "#/definitions/dependency_source" }
@@ -2780,7 +3058,10 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "ParseDependenciesFailed" },
+            {
+              "description": "when we produce some dependency list in lockfileless scanning (by talking to the package manager) but fail to parse it correctly",
+              "const": "ParseDependenciesFailed"
+            },
             { "type": "string" }
           ]
         },
@@ -2789,7 +3070,10 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "ScaParseError" },
+            {
+              "description": "a lockfile parser failed since semgrep 1.109.0 (to replace dependency_parser_error)",
+              "const": "ScaParseError"
+            },
             { "$ref": "#/definitions/sca_parser_name" }
           ]
         }
@@ -2804,7 +3088,7 @@
       }
     },
     "sca_resolution_error": {
-      "description": "",
+      "description": "used only from pysemgrep for now",
       "type": "object",
       "required": [ "type_", "dependency_source_file" ],
       "properties": {
@@ -2835,13 +3119,13 @@
       ]
     },
     "subproject": {
-      "description": "",
+      "description": "A subproject defined by some kind of manifest file (e.g., pyproject.toml, package.json, ...). This may be at the root of the repo being scanned or may be some other folder. Used as the unit of analysis for supply chain.",
       "type": "object",
       "required": [ "root_dir", "ecosystem", "dependency_source" ],
       "properties": {
         "root_dir": { "$ref": "#/definitions/fpath" },
         "ecosystem": {
-          "description": "",
+          "description": "This is used to match code files with subprojects. It is necessary to have it here, even before a subproject's dependencies are resolved, in order to decide whether a certain subproject must be resolved given the changes included in a certain diff scan. It can be None if this subproject is for a package manager whose ecosystem is not yet supported (i.e. one that is identified only for tracking purposes)",
           "oneOf": [
             {
               "type": "array",
@@ -2854,11 +3138,14 @@
             { "const": "None" }
           ]
         },
-        "dependency_source": { "$ref": "#/definitions/dependency_source" }
+        "dependency_source": {
+          "description": "The dependency source is how we resolved the dependencies. This might be a lockfile/manifest pair (the only current one), but in the future it might also be dynamic resolution based on a manifest, an SBOM, or something else",
+          "$ref": "#/definitions/dependency_source"
+        }
       }
     },
     "resolved_subproject": {
-      "description": "",
+      "description": "A subproject plus its resolved set of dependencies",
       "type": "object",
       "required": [
         "info", "resolution_method", "ecosystem", "resolved_dependencies",
@@ -2867,12 +3154,15 @@
       "properties": {
         "info": { "$ref": "#/definitions/subproject" },
         "resolution_method": {
-          "description": "",
+          "description": "The resolution method is how we determined the dependencies from the dependency source. This might be lockfile parsing, dependency resolution, SBOM ingest, or something else.",
           "$ref": "#/definitions/resolution_method"
         },
-        "ecosystem": { "description": "", "$ref": "#/definitions/ecosystem" },
+        "ecosystem": {
+          "description": "should be similar to info.ecosystem but this time it can't be None",
+          "$ref": "#/definitions/ecosystem"
+        },
         "resolved_dependencies": {
-          "description": "",
+          "description": "We use this mapping to efficiently find child dependencies from a FoundDependency. We need to store multiple FoundDependencies per package/version pair because a package might come from multiple places in a lockfile",
           "type": "array",
           "items": {
             "type": "array",
@@ -2916,7 +3206,7 @@
       ]
     },
     "downloaded_dependency": {
-      "description": "",
+      "description": "Information about a 3rd-party lib downloaded for Transitive Reachability. To accompany a found_dependency within the Semgrep CLI, passed back and forth from OCaml to Python via RPC. See also SCA_dependency.t in OCaml.\n\nSource paths is a list of paths to either folders containing source code or source code files. It is necessary to use a list here because package managers like pip may unpack a package into multiple folders.",
       "type": "object",
       "required": [ "source_paths" ],
       "properties": {
@@ -2928,10 +3218,22 @@
     },
     "unresolved_reason": {
       "oneOf": [
-        { "description": "", "const": "failed" },
-        { "description": "", "const": "skipped" },
-        { "description": "", "const": "unsupported" },
-        { "description": "", "const": "disabled" }
+        {
+          "description": "Resolution was attempted, but was unsuccessful.",
+          "const": "failed"
+        },
+        {
+          "description": "Resolution was skipped because the dependency source was not relevant to the scanned targets.",
+          "const": "skipped"
+        },
+        {
+          "description": "Resolution was skipped because the dependency source is not supported.",
+          "const": "unsupported"
+        },
+        {
+          "description": "Resolution was not attempted because a required feature (such as local builds) was disabled.",
+          "const": "disabled"
+        }
       ]
     },
     "unresolved_subproject": {
@@ -2941,7 +3243,7 @@
         "info": { "$ref": "#/definitions/subproject" },
         "reason": { "$ref": "#/definitions/unresolved_reason" },
         "errors": {
-          "description": "",
+          "description": "this is set only when the reason is UnresolvedFailed",
           "type": "array",
           "items": { "$ref": "#/definitions/sca_error" }
         }
@@ -2959,10 +3261,14 @@
           "items": { "$ref": "#/definitions/dependency_source" }
         },
         "download_dependency_source_code": { "type": "boolean" },
-        "allow_local_builds": { "description": "", "type": "boolean" }
+        "allow_local_builds": {
+          "description": "whether to allow executing package manager commands",
+          "type": "boolean"
+        }
       }
     },
     "resolution_result": {
+      "description": "Resolution can either succeed or fail, but in either case errors can be produced (e.g. one resolution method might fail while a worse one succeeds, lockfile parsing might partially fail but recover and still produce results).\n\nResolution can optionally include a {{downloaded_dependency}} alongside each {{found_dependency}} . This should be included if the source code for the dependency was downloaded and is available to scan later.",
       "oneOf": [
         {
           "type": "array",
@@ -3005,7 +3311,10 @@
       "type": "object",
       "required": [ "m" ],
       "properties": {
-        "m": { "description": "", "$ref": "#/definitions/core_match" }
+        "m": {
+          "description": "the important part is the sca_match in core_match_extra that we need to adjust and especially the sca_match_kind.",
+          "$ref": "#/definitions/core_match"
+        }
       }
     },
     "transitive_reachability_filter_params": {
@@ -3030,11 +3339,14 @@
       "type": "object",
       "required": [ "upload_url" ],
       "properties": {
-        "upload_url": { "description": "", "$ref": "#/definitions/uri" }
+        "upload_url": {
+          "description": "Presigned AWS URL for uploading symbol analysis data",
+          "$ref": "#/definitions/uri"
+        }
       }
     },
     "symbol": {
-      "description": "",
+      "description": "A symbol is a FQN.",
       "type": "object",
       "required": [ "fqn" ],
       "properties": {
@@ -3042,7 +3354,7 @@
       }
     },
     "symbol_usage": {
-      "description": "",
+      "description": "We store the location of the usage, because we may want to be able to know how many uses of the symbol there are, and where.",
       "type": "object",
       "required": [ "symbol", "locs" ],
       "properties": {
@@ -3092,7 +3404,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "CallSarifFormat" },
+            { "const": "CallSarifFormat" },
             {
               "type": "array",
               "minItems": 3,
@@ -3110,7 +3422,10 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "CallValidate" },
+            {
+              "description": "NOTE: fpath is most likely a temporary file that contains all the rules in JSON format. In the future, we could send the rules via a big string through the RPC pipe.",
+              "const": "CallValidate"
+            },
             { "$ref": "#/definitions/fpath" }
           ]
         },
@@ -3155,7 +3470,10 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "CallGetTargets" },
+            {
+              "description": "For now, the transitive reachability filter takes only a single dependency graph as input. It is up to the caller to call it several times, one for each subproject.",
+              "const": "CallGetTargets"
+            },
             { "$ref": "#/definitions/scanning_roots" }
           ]
         },
@@ -3229,7 +3547,10 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "RetValidate" },
+            {
+              "description": "rule validation error, if validation failed",
+              "const": "RetValidate"
+            },
             {
               "oneOf": [
                 {
@@ -3271,7 +3592,10 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "RetUploadSymbolAnalysis" },
+            {
+              "description": "success msg",
+              "const": "RetUploadSymbolAnalysis"
+            },
             { "type": "string" }
           ]
         },
@@ -3330,7 +3654,7 @@
       }
     },
     "partial_scan_result": {
-      "description": "",
+      "description": "Partial scans. Experimental and for internal use only.",
       "oneOf": [
         {
           "type": "array",
@@ -3361,17 +3685,20 @@
       ]
     },
     "diff_file": {
-      "description": "",
+      "description": "Synthesizing from diffs (see locate_patched_functions in Synthesizing.mli). Was in Input_to_core.atd before.",
       "type": "object",
       "required": [ "filename", "diffs", "url" ],
       "properties": {
         "filename": { "$ref": "#/definitions/fpath" },
         "diffs": {
-          "description": "",
+          "description": "start_line-end_line",
           "type": "array",
           "items": { "type": "string" }
         },
-        "url": { "description": "", "type": "string" }
+        "url": {
+          "description": "metadata to help SCA rule generation",
+          "type": "string"
+        }
       }
     },
     "diff_files": {
@@ -3385,13 +3712,19 @@
       }
     },
     "profiling_entry": {
-      "description": "",
+      "description": "Profiling info obtained from the OCaml executable, to be aggregated further in pysemgrep.",
       "type": "object",
       "required": [ "name", "total_time", "count" ],
       "properties": {
-        "name": { "type": "string" },
-        "total_time": { "description": "", "type": "number" },
-        "count": { "description": "", "type": "integer" }
+        "name": {
+          "description": "The name given to piece of code for which we measured how long it took.",
+          "type": "string"
+        },
+        "total_time": {
+          "description": "Total clock time in seconds. Divide by the count to get the mean.",
+          "type": "number"
+        },
+        "count": { "type": "integer" }
       }
     }
   }
