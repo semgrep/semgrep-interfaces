@@ -410,7 +410,7 @@ type metavar_value
      code (message metavariable substitution and autofix) works
      without change for empty ranges (when end = start).">: position;
   end <ocaml name="end_">: position;
-  abstract_content <doc text="value? ">: string; (* *)
+  abstract_content <doc text="value? ">: string
   ?propagated_value: svalue_value option;
 }
 
@@ -419,7 +419,7 @@ type svalue_value
   <python decorator="dataclass(frozen=True)"> = {
   ?svalue_start: position option;
   ?svalue_end: position option;
-  svalue_abstract_content <doc text="value?">: string; (*  *)
+  svalue_abstract_content <doc text="value?">: string
 }
 
 (*****************************************************************************)
@@ -991,7 +991,7 @@ type cli_error
   ?rule_id: rule_id option;
 
   (* for most parsing errors those are set *)
-  ?message <doc text="contains error location">: string option; (*  *)
+  ?message <doc text="contains error location">: string option
   ?path: fpath option;
 
   ?long_msg <doc text="for invalid rules, for ErrorWithSpan">: string option;
@@ -1245,7 +1245,7 @@ type parsing_time
     total_time: float;
     per_file_time: summary_stats;
     ?very_slow_stats: very_slow_stats option;
-    very_slow_files <doc text="ascending order">: file_time list; (*  *)
+    very_slow_files <doc text="ascending order">: file_time list
 }
 
 type scanning_time
@@ -1256,7 +1256,7 @@ type scanning_time
   total_time : float;
   per_file_time: summary_stats;
   very_slow_stats: very_slow_stats;
-  very_slow_files <doc text="ascending order">: file_time list; (*  *)
+  very_slow_files <doc text="ascending order">: file_time list
 }
 
 (*  *)
@@ -1276,7 +1276,7 @@ type tainting_time
   total_time : float;
   per_def_and_rule_time : summary_stats;
   very_slow_stats: very_slow_stats;
-  very_slow_rules_on_defs <doc text="ascending order">: def_rule_time list; (*  *)
+  very_slow_rules_on_defs <doc text="ascending order">: def_rule_time list
 }
 
 type target_times = {
@@ -1692,7 +1692,7 @@ type scan_response
 type scan_info
     <doc text="meta info about the scan">
   = {
-    ?id <doc text="the scan id, null for dry-runs">: int option; (*  *)
+    ?id <doc text="the scan id, null for dry-runs">: int option
     enabled_products: product list;
     (* Those fields are also in deployment_config but they are also
        here so that 'semgrep ci' does not need an extra HTTP request to the
@@ -1918,7 +1918,7 @@ type scan_metadata
   cli_version: version;
   unique_id
     <doc text="client generated uuid for the scan">
-  : uuid; (*  *)
+  : uuid
   requested_products: product list;
   (* *)
   ~dry_run
