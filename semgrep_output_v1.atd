@@ -404,13 +404,16 @@ type metavars
 type metavar_value
   <ocaml attr="deriving ord">
   <python decorator="dataclass(frozen=True)"> = {
-  start <doc text="
-     for certain metavariable like $...ARGS, 'end' may be equal to 'start'
-     to represent an empty metavariable value. The rest of the Python
-     code (message metavariable substitution and autofix) works
-     without change for empty ranges (when end = start).">: position;
+  start
+    <doc text="
+    for certain metavariable like $...ARGS, 'end' may be equal to 'start'
+    to represent an empty metavariable value. The rest of the Python
+    code (message metavariable substitution and autofix) works
+    without change for empty ranges (when end = start).
+    ">
+  : position;
   end <ocaml name="end_">: position;
-  abstract_content <doc text="value? ">: string
+  abstract_content <doc text="value?">: string;
   ?propagated_value: svalue_value option;
 }
 
@@ -981,7 +984,7 @@ type cli_error
   ?rule_id: rule_id option;
 
   (* for most parsing errors those are set *)
-  ?message <doc text="contains error location">: string option
+  ?message <doc text="contains error location">: string option;
   ?path: fpath option;
 
   ?long_msg <doc text="for invalid rules, for ErrorWithSpan">: string option;
@@ -1671,7 +1674,7 @@ type scan_response
 type scan_info
     <doc text="meta info about the scan">
   = {
-    ?id <doc text="the scan id, null for dry-runs">: int option
+    ?id <doc text="the scan id, null for dry-runs">: int option;
     enabled_products: product list;
     (* Those fields are also in deployment_config but they are also
        here so that 'semgrep ci' does not need an extra HTTP request to the
@@ -1879,7 +1882,7 @@ type scan_metadata
   cli_version: version;
   unique_id
     <doc text="client generated uuid for the scan">
-  : uuid
+  : uuid;
   requested_products: product list;
   ~dry_run
     <doc text="since 1.47.0">
