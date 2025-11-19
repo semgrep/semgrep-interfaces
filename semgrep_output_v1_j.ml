@@ -1,6 +1,92 @@
 (* Auto-generated from "semgrep_output_v1.atd" *)
 [@@@ocaml.warning "-27-32-33-35-39"]
 
+(**
+  Specification of the Semgrep CLI JSON output formats using ATD (see
+  https://atd.readthedocs.io/en/latest/ for information on ATD).
+  
+  This file specifies mainly the JSON formats of:
+  
+  - the output of the [semgrep scan --json] command
+  
+  - the output of the [semgrep test --json] command
+  
+  - the messages exchanged with the Semgrep backend by the [semgrep ci]
+  command
+  
+  It's also (ab)used to specify the JSON input and output of semgrep-core,
+  some RPC between pysemgrep and semgrep-core, and a few more internal
+  things. We should use separate .atd for those different purposes but ATD
+  does not have a proper module system yet and many types are shared so it is
+  simpler for now to have everything in one file.
+  
+  There are other important form of outputs which are not specified here:
+  
+  - The semgrep metrics sent to https://metrics.semgrep.dev in
+  semgrep_metrics.atd
+  
+  - The parsing stats of semgrep-core -parsing_stats -json have its own
+  Parsing_stats.atd
+  
+  For the definition of the Semgrep input (the rules), see rule_schema_v2.atd
+  
+  This file has the _v1 suffix to explicitely represent the version of this
+  JSON format. If you need to extend this file, please be careful because you
+  may break consumers of this format (e.g., the Semgrep playground or Semgrep
+  backend or external users of this JSON). See
+  https://atd.readthedocs.io/en/latest/atdgen-tutorial.html#smooth-protocol-upgrades
+  for more information on how to smoothly extend the types in this file.
+  
+  Any backward incompatible changes should require to upgrade the major
+  version of Semgrep as this JSON output is part of the "API" of Semgrep (any
+  incompatible changes to the rule format should also require a major version
+  upgrade). Hopefully, we will always be backward compatible. However, a few
+  fields are tagged with \[EXPERIMENTAL\] meaning external users should not
+  rely on them as those fields may be changed or removed. They are not part
+  of the "API" of Semgrep.
+  
+  Again, keep in mind that this file is used both by the CLI to *produce* a
+  JSON output, and by our backends to *consume* the JSON, including to
+  consume the JSON produced by old versions of the CLI. As of Nov 2024, our
+  backend is still supporting as far as Semgrep 1.50.0 released Nov 2023.
+  (see server/semgrep_app/util/cli_version_support.py in the semgrep-app
+  repo)
+  
+  This file is translated in OCaml modules by atdgen. Look for the
+  corresponding Semgrep_output_v1_\[tj\].ml\[i\] generated files under dune's
+  _build/ folder. A few types below have the 'deriving show' decorator
+  because those types are reused in semgrep core data structures and we make
+  heavy use of 'deriving show' in OCaml to help debug things.
+  
+  This file is also translated in Python modules by atdpy. For Python, a few
+  types have the 'dataclass(frozen=True)' decorator so that the class can be
+  hashed and put in set. Indeed, with 'Frozen=True' the class is immutable
+  and dataclass can autogenerate a hash function for it.
+  
+  Finally this file is translated in jsonschema/openapi spec by atdcat, and
+  in Typescript modules by atdts.
+  
+  history:
+  
+  - the types in this file were originally inferred from JSON_report.ml for
+  use by spacegrep when it was separate from semgrep-core. It's now also
+  useds in JSON_report.ml (now called Core_json_output.ml)
+  
+  - it was extended to not only support semgrep-core JSON output but also
+  (py)semgrep CLI output!
+  
+  - it was then simplified with the osemgrep migration effort by removing
+  gradually the semgrep-core JSON output.
+  
+  - it was extended to support 'semgrep ci' output to type most messages sent
+  between the Semgrep CLI and the Semgrep backend
+  
+  - we use this file to specify RPCs between pysemgrep and semgrep-core for
+  the gradual migration effort of osemgrep
+  
+  - merged what was in Input_to_core.atd here
+*)
+
 (** RFC 3339 format *)
 type datetime = Semgrep_output_v1_t.datetime
   [@@deriving ord]
