@@ -8,10 +8,38 @@ type datetime = ATD_string_wrap.Datetime.t
 type dependency_child = { package: string; version: string } [@@deriving ord]
 
 (** *)
-type dependency_kind =  Direct (** *) | Transitive (** *) | Unknown (** *) 
+type dependency_kind = 
+    Direct
+      (**
+        we depend directly on the 3rd-party library mentioned in the lockfile
+        (e.g., use of log4j library and concrete calls to log4j in 1st-party
+        code). log4j must be declared as a direct dependency in the manifest
+        file.
+      *)
+  | Transitive
+      (**
+        we depend indirectly (transitively) on the 3rd-party library (e.g.,
+        if we use lodash which itself uses internally log4j then lodash is a
+        Direct dependency and log4j a Transitive one)
+        
+        alt: Indirect
+      *)
+  | Unknown
+      (**
+        If there is insufficient information to determine the transitivity,
+        such as a requirements.txt file without a requirements.in manifest,
+        we leave it Unknown.
+      *)
+
   [@@deriving ord, eq, show]
 
-(** *)
+(**
+  both ecosystem and transitivity below have frozen=True so the generated
+  classes can be hashed and put in sets (see calls to reachable_deps.add() in
+  semgrep SCA code)
+  
+  alt: type package_manager
+*)
 type ecosystem = 
     Npm
   | Pypi
@@ -24,7 +52,11 @@ type ecosystem =
   | Pub
   | SwiftPM
   | Cocoapods
-  | Mix (** *)
+  | Mix
+      (**
+        Deprecated: Mix is a build system, should use Hex, which is the
+        ecosystem
+      *)
   | Hex
   | Opam
 
@@ -36,14 +68,38 @@ type found_dependency = {
   package: string;
   version: string;
   ecosystem: ecosystem;
-  allowed_hashes: (string * string list) list (** *);
+  allowed_hashes: (string * string list) list (** ??? *);
   resolved_url: string option;
   transitivity: dependency_kind;
-  manifest_path: fpath option (** *);
-  lockfile_path: fpath option (** *);
-  line_number: int option (** *);
-  children: dependency_child list option (** *);
-  git_ref: string option (** *)
+  manifest_path: fpath option
+    (**
+      Path to the manifest file that defines the project containing this
+      dependency. Examples: package.json, nested/folder/pom.xml
+    *);
+  lockfile_path: fpath option
+    (**
+      Path to the lockfile that contains this dependency. Examples:
+      package-lock.json, nested/folder/requirements.txt, go.mod. Since 1.87.0
+    *);
+  line_number: int option
+    (**
+      The line number of the dependency in the lockfile. When combined with
+      the lockfile_path, this can identify the location of the dependency in
+      the lockfile.
+    *);
+  children: dependency_child list option
+    (**
+      If we have dependency relationship information for this dependency,
+      this field will include the name and version of other found_dependency
+      items that this dependency requires. These fields must match values in
+      `package` and `version` of another `found_dependency` in the same set
+    *);
+  git_ref: string option
+    (**
+      Git ref of the dependency if the dependency comes directly from a git
+      repo. Examples: refs/heads/main, refs/tags/v1.0.0,
+      e5c704df4d308690fed696faf4c86453b4d88a95. Since 1.66.0
+    *)
 }
   [@@deriving ord]
 
@@ -136,13 +192,21 @@ type match_severity = [
 ]
   [@@deriving eq, ord, show]
 
-(** *)
+(**
+  Note that this type is used in Matching_explanation.ml hence the need for
+  deriving show below.
+*)
 type matching_operation = 
     And
   | Or
   | Inside
   | Anywhere
-  | XPat of string (** *)
+  | XPat of string
+      (**
+        XPat for eXtended pattern. Can be a spacegrep pattern, a regexp
+        pattern, or a proper semgrep pattern. see
+        semgrep-core/src/core/XPattern.ml
+      *)
   | Negation
   | Filter of string
   | Taint
@@ -173,11 +237,29 @@ type position = {
 type location = { path: fpath; start: position; end_ (*atd end *): position }
   [@@deriving ord, show]
 
-(** *)
-type loc_and_content = (location * string) [@@deriving ord]
+(**
+  The string attached to the location is the actual code from the file. This
+  can contain sensitive information so be careful!
+  
+  TODO: the type seems redundant since location already specifies a range.
+  maybe this saves some effort to the user of this type which do not need to
+  read the file to get the content.
+*)
+type loc_and_content = (location * string)
+  [@@deriving ord]
 
-(** *)
-type match_intermediate_var = { location: location; content: string (** *) }
+(**
+  This type happens to be mostly the same as a loc_and_content for now, but
+  it's split out because Iago has plans to extend this with more information
+*)
+type match_intermediate_var = {
+  location: location;
+  content: string
+    (**
+      Unlike abstract_content, this is the actual text read from the
+      corresponding source file
+    *)
+}
   [@@deriving ord]
 
 (**
@@ -197,11 +279,26 @@ type pro_feature = {
 }
   [@@deriving ord, show]
 
-(** *)
+(**
+  Report the engine used to detect each finding. Additionally, if we are able
+  to infer that the finding could only be detected using the pro engine,
+  report that the pro engine is required and include basic information about
+  which feature is required.
+  
+{v
+   OSS = ran with OSS
+   PRO = ran with PRO, but we didn't infer that OSS couldn't have found this
+   finding
+   PRO_REQUIRED = ran with PRO and requires a PRO feature (see pro_feature_used)
+v}
+  
+  Note: OSS and PRO could have clearer names, but for backwards compatibility
+  we're leaving them as is
+*)
 type engine_of_finding = [
     `OSS
   | `PRO
-  | `PRO_REQUIRED of pro_feature (** *)
+  | `PRO_REQUIRED of pro_feature (** Semgrep 1.64.0 or later *)
 ]
   [@@deriving ord, show]
 
@@ -228,10 +325,21 @@ type dependency_match = {
 
 type sha1 = ATD_string_wrap.Sha1.t [@@deriving ord]
 
-(** *)
+(** part of cli_match_extra *)
 type historical_info = {
-  git_commit: sha1 (** *);
-  git_blob: sha1 option (** *);
+  git_commit: sha1
+    (**
+      Git commit at which the finding is present. Used by "historical" scans,
+      which scan non-HEAD commits in the git history. Relevant for finding,
+      e.g., secrets which are buried in the git history which we wouldn't
+      find at HEAD
+    *);
+  git_blob: sha1 option
+    (**
+      Git blob at which the finding is present. Sent in addition to the
+      commit since some SCMs have permalinks which use the blob sha, so this
+      information is useful when generating links back to the SCM.
+    *);
   git_commit_timestamp: datetime
 }
   [@@deriving ord]
@@ -239,31 +347,51 @@ type historical_info = {
 type svalue_value = {
   svalue_start: position option;
   svalue_end: position option;
-  svalue_abstract_content: string (** *)
+  svalue_abstract_content: string (** value? *)
 }
   [@@deriving ord]
 
 type metavar_value = {
-  start: position (** *);
+  start: position
+    (**
+      for certain metavariable like $...ARGS, 'end' may be equal to 'start'
+      to represent an empty metavariable value. The rest of the Python code
+      (message metavariable substitution and autofix) works without change
+      for empty ranges (when end = start).
+    *);
   end_ (*atd end *): position;
-  abstract_content: string (** *);
+  abstract_content: string (** value? *);
   propagated_value: svalue_value option
 }
   [@@deriving ord]
 
-(** *)
-type metavars = (string * metavar_value) list [@@deriving ord]
+(**
+  Name/value map of the matched metavariables. The leading '$' must be
+  included in the metavariable name.
+*)
+type metavars = (string * metavar_value) list
+  [@@deriving ord]
 
 type transitive_undetermined = { explanation: string option }
   [@@deriving ord]
 
 type transitive_unreachable = {
-  analyzed_packages: found_dependency list (** *);
-  explanation: string option (** *)
+  analyzed_packages: found_dependency list
+    (**
+      We didn't find any findings in all the 3rd party libraries that are
+      using the 3rd party vulnerable library. This is a "proof of work".
+    *);
+  explanation: string option
+    (** some extra explanation that the user can understand *)
 }
   [@@deriving ord]
 
-(** *)
+(**
+  This type is used by postprocessors for secrets to report back the validity
+  of a finding. No_validator is currently also used when no validation has
+  yet occurred, which if that becomes confusing we could adjust that, by
+  adding another state.
+*)
 type validation_state = [
     `Confirmed_valid | `Confirmed_invalid | `Validation_error | `No_validator
 ]
@@ -286,7 +414,11 @@ type match_call_trace =
 
 type match_dataflow_trace = {
   taint_source: match_call_trace option;
-  intermediate_vars: match_intermediate_var list option (** *);
+  intermediate_vars: match_intermediate_var list option
+    (**
+      Intermediate variables which are involved in the dataflow. This
+      explains how the taint flows from the source to the sink.
+    *);
   taint_sink: match_call_trace option
 }
   [@@deriving ord]
@@ -300,47 +432,129 @@ type cli_match = {
 }
 
 and cli_match_extra = {
-  metavars: metavars option (** *);
-  message: string (** *);
-  fix: string option (** *);
-  fixed_lines: string list option (** *);
-  metadata: raw_json (** *);
+  metavars: metavars option
+    (**
+      Since 1.98.0, you need to be logged in to get this field. note: we also
+      need ?metavars because dependency_aware code
+    *);
+  message: string
+    (**
+      Those fields are derived from the rule but the metavariables they
+      contain have been expanded to their concrete value.
+    *);
+  fix: string option
+    (**
+      If present, semgrep was able to compute a string that should be
+      inserted in place of the text in the matched range in order to fix the
+      finding. Note that this is the result of applying both the fix: or
+      fix_regex: in a rule.
+    *);
+  fixed_lines: string list option;
+  metadata: raw_json (** fields coming from the rule *);
   severity: match_severity;
-  fingerprint: string (** *);
+  fingerprint: string
+    (** Since 1.98.0, you need to be logged in to get those fields *);
   lines: string;
-  is_ignored: bool option (** *);
-  sca_info: sca_match option (** *);
-  validation_state: validation_state option (** *);
-  historical_info: historical_info option (** *);
-  dataflow_trace: match_dataflow_trace option (** *);
+  is_ignored: bool option (** for nosemgrep *);
+  sca_info: sca_match option
+    (** EXPERIMENTAL: added by dependency_aware code *);
+  validation_state: validation_state option
+    (**
+      EXPERIMENTAL: If present indicates the status of postprocessor
+      validation. This field not being present should be equivalent to
+      No_validator. Added in semgrep 1.37.0
+    *);
+  historical_info: historical_info option
+    (**
+      EXPERIMENTAL: added by secrets post-processing & historical scanning
+      code Since 1.60.0.
+    *);
+  dataflow_trace: match_dataflow_trace option
+    (**
+      EXPERIMENTAL: For now, present only for taint findings. May be extended
+      to others later on.
+    *);
   engine_kind: engine_of_finding option;
-  extra_extra: raw_json option (** *)
+  extra_extra: raw_json option
+    (** EXPERIMENTAL: see core_match_extra.extra_extra *)
 }
 
 (** *)
 and sca_match = {
-  reachability_rule: bool;
+  reachability_rule: bool
+    (**
+      does the rule has a pattern part; otherwise it's a "parity" or
+      "upgrade-only" rule.
+    *);
   sca_finding_schema: int;
   dependency_match: dependency_match;
   reachable: bool;
-  kind: sca_match_kind option (** *)
+  kind: sca_match_kind option (** EXPERIMENTAL since 1.108.0 *)
 }
 
-(** *)
+(**
+  Note that in addition to "reachable" there are also the notions of
+  "vulnerable" and "exploitable".
+*)
 and sca_match_kind = 
-    LockfileOnlyMatch of dependency_kind (** *)
-  | DirectReachable (** *)
-  | TransitiveReachable of transitive_reachable (** *)
-  | TransitiveUnreachable of transitive_unreachable (** *)
-  | TransitiveUndetermined of transitive_undetermined (** *)
+    LockfileOnlyMatch of dependency_kind
+      (**
+        This is used for "parity" or "upgrade-only" rules. transitivity
+        indicates whether the match is for a direct or transitive usage of
+        the dependency; for a dependency that is both direct and transitive
+        two findings should be generated.
+      *)
+  | DirectReachable
+      (**
+        found the pattern-part of the SCA rule in 1st-party code (reachable
+        as originally defined by Semgrep Inc.) the match location will be in
+        some target code.
+      *)
+  | TransitiveReachable of transitive_reachable
+      (**
+        found the pattern-part of the SCA rule in third-party code and
+        ultimately found a path from 1st party code to this vulnerable
+        third-party code. The goal of transitive reachability analysis is to
+        change some Undetermined or (LockfileOnlyMatch Transitive) into
+        TransitiveReachable or TransitiveUnreachable
+      *)
+  | TransitiveUnreachable of transitive_unreachable
+      (**
+        This is a "positive" finding in the sense that semgrep was able to
+        prove that the transitive finding is "safe" and can be ignored
+        because either there is no call to the pattern-part of the SCA rule
+        in 3rd party code, or if there is it's in third-party code that is
+        not accessed from the 1st-party code (e.g., via callgraph analysis)
+        Note that there is no need for DirectUnreachable because semgrep
+        would never generate such a finding. We have TransitiveUnreachable
+        because semgrep first generates some Undetermined that we then retag
+        as DirectUnreachable.
+      *)
+  | TransitiveUndetermined of transitive_undetermined
+      (**
+        could not decide because of the engine limitations (e.g., found the
+        use of a vulnerable library in the lockfile but could not find the
+        pattern in first party code and could not access third-party code for
+        further investigation (similar to (LockfileOnlyMatch Transitive))
+      *)
 
   [@@deriving ord]
 
-(** *)
 and transitive_reachable = {
-  matches: (found_dependency * cli_match list) list (** *);
-  callgraph_reachable: bool option (** *);
-  explanation: string option (** *)
+  matches: (found_dependency * cli_match list) list
+    (**
+      The matches we found in 3rd party libraries. Ideally the location in
+      cli_match are relative to the root of the project so one can display
+      matches as package\@/path/to/finding.py
+    *);
+  callgraph_reachable: bool option
+    (**
+      LATER: add callgraph information so one can see the path from 1st party
+      code to the vulnerable intermediate 3rd party function. This is set to
+      None for now.
+    *);
+  explanation: string option
+    (** some extra explanation that the user can understand *)
 }
 
 (** *)
@@ -368,22 +582,49 @@ type core_match = {
   extra: core_match_extra
 }
 
-(** *)
+(**
+  For any "extra" information that we cannot fit at the node itself. This is
+  useful for kind-specific information, which we cannot put in the operation
+  itself without giving up our ability to derive `show` (needed for
+  `matching_operation` below).
+*)
 type matching_explanation_extra = {
-  before_negation_matches: core_match list option (** *);
-  before_filter_matches: core_match list option (** *)
+  before_negation_matches: core_match list option
+    (**
+      Only present in And kind. This information is useful for determining
+      the input matches to the first Negation node.
+    *);
+  before_filter_matches: core_match list option
+    (**
+      Only present in nodes which have children Filter nodes. This
+      information is useful for determining the input matches to the first
+      Filter node, as there is otherwise no way of obtaining the
+      post-intersection matches in an And node, for instance
+    *)
 }
 
-(** *)
+(** EXPERIMENTAL *)
 type matching_explanation = {
   op: matching_operation;
   children: matching_explanation list;
-  matches: core_match list (** *);
-  loc: location (** *);
-  extra: matching_explanation_extra option (** *)
+  matches: core_match list
+    (** result matches at this node (can be empty when we reach a nomatch) *);
+  loc: location
+    (**
+      location in the rule file! not target file. This tries to delimit the
+      part of the rule relevant to the current operation (e.g., the position
+      of the 'patterns:' token in the rule for the And operation).
+    *);
+  extra: matching_explanation_extra option (** NEW: since v1.79 *)
 }
 
-(** *)
+(**
+  These ratios are numbers in \[0, 1\], and we would hope that both
+  'time_ratio' and 'count_ratio' are very close to 0. In bad cases, we may
+  see the 'count_ratio' being close to 0 while the 'time_ratio' is above 0.5,
+  meaning that a small number of very slow files/etc represent a large amount
+  of the total processing time. EXPERIMENTAL
+*)
 type very_slow_stats = {
   time_ratio: float (** *);
   count_ratio: float (** *)
@@ -594,7 +835,11 @@ type targeting_conf = {
 }
   [@@deriving show]
 
-type product = [ `SAST (** *) | `SCA (** *) | `Secrets ]
+type product = [
+    `SAST (** a.k.a. Code *)
+  | `SCA (** a.k.a. SSC *)
+  | `Secrets
+]
   [@@deriving eq, ord, show]
 
 type ppath = Ppath.t [@@deriving show, eq]
@@ -646,34 +891,50 @@ type target_times = {
   run_time: float (** *)
 }
 
-(** *)
+(**
+  A reason for skipping a target file or a pair (target, rule). Note that
+  this type is also used in Report.ml hence the need for deriving show here.
+  
+  For consistency, please make sure all the JSON constructors use the same
+  case rules (lowercase, underscores). This is hard to fix later! Please
+  review your code carefully before committing to interface changes.
+*)
 type skip_reason = 
-    Always_skipped (** *)
+    Always_skipped
   | Semgrepignore_patterns_match
   | Cli_include_flags_do_not_match
   | Cli_exclude_flags_match
   | Exceeded_size_limit
   | Analysis_failed_parser_or_internal_error
-  | Excluded_by_config (** *)
+  | Excluded_by_config
   | Wrong_language
   | Too_big
   | Minified
   | Binary
   | Irrelevant_rule
   | Too_many_matches
-  | Gitignore_patterns_match (** *)
-  | Dotfile (** *)
-  | Nonexistent_file (** *)
-  | Insufficient_permissions (** *)
+  | Gitignore_patterns_match
+  | Dotfile
+      (**
+        since 1.40.0. They were always ignored, but not shown in the skip
+        report
+      *)
+  | Nonexistent_file (** since 1.44.0 *)
+  | Insufficient_permissions (** since 1.94.0 *)
 
   [@@deriving show]
 
-(** *)
+(** coupling: ugly: with yield_json_objects() in target_manager.py *)
 type skipped_target = {
   path: fpath;
   reason: skip_reason;
-  details: string option (** *);
-  rule_id: rule_id option (** *)
+  details: string option
+    (** since semgrep 1.39.0 (used to be return only by semgrep-core) *);
+  rule_id: rule_id option
+    (**
+      If the 'rule_id' field is missing, the target is assumed to have been
+      skipped for all the rules
+    *)
 }
   [@@deriving show]
 
@@ -685,35 +946,57 @@ type incompatible_rule = {
 }
   [@@deriving show]
 
-(** *)
 type error_type = 
-    LexicalError (** *)
-  | ParseError (** *)
+    LexicalError
+      (**
+        File parsing related errors; coupling: if you add a target parse
+        error then metrics for cli need to be updated. See
+        cli/src/semgrep/parsing_data.py.
+      *)
+  | ParseError (** a.k.a SyntaxError *)
   | OtherParseError
   | AstBuilderError
-  | RuleParseError (** *)
-  | SemgrepWarning (** *)
+  | RuleParseError
+      (**
+        Pattern parsing related errors. There are more precise info about the
+        error in Rule.invalid_rule_error_kind in Rule.ml.
+      *)
+  | SemgrepWarning (** generated in pysemgrep only *)
   | SemgrepError
   | InvalidRuleSchemaError
   | UnknownLanguageError
   | InvalidYaml
-  | MatchingError (** *)
-  | SemgrepMatchFound (** *)
+  | MatchingError (** internal error, e.g., NoTokenLocation *)
+  | SemgrepMatchFound
   | TooManyMatches
-  | FatalError (** *)
+  | FatalError (** missing file, OCaml errors, etc. *)
   | Timeout
   | OutOfMemory
-  | FixpointTimeout (** *)
-  | StackOverflow (** *)
-  | TimeoutDuringInterfile (** *)
+  | FixpointTimeout (** since semgrep 1.132.0 *)
+  | StackOverflow (** since semgrep 1.86.0 *)
+  | TimeoutDuringInterfile
   | OutOfMemoryDuringInterfile
-  | MissingPlugin (** *)
-  | PatternParseError of string list (** *)
-  | PartialParsing of location list (** *)
-  | IncompatibleRule of incompatible_rule (** *)
-  | PatternParseError0 (** *)
+  | MissingPlugin (** since semgrep 1.40.0 *)
+  | PatternParseError of string list
+      (**
+        the string list is the "YAML path" of the pattern, e.g. [\["rules";
+        "1"; ...\]]
+      *)
+  | PartialParsing of location list
+      (** list of skipped tokens. Since semgrep 0.97. *)
+  | IncompatibleRule of incompatible_rule (** since semgrep 1.38.0 *)
+  | PatternParseError0
+      (**
+        Those Xxx0 variants were introduced in semgrep 1.45.0, but actually
+        they are here so that our backend can read the cli_error.type_ from
+        old semgrep versions that were translating the PatternParseError _
+        and IncompatibleRule _ above as a single string (instead of a list
+        \["PatternParseError", ...\] now). There is no PartialParsing0
+        because this was encoded as a ParseError instead.
+      *)
   | IncompatibleRule0
-  | DependencyResolutionError of resolution_error_kind (** *)
+  | DependencyResolutionError of resolution_error_kind
+      (** since semgrep 1.94.0 *)
 
   [@@deriving show]
 
@@ -742,17 +1025,20 @@ type core_error = {
   rule_id: rule_id option
 }
 
-(** *)
+(**
+  Result of get_targets internal RPC, similar to scanned_and_skipped but more
+  complete
+*)
 type target_discovery_result = {
   target_paths: fppath list;
   errors: core_error list;
   skipped: skipped_target list
 }
 
-(** *)
+(** EXPERIMENTAL *)
 type summary_stats = { mean: float; std_dev: float }
 
-(** *)
+(** EXPERIMENTAL *)
 type def_rule_time = {
   fpath: fpath;
   fline: int;
@@ -819,23 +1105,24 @@ type supply_chain_stats = { subprojects_stats: subproject_stats list }
 type skipped_rule = {
   rule_id: rule_id;
   details: string;
-  position: position (** *)
+  position: position (** position of the error in the rule file *)
 }
 
-(** *)
-type file_time = { fpath: fpath; ftime: float } [@@deriving show]
+(** EXPERIMENTAL *)
+type file_time = { fpath: fpath; ftime: float }
+  [@@deriving show]
 
-(** *)
+(** Scanning time (includes matching and tainting) EXPERIMENTAL *)
 type scanning_time = {
   total_time: float;
   per_file_time: summary_stats;
   very_slow_stats: very_slow_stats;
-  very_slow_files: file_time list (** *)
+  very_slow_files: file_time list (** ascending order *)
 }
 
 type scanned_and_skipped = {
   scanned: fpath list;
-  skipped: skipped_target list option (** *)
+  skipped: skipped_target list option
 }
 
 type scan_info = {
@@ -1035,15 +1322,15 @@ type prefiltering_stats = {
 }
   [@@deriving show]
 
-(** *)
+(** EXPERIMENTAL *)
 type parsing_time = {
   total_time: float;
   per_file_time: summary_stats;
   very_slow_stats: very_slow_stats option;
-  very_slow_files: file_time list (** *)
+  very_slow_files: file_time list (** ascending order *)
 }
 
-(** *)
+(** EXPERIMENTAL *)
 type file_rule_time = { fpath: fpath; rule_id: rule_id; time: float }
   [@@deriving show]
 
@@ -1055,20 +1342,42 @@ type matching_time = {
   very_slow_rules_on_files: file_rule_time list (** *)
 }
 
-(** *)
+(** Run locally $ ./run-benchmarks --dummy --upload *)
 type profile = {
-  rules: rule_id list (** *);
+  rules: rule_id list
+    (**
+      List of rules, including the one read but not run on any target. This
+      list is actually more an array which allows other fields to reference
+      rule by number instead of rule_id (e.g., match_times further below)
+      saving space in the JSON.
+      
+      Upgrade note: this used to be defined as a rule_id_dict where each
+      rule_id was inside a \{id: rule_id; ...\} record so we could give
+      parsing time info about each rule, but parsing one rule was never the
+      slow part, so now we just juse the aggregated rules_parse_time below
+      and do not need a complex rule_id_dict record anymore.
+    *);
   rules_parse_time: float;
-  profiling_times: (string * float) list (** *);
-  parsing_time: parsing_time option (** *);
-  scanning_time: scanning_time option (** *);
-  matching_time: matching_time option (** *);
-  tainting_time: tainting_time option (** *);
-  fixpoint_timeouts: core_error list option (** *);
+  profiling_times: (string * float) list;
+  parsing_time: parsing_time option (** EXPERIMENTAL *);
+  scanning_time: scanning_time option (** EXPERIMENTAL *);
+  matching_time: matching_time option (** EXPERIMENTAL *);
+  tainting_time: tainting_time option (** EXPERIMENTAL *);
+  fixpoint_timeouts: core_error list option
+    (**
+      EXPERIMENTAL: Dafatlow fixpoint-function timeouts
+      
+      Happen more often than we would like, and it's mainly Semgrep devs that
+      will use this info for debugging, so for now we are reporting these
+      timeouts as part of the profiling report.
+    *);
   prefiltering: prefiltering_stats option;
   targets: target_times list;
   total_bytes: int;
-  max_memory_bytes: int option (** *)
+  max_memory_bytes: int option
+    (**
+      maximum amount of memory used by Semgrep(-core) during its execution
+    *)
 }
 
 type parsing_stats = {
@@ -1110,11 +1419,16 @@ type finding = {
 }
 
 type error_span = {
-  file: fpath (** *);
+  file: fpath (** for InvalidRuleSchemaError *);
   start: position;
   end_ (*atd end *): position;
   source_hash: string option;
-  config_start: position option option (** *);
+  config_start: position option option
+    (**
+      The path to the pattern in the yaml rule and an adjusted start/end
+      within just the pattern. Used to report playground parse errors in the
+      simple editor
+    *);
   config_end: position option option;
   config_path: string list option option;
   context_start: position option option (** *);
@@ -1136,14 +1450,23 @@ type contribution = {
 (** *)
 type contributions = contribution list
 
+(** (called SemgrepError in error.py) *)
 type cli_error = {
-  code: int (** *);
+  code: int (** exit code for the type_ of error *);
   level: error_severity;
-  type_: error_type (** *);
+  type_: error_type
+    (**
+      before 1.45.0 the type below was 'string', but was the result of
+      converting error_type into a string, so using directly 'error_type'
+      below should be mostly backward compatible thx to the <json name>
+      annotations in error_type. To be fully backward compatible, we actually
+      introduced the PatternParseError0 and IncompatibleRule0 cases in
+      error_type.
+    *);
   rule_id: rule_id option;
-  message: string option (** *);
+  message: string option (** contains error location *);
   path: fpath option;
-  long_msg: string option (** *);
+  long_msg: string option (** for invalid rules, for ErrorWithSpan *);
   short_msg: string option;
   spans: error_span list option;
   help: string option
@@ -1220,7 +1543,7 @@ type output_format =
 
 type mcp_scan_results = { rules: string list; total_bytes_scanned: int }
 
-(** *)
+(** e.g. "ab023_1" *)
 type match_based_id = string [@@deriving show, eq]
 
 (** *)

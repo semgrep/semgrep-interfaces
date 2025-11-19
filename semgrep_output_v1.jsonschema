@@ -139,7 +139,7 @@
       }
     },
     "engine_of_finding": {
-      "description": "",
+      "description": "Report the engine used to detect each finding. Additionally, if we are able to infer that the finding could only be detected using the pro engine, report that the pro engine is required and include basic information about which feature is required.\n\n{{{\n   OSS = ran with OSS\n   PRO = ran with PRO, but we didn't infer that OSS couldn't have found this\n   finding\n   PRO_REQUIRED = ran with PRO and requires a PRO feature (see pro_feature_used)\n}}}\n\nNote: OSS and PRO could have clearer names, but for backwards compatibility we're leaving them as is",
       "oneOf": [
         { "const": "OSS" },
         { "const": "PRO" },
@@ -148,7 +148,10 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "PRO_REQUIRED" },
+            {
+              "description": "Semgrep 1.64.0 or later",
+              "const": "PRO_REQUIRED"
+            },
             { "$ref": "#/definitions/pro_feature" }
           ]
         }
@@ -166,12 +169,12 @@
     },
     "product": {
       "oneOf": [
-        { "description": "", "const": "sast" },
-        { "description": "", "const": "sca" },
+        { "description": "a.k.a. Code", "const": "sast" },
+        { "description": "a.k.a. SSC", "const": "sca" },
         { "const": "secrets" }
       ]
     },
-    "match_based_id": { "description": "", "type": "string" },
+    "match_based_id": { "description": "e.g. \"ab023_1\"", "type": "string" },
     "cli_match": {
       "type": "object",
       "required": [ "check_id", "path", "start", "end", "extra" ],
@@ -189,41 +192,55 @@
         "message", "metadata", "severity", "fingerprint", "lines"
       ],
       "properties": {
-        "metavars": { "description": "", "$ref": "#/definitions/metavars" },
-        "message": { "description": "", "type": "string" },
-        "fix": { "description": "", "type": "string" },
-        "fixed_lines": {
-          "description": "",
-          "type": "array",
-          "items": { "type": "string" }
+        "metavars": {
+          "description": "Since 1.98.0, you need to be logged in to get this field. note: we also need ?metavars because dependency_aware code",
+          "$ref": "#/definitions/metavars"
         },
-        "metadata": { "description": "", "$ref": "#/definitions/raw_json" },
+        "message": {
+          "description": "Those fields are derived from the rule but the metavariables they contain have been expanded to their concrete value.",
+          "type": "string"
+        },
+        "fix": {
+          "description": "If present, semgrep was able to compute a string that should be inserted in place of the text in the matched range in order to fix the finding. Note that this is the result of applying both the fix: or fix_regex: in a rule.",
+          "type": "string"
+        },
+        "fixed_lines": { "type": "array", "items": { "type": "string" } },
+        "metadata": {
+          "description": "fields coming from the rule",
+          "$ref": "#/definitions/raw_json"
+        },
         "severity": { "$ref": "#/definitions/match_severity" },
-        "fingerprint": { "description": "", "type": "string" },
+        "fingerprint": {
+          "description": "Since 1.98.0, you need to be logged in to get those fields",
+          "type": "string"
+        },
         "lines": { "type": "string" },
-        "is_ignored": { "description": "", "type": "boolean" },
-        "sca_info": { "description": "", "$ref": "#/definitions/sca_match" },
+        "is_ignored": { "description": "for nosemgrep", "type": "boolean" },
+        "sca_info": {
+          "description": "EXPERIMENTAL: added by dependency_aware code",
+          "$ref": "#/definitions/sca_match"
+        },
         "validation_state": {
-          "description": "",
+          "description": "EXPERIMENTAL: If present indicates the status of postprocessor validation. This field not being present should be equivalent to No_validator. Added in semgrep 1.37.0",
           "$ref": "#/definitions/validation_state"
         },
         "historical_info": {
-          "description": "",
+          "description": "EXPERIMENTAL: added by secrets post-processing & historical scanning code Since 1.60.0.",
           "$ref": "#/definitions/historical_info"
         },
         "dataflow_trace": {
-          "description": "",
+          "description": "EXPERIMENTAL: For now, present only for taint findings. May be extended to others later on.",
           "$ref": "#/definitions/match_dataflow_trace"
         },
         "engine_kind": { "$ref": "#/definitions/engine_of_finding" },
         "extra_extra": {
-          "description": "",
+          "description": "EXPERIMENTAL: see core_match_extra.extra_extra",
           "$ref": "#/definitions/raw_json"
         }
       }
     },
     "metavars": {
-      "description": "",
+      "description": "Name/value map of the matched metavariables. The leading '$' must be included in the metavariable name.",
       "type": "object",
       "additionalProperties": { "$ref": "#/definitions/metavar_value" }
     },
@@ -231,9 +248,12 @@
       "type": "object",
       "required": [ "start", "end", "abstract_content" ],
       "properties": {
-        "start": { "description": "", "$ref": "#/definitions/position" },
+        "start": {
+          "description": "for certain metavariable like $...ARGS, 'end' may be equal to 'start' to represent an empty metavariable value. The rest of the Python code (message metavariable substitution and autofix) works without change for empty ranges (when end = start).",
+          "$ref": "#/definitions/position"
+        },
         "end": { "$ref": "#/definitions/position" },
-        "abstract_content": { "description": "", "type": "string" },
+        "abstract_content": { "description": "value?", "type": "string" },
         "propagated_value": { "$ref": "#/definitions/svalue_value" }
       }
     },
@@ -243,11 +263,14 @@
       "properties": {
         "svalue_start": { "$ref": "#/definitions/position" },
         "svalue_end": { "$ref": "#/definitions/position" },
-        "svalue_abstract_content": { "description": "", "type": "string" }
+        "svalue_abstract_content": {
+          "description": "value?",
+          "type": "string"
+        }
       }
     },
     "matching_explanation": {
-      "description": "",
+      "description": "EXPERIMENTAL",
       "type": "object",
       "required": [ "op", "children", "matches", "loc" ],
       "properties": {
@@ -257,24 +280,27 @@
           "items": { "$ref": "#/definitions/matching_explanation" }
         },
         "matches": {
-          "description": "",
+          "description": "result matches at this node (can be empty when we reach a nomatch)",
           "type": "array",
           "items": { "$ref": "#/definitions/core_match" }
         },
-        "loc": { "description": "", "$ref": "#/definitions/location" },
+        "loc": {
+          "description": "location in the rule file! not target file. This tries to delimit the part of the rule relevant to the current operation (e.g., the position of the 'patterns:' token in the rule for the And operation).",
+          "$ref": "#/definitions/location"
+        },
         "extra": {
-          "description": "",
+          "description": "NEW: since v1.79",
           "$ref": "#/definitions/matching_explanation_extra"
         }
       }
     },
     "matching_explanation_extra": {
-      "description": "",
+      "description": "For any \"extra\" information that we cannot fit at the node itself. This is useful for kind-specific information, which we cannot put in the operation itself without giving up our ability to derive `show` (needed for `matching_operation` below).",
       "type": "object",
       "required": [ "before_negation_matches", "before_filter_matches" ],
       "properties": {
         "before_negation_matches": {
-          "description": "",
+          "description": "Only present in And kind. This information is useful for determining the input matches to the first Negation node.",
           "oneOf": [
             {
               "type": "array",
@@ -292,7 +318,7 @@
           ]
         },
         "before_filter_matches": {
-          "description": "",
+          "description": "Only present in nodes which have children Filter nodes. This information is useful for determining the input matches to the first Filter node, as there is otherwise no way of obtaining the post-intersection matches in an And node, for instance",
           "oneOf": [
             {
               "type": "array",
@@ -312,7 +338,7 @@
       }
     },
     "matching_operation": {
-      "description": "",
+      "description": "Note that this type is used in Matching_explanation.ml hence the need for deriving show below.",
       "oneOf": [
         { "const": "And" },
         { "const": "Or" },
@@ -323,7 +349,11 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "XPat" }, { "type": "string" }
+            {
+              "description": "XPat for eXtended pattern. Can be a spacegrep pattern, a regexp pattern, or a proper semgrep pattern. see semgrep-core/src/core/XPattern.ml",
+              "const": "XPat"
+            },
+            { "type": "string" }
           ]
         },
         { "const": "Negation" },
@@ -347,7 +377,7 @@
       "properties": {
         "taint_source": { "$ref": "#/definitions/match_call_trace" },
         "intermediate_vars": {
-          "description": "",
+          "description": "Intermediate variables which are involved in the dataflow. This explains how the taint flows from the source to the sink.",
           "type": "array",
           "items": { "$ref": "#/definitions/match_intermediate_var" }
         },
@@ -355,7 +385,7 @@
       }
     },
     "loc_and_content": {
-      "description": "",
+      "description": "The string attached to the location is the actual code from the file. This can contain sensitive information so be careful!\n\nTODO: the type seems redundant since location already specifies a range. maybe this saves some effort to the user of this type which do not need to read the file to get the content.",
       "type": "array",
       "minItems": 2,
       "items": false,
@@ -398,16 +428,19 @@
       ]
     },
     "match_intermediate_var": {
-      "description": "",
+      "description": "This type happens to be mostly the same as a loc_and_content for now, but it's split out because Iago has plans to extend this with more information",
       "type": "object",
       "required": [ "location", "content" ],
       "properties": {
         "location": { "$ref": "#/definitions/location" },
-        "content": { "description": "", "type": "string" }
+        "content": {
+          "description": "Unlike abstract_content, this is the actual text read from the corresponding source file",
+          "type": "string"
+        }
       }
     },
     "ecosystem": {
-      "description": "",
+      "description": "both ecosystem and transitivity below have frozen=True so the generated classes can be hashed and put in sets (see calls to reachable_deps.add() in semgrep SCA code)\n\nalt: type package_manager",
       "oneOf": [
         { "const": "npm" },
         { "const": "pypi" },
@@ -420,7 +453,10 @@
         { "const": "pub" },
         { "const": "swiftpm" },
         { "const": "cocoapods" },
-        { "description": "", "const": "mix" },
+        {
+          "description": "Deprecated: Mix is a build system, should use Hex, which is the ecosystem",
+          "const": "mix"
+        },
         { "const": "hex" },
         { "const": "opam" }
       ]
@@ -428,9 +464,18 @@
     "dependency_kind": {
       "description": "",
       "oneOf": [
-        { "description": "", "const": "direct" },
-        { "description": "", "const": "transitive" },
-        { "description": "", "const": "unknown" }
+        {
+          "description": "we depend directly on the 3rd-party library mentioned in the lockfile (e.g., use of log4j library and concrete calls to log4j in 1st-party code). log4j must be declared as a direct dependency in the manifest file.",
+          "const": "direct"
+        },
+        {
+          "description": "we depend indirectly (transitively) on the 3rd-party library (e.g., if we use lodash which itself uses internally log4j then lodash is a Direct dependency and log4j a Transitive one)\n\nalt: Indirect",
+          "const": "transitive"
+        },
+        {
+          "description": "If there is insufficient information to determine the transitivity, such as a requirements.txt file without a requirements.in manifest, we leave it Unknown.",
+          "const": "unknown"
+        }
       ]
     },
     "sca_match": {
@@ -441,32 +486,47 @@
         "reachable"
       ],
       "properties": {
-        "reachability_rule": { "type": "boolean" },
+        "reachability_rule": {
+          "description": "does the rule has a pattern part; otherwise it's a \"parity\" or \"upgrade-only\" rule.",
+          "type": "boolean"
+        },
         "sca_finding_schema": { "type": "integer" },
         "dependency_match": { "$ref": "#/definitions/dependency_match" },
         "reachable": { "type": "boolean" },
-        "kind": { "description": "", "$ref": "#/definitions/sca_match_kind" }
+        "kind": {
+          "description": "EXPERIMENTAL since 1.108.0",
+          "$ref": "#/definitions/sca_match_kind"
+        }
       }
     },
     "sca_match_kind": {
-      "description": "",
+      "description": "Note that in addition to \"reachable\" there are also the notions of \"vulnerable\" and \"exploitable\".",
       "oneOf": [
         {
           "type": "array",
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "LockfileOnlyMatch" },
+            {
+              "description": "This is used for \"parity\" or \"upgrade-only\" rules. transitivity indicates whether the match is for a direct or transitive usage of the dependency; for a dependency that is both direct and transitive two findings should be generated.",
+              "const": "LockfileOnlyMatch"
+            },
             { "$ref": "#/definitions/dependency_kind" }
           ]
         },
-        { "description": "", "const": "DirectReachable" },
+        {
+          "description": "found the pattern-part of the SCA rule in 1st-party code (reachable as originally defined by Semgrep Inc.) the match location will be in some target code.",
+          "const": "DirectReachable"
+        },
         {
           "type": "array",
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "TransitiveReachable" },
+            {
+              "description": "found the pattern-part of the SCA rule in third-party code and ultimately found a path from 1st party code to this vulnerable third-party code. The goal of transitive reachability analysis is to change some Undetermined or (LockfileOnlyMatch Transitive) into TransitiveReachable or TransitiveUnreachable",
+              "const": "TransitiveReachable"
+            },
             { "$ref": "#/definitions/transitive_reachable" }
           ]
         },
@@ -475,7 +535,10 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "TransitiveUnreachable" },
+            {
+              "description": "This is a \"positive\" finding in the sense that semgrep was able to prove that the transitive finding is \"safe\" and can be ignored because either there is no call to the pattern-part of the SCA rule in 3rd party code, or if there is it's in third-party code that is not accessed from the 1st-party code (e.g., via callgraph analysis) Note that there is no need for DirectUnreachable because semgrep would never generate such a finding. We have TransitiveUnreachable because semgrep first generates some Undetermined that we then retag as DirectUnreachable.",
+              "const": "TransitiveUnreachable"
+            },
             { "$ref": "#/definitions/transitive_unreachable" }
           ]
         },
@@ -484,19 +547,21 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "TransitiveUndetermined" },
+            {
+              "description": "could not decide because of the engine limitations (e.g., found the use of a vulnerable library in the lockfile but could not find the pattern in first party code and could not access third-party code for further investigation (similar to (LockfileOnlyMatch Transitive))",
+              "const": "TransitiveUndetermined"
+            },
             { "$ref": "#/definitions/transitive_undetermined" }
           ]
         }
       ]
     },
     "transitive_reachable": {
-      "description": "",
       "type": "object",
       "required": [ "matches", "callgraph_reachable", "explanation" ],
       "properties": {
         "matches": {
-          "description": "",
+          "description": "The matches we found in 3rd party libraries. Ideally the location in cli_match are relative to the root of the project so one can display matches as package@/path/to/finding.py",
           "type": "array",
           "items": {
             "type": "array",
@@ -512,7 +577,7 @@
           }
         },
         "callgraph_reachable": {
-          "description": "",
+          "description": "LATER: add callgraph information so one can see the path from 1st party code to the vulnerable intermediate 3rd party function. This is set to None for now.",
           "oneOf": [
             {
               "type": "array",
@@ -524,7 +589,7 @@
           ]
         },
         "explanation": {
-          "description": "",
+          "description": "some extra explanation that the user can understand",
           "oneOf": [
             {
               "type": "array",
@@ -542,12 +607,12 @@
       "required": [ "analyzed_packages", "explanation" ],
       "properties": {
         "analyzed_packages": {
-          "description": "",
+          "description": "We didn't find any findings in all the 3rd party libraries that are using the 3rd party vulnerable library. This is a \"proof of work\".",
           "type": "array",
           "items": { "$ref": "#/definitions/found_dependency" }
         },
         "explanation": {
-          "description": "",
+          "description": "some extra explanation that the user can understand",
           "oneOf": [
             {
               "type": "array",
@@ -605,7 +670,7 @@
         "version": { "type": "string" },
         "ecosystem": { "$ref": "#/definitions/ecosystem" },
         "allowed_hashes": {
-          "description": "",
+          "description": "???",
           "type": "object",
           "additionalProperties": {
             "type": "array",
@@ -614,15 +679,27 @@
         },
         "resolved_url": { "type": "string" },
         "transitivity": { "$ref": "#/definitions/dependency_kind" },
-        "manifest_path": { "description": "", "$ref": "#/definitions/fpath" },
-        "lockfile_path": { "description": "", "$ref": "#/definitions/fpath" },
-        "line_number": { "description": "", "type": "integer" },
+        "manifest_path": {
+          "description": "Path to the manifest file that defines the project containing this dependency. Examples: package.json, nested/folder/pom.xml",
+          "$ref": "#/definitions/fpath"
+        },
+        "lockfile_path": {
+          "description": "Path to the lockfile that contains this dependency. Examples: package-lock.json, nested/folder/requirements.txt, go.mod. Since 1.87.0",
+          "$ref": "#/definitions/fpath"
+        },
+        "line_number": {
+          "description": "The line number of the dependency in the lockfile. When combined with the lockfile_path, this can identify the location of the dependency in the lockfile.",
+          "type": "integer"
+        },
         "children": {
-          "description": "",
+          "description": "If we have dependency relationship information for this dependency, this field will include the name and version of other found_dependency items that this dependency requires. These fields must match values in `package` and `version` of another `found_dependency` in the same set",
           "type": "array",
           "items": { "$ref": "#/definitions/dependency_child" }
         },
-        "git_ref": { "description": "", "type": "string" }
+        "git_ref": {
+          "description": "Git ref of the dependency if the dependency comes directly from a git repo. Examples: refs/heads/main, refs/tags/v1.0.0, e5c704df4d308690fed696faf4c86453b4d88a95. Since 1.66.0",
+          "type": "string"
+        }
       }
     },
     "dependency_child": {
@@ -634,7 +711,7 @@
       }
     },
     "validation_state": {
-      "description": "",
+      "description": "This type is used by postprocessors for secrets to report back the validity of a finding. No_validator is currently also used when no validation has yet occurred, which if that becomes confusing we could adjust that, by adding another state.",
       "oneOf": [
         { "const": "CONFIRMED_VALID" },
         { "const": "CONFIRMED_INVALID" },
@@ -643,45 +720,71 @@
       ]
     },
     "historical_info": {
-      "description": "",
+      "description": "part of cli_match_extra",
       "type": "object",
       "required": [ "git_commit", "git_commit_timestamp" ],
       "properties": {
-        "git_commit": { "description": "", "$ref": "#/definitions/sha1" },
-        "git_blob": { "description": "", "$ref": "#/definitions/sha1" },
+        "git_commit": {
+          "description": "Git commit at which the finding is present. Used by \"historical\" scans, which scan non-HEAD commits in the git history. Relevant for finding, e.g., secrets which are buried in the git history which we wouldn't find at HEAD",
+          "$ref": "#/definitions/sha1"
+        },
+        "git_blob": {
+          "description": "Git blob at which the finding is present. Sent in addition to the commit since some SCMs have permalinks which use the blob sha, so this information is useful when generating links back to the SCM.",
+          "$ref": "#/definitions/sha1"
+        },
         "git_commit_timestamp": { "$ref": "#/definitions/datetime" }
       }
     },
     "error_type": {
-      "description": "",
       "oneOf": [
-        { "description": "", "const": "Lexical error" },
-        { "description": "", "const": "Syntax error" },
+        {
+          "description": "File parsing related errors; coupling: if you add a target parse error then metrics for cli need to be updated. See cli/src/semgrep/parsing_data.py.",
+          "const": "Lexical error"
+        },
+        { "description": "a.k.a SyntaxError", "const": "Syntax error" },
         { "const": "Other syntax error" },
         { "const": "AST builder error" },
-        { "description": "", "const": "Rule parse error" },
-        { "description": "", "const": "SemgrepWarning" },
+        {
+          "description": "Pattern parsing related errors. There are more precise info about the error in Rule.invalid_rule_error_kind in Rule.ml.",
+          "const": "Rule parse error"
+        },
+        {
+          "description": "generated in pysemgrep only",
+          "const": "SemgrepWarning"
+        },
         { "const": "SemgrepError" },
         { "const": "InvalidRuleSchemaError" },
         { "const": "UnknownLanguageError" },
         { "const": "Invalid YAML" },
-        { "description": "", "const": "Internal matching error" },
-        { "description": "", "const": "Semgrep match found" },
+        {
+          "description": "internal error, e.g., NoTokenLocation",
+          "const": "Internal matching error"
+        },
+        { "const": "Semgrep match found" },
         { "const": "Too many matches" },
-        { "description": "", "const": "Fatal error" },
+        {
+          "description": "missing file, OCaml errors, etc.",
+          "const": "Fatal error"
+        },
         { "const": "Timeout" },
         { "const": "Out of memory" },
-        { "description": "", "const": "Fixpoint timeout" },
-        { "description": "", "const": "Stack overflow" },
-        { "description": "", "const": "Timeout during interfile analysis" },
+        {
+          "description": "since semgrep 1.132.0",
+          "const": "Fixpoint timeout"
+        },
+        { "description": "since semgrep 1.86.0", "const": "Stack overflow" },
+        { "const": "Timeout during interfile analysis" },
         { "const": "OOM during interfile analysis" },
-        { "description": "", "const": "Missing plugin" },
+        { "description": "since semgrep 1.40.0", "const": "Missing plugin" },
         {
           "type": "array",
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "PatternParseError" },
+            {
+              "description": "the string list is the \"YAML path\" of the pattern, e.g. {{[\"rules\"; \"1\"; ...]}}",
+              "const": "PatternParseError"
+            },
             { "type": "array", "items": { "type": "string" } }
           ]
         },
@@ -690,7 +793,10 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "PartialParsing" },
+            {
+              "description": "list of skipped tokens. Since semgrep 0.97.",
+              "const": "PartialParsing"
+            },
             {
               "type": "array",
               "items": { "$ref": "#/definitions/location" }
@@ -702,18 +808,27 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "IncompatibleRule" },
+            {
+              "description": "since semgrep 1.38.0",
+              "const": "IncompatibleRule"
+            },
             { "$ref": "#/definitions/incompatible_rule" }
           ]
         },
-        { "description": "", "const": "Pattern parse error" },
+        {
+          "description": "Those Xxx0 variants were introduced in semgrep 1.45.0, but actually they are here so that our backend can read the cli_error.type_ from old semgrep versions that were translating the PatternParseError _ and IncompatibleRule _ above as a single string (instead of a list [\"PatternParseError\", ...] now). There is no PartialParsing0 because this was encoded as a ParseError instead.",
+          "const": "Pattern parse error"
+        },
         { "const": "Incompatible rule" },
         {
           "type": "array",
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "DependencyResolutionError" },
+            {
+              "description": "since semgrep 1.94.0",
+              "const": "DependencyResolutionError"
+            },
             { "$ref": "#/definitions/resolution_error_kind" }
           ]
         }
@@ -730,16 +845,29 @@
       }
     },
     "cli_error": {
+      "description": "(called SemgrepError in error.py)",
       "type": "object",
       "required": [ "code", "level", "type" ],
       "properties": {
-        "code": { "description": "", "type": "integer" },
+        "code": {
+          "description": "exit code for the type_ of error",
+          "type": "integer"
+        },
         "level": { "$ref": "#/definitions/error_severity" },
-        "type": { "description": "", "$ref": "#/definitions/error_type" },
+        "type": {
+          "description": "before 1.45.0 the type below was 'string', but was the result of converting error_type into a string, so using directly 'error_type' below should be mostly backward compatible thx to the <json name> annotations in error_type. To be fully backward compatible, we actually introduced the PatternParseError0 and IncompatibleRule0 cases in error_type.",
+          "$ref": "#/definitions/error_type"
+        },
         "rule_id": { "$ref": "#/definitions/rule_id" },
-        "message": { "description": "", "type": "string" },
+        "message": {
+          "description": "contains error location",
+          "type": "string"
+        },
         "path": { "$ref": "#/definitions/fpath" },
-        "long_msg": { "description": "", "type": "string" },
+        "long_msg": {
+          "description": "for invalid rules, for ErrorWithSpan",
+          "type": "string"
+        },
         "short_msg": { "type": "string" },
         "spans": {
           "type": "array",
@@ -752,12 +880,15 @@
       "type": "object",
       "required": [ "file", "start", "end" ],
       "properties": {
-        "file": { "description": "", "$ref": "#/definitions/fpath" },
+        "file": {
+          "description": "for InvalidRuleSchemaError",
+          "$ref": "#/definitions/fpath"
+        },
         "start": { "$ref": "#/definitions/position" },
         "end": { "$ref": "#/definitions/position" },
         "source_hash": { "type": "string" },
         "config_start": {
-          "description": "",
+          "description": "The path to the pattern in the yaml rule and an adjusted start/end within just the pattern. Used to report playground parse errors in the simple editor",
           "$ref": "#/definitions/position"
         },
         "config_end": { "$ref": "#/definitions/position" },
@@ -773,36 +904,48 @@
       }
     },
     "skip_reason": {
-      "description": "",
+      "description": "A reason for skipping a target file or a pair (target, rule). Note that this type is also used in Report.ml hence the need for deriving show here.\n\nFor consistency, please make sure all the JSON constructors use the same case rules (lowercase, underscores). This is hard to fix later! Please review your code carefully before committing to interface changes.",
       "oneOf": [
-        { "description": "", "const": "always_skipped" },
+        { "const": "always_skipped" },
         { "const": "semgrepignore_patterns_match" },
         { "const": "cli_include_flags_do_not_match" },
         { "const": "cli_exclude_flags_match" },
         { "const": "exceeded_size_limit" },
         { "const": "analysis_failed_parser_or_internal_error" },
-        { "description": "", "const": "excluded_by_config" },
+        { "const": "excluded_by_config" },
         { "const": "wrong_language" },
         { "const": "too_big" },
         { "const": "minified" },
         { "const": "binary" },
         { "const": "irrelevant_rule" },
         { "const": "too_many_matches" },
-        { "description": "", "const": "Gitignore_patterns_match" },
-        { "description": "", "const": "Dotfile" },
-        { "description": "", "const": "Nonexistent_file" },
-        { "description": "", "const": "insufficient_permissions" }
+        { "const": "Gitignore_patterns_match" },
+        {
+          "description": "since 1.40.0. They were always ignored, but not shown in the skip report",
+          "const": "Dotfile"
+        },
+        { "description": "since 1.44.0", "const": "Nonexistent_file" },
+        {
+          "description": "since 1.94.0",
+          "const": "insufficient_permissions"
+        }
       ]
     },
     "skipped_target": {
-      "description": "",
+      "description": "coupling: ugly: with yield_json_objects() in target_manager.py",
       "type": "object",
       "required": [ "path", "reason" ],
       "properties": {
         "path": { "$ref": "#/definitions/fpath" },
         "reason": { "$ref": "#/definitions/skip_reason" },
-        "details": { "description": "", "type": "string" },
-        "rule_id": { "description": "", "$ref": "#/definitions/rule_id" }
+        "details": {
+          "description": "since semgrep 1.39.0 (used to be return only by semgrep-core)",
+          "type": "string"
+        },
+        "rule_id": {
+          "description": "If the 'rule_id' field is missing, the target is assumed to have been skipped for all the rules",
+          "$ref": "#/definitions/rule_id"
+        }
       }
     },
     "scanned_and_skipped": {
@@ -814,7 +957,6 @@
           "items": { "$ref": "#/definitions/fpath" }
         },
         "skipped": {
-          "description": "",
           "type": "array",
           "items": { "$ref": "#/definitions/skipped_target" }
         }
@@ -826,11 +968,14 @@
       "properties": {
         "rule_id": { "$ref": "#/definitions/rule_id" },
         "details": { "type": "string" },
-        "position": { "description": "", "$ref": "#/definitions/position" }
+        "position": {
+          "description": "position of the error in the rule file",
+          "$ref": "#/definitions/position"
+        }
       }
     },
     "target_discovery_result": {
-      "description": "",
+      "description": "Result of get_targets internal RPC, similar to scanned_and_skipped but more complete",
       "type": "object",
       "required": [ "target_paths", "errors", "skipped" ],
       "properties": {
@@ -849,7 +994,7 @@
       }
     },
     "profile": {
-      "description": "",
+      "description": "Run locally $ ./run-benchmarks --dummy --upload",
       "type": "object",
       "required": [
         "rules", "rules_parse_time", "profiling_times", "targets",
@@ -857,34 +1002,33 @@
       ],
       "properties": {
         "rules": {
-          "description": "",
+          "description": "List of rules, including the one read but not run on any target. This list is actually more an array which allows other fields to reference rule by number instead of rule_id (e.g., match_times further below) saving space in the JSON.\n\nUpgrade note: this used to be defined as a rule_id_dict where each rule_id was inside a {id: rule_id; ...} record so we could give parsing time info about each rule, but parsing one rule was never the slow part, so now we just juse the aggregated rules_parse_time below and do not need a complex rule_id_dict record anymore.",
           "type": "array",
           "items": { "$ref": "#/definitions/rule_id" }
         },
         "rules_parse_time": { "type": "number" },
         "profiling_times": {
-          "description": "",
           "type": "object",
           "additionalProperties": { "type": "number" }
         },
         "parsing_time": {
-          "description": "",
+          "description": "EXPERIMENTAL",
           "$ref": "#/definitions/parsing_time"
         },
         "scanning_time": {
-          "description": "",
+          "description": "EXPERIMENTAL",
           "$ref": "#/definitions/scanning_time"
         },
         "matching_time": {
-          "description": "",
+          "description": "EXPERIMENTAL",
           "$ref": "#/definitions/matching_time"
         },
         "tainting_time": {
-          "description": "",
+          "description": "EXPERIMENTAL",
           "$ref": "#/definitions/tainting_time"
         },
         "fixpoint_timeouts": {
-          "description": "",
+          "description": "EXPERIMENTAL: Dafatlow fixpoint-function timeouts\n\nHappen more often than we would like, and it's mainly Semgrep devs that will use this info for debugging, so for now we are reporting these timeouts as part of the profiling report.",
           "type": "array",
           "items": { "$ref": "#/definitions/core_error" }
         },
@@ -894,11 +1038,14 @@
           "items": { "$ref": "#/definitions/target_times" }
         },
         "total_bytes": { "type": "integer" },
-        "max_memory_bytes": { "description": "", "type": "integer" }
+        "max_memory_bytes": {
+          "description": "maximum amount of memory used by Semgrep(-core) during its execution",
+          "type": "integer"
+        }
       }
     },
     "file_time": {
-      "description": "",
+      "description": "EXPERIMENTAL",
       "type": "object",
       "required": [ "fpath", "ftime" ],
       "properties": {
@@ -907,7 +1054,7 @@
       }
     },
     "file_rule_time": {
-      "description": "",
+      "description": "EXPERIMENTAL",
       "type": "object",
       "required": [ "fpath", "rule_id", "time" ],
       "properties": {
@@ -917,7 +1064,7 @@
       }
     },
     "def_rule_time": {
-      "description": "",
+      "description": "EXPERIMENTAL",
       "type": "object",
       "required": [ "fpath", "fline", "rule_id", "time" ],
       "properties": {
@@ -928,7 +1075,7 @@
       }
     },
     "summary_stats": {
-      "description": "",
+      "description": "EXPERIMENTAL",
       "type": "object",
       "required": [ "mean", "std_dev" ],
       "properties": {
@@ -937,7 +1084,7 @@
       }
     },
     "very_slow_stats": {
-      "description": "",
+      "description": "These ratios are numbers in [0, 1], and we would hope that both 'time_ratio' and 'count_ratio' are very close to 0. In bad cases, we may see the 'count_ratio' being close to 0 while the 'time_ratio' is above 0.5, meaning that a small number of very slow files/etc represent a large amount of the total processing time. EXPERIMENTAL",
       "type": "object",
       "required": [ "time_ratio", "count_ratio" ],
       "properties": {
@@ -946,7 +1093,7 @@
       }
     },
     "parsing_time": {
-      "description": "",
+      "description": "EXPERIMENTAL",
       "type": "object",
       "required": [ "total_time", "per_file_time", "very_slow_files" ],
       "properties": {
@@ -954,14 +1101,14 @@
         "per_file_time": { "$ref": "#/definitions/summary_stats" },
         "very_slow_stats": { "$ref": "#/definitions/very_slow_stats" },
         "very_slow_files": {
-          "description": "",
+          "description": "ascending order",
           "type": "array",
           "items": { "$ref": "#/definitions/file_time" }
         }
       }
     },
     "scanning_time": {
-      "description": "",
+      "description": "Scanning time (includes matching and tainting) EXPERIMENTAL",
       "type": "object",
       "required": [
         "total_time", "per_file_time", "very_slow_stats", "very_slow_files"
@@ -971,7 +1118,7 @@
         "per_file_time": { "$ref": "#/definitions/summary_stats" },
         "very_slow_stats": { "$ref": "#/definitions/very_slow_stats" },
         "very_slow_files": {
-          "description": "",
+          "description": "ascending order",
           "type": "array",
           "items": { "$ref": "#/definitions/file_time" }
         }
