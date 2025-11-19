@@ -10,6 +10,8 @@ VER=v1
 # Those files are in lowercase because atdpy/atdts seems to
 # generate lowercase files, even though the input is capitalized
 FILES= \
+  semgrep_output_$(VER)_t.ml \
+  semgrep_output_$(VER)_t.mli \
   semgrep_output_$(VER)_j.ml \
   semgrep_output_$(VER)_j.mli \
   semgrep_output_$(VER).py \
@@ -47,6 +49,9 @@ build: $(FILES)
 # since atdpy keeps it simple and will always output '"field" = []'.
 %_j.ml %_j.mli: %.atd
 	atdgen -j -j-std -j-defaults $<
+
+%_t.ml %_t.mli: %.atd
+	atdgen -t $<
 
 # need atdts >= 2.13.0
 %.ts: %.atd

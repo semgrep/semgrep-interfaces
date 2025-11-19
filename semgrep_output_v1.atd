@@ -74,10 +74,11 @@
  *  - merged what was in Input_to_core.atd here
  *)
 
-(* escape hatch *)
 type raw_json
   <ocaml module="JSON.Yojson" t="t">
-  <ocaml attr="deriving eq, ord, show"> = abstract
+  <ocaml attr="deriving eq, ord, show">
+  <doc text="escape hatch"> = abstract
+
 
 (*****************************************************************************)
 (* String aliases *)
@@ -97,10 +98,12 @@ type ppath
      <python decorator="dataclass(frozen=True, order=True)"> =
    string wrap <ocaml module="Ppath">
 
-(* Same as Fppath.t: a nice filesystem path + the path relative to the
-   project root provided for pattern-based filtering purposes. *)
 type fppath
-     <ocaml attr="deriving show, eq"> = {
+     <ocaml attr="deriving show, eq">
+     <doc text="Same as Fppath.t: a nice filesystem path
+ + the path relative to the project root provided for pattern-based
+ filtering purposes.">
+ = {
   fpath: fpath;
   ppath: ppath;
 }
@@ -117,9 +120,9 @@ type uuid
   <ocaml attr="deriving ord"> =
   string wrap <ocaml module="ATD_string_wrap.Uuidm">
 
-(* RFC 3339 format *)
 type datetime
-  <ocaml attr="deriving ord"> =
+  <ocaml attr="deriving ord">
+  <doc text="RFC 3339 format"> =
   string wrap <ocaml module="ATD_string_wrap.Datetime">
 
 type glob = string
@@ -127,26 +130,33 @@ type glob = string
 (*****************************************************************************)
 (* Versioning *)
 (*****************************************************************************)
-type version <ocaml attr="deriving show"> = string (* e.g., "1.1.0" *)
+type version
+  <ocaml attr="deriving show">
+  <doc text="e.g., '1.1.0'"> = string
 
 (*****************************************************************************)
 (* Location *)
 (*****************************************************************************)
-(* Note that there is no filename here like in 'location' below *)
+
 type position
     <ocaml attr="deriving ord, show">
-    <python decorator="dataclass(frozen=True, order=True)"> =
+    <python decorator="dataclass(frozen=True, order=True)">
+    <doc text="Note that there is no filename here like in 'location' below">
+=
 {
   line: int; (* starts from 1 *)
   col: int; (* starts from 1 *)
-  (* Byte position from the beginning of the file, starts at 0.
-   * OCaml code sets it correctly. Python code sets it to a dummy value (-1).
-   * This uses '~' because pysemgrep < 1.30? was *producing* positions without
-   * offset sometimes, and we want the backend to still *consume* such positions.
-   * Note that pysemgrep 1.97 was still producing dummy positions without
-   * an offset so we might need this ~offset longer than expected?
-  *)
-  ~offset: int;
+  ~offset
+    <doc text="
+    Byte position from the beginning of the file, starts at 0.
+    OCaml code sets it correctly. Python code sets it to a dummy value (-1).
+    This uses '~' because pysemgrep < 1.30? was *producing* positions without
+    offset sometimes, and we want the backend to still *consume* such
+    positions.
+    Note that pysemgrep 1.97 was still producing dummy positions without
+    an offset so we might need this ~offset longer than expected?
+">
+  : int;
 }
 
 (* a.k.a range *)
@@ -163,74 +173,84 @@ type location
 (* Simple semgrep types *)
 (*****************************************************************************)
 
-(* e.g., "javascript.security.do-not-use-eval" *)
 type rule_id
      <ocaml attr="deriving show, eq, ord">
-     <python decorator="dataclass(frozen=True)"> =
+     <python decorator="dataclass(frozen=True)">
+     <doc text="e.g., \"javascript.security.do-not-use-eval\"">
+  =
   string wrap <ocaml module="Rule_ID">
 
 (*
-   This is used in rules to specify the severity of matches/findings.
-   alt: could be called rule_severity, or finding_severity.
-
-   Error = something wrong that must be fixed
-   Warning = something wrong that should be fixed
-   Info = some special condition worth knowing about
-   Experiment = deprecated: guess what
-   Inventory = deprecated: was used for the Code Asset Inventory (CAI) project
-
    coupling: with 'severity' in 'rule_schema_v1.yaml'
    coupling: with 'severity' in 'rule_schema_v2.atd'
 *)
 type match_severity
     <ocaml attr="deriving eq, ord, show">
-    <python decorator="dataclass(frozen=True)"> =
+    <python decorator="dataclass(frozen=True)">
+    <doc text="
+   This is used in rules to specify the severity of matches/findings.
+   alt: could be called rule_severity, or finding_severity.
+{{{
+   Error = something wrong that must be fixed
+   Warning = something wrong that should be fixed
+   Info = some special condition worth knowing about
+   Experiment = deprecated: guess what
+   Inventory = deprecated: was used for the Code Asset Inventory (CAI) project
+}}}
+">
+  =
 [
   | Error <json name="ERROR">
   | Warning <json name="WARNING">
   | Experiment <json name="EXPERIMENT">
   | Inventory <json name="INVENTORY">
-  (* since 1.72.0, meant to replace the cases above where
-   * Error -> High, Warning -> Medium. Critical/Low are the only really
-   * new category here without equivalent before.
-   * Experiment and Inventory above should be removed. Info can be kept.
-  *)
-  | Critical <json name="CRITICAL">
+  | Critical
+      <json name="CRITICAL">
+      <doc text="since 1.72.0, meant to replace the cases above where
+      Error -> High, Warning -> Medium. Critical/Low are the only really
+      new category here without equivalent before.
+      Experiment and Inventory above should be removed. Info can be kept.">
   | High <json name="HIGH">
   | Medium <json name="MEDIUM">
   | Low <json name="LOW">
-  (* generic placeholder for non-risky things (including experiments) *)
-  | Info <json name="INFO">
+  | Info
+      <json name="INFO">
+      <doc text="generic placeholder for non-risky things
+      (including experiments)">
 ]
 
-(*
-   This is used to specify the severity of errors which
-   happened during Semgrep execution (e.g., a parse error).
-
-   Error = Always an error
-   Warning = Only an error if "strict" is set
-   Info = Nothing may be wrong
-
-   alt: could reuse match_severity but seems cleaner to define its own type
-*)
 type error_severity
     <ocaml attr="deriving show, eq">
-    <python decorator="dataclass(frozen=True)"> =
+    <python decorator="dataclass(frozen=True)">
+    <doc text="
+    This is used to specify the severity of errors which
+    happened during Semgrep execution (e.g., a parse error).
+{{{
+    Error = Always an error
+    Warning = Only an error if "strict" is set
+    Info = Nothing may be wrong
+}}}
+
+   alt: could reuse match_severity but seems cleaner to define its own type">
+   =
 [
   | Error <json name="error">
   | Warning <json name="warn">
   | Info <json name="info">
 ]
 
-(* Used for a best-effort report to users about what findings they get with
-   the pro engine that they couldn't with the oss engine.
-
-   Interproc_taint = requires interprocedural taint
-   Interfile_taint = requires interfile taint
-   Other_pro_feature = requires some non-taint pro feature *)
 type pro_feature
     <ocaml attr="deriving ord, show">
-    <python decorator="dataclass(frozen=True)"> =
+    <python decorator="dataclass(frozen=True)">
+    <doc text="
+    Used for a best-effort report to users about what findings they get with
+    the pro engine that they couldn't with the oss engine.
+{{{
+    interproc_taint = requires interprocedural taint
+    interfile_taint = requires interfile taint
+    proprietary_language = requires some non-taint pro feature
+}}}">
+  =
 {
   interproc_taint: bool;
   interfile_taint: bool;
@@ -252,12 +272,14 @@ type pro_feature
 *)
 type engine_of_finding
    <ocaml attr="deriving ord, show">
-   <python decorator="dataclass(frozen=True)"> =
+   <python decorator="dataclass(frozen=True)">
+   <doc text="">
+   =
 [
   | OSS
   | PRO
    (* Semgrep 1.64.0 or later *)
-  | PRO_REQUIRED of pro_feature
+  | PRO_REQUIRED <doc text=""> of pro_feature
 ]
 
 type engine_kind
@@ -275,12 +297,14 @@ type product
     <ocaml attr="deriving eq, ord, show">
     <python decorator="dataclass(frozen=True)"> =
 [
-  | SAST (* a.k.a. Code *) <json name="sast">
-  | SCA  (* a.k.a. SSC *) <json name="sca">
+  | SAST (* a.k.a. Code *) <json name="sast"> <doc text="">
+  | SCA  (* a.k.a. SSC *) <json name="sca"> <doc text="">
   | Secrets <json name="secrets">
 ]
 
-type match_based_id <ocaml attr="deriving show, eq"> = string (* ex:"ab023_1"*)
+type match_based_id
+  <ocaml attr="deriving show, eq">
+  <doc text=""> = string (* ex:"ab023_1"*)
 
 (*****************************************************************************)
 (* Matches *)
@@ -295,49 +319,49 @@ type cli_match = {
 type cli_match_extra = {
   (* Since 1.98.0, you need to be logged in to get this field.
    * note: we also need ?metavars because dependency_aware code *)
-  ?metavars: metavars option;
+  ?metavars <doc text="">: metavars option;
 
   (* Those fields are derived from the rule but the metavariables
    * they contain have been expanded to their concrete value. *)
-  message: string;
+  message <doc text="">: string;
 
   (* If present, semgrep was able to compute a string that should be
    * inserted in place of the text in the matched range in order to fix the
    * finding. Note that this is the result of applying both the fix: or
    * fix_regex: in a rule. *)
-  ?fix: string option;
+  ?fix <doc text="">: string option;
   (* TODO: done with monkey patching right now in the Python code,
    * and seems to be used only when sending findings to the backend. *)
-  ?fixed_lines: string list option;
+  ?fixed_lines <doc text="">: string list option;
 
   (* fields coming from the rule *)
-  metadata: raw_json;
+  metadata <doc text="">: raw_json;
   severity: match_severity;
 
   (* Since 1.98.0, you need to be logged in to get those fields *)
-  fingerprint: string;
+  fingerprint <doc text="">: string;
   lines: string;
 
   (* for nosemgrep *)
-  ?is_ignored: bool option;
+  ?is_ignored <doc text="">: bool option;
 
   (* EXPERIMENTAL: added by dependency_aware code *)
-  ?sca_info: sca_match option;
+  ?sca_info <doc text="">: sca_match option;
   (* EXPERIMENTAL: If present indicates the status of postprocessor validation.
    * This field not being present should be equivalent to No_validator.
    * Added in semgrep 1.37.0 *)
-  ?validation_state: validation_state option;
+  ?validation_state <doc text="">: validation_state option;
   (* EXPERIMENTAL: added by secrets post-processing & historical scanning code
    * Since 1.60.0. *)
-  ?historical_info: historical_info option;
+  ?historical_info <doc text="">: historical_info option;
   (* EXPERIMENTAL: For now, present only for taint findings. May be extended to
    * otherslater on. *)
-  ?dataflow_trace: match_dataflow_trace option;
+  ?dataflow_trace <doc text="">: match_dataflow_trace option;
 
   ?engine_kind: engine_of_finding option;
 
   (* EXPERIMENTAL: see core_match_extra.extra_extra *)
-  ?extra_extra: raw_json option;
+  ?extra_extra <doc text="">: raw_json option;
 }
 
 (*****************************************************************************)
@@ -347,7 +371,10 @@ type cli_match_extra = {
 (* Name/value map of the matched metavariables.
  * The leading '$' must be included in the metavariable name.
 *)
-type metavars <ocaml attr="deriving ord"> =
+type metavars
+  <ocaml attr="deriving ord">
+  <doc text="">
+  =
   (string * metavar_value) list
     <json repr="object">
     <python repr="dict">
@@ -366,9 +393,9 @@ type metavar_value
    * code (message metavariable substitution and autofix) works
    * without change for empty ranges (when end = start).
    *)
-  start: position;
+  start <doc text="">: position;
   end <ocaml name="end_">: position;
-  abstract_content: string; (* value? *)
+  abstract_content <doc text="">: string; (* value? *)
   ?propagated_value: svalue_value option;
 }
 
@@ -377,7 +404,7 @@ type svalue_value
   <python decorator="dataclass(frozen=True)"> = {
   ?svalue_start: position option;
   ?svalue_end: position option;
-  svalue_abstract_content: string; (* value? *)
+  svalue_abstract_content <doc text="">: string; (* value? *)
 }
 
 (*****************************************************************************)
@@ -386,19 +413,21 @@ type svalue_value
 (* coupling: semgrep-core/src/core/Matching_explanation.ml
  * LATER: merge with Matching_explanation.t at some point
  * EXPERIMENTAL *)
-type matching_explanation = {
+type matching_explanation
+  <doc text="">
+  = {
     op: matching_operation;
     children: matching_explanation list;
     (* result matches at this node (can be empty when we reach a nomatch) *)
-    matches: core_match list;
+    matches <doc text="">: core_match list;
     (* location in the rule file! not target file.
      * This tries to delimit the part of the rule relevant to the current
      * operation (e.g., the position of the 'patterns:' token in the rule
      * for the And operation).
      *)
-    loc: location;
+    loc <doc text="">: location;
     (* NEW: since v1.79 *)
-    ?extra: matching_explanation_extra option;
+    ?extra <doc text="">: matching_explanation_extra option;
 }
 
 (* For any "extra" information that we cannot fit at the node itself.
@@ -406,18 +435,18 @@ type matching_explanation = {
    in the operation itself without giving up our ability to derive `show`
    (needed for `matching_operation` below).
  *)
-type matching_explanation_extra = {
+type matching_explanation_extra <doc text=""> = {
   (* only present in And kind *)
   (* this information is useful for determining the input matches
      to the first Negation node
    *)
-  before_negation_matches: core_match list option;
+  before_negation_matches <doc text="">: core_match list option;
   (* only present in nodes which have children Filter nodes *)
   (* this information is useful for determining the input matches
      to the first Filter node, as there is otherwise no way of
      obtaining the post-intersection matches in an And node, for instance
    *)
-  before_filter_matches: core_match list option;
+  before_filter_matches <doc text="">: core_match list option;
 }
 
 (* TODO:
@@ -429,7 +458,9 @@ type matching_explanation_extra = {
  * for deriving show below.
  *)
 type matching_operation
-    <ocaml attr="deriving show { with_path = false}"> =
+    <ocaml attr="deriving show { with_path = false}">
+    <doc text="">
+   =
 [
   | And
   | Or
@@ -439,7 +470,7 @@ type matching_operation
    * regexp pattern, or a proper semgrep pattern.
    * see semgrep-core/src/core/XPattern.ml
    *)
-  | XPat of string
+  | XPat <doc text=""> of string
   (* TODO *)
   | Negation
   (* TODO "metavar-regex:xxx" | "metavar-comparison:xxx" | "metavar-pattern" *)
@@ -487,7 +518,7 @@ type match_dataflow_trace
   ?taint_source: match_call_trace option;
   (* Intermediate variables which are involved in the dataflow. This
    * explains how the taint flows from the source to the sink. *)
-  ?intermediate_vars: match_intermediate_var list option;
+  ?intermediate_vars <doc text="">: match_intermediate_var list option;
   ?taint_sink: match_call_trace option;
 }
 
@@ -498,7 +529,10 @@ type match_dataflow_trace
  * maybe this saves some effort to the user of this type which do not
  * need to read the file to get the content.
  *)
-type loc_and_content <ocaml attr="deriving ord"> = (location * string)
+type loc_and_content
+     <ocaml attr="deriving ord">
+     <doc text="">
+  = (location * string)
 
 type match_call_trace
   <ocaml attr="deriving ord">
@@ -513,12 +547,14 @@ type match_call_trace
  * it's split out because Iago has plans to extend this with more information
 *)
 type match_intermediate_var
-  <ocaml attr="deriving ord">
-  <python decorator="dataclass(frozen=True)"> = {
+    <ocaml attr="deriving ord">
+    <python decorator="dataclass(frozen=True)">
+    <doc text="">
+  = {
   location: location;
   (* Unlike abstract_content, this is the actual text read from the
    * corresponding source file *)
-  content: string;
+  content <doc text="">: string;
 }
 
 (*****************************************************************************)
@@ -535,7 +571,9 @@ type match_intermediate_var
  *)
 type ecosystem
     <python decorator="dataclass(frozen=True)">
-    <ocaml attr="deriving eq, ord, show"> =
+    <ocaml attr="deriving eq, ord, show">
+    <doc text="">
+   =
 [
   | Npm <json name="npm">
   | Pypi  <json name="pypi">
@@ -549,36 +587,40 @@ type ecosystem
   | SwiftPM <json name="swiftpm">
   | Cocoapods <json name="cocoapods">
   (* Deprecated: Mix is a build system, should use Hex, which is the ecosystem *)
-  | Mix <json name="mix">
+  | Mix <json name="mix"> <doc text="">
   | Hex <json name="hex">
   | Opam <json name="opam">
 ] <ocaml repr="classic">
 
 type dependency_kind
     <python decorator="dataclass(frozen=True)">
-    <ocaml attr="deriving ord, eq, show"> =
+    <ocaml attr="deriving ord, eq, show">
+    <doc text="">
+  =
 [
   (* we depend directly on the 3rd-party library mentioned in the lockfile
    * (e.g., use of log4j library and concrete calls to log4j in 1st-party code).
    * log4j must be declared as a direct dependency in the manifest file.
    *)
-  | Direct <json name="direct">
+  | Direct <json name="direct"> <doc text="">
   (* we depend indirectly (transitively) on the 3rd-party library
    * (e.g., if we use lodash which itself uses internally log4j then
    * lodash is a Direct dependency and log4j a Transitive one)
    * alt: Indirect
    * TODO? add and detect shadow dependencies?
    *)
-  | Transitive <json name="transitive">
+  | Transitive <json name="transitive"> <doc text="">
   (* If there is insufficient information to determine the transitivity,
    * such as a requirements.txt file without a requirements.in manifest,
    * we leave it Unknown.
    *)
-  | Unknown <json name="unknown">
+  | Unknown <json name="unknown"> <doc text="">
 ] <ocaml repr="classic">
 
 (* part of cli_match_extra, core_match_extra, and finding *)
-type sca_match = {
+type sca_match
+     <doc text="">
+   = {
   (* does the rule has a pattern part; otherwise it's a "parity"
    * or "upgrade-only" rule.
    *)
@@ -588,7 +630,7 @@ type sca_match = {
   (* TODO: deprecate, we should use sca_match_kind instead *)
   reachable: bool;
   (* EXPERIMENTAL since 1.108.0 *)
-  ?kind: sca_match_kind option;
+  ?kind <doc text="">: sca_match_kind option;
 }
 
 (* Note that in addition to "reachable" there are also the notions of
@@ -597,18 +639,21 @@ type sca_match = {
  * TODO? have a Direct of xxx and Transitive of sca_transitive_match_kind?
  * better so can be reused in other types such as tr_cache_result?
 *)
-type sca_match_kind <ocaml attr="deriving ord"> = [
+type sca_match_kind
+    <ocaml attr="deriving ord">
+    <doc text="">
+  = [
   (* This is used for "parity" or "upgrade-only" rules. transitivity
    * indicates whether the match is for a direct or transitive usage of
    * the dependency; for a dependency that is both direct and transitive
    * two findings should be generated.
    *)
-  | LockfileOnlyMatch of dependency_kind
+  | LockfileOnlyMatch <doc text=""> of dependency_kind
   (* found the pattern-part of the SCA rule in 1st-party code
    * (reachable as originally defined by Semgrep Inc.)
    * the match location will be in some target code.
    *)
-  | DirectReachable
+  | DirectReachable <doc text="">
   (* found the pattern-part of the SCA rule in third-party code
    * and ultimately found a path from 1st party code to this vulnerable
    * third-party code.
@@ -616,7 +661,7 @@ type sca_match_kind <ocaml attr="deriving ord"> = [
    * some Undetermined or (LockfileOnlyMatch Transitive) into
    * TransitiveReachable or TransitiveUnreachable
    *)
-  | TransitiveReachable of transitive_reachable
+  | TransitiveReachable <doc text=""> of transitive_reachable
   (* This is a "positive" finding in the sense that semgrep was
    * able to prove that the transitive finding is "safe" and
    * can be ignored because either there is no call to the pattern-part
@@ -628,17 +673,19 @@ type sca_match_kind <ocaml attr="deriving ord"> = [
    * because semgrep first generates some Undetermined that we then
    * retag as DirectUnreachable.
    *)
-  | TransitiveUnreachable of transitive_unreachable
+  | TransitiveUnreachable <doc text=""> of transitive_unreachable
   (* could not decide because of the engine limitations (e.g.,
    * found the use of a vulnerable library in the lockfile but
    * could not find the pattern in first party code and could not
    * access third-party code for further investigation
    * (similar to (LockfileOnlyMatch Transitive))
   *)
-  | TransitiveUndetermined of transitive_undetermined
+  | TransitiveUndetermined <doc text=""> of transitive_undetermined
 ] < ocaml repr="classic">
 
-type transitive_reachable = {
+type transitive_reachable
+    <doc text="">
+  = {
   (* The matches we found in 3rd party libraries.
    * Ideally the location in cli_match are relative to the root of the project
    * so one can display matches as package@/path/to/finding.py
@@ -647,23 +694,23 @@ type transitive_reachable = {
    * have to redownload and reaccess the package code (or maybe we
    * could give a github URL?)
    *)
-  matches: (found_dependency * cli_match list) list;
+  matches <doc text="">: (found_dependency * cli_match list) list;
   (* LATER: add callgraph information so one can see the path from 1st party code
    * to the vulnerable intermediate 3rd party function.
    * This is set to None for now.
    *)
-  callgraph_reachable: bool option;
+  callgraph_reachable <doc text="">: bool option;
   (* some extra explanation that the user can understand *)
-  explanation: string option;
+  explanation <doc text="">: string option;
 }
 
 type transitive_unreachable <ocaml attr="deriving ord"> = {
   (* We didn't find any findings in all the 3rd party libraries that are using
    * the 3rd party vulnerable library. This is a "proof of work".
    *)
-  analyzed_packages: found_dependency list;
+  analyzed_packages <doc text="">: found_dependency list;
   (* some extra explanation that the user can understand *)
-  explanation: string option;
+  explanation <doc text="">: string option;
 }
 
 type transitive_undetermined <ocaml attr="deriving ord"> = {
@@ -688,35 +735,35 @@ type found_dependency <ocaml attr="deriving ord"> = {
   version: string;
   ecosystem: ecosystem;
   (* ??? *)
-  allowed_hashes: (string * string list) list
+  allowed_hashes <doc text="">: (string * string list) list
     <json repr="object"> <python repr="dict"> <ts repr="map">;
   ?resolved_url: string option;
   transitivity: dependency_kind;
   (* Path to the manifest file that defines the project containing this
    * dependency. Examples: package.json, nested/folder/pom.xml
    *)
-  ?manifest_path: fpath option;
+  ?manifest_path <doc text="">: fpath option;
   (* Path to the lockfile that contains this dependency.
    * Examples: package-lock.json, nested/folder/requirements.txt, go.mod
    * Since 1.87.0
    *)
-  ?lockfile_path: fpath option;
+  ?lockfile_path <doc text="">: fpath option;
   (* The line number of the dependency in the lockfile. When combined with the
    * lockfile_path, this can identify the location of the dependency in the
    * lockfile.
    *)
-  ?line_number: int option;
+  ?line_number <doc text="">: int option;
   (* If we have dependency relationship information for this dependency, this
    * field will include the name and version of other found_dependency items
    * that this dependency requires.
    * These fields must match values in `package` and `version` of another
    * `found_dependency` in the same set
    *)
-  ?children: dependency_child list option;
+  ?children <doc text="">: dependency_child list option;
   (* Git ref of the dependency if the dependency comes directly from a git repo.
    * Examples: refs/heads/main, refs/tags/v1.0.0, e5c704df4d308690fed696faf4c86453b4d88a95
    * since 1.66.0 *)
-  ?git_ref: string option;
+  ?git_ref <doc text="">: string option;
 }
 
 type dependency_child
@@ -739,7 +786,8 @@ type dependency_child
 *)
 type validation_state
     <ocaml attr="deriving eq, ord, show">
-    <python decorator="dataclass(frozen=True)"> =
+    <python decorator="dataclass(frozen=True)">
+    <doc text=""> =
 [
   | Confirmed_valid <json name="CONFIRMED_VALID">
   | Confirmed_invalid <json name="CONFIRMED_INVALID">
@@ -748,16 +796,19 @@ type validation_state
 ]
 
 (* part of cli_match_extra *)
-type historical_info <ocaml attr="deriving ord"> = {
+type historical_info
+    <ocaml attr="deriving ord">
+    <doc text="">
+   = {
   (* Git commit at which the finding is present. Used by "historical" scans,
    * which scan non-HEAD commits in the git history. Relevant for finding, e.g.,
    * secrets which are buried in the git history which we wouldn't find at HEAD
    *)
-  git_commit: sha1;
+  git_commit <doc text="">: sha1;
   (* Git blob at which the finding is present. Sent in addition to the commit
    * since some SCMs have permalinks which use the blob sha, so this information
    * is useful when generating links back to the SCM. *)
-  ?git_blob: sha1 option;
+  ?git_blob <doc text="">: sha1 option;
   git_commit_timestamp: datetime;
 }
 
@@ -771,14 +822,16 @@ type historical_info <ocaml attr="deriving ord"> = {
  *)
 type error_type
     <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True, order=True)"> =
+    <python decorator="dataclass(frozen=True, order=True)">
+    <doc text="">
+  =
 [
   (* File parsing related errors;
      coupling: if you add a target parse error then metrics for
      cli need to be updated. See cli/src/semgrep/parsing_data.py.
   *)
-  | LexicalError <json name="Lexical error">
-  | ParseError (* a.k.a SyntaxError *) <json name="Syntax error">
+  | LexicalError <json name="Lexical error"> <doc text="">
+  | ParseError (* a.k.a SyntaxError *) <json name="Syntax error"> <doc text="">
   | OtherParseError <json name="Other syntax error">
   | AstBuilderError <json name="AST builder error">
   (* Pattern parsing related errors.
@@ -786,39 +839,55 @@ type error_type
    * Rule.invalid_rule_error_kind in Rule.ml.
    * TODO? should we move invalid_rule_error_kind here?
    *)
-  | RuleParseError <json name="Rule parse error">
+  | RuleParseError <json name="Rule parse error"> <doc text="">
   (* generated in pysemgrep only. TODO: some should take error_span in param *)
-  | SemgrepWarning <json name="SemgrepWarning">
+  | SemgrepWarning <json name="SemgrepWarning"> <doc text="">
   | SemgrepError <json name="SemgrepError">
   | InvalidRuleSchemaError <json name="InvalidRuleSchemaError">
   | UnknownLanguageError <json name="UnknownLanguageError">
   | InvalidYaml <json name="Invalid YAML">
   (* matching (semgrep) related *)
   | MatchingError (* internal error, e.g., NoTokenLocation *)
-    <json name="Internal matching error">
+      <json name="Internal matching error">
+      <doc text="">
   | SemgrepMatchFound (* TODO of string (* check_id *) *)
-    <json name="Semgrep match found">
+      <json name="Semgrep match found">
+      <doc text="">
   | TooManyMatches <json name="Too many matches">
   (* other *)
-  | FatalError (* missing file, OCaml errors, etc. *) <json name="Fatal error">
+  | FatalError (* missing file, OCaml errors, etc. *)
+      <json name="Fatal error">
+      <doc text="">
   | Timeout <json name="Timeout">
   | OutOfMemory <json name="Out of memory">
   (* since semgrep 1.132.0 *)
-  | FixpointTimeout <json name="Fixpoint timeout">
+  | FixpointTimeout
+      <json name="Fixpoint timeout">
+      <doc text="">
   (* since semgrep 1.86.0 *)
-  | StackOverflow <json name="Stack overflow">
+  | StackOverflow
+      <json name="Stack overflow">
+      <doc text="">
   (* pro-engine specific *)
-  | TimeoutDuringInterfile <json name="Timeout during interfile analysis">
-  | OutOfMemoryDuringInterfile <json name="OOM during interfile analysis">
+  | TimeoutDuringInterfile
+      <json name="Timeout during interfile analysis">
+      <doc text="">
+  | OutOfMemoryDuringInterfile
+      <json name="OOM during interfile analysis">
   (* since semgrep 1.40.0 *)
-  | MissingPlugin <json name="Missing plugin">
+  | MissingPlugin
+      <json name="Missing plugin">
+      <doc text="">
   (* !constructors with arguments! *)
   (* the string list is the "YAML path" of the pattern, e.g. ["rules"; "1"; ...] *)
-  | PatternParseError of string list
+  | PatternParseError
+      <doc text=""> of string list
   (* since semgrep 0.97 *)
-  | PartialParsing of location list (* list of skipped tokens *)
+  | PartialParsing
+      <doc text=""> of location list (* list of skipped tokens *)
   (* since semgrep 1.38.0 *)
-  | IncompatibleRule of incompatible_rule
+  | IncompatibleRule
+      <doc text=""> of incompatible_rule
   (* Those Xxx0 variants were introduced in semgrep 1.45.0, but actually they
    * are here so that our backend can read the cli_error.type_ from old semgrep
    * versions that were translating the PatternParseError _ and IncompatibleRule _
@@ -826,10 +895,13 @@ type error_type
    * There is no PartialParsing0 because this was encoded as a ParseError
    * instead.
    *)
-  | PatternParseError0 <json name="Pattern parse error">
+  | PatternParseError0
+      <json name="Pattern parse error">
+      <doc text="">
   | IncompatibleRule0 <json name="Incompatible rule">
   (* since semgrep 1.94.0 *)
-  | DependencyResolutionError of resolution_error_kind
+  | DependencyResolutionError
+      <doc text=""> of resolution_error_kind
 ] <ocaml repr="classic">
 
 type incompatible_rule
@@ -847,7 +919,7 @@ type incompatible_rule
 (* (called SemgrepError in error.py) *)
 type cli_error = {
   (* exit code for the type_ of error *)
-  code: int;
+  code <doc text="">: int;
   level: error_severity;
   (* before 1.45.0 the type below was 'string', but was the result
    * of converting error_type into a string, so using directly
@@ -856,17 +928,19 @@ type cli_error = {
    * To be fully backward compatible, we actually introduced the
    * PatternParseError0 and IncompatibleRule0 cases in error_type.
    *)
-  type_ <json name="type">: error_type;
+  type_
+    <json name="type">
+    <doc text="">: error_type;
 
   (* LATER: use a variant instead of all those ?xxx types *)
   ?rule_id: rule_id option;
 
   (* for most parsing errors those are set *)
-  ?message: string option; (* contains error location *)
+  ?message <doc text="">: string option; (* contains error location *)
   ?path: fpath option;
 
   (* for invalid rules, for ErrorWithSpan *)
-  ?long_msg: string option;
+  ?long_msg <doc text="">: string option;
   ?short_msg: string option;
   ?spans: error_span list option;
   ?help: string option;
@@ -877,7 +951,7 @@ type error_span = {
     (* LATER: could inherit location; but file: vs path: *)
     (* TODO: source hash should probably also be mandatory? *)
     (* TODO: sometimes set to "<No file>" in rule_lang.py *)
-    file: fpath;
+    file <doc text="">: fpath;
     start: position;
     end <ocaml name="end_">: position;
     ?source_hash: string option;
@@ -889,12 +963,12 @@ type error_span = {
      *
      *  TODO: remove this or add back simple editor error highlighting
      *)
-    ?config_start: position nullable option;
+    ?config_start <doc text="">: position nullable option;
     ?config_end: position nullable option;
     ?config_path: string list nullable option;
 
     (* LATER: what is this for? *)
-    ?context_start: position nullable option;
+    ?context_start <doc text="">: position nullable option;
     ?context_end: position nullable option;
   }
 
@@ -910,9 +984,13 @@ type error_span = {
    same case rules (lowercase, underscores). This is hard to fix later!
    Please review your code carefully before committing to interface changes.
 *)
-type skip_reason <ocaml attr="deriving show"> = [
+type skip_reason
+    <ocaml attr="deriving show">
+    <doc text=""> = [
   (* Originally returned by the Python CLI *)
-  | Always_skipped <json name="always_skipped">
+  | Always_skipped
+      <json name="always_skipped">
+      <doc text="">
   | Semgrepignore_patterns_match <json name="semgrepignore_patterns_match">
   | Cli_include_flags_do_not_match <json name="cli_include_flags_do_not_match">
   | Cli_exclude_flags_match <json name="cli_exclude_flags_match">
@@ -920,7 +998,9 @@ type skip_reason <ocaml attr="deriving show"> = [
   | Analysis_failed_parser_or_internal_error
       <json name="analysis_failed_parser_or_internal_error">
   (* Originally returned by semgrep-core *)
-  | Excluded_by_config <json name="excluded_by_config">
+  | Excluded_by_config
+      <json name="excluded_by_config">
+      <doc text="">
   | Wrong_language <json name="wrong_language">
   | Too_big <json name="too_big">
   | Minified <json name="minified">
@@ -929,23 +1009,35 @@ type skip_reason <ocaml attr="deriving show"> = [
   | Too_many_matches <json name="too_many_matches">
   (* New in osemgrep *)
   | Gitignore_patterns_match
+      <doc text="">
   (* since 1.40.0. There were always ignored, but not shown in the skip report *)
   | Dotfile
+      <doc text="">
   (* since 1.44.0 *)
   | Nonexistent_file
+      <doc text="">
   (* since 1.94.0 *)
-  | Insufficient_permissions <json name="insufficient_permissions">
+  | Insufficient_permissions
+      <json name="insufficient_permissions">
+      <doc text="">
 ] <ocaml repr="classic">
 
 (* coupling: ugly: with yield_json_objects() in target_manager.py *)
-type skipped_target <ocaml attr="deriving show"> = {
+type skipped_target
+    <ocaml attr="deriving show">
+    <doc text="">
+  = {
   path: fpath;
   reason: skip_reason;
   (* since semgrep 1.39.0 (used to be return only by semgrep-core) *)
-  ?details: string option;
+  ?details
+     <doc text="">
+     : string option;
   (* If the 'rule_id' field is missing, the target is assumed to have been
    * skipped for all the rules *)
-  ?rule_id: rule_id option;
+  ?rule_id
+     <doc text="">
+     : rule_id option;
 }
 
 type scanned_and_skipped = {
@@ -954,19 +1046,21 @@ type scanned_and_skipped = {
      * TODO: needs fix in atdpy; see note tagged [X584759]
      * ~skipped: skipped_target list;
     *)
-    ?skipped: skipped_target list option;
+    ?skipped <doc text="">: skipped_target list option;
 }
 
 type skipped_rule = {
   rule_id: rule_id;
   details: string;
   (* position of the error in the rule file *)
-  position: position;
+  position <doc text="">: position;
 }
 
 (* Result of get_targets internal RPC, similar to scanned_and_skipped but
    more complete *)
-type target_discovery_result = {
+type target_discovery_result
+    <doc text="">
+  = {
   target_paths: fppath list;
   errors: core_error list;
   skipped: skipped_target list;
@@ -981,7 +1075,9 @@ type target_discovery_result = {
  * also modify perf/run-benchmarks.
  * Run locally  $ ./run-benchmarks --dummy --upload
  *)
-type profile = {
+type profile
+    <doc text="">
+  = {
     (* List of rules, including the one read but not run on any target.
      * TODO? is this still true now that we just pass around the profile
      *   computed in semgrep-core?
@@ -996,7 +1092,9 @@ type profile = {
      * aggregated rules_parse_time below and do not need a
      * complex rule_id_dict record anymore.
      *)
-    rules: rule_id list;
+    rules
+      <doc text="">
+    : rule_id list;
 
     (* LESS? could be part of profiling_times below instead *)
     rules_parse_time: float;
@@ -1013,26 +1111,28 @@ type profile = {
      *  }
      * LATER: get rid of profiler.dump_stats
      *)
-    profiling_times: (string * float) list
+    profiling_times
+      <doc text="">
+    : (string * float) list
       <json repr="object">
       <python repr="dict">
       <ts repr="map">;
 
     (* EXPERIMENTAL *)
-    ?parsing_time : parsing_time option;
+    ?parsing_time <doc text="">: parsing_time option;
     (* EXPERIMENTAL *)
-    ?scanning_time : scanning_time option;
+    ?scanning_time <doc text="">: scanning_time option;
     (* EXPERIMENTAL *)
-    ?matching_time : matching_time option;
+    ?matching_time <doc text="">: matching_time option;
     (* EXPERIMENTAL *)
-    ?tainting_time : tainting_time option;
+    ?tainting_time <doc text="">: tainting_time option;
 
     (* EXPERIMENTAL: Dafatlow fixpoint-function timeouts
 
       Happen more often than we would like, and it's mainly Semgrep devs that
       will use this info for debugging, so for now we are reporting these
       timeouts as part of the profiling report. *)
-    ?fixpoint_timeouts : core_error list option;
+    ?fixpoint_timeouts <doc text="">: core_error list option;
 
     ?prefiltering : prefiltering_stats option;
 
@@ -1040,24 +1140,35 @@ type profile = {
     total_bytes: int;
 
     (* maximum amount of memory used by Semgrep(-core) during its execution *)
-    ?max_memory_bytes : int option;
+    ?max_memory_bytes
+      <doc text="">
+    : int option;
   }
 
 (* EXPERIMENTAL *)
-type file_time <ocaml attr="deriving show"> = {
+type file_time
+    <ocaml attr="deriving show">
+    <doc text="">
+  = {
     fpath: fpath;
     ftime: float;
 }
 
 (* EXPERIMENTAL *)
-type file_rule_time <ocaml attr="deriving show"> = {
+type file_rule_time
+    <ocaml attr="deriving show">
+    <doc text="">
+  = {
     fpath: fpath;
     rule_id: rule_id;
     time: float;
 }
 
 (* EXPERIMENTAL *)
-type def_rule_time <ocaml attr="deriving show"> = {
+type def_rule_time
+    <ocaml attr="deriving show">
+    <doc text="">
+  = {
     fpath: fpath;
     fline : int;
     rule_id: rule_id;
@@ -1065,7 +1176,9 @@ type def_rule_time <ocaml attr="deriving show"> = {
 }
 
 (* EXPERIMENTAL *)
-type summary_stats = {
+type summary_stats
+    <doc text="">
+   = {
     mean: float;
     std_dev: float;
 }
@@ -1075,51 +1188,61 @@ type summary_stats = {
   being close to 0 while the 'time_ratio' is above 0.5, meaning that a small number
   of very slow files/etc represent a large amount of the total processing time.  *)
 (* EXPERIMENTAL *)
-type very_slow_stats = {
-    time_ratio: float;
+type very_slow_stats
+    <doc text="">
+   = {
+    time_ratio <doc text="">: float;
     (* Ratio "sum of very slow time" / "total time" *)
-    count_ratio: float;
+    count_ratio <doc text="">: float;
     (* Ratio "very slow count" / "total count" *)
 }
 
 (* EXPERIMENTAL *)
-type parsing_time = {
+type parsing_time
+    <doc text="">
+  = {
     total_time: float;
     per_file_time: summary_stats;
     ?very_slow_stats: very_slow_stats option;
-    very_slow_files: file_time list; (* ascending order *)
+    very_slow_files <doc text="">: file_time list; (* ascending order *)
 }
 
 (* Scanning time (includes matching and tainting) *)
 (* EXPERIMENTAL *)
-type scanning_time = {
+type scanning_time
+    <doc text="">
+  = {
   total_time : float;
   per_file_time: summary_stats;
   very_slow_stats: very_slow_stats;
-  very_slow_files: file_time list; (* ascending order *)
+  very_slow_files <doc text="">: file_time list; (* ascending order *)
 }
 
 (* EXPERIMENTAL *)
-type matching_time = {
+type matching_time
+    <doc text="">
+  = {
   total_time : float;
   per_file_and_rule_time : summary_stats;
   very_slow_stats: very_slow_stats;
-  very_slow_rules_on_files: file_rule_time list; (* ascending order *)
+  very_slow_rules_on_files <doc text="">: file_rule_time list; (* ascending order *)
 }
 
 (* EXPERIMENTAL *)
-type tainting_time = {
+type tainting_time
+    <doc text="">
+  = {
   total_time : float;
   per_def_and_rule_time : summary_stats;
   very_slow_stats: very_slow_stats;
-  very_slow_rules_on_defs: def_rule_time list; (* ascending order *)
+  very_slow_rules_on_defs <doc text="">: def_rule_time list; (* ascending order *)
 }
 
 type target_times = {
     path: fpath;
     num_bytes: int;
     (* each elt in the list refers to a rule in profile.rules *)
-    match_times: float list;
+    match_times <doc text="">: float list;
     (* emma: "when we were first diagnosing performance, I recorded every time
      * the file was read (including the later times that were just reloading
      * the parsed file) to make sure reading the file wasn't taking a significant
@@ -1127,26 +1250,38 @@ type target_times = {
      * anymore.
      * TODO: just use a single float instead."
      *)
-    parse_times: float list;
+    parse_times <doc text="">: float list;
     (* run time for all rules on target *)
-    run_time: float;
+    run_time <doc text="">: float;
 }
 
 type prefiltering_stats <ocaml attr="deriving show"> = {
-  project_level_time: float;
+  project_level_time
+    <doc text="">
+  : float;
     (** The time (seconds) it took to execute project-level prefilters *)
-  file_level_time: float;
+  file_level_time
+    <doc text="">
+  : float;
     (** The time (seconds) it took to execute file-level prefilters *)
-  rules_with_project_prefilters_ratio: float;
+  rules_with_project_prefilters_ratio
+    <doc text="">
+  : float;
     (** The ratio of rules which the engine generated a project-level prefilter
         for *)
-  rules_with_file_prefilters_ratio: float;
+  rules_with_file_prefilters_ratio
+    <doc text="">
+  : float;
     (** The ratio of rules which the engine generated a file-level prefilter
         for *)
-  rules_selected_ratio: float;
+  rules_selected_ratio
+    <doc text="">
+  : float;
     (** The ratio of rules which executed beyond prefiltering on at least one
         target *)
-  rules_matched_ratio: float;
+  rules_matched_ratio
+    <doc text="">
+  : float;
     (** The ratio of rules which generated at least one match *)
 }
 
@@ -1162,7 +1297,7 @@ type mcp_scan_results = {
 (* TODO: rename to scan_output at some point *)
 type cli_output = {
     (* since: 0.92 *)
-    ?version: version option;
+    ?version <doc text="">: version option;
 
     results: cli_match list;
     errors: cli_error list;
@@ -1175,22 +1310,26 @@ type cli_output = {
 *)
 type cli_output_extra = {
     (* targeting information *)
-    paths: scanned_and_skipped;
+    paths <doc text="">: scanned_and_skipped;
     (* profiling information *)
-    ?time: profile option;
+    ?time <doc text="">: profile option;
     (* debugging (rule writing) information.
      * Note that as opposed to the dataflow trace, the explanations are not
      * embedded inside a match because we give also explanations when things are
      * not matching.
      * EXPERIMENTAL: since semgrep 0.109
      *)
-    ?explanations: matching_explanation list option;
+    ?explanations
+      <doc text="">
+    : matching_explanation list option;
 
     (* These rules, classified by engine used, will let us be transparent in
      * the CLI output over what rules were run with what.
      * EXPERIMENTAL: since: 1.11.0
      *)
-    ?rules_by_engine: rule_id_and_engine_kind list option;
+    ?rules_by_engine
+      <doc text="">
+    : rule_id_and_engine_kind list option;
     ?engine_requested: engine_kind option;
 
     (* Reporting just the requested engine isn't granular enough. We want to
@@ -1199,22 +1338,32 @@ type cli_output_extra = {
      * interfile languages
      * EXPERIMENTAL: since 1.49.0
     *)
-    ?interfile_languages_used: string list option;
+    ?interfile_languages_used
+      <doc text="">
+    : string list option;
 
     (* EXPERIMENTAL: since: 1.37.0 *)
-    ~skipped_rules: skipped_rule list;
+    ~skipped_rules
+      <doc text="">
+    : skipped_rule list;
 
     (* SCA subproject resolution results. Note: this is only available when
      * logged in.
      * EXPERIMENTAL: since: 1.125.0 *)
-    ?subprojects: cli_output_subproject_info list option;
+    ?subprojects
+      <doc text="">
+    : cli_output_subproject_info list option;
 
     (* MCP scan results. *)
-    ?mcp_scan_results: mcp_scan_results option;
+    ?mcp_scan_results
+      <doc text="">
+    : mcp_scan_results option;
 
     (* How long it took to execute this or that piece of code
        in semgrep-core *)
-    ~profiling_results: profiling_entry list;
+    ~profiling_results
+      <doc text="">
+    : profiling_entry list;
 }
 
 (*****************************************************************************)
@@ -1232,8 +1381,12 @@ type config_error = {
 
 type tests_result = {
   (* would like to use rule_id here but then can't use json repr *)
-   results: (string (* rule file *) * checks) list <json repr="object">;
-   fixtest_results: (string (* target file *) * fixtest_result) list
+   results
+     <doc text="">
+   : (string (* rule file *) * checks) list <json repr="object">;
+   fixtest_results
+     <doc text="">
+   : (string (* target file *) * fixtest_result) list
       <json repr="object">;
    config_missing_tests: fpath list;
    config_missing_fixtests: fpath list;
@@ -1241,17 +1394,23 @@ type tests_result = {
 }
 
 type checks = {
-  checks: (string (* rule_id *) * rule_result) list <json repr="object">;
+  checks
+    <doc text="">
+  : (string (* rule_id *) * rule_result) list <json repr="object">;
 }
 
 type rule_result = {
   passed: bool;
   (* would like to use fpath *)
-  matches: (string (* target filename *) * expected_reported) list
+  matches
+    <doc text="">
+  : (string (* target filename *) * expected_reported) list
     <json repr="object">;
   errors: todo list;
    (* NEW: since 1.79 *)
-  ?diagnosis: matching_diagnosis option;
+  ?diagnosis
+    <doc text="">
+  : matching_diagnosis option;
 }
 
 type expected_reported = {
@@ -1313,7 +1472,7 @@ type todo = int
  *)
 type matching_diagnosis = {
   (* specifically, the test target *)
-  target: fpath;
+  target <doc text="">: fpath;
   unexpected_match_diagnoses: unexpected_match_diagnosis list;
   unexpected_no_match_diagnoses: unexpected_no_match_diagnosis list;
 }
@@ -1331,7 +1490,7 @@ type unexpected_match_diagnosis = {
   matched_text: snippet;
   (* information about the originating pattern in the rule file *)
   (* This is where the unexpected match came from. *)
-  originating_kind: originating_node_kind;
+  originating_kind <doc text="">: originating_node_kind;
   originating_text: snippet;
   killing_parents: killing_parent list;
 }
@@ -1363,7 +1522,9 @@ type killing_parent_kind = [
    For convenience when scripting with this in rule generation, we will
    just get the source text here.
  *)
-type snippet = {
+type snippet
+    <doc text="">
+  = {
   line: int;
   text: string;
 }
@@ -1381,7 +1542,9 @@ type snippet = {
    they are siblings in the actual tree. This is because the ranges
    of the `pattern` are input to the `not` node.
  *)
-type killing_parent = {
+type killing_parent
+    <doc text="">
+  = {
   killing_parent_kind: killing_parent_kind;
   snippet: snippet;
 }
@@ -1415,14 +1578,16 @@ type features = {
    ~deepsemgrep: bool;
    ~dependency_query: bool;
    (* a.k.a. dependency path *)
-   ~path_to_transitivity: bool;
+   ~path_to_transitivity
+     <doc text="">
+   : bool;
    (* normally we resolve dependencies for changed subprojects only in diff
     * scans. This flag causes all subprojects to be resolved in diff scans *)
-   ~scan_all_deps_in_diff_scan: bool;
+   ~scan_all_deps_in_diff_scan <doc text="">: bool;
    (* Whether to collect "symbol analysis" info from the repo being scanned
       See https://www.notion.so/semgrep/Semgrep-Code-Reconnaissance-Toolbox-18a3009241a880f2a439eed6b2cffe66?pvs=4
     *)
-   ~symbol_analysis: bool;
+   ~symbol_analysis <doc text="">: bool;
    (* Whether to enable transitive reachability analysis for SCA findings *)
    ~transitive_reachability_enabled: bool;
 }
@@ -1430,7 +1595,7 @@ type features = {
 type triage_ignored = {
     ~triage_ignored_syntactic_ids: string list;
     (* TODO: use match_based_id list *)
-    ~triage_ignored_match_based_ids: string list;
+    ~triage_ignored_match_based_ids <doc text="">: string list;
 }
 
 (* ----------------------------- *)
@@ -1452,9 +1617,9 @@ type triage_ignored = {
 type action = [
   | Message of string
   (* in seconds *)
-  | Delay of float
+  | Delay <doc text=""> of float
   (* unix exit code *)
-  | Exit of int
+  | Exit <doc text=""> of int
   (* TODO? CollectMetrics | CollectProfile | ... *)
 ]
 
@@ -1462,7 +1627,9 @@ type action = [
 (* CI scan response *)
 (* ----------------------------- *)
 (* Response from the backend to the CLI to the POST /api/cli/scans *)
-type scan_response = {
+type scan_response
+     <doc text="">
+   = {
     info: scan_info;
     config: scan_configuration;
     engine_params: engine_configuration;
@@ -1471,7 +1638,7 @@ type scan_response = {
 
 (* meta info about the scan *)
 type scan_info = {
-    ?id: int option; (* the scan id, null for dry-runs *)
+    ?id <doc text="">: int option; (* the scan id, null for dry-runs *)
     enabled_products: product list;
     (* Those fields are also in deployment_config but they are also
      * here so that 'semgrep ci' does not need an extra HTTP request to the
@@ -1482,46 +1649,64 @@ type scan_info = {
 }
 
 (* config specific to the scan *)
-type scan_configuration = {
+type scan_configuration <doc text=""> = {
     (* Rules sent from the backend. Note that those rules are in JSON
      * form not YAML (which led to some speedup in pysemgrep)
      * TODO? can we type this better *)
     rules: raw_json;
     inherit triage_ignored;
     (* From 1.131.0, tells us what merge base to use if it's a diff scan *)
-    ?project_merge_base: sha1 option;
+    ?project_merge_base
+      <doc text="">
+    : sha1 option;
     (* From 1.126.0.
      * Customers in FIPS environments have specific hash function requirements
      * that this flag will override.  See SAF-2057 for details. *)
-    ~fips_mode: bool;
+    ~fips_mode
+      <doc text="">
+    : bool;
 }
 
 (* settings for the cli *)
 type engine_configuration = {
     inherit features;
     (* TODO? glob list? fpath list? *)
-    ~ignored_files: string list;
+    ~ignored_files
+      <doc text="">
+    : string list;
     (* from 1.71.0 *)
-    ?product_ignored_files: product_ignored_files option;
+    ?product_ignored_files
+      <doc text="">
+    : product_ignored_files option;
     (* for features we only want to turn on for select customers *)
-    ~generic_slow_rollout: bool;
+    ~generic_slow_rollout
+      <doc text="">
+    : bool;
     (* from 1.63.0 *)
-    ?historical_config: historical_configuration option;
+    ?historical_config
+      <doc text="">
+    : historical_configuration option;
     (* from 1.93.
      * Indicate that fail-open should always be enabled, overriding the CLI flag.
      * coupling: server/semgrep_app/saas/models/deployment_products_mixin.py
      *)
-    ~always_suppress_errors: bool;
+    ~always_suppress_errors
+      <doc text="">
+    : bool;
 }
 
-type product_ignored_files = (product * glob list) list
+type product_ignored_files
+    <doc text="">
+  = (product * glob list) list
   (* We omit the usual <json repr="object"> otherwise we get a
    * "keys must be strings" error *)
   <python repr="dict"> <ts repr="map">
 
 (* configuration for scanning version control history, e.g., looking back at
  * past git commits for committed credentials which may have been removed *)
-type historical_configuration = {
+type historical_configuration
+    <doc text="">
+  = {
     enabled: bool;
     ?lookback_days: int option;
 }
@@ -1531,7 +1716,9 @@ type historical_configuration = {
 (* ----------------------------- *)
 
 (* Sent by the CLI to the POST /api/cli/scans to create a scan. *)
-type scan_request = {
+type scan_request
+    <doc text="">
+  = {
     project_metadata: project_metadata;
     scan_metadata: scan_metadata;
     ?project_config: ci_config_from_repo option;
@@ -1543,17 +1730,19 @@ type scan_request = {
  * TODO: we could split it in different parts and use inherit to make things
  * clearer (while still being backward compatible)
  *)
-type project_metadata = {
+type project_metadata
+    <doc text="">
+  = {
     (* TODO: use enum with <json name="..."> *)
     (* "git" | "github-actions" | "gitlab-ci" | "circleci"
      * "jenkins" | "bitbucket" | "azure-pipelines" | "buildkite" | "travis-ci"
      *)
-    scan_environment: string;
+    scan_environment <doc text="">: string;
 
     (* Git metadata. Many of those fields come from environment variables like
      * GITHUB_xxx.
      *)
-    repository: string;
+    repository <doc text="">: string;
     repo_url: uri nullable;
     (* The two fields below are stable across repository renaming and even org
      * renaming, which can be useful to not report new findings on a repo
@@ -1561,23 +1750,23 @@ type project_metadata = {
      * Since Semgrep 1.46.0
      * The string is usually an int, but more general to use a string.
      *)
-    ?repo_id: string option;
+    ?repo_id <doc text="">: string option;
     (* a.k.a repository owner id *)
-    ?org_id: string option;
+    ?org_id <doc text="">: string option;
 
     (* Users can set a different name for display and for PR comments.
        This allows monorepos to be scanned as separate projects. *)
-    ?repo_display_name: string option;
+    ?repo_display_name <doc text="">: string option;
 
     (* TODO: the branch should use a standard format? like refs/... ? or it can
      * be a basic branch name like 'foobar'?
      *)
     (* ALT: head_branch, head_commit *)
-    branch: string nullable;
+    branch <doc text="">: string nullable;
     commit: sha1 nullable;
     commit_title: string nullable;
     (* since 1.38.0 *)
-    ?commit_timestamp: datetime option;
+    ?commit_timestamp <doc text="">: datetime option;
 
     (* TODO? inherit contributor instead? *)
     (* TODO? Emile.mailbox in OCaml *)
@@ -1592,7 +1781,9 @@ type project_metadata = {
     (* CI event name ("pull_request"|"pull_request_target"|"push"|"unknown"|...)
      * TODO: use enum
      *)
-    on: string;
+    on
+      <doc text="">
+    : string;
 
     pull_request_author_username: string nullable;
     pull_request_author_image_url: uri nullable;
@@ -1602,46 +1793,68 @@ type project_metadata = {
     (* the latest commit in the base branch of a PR, used to determine the git
     merge base on the app side if needed. This should really be called base_sha
     but that term is already misused below for something thats gitlab only *)
-
-    ?base_branch_head_commit: sha1 option;
+    ?base_branch_head_commit
+      <doc text="">
+    : sha1 option;
 
     (* This is gitlab only, and is actually only the baseline commit sha if
     provided, OR it's the git merge-base if not provided. It is NOT the head
     commit of the base branch *)
-    ?base_sha: sha1 option;
+    ?base_sha
+      <doc text="">
+    : sha1 option;
     (* this is CI_MERGE_REQUEST_DIFF_BASE_SHA which is strictly the git merge
     base *)
-    ?start_sha: sha1 option;
+    ?start_sha
+       <doc text="">
+    : sha1 option;
 
     (* Check if the current Git repository has enough to determine the
      * merge_base_ref.
      *)
-    is_full_scan: bool;
+    is_full_scan
+      <doc text="">
+    : bool;
 
     (* added later in ci.py (not from meta.py)
      * TODO: deprecate these in favor of scan_metadata.requested_products
      *)
-    ?is_sca_scan: bool option;
+    ?is_sca_scan
+      <doc text="">
+    : bool option;
     (* since 1.40.0 *)
-    ?is_code_scan: bool option;
+    ?is_code_scan
+      <doc text="">
+    : bool option;
     (* since 1.41.0 *)
-    ?is_secrets_scan: bool option;
+    ?is_secrets_scan
+      <doc text="">
+    : bool option;
 
     (* Identifies a semgrep project where findings belong to. *)
-    ?project_id: string option;
-
+    ?project_id
+      <doc text="">
+    : string option;
 }
 
 (* Scan metadata generated by the CLI during the scan process. *)
-type scan_metadata = {
+type scan_metadata
+    <doc text="">
+  = {
   cli_version: version;
-  unique_id: uuid; (* client generated uuid for the scan *)
+  unique_id
+    <doc text="">
+  : uuid; (* client generated uuid for the scan *)
   requested_products: product list;
   (* since 1.47.0 *)
-  ~dry_run: bool;
+  ~dry_run
+    <doc text="">
+  : bool;
   (* unique id associated with the scan in Semgrep Managed Scanning *)
   (* since 1.96.0 *)
-  ?sms_scan_id: string option;
+  ?sms_scan_id
+    <doc text="">
+  : string option;
   ~ecosystems: string list;
   ~packages: string list;
 }
@@ -1655,11 +1868,16 @@ type scan_metadata = {
  *)
 type ci_config_from_repo = {
     (* version of the .semgrepconfig.yml format. "v1" right now (useful?) *)
-    ~version <python default="Version('v1')"> <ts default="'v1'">: version;
+    ~version
+      <python default="Version('v1')">
+      <ts default="'v1'">
+      <doc text="">
+    : version;
     ?tags: tag list option;
 }
+
 (* ex: "webapp" *)
-type tag = string
+type tag <doc text=""> = string
 
 (* ----------------------------- *)
 (* Findings *)
@@ -1687,7 +1905,9 @@ type finding = {
    * Error = 2, Warning = 1, Experiment = 4, otherwise 0
    * 3 = ?? Critical = ??
    *)
-  severity: abstract;
+  severity
+    <doc text="">
+  : abstract;
 
   (* ?? *)
   index: int;
@@ -1696,12 +1916,12 @@ type finding = {
 
   syntactic_id: string;
   (* since semgrep 0.98 TODO: use match_based_id option *)
-  ?match_based_id: string option;
+  ?match_based_id <doc text="">: string option;
   (* since semgrep 1.14.0 *)
-  ?hashes: finding_hashes option;
+  ?hashes <doc text="">: finding_hashes option;
 
   (* metadata from the rule *)
-  metadata: raw_json;
+  metadata <doc text="">: raw_json;
 
   (* ?? *)
   is_blocking: bool;
@@ -1710,13 +1930,21 @@ type finding = {
 
   ?sca_info: sca_match option;
   (* Note that this contains code! TODO? do we need to send this to the App? *)
-  ?dataflow_trace: match_dataflow_trace option;
+  ?dataflow_trace
+    <doc text="">
+  : match_dataflow_trace option;
   (* Added in semgrep 1.39.0 see comments in cli_match_extra *)
-  ?validation_state: validation_state option;
+  ?validation_state
+    <doc text="">
+  : validation_state option;
   (* Added in semgrep 1.65.0 see comments in cli_match_extra *)
-  ?historical_info: historical_info option;
+  ?historical_info
+    <doc text="">
+  : historical_info option;
   (* Added in semgrep 1.70.0 *)
-  ?engine_kind: engine_of_finding option;
+  ?engine_kind
+    <doc text="">
+  : engine_of_finding option;
 }
 
 (* The goal is to hash findings independently of their precise location so
@@ -1731,9 +1959,13 @@ type finding_hashes = {
   end_line_hash: string;
   (* hash of the syntactic_context/code contents from start_line through
    * end_line *)
-  code_hash: string;
+  code_hash
+    <doc text="">
+  : string;
   (* hash of the rule pattern with metavariables substituted in *)
-  pattern_hash: string;
+  pattern_hash
+    <doc text="">
+  : string;
 }
 
 (* ----------------------------- *)
@@ -1755,25 +1987,31 @@ type ci_scan_results = {
    rule_ids: rule_id list;
 
    (* since semgrep 1.34.0 *)
-   ?contributions: contributions option;
+   ?contributions <doc text="">: contributions option;
    (* since semgrep 1.38.0 *)
    (* this data was originally sent to /complete, but we want to start sending
     * it to /results *)
-   ?dependencies: ci_scan_dependencies option;
+   ?dependencies
+     <doc text="">
+   : ci_scan_dependencies option;
 
    (* filled in by the backend to associate scan results with the driving scan*)
-   ?metadata: ci_scan_metadata option;
+   ?metadata
+     <doc text="">
+   : ci_scan_metadata option;
 }
 
 (* Scan metadata populated by the backend after receiving
  * the scan results from the CLI via POST request to
  * /scans/<int:scan_id>/results
  *)
-type ci_scan_metadata = {
+type ci_scan_metadata
+    <doc text="">
+  = {
   scan_id: int;
   deployment_id: int;
-  repository_id: int; (* stored as int in our app db *)
-  repository_ref_id: int; (* stored id for a branch or tag *)
+  repository_id <doc text="">: int; (* stored as int in our app db *)
+  repository_ref_id <doc text="">: int; (* stored id for a branch or tag *)
   enabled_products: product list;
   git_commit: sha1 nullable;
   git_ref: string nullable;
@@ -1782,7 +2020,9 @@ type ci_scan_metadata = {
 (* See https://semgrep.dev/docs/usage-limits
  * coupling: this must match Git_wrapper.git_log_json_format
  *)
-type contributor = {
+type contributor
+    <doc text="">
+  = {
     commit_author_name: string;
     commit_author_email: string;
 }
@@ -1796,10 +2036,12 @@ type contribution = {
 (* we keep this alias because we need to generate code to parse and write
  * list of contributions.
  *)
-type contributions = contribution list
+type contributions <doc text=""> = contribution list
 
 (* Response by the backend to the CLI to the POST /results *)
-type ci_scan_results_response <ocaml attr="deriving show"> = {
+type ci_scan_results_response
+    <ocaml attr="deriving show">
+    <doc text=""> = {
   errors: ci_scan_results_response_error list;
   ?task_id: string option;
 }
@@ -1817,11 +2059,17 @@ type ci_scan_complete = {
   exit_code: int;
   stats: ci_scan_complete_stats;
   (* TODO: remove when min version is 1.38.0 *)
-  ?dependencies: ci_scan_dependencies option;
+  ?dependencies
+    <doc text="">
+  : ci_scan_dependencies option;
   (* TODO: move the errors in ci_scan_complete_stats.errors instead *)
-  ?dependency_parser_errors: dependency_parser_error list option;
+  ?dependency_parser_errors
+    <doc text="">
+  : dependency_parser_error list option;
   (* since 1.31.0 *)
-  ?task_id: string option;
+  ?task_id
+    <doc text="">
+  : string option;
   ?final_attempt: bool option; (* always optional *)
   }
 
@@ -1847,7 +2095,9 @@ type ci_scan_complete_stats = {
   (* This is EngineType from python, which is different from engine_kind
    * used in this file.
    *)
-  ?engine_requested: string option;
+  ?engine_requested
+    <doc text="">
+  : string option;
   (* Mirrors numFindingsByProduct in metrics.py
    * See PA-3312 and GROW-104.
    *
@@ -1855,7 +2105,9 @@ type ci_scan_complete_stats = {
    *  currently a human-readable product name (i.e. code)
    *  vs our typed product enum representation (i.e. sast).
   *)
-  ?findings_by_product: (string * int) list
+  ?findings_by_product
+    <doc text="">
+  : (string * int) list
     <json repr="object">
     <python repr="dict">
     <ts repr="map">
@@ -1867,7 +2119,9 @@ type ci_scan_complete_stats = {
    *
    * This field will only be defined for SCA scans.
    *)
-  ?supply_chain_stats: supply_chain_stats option;
+  ?supply_chain_stats
+    <doc text="">
+  : supply_chain_stats option;
 }
 
 type parsing_stats = {
@@ -1879,15 +2133,20 @@ type parsing_stats = {
 
 
 (* Response by the backend to the CLI to the POST /complete *)
-type ci_scan_complete_response <ocaml attr="deriving show"> = {
+type ci_scan_complete_response
+    <ocaml attr="deriving show">
+    <doc text="">
+  = {
    success: bool;
    ~app_block_override: bool;
    (* only when app_block_override is true *)
-   ~app_block_reason: string;
+   ~app_block_reason <doc text="">: string;
    (* since 1.100.0. match_based_ids of findings that semgrep-app determined
     * should cause the scan to block
     *)
-   ~app_blocking_match_based_ids : match_based_id list;
+   ~app_blocking_match_based_ids
+     <doc text="">
+   : match_based_id list;
 }
 
 (* ----------------------------- *)
@@ -1905,7 +2164,7 @@ type dependency_parser_error = {
   (* Not using `position` because this type must be backwards compatible with
    * the python class it is replacing.
    *)
-  ?line: int option;
+  ?line <doc text="">: int option;
   ?col: int option;
   ?text: string option;
 }
@@ -1914,7 +2173,10 @@ type dependency_parser_error = {
  * is replacing. The P prefix (for parser) is to avoid ambiguity with similar
  * construtor names in the manifest and ecosystem types.
  *)
-type sca_parser_name <ocaml attr="deriving show"> = [
+type sca_parser_name
+    <ocaml attr="deriving show">
+    <doc text="">
+   = [
   | PGemfile_lock <json name="gemfile_lock">
   | PGo_mod <json name="go_mod">
   | PGo_sum <json name="go_sum">
@@ -1946,17 +2208,27 @@ type supply_chain_stats = {
 (* This is the public version of subproject_stats, which is used in the CLI
  * output. This is distinguised from subproject_stats below in order to produce
  * more normal-looking JSON and to avoid including unnecessary fields. *)
-type cli_output_subproject_info = {
+type cli_output_subproject_info
+    <doc text="">
+  = {
   (* We use fpath here rather than the dependency_source_file
    * type because ATD makes strange-looking JSON output for the
    * dependency_source_file type.  *)
-  dependency_sources: fpath list;
+  dependency_sources
+    <doc text="">
+  : fpath list;
   (* true if the subproject's dependencies were resolved successfully *)
-  resolved: bool;
+  resolved
+    <doc text="">
+  : bool;
   (* Reason why resolution failed, empty if resolution succeeded *)
-  ?unresolved_reason: unresolved_reason option;
+  ?unresolved_reason
+    <doc text="">
+  : unresolved_reason option;
   (* Results of dependency resolution, empty if resolution failed *)
-  ?resolved_stats: dependency_resolution_stats option;
+  ?resolved_stats
+    <doc text="">
+  : dependency_resolution_stats option;
 }
 
 type subproject_stats = {
@@ -1965,17 +2237,27 @@ type subproject_stats = {
    * (addition, removal, or modification) results in a new `subproject_id`, as
    * different dependency sources indicate a different subproject context.
    *)
-  subproject_id: string;
+  subproject_id
+    <doc text="">
+  : string;
   (* Files used to determine the subproject's dependencies (lockfiles, manifest
    * files, etc)
    *)
-  dependency_sources: dependency_source_file list;
+  dependency_sources
+    <doc text="">
+  : dependency_source_file list;
   (* Results of dependency resolution, empty if resolution failed *)
-  ?resolved_stats: dependency_resolution_stats option;
+  ?resolved_stats
+    <doc text="">
+  : dependency_resolution_stats option;
   (* Reason why resolution failed, empty if resolution succeeded *)
-  ?unresolved_reason: unresolved_reason option;
+  ?unresolved_reason
+    <doc text="">
+  : unresolved_reason option;
   (* Errors encountered during subproject resolution *)
-  ~errors: sca_error list
+  ~errors
+    <doc text="">
+  : sca_error list
 }
 
 type dependency_source_file = {
@@ -2002,9 +2284,9 @@ type resolution_method
      <python decorator="dataclass(frozen=True, order=True)"> =
 [
   (* we parsed a lockfile that was already included in the repository *)
-  | LockfileParsing
+  | LockfileParsing <doc text="">
   (* we communicated with the package manager to resolve dependencies *)
-  | DynamicResolution
+  | DynamicResolution <doc text="">
 ]
 
 (* ----------------------------- *)
@@ -2012,7 +2294,9 @@ type resolution_method
 (* ----------------------------- *)
 
 (* Sent by the CLI to /scans/<scan_id>/error *)
-type ci_scan_failure = {
+type ci_scan_failure
+    <doc text="">
+  = {
     exit_code: int;
     stderr: string;
 }
@@ -2027,24 +2311,37 @@ type ci_scan_failure = {
  * TODO? deprecate this endpoint as it is now used only in 'semgrep login' and
  * in 'semgrep show whoami' to just check whether the token is valid?
  *)
-type deployment_config <ocaml attr="deriving show"> = {
+type deployment_config
+    <ocaml attr="deriving show">
+    <doc text="">
+  = {
   id : int;
   (* the important piece, the deployment name (e.g., "returntocorp" *)
-  name : string;
+  name
+    <doc text="">
+  : string;
   ~organization_id : int;
   (* All three below seem similar to 'name' mostly (e.g., "returntocorp") *)
-  ~display_name : string;
+  ~display_name
+    <doc text="">
+  : string;
   ~scm_name : string;
   ~slug : string;
   (* ex: "github" *)
-  ~source_type : string;
+  ~source_type
+    <doc text="">
+  : string;
   (* ex: "member" *)
-  ~default_user_role : string;
+  ~default_user_role
+    <doc text="">
+  : string;
   inherit has_features;
 }
 
 (* whether a certain feature is available for a deployment *)
-type has_features = {
+type has_features
+    <doc text="">
+  = {
   ~has_autofix : bool;
   ~has_deepsemgrep : bool;
   ~has_triage_via_comment : bool;
@@ -2062,27 +2359,41 @@ type deployment_response = {
  * those --config policy|supply-chain and migrate semgrep lsp to
  * /api/cli/scans with dryrun=true
  *)
-type scan_config = {
+type scan_config
+    <doc text="">
+   = {
     deployment_id: int;
     deployment_name: string;
     (* ex: "audit", "comment", "block" TODO use enum? TODO: seems dead *)
-    policy_names: string list;
+    policy_names
+      <doc text="">
+    : string list;
     (* rules raw content in JSON format (but still sent as a string) *)
-    rule_config: string;
+    rule_config
+      <doc text="">
+    : string;
     inherit features;
     inherit triage_ignored;
     (* glob patterns *)
-    ~ignored_files: string list;
+    ~ignored_files
+      <doc text="">
+    : string list;
     (* since 1.37.0 *)
-    ?enabled_products: product list option;
+    ?enabled_products
+      <doc text="">
+    : product list option;
     (* since 1.64.0 *)
-    ~actions: action list;
+    ~actions
+      <doc text="">
+    : action list;
     (* since 1.47.0 but not created by the backend (nor used by the CLI) *)
-    ?ci_config_from_cloud: ci_config_from_cloud option;
+    ?ci_config_from_cloud
+      <doc text="">
+    : ci_config_from_cloud option;
   }
 
 (* ------------------------------------------- *)
-(* Transitive reachabilitiy (TR) caching comms *)
+(* Transitive reachability (TR) caching comms *)
 (* ------------------------------------------- *)
 (* We want essentially to cache semgrep computation on third party packages
  * to quickly know  (rule_id x package_version) -> sca_transitive_match_kind
@@ -2099,46 +2410,67 @@ type scan_config = {
  * cached entries (e.g., the semgrep engine itself changed enough that
  * some past cached results might be wrong and should be recomputed)
 *)
-type tr_cache_key <ocaml attr="deriving show, eq"> = {
+type tr_cache_key
+    <ocaml attr="deriving show, eq">
+    <doc text="">
+  = {
     rule_id: rule_id;
     (* this can be the checksum of the content of the rule (JSON or YAML form) *)
-    rule_version: string;
+    rule_version
+      <doc text="">
+    : string;
     (* does not have to match the Semgrep CLI version; can be bumped only
      * when we think the match should be recomputed
      * TODO: to be set in Transitive_reachability.ml tr_version constant
      *)
-    engine_version: int;
+    engine_version
+      <doc text="">
+    : int;
     (* ex: http://some-website/hello-world.0.1.2.tgz like in found_dependency
      * 'resolved_url' field, but could be anything to describe a particular
      * package. We could rely on https://github.com/package-url/purl-spec
      *)
-    package_url: string;
+    package_url
+      <doc text="">
+    : string;
     (* extra key just in case (e.g., "prod" vs "dev") *)
-    extra: string;
+    extra
+      <doc text="">
+    : string;
 }
 
 (* The "value" *)
-type tr_cache_match_result = {
+type tr_cache_match_result
+    <doc text="">
+  = {
     (* alt: cache just sca_match? or sca_match_kind? or even define a separate
      * sca_transitive_match type? which would be smaller than storing
      * the whole set of matches
      * alt: cache the whole cli_output? (which also contains the errors)
      *)
-    matches: cli_match list;
+    matches
+      <doc text="">
+    : cli_match list;
 }
 
 (* Sent by the CLI to the POST /api/cli/tr_cache/lookup *)
-type tr_query_cache_request = {
+type tr_query_cache_request
+    <doc text="">
+  = {
     entries: tr_cache_key list;
 }
 
 (* Response by the backend the the POST /api/cli/tr_cache/lookup *)
-type tr_query_cache_response = {
-    cached: (tr_cache_key * tr_cache_match_result) list;   
+type tr_query_cache_response
+    <doc text="">
+  = {
+    cached: (tr_cache_key * tr_cache_match_result) list;
 }
 
 (* Sent by the CLI to the POST /api/cli/tr_cache *)
-type tr_add_cache_request = {
+type tr_add_cache_request
+    <doc text="">
+  = {
    new_entries: (tr_cache_key * tr_cache_match_result) list;
 }
 (* TODO: tr_add_cache_response: string result (Ok | Error) *)
@@ -2150,11 +2482,15 @@ type tr_add_cache_request = {
 (* Semgrep config from the WebApp
  * TODO: not created yet by backend, and not used yet in the CLI
  *)
-type ci_config_from_cloud = {
+type ci_config_from_cloud
+    <doc text="">
+   = {
     repo_config: ci_config;
     ?org_config: ci_config option;
     (* for monorepos, to be "monorepo-friendly" like they say in Ruff *)
-    ?dirs_config: (fpath * ci_config) list option;
+    ?dirs_config
+      <doc text="">
+    : (fpath * ci_config) list option;
     ~actions: action list;
 }
 
@@ -2169,21 +2505,27 @@ type ci_config_from_cloud = {
  * probably ATD extension to express validators, docstring, etc (Jonas's idea).
  *
  *)
-type ci_config = {
-   (* to override environment variables, as lots of the configuration of
-    * 'semgrep ci' comes from environment variables (e.g., SEMGREP_REPO_URL)
-    *)
-    env: ci_env;
-    enabled_products: product list;
-    (* glob patterns *)
-    ignored_files: string list;
-    (* other features *)
-    inherit features;
-    (* TODO?
-     *  - feature_rollout (hidden from users)
-     *  - feature_opt_in (set by users)
-     *  - triage_ignored?
-     *)
+type ci_config
+    <doc text="">
+  = {
+  (* to override environment variables, as lots of the configuration of
+   * 'semgrep ci' comes from environment variables (e.g., SEMGREP_REPO_URL)
+   *)
+  env
+     <doc text="">
+  : ci_env;
+  enabled_products: product list;
+  (* glob patterns *)
+  ignored_files
+     <doc text="">
+  : string list;
+  (* other features *)
+  inherit features;
+  (* TODO?
+   *  - feature_rollout (hidden from users)
+   *  - feature_opt_in (set by users)
+   *  - triage_ignored?
+   *)
 }
 
 type ci_env = (string * string) list
@@ -2201,7 +2543,9 @@ type core_output = {
   version: version;
   results: core_match list;
   (* errors are guaranteed to be duplicate free; see also Report.ml *)
-  errors: core_error list;
+  errors
+     <doc text="">
+  : core_error list;
 
   inherit cli_output_extra;
   inherit core_output_extra;
@@ -2210,13 +2554,20 @@ type core_output = {
 (* For extra information to put into the `core_output` that we
    do not necessarily want to share with the cli_output.
  *)
-type core_output_extra = {
+type core_output_extra
+    <doc text="">
+  = {
    (* since semgrep 1.108.0 *)
-   ?symbol_analysis: symbol_analysis option;
+   ?symbol_analysis
+     <doc text="">
+  : symbol_analysis option;
 }
 
 (* TODO: now only core_match_extra differ, otherwise it's just like cli_match *)
-type core_match <python decorator="dataclass(frozen=True)"> = {
+type core_match
+    <python decorator="dataclass(frozen=True)">
+    <doc text="">
+  = {
   check_id: rule_id;
   inherit location;
   extra: core_match_extra;
@@ -2226,7 +2577,10 @@ type core_match <python decorator="dataclass(frozen=True)"> = {
  * See the corresponding comment in cli_match_extra for more information
  * about the fields below.
  *)
-type core_match_extra <python decorator="dataclass(frozen=True)"> = {
+type core_match_extra
+    <python decorator="dataclass(frozen=True)">
+    <doc text="">
+  = {
   metavars: metavars;
   engine_kind: engine_of_finding;
   is_ignored: bool;
@@ -2235,7 +2589,9 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
    * for rule with a validator for secrets, depending on what the validator
    * might match, but could be expanded in the future.
    *)
-  ?message: string option;
+  ?message
+     <doc text="">
+  : string option;
   ?metadata: raw_json option;
   ?severity: match_severity option;
   ?fix: string option;
@@ -2247,7 +2603,9 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
    * Useful for quick experiments, especially when combined with semgrep
    * --core-opts flag.
    *)
-  ?extra_extra: raw_json option;
+  ?extra_extra
+     <doc text="">
+  : raw_json option;
 }
 
 (* See Semgrep_error_code.ml *)
@@ -2257,7 +2615,10 @@ type core_match_extra <python decorator="dataclass(frozen=True)"> = {
  * LATER: use a proper variant in error_type so we would need less
  * of those ?xxx types below (like a ParseError should always have a location)
  *)
-type core_error <python decorator="dataclass(frozen=True)"> = {
+type core_error
+    <python decorator="dataclass(frozen=True)">
+    <doc text="">
+  = {
   error_type: error_type;
   severity: error_severity;
   message: string;
@@ -2285,11 +2646,18 @@ type core_error <python decorator="dataclass(frozen=True)"> = {
 *)
 
 (* See Scan_CLI.ml on how to convert command-line options to this *)
-type project_root <ocaml attr="deriving show"> = [
+type project_root
+    <ocaml attr="deriving show">
+    <doc text="">
+  = [
   (* path *)
-  | Filesystem of string
+  | Filesystem
+     <doc text="">
+     of string
   (* URL *)
-  | Git_remote of string
+  | Git_remote
+     <doc text="">
+     of string
 ]
 
 (*
@@ -2305,7 +2673,10 @@ type project_root <ocaml attr="deriving show"> = [
    - See Find_targets.mli for the meaning of each field.
    - See Scan_CLI.ml for the mapping between semgrep CLI and this type.
 *)
-type targeting_conf <ocaml attr="deriving show"> = {
+type targeting_conf
+    <ocaml attr="deriving show">
+    <doc text="">
+  = {
   exclude : string list;
   ?include_ : string list option;
   max_target_bytes : int;
@@ -2314,15 +2685,22 @@ type targeting_conf <ocaml attr="deriving show"> = {
   ?semgrepignore_filename : string option;
   always_select_explicit_targets : bool;
   (* This is a hash table in Find_targets.conf: *)
-  explicit_targets : string list;
+  explicit_targets
+     <doc text="">
+  : string list;
   (* osemgrep-only: option (see Git_project.ml and the force_root parameter) *)
-  ?force_project_root : project_root option;
+  ?force_project_root
+     <doc text="">
+  : project_root option;
   force_novcs_project : bool;
   exclude_minified_files : bool;
   ?baseline_commit : string option;
 }
 
-type analyzer <ocaml attr="deriving show"> = string wrap <ocaml module="Analyzer">
+type analyzer
+    <ocaml attr="deriving show">
+    <doc text="">
+  = string wrap <ocaml module="Analyzer">
 
 (* A target can either be a traditional code target (now with optional
    associated lockfile) or it can be a lockfile target, which will be used to
@@ -2330,7 +2708,10 @@ type analyzer <ocaml attr="deriving show"> = string wrap <ocaml module="Analyzer
    Currently *ALL TARGETS FROM PYSEMGREP ARE CODETARGETS*
    coupling: with src/target/Target.mli
 *)
-type target <ocaml attr="deriving show"> = [
+type target
+    <ocaml attr="deriving show">
+    <doc text="">
+  = [
   | CodeTarget of code_target
   | DependencySourceTarget of dependency_source
 ]
@@ -2342,12 +2723,17 @@ type target <ocaml attr="deriving show"> = [
   We don't want to commit to a specific way of associating these in
   semgrep-core, so we leave it up to the caller (pysemgrep or osemgrep) to do it.
 *)
-type code_target <ocaml attr="deriving show"> = {
+type code_target
+    <ocaml attr="deriving show">
+    <doc text="">
+  = {
   path: fppath (* source file *);
   (* Must be a valid target analyzer as defined in Analyzer.mli.
      examples: "ocaml", "python", but also "spacegrep" or "regexp".
   *)
-  analyzer: analyzer;
+  analyzer
+     <doc text="">
+  : analyzer;
   products: product list;
   ?dependency_source: dependency_source option;
 }
@@ -2366,11 +2752,18 @@ type scanning_roots <ocaml attr="deriving show"> = {
  * you could have at most one PL language, and then possibly
  * "generic" and "regexp".
  *)
-type targets <ocaml attr="deriving show"> = [
+type targets
+    <ocaml attr="deriving show">
+    <doc text="">
+  = [
   (* list of paths used to discover targets *)
-  | Scanning_roots of scanning_roots
+  | Scanning_roots
+      <doc text="">
+      of scanning_roots
   (* targets already discovered from the scanning roots by pysemgrep *)
-  | Targets of target list
+  | Targets
+      <doc text="">
+      of target list
 ]
 
 (*****************************************************************************)
@@ -2397,17 +2790,23 @@ type apply_fixes_params <python decorator="dataclass(frozen=True)"> = {
 
 type apply_fixes_return <python decorator="dataclass(frozen=True)"> = {
   (* Number of files modified *)
-  modified_file_count: int;
+  modified_file_count
+     <doc text="">
+  : int;
   (* Each item is a pair, where the first item is the index of the associated
   edit in the input list and the second item is the list of fixed lines
   associated with that edit. *)
-  fixed_lines: (int * string list) list;
+  fixed_lines
+     <doc text="">
+  : (int * string list) list;
 }
 
 type sarif_format <python decorator="dataclass(frozen=True)"> = {
   (* Path to the rules file. We need it because rules can't be reconstructed
    * from cli_output (which is one of the other param of CallSarifFormat) *)
-  rules: fpath;
+  rules
+     <doc text="">
+  : fpath;
   (* TODO? move to format_context? *)
   is_pro: bool;
   show_dataflow_traces: bool;
@@ -2427,10 +2826,12 @@ type output_format
   | Junit_xml
   (* osemgrep-only *)
   | Files_with_matches
+     <doc text="">
   (* used to disable the final display of match results because
    * we displayed them incrementally instead
    *)
   | Incremental
+     <doc text="">
 ] <ocaml repr="classic">
 
 type format_context
@@ -2465,16 +2866,19 @@ type lockfile_kind
     | YarnLock
     | PnpmLock
     | BunLock
-    | BunBinaryLock (* Bun's deprecated binary bun.lockb format *)
+    | BunBinaryLock
+        <doc text="Bun's deprecated binary bun.lockb format">
     | GemfileLock
     | GoModLock <json name="GoMod">
     | CargoLock
-    | MavenDepTree (* Not a real lockfile *)
+    | MavenDepTree
+        <doc text=""> (* Not a real lockfile *)
     | GradleLockfile
     | ComposerLock
     | NugetPackagesLockJson
     | PubspecLock
-    | SwiftPackageResolved (* not a real lockfile *)
+    | SwiftPackageResolved
+        <doc text=""> (* not a real lockfile *)
     | PodfileLock
     | MixLock
     | ConanLock
@@ -2488,64 +2892,88 @@ type manifest_kind
   (* A Pip Requirements.in in file, which follows the format of requirements.txt
    * https://pip.pypa.io/en/stable/reference/requirements-file-format/ *)
   | RequirementsIn
+      <doc text="">
   (* A setup.py file, which is a Python file that contains the setup configuration
    * for a Python project.
    * https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#setup-py *)
   | SetupPy
+      <doc text="">
   (* An NPM package.json manifest file
    * https://docs.npmjs.com/cli/v10/configuring-npm/package-json *)
   | PackageJson
+      <doc text="">
   (* A Ruby Gemfile manifest https://bundler.io/v2.5/man/gemfile.5.html *)
   | Gemfile
+      <doc text="">
   (* go.modhttps://go.dev/doc/modules/gomod-ref *)
-  | GoModManifest  <json name="GoMod">
+  | GoModManifest
+      <json name="GoMod">
+      <doc text="">
   (* cargo.toml - https://doc.rust-lang.org/cargo/reference/manifest.html *)
   | CargoToml
+      <doc text="">
   (* A Maven pom.xml manifest file
    * https://maven.apache.org/guides/introduction/introduction-to-the-pom.html *)
   | PomXml
+      <doc text="">
   (* A Gradle build.gradle build file
    * https://docs.gradle.org/current/userguide/build_file_basics.html *)
   | BuildGradle
+      <doc text="">
   (* A Gradle build.gradle.kts file, which uses Kotlin instead of Groovy. *)
   | BuildGradleKts
+      <doc text="">
   (* A Gradle settings.gradle file
    * https://docs.gradle.org/current/userguide/settings_file_basics.html.
    * Multi-project builds are defined by settings.gradle rather than
    * build.gradle:
    * https://docs.gradle.org/current/userguide/multi_project_builds.html#multi_project_builds *)
    | SettingsGradle
+      <doc text="">
   (* composer.json - https://getcomposer.org/doc/04-schema.md *)
   | ComposerJson
+      <doc text="">
   (* manifest for nuget
    * could not find a reference; this may not actually exist *)
   | NugetManifestJson
+      <doc text="">
   (* pubspec.yaml - https://dart.dev/tools/pub/pubspec *)
   | PubspecYaml
+      <doc text="">
   (* Package.swift
    * https://docs.swift.org/package-manager/PackageDescription/PackageDescription.html *)
   | PackageSwift
+      <doc text="">
   (* Podfile - https://guides.cocoapods.org/using/the-podfile.html *)
   | Podfile
+      <doc text="">
   (* mix.exs
    * https://hexdocs.pm/elixir/introduction-to-mix.html#project-compilation *)
   | MixExs
+      <doc text="">
   (* Pipfile - https://pipenv.pypa.io/en/latest/pipfile.html *)
   | Pipfile
+      <doc text="">
   (* pyproject.toml
    * https://packaging.python.org/en/latest/guides/writing-pyproject-toml/ *)
   | PyprojectToml
+      <doc text="">
   (* conanfile.txt
    * https://docs.conan.io/2.9/reference/conanfile_txt.html#conanfile-txt *)
   | ConanFileTxt
+      <doc text="">
   (* conanfile.py - https://docs.conan.io/2.9/reference/conanfile.html *)
   | ConanFilePy
+      <doc text="">
   (* .csproj - https://docs.microsoft.com/en-us/dotnet/core/tools/csproj *)
   | Csproj
+      <doc text="">
   (* .opam - https://opam.ocaml.org/doc/Manual.html#Package-definitions *)
   | OpamFile
+      <doc text="">
   (* build.sbt - https://www.scala-sbt.org/1.x/docs/Basic-Def.html *)
   | BuildSbt
+      <doc text="">
 ] <ocaml repr="classic">
 
 type manifest
@@ -2582,10 +3010,12 @@ type dependency_source
    * TODO? add a <python repr="tuple"> so the list is converted instead in a
    * Tuple[DependencySource, ...] which is hashable.
    *)
-  | MultiLockfile of dependency_source list
+  | MultiLockfile
+      <doc text="">
+      of dependency_source list
 ] <ocaml repr="classic">
 
-(* alt: sca_error_kind *)                        
+(* alt: sca_error_kind *)
 type resolution_error_kind
     <ocaml attr="deriving show">
     <python decorator="dataclass(frozen=True)"> =
@@ -2595,10 +3025,12 @@ type resolution_error_kind
   | ResolutionCmdFailed of resolution_cmd_failed
   (* when we produce some dependency list in lockfileless scanning (by talking
    * to the package manager) but fail to parse it correctly *)
-  | ParseDependenciesFailed of string
+  | ParseDependenciesFailed
+      <doc text=""> of string
   (* a lockfile parser failed
    * since semgrep 1.109.0 (to replace dependency_parser_error) *)
-  | ScaParseError of sca_parser_name
+  | ScaParseError
+      <doc text=""> of sca_parser_name
 ] <ocaml repr="classic">
 
 type resolution_cmd_failed
@@ -2612,10 +3044,13 @@ type resolution_cmd_failed
 (* used only from pysemgrep for now
  * TODO? we should merge dependency_{parser,resolution}_error with cli_error
  *)
-type sca_resolution_error = {
+type sca_resolution_error
+    <doc text="">
+  = {
   type_: resolution_error_kind;
   dependency_source_file: fpath;
 }
+
 type sca_error = [
   | SCAParse of dependency_parser_error
   | SCAResol of sca_resolution_error
@@ -2628,7 +3063,9 @@ type sca_error = [
  *)
 type subproject
     <ocaml attr="deriving show">
-    <python decorator="dataclass(frozen=True, order=True)"> =
+    <python decorator="dataclass(frozen=True, order=True)">
+    <doc text="">
+  =
 {
     root_dir: fpath;
     (* This is used to match code files with subprojects. It is necessary to
@@ -2639,7 +3076,9 @@ type subproject
      * ecosystem is not yet supported (i.e. one that is identified only for
      * tracking purposes)
      *)
-    ecosystem: ecosystem option;
+    ecosystem
+      <doc text="">
+    : ecosystem option;
     (* The dependency source is how we resolved the dependencies. This might be a
      * lockfile/manifest pair (the only current one), but in the future it might
      * also be dynamic resolution based on a manifest, an SBOM, or something else
@@ -2649,22 +3088,30 @@ type subproject
 
 (* A subproject plus its resolved set of dependencies *)
 type resolved_subproject
-    <python decorator="dataclass(frozen=True)"> =
+    <python decorator="dataclass(frozen=True)">
+    <doc text="">
+  =
 {
    info: subproject;
    (* The resolution method is how we determined the dependencies from the
     * dependency source. This might be lockfile parsing, dependency resolution,
     * SBOM ingest, or something else.
     *)
-   resolution_method: resolution_method;
+   resolution_method
+      <doc text="">
+   : resolution_method;
    (* should be similar to info.ecosystem but this time it can't be None *)
-   ecosystem: ecosystem;
+   ecosystem
+      <doc text="">
+   : ecosystem;
    (* We use this mapping to efficiently find child dependencies from a
     * FoundDependency. We need to store multiple FoundDependencies per
     * package/version pair because a package might come from multiple places
     * in a lockfile
     *)
-   resolved_dependencies: (dependency_child * resolved_dependency list) list
+   resolved_dependencies
+      <doc text="">
+   : (dependency_child * resolved_dependency list) list
       <python repr="dict">;
    errors: sca_error list;
 }
@@ -2679,21 +3126,31 @@ type resolved_dependency = (found_dependency * downloaded_dependency option)
  * or source code files. It is necessary to use a list here because package
  * managers like pip may unpack a package into multiple folders.
  *)
-type downloaded_dependency = {
+type downloaded_dependency
+    <doc text="">
+  = {
   source_paths: fpath list;
 }
 
 type unresolved_reason <python decorator="dataclass(frozen=True)"> = [
   (* Resolution was attempted, but was unsuccessful. *)
-  | UnresolvedFailed <json name="failed">
+  | UnresolvedFailed
+      <json name="failed">
+      <doc text="">
   (* Resolution was skipped because the dependency source was not relevant to
    * the scanned targets. *)
-  | UnresolvedSkipped <json name="skipped">
+  | UnresolvedSkipped
+      <json name="skipped">
+      <doc text="">
   (* Resolution was skipped because the dependency source is not supported. *)
-  | UnresolvedUnsupported <json name="unsupported">
+  | UnresolvedUnsupported
+      <json name="unsupported">
+      <doc text="">
   (* Resolution was not attempted because a required feature (such as local
    * builds) was disabled. *)
-  | UnresolvedDisabled <json name="disabled">
+  | UnresolvedDisabled
+      <json name="disabled">
+      <doc text="">
 ] <ocaml repr="classic">
 
 type unresolved_subproject
@@ -2704,14 +3161,18 @@ type unresolved_subproject
    (* this is set only when the reason is UnresolvedFailed
     * TODO: add it in unresolved_reason instead?
     *)
-   errors: sca_error list;
+   errors
+      <doc text="">
+   : sca_error list;
 }
 
 type resolve_dependencies_params <python decorator="dataclass(frozen=True)"> = {
   dependency_sources: dependency_source list;
   download_dependency_source_code: bool;
   (* whether to allow executing package manager commands *)
-  allow_local_builds: bool;
+  allow_local_builds
+    <doc text="">
+  : bool;
 }
 
 (* Resolution can either succeed or fail, but in either case errors can be
@@ -2735,7 +3196,9 @@ type transitive_finding = {
   (* the important part is the sca_match in core_match_extra that
    * we need to adjust and especially the sca_match_kind.
    *)
-  m: core_match;
+  m
+    <doc text="">
+  : core_match;
   (* TODO: add lots of info to find the third-party code related
    * to this match
    *)
@@ -2752,7 +3215,9 @@ type transitive_reachability_filter_params = {
 (* ----------------------------- *)
 
 type symbol_analysis_upload_response = {
-  upload_url: uri; (* Presigned AWS URL for uploading symbol analysis data *)
+  upload_url
+    <doc text="">
+  : uri; (* Presigned AWS URL for uploading symbol analysis data *)
 }
 
 (* ----------------------------- *)
@@ -2778,14 +3243,20 @@ type symbol_analysis_upload_response = {
  *)
 
 (* A symbol is a FQN. *)
-type symbol <ocaml attr="deriving show"> = {
+type symbol
+    <ocaml attr="deriving show">
+    <doc text="">
+  = {
   fqn: string list
 }
 
 (* We store the location of the usage, because we may want to be able to know how
    many uses of the symbol there are, and where.
  *)
-type symbol_usage <ocaml attr="deriving show"> = {
+type symbol_usage
+    <ocaml attr="deriving show">
+    <doc text="">
+  = {
   symbol: symbol;
   locs: location list;
 }
@@ -2801,19 +3272,25 @@ type function_call <python decorator="dataclass(frozen=True)"> = [
   | CallApplyFixes of apply_fixes_params
   | CallFormatter of (output_format * format_context * cli_output)
   (* TODO: merge with CallFormatter at some point *)
-  | CallSarifFormat of (sarif_format * format_context * cli_output)
+  | CallSarifFormat
+      <doc text="">
+      of (sarif_format * format_context * cli_output)
   (* NOTE: fpath is most likely a temporary file that contains all the rules in
      JSON format. In the future, we could send the rules via a big string through
      the RPC pipe.
   *)
-  | CallValidate of fpath
+  | CallValidate
+      <doc text="">
+      of fpath
   | CallResolveDependencies of resolve_dependencies_params
   | CallUploadSymbolAnalysis of ((* token *) string * (* scan_id *) int * symbol_analysis)
   | CallDumpRulePartitions of dump_rule_partitions_params
   | CallGetTargets of scanning_roots
   (* for now, the transitive reachability filter takes only a single dependency graph as input.
    * it is up to the caller to call it several times, one for each subproject *)
-  | CallTransitiveReachabilityFilter of transitive_reachability_filter_params
+  | CallTransitiveReachabilityFilter
+      <doc text="">
+      of transitive_reachability_filter_params
   | CallMatchSubprojects of fpath list
 ]
 
@@ -2828,9 +3305,13 @@ type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetFormatter of string
   (* alt: reuse RetFormatter *)
   | RetSarifFormat of string
-  | RetValidate of (* rule validation error, if validation failed *) core_error option
+  | RetValidate
+      <doc text="">
+      of (* rule validation error, if validation failed *) core_error option
   | RetResolveDependencies of (dependency_source * resolution_result) list
-  | RetUploadSymbolAnalysis of (* success msg *) string
+  | RetUploadSymbolAnalysis
+      <doc text="">
+      of (* success msg *) string
   | RetDumpRulePartitions of bool
   | RetTransitiveReachabilityFilter of transitive_finding list
   | RetGetTargets of target_discovery_result
@@ -2847,27 +3328,44 @@ type function_result = {
 (*****************************************************************************)
 
 (* Partial scans. Experimental and for internal use only. *)
-type partial_scan_result <python decorator="dataclass(frozen=True)"> = [
+type partial_scan_result
+    <python decorator="dataclass(frozen=True)">
+    <doc text="">
+  = [
   | PartialScanOk of (ci_scan_results * ci_scan_complete)
   | PartialScanError of ci_scan_failure
 ]
 
 (* Synthesizing from diffs (see locate_patched_functions in Synthesizing.mli) *)
 (* was in Input_to_core.atd before *)
-type diff_file <ocaml attr="deriving show"> = {
+type diff_file
+    <ocaml attr="deriving show">
+    <doc text="">
+  = {
   filename : fpath;
-  diffs : string (* start_line-end_line *) list;
-  url : string (* metadata to help SCA rule generation *)
+  diffs
+    <doc text="">
+  : string (* start_line-end_line *) list;
+  url
+    <doc text="">
+  : string (* metadata to help SCA rule generation *)
 }
+
 type diff_files <ocaml attr="deriving show"> = { cve_diffs : diff_file list;}
 
 (* Profiling info obtained from the OCaml executable, to be aggregated
    further in pysemgrep. *)
-type profiling_entry = {
+type profiling_entry
+    <doc text="">
+  = {
   name: string;
     (* The name given to piece of code for which we measured how long
        it took. *)
-  total_time: float;
-    (* Total clock time in seconds. Divide by the count to get the mean. *)
-  count : int;
+  total_time
+    <doc text="">
+  : float;
+  (* Total clock time in seconds. Divide by the count to get the mean. *)
+  count
+    <doc text="">
+  : int;
 }

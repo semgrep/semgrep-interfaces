@@ -44,10 +44,11 @@
     }
   },
   "definitions": {
-    "raw_json": {},
+    "raw_json": { "description": "escape hatch" },
     "fpath": { "type": "string" },
     "ppath": { "type": "string" },
     "fppath": {
+      "description": "Same as Fppath.t: a nice filesystem path + the path relative to the project root provided for pattern-based filtering purposes.",
       "type": "object",
       "required": [ "fpath", "ppath" ],
       "properties": {
@@ -58,16 +59,20 @@
     "uri": { "type": "string" },
     "sha1": { "type": "string" },
     "uuid": { "type": "string" },
-    "datetime": { "type": "string" },
+    "datetime": { "description": "RFC 3339 format", "type": "string" },
     "glob": { "type": "string" },
-    "version": { "type": "string" },
+    "version": { "description": "e.g., '1.1.0'", "type": "string" },
     "position": {
+      "description": "Note that there is no filename here like in 'location' below",
       "type": "object",
       "required": [ "line", "col" ],
       "properties": {
         "line": { "type": "integer" },
         "col": { "type": "integer" },
-        "offset": { "type": "integer" }
+        "offset": {
+          "description": "Byte position from the beginning of the file, starts at 0. OCaml code sets it correctly. Python code sets it to a dummy value (-1). This uses '~' because pysemgrep < 1.30? was *producing* positions without offset sometimes, and we want the backend to still *consume* such positions. Note that pysemgrep 1.97 was still producing dummy positions without an offset so we might need this ~offset longer than expected?",
+          "type": "integer"
+        }
       }
     },
     "location": {
@@ -79,8 +84,12 @@
         "end": { "$ref": "#/definitions/position" }
       }
     },
-    "rule_id": { "type": "string" },
+    "rule_id": {
+      "description": "e.g., \"javascript.security.do-not-use-eval\"",
+      "type": "string"
+    },
     "match_severity": {
+      "description": "This is used in rules to specify the severity of matches/findings. alt: could be called rule_severity, or finding_severity.\n\n{{{\n   Error = something wrong that must be fixed\n   Warning = something wrong that should be fixed\n   Info = some special condition worth knowing about\n   Experiment = deprecated: guess what\n   Inventory = deprecated: was used for the Code Asset Inventory (CAI) project\n}}}",
       "oneOf": [
         { "const": "ERROR" },
         { "const": "WARNING" },

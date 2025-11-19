@@ -1,7 +1,9 @@
 (* Auto-generated from "semgrep_output_v1.atd" *)
 [@@@ocaml.warning "-27-32-33-35-39"]
 
-type datetime = Semgrep_output_v1_t.datetime [@@deriving ord]
+(** RFC 3339 format *)
+type datetime = Semgrep_output_v1_t.datetime
+  [@@deriving ord]
 
 type dependency_child = Semgrep_output_v1_t.dependency_child = {
   package: string;
@@ -67,6 +69,18 @@ type manifest = Semgrep_output_v1_t.manifest = {
 }
   [@@deriving show, eq]
 
+(**
+  This is used in rules to specify the severity of matches/findings. alt:
+  could be called rule_severity, or finding_severity.
+  
+{v
+   Error = something wrong that must be fixed
+   Warning = something wrong that should be fixed
+   Info = some special condition worth knowing about
+   Experiment = deprecated: guess what
+   Inventory = deprecated: was used for the Code Asset Inventory (CAI) project
+v}
+*)
 type match_severity = Semgrep_output_v1_t.match_severity
   [@@deriving eq, ord, show]
 
@@ -87,10 +101,19 @@ type matching_operation = Semgrep_output_v1_t.matching_operation =
 
   [@@deriving show { with_path = false}]
 
+(** Note that there is no filename here like in 'location' below *)
 type position = Semgrep_output_v1_t.position = {
   line: int;
   col: int;
   offset: int
+    (**
+      Byte position from the beginning of the file, starts at 0. OCaml code
+      sets it correctly. Python code sets it to a dummy value (-1). This uses
+      '~' because pysemgrep < 1.30? was *producing* positions without offset
+      sometimes, and we want the backend to still *consume* such positions.
+      Note that pysemgrep 1.97 was still producing dummy positions without an
+      offset so we might need this ~offset longer than expected?
+    *)
 }
   [@@deriving ord, show]
 
@@ -119,9 +142,12 @@ type pro_feature = Semgrep_output_v1_t.pro_feature = {
 type engine_of_finding = Semgrep_output_v1_t.engine_of_finding
   [@@deriving ord, show]
 
+(** escape hatch *)
 type raw_json = JSON.Yojson.t [@@deriving eq, ord, show]
 
-type rule_id = Semgrep_output_v1_t.rule_id [@@deriving show, eq, ord]
+(** e.g., "javascript.security.do-not-use-eval" *)
+type rule_id = Semgrep_output_v1_t.rule_id
+  [@@deriving show, eq, ord]
 
 type sca_pattern = Semgrep_output_v1_t.sca_pattern = {
   ecosystem: ecosystem;
@@ -290,7 +316,9 @@ type very_slow_stats = Semgrep_output_v1_t.very_slow_stats = {
   count_ratio: float
 }
 
-type version = Semgrep_output_v1_t.version [@@deriving show]
+(** e.g., '1.1.0' *)
+type version = Semgrep_output_v1_t.version
+  [@@deriving show]
 
 type uuid = Semgrep_output_v1_t.uuid [@@deriving ord]
 
@@ -498,6 +526,10 @@ type product = Semgrep_output_v1_t.product [@@deriving eq, ord, show]
 
 type ppath = Semgrep_output_v1_t.ppath [@@deriving show, eq]
 
+(**
+  Same as Fppath.t: a nice filesystem path + the path relative to the project
+  root provided for pattern-based filtering purposes.
+*)
 type fppath = Semgrep_output_v1_t.fppath = { fpath: fpath; ppath: ppath }
   [@@deriving show, eq]
 
