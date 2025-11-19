@@ -625,7 +625,6 @@ type ecosystem
 type dependency_kind
     <python decorator="dataclass(frozen=True)">
     <ocaml attr="deriving ord, eq, show">
-    <doc text="">
   =
 [
   | Direct
@@ -652,9 +651,9 @@ type dependency_kind
      we leave it Unknown.">
 ] <ocaml repr="classic">
 
-(* part of cli_match_extra, core_match_extra, and finding *)
+
 type sca_match
-     <doc text="">
+     <doc text="part of cli_match_extra, core_match_extra, and finding">
    = {
   reachability_rule
     <doc text="
@@ -1015,7 +1014,7 @@ type error_span = {
     ?config_path: string list nullable option;
 
     (* LATER: what is this for? *)
-    ?context_start <doc text="">: position nullable option;
+    ?context_start: position nullable option;
     ?context_end: position nullable option;
   }
 
@@ -1220,10 +1219,12 @@ type very_slow_stats
     of very slow files/etc represent a large amount of the total processing time.
     EXPERIMENTAL">
    = {
-    time_ratio <doc text="">: float;
-    (* Ratio "sum of very slow time" / "total time" *)
-    count_ratio <doc text="">: float;
-    (* Ratio "very slow count" / "total count" *)
+    time_ratio
+      <doc text="Ratio \"sum of very slow time\" / \"total time\"">
+    : float;
+    count_ratio
+      <doc text="Ratio \"very slow count\" / \"total count\"">
+    : float;
 }
 
 type parsing_time
@@ -1252,7 +1253,7 @@ type matching_time
   total_time : float;
   per_file_and_rule_time : summary_stats;
   very_slow_stats: very_slow_stats;
-  very_slow_rules_on_files <doc text="">: file_rule_time list; (* ascending order *)
+  very_slow_rules_on_files <doc text="ascending order">: file_rule_time list;
 }
 
 type tainting_time
@@ -2677,13 +2678,11 @@ type project_root
     <ocaml attr="deriving show">
     <doc text="See Scan_CLI.ml on how to convert command-line options to this">
   = [
-  (* path *)
   | Filesystem
-     <doc text="">
+     <doc text="path">
      of string
-  (* URL *)
   | Git_remote
-     <doc text="">
+     <doc text="URL">
      of string
 ]
 
@@ -2726,7 +2725,6 @@ type targeting_conf
 
 type analyzer
     <ocaml attr="deriving show">
-    <doc text="">
   = string wrap <ocaml module="Analyzer">
 
 (* coupling: with src/target/Target.mli *)
@@ -3341,9 +3339,7 @@ type function_call <python decorator="dataclass(frozen=True)"> = [
       It is up to the caller to call it several times, one for each
       subproject.">
       of scanning_roots
-  | CallTransitiveReachabilityFilter
-      <doc text="">
-      of transitive_reachability_filter_params
+  | CallTransitiveReachabilityFilter of transitive_reachability_filter_params
   | CallMatchSubprojects of fpath list
 ]
 

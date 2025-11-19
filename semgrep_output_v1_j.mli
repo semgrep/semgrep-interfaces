@@ -97,7 +97,6 @@ type dependency_child = Semgrep_output_v1_t.dependency_child = {
 }
   [@@deriving ord]
 
-(** *)
 type dependency_kind = Semgrep_output_v1_t.dependency_kind = 
     Direct
       (**
@@ -640,7 +639,7 @@ and cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
     (** EXPERIMENTAL: see core_match_extra.extra_extra *)
 }
 
-(** *)
+(** part of cli_match_extra, core_match_extra, and finding *)
 and sca_match = Semgrep_output_v1_t.sca_match = {
   reachability_rule: bool
     (**
@@ -801,8 +800,8 @@ type matching_explanation = Semgrep_output_v1_t.matching_explanation = {
   of the total processing time. EXPERIMENTAL
 *)
 type very_slow_stats = Semgrep_output_v1_t.very_slow_stats = {
-  time_ratio: float (** *);
-  count_ratio: float (** *)
+  time_ratio: float (** Ratio "sum of very slow time" / "total time" *);
+  count_ratio: float (** Ratio "very slow count" / "total count" *)
 }
 
 (** e.g., '1.1.0' *)
@@ -1219,7 +1218,6 @@ type ppath = Semgrep_output_v1_t.ppath [@@deriving show, eq]
 type fppath = Semgrep_output_v1_t.fppath = { fpath: fpath; ppath: ppath }
   [@@deriving show, eq]
 
-(** *)
 type analyzer = Semgrep_output_v1_t.analyzer [@@deriving show]
 
 (**
@@ -1937,7 +1935,7 @@ type matching_time = Semgrep_output_v1_t.matching_time = {
   total_time: float;
   per_file_and_rule_time: summary_stats;
   very_slow_stats: very_slow_stats;
-  very_slow_rules_on_files: file_rule_time list (** *)
+  very_slow_rules_on_files: file_rule_time list (** ascending order *)
 }
 
 (** Run locally $ ./run-benchmarks --dummy --upload *)
@@ -2050,7 +2048,7 @@ type error_span = Semgrep_output_v1_t.error_span = {
     *);
   config_end: position option option;
   config_path: string list option option;
-  context_start: position option option (** *);
+  context_start: position option option;
   context_end: position option option
 }
 

@@ -468,7 +468,6 @@
       ]
     },
     "dependency_kind": {
-      "description": "",
       "oneOf": [
         {
           "description": "we depend directly on the 3rd-party library mentioned in the lockfile (e.g., use of log4j library and concrete calls to log4j in 1st-party code). log4j must be declared as a direct dependency in the manifest file.",
@@ -485,7 +484,7 @@
       ]
     },
     "sca_match": {
-      "description": "",
+      "description": "part of cli_match_extra, core_match_extra, and finding",
       "type": "object",
       "required": [
         "reachability_rule", "sca_finding_schema", "dependency_match",
@@ -902,10 +901,7 @@
           "type": [ "array", "null" ],
           "items": { "type": "string" }
         },
-        "context_start": {
-          "description": "",
-          "$ref": "#/definitions/position"
-        },
+        "context_start": { "$ref": "#/definitions/position" },
         "context_end": { "$ref": "#/definitions/position" }
       }
     },
@@ -1094,8 +1090,14 @@
       "type": "object",
       "required": [ "time_ratio", "count_ratio" ],
       "properties": {
-        "time_ratio": { "description": "", "type": "number" },
-        "count_ratio": { "description": "", "type": "number" }
+        "time_ratio": {
+          "description": "Ratio \"sum of very slow time\" / \"total time\"",
+          "type": "number"
+        },
+        "count_ratio": {
+          "description": "Ratio \"very slow count\" / \"total count\"",
+          "type": "number"
+        }
       }
     },
     "parsing_time": {
@@ -1142,7 +1144,7 @@
         "per_file_and_rule_time": { "$ref": "#/definitions/summary_stats" },
         "very_slow_stats": { "$ref": "#/definitions/very_slow_stats" },
         "very_slow_rules_on_files": {
-          "description": "",
+          "description": "ascending order",
           "type": "array",
           "items": { "$ref": "#/definitions/file_rule_time" }
         }
@@ -2614,7 +2616,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "Filesystem" },
+            { "description": "path", "const": "Filesystem" },
             { "type": "string" }
           ]
         },
@@ -2623,7 +2625,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "description": "", "const": "Git_remote" },
+            { "description": "URL", "const": "Git_remote" },
             { "type": "string" }
           ]
         }
@@ -2659,7 +2661,7 @@
         "baseline_commit": { "type": "string" }
       }
     },
-    "analyzer": { "description": "", "type": "string" },
+    "analyzer": { "type": "string" },
     "target": {
       "description": "A target can either be a traditional code target (now with optional associated lockfile) or it can be a lockfile target, which will be used to generate lockfile-only findings. Currently *ALL TARGETS FROM PYSEMGREP ARE CODETARGETS*",
       "oneOf": [
@@ -3482,10 +3484,7 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            {
-              "description": "",
-              "const": "CallTransitiveReachabilityFilter"
-            },
+            { "const": "CallTransitiveReachabilityFilter" },
             { "$ref": "#/definitions/transitive_reachability_filter_params" }
           ]
         },

@@ -93,7 +93,6 @@ type datetime = ATD_string_wrap.Datetime.t
 
 type dependency_child = { package: string; version: string } [@@deriving ord]
 
-(** *)
 type dependency_kind = 
     Direct
       (**
@@ -645,7 +644,7 @@ and cli_match_extra = {
     (** EXPERIMENTAL: see core_match_extra.extra_extra *)
 }
 
-(** *)
+(** part of cli_match_extra, core_match_extra, and finding *)
 and sca_match = {
   reachability_rule: bool
     (**
@@ -805,8 +804,8 @@ type matching_explanation = {
   of the total processing time. EXPERIMENTAL
 *)
 type very_slow_stats = {
-  time_ratio: float (** *);
-  count_ratio: float (** *)
+  time_ratio: float (** Ratio "sum of very slow time" / "total time" *);
+  count_ratio: float (** Ratio "very slow count" / "total count" *)
 }
 
 (** e.g., '1.1.0' *)
@@ -1160,8 +1159,8 @@ type tests_result = {
 
 (** See Scan_CLI.ml on how to convert command-line options to this *)
 type project_root = [
-    `Filesystem of string (** *)
-  | `Git_remote of string (** *)
+    `Filesystem of string (** path *)
+  | `Git_remote of string (** URL *)
 ]
   [@@deriving show]
 
@@ -1215,7 +1214,6 @@ type ppath = Ppath.t [@@deriving show, eq]
 type fppath = { fpath: fpath; ppath: ppath }
   [@@deriving show, eq]
 
-(** *)
 type analyzer = Analyzer.t [@@deriving show]
 
 (**
@@ -1933,7 +1931,7 @@ type matching_time = {
   total_time: float;
   per_file_and_rule_time: summary_stats;
   very_slow_stats: very_slow_stats;
-  very_slow_rules_on_files: file_rule_time list (** *)
+  very_slow_rules_on_files: file_rule_time list (** ascending order *)
 }
 
 (** Run locally $ ./run-benchmarks --dummy --upload *)
@@ -2046,7 +2044,7 @@ type error_span = {
     *);
   config_end: position option option;
   config_path: string list option option;
-  context_start: position option option (** *);
+  context_start: position option option;
   context_end: position option option
 }
 
@@ -2343,7 +2341,6 @@ type function_call = [
       *)
   | `CallTransitiveReachabilityFilter
       of transitive_reachability_filter_params
-      (** *)
   | `CallMatchSubprojects of fpath list
 ]
 
