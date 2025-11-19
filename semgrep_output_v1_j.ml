@@ -66,7 +66,7 @@
   Finally this file is translated in jsonschema/openapi spec by atdcat, and
   in Typescript modules by atdts.
   
-  history:
+  History:
   
   - the types in this file were originally inferred from JSON_report.ml for
   use by spacegrep when it was separate from semgrep-core. It's now also
@@ -384,6 +384,7 @@ type position = Semgrep_output_v1_t.position = {
 }
   [@@deriving ord, show]
 
+(** a.k.a range *)
 type location = Semgrep_output_v1_t.location = {
   path: fpath;
   start: position;

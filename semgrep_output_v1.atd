@@ -62,7 +62,7 @@
   Finally this file is translated in jsonschema/openapi spec by atdcat, and
   in Typescript modules by atdts.
 
-  history:
+  History:
 
    - the types in this file were originally inferred from JSON_report.ml for
      use by spacegrep when it was separate from semgrep-core. It's now also
@@ -82,6 +82,18 @@
 
    - merged what was in Input_to_core.atd here
 ">
+
+(*
+  Maintenance:
+
+  - Most comments should be placed under <doc text="..."> so that they
+    can be translated to the target language.
+    These annotations will be translated into ocamldoc comments or equivalent
+    in other languages (if implemented).
+    See https://atd.readthedocs.io/en/latest/atdgen.html#integration-with-ocamldoc
+  - Comments that are relevant only to the reader of the source ATD file
+    should use the (* ... *) comment syntax.
+*)
 
 type raw_json
   <ocaml module="JSON.Yojson" t="t">
@@ -168,10 +180,11 @@ type position
   : int;
 }
 
-(* a.k.a range *)
 type location
-     <ocaml attr="deriving ord, show">
-     <python decorator="dataclass(frozen=True)"> =
+    <ocaml attr="deriving ord, show">
+    <python decorator="dataclass(frozen=True)">
+    <doc text="a.k.a range">
+  =
 {
   path: fpath;
   start: position;
