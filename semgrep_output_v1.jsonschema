@@ -3079,6 +3079,18 @@
             },
             { "$ref": "#/definitions/sca_parser_name" }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            {
+              "description": "unable to access private registry, likely due to missing credentials",
+              "const": "ResourceInaccessible"
+            },
+            { "$ref": "#/definitions/resource_inaccessible" }
+          ]
         }
       ]
     },
@@ -3088,6 +3100,29 @@
       "properties": {
         "command": { "type": "string" },
         "message": { "type": "string" }
+      }
+    },
+    "resource_inaccessible": {
+      "type": "object",
+      "required": [ "command", "registry_url", "message" ],
+      "properties": {
+        "command": { "type": "string" },
+        "registry_url": {
+          "description": "we attempt to parse out the actual registry URL that we tried to access",
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "message": {
+          "description": "and just include the entire error message too, just in case",
+          "type": "string"
+        }
       }
     },
     "sca_resolution_error": {

@@ -875,6 +875,17 @@ type sca_parser_name =
 
   [@@deriving show]
 
+type resource_inaccessible = {
+  command: string;
+  registry_url: string option
+    (**
+      we attempt to parse out the actual registry URL that we tried to access
+    *);
+  message: string
+    (** and just include the entire error message too, just in case *)
+}
+  [@@deriving show]
+
 type resolution_cmd_failed = { command: string; message: string }
   [@@deriving show]
 
@@ -891,6 +902,10 @@ type resolution_error_kind =
       (**
         a lockfile parser failed since semgrep 1.109.0 (to replace
         dependency_parser_error)
+      *)
+  | ResourceInaccessible of resource_inaccessible
+      (**
+        unable to access private registry, likely due to missing credentials
       *)
 
   [@@deriving show]

@@ -3089,6 +3089,11 @@ type resolution_error_kind
       since semgrep 1.109.0 (to replace dependency_parser_error)
       ">
       of sca_parser_name
+  | ResourceInaccessible
+      <doc text="
+      unable to access private registry, likely due to missing credentials
+      ">
+      of resource_inaccessible
 ] <ocaml repr="classic">
 
 type resolution_cmd_failed
@@ -3097,6 +3102,23 @@ type resolution_cmd_failed
 {
     command: string;
     message: string;
+}
+
+type resource_inaccessible
+    <ocaml attr="deriving show">
+    <python decorator="dataclass(frozen=True)"> =
+{
+    command: string;
+    registry_url
+      <doc text="
+      we attempt to parse out the actual registry URL that we tried to access
+      ">
+    : string option;
+    message
+      <doc text="
+      and just include the entire error message too, just in case
+      ">
+    : string;
 }
 
 (* TODO? we should merge dependency_{parser,resolution}_error with cli_error *)

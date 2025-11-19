@@ -872,6 +872,17 @@ type sca_parser_name = Semgrep_output_v1_t.sca_parser_name =
 
   [@@deriving show]
 
+type resource_inaccessible = Semgrep_output_v1_t.resource_inaccessible = {
+  command: string;
+  registry_url: string option
+    (**
+      we attempt to parse out the actual registry URL that we tried to access
+    *);
+  message: string
+    (** and just include the entire error message too, just in case *)
+}
+  [@@deriving show]
+
 type resolution_cmd_failed = Semgrep_output_v1_t.resolution_cmd_failed = {
   command: string;
   message: string
@@ -891,6 +902,10 @@ type resolution_error_kind = Semgrep_output_v1_t.resolution_error_kind =
       (**
         a lockfile parser failed since semgrep 1.109.0 (to replace
         dependency_parser_error)
+      *)
+  | ResourceInaccessible of resource_inaccessible
+      (**
+        unable to access private registry, likely due to missing credentials
       *)
 
   [@@deriving show]
@@ -3482,6 +3497,26 @@ val read_sca_parser_name :
 val sca_parser_name_of_string :
   string -> sca_parser_name
   (** Deserialize JSON data of type {!type:sca_parser_name}. *)
+
+val write_resource_inaccessible :
+  Buffer.t -> resource_inaccessible -> unit
+  (** Output a JSON value of type {!type:resource_inaccessible}. *)
+
+val string_of_resource_inaccessible :
+  ?len:int -> resource_inaccessible -> string
+  (** Serialize a value of type {!type:resource_inaccessible}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resource_inaccessible :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resource_inaccessible
+  (** Input JSON data of type {!type:resource_inaccessible}. *)
+
+val resource_inaccessible_of_string :
+  string -> resource_inaccessible
+  (** Deserialize JSON data of type {!type:resource_inaccessible}. *)
 
 val write_resolution_cmd_failed :
   Buffer.t -> resolution_cmd_failed -> unit
