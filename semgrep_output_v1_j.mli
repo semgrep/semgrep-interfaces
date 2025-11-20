@@ -1483,8 +1483,8 @@ type symbol_analysis_upload_response =
 
 type symbol_analysis_params = Semgrep_output_v1_t.symbol_analysis_params = {
   root_path: fpath;
-  targeting_conf: targeting_conf;
-  lang: string
+  lang: string;
+  files: fpath list
 }
 
 type symbol_analysis = Semgrep_output_v1_t.symbol_analysis [@@deriving show]

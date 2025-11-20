@@ -3385,11 +3385,14 @@
     },
     "symbol_analysis_params": {
       "type": "object",
-      "required": [ "root_path", "targeting_conf", "lang" ],
+      "required": [ "root_path", "lang", "files" ],
       "properties": {
         "root_path": { "$ref": "#/definitions/fpath" },
-        "targeting_conf": { "$ref": "#/definitions/targeting_conf" },
-        "lang": { "type": "string" }
+        "lang": { "type": "string" },
+        "files": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/fpath" }
+        }
       }
     },
     "symbol": {
@@ -3549,24 +3552,6 @@
           "prefixItems": [
             { "const": "CallRunSymbolAnalysis" },
             { "$ref": "#/definitions/symbol_analysis_params" }
-          ]
-        },
-        {
-          "type": "array",
-          "minItems": 2,
-          "items": false,
-          "prefixItems": [
-            { "const": "CallRunAndUploadSymbolAnalysis" },
-            {
-              "type": "array",
-              "minItems": 3,
-              "items": false,
-              "prefixItems": [
-                { "type": "string" },
-                { "type": "integer" },
-                { "$ref": "#/definitions/symbol_analysis_params" }
-              ]
-            }
           ]
         }
       ]

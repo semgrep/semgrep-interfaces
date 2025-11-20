@@ -1267,8 +1267,8 @@ export type SymbolAnalysisUploadResponse = {
 
 export type SymbolAnalysisParams = {
   root_path: Fpath;
-  targeting_conf: TargetingConf;
   lang: string;
+  files: Fpath[];
 }
 
 export type Symbol = {
@@ -1295,7 +1295,6 @@ export type FunctionCall =
 | { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveReachabilityFilterParams }
 | { kind: 'CallMatchSubprojects'; value: Fpath[] }
 | { kind: 'CallRunSymbolAnalysis'; value: SymbolAnalysisParams }
-| { kind: 'CallRunAndUploadSymbolAnalysis'; value: [string, number /*int*/, SymbolAnalysisParams] }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -5227,16 +5226,16 @@ export function readSymbolAnalysisUploadResponse(x: any, context: any = x): Symb
 export function writeSymbolAnalysisParams(x: SymbolAnalysisParams, context: any = x): any {
   return {
     'root_path': _atd_write_required_field('SymbolAnalysisParams', 'root_path', writeFpath, x.root_path, x),
-    'targeting_conf': _atd_write_required_field('SymbolAnalysisParams', 'targeting_conf', writeTargetingConf, x.targeting_conf, x),
     'lang': _atd_write_required_field('SymbolAnalysisParams', 'lang', _atd_write_string, x.lang, x),
+    'files': _atd_write_required_field('SymbolAnalysisParams', 'files', _atd_write_array(writeFpath), x.files, x),
   };
 }
 
 export function readSymbolAnalysisParams(x: any, context: any = x): SymbolAnalysisParams {
   return {
     root_path: _atd_read_required_field('SymbolAnalysisParams', 'root_path', readFpath, x['root_path'], x),
-    targeting_conf: _atd_read_required_field('SymbolAnalysisParams', 'targeting_conf', readTargetingConf, x['targeting_conf'], x),
     lang: _atd_read_required_field('SymbolAnalysisParams', 'lang', _atd_read_string, x['lang'], x),
+    files: _atd_read_required_field('SymbolAnalysisParams', 'files', _atd_read_array(readFpath), x['files'], x),
   };
 }
 
@@ -5300,8 +5299,6 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallMatchSubprojects', _atd_write_array(writeFpath)(x.value, x)]
     case 'CallRunSymbolAnalysis':
       return ['CallRunSymbolAnalysis', writeSymbolAnalysisParams(x.value, x)]
-    case 'CallRunAndUploadSymbolAnalysis':
-      return ['CallRunAndUploadSymbolAnalysis', ((x, context) => [_atd_write_string(x[0], x), _atd_write_int(x[1], x), writeSymbolAnalysisParams(x[2], x)])(x.value, x)]
   }
 }
 
@@ -5340,8 +5337,6 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallMatchSubprojects', value: _atd_read_array(readFpath)(x[1], x) }
       case 'CallRunSymbolAnalysis':
         return { kind: 'CallRunSymbolAnalysis', value: readSymbolAnalysisParams(x[1], x) }
-      case 'CallRunAndUploadSymbolAnalysis':
-        return { kind: 'CallRunAndUploadSymbolAnalysis', value: ((x, context): [string, number /*int*/, SymbolAnalysisParams] => { _atd_check_json_tuple(3, x, context); return [_atd_read_string(x[0], x), _atd_read_int(x[1], x), readSymbolAnalysisParams(x[2], x)] })(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')

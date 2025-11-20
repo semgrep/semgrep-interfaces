@@ -7535,16 +7535,16 @@ class SymbolAnalysisParams:
     """Original type: symbol_analysis_params = { ... }"""
 
     root_path: Fpath
-    targeting_conf: TargetingConf
     lang: str
+    files: List[Fpath]
 
     @classmethod
     def from_json(cls, x: Any) -> 'SymbolAnalysisParams':
         if isinstance(x, dict):
             return cls(
                 root_path=Fpath.from_json(x['root_path']) if 'root_path' in x else _atd_missing_json_field('SymbolAnalysisParams', 'root_path'),
-                targeting_conf=TargetingConf.from_json(x['targeting_conf']) if 'targeting_conf' in x else _atd_missing_json_field('SymbolAnalysisParams', 'targeting_conf'),
                 lang=_atd_read_string(x['lang']) if 'lang' in x else _atd_missing_json_field('SymbolAnalysisParams', 'lang'),
+                files=_atd_read_list(Fpath.from_json)(x['files']) if 'files' in x else _atd_missing_json_field('SymbolAnalysisParams', 'files'),
             )
         else:
             _atd_bad_json('SymbolAnalysisParams', x)
@@ -7552,8 +7552,8 @@ class SymbolAnalysisParams:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['root_path'] = (lambda x: x.to_json())(self.root_path)
-        res['targeting_conf'] = (lambda x: x.to_json())(self.targeting_conf)
         res['lang'] = _atd_write_string(self.lang)
+        res['files'] = _atd_write_list((lambda x: x.to_json()))(self.files)
         return res
 
     @classmethod
@@ -11098,28 +11098,10 @@ class CallRunSymbolAnalysis:
 
 
 @dataclass(frozen=True)
-class CallRunAndUploadSymbolAnalysis:
-    """Original type: function_call = [ ... | CallRunAndUploadSymbolAnalysis of ... | ... ]"""
-
-    value: Tuple[str, int, SymbolAnalysisParams]
-
-    @property
-    def kind(self) -> str:
-        """Name of the class representing this variant."""
-        return 'CallRunAndUploadSymbolAnalysis'
-
-    def to_json(self) -> Any:
-        return ['CallRunAndUploadSymbolAnalysis', (lambda x: [_atd_write_string(x[0]), _atd_write_int(x[1]), (lambda x: x.to_json())(x[2])] if isinstance(x, tuple) and len(x) == 3 else _atd_bad_python('tuple of length 3', x))(self.value)]
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass(frozen=True)
 class FunctionCall:
     """Original type: function_call = [ ... ]"""
 
-    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallGetTargets, CallTransitiveReachabilityFilter, CallMatchSubprojects, CallRunSymbolAnalysis, CallRunAndUploadSymbolAnalysis]
+    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallGetTargets, CallTransitiveReachabilityFilter, CallMatchSubprojects, CallRunSymbolAnalysis]
 
     @property
     def kind(self) -> str:
@@ -11156,8 +11138,6 @@ class FunctionCall:
                 return cls(CallMatchSubprojects(_atd_read_list(Fpath.from_json)(x[1])))
             if cons == 'CallRunSymbolAnalysis':
                 return cls(CallRunSymbolAnalysis(SymbolAnalysisParams.from_json(x[1])))
-            if cons == 'CallRunAndUploadSymbolAnalysis':
-                return cls(CallRunAndUploadSymbolAnalysis((lambda x: (_atd_read_string(x[0]), _atd_read_int(x[1]), SymbolAnalysisParams.from_json(x[2])) if isinstance(x, list) and len(x) == 3 else _atd_bad_json('array of length 3', x))(x[1])))
             _atd_bad_json('FunctionCall', x)
         _atd_bad_json('FunctionCall', x)
 

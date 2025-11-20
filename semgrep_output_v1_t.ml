@@ -1478,6 +1478,12 @@ type symbol_analysis_upload_response = {
   upload_url: uri (** Presigned AWS URL for uploading symbol analysis data *)
 }
 
+type symbol_analysis_params = {
+  root_path: fpath;
+  lang: string;
+  files: fpath list
+}
+
 type symbol_analysis = symbol_usage list [@@deriving show]
 
 type resolution_method = [
@@ -2245,6 +2251,7 @@ type function_return = [
   | `RetTransitiveReachabilityFilter of transitive_finding list
   | `RetGetTargets of target_discovery_result
   | `RetMatchSubprojects of subproject list
+  | `RetRunSymbolAnalysis of symbol_analysis
 ]
 
 type function_result = {
@@ -2358,6 +2365,7 @@ type function_call = [
   | `CallTransitiveReachabilityFilter
       of transitive_reachability_filter_params
   | `CallMatchSubprojects of fpath list
+  | `CallRunSymbolAnalysis of symbol_analysis_params
 ]
 
 type features = {
