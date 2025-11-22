@@ -2261,6 +2261,12 @@ type function_return = [
   | `RetGetTargets of target_discovery_result
   | `RetMatchSubprojects of subproject list
   | `RetRunSymbolAnalysis of symbol_analysis
+  | `RetShowSubprojects of string
+      (**
+        The text return here typically contains newlines but is not
+        newline-terminated i.e. it is suitable to pass as an argument to a
+        logger.
+      *)
 ]
 
 type function_result = {
@@ -2375,6 +2381,14 @@ type function_call = [
       of transitive_reachability_filter_params
   | `CallMatchSubprojects of fpath list
   | `CallRunSymbolAnalysis of symbol_analysis_params
+  | `CallShowSubprojects of (int * subproject list)
+      (**
+        Format human-readable text summarizing the subprojects that were
+        discovered in a project. This is meant to be printed in --verbose
+        mode. The first argument is the number of dependency source files
+        (targets that look like manifests or lockfiles and were used to
+        identify subprojects in the project tree).
+      *)
 ]
 
 type features = {

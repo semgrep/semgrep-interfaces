@@ -3398,6 +3398,18 @@ type function_call <python decorator="dataclass(frozen=True)"> = [
   | CallMatchSubprojects of fpath list
   (* run symbol analysis for the project rooted in the given directory *)
   | CallRunSymbolAnalysis of symbol_analysis_params
+  (*************************************************************************)
+  (* Text output formatting *)
+  (*************************************************************************)
+  | CallShowSubprojects
+      <doc text="
+      Format human-readable text summarizing the subprojects that were
+      discovered in a project. This is meant to be printed in --verbose mode.
+      The first argument is the number of dependency source files
+      (targets that look like manifests or lockfiles and were used to
+      identify subprojects in the project tree).
+      ">
+      of (int * subproject list)
 ]
 
 (* ----------------------------- *)
@@ -3423,6 +3435,16 @@ type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetGetTargets of target_discovery_result
   | RetMatchSubprojects of subproject list
   | RetRunSymbolAnalysis of symbol_analysis
+  (*************************************************************************)
+  (* Text output formatting *)
+  (*************************************************************************)
+  | RetShowSubprojects
+      <doc text="
+      The text return here typically contains newlines but is not
+      newline-terminated i.e. it is suitable to pass as an argument to
+      a logger.
+      ">
+      of string
 ]
 
 type function_result = {
