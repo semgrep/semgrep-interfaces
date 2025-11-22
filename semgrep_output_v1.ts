@@ -1288,6 +1288,7 @@ export type FunctionCall =
 | { kind: 'CallGetTargets'; value: ScanningRoots }
 | { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveReachabilityFilterParams }
 | { kind: 'CallMatchSubprojects'; value: Fpath[] }
+| { kind: 'CallShowSubprojects'; value: [number /*int*/, Subproject[]] }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -1302,6 +1303,7 @@ export type FunctionReturn =
 | { kind: 'RetTransitiveReachabilityFilter'; value: TransitiveFinding[] }
 | { kind: 'RetGetTargets'; value: TargetDiscoveryResult }
 | { kind: 'RetMatchSubprojects'; value: Subproject[] }
+| { kind: 'RetShowSubprojects'; value: string }
 
 export type FunctionResult = {
   function_return: FunctionReturn;
@@ -5273,6 +5275,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallTransitiveReachabilityFilter', writeTransitiveReachabilityFilterParams(x.value, x)]
     case 'CallMatchSubprojects':
       return ['CallMatchSubprojects', _atd_write_array(writeFpath)(x.value, x)]
+    case 'CallShowSubprojects':
+      return ['CallShowSubprojects', ((x, context) => [_atd_write_int(x[0], x), _atd_write_array(writeSubproject)(x[1], x)])(x.value, x)]
   }
 }
 
@@ -5309,6 +5313,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallTransitiveReachabilityFilter', value: readTransitiveReachabilityFilterParams(x[1], x) }
       case 'CallMatchSubprojects':
         return { kind: 'CallMatchSubprojects', value: _atd_read_array(readFpath)(x[1], x) }
+      case 'CallShowSubprojects':
+        return { kind: 'CallShowSubprojects', value: ((x, context): [number /*int*/, Subproject[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_int(x[0], x), _atd_read_array(readSubproject)(x[1], x)] })(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -5342,6 +5348,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetGetTargets', writeTargetDiscoveryResult(x.value, x)]
     case 'RetMatchSubprojects':
       return ['RetMatchSubprojects', _atd_write_array(writeSubproject)(x.value, x)]
+    case 'RetShowSubprojects':
+      return ['RetShowSubprojects', _atd_write_string(x.value, x)]
   }
 }
 
@@ -5372,6 +5380,8 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetGetTargets', value: readTargetDiscoveryResult(x[1], x) }
     case 'RetMatchSubprojects':
       return { kind: 'RetMatchSubprojects', value: _atd_read_array(readSubproject)(x[1], x) }
+    case 'RetShowSubprojects':
+      return { kind: 'RetShowSubprojects', value: _atd_read_string(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')
