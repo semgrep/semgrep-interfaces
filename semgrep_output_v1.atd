@@ -3314,9 +3314,10 @@ type symbol_analysis_params = {
     (* root path of the subproject—usually the directory of the manifest file *)
     root_path: fpath;
 
-    (* the language of the files to analyze; this will ideally be
-       optional/ignored in the future *)
-    lang : string;
+    (* the language of the files to analyze; we currently do not
+       support figuring out the language on a per-file basis, but we
+       expect to add that soon, so the field is optional *)
+    lang : string option;
 
     (* all the files in the subproject to analyze *)
     files : fpath list;
