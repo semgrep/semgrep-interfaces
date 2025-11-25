@@ -145,7 +145,7 @@ type ecosystem =
   | Hex
   | Opam
 
-  [@@deriving eq, ord, show]
+  [@@deriving eq, ord, show { with_path = false }]
 
 type fpath = ATD_string_wrap.Fpath.t [@@deriving eq, ord, show]
 
@@ -212,7 +212,7 @@ type lockfile_kind =
   | ConanLock
   | OpamLocked
 
-  [@@deriving show, eq, yojson]
+  [@@deriving show { with_path = false }, eq, yojson]
 
 type lockfile = { kind: lockfile_kind; path: fpath } [@@deriving show, eq]
 
@@ -311,7 +311,7 @@ type manifest_kind =
   | BuildSbt
       (** build.sbt - https://www.scala-sbt.org/1.x/docs/Basic-Def.html *)
 
-  [@@deriving show, eq]
+  [@@deriving show { with_path = false }, eq]
 
 type manifest = { kind: manifest_kind; path: fpath } [@@deriving show, eq]
 
