@@ -608,7 +608,7 @@ type match_intermediate_var
 
 type ecosystem
     <python decorator="dataclass(frozen=True)">
-    <ocaml attr="deriving eq, ord, show">
+    <ocaml attr="deriving eq, ord, show { with_path = false }">
     <doc text="
    both ecosystem and transitivity below have frozen=True so the generated
    classes can be hashed and put in sets (see calls to reachable_deps.add()
@@ -2896,7 +2896,7 @@ type dump_rule_partitions_params = {
 (* ----------------------------- *)
 
 type lockfile_kind
-     <ocaml attr="deriving show, eq, yojson">
+     <ocaml attr="deriving show { with_path = false }, eq, yojson">
      <python decorator="dataclass(frozen=True)"> =
 [
     | PipRequirementsTxt
@@ -2927,7 +2927,7 @@ type lockfile_kind
 ] <ocaml repr="classic">
 
 type manifest_kind
-  <ocaml attr="deriving show, eq">
+  <ocaml attr="deriving show { with_path = false }, eq">
   <python decorator="dataclass(frozen=True)"> =
 [
   | RequirementsIn
