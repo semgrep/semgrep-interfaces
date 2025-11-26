@@ -1267,7 +1267,7 @@ export type SymbolAnalysisUploadResponse = {
 
 export type SymbolAnalysisParams = {
   root_path: Fpath;
-  lang: string;
+  lang: Option<string>;
   files: Fpath[];
 }
 
@@ -5226,7 +5226,7 @@ export function readSymbolAnalysisUploadResponse(x: any, context: any = x): Symb
 export function writeSymbolAnalysisParams(x: SymbolAnalysisParams, context: any = x): any {
   return {
     'root_path': _atd_write_required_field('SymbolAnalysisParams', 'root_path', writeFpath, x.root_path, x),
-    'lang': _atd_write_required_field('SymbolAnalysisParams', 'lang', _atd_write_string, x.lang, x),
+    'lang': _atd_write_required_field('SymbolAnalysisParams', 'lang', _atd_write_option(_atd_write_string), x.lang, x),
     'files': _atd_write_required_field('SymbolAnalysisParams', 'files', _atd_write_array(writeFpath), x.files, x),
   };
 }
@@ -5234,7 +5234,7 @@ export function writeSymbolAnalysisParams(x: SymbolAnalysisParams, context: any 
 export function readSymbolAnalysisParams(x: any, context: any = x): SymbolAnalysisParams {
   return {
     root_path: _atd_read_required_field('SymbolAnalysisParams', 'root_path', readFpath, x['root_path'], x),
-    lang: _atd_read_required_field('SymbolAnalysisParams', 'lang', _atd_read_string, x['lang'], x),
+    lang: _atd_read_required_field('SymbolAnalysisParams', 'lang', _atd_read_option(_atd_read_string), x['lang'], x),
     files: _atd_read_required_field('SymbolAnalysisParams', 'files', _atd_read_array(readFpath), x['files'], x),
   };
 }

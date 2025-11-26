@@ -7535,7 +7535,7 @@ class SymbolAnalysisParams:
     """Original type: symbol_analysis_params = { ... }"""
 
     root_path: Fpath
-    lang: str
+    lang: Optional[str]
     files: List[Fpath]
 
     @classmethod
@@ -7543,7 +7543,7 @@ class SymbolAnalysisParams:
         if isinstance(x, dict):
             return cls(
                 root_path=Fpath.from_json(x['root_path']) if 'root_path' in x else _atd_missing_json_field('SymbolAnalysisParams', 'root_path'),
-                lang=_atd_read_string(x['lang']) if 'lang' in x else _atd_missing_json_field('SymbolAnalysisParams', 'lang'),
+                lang=_atd_read_option(_atd_read_string)(x['lang']) if 'lang' in x else _atd_missing_json_field('SymbolAnalysisParams', 'lang'),
                 files=_atd_read_list(Fpath.from_json)(x['files']) if 'files' in x else _atd_missing_json_field('SymbolAnalysisParams', 'files'),
             )
         else:
@@ -7552,7 +7552,7 @@ class SymbolAnalysisParams:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['root_path'] = (lambda x: x.to_json())(self.root_path)
-        res['lang'] = _atd_write_string(self.lang)
+        res['lang'] = _atd_write_option(_atd_write_string)(self.lang)
         res['files'] = _atd_write_list((lambda x: x.to_json()))(self.files)
         return res
 

@@ -3388,7 +3388,17 @@
       "required": [ "root_path", "lang", "files" ],
       "properties": {
         "root_path": { "$ref": "#/definitions/fpath" },
-        "lang": { "type": "string" },
+        "lang": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        },
         "files": {
           "type": "array",
           "items": { "$ref": "#/definitions/fpath" }

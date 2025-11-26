@@ -1480,7 +1480,7 @@ type symbol_analysis_upload_response = {
 
 type symbol_analysis_params = {
   root_path: fpath;
-  lang: string;
+  lang: string option;
   files: fpath list
 }
 

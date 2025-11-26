@@ -1483,7 +1483,7 @@ type symbol_analysis_upload_response =
 
 type symbol_analysis_params = Semgrep_output_v1_t.symbol_analysis_params = {
   root_path: fpath;
-  lang: string;
+  lang: string option;
   files: fpath list
 }
 
@@ -23145,7 +23145,7 @@ let write_symbol_analysis_params : _ -> symbol_analysis_params -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"lang\":";
     (
-      Yojson.Safe.write_string
+      write__string_option
     )
       ob x.lang;
     if !is_first then
@@ -23223,7 +23223,7 @@ let read_symbol_analysis_params = (
             field_lang := (
               Some (
                 (
-                  Atdgen_runtime.Oj_run.read_string
+                  read__string_option
                 ) p lb
               )
             );
@@ -23292,7 +23292,7 @@ let read_symbol_analysis_params = (
               field_lang := (
                 Some (
                   (
-                    Atdgen_runtime.Oj_run.read_string
+                    read__string_option
                   ) p lb
                 )
               );
