@@ -1894,6 +1894,11 @@
         "metadata": {
           "description": "filled in by the backend to associate scan results with the driving scan",
           "$ref": "#/definitions/ci_scan_metadata"
+        },
+        "sca_failed_subproject_paths": {
+          "description": "since semgrep 1.4x.y. (update this once PR merges and is part of a release) This information is sent to /complete in a different field and structure, but we need to send it to /results so that it is available when findings are processed (needed to determine issues' state change).",
+          "type": "array",
+          "items": { "$ref": "#/definitions/fpath" }
         }
       }
     },
