@@ -2126,6 +2126,11 @@ type ci_scan_metadata = {
 
 type ci_scan_dependencies = (string * found_dependency list) list
 
+type ci_sca_unresolved_subproject = {
+  dependency_sources: dependency_source_file list;
+  unresolved_reason: unresolved_reason
+}
+
 type ci_scan_results = {
   findings: finding list;
   ignores: finding list;
@@ -2144,7 +2149,7 @@ type ci_scan_results = {
       filled in by the backend to associate scan results with the driving
       scan
     *);
-  sca_failed_subproject_paths: fpath list option
+  sca_unresolved_subprojects: ci_sca_unresolved_subproject list option
     (**
       since semgrep 1.4x.y. (update this once PR merges and is part of a
       release) This information is sent to /complete in a different field and

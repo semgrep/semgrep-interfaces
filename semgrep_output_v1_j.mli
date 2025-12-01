@@ -2130,6 +2130,12 @@ type ci_scan_metadata = Semgrep_output_v1_t.ci_scan_metadata = {
 
 type ci_scan_dependencies = Semgrep_output_v1_t.ci_scan_dependencies
 
+type ci_sca_unresolved_subproject =
+  Semgrep_output_v1_t.ci_sca_unresolved_subproject = {
+  dependency_sources: dependency_source_file list;
+  unresolved_reason: unresolved_reason
+}
+
 type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   findings: finding list;
   ignores: finding list;
@@ -2148,7 +2154,7 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
       filled in by the backend to associate scan results with the driving
       scan
     *);
-  sca_failed_subproject_paths: fpath list option
+  sca_unresolved_subprojects: ci_sca_unresolved_subproject list option
     (**
       since semgrep 1.4x.y. (update this once PR merges and is part of a
       release) This information is sent to /complete in a different field and
@@ -5670,6 +5676,26 @@ val read_ci_scan_dependencies :
 val ci_scan_dependencies_of_string :
   string -> ci_scan_dependencies
   (** Deserialize JSON data of type {!type:ci_scan_dependencies}. *)
+
+val write_ci_sca_unresolved_subproject :
+  Buffer.t -> ci_sca_unresolved_subproject -> unit
+  (** Output a JSON value of type {!type:ci_sca_unresolved_subproject}. *)
+
+val string_of_ci_sca_unresolved_subproject :
+  ?len:int -> ci_sca_unresolved_subproject -> string
+  (** Serialize a value of type {!type:ci_sca_unresolved_subproject}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_ci_sca_unresolved_subproject :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> ci_sca_unresolved_subproject
+  (** Input JSON data of type {!type:ci_sca_unresolved_subproject}. *)
+
+val ci_sca_unresolved_subproject_of_string :
+  string -> ci_sca_unresolved_subproject
+  (** Deserialize JSON data of type {!type:ci_sca_unresolved_subproject}. *)
 
 val write_ci_scan_results :
   Buffer.t -> ci_scan_results -> unit
