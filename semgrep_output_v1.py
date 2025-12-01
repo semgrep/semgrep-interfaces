@@ -9729,6 +9729,7 @@ class CiScanResults:
     contributions: Optional[Contributions] = None
     dependencies: Optional[CiScanDependencies] = None
     metadata: Optional[CiScanMetadata] = None
+    sca_failed_subproject_paths: Optional[List[Fpath]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanResults':
@@ -9743,6 +9744,7 @@ class CiScanResults:
                 contributions=Contributions.from_json(x['contributions']) if 'contributions' in x else None,
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
                 metadata=CiScanMetadata.from_json(x['metadata']) if 'metadata' in x else None,
+                sca_failed_subproject_paths=_atd_read_list(Fpath.from_json)(x['sca_failed_subproject_paths']) if 'sca_failed_subproject_paths' in x else None,
             )
         else:
             _atd_bad_json('CiScanResults', x)
@@ -9761,6 +9763,8 @@ class CiScanResults:
             res['dependencies'] = (lambda x: x.to_json())(self.dependencies)
         if self.metadata is not None:
             res['metadata'] = (lambda x: x.to_json())(self.metadata)
+        if self.sca_failed_subproject_paths is not None:
+            res['sca_failed_subproject_paths'] = _atd_write_list((lambda x: x.to_json()))(self.sca_failed_subproject_paths)
         return res
 
     @classmethod

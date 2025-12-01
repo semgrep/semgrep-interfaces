@@ -2052,6 +2052,14 @@ type ci_scan_results = {
      driving scan
      ">
    : ci_scan_metadata option;
+
+   ?sca_failed_subproject_paths
+     <doc text="
+     since semgrep 1.4x.y. (update this once PR merges and is part of a release)
+     This information is sent to /complete in a different field and structure, but we need to send
+     it to /results so that it is available when findings are processed (needed to determine issues' state change).
+     ">
+   : fpath list option;
 }
 
 type ci_scan_metadata

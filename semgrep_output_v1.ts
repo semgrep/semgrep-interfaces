@@ -735,6 +735,7 @@ export type CiScanResults = {
   contributions?: Contributions;
   dependencies?: CiScanDependencies;
   metadata?: CiScanMetadata;
+  sca_failed_subproject_paths?: Fpath[];
 }
 
 export type CiScanMetadata = {
@@ -3563,6 +3564,7 @@ export function writeCiScanResults(x: CiScanResults, context: any = x): any {
     'contributions': _atd_write_optional_field(writeContributions, x.contributions, x),
     'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
     'metadata': _atd_write_optional_field(writeCiScanMetadata, x.metadata, x),
+    'sca_failed_subproject_paths': _atd_write_optional_field(_atd_write_array(writeFpath), x.sca_failed_subproject_paths, x),
   };
 }
 
@@ -3577,6 +3579,7 @@ export function readCiScanResults(x: any, context: any = x): CiScanResults {
     contributions: _atd_read_optional_field(readContributions, x['contributions'], x),
     dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
     metadata: _atd_read_optional_field(readCiScanMetadata, x['metadata'], x),
+    sca_failed_subproject_paths: _atd_read_optional_field(_atd_read_array(readFpath), x['sca_failed_subproject_paths'], x),
   };
 }
 
