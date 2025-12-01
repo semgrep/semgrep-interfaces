@@ -1481,6 +1481,12 @@ type symbol_analysis_upload_response =
   upload_url: uri (** Presigned AWS URL for uploading symbol analysis data *)
 }
 
+type symbol_analysis_params = Semgrep_output_v1_t.symbol_analysis_params = {
+  root_path: fpath;
+  lang: string option;
+  files: fpath list
+}
+
 type symbol_analysis = Semgrep_output_v1_t.symbol_analysis [@@deriving show]
 
 type resolution_method = Semgrep_output_v1_t.resolution_method
@@ -23120,6 +23126,202 @@ let read_symbol_analysis_upload_response = (
 )
 let symbol_analysis_upload_response_of_string s =
   read_symbol_analysis_upload_response (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_symbol_analysis_params : _ -> symbol_analysis_params -> _ = (
+  fun ob (x : symbol_analysis_params) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"root_path\":";
+    (
+      write_fpath
+    )
+      ob x.root_path;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"lang\":";
+    (
+      write__string_option
+    )
+      ob x.lang;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"files\":";
+    (
+      write__fpath_list
+    )
+      ob x.files;
+    Buffer.add_char ob '}';
+)
+let string_of_symbol_analysis_params ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_symbol_analysis_params ob x;
+  Buffer.contents ob
+let read_symbol_analysis_params = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_root_path = ref (None) in
+    let field_lang = ref (None) in
+    let field_files = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 4 -> (
+                if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'g' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | 5 -> (
+                if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
+                  2
+                )
+                else (
+                  -1
+                )
+              )
+            | 9 -> (
+                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'p' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'h' then (
+                  0
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_root_path := (
+              Some (
+                (
+                  read_fpath
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_lang := (
+              Some (
+                (
+                  read__string_option
+                ) p lb
+              )
+            );
+          | 2 ->
+            field_files := (
+              Some (
+                (
+                  read__fpath_list
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 4 -> (
+                  if String.unsafe_get s pos = 'l' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'g' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 5 -> (
+                  if String.unsafe_get s pos = 'f' && String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 's' then (
+                    2
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | 9 -> (
+                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'p' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = 'h' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_root_path := (
+                Some (
+                  (
+                    read_fpath
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_lang := (
+                Some (
+                  (
+                    read__string_option
+                  ) p lb
+                )
+              );
+            | 2 ->
+              field_files := (
+                Some (
+                  (
+                    read__fpath_list
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            root_path = (match !field_root_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "root_path");
+            lang = (match !field_lang with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "lang");
+            files = (match !field_files with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "files");
+          }
+         : symbol_analysis_params)
+      )
+)
+let symbol_analysis_params_of_string s =
+  read_symbol_analysis_params (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__symbol_usage_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_symbol_usage
@@ -41578,6 +41780,12 @@ let write_function_return = (
           write__subproject_list
         ) ob x;
         Buffer.add_char ob ']'
+      | `RetRunSymbolAnalysis x ->
+        Buffer.add_string ob "[\"RetRunSymbolAnalysis\",";
+        (
+          write_symbol_analysis
+        ) ob x;
+        Buffer.add_char ob ']'
 )
 let string_of_function_return ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -41697,6 +41905,15 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `RetMatchSubprojects x
+            | "RetRunSymbolAnalysis" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_symbol_analysis
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `RetRunSymbolAnalysis x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -41839,6 +42056,17 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `RetMatchSubprojects x
+            | "RetRunSymbolAnalysis" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_symbol_analysis
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `RetRunSymbolAnalysis x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -44323,6 +44551,12 @@ let write_function_call = (
           write__fpath_list
         ) ob x;
         Buffer.add_char ob ']'
+      | `CallRunSymbolAnalysis x ->
+        Buffer.add_string ob "[\"CallRunSymbolAnalysis\",";
+        (
+          write_symbol_analysis_params
+        ) ob x;
+        Buffer.add_char ob ']'
 )
 let string_of_function_call ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -44584,6 +44818,15 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `CallMatchSubprojects x
+            | "CallRunSymbolAnalysis" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read_symbol_analysis_params
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `CallRunSymbolAnalysis x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -44862,6 +45105,17 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `CallMatchSubprojects x
+            | "CallRunSymbolAnalysis" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_symbol_analysis_params
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `CallRunSymbolAnalysis x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

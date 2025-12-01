@@ -1265,6 +1265,12 @@ export type SymbolAnalysisUploadResponse = {
   upload_url: Uri;
 }
 
+export type SymbolAnalysisParams = {
+  root_path: Fpath;
+  lang: Option<string>;
+  files: Fpath[];
+}
+
 export type Symbol = {
   fqn: string[];
 }
@@ -1288,6 +1294,7 @@ export type FunctionCall =
 | { kind: 'CallGetTargets'; value: ScanningRoots }
 | { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveReachabilityFilterParams }
 | { kind: 'CallMatchSubprojects'; value: Fpath[] }
+| { kind: 'CallRunSymbolAnalysis'; value: SymbolAnalysisParams }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -1302,6 +1309,7 @@ export type FunctionReturn =
 | { kind: 'RetTransitiveReachabilityFilter'; value: TransitiveFinding[] }
 | { kind: 'RetGetTargets'; value: TargetDiscoveryResult }
 | { kind: 'RetMatchSubprojects'; value: Subproject[] }
+| { kind: 'RetRunSymbolAnalysis'; value: SymbolAnalysis }
 
 export type FunctionResult = {
   function_return: FunctionReturn;
@@ -5215,6 +5223,22 @@ export function readSymbolAnalysisUploadResponse(x: any, context: any = x): Symb
   };
 }
 
+export function writeSymbolAnalysisParams(x: SymbolAnalysisParams, context: any = x): any {
+  return {
+    'root_path': _atd_write_required_field('SymbolAnalysisParams', 'root_path', writeFpath, x.root_path, x),
+    'lang': _atd_write_required_field('SymbolAnalysisParams', 'lang', _atd_write_option(_atd_write_string), x.lang, x),
+    'files': _atd_write_required_field('SymbolAnalysisParams', 'files', _atd_write_array(writeFpath), x.files, x),
+  };
+}
+
+export function readSymbolAnalysisParams(x: any, context: any = x): SymbolAnalysisParams {
+  return {
+    root_path: _atd_read_required_field('SymbolAnalysisParams', 'root_path', readFpath, x['root_path'], x),
+    lang: _atd_read_required_field('SymbolAnalysisParams', 'lang', _atd_read_option(_atd_read_string), x['lang'], x),
+    files: _atd_read_required_field('SymbolAnalysisParams', 'files', _atd_read_array(readFpath), x['files'], x),
+  };
+}
+
 export function writeSymbol(x: Symbol, context: any = x): any {
   return {
     'fqn': _atd_write_required_field('Symbol', 'fqn', _atd_write_array(_atd_write_string), x.fqn, x),
@@ -5273,6 +5297,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallTransitiveReachabilityFilter', writeTransitiveReachabilityFilterParams(x.value, x)]
     case 'CallMatchSubprojects':
       return ['CallMatchSubprojects', _atd_write_array(writeFpath)(x.value, x)]
+    case 'CallRunSymbolAnalysis':
+      return ['CallRunSymbolAnalysis', writeSymbolAnalysisParams(x.value, x)]
   }
 }
 
@@ -5309,6 +5335,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallTransitiveReachabilityFilter', value: readTransitiveReachabilityFilterParams(x[1], x) }
       case 'CallMatchSubprojects':
         return { kind: 'CallMatchSubprojects', value: _atd_read_array(readFpath)(x[1], x) }
+      case 'CallRunSymbolAnalysis':
+        return { kind: 'CallRunSymbolAnalysis', value: readSymbolAnalysisParams(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -5342,6 +5370,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetGetTargets', writeTargetDiscoveryResult(x.value, x)]
     case 'RetMatchSubprojects':
       return ['RetMatchSubprojects', _atd_write_array(writeSubproject)(x.value, x)]
+    case 'RetRunSymbolAnalysis':
+      return ['RetRunSymbolAnalysis', writeSymbolAnalysis(x.value, x)]
   }
 }
 
@@ -5372,6 +5402,8 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetGetTargets', value: readTargetDiscoveryResult(x[1], x) }
     case 'RetMatchSubprojects':
       return { kind: 'RetMatchSubprojects', value: _atd_read_array(readSubproject)(x[1], x) }
+    case 'RetRunSymbolAnalysis':
+      return { kind: 'RetRunSymbolAnalysis', value: readSymbolAnalysis(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')
