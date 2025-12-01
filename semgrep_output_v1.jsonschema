@@ -1895,10 +1895,10 @@
           "description": "filled in by the backend to associate scan results with the driving scan",
           "$ref": "#/definitions/ci_scan_metadata"
         },
-        "sca_failed_subproject_paths": {
+        "sca_unresolved_subprojects": {
           "description": "since semgrep 1.4x.y. (update this once PR merges and is part of a release) This information is sent to /complete in a different field and structure, but we need to send it to /results so that it is available when findings are processed (needed to determine issues' state change).",
           "type": "array",
-          "items": { "$ref": "#/definitions/fpath" }
+          "items": { "$ref": "#/definitions/ci_sca_unresolved_subproject" }
         }
       }
     },
@@ -2162,6 +2162,17 @@
           "type": "array",
           "items": { "$ref": "#/definitions/sca_error" }
         }
+      }
+    },
+    "ci_sca_unresolved_subproject": {
+      "type": "object",
+      "required": [ "dependency_sources", "unresolved_reason" ],
+      "properties": {
+        "dependency_sources": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/dependency_source_file" }
+        },
+        "unresolved_reason": { "$ref": "#/definitions/unresolved_reason" }
       }
     },
     "dependency_source_file": {
