@@ -3405,11 +3405,8 @@ type function_call <python decorator="dataclass(frozen=True)"> = [
       <doc text="
       Format human-readable text summarizing the subprojects that were
       discovered in a project. This is meant to be printed in --verbose mode.
-      The first argument is the number of dependency source files
-      (targets that look like manifests or lockfiles and were used to
-      identify subprojects in the project tree).
       ">
-      of (int * subproject list)
+      of subproject list
 ]
 
 (* ----------------------------- *)

@@ -11124,7 +11124,7 @@ class CallRunSymbolAnalysis:
 class CallShowSubprojects:
     """Original type: function_call = [ ... | CallShowSubprojects of ... | ... ]"""
 
-    value: Tuple[int, List[Subproject]]
+    value: List[Subproject]
 
     @property
     def kind(self) -> str:
@@ -11132,7 +11132,7 @@ class CallShowSubprojects:
         return 'CallShowSubprojects'
 
     def to_json(self) -> Any:
-        return ['CallShowSubprojects', (lambda x: [_atd_write_int(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
+        return ['CallShowSubprojects', _atd_write_list((lambda x: x.to_json()))(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -11180,7 +11180,7 @@ class FunctionCall:
             if cons == 'CallRunSymbolAnalysis':
                 return cls(CallRunSymbolAnalysis(SymbolAnalysisParams.from_json(x[1])))
             if cons == 'CallShowSubprojects':
-                return cls(CallShowSubprojects((lambda x: (_atd_read_int(x[0]), _atd_read_list(Subproject.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+                return cls(CallShowSubprojects(_atd_read_list(Subproject.from_json)(x[1])))
             _atd_bad_json('FunctionCall', x)
         _atd_bad_json('FunctionCall', x)
 

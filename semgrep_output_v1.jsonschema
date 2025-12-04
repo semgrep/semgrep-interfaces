@@ -3576,20 +3576,12 @@
           "items": false,
           "prefixItems": [
             {
-              "description": "Format human-readable text summarizing the subprojects that were discovered in a project. This is meant to be printed in --verbose mode. The first argument is the number of dependency source files (targets that look like manifests or lockfiles and were used to identify subprojects in the project tree).",
+              "description": "Format human-readable text summarizing the subprojects that were discovered in a project. This is meant to be printed in --verbose mode.",
               "const": "CallShowSubprojects"
             },
             {
               "type": "array",
-              "minItems": 2,
-              "items": false,
-              "prefixItems": [
-                { "type": "integer" },
-                {
-                  "type": "array",
-                  "items": { "$ref": "#/definitions/subproject" }
-                }
-              ]
+              "items": { "$ref": "#/definitions/subproject" }
             }
           ]
         }

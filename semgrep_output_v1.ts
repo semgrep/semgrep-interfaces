@@ -1296,7 +1296,7 @@ export type FunctionCall =
 | { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveReachabilityFilterParams }
 | { kind: 'CallMatchSubprojects'; value: Fpath[] }
 | { kind: 'CallRunSymbolAnalysis'; value: SymbolAnalysisParams }
-| { kind: 'CallShowSubprojects'; value: [number /*int*/, Subproject[]] }
+| { kind: 'CallShowSubprojects'; value: Subproject[] }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -5305,7 +5305,7 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
     case 'CallRunSymbolAnalysis':
       return ['CallRunSymbolAnalysis', writeSymbolAnalysisParams(x.value, x)]
     case 'CallShowSubprojects':
-      return ['CallShowSubprojects', ((x, context) => [_atd_write_int(x[0], x), _atd_write_array(writeSubproject)(x[1], x)])(x.value, x)]
+      return ['CallShowSubprojects', _atd_write_array(writeSubproject)(x.value, x)]
   }
 }
 
@@ -5345,7 +5345,7 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
       case 'CallRunSymbolAnalysis':
         return { kind: 'CallRunSymbolAnalysis', value: readSymbolAnalysisParams(x[1], x) }
       case 'CallShowSubprojects':
-        return { kind: 'CallShowSubprojects', value: ((x, context): [number /*int*/, Subproject[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_int(x[0], x), _atd_read_array(readSubproject)(x[1], x)] })(x[1], x) }
+        return { kind: 'CallShowSubprojects', value: _atd_read_array(readSubproject)(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
