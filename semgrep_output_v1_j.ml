@@ -149,7 +149,7 @@ type ecosystem = Semgrep_output_v1_t.ecosystem =
   | Hex
   | Opam
 
-  [@@deriving eq, ord, show]
+  [@@deriving eq, ord, show { with_path = false }]
 
 type fpath = Semgrep_output_v1_t.fpath [@@deriving eq, ord, show]
 
@@ -216,7 +216,7 @@ type lockfile_kind = Semgrep_output_v1_t.lockfile_kind =
   | ConanLock
   | OpamLocked
 
-  [@@deriving show, eq, yojson]
+  [@@deriving show { with_path = false }, eq, yojson]
 
 type lockfile = Semgrep_output_v1_t.lockfile = {
   kind: lockfile_kind;
@@ -319,7 +319,7 @@ type manifest_kind = Semgrep_output_v1_t.manifest_kind =
   | BuildSbt
       (** build.sbt - https://www.scala-sbt.org/1.x/docs/Basic-Def.html *)
 
-  [@@deriving show, eq]
+  [@@deriving show { with_path = false }, eq]
 
 type manifest = Semgrep_output_v1_t.manifest = {
   kind: manifest_kind;
@@ -41780,6 +41780,12 @@ let write_function_return = (
           write__subproject_list
         ) ob x;
         Buffer.add_char ob ']'
+      | `RetShowSubprojects x ->
+        Buffer.add_string ob "[\"RetShowSubprojects\",";
+        (
+          Yojson.Safe.write_string
+        ) ob x;
+        Buffer.add_char ob ']'
       | `RetRunSymbolAnalysis x ->
         Buffer.add_string ob "[\"RetRunSymbolAnalysis\",";
         (
@@ -41905,6 +41911,15 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `RetMatchSubprojects x
+            | "RetShowSubprojects" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `RetShowSubprojects x
             | "RetRunSymbolAnalysis" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -42056,6 +42071,17 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `RetMatchSubprojects x
+            | "RetShowSubprojects" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `RetShowSubprojects x
             | "RetRunSymbolAnalysis" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
@@ -44551,6 +44577,12 @@ let write_function_call = (
           write__fpath_list
         ) ob x;
         Buffer.add_char ob ']'
+      | `CallShowSubprojects x ->
+        Buffer.add_string ob "[\"CallShowSubprojects\",";
+        (
+          write__subproject_list
+        ) ob x;
+        Buffer.add_char ob ']'
       | `CallRunSymbolAnalysis x ->
         Buffer.add_string ob "[\"CallRunSymbolAnalysis\",";
         (
@@ -44818,6 +44850,15 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `CallMatchSubprojects x
+            | "CallShowSubprojects" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__subproject_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `CallShowSubprojects x
             | "CallRunSymbolAnalysis" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -45105,6 +45146,17 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `CallMatchSubprojects x
+            | "CallShowSubprojects" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__subproject_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `CallShowSubprojects x
             | "CallRunSymbolAnalysis" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;

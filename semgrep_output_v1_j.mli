@@ -149,7 +149,7 @@ type ecosystem = Semgrep_output_v1_t.ecosystem =
   | Hex
   | Opam
 
-  [@@deriving eq, ord, show]
+  [@@deriving eq, ord, show { with_path = false }]
 
 type fpath = Semgrep_output_v1_t.fpath [@@deriving eq, ord, show]
 
@@ -216,7 +216,7 @@ type lockfile_kind = Semgrep_output_v1_t.lockfile_kind =
   | ConanLock
   | OpamLocked
 
-  [@@deriving show, eq, yojson]
+  [@@deriving show { with_path = false }, eq, yojson]
 
 type lockfile = Semgrep_output_v1_t.lockfile = {
   kind: lockfile_kind;
@@ -319,7 +319,7 @@ type manifest_kind = Semgrep_output_v1_t.manifest_kind =
   | BuildSbt
       (** build.sbt - https://www.scala-sbt.org/1.x/docs/Basic-Def.html *)
 
-  [@@deriving show, eq]
+  [@@deriving show { with_path = false }, eq]
 
 type manifest = Semgrep_output_v1_t.manifest = {
   kind: manifest_kind;
