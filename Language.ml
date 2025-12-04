@@ -12,6 +12,7 @@ type t =
 | Csharp
 | Dart
 | Dockerfile
+| Fga
 | Elixir
 | Go
 | Gosu
@@ -210,6 +211,19 @@ let list = [
   exts = [{|.dockerfile|}; {|.Dockerfile|}; {|Dockerfile|}; {|dockerfile|}];
   maturity = Alpha;
   example_ext = Some {|.dockerfile|};
+  excluded_exts = [];
+  reverse_exts = None;
+  shebangs = [];
+  tags = [];
+};
+{
+  id = Fga;
+  id_string = "fga";
+  name = "Fga";
+  keys = [{|fga|}; {|openfga|}];
+  exts = [{|.fga|}];
+  maturity = Alpha;
+  example_ext = Some {|.fga|};
   excluded_exts = [];
   reverse_exts = None;
   shebangs = [];
