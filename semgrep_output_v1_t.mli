@@ -2371,13 +2371,11 @@ type function_call = [
   | `CallTransitiveReachabilityFilter
       of transitive_reachability_filter_params
   | `CallMatchSubprojects of fpath list
-  | `CallShowSubprojects of (int * subproject list)
+  | `CallShowSubprojects of subproject list
       (**
         Format human-readable text summarizing the subprojects that were
         discovered in a project. This is meant to be printed in --verbose
-        mode. The first argument is the number of dependency source files
-        (targets that look like manifests or lockfiles and were used to
-        identify subprojects in the project tree).
+        mode.
       *)
   | `CallRunSymbolAnalysis of symbol_analysis_params
 ]
