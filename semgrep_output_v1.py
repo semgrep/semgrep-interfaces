@@ -9726,6 +9726,7 @@ class CiScanResults:
     searched_paths: List[Fpath]
     renamed_paths: List[Fpath]
     rule_ids: List[RuleId]
+    skipped_paths: List[Fpath] = field(default_factory=lambda: [])
     contributions: Optional[Contributions] = None
     dependencies: Optional[CiScanDependencies] = None
     metadata: Optional[CiScanMetadata] = None
@@ -9740,6 +9741,7 @@ class CiScanResults:
                 searched_paths=_atd_read_list(Fpath.from_json)(x['searched_paths']) if 'searched_paths' in x else _atd_missing_json_field('CiScanResults', 'searched_paths'),
                 renamed_paths=_atd_read_list(Fpath.from_json)(x['renamed_paths']) if 'renamed_paths' in x else _atd_missing_json_field('CiScanResults', 'renamed_paths'),
                 rule_ids=_atd_read_list(RuleId.from_json)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('CiScanResults', 'rule_ids'),
+                skipped_paths=_atd_read_list(Fpath.from_json)(x['skipped_paths']) if 'skipped_paths' in x else [],
                 contributions=Contributions.from_json(x['contributions']) if 'contributions' in x else None,
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
                 metadata=CiScanMetadata.from_json(x['metadata']) if 'metadata' in x else None,
@@ -9755,6 +9757,7 @@ class CiScanResults:
         res['searched_paths'] = _atd_write_list((lambda x: x.to_json()))(self.searched_paths)
         res['renamed_paths'] = _atd_write_list((lambda x: x.to_json()))(self.renamed_paths)
         res['rule_ids'] = _atd_write_list((lambda x: x.to_json()))(self.rule_ids)
+        res['skipped_paths'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_paths)
         if self.contributions is not None:
             res['contributions'] = (lambda x: x.to_json())(self.contributions)
         if self.dependencies is not None:

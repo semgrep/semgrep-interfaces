@@ -1872,10 +1872,16 @@
         },
         "token": { "type": [ "string", "null" ] },
         "searched_paths": {
+          "description": "Files that were detected and attempted to scan. Note that some of these may have been skipped due to errors (see skipped_paths).",
           "type": "array",
           "items": { "$ref": "#/definitions/fpath" }
         },
         "renamed_paths": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/fpath" }
+        },
+        "skipped_paths": {
+          "description": "Files detected but not scanned due to errors (timeout, OOM, etc.). The app should NOT mark findings in these files as fixed.",
           "type": "array",
           "items": { "$ref": "#/definitions/fpath" }
         },

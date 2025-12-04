@@ -2130,8 +2130,17 @@ type ci_scan_results = {
   findings: finding list;
   ignores: finding list;
   token: string option;
-  searched_paths: fpath list;
+  searched_paths: fpath list
+    (**
+      Files that were detected and attempted to scan. Note that some of these
+      may have been skipped due to errors (see skipped_paths).
+    *);
   renamed_paths: fpath list;
+  skipped_paths: fpath list
+    (**
+      Files detected but not scanned due to errors (timeout, OOM, etc.). The
+      app should NOT mark findings in these files as fixed.
+    *);
   rule_ids: rule_id list;
   contributions: contributions option (** since semgrep 1.34.0 *);
   dependencies: ci_scan_dependencies option

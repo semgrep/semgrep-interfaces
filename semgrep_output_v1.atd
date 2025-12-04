@@ -2031,8 +2031,11 @@ type ci_scan_results = {
    (* TODO? use a token type ? *)
    token: string nullable;
 
-   searched_paths: fpath list;
+   searched_paths
+     <doc text="Files that were detected and attempted to scan. Note that some of these may have been skipped due to errors (see skipped_paths).">
+   : fpath list;
    renamed_paths: fpath list;
+   ~skipped_paths <doc text="Files detected but not scanned due to errors (timeout, OOM, etc.). The app should NOT mark findings in these files as fixed.">: fpath list;
 
    rule_ids: rule_id list;
 
