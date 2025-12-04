@@ -921,6 +921,12 @@ class Mcp:
     git_repo: Optional[str] = None
     git_branch: Optional[str] = None
     tool_name: Optional[str] = None
+    num_tps: Optional[int] = None
+    tps: Optional[List[Tuple[str, Finding]]] = None
+    num_fps: Optional[int] = None
+    fps: Optional[List[Tuple[str, Finding]]] = None
+    num_skips: Optional[int] = None
+    skips: Optional[List[Tuple[str, Finding]]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Mcp':
@@ -939,6 +945,12 @@ class Mcp:
                 git_repo=_atd_read_string(x['git_repo']) if 'git_repo' in x else None,
                 git_branch=_atd_read_string(x['git_branch']) if 'git_branch' in x else None,
                 tool_name=_atd_read_string(x['tool_name']) if 'tool_name' in x else None,
+                num_tps=_atd_read_int(x['num_tps']) if 'num_tps' in x else None,
+                tps=_atd_read_assoc_object_into_list(Finding.from_json)(x['tps']) if 'tps' in x else None,
+                num_fps=_atd_read_int(x['num_fps']) if 'num_fps' in x else None,
+                fps=_atd_read_assoc_object_into_list(Finding.from_json)(x['fps']) if 'fps' in x else None,
+                num_skips=_atd_read_int(x['num_skips']) if 'num_skips' in x else None,
+                skips=_atd_read_assoc_object_into_list(Finding.from_json)(x['skips']) if 'skips' in x else None,
             )
         else:
             _atd_bad_json('Mcp', x)
@@ -971,6 +983,18 @@ class Mcp:
             res['git_branch'] = _atd_write_string(self.git_branch)
         if self.tool_name is not None:
             res['tool_name'] = _atd_write_string(self.tool_name)
+        if self.num_tps is not None:
+            res['num_tps'] = _atd_write_int(self.num_tps)
+        if self.tps is not None:
+            res['tps'] = _atd_write_assoc_list_to_object((lambda x: x.to_json()))(self.tps)
+        if self.num_fps is not None:
+            res['num_fps'] = _atd_write_int(self.num_fps)
+        if self.fps is not None:
+            res['fps'] = _atd_write_assoc_list_to_object((lambda x: x.to_json()))(self.fps)
+        if self.num_skips is not None:
+            res['num_skips'] = _atd_write_int(self.num_skips)
+        if self.skips is not None:
+            res['skips'] = _atd_write_assoc_list_to_object((lambda x: x.to_json()))(self.skips)
         return res
 
     @classmethod

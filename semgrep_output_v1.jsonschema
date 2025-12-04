@@ -3383,6 +3383,28 @@
         }
       }
     },
+    "symbol_analysis_params": {
+      "type": "object",
+      "required": [ "root_path", "lang", "files" ],
+      "properties": {
+        "root_path": { "$ref": "#/definitions/fpath" },
+        "lang": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [ { "const": "Some" }, { "type": "string" } ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "files": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/fpath" }
+        }
+      }
+    },
     "symbol": {
       "description": "A symbol is a FQN.",
       "type": "object",
@@ -3555,6 +3577,15 @@
               ]
             }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CallRunSymbolAnalysis" },
+            { "$ref": "#/definitions/symbol_analysis_params" }
+          ]
         }
       ]
     },
@@ -3708,6 +3739,15 @@
               "const": "RetShowSubprojects"
             },
             { "type": "string" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "RetRunSymbolAnalysis" },
+            { "$ref": "#/definitions/symbol_analysis" }
           ]
         }
       ]

@@ -1265,6 +1265,12 @@ export type SymbolAnalysisUploadResponse = {
   upload_url: Uri;
 }
 
+export type SymbolAnalysisParams = {
+  root_path: Fpath;
+  lang: Option<string>;
+  files: Fpath[];
+}
+
 export type Symbol = {
   fqn: string[];
 }
@@ -1289,6 +1295,7 @@ export type FunctionCall =
 | { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveReachabilityFilterParams }
 | { kind: 'CallMatchSubprojects'; value: Fpath[] }
 | { kind: 'CallShowSubprojects'; value: [number /*int*/, Subproject[]] }
+| { kind: 'CallRunSymbolAnalysis'; value: SymbolAnalysisParams }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -1304,6 +1311,7 @@ export type FunctionReturn =
 | { kind: 'RetGetTargets'; value: TargetDiscoveryResult }
 | { kind: 'RetMatchSubprojects'; value: Subproject[] }
 | { kind: 'RetShowSubprojects'; value: string }
+| { kind: 'RetRunSymbolAnalysis'; value: SymbolAnalysis }
 
 export type FunctionResult = {
   function_return: FunctionReturn;
@@ -5217,6 +5225,22 @@ export function readSymbolAnalysisUploadResponse(x: any, context: any = x): Symb
   };
 }
 
+export function writeSymbolAnalysisParams(x: SymbolAnalysisParams, context: any = x): any {
+  return {
+    'root_path': _atd_write_required_field('SymbolAnalysisParams', 'root_path', writeFpath, x.root_path, x),
+    'lang': _atd_write_required_field('SymbolAnalysisParams', 'lang', _atd_write_option(_atd_write_string), x.lang, x),
+    'files': _atd_write_required_field('SymbolAnalysisParams', 'files', _atd_write_array(writeFpath), x.files, x),
+  };
+}
+
+export function readSymbolAnalysisParams(x: any, context: any = x): SymbolAnalysisParams {
+  return {
+    root_path: _atd_read_required_field('SymbolAnalysisParams', 'root_path', readFpath, x['root_path'], x),
+    lang: _atd_read_required_field('SymbolAnalysisParams', 'lang', _atd_read_option(_atd_read_string), x['lang'], x),
+    files: _atd_read_required_field('SymbolAnalysisParams', 'files', _atd_read_array(readFpath), x['files'], x),
+  };
+}
+
 export function writeSymbol(x: Symbol, context: any = x): any {
   return {
     'fqn': _atd_write_required_field('Symbol', 'fqn', _atd_write_array(_atd_write_string), x.fqn, x),
@@ -5277,6 +5301,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallMatchSubprojects', _atd_write_array(writeFpath)(x.value, x)]
     case 'CallShowSubprojects':
       return ['CallShowSubprojects', ((x, context) => [_atd_write_int(x[0], x), _atd_write_array(writeSubproject)(x[1], x)])(x.value, x)]
+    case 'CallRunSymbolAnalysis':
+      return ['CallRunSymbolAnalysis', writeSymbolAnalysisParams(x.value, x)]
   }
 }
 
@@ -5315,6 +5341,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallMatchSubprojects', value: _atd_read_array(readFpath)(x[1], x) }
       case 'CallShowSubprojects':
         return { kind: 'CallShowSubprojects', value: ((x, context): [number /*int*/, Subproject[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_int(x[0], x), _atd_read_array(readSubproject)(x[1], x)] })(x[1], x) }
+      case 'CallRunSymbolAnalysis':
+        return { kind: 'CallRunSymbolAnalysis', value: readSymbolAnalysisParams(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -5350,6 +5378,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetMatchSubprojects', _atd_write_array(writeSubproject)(x.value, x)]
     case 'RetShowSubprojects':
       return ['RetShowSubprojects', _atd_write_string(x.value, x)]
+    case 'RetRunSymbolAnalysis':
+      return ['RetRunSymbolAnalysis', writeSymbolAnalysis(x.value, x)]
   }
 }
 
@@ -5382,6 +5412,8 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetMatchSubprojects', value: _atd_read_array(readSubproject)(x[1], x) }
     case 'RetShowSubprojects':
       return { kind: 'RetShowSubprojects', value: _atd_read_string(x[1], x) }
+    case 'RetRunSymbolAnalysis':
+      return { kind: 'RetRunSymbolAnalysis', value: readSymbolAnalysis(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')

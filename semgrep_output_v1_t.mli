@@ -1478,6 +1478,12 @@ type symbol_analysis_upload_response = {
   upload_url: uri (** Presigned AWS URL for uploading symbol analysis data *)
 }
 
+type symbol_analysis_params = {
+  root_path: fpath;
+  lang: string option;
+  files: fpath list
+}
+
 type symbol_analysis = symbol_usage list [@@deriving show]
 
 type resolution_method = [
@@ -2251,6 +2257,7 @@ type function_return = [
         newline-terminated i.e. it is suitable to pass as an argument to a
         logger.
       *)
+  | `RetRunSymbolAnalysis of symbol_analysis
 ]
 
 type function_result = {
@@ -2372,6 +2379,7 @@ type function_call = [
         (targets that look like manifests or lockfiles and were used to
         identify subprojects in the project tree).
       *)
+  | `CallRunSymbolAnalysis of symbol_analysis_params
 ]
 
 type features = {

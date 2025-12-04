@@ -293,6 +293,12 @@ type mcp = {
     ?git_repo <ocaml mutable>: string option;
     ?git_branch <ocaml mutable>: string option;
     ?tool_name <ocaml mutable>: string option;
+    ?num_tps <ocaml mutable>: int option;
+    ?tps <ocaml mutable>: (string (* rule_id *) * finding) list <json repr="object"> option;
+    ?num_fps <ocaml mutable>: int option;
+    ?fps <ocaml mutable>: (string (* rule_id *) * finding) list <json repr="object"> option;
+    ?num_skips <ocaml mutable>: int option;
+    ?skips <ocaml mutable>: (string (* rule_id *) * finding) list <json repr="object"> option;
 }
 
 (*****************************************************************************)
