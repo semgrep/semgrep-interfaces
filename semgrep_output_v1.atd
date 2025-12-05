@@ -2033,6 +2033,7 @@ type ci_scan_results = {
 
    searched_paths: fpath list;
    renamed_paths: fpath list;
+   ~skipped_paths <doc text="Files detected but not scanned due to errors (timeout, OOM, etc.). The app should NOT mark findings in these files as fixed.">: fpath list;
 
    rule_ids: rule_id list;
 
