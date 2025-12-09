@@ -735,6 +735,7 @@ export type CiScanResults = {
   contributions?: Contributions;
   dependencies?: CiScanDependencies;
   metadata?: CiScanMetadata;
+  sca_unresolved_subprojects?: CiScaUnresolvedSubproject[];
 }
 
 export type CiScanMetadata = {
@@ -855,6 +856,11 @@ export type SubprojectStats = {
   resolved_stats?: DependencyResolutionStats;
   unresolved_reason?: UnresolvedReason;
   errors: ScaError[];
+}
+
+export type CiScaUnresolvedSubproject = {
+  dependency_sources: DependencySourceFile[];
+  unresolved_reason: UnresolvedReason;
 }
 
 export type DependencySourceFile = {
@@ -3563,6 +3569,7 @@ export function writeCiScanResults(x: CiScanResults, context: any = x): any {
     'contributions': _atd_write_optional_field(writeContributions, x.contributions, x),
     'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
     'metadata': _atd_write_optional_field(writeCiScanMetadata, x.metadata, x),
+    'sca_unresolved_subprojects': _atd_write_optional_field(_atd_write_array(writeCiScaUnresolvedSubproject), x.sca_unresolved_subprojects, x),
   };
 }
 
@@ -3577,6 +3584,7 @@ export function readCiScanResults(x: any, context: any = x): CiScanResults {
     contributions: _atd_read_optional_field(readContributions, x['contributions'], x),
     dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
     metadata: _atd_read_optional_field(readCiScanMetadata, x['metadata'], x),
+    sca_unresolved_subprojects: _atd_read_optional_field(_atd_read_array(readCiScaUnresolvedSubproject), x['sca_unresolved_subprojects'], x),
   };
 }
 
@@ -3928,6 +3936,20 @@ export function readSubprojectStats(x: any, context: any = x): SubprojectStats {
     resolved_stats: _atd_read_optional_field(readDependencyResolutionStats, x['resolved_stats'], x),
     unresolved_reason: _atd_read_optional_field(readUnresolvedReason, x['unresolved_reason'], x),
     errors: _atd_read_field_with_default(_atd_read_array(readScaError), [], x['errors'], x),
+  };
+}
+
+export function writeCiScaUnresolvedSubproject(x: CiScaUnresolvedSubproject, context: any = x): any {
+  return {
+    'dependency_sources': _atd_write_required_field('CiScaUnresolvedSubproject', 'dependency_sources', _atd_write_array(writeDependencySourceFile), x.dependency_sources, x),
+    'unresolved_reason': _atd_write_required_field('CiScaUnresolvedSubproject', 'unresolved_reason', writeUnresolvedReason, x.unresolved_reason, x),
+  };
+}
+
+export function readCiScaUnresolvedSubproject(x: any, context: any = x): CiScaUnresolvedSubproject {
+  return {
+    dependency_sources: _atd_read_required_field('CiScaUnresolvedSubproject', 'dependency_sources', _atd_read_array(readDependencySourceFile), x['dependency_sources'], x),
+    unresolved_reason: _atd_read_required_field('CiScaUnresolvedSubproject', 'unresolved_reason', readUnresolvedReason, x['unresolved_reason'], x),
   };
 }
 

@@ -9717,6 +9717,37 @@ class CiScanDependencies:
 
 
 @dataclass
+class CiScaUnresolvedSubproject:
+    """Original type: ci_sca_unresolved_subproject = { ... }"""
+
+    dependency_sources: List[DependencySourceFile]
+    unresolved_reason: UnresolvedReason
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'CiScaUnresolvedSubproject':
+        if isinstance(x, dict):
+            return cls(
+                dependency_sources=_atd_read_list(DependencySourceFile.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('CiScaUnresolvedSubproject', 'dependency_sources'),
+                unresolved_reason=UnresolvedReason.from_json(x['unresolved_reason']) if 'unresolved_reason' in x else _atd_missing_json_field('CiScaUnresolvedSubproject', 'unresolved_reason'),
+            )
+        else:
+            _atd_bad_json('CiScaUnresolvedSubproject', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['dependency_sources'] = _atd_write_list((lambda x: x.to_json()))(self.dependency_sources)
+        res['unresolved_reason'] = (lambda x: x.to_json())(self.unresolved_reason)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'CiScaUnresolvedSubproject':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class CiScanResults:
     """Original type: ci_scan_results = { ... }"""
 
@@ -9729,6 +9760,7 @@ class CiScanResults:
     contributions: Optional[Contributions] = None
     dependencies: Optional[CiScanDependencies] = None
     metadata: Optional[CiScanMetadata] = None
+    sca_unresolved_subprojects: Optional[List[CiScaUnresolvedSubproject]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'CiScanResults':
@@ -9743,6 +9775,7 @@ class CiScanResults:
                 contributions=Contributions.from_json(x['contributions']) if 'contributions' in x else None,
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
                 metadata=CiScanMetadata.from_json(x['metadata']) if 'metadata' in x else None,
+                sca_unresolved_subprojects=_atd_read_list(CiScaUnresolvedSubproject.from_json)(x['sca_unresolved_subprojects']) if 'sca_unresolved_subprojects' in x else None,
             )
         else:
             _atd_bad_json('CiScanResults', x)
@@ -9761,6 +9794,8 @@ class CiScanResults:
             res['dependencies'] = (lambda x: x.to_json())(self.dependencies)
         if self.metadata is not None:
             res['metadata'] = (lambda x: x.to_json())(self.metadata)
+        if self.sca_unresolved_subprojects is not None:
+            res['sca_unresolved_subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.sca_unresolved_subprojects)
         return res
 
     @classmethod
