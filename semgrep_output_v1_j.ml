@@ -2134,8 +2134,17 @@ type ci_scan_results = Semgrep_output_v1_t.ci_scan_results = {
   findings: finding list;
   ignores: finding list;
   token: string option;
-  searched_paths: fpath list;
+  searched_paths: fpath list
+    (**
+      Files that were detected and attempted to scan. Note that some of these
+      may have been skipped due to errors (see skipped_paths).
+    *);
   renamed_paths: fpath list;
+  skipped_paths: fpath list
+    (**
+      Files detected but not scanned due to errors (timeout, OOM, etc.). The
+      app should NOT mark findings in these files as fixed.
+    *);
   rule_ids: rule_id list;
   contributions: contributions option (** since semgrep 1.34.0 *);
   dependencies: ci_scan_dependencies option
@@ -38962,6 +38971,15 @@ let write_ci_scan_results : _ -> ci_scan_results -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
+      Buffer.add_string ob "\"skipped_paths\":";
+    (
+      write__fpath_list
+    )
+      ob x.skipped_paths;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
       Buffer.add_string ob "\"rule_ids\":";
     (
       write__rule_id_list
@@ -39015,6 +39033,7 @@ let read_ci_scan_results = (
     let field_token = ref (None) in
     let field_searched_paths = ref (None) in
     let field_renamed_paths = ref (None) in
+    let field_skipped_paths = ref ([]) in
     let field_rule_ids = ref (None) in
     let field_contributions = ref (None) in
     let field_dependencies = ref (None) in
@@ -39056,7 +39075,7 @@ let read_ci_scan_results = (
                     )
                   | 'm' -> (
                       if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'a' then (
-                        8
+                        9
                       )
                       else (
                         -1
@@ -39064,7 +39083,7 @@ let read_ci_scan_results = (
                     )
                   | 'r' -> (
                       if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = 's' then (
-                        5
+                        6
                       )
                       else (
                         -1
@@ -39076,7 +39095,7 @@ let read_ci_scan_results = (
               )
             | 12 -> (
                 if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 's' then (
-                  7
+                  8
                 )
                 else (
                   -1
@@ -39086,7 +39105,7 @@ let read_ci_scan_results = (
                 match String.unsafe_get s pos with
                   | 'c' -> (
                       if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 's' then (
-                        6
+                        7
                       )
                       else (
                         -1
@@ -39095,6 +39114,14 @@ let read_ci_scan_results = (
                   | 'r' -> (
                       if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'h' && String.unsafe_get s (pos+12) = 's' then (
                         4
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 's' -> (
+                      if String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'h' && String.unsafe_get s (pos+12) = 's' then (
+                        5
                       )
                       else (
                         -1
@@ -39161,6 +39188,14 @@ let read_ci_scan_results = (
               )
             );
           | 5 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_skipped_paths := (
+                (
+                  read__fpath_list
+                ) p lb
+              );
+            )
+          | 6 ->
             field_rule_ids := (
               Some (
                 (
@@ -39168,7 +39203,7 @@ let read_ci_scan_results = (
                 ) p lb
               )
             );
-          | 6 ->
+          | 7 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_contributions := (
                 Some (
@@ -39178,7 +39213,7 @@ let read_ci_scan_results = (
                 )
               );
             )
-          | 7 ->
+          | 8 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_dependencies := (
                 Some (
@@ -39188,7 +39223,7 @@ let read_ci_scan_results = (
                 )
               );
             )
-          | 8 ->
+          | 9 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_metadata := (
                 Some (
@@ -39239,7 +39274,7 @@ let read_ci_scan_results = (
                       )
                     | 'm' -> (
                         if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'd' && String.unsafe_get s (pos+5) = 'a' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'a' then (
-                          8
+                          9
                         )
                         else (
                           -1
@@ -39247,7 +39282,7 @@ let read_ci_scan_results = (
                       )
                     | 'r' -> (
                         if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = 's' then (
-                          5
+                          6
                         )
                         else (
                           -1
@@ -39259,7 +39294,7 @@ let read_ci_scan_results = (
                 )
               | 12 -> (
                   if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'p' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 's' then (
-                    7
+                    8
                   )
                   else (
                     -1
@@ -39269,7 +39304,7 @@ let read_ci_scan_results = (
                   match String.unsafe_get s pos with
                     | 'c' -> (
                         if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'b' && String.unsafe_get s (pos+7) = 'u' && String.unsafe_get s (pos+8) = 't' && String.unsafe_get s (pos+9) = 'i' && String.unsafe_get s (pos+10) = 'o' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 's' then (
-                          6
+                          7
                         )
                         else (
                           -1
@@ -39278,6 +39313,14 @@ let read_ci_scan_results = (
                     | 'r' -> (
                         if String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'a' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'h' && String.unsafe_get s (pos+12) = 's' then (
                           4
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 's' -> (
+                        if String.unsafe_get s (pos+1) = 'k' && String.unsafe_get s (pos+2) = 'i' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'd' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'h' && String.unsafe_get s (pos+12) = 's' then (
+                          5
                         )
                         else (
                           -1
@@ -39344,6 +39387,14 @@ let read_ci_scan_results = (
                 )
               );
             | 5 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_skipped_paths := (
+                  (
+                    read__fpath_list
+                  ) p lb
+                );
+              )
+            | 6 ->
               field_rule_ids := (
                 Some (
                   (
@@ -39351,7 +39402,7 @@ let read_ci_scan_results = (
                   ) p lb
                 )
               );
-            | 6 ->
+            | 7 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_contributions := (
                   Some (
@@ -39361,7 +39412,7 @@ let read_ci_scan_results = (
                   )
                 );
               )
-            | 7 ->
+            | 8 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_dependencies := (
                   Some (
@@ -39371,7 +39422,7 @@ let read_ci_scan_results = (
                   )
                 );
               )
-            | 8 ->
+            | 9 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_metadata := (
                   Some (
@@ -39395,6 +39446,7 @@ let read_ci_scan_results = (
             token = (match !field_token with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "token");
             searched_paths = (match !field_searched_paths with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "searched_paths");
             renamed_paths = (match !field_renamed_paths with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "renamed_paths");
+            skipped_paths = !field_skipped_paths;
             rule_ids = (match !field_rule_ids with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "rule_ids");
             contributions = !field_contributions;
             dependencies = !field_dependencies;

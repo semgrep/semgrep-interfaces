@@ -731,6 +731,7 @@ export type CiScanResults = {
   token: (string | null);
   searched_paths: Fpath[];
   renamed_paths: Fpath[];
+  skipped_paths: Fpath[];
   rule_ids: RuleId[];
   contributions?: Contributions;
   dependencies?: CiScanDependencies;
@@ -3559,6 +3560,7 @@ export function writeCiScanResults(x: CiScanResults, context: any = x): any {
     'token': _atd_write_required_field('CiScanResults', 'token', _atd_write_nullable(_atd_write_string), x.token, x),
     'searched_paths': _atd_write_required_field('CiScanResults', 'searched_paths', _atd_write_array(writeFpath), x.searched_paths, x),
     'renamed_paths': _atd_write_required_field('CiScanResults', 'renamed_paths', _atd_write_array(writeFpath), x.renamed_paths, x),
+    'skipped_paths': _atd_write_field_with_default(_atd_write_array(writeFpath), [], x.skipped_paths, x),
     'rule_ids': _atd_write_required_field('CiScanResults', 'rule_ids', _atd_write_array(writeRuleId), x.rule_ids, x),
     'contributions': _atd_write_optional_field(writeContributions, x.contributions, x),
     'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
@@ -3573,6 +3575,7 @@ export function readCiScanResults(x: any, context: any = x): CiScanResults {
     token: _atd_read_required_field('CiScanResults', 'token', _atd_read_nullable(_atd_read_string), x['token'], x),
     searched_paths: _atd_read_required_field('CiScanResults', 'searched_paths', _atd_read_array(readFpath), x['searched_paths'], x),
     renamed_paths: _atd_read_required_field('CiScanResults', 'renamed_paths', _atd_read_array(readFpath), x['renamed_paths'], x),
+    skipped_paths: _atd_read_field_with_default(_atd_read_array(readFpath), [], x['skipped_paths'], x),
     rule_ids: _atd_read_required_field('CiScanResults', 'rule_ids', _atd_read_array(readRuleId), x['rule_ids'], x),
     contributions: _atd_read_optional_field(readContributions, x['contributions'], x),
     dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
