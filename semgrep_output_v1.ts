@@ -1296,6 +1296,7 @@ export type FunctionCall =
 | { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveReachabilityFilterParams }
 | { kind: 'CallMatchSubprojects'; value: Fpath[] }
 | { kind: 'CallRunSymbolAnalysis'; value: SymbolAnalysisParams }
+| { kind: 'CallShowSubprojects'; value: Subproject[] }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -1311,6 +1312,7 @@ export type FunctionReturn =
 | { kind: 'RetGetTargets'; value: TargetDiscoveryResult }
 | { kind: 'RetMatchSubprojects'; value: Subproject[] }
 | { kind: 'RetRunSymbolAnalysis'; value: SymbolAnalysis }
+| { kind: 'RetShowSubprojects'; value: string }
 
 export type FunctionResult = {
   function_return: FunctionReturn;
@@ -5302,6 +5304,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallMatchSubprojects', _atd_write_array(writeFpath)(x.value, x)]
     case 'CallRunSymbolAnalysis':
       return ['CallRunSymbolAnalysis', writeSymbolAnalysisParams(x.value, x)]
+    case 'CallShowSubprojects':
+      return ['CallShowSubprojects', _atd_write_array(writeSubproject)(x.value, x)]
   }
 }
 
@@ -5340,6 +5344,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallMatchSubprojects', value: _atd_read_array(readFpath)(x[1], x) }
       case 'CallRunSymbolAnalysis':
         return { kind: 'CallRunSymbolAnalysis', value: readSymbolAnalysisParams(x[1], x) }
+      case 'CallShowSubprojects':
+        return { kind: 'CallShowSubprojects', value: _atd_read_array(readSubproject)(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -5375,6 +5381,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetMatchSubprojects', _atd_write_array(writeSubproject)(x.value, x)]
     case 'RetRunSymbolAnalysis':
       return ['RetRunSymbolAnalysis', writeSymbolAnalysis(x.value, x)]
+    case 'RetShowSubprojects':
+      return ['RetShowSubprojects', _atd_write_string(x.value, x)]
   }
 }
 
@@ -5407,6 +5415,8 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetMatchSubprojects', value: _atd_read_array(readSubproject)(x[1], x) }
     case 'RetRunSymbolAnalysis':
       return { kind: 'RetRunSymbolAnalysis', value: readSymbolAnalysis(x[1], x) }
+    case 'RetShowSubprojects':
+      return { kind: 'RetShowSubprojects', value: _atd_read_string(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')

@@ -3569,6 +3569,21 @@
             { "const": "CallRunSymbolAnalysis" },
             { "$ref": "#/definitions/symbol_analysis_params" }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            {
+              "description": "Format human-readable text summarizing the subprojects that were discovered in a project. This is meant to be printed in --verbose mode.",
+              "const": "CallShowSubprojects"
+            },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/subproject" }
+            }
+          ]
         }
       ]
     },
@@ -3719,6 +3734,18 @@
           "prefixItems": [
             { "const": "RetRunSymbolAnalysis" },
             { "$ref": "#/definitions/symbol_analysis" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            {
+              "description": "The text return here typically contains newlines but is not newline-terminated i.e. it is suitable to pass as an argument to a logger.",
+              "const": "RetShowSubprojects"
+            },
+            { "type": "string" }
           ]
         }
       ]

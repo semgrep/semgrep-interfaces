@@ -608,7 +608,7 @@ type match_intermediate_var
 
 type ecosystem
     <python decorator="dataclass(frozen=True)">
-    <ocaml attr="deriving eq, ord, show">
+    <ocaml attr="deriving eq, ord, show { with_path = false }">
     <doc text="
    both ecosystem and transitivity below have frozen=True so the generated
    classes can be hashed and put in sets (see calls to reachable_deps.add()
@@ -2896,7 +2896,7 @@ type dump_rule_partitions_params = {
 (* ----------------------------- *)
 
 type lockfile_kind
-     <ocaml attr="deriving show, eq, yojson">
+     <ocaml attr="deriving show { with_path = false }, eq, yojson">
      <python decorator="dataclass(frozen=True)"> =
 [
     | PipRequirementsTxt
@@ -2927,7 +2927,7 @@ type lockfile_kind
 ] <ocaml repr="classic">
 
 type manifest_kind
-  <ocaml attr="deriving show, eq">
+  <ocaml attr="deriving show { with_path = false }, eq">
   <python decorator="dataclass(frozen=True)"> =
 [
   | RequirementsIn
@@ -3398,6 +3398,15 @@ type function_call <python decorator="dataclass(frozen=True)"> = [
   | CallMatchSubprojects of fpath list
   (* run symbol analysis for the project rooted in the given directory *)
   | CallRunSymbolAnalysis of symbol_analysis_params
+  (*************************************************************************)
+  (* Text output formatting *)
+  (*************************************************************************)
+  | CallShowSubprojects
+      <doc text="
+      Format human-readable text summarizing the subprojects that were
+      discovered in a project. This is meant to be printed in --verbose mode.
+      ">
+      of subproject list
 ]
 
 (* ----------------------------- *)
@@ -3423,6 +3432,16 @@ type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetGetTargets of target_discovery_result
   | RetMatchSubprojects of subproject list
   | RetRunSymbolAnalysis of symbol_analysis
+  (*************************************************************************)
+  (* Text output formatting *)
+  (*************************************************************************)
+  | RetShowSubprojects
+      <doc text="
+      The text return here typically contains newlines but is not
+      newline-terminated i.e. it is suitable to pass as an argument to
+      a logger.
+      ">
+      of string
 ]
 
 type function_result = {

@@ -10549,10 +10549,28 @@ class RetRunSymbolAnalysis:
 
 
 @dataclass(frozen=True)
+class RetShowSubprojects:
+    """Original type: function_return = [ ... | RetShowSubprojects of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetShowSubprojects'
+
+    def to_json(self) -> Any:
+        return ['RetShowSubprojects', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionReturn:
     """Original type: function_return = [ ... ]"""
 
-    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetUploadSymbolAnalysis, RetDumpRulePartitions, RetTransitiveReachabilityFilter, RetGetTargets, RetMatchSubprojects, RetRunSymbolAnalysis]
+    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetUploadSymbolAnalysis, RetDumpRulePartitions, RetTransitiveReachabilityFilter, RetGetTargets, RetMatchSubprojects, RetRunSymbolAnalysis, RetShowSubprojects]
 
     @property
     def kind(self) -> str:
@@ -10589,6 +10607,8 @@ class FunctionReturn:
                 return cls(RetMatchSubprojects(_atd_read_list(Subproject.from_json)(x[1])))
             if cons == 'RetRunSymbolAnalysis':
                 return cls(RetRunSymbolAnalysis(SymbolAnalysis.from_json(x[1])))
+            if cons == 'RetShowSubprojects':
+                return cls(RetShowSubprojects(_atd_read_string(x[1])))
             _atd_bad_json('FunctionReturn', x)
         _atd_bad_json('FunctionReturn', x)
 
@@ -11101,10 +11121,28 @@ class CallRunSymbolAnalysis:
 
 
 @dataclass(frozen=True)
+class CallShowSubprojects:
+    """Original type: function_call = [ ... | CallShowSubprojects of ... | ... ]"""
+
+    value: List[Subproject]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallShowSubprojects'
+
+    def to_json(self) -> Any:
+        return ['CallShowSubprojects', _atd_write_list((lambda x: x.to_json()))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionCall:
     """Original type: function_call = [ ... ]"""
 
-    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallGetTargets, CallTransitiveReachabilityFilter, CallMatchSubprojects, CallRunSymbolAnalysis]
+    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallGetTargets, CallTransitiveReachabilityFilter, CallMatchSubprojects, CallRunSymbolAnalysis, CallShowSubprojects]
 
     @property
     def kind(self) -> str:
@@ -11141,6 +11179,8 @@ class FunctionCall:
                 return cls(CallMatchSubprojects(_atd_read_list(Fpath.from_json)(x[1])))
             if cons == 'CallRunSymbolAnalysis':
                 return cls(CallRunSymbolAnalysis(SymbolAnalysisParams.from_json(x[1])))
+            if cons == 'CallShowSubprojects':
+                return cls(CallShowSubprojects(_atd_read_list(Subproject.from_json)(x[1])))
             _atd_bad_json('FunctionCall', x)
         _atd_bad_json('FunctionCall', x)
 
