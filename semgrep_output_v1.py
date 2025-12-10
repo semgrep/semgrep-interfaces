@@ -1628,10 +1628,27 @@ class OpamFile:
 
 
 @dataclass(frozen=True)
+class BuildSbt:
+    """Original type: manifest_kind = [ ... | BuildSbt | ... ]"""
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'BuildSbt'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'BuildSbt'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class ManifestKind:
     """Original type: manifest_kind = [ ... ]"""
 
-    value: Union[RequirementsIn, SetupPy, PackageJson, Gemfile, GoModManifest, CargoToml, PomXml, BuildGradle, BuildGradleKts, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, Podfile, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj, OpamFile]
+    value: Union[RequirementsIn, SetupPy, PackageJson, Gemfile, GoModManifest, CargoToml, PomXml, BuildGradle, BuildGradleKts, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, Podfile, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj, OpamFile, BuildSbt]
 
     @property
     def kind(self) -> str:
@@ -1685,6 +1702,8 @@ class ManifestKind:
                 return cls(Csproj())
             if x == 'OpamFile':
                 return cls(OpamFile())
+            if x == 'BuildSbt':
+                return cls(BuildSbt())
             _atd_bad_json('ManifestKind', x)
         _atd_bad_json('ManifestKind', x)
 
@@ -4254,6 +4273,40 @@ class ScaParserName:
 
 
 @dataclass(frozen=True)
+class ResourceInaccessible:
+    """Original type: resource_inaccessible = { ... }"""
+
+    command: str
+    registry_url: Optional[str]
+    message: str
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResourceInaccessible':
+        if isinstance(x, dict):
+            return cls(
+                command=_atd_read_string(x['command']) if 'command' in x else _atd_missing_json_field('ResourceInaccessible', 'command'),
+                registry_url=_atd_read_option(_atd_read_string)(x['registry_url']) if 'registry_url' in x else _atd_missing_json_field('ResourceInaccessible', 'registry_url'),
+                message=_atd_read_string(x['message']) if 'message' in x else _atd_missing_json_field('ResourceInaccessible', 'message'),
+            )
+        else:
+            _atd_bad_json('ResourceInaccessible', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['command'] = _atd_write_string(self.command)
+        res['registry_url'] = _atd_write_option(_atd_write_string)(self.registry_url)
+        res['message'] = _atd_write_string(self.message)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResourceInaccessible':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class ResolutionCmdFailed:
     """Original type: resolution_cmd_failed = { ... }"""
 
@@ -4374,10 +4427,28 @@ class ScaParseError:
 
 
 @dataclass(frozen=True)
+class ResourceInaccessible_:
+    """Original type: resolution_error_kind = [ ... | ResourceInaccessible of ... | ... ]"""
+
+    value: ResourceInaccessible
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ResourceInaccessible_'
+
+    def to_json(self) -> Any:
+        return ['ResourceInaccessible', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class ResolutionErrorKind:
     """Original type: resolution_error_kind = [ ... ]"""
 
-    value: Union[UnsupportedManifest, MissingRequirement, ResolutionCmdFailed_, ParseDependenciesFailed, ScaParseError]
+    value: Union[UnsupportedManifest, MissingRequirement, ResolutionCmdFailed_, ParseDependenciesFailed, ScaParseError, ResourceInaccessible_]
 
     @property
     def kind(self) -> str:
@@ -4400,6 +4471,8 @@ class ResolutionErrorKind:
                 return cls(ParseDependenciesFailed(_atd_read_string(x[1])))
             if cons == 'ScaParseError':
                 return cls(ScaParseError(ScaParserName.from_json(x[1])))
+            if cons == 'ResourceInaccessible':
+                return cls(ResourceInaccessible_(ResourceInaccessible.from_json(x[1])))
             _atd_bad_json('ResolutionErrorKind', x)
         _atd_bad_json('ResolutionErrorKind', x)
 
@@ -7458,6 +7531,40 @@ class SymbolAnalysisUploadResponse:
 
 
 @dataclass
+class SymbolAnalysisParams:
+    """Original type: symbol_analysis_params = { ... }"""
+
+    root_path: Fpath
+    lang: Optional[str]
+    files: List[Fpath]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SymbolAnalysisParams':
+        if isinstance(x, dict):
+            return cls(
+                root_path=Fpath.from_json(x['root_path']) if 'root_path' in x else _atd_missing_json_field('SymbolAnalysisParams', 'root_path'),
+                lang=_atd_read_option(_atd_read_string)(x['lang']) if 'lang' in x else _atd_missing_json_field('SymbolAnalysisParams', 'lang'),
+                files=_atd_read_list(Fpath.from_json)(x['files']) if 'files' in x else _atd_missing_json_field('SymbolAnalysisParams', 'files'),
+            )
+        else:
+            _atd_bad_json('SymbolAnalysisParams', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['root_path'] = (lambda x: x.to_json())(self.root_path)
+        res['lang'] = _atd_write_option(_atd_write_string)(self.lang)
+        res['files'] = _atd_write_list((lambda x: x.to_json()))(self.files)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SymbolAnalysisParams':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class SymbolAnalysis:
     """Original type: symbol_analysis"""
 
@@ -8913,6 +9020,40 @@ class ResolutionResult:
 
 
 @dataclass
+class ProfilingEntry:
+    """Original type: profiling_entry = { ... }"""
+
+    name: str
+    total_time: float
+    count: int
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ProfilingEntry':
+        if isinstance(x, dict):
+            return cls(
+                name=_atd_read_string(x['name']) if 'name' in x else _atd_missing_json_field('ProfilingEntry', 'name'),
+                total_time=_atd_read_float(x['total_time']) if 'total_time' in x else _atd_missing_json_field('ProfilingEntry', 'total_time'),
+                count=_atd_read_int(x['count']) if 'count' in x else _atd_missing_json_field('ProfilingEntry', 'count'),
+            )
+        else:
+            _atd_bad_json('ProfilingEntry', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['name'] = _atd_write_string(self.name)
+        res['total_time'] = _atd_write_float(self.total_time)
+        res['count'] = _atd_write_int(self.count)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ProfilingEntry':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class PrefilteringStats:
     """Original type: prefiltering_stats = { ... }"""
 
@@ -9585,6 +9726,7 @@ class CiScanResults:
     searched_paths: List[Fpath]
     renamed_paths: List[Fpath]
     rule_ids: List[RuleId]
+    skipped_paths: List[Fpath] = field(default_factory=lambda: [])
     contributions: Optional[Contributions] = None
     dependencies: Optional[CiScanDependencies] = None
     metadata: Optional[CiScanMetadata] = None
@@ -9599,6 +9741,7 @@ class CiScanResults:
                 searched_paths=_atd_read_list(Fpath.from_json)(x['searched_paths']) if 'searched_paths' in x else _atd_missing_json_field('CiScanResults', 'searched_paths'),
                 renamed_paths=_atd_read_list(Fpath.from_json)(x['renamed_paths']) if 'renamed_paths' in x else _atd_missing_json_field('CiScanResults', 'renamed_paths'),
                 rule_ids=_atd_read_list(RuleId.from_json)(x['rule_ids']) if 'rule_ids' in x else _atd_missing_json_field('CiScanResults', 'rule_ids'),
+                skipped_paths=_atd_read_list(Fpath.from_json)(x['skipped_paths']) if 'skipped_paths' in x else [],
                 contributions=Contributions.from_json(x['contributions']) if 'contributions' in x else None,
                 dependencies=CiScanDependencies.from_json(x['dependencies']) if 'dependencies' in x else None,
                 metadata=CiScanMetadata.from_json(x['metadata']) if 'metadata' in x else None,
@@ -9614,6 +9757,7 @@ class CiScanResults:
         res['searched_paths'] = _atd_write_list((lambda x: x.to_json()))(self.searched_paths)
         res['renamed_paths'] = _atd_write_list((lambda x: x.to_json()))(self.renamed_paths)
         res['rule_ids'] = _atd_write_list((lambda x: x.to_json()))(self.rule_ids)
+        res['skipped_paths'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_paths)
         if self.contributions is not None:
             res['contributions'] = (lambda x: x.to_json())(self.contributions)
         if self.dependencies is not None:
@@ -10051,6 +10195,37 @@ class OutputFormat:
 
 
 @dataclass
+class McpScanResults:
+    """Original type: mcp_scan_results = { ... }"""
+
+    rules: List[str]
+    total_bytes_scanned: int
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'McpScanResults':
+        if isinstance(x, dict):
+            return cls(
+                rules=_atd_read_list(_atd_read_string)(x['rules']) if 'rules' in x else _atd_missing_json_field('McpScanResults', 'rules'),
+                total_bytes_scanned=_atd_read_int(x['total_bytes_scanned']) if 'total_bytes_scanned' in x else _atd_missing_json_field('McpScanResults', 'total_bytes_scanned'),
+            )
+        else:
+            _atd_bad_json('McpScanResults', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['rules'] = _atd_write_list(_atd_write_string)(self.rules)
+        res['total_bytes_scanned'] = _atd_write_int(self.total_bytes_scanned)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'McpScanResults':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class MatchBasedId:
     """Original type: match_based_id"""
 
@@ -10356,10 +10531,28 @@ class RetMatchSubprojects:
 
 
 @dataclass(frozen=True)
+class RetRunSymbolAnalysis:
+    """Original type: function_return = [ ... | RetRunSymbolAnalysis of ... | ... ]"""
+
+    value: SymbolAnalysis
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetRunSymbolAnalysis'
+
+    def to_json(self) -> Any:
+        return ['RetRunSymbolAnalysis', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionReturn:
     """Original type: function_return = [ ... ]"""
 
-    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetUploadSymbolAnalysis, RetDumpRulePartitions, RetTransitiveReachabilityFilter, RetGetTargets, RetMatchSubprojects]
+    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetUploadSymbolAnalysis, RetDumpRulePartitions, RetTransitiveReachabilityFilter, RetGetTargets, RetMatchSubprojects, RetRunSymbolAnalysis]
 
     @property
     def kind(self) -> str:
@@ -10394,6 +10587,8 @@ class FunctionReturn:
                 return cls(RetGetTargets(TargetDiscoveryResult.from_json(x[1])))
             if cons == 'RetMatchSubprojects':
                 return cls(RetMatchSubprojects(_atd_read_list(Subproject.from_json)(x[1])))
+            if cons == 'RetRunSymbolAnalysis':
+                return cls(RetRunSymbolAnalysis(SymbolAnalysis.from_json(x[1])))
             _atd_bad_json('FunctionReturn', x)
         _atd_bad_json('FunctionReturn', x)
 
@@ -10402,6 +10597,37 @@ class FunctionReturn:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'FunctionReturn':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class FunctionResult:
+    """Original type: function_result = { ... }"""
+
+    function_return: FunctionReturn
+    profiling_results: List[ProfilingEntry]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FunctionResult':
+        if isinstance(x, dict):
+            return cls(
+                function_return=FunctionReturn.from_json(x['function_return']) if 'function_return' in x else _atd_missing_json_field('FunctionResult', 'function_return'),
+                profiling_results=_atd_read_list(ProfilingEntry.from_json)(x['profiling_results']) if 'profiling_results' in x else _atd_missing_json_field('FunctionResult', 'profiling_results'),
+            )
+        else:
+            _atd_bad_json('FunctionResult', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['function_return'] = (lambda x: x.to_json())(self.function_return)
+        res['profiling_results'] = _atd_write_list((lambda x: x.to_json()))(self.profiling_results)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FunctionResult':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -10571,6 +10797,8 @@ class CliOutput:
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
     subprojects: Optional[List[CliOutputSubprojectInfo]] = None
+    mcp_scan_results: Optional[McpScanResults] = None
+    profiling_results: List[ProfilingEntry] = field(default_factory=lambda: [])
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutput':
@@ -10587,6 +10815,8 @@ class CliOutput:
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
                 subprojects=_atd_read_list(CliOutputSubprojectInfo.from_json)(x['subprojects']) if 'subprojects' in x else None,
+                mcp_scan_results=McpScanResults.from_json(x['mcp_scan_results']) if 'mcp_scan_results' in x else None,
+                profiling_results=_atd_read_list(ProfilingEntry.from_json)(x['profiling_results']) if 'profiling_results' in x else [],
             )
         else:
             _atd_bad_json('CliOutput', x)
@@ -10611,6 +10841,9 @@ class CliOutput:
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         if self.subprojects is not None:
             res['subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects)
+        if self.mcp_scan_results is not None:
+            res['mcp_scan_results'] = (lambda x: x.to_json())(self.mcp_scan_results)
+        res['profiling_results'] = _atd_write_list((lambda x: x.to_json()))(self.profiling_results)
         return res
 
     @classmethod
@@ -10850,10 +11083,28 @@ class CallMatchSubprojects:
 
 
 @dataclass(frozen=True)
+class CallRunSymbolAnalysis:
+    """Original type: function_call = [ ... | CallRunSymbolAnalysis of ... | ... ]"""
+
+    value: SymbolAnalysisParams
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallRunSymbolAnalysis'
+
+    def to_json(self) -> Any:
+        return ['CallRunSymbolAnalysis', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionCall:
     """Original type: function_call = [ ... ]"""
 
-    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallGetTargets, CallTransitiveReachabilityFilter, CallMatchSubprojects]
+    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallGetTargets, CallTransitiveReachabilityFilter, CallMatchSubprojects, CallRunSymbolAnalysis]
 
     @property
     def kind(self) -> str:
@@ -10888,6 +11139,8 @@ class FunctionCall:
                 return cls(CallTransitiveReachabilityFilter(TransitiveReachabilityFilterParams.from_json(x[1])))
             if cons == 'CallMatchSubprojects':
                 return cls(CallMatchSubprojects(_atd_read_list(Fpath.from_json)(x[1])))
+            if cons == 'CallRunSymbolAnalysis':
+                return cls(CallRunSymbolAnalysis(SymbolAnalysisParams.from_json(x[1])))
             _atd_bad_json('FunctionCall', x)
         _atd_bad_json('FunctionCall', x)
 
@@ -11143,6 +11396,8 @@ class CoreOutput:
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
     subprojects: Optional[List[CliOutputSubprojectInfo]] = None
+    mcp_scan_results: Optional[McpScanResults] = None
+    profiling_results: List[ProfilingEntry] = field(default_factory=lambda: [])
     symbol_analysis: Optional[SymbolAnalysis] = None
 
     @classmethod
@@ -11160,6 +11415,8 @@ class CoreOutput:
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
                 subprojects=_atd_read_list(CliOutputSubprojectInfo.from_json)(x['subprojects']) if 'subprojects' in x else None,
+                mcp_scan_results=McpScanResults.from_json(x['mcp_scan_results']) if 'mcp_scan_results' in x else None,
+                profiling_results=_atd_read_list(ProfilingEntry.from_json)(x['profiling_results']) if 'profiling_results' in x else [],
                 symbol_analysis=SymbolAnalysis.from_json(x['symbol_analysis']) if 'symbol_analysis' in x else None,
             )
         else:
@@ -11184,6 +11441,9 @@ class CoreOutput:
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         if self.subprojects is not None:
             res['subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects)
+        if self.mcp_scan_results is not None:
+            res['mcp_scan_results'] = (lambda x: x.to_json())(self.mcp_scan_results)
+        res['profiling_results'] = _atd_write_list((lambda x: x.to_json()))(self.profiling_results)
         if self.symbol_analysis is not None:
             res['symbol_analysis'] = (lambda x: x.to_json())(self.symbol_analysis)
         return res
@@ -11208,6 +11468,8 @@ class CliOutputExtra:
     interfile_languages_used: Optional[List[str]] = None
     skipped_rules: List[SkippedRule] = field(default_factory=lambda: [])
     subprojects: Optional[List[CliOutputSubprojectInfo]] = None
+    mcp_scan_results: Optional[McpScanResults] = None
+    profiling_results: List[ProfilingEntry] = field(default_factory=lambda: [])
 
     @classmethod
     def from_json(cls, x: Any) -> 'CliOutputExtra':
@@ -11221,6 +11483,8 @@ class CliOutputExtra:
                 interfile_languages_used=_atd_read_list(_atd_read_string)(x['interfile_languages_used']) if 'interfile_languages_used' in x else None,
                 skipped_rules=_atd_read_list(SkippedRule.from_json)(x['skipped_rules']) if 'skipped_rules' in x else [],
                 subprojects=_atd_read_list(CliOutputSubprojectInfo.from_json)(x['subprojects']) if 'subprojects' in x else None,
+                mcp_scan_results=McpScanResults.from_json(x['mcp_scan_results']) if 'mcp_scan_results' in x else None,
+                profiling_results=_atd_read_list(ProfilingEntry.from_json)(x['profiling_results']) if 'profiling_results' in x else [],
             )
         else:
             _atd_bad_json('CliOutputExtra', x)
@@ -11241,6 +11505,9 @@ class CliOutputExtra:
         res['skipped_rules'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_rules)
         if self.subprojects is not None:
             res['subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects)
+        if self.mcp_scan_results is not None:
+            res['mcp_scan_results'] = (lambda x: x.to_json())(self.mcp_scan_results)
+        res['profiling_results'] = _atd_write_list((lambda x: x.to_json()))(self.profiling_results)
         return res
 
     @classmethod

@@ -463,6 +463,11 @@ export type PrefilteringStats = {
   rules_matched_ratio: number;
 }
 
+export type McpScanResults = {
+  rules: string[];
+  total_bytes_scanned: number /*int*/;
+}
+
 export type CliOutput = {
   version?: Version;
   results: CliMatch[];
@@ -475,6 +480,8 @@ export type CliOutput = {
   interfile_languages_used?: string[];
   skipped_rules: SkippedRule[];
   subprojects?: CliOutputSubprojectInfo[];
+  mcp_scan_results?: McpScanResults;
+  profiling_results: ProfilingEntry[];
 }
 
 export type CliOutputExtra = {
@@ -486,6 +493,8 @@ export type CliOutputExtra = {
   interfile_languages_used?: string[];
   skipped_rules: SkippedRule[];
   subprojects?: CliOutputSubprojectInfo[];
+  mcp_scan_results?: McpScanResults;
+  profiling_results: ProfilingEntry[];
 }
 
 export type ConfigErrorReason =
@@ -722,6 +731,7 @@ export type CiScanResults = {
   token: (string | null);
   searched_paths: Fpath[];
   renamed_paths: Fpath[];
+  skipped_paths: Fpath[];
   rule_ids: RuleId[];
   contributions?: Contributions;
   dependencies?: CiScanDependencies;
@@ -976,6 +986,8 @@ export type CoreOutput = {
   interfile_languages_used?: string[];
   skipped_rules: SkippedRule[];
   subprojects?: CliOutputSubprojectInfo[];
+  mcp_scan_results?: McpScanResults;
+  profiling_results: ProfilingEntry[];
   symbol_analysis?: SymbolAnalysis;
 }
 
@@ -1151,6 +1163,7 @@ export type ManifestKind =
 | { kind: 'ConanFilePy' }
 | { kind: 'Csproj' }
 | { kind: 'OpamFile' }
+| { kind: 'BuildSbt' }
 
 export type Manifest = {
   kind: ManifestKind;
@@ -1174,9 +1187,16 @@ export type ResolutionErrorKind =
 | { kind: 'ResolutionCmdFailed'; value: ResolutionCmdFailed }
 | { kind: 'ParseDependenciesFailed'; value: string }
 | { kind: 'ScaParseError'; value: ScaParserName }
+| { kind: 'ResourceInaccessible'; value: ResourceInaccessible }
 
 export type ResolutionCmdFailed = {
   command: string;
+  message: string;
+}
+
+export type ResourceInaccessible = {
+  command: string;
+  registry_url: Option<string>;
   message: string;
 }
 
@@ -1246,6 +1266,12 @@ export type SymbolAnalysisUploadResponse = {
   upload_url: Uri;
 }
 
+export type SymbolAnalysisParams = {
+  root_path: Fpath;
+  lang: Option<string>;
+  files: Fpath[];
+}
+
 export type Symbol = {
   fqn: string[];
 }
@@ -1269,6 +1295,7 @@ export type FunctionCall =
 | { kind: 'CallGetTargets'; value: ScanningRoots }
 | { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveReachabilityFilterParams }
 | { kind: 'CallMatchSubprojects'; value: Fpath[] }
+| { kind: 'CallRunSymbolAnalysis'; value: SymbolAnalysisParams }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -1283,6 +1310,12 @@ export type FunctionReturn =
 | { kind: 'RetTransitiveReachabilityFilter'; value: TransitiveFinding[] }
 | { kind: 'RetGetTargets'; value: TargetDiscoveryResult }
 | { kind: 'RetMatchSubprojects'; value: Subproject[] }
+| { kind: 'RetRunSymbolAnalysis'; value: SymbolAnalysis }
+
+export type FunctionResult = {
+  function_return: FunctionReturn;
+  profiling_results: ProfilingEntry[];
+}
 
 export type PartialScanResult =
 | { kind: 'PartialScanOk'; value: [CiScanResults, CiScanComplete] }
@@ -1296,6 +1329,12 @@ export type DiffFile = {
 
 export type DiffFiles = {
   cve_diffs: DiffFile[];
+}
+
+export type ProfilingEntry = {
+  name: string;
+  total_time: number;
+  count: number /*int*/;
 }
 
 export function writeRawJson(x: RawJson, context: any = x): any {
@@ -2780,6 +2819,20 @@ export function readPrefilteringStats(x: any, context: any = x): PrefilteringSta
   };
 }
 
+export function writeMcpScanResults(x: McpScanResults, context: any = x): any {
+  return {
+    'rules': _atd_write_required_field('McpScanResults', 'rules', _atd_write_array(_atd_write_string), x.rules, x),
+    'total_bytes_scanned': _atd_write_required_field('McpScanResults', 'total_bytes_scanned', _atd_write_int, x.total_bytes_scanned, x),
+  };
+}
+
+export function readMcpScanResults(x: any, context: any = x): McpScanResults {
+  return {
+    rules: _atd_read_required_field('McpScanResults', 'rules', _atd_read_array(_atd_read_string), x['rules'], x),
+    total_bytes_scanned: _atd_read_required_field('McpScanResults', 'total_bytes_scanned', _atd_read_int, x['total_bytes_scanned'], x),
+  };
+}
+
 export function writeCliOutput(x: CliOutput, context: any = x): any {
   return {
     'version': _atd_write_optional_field(writeVersion, x.version, x),
@@ -2793,6 +2846,8 @@ export function writeCliOutput(x: CliOutput, context: any = x): any {
     'interfile_languages_used': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.interfile_languages_used, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
     'subprojects': _atd_write_optional_field(_atd_write_array(writeCliOutputSubprojectInfo), x.subprojects, x),
+    'mcp_scan_results': _atd_write_optional_field(writeMcpScanResults, x.mcp_scan_results, x),
+    'profiling_results': _atd_write_field_with_default(_atd_write_array(writeProfilingEntry), [], x.profiling_results, x),
   };
 }
 
@@ -2809,6 +2864,8 @@ export function readCliOutput(x: any, context: any = x): CliOutput {
     interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
     subprojects: _atd_read_optional_field(_atd_read_array(readCliOutputSubprojectInfo), x['subprojects'], x),
+    mcp_scan_results: _atd_read_optional_field(readMcpScanResults, x['mcp_scan_results'], x),
+    profiling_results: _atd_read_field_with_default(_atd_read_array(readProfilingEntry), [], x['profiling_results'], x),
   };
 }
 
@@ -2822,6 +2879,8 @@ export function writeCliOutputExtra(x: CliOutputExtra, context: any = x): any {
     'interfile_languages_used': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.interfile_languages_used, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
     'subprojects': _atd_write_optional_field(_atd_write_array(writeCliOutputSubprojectInfo), x.subprojects, x),
+    'mcp_scan_results': _atd_write_optional_field(writeMcpScanResults, x.mcp_scan_results, x),
+    'profiling_results': _atd_write_field_with_default(_atd_write_array(writeProfilingEntry), [], x.profiling_results, x),
   };
 }
 
@@ -2835,6 +2894,8 @@ export function readCliOutputExtra(x: any, context: any = x): CliOutputExtra {
     interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
     subprojects: _atd_read_optional_field(_atd_read_array(readCliOutputSubprojectInfo), x['subprojects'], x),
+    mcp_scan_results: _atd_read_optional_field(readMcpScanResults, x['mcp_scan_results'], x),
+    profiling_results: _atd_read_field_with_default(_atd_read_array(readProfilingEntry), [], x['profiling_results'], x),
   };
 }
 
@@ -3499,6 +3560,7 @@ export function writeCiScanResults(x: CiScanResults, context: any = x): any {
     'token': _atd_write_required_field('CiScanResults', 'token', _atd_write_nullable(_atd_write_string), x.token, x),
     'searched_paths': _atd_write_required_field('CiScanResults', 'searched_paths', _atd_write_array(writeFpath), x.searched_paths, x),
     'renamed_paths': _atd_write_required_field('CiScanResults', 'renamed_paths', _atd_write_array(writeFpath), x.renamed_paths, x),
+    'skipped_paths': _atd_write_field_with_default(_atd_write_array(writeFpath), [], x.skipped_paths, x),
     'rule_ids': _atd_write_required_field('CiScanResults', 'rule_ids', _atd_write_array(writeRuleId), x.rule_ids, x),
     'contributions': _atd_write_optional_field(writeContributions, x.contributions, x),
     'dependencies': _atd_write_optional_field(writeCiScanDependencies, x.dependencies, x),
@@ -3513,6 +3575,7 @@ export function readCiScanResults(x: any, context: any = x): CiScanResults {
     token: _atd_read_required_field('CiScanResults', 'token', _atd_read_nullable(_atd_read_string), x['token'], x),
     searched_paths: _atd_read_required_field('CiScanResults', 'searched_paths', _atd_read_array(readFpath), x['searched_paths'], x),
     renamed_paths: _atd_read_required_field('CiScanResults', 'renamed_paths', _atd_read_array(readFpath), x['renamed_paths'], x),
+    skipped_paths: _atd_read_field_with_default(_atd_read_array(readFpath), [], x['skipped_paths'], x),
     rule_ids: _atd_read_required_field('CiScanResults', 'rule_ids', _atd_read_array(readRuleId), x['rule_ids'], x),
     contributions: _atd_read_optional_field(readContributions, x['contributions'], x),
     dependencies: _atd_read_optional_field(readCiScanDependencies, x['dependencies'], x),
@@ -4203,6 +4266,8 @@ export function writeCoreOutput(x: CoreOutput, context: any = x): any {
     'interfile_languages_used': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.interfile_languages_used, x),
     'skipped_rules': _atd_write_field_with_default(_atd_write_array(writeSkippedRule), [], x.skipped_rules, x),
     'subprojects': _atd_write_optional_field(_atd_write_array(writeCliOutputSubprojectInfo), x.subprojects, x),
+    'mcp_scan_results': _atd_write_optional_field(writeMcpScanResults, x.mcp_scan_results, x),
+    'profiling_results': _atd_write_field_with_default(_atd_write_array(writeProfilingEntry), [], x.profiling_results, x),
     'symbol_analysis': _atd_write_optional_field(writeSymbolAnalysis, x.symbol_analysis, x),
   };
 }
@@ -4220,6 +4285,8 @@ export function readCoreOutput(x: any, context: any = x): CoreOutput {
     interfile_languages_used: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['interfile_languages_used'], x),
     skipped_rules: _atd_read_field_with_default(_atd_read_array(readSkippedRule), [], x['skipped_rules'], x),
     subprojects: _atd_read_optional_field(_atd_read_array(readCliOutputSubprojectInfo), x['subprojects'], x),
+    mcp_scan_results: _atd_read_optional_field(readMcpScanResults, x['mcp_scan_results'], x),
+    profiling_results: _atd_read_field_with_default(_atd_read_array(readProfilingEntry), [], x['profiling_results'], x),
     symbol_analysis: _atd_read_optional_field(readSymbolAnalysis, x['symbol_analysis'], x),
   };
 }
@@ -4748,6 +4815,8 @@ export function writeManifestKind(x: ManifestKind, context: any = x): any {
       return 'Csproj'
     case 'OpamFile':
       return 'OpamFile'
+    case 'BuildSbt':
+      return 'BuildSbt'
   }
 }
 
@@ -4797,6 +4866,8 @@ export function readManifestKind(x: any, context: any = x): ManifestKind {
       return { kind: 'Csproj' }
     case 'OpamFile':
       return { kind: 'OpamFile' }
+    case 'BuildSbt':
+      return { kind: 'BuildSbt' }
     default:
       _atd_bad_json('ManifestKind', x, context)
       throw new Error('impossible')
@@ -4873,6 +4944,8 @@ export function writeResolutionErrorKind(x: ResolutionErrorKind, context: any = 
       return ['ParseDependenciesFailed', _atd_write_string(x.value, x)]
     case 'ScaParseError':
       return ['ScaParseError', writeScaParserName(x.value, x)]
+    case 'ResourceInaccessible':
+      return ['ResourceInaccessible', writeResourceInaccessible(x.value, x)]
   }
 }
 
@@ -4897,6 +4970,8 @@ export function readResolutionErrorKind(x: any, context: any = x): ResolutionErr
         return { kind: 'ParseDependenciesFailed', value: _atd_read_string(x[1], x) }
       case 'ScaParseError':
         return { kind: 'ScaParseError', value: readScaParserName(x[1], x) }
+      case 'ResourceInaccessible':
+        return { kind: 'ResourceInaccessible', value: readResourceInaccessible(x[1], x) }
       default:
         _atd_bad_json('ResolutionErrorKind', x, context)
         throw new Error('impossible')
@@ -4915,6 +4990,22 @@ export function readResolutionCmdFailed(x: any, context: any = x): ResolutionCmd
   return {
     command: _atd_read_required_field('ResolutionCmdFailed', 'command', _atd_read_string, x['command'], x),
     message: _atd_read_required_field('ResolutionCmdFailed', 'message', _atd_read_string, x['message'], x),
+  };
+}
+
+export function writeResourceInaccessible(x: ResourceInaccessible, context: any = x): any {
+  return {
+    'command': _atd_write_required_field('ResourceInaccessible', 'command', _atd_write_string, x.command, x),
+    'registry_url': _atd_write_required_field('ResourceInaccessible', 'registry_url', _atd_write_option(_atd_write_string), x.registry_url, x),
+    'message': _atd_write_required_field('ResourceInaccessible', 'message', _atd_write_string, x.message, x),
+  };
+}
+
+export function readResourceInaccessible(x: any, context: any = x): ResourceInaccessible {
+  return {
+    command: _atd_read_required_field('ResourceInaccessible', 'command', _atd_read_string, x['command'], x),
+    registry_url: _atd_read_required_field('ResourceInaccessible', 'registry_url', _atd_read_option(_atd_read_string), x['registry_url'], x),
+    message: _atd_read_required_field('ResourceInaccessible', 'message', _atd_read_string, x['message'], x),
   };
 }
 
@@ -5135,6 +5226,22 @@ export function readSymbolAnalysisUploadResponse(x: any, context: any = x): Symb
   };
 }
 
+export function writeSymbolAnalysisParams(x: SymbolAnalysisParams, context: any = x): any {
+  return {
+    'root_path': _atd_write_required_field('SymbolAnalysisParams', 'root_path', writeFpath, x.root_path, x),
+    'lang': _atd_write_required_field('SymbolAnalysisParams', 'lang', _atd_write_option(_atd_write_string), x.lang, x),
+    'files': _atd_write_required_field('SymbolAnalysisParams', 'files', _atd_write_array(writeFpath), x.files, x),
+  };
+}
+
+export function readSymbolAnalysisParams(x: any, context: any = x): SymbolAnalysisParams {
+  return {
+    root_path: _atd_read_required_field('SymbolAnalysisParams', 'root_path', readFpath, x['root_path'], x),
+    lang: _atd_read_required_field('SymbolAnalysisParams', 'lang', _atd_read_option(_atd_read_string), x['lang'], x),
+    files: _atd_read_required_field('SymbolAnalysisParams', 'files', _atd_read_array(readFpath), x['files'], x),
+  };
+}
+
 export function writeSymbol(x: Symbol, context: any = x): any {
   return {
     'fqn': _atd_write_required_field('Symbol', 'fqn', _atd_write_array(_atd_write_string), x.fqn, x),
@@ -5193,6 +5300,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallTransitiveReachabilityFilter', writeTransitiveReachabilityFilterParams(x.value, x)]
     case 'CallMatchSubprojects':
       return ['CallMatchSubprojects', _atd_write_array(writeFpath)(x.value, x)]
+    case 'CallRunSymbolAnalysis':
+      return ['CallRunSymbolAnalysis', writeSymbolAnalysisParams(x.value, x)]
   }
 }
 
@@ -5229,6 +5338,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallTransitiveReachabilityFilter', value: readTransitiveReachabilityFilterParams(x[1], x) }
       case 'CallMatchSubprojects':
         return { kind: 'CallMatchSubprojects', value: _atd_read_array(readFpath)(x[1], x) }
+      case 'CallRunSymbolAnalysis':
+        return { kind: 'CallRunSymbolAnalysis', value: readSymbolAnalysisParams(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -5262,6 +5373,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetGetTargets', writeTargetDiscoveryResult(x.value, x)]
     case 'RetMatchSubprojects':
       return ['RetMatchSubprojects', _atd_write_array(writeSubproject)(x.value, x)]
+    case 'RetRunSymbolAnalysis':
+      return ['RetRunSymbolAnalysis', writeSymbolAnalysis(x.value, x)]
   }
 }
 
@@ -5292,10 +5405,26 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetGetTargets', value: readTargetDiscoveryResult(x[1], x) }
     case 'RetMatchSubprojects':
       return { kind: 'RetMatchSubprojects', value: _atd_read_array(readSubproject)(x[1], x) }
+    case 'RetRunSymbolAnalysis':
+      return { kind: 'RetRunSymbolAnalysis', value: readSymbolAnalysis(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')
   }
+}
+
+export function writeFunctionResult(x: FunctionResult, context: any = x): any {
+  return {
+    'function_return': _atd_write_required_field('FunctionResult', 'function_return', writeFunctionReturn, x.function_return, x),
+    'profiling_results': _atd_write_required_field('FunctionResult', 'profiling_results', _atd_write_array(writeProfilingEntry), x.profiling_results, x),
+  };
+}
+
+export function readFunctionResult(x: any, context: any = x): FunctionResult {
+  return {
+    function_return: _atd_read_required_field('FunctionResult', 'function_return', readFunctionReturn, x['function_return'], x),
+    profiling_results: _atd_read_required_field('FunctionResult', 'profiling_results', _atd_read_array(readProfilingEntry), x['profiling_results'], x),
+  };
 }
 
 export function writePartialScanResult(x: PartialScanResult, context: any = x): any {
@@ -5345,6 +5474,22 @@ export function writeDiffFiles(x: DiffFiles, context: any = x): any {
 export function readDiffFiles(x: any, context: any = x): DiffFiles {
   return {
     cve_diffs: _atd_read_required_field('DiffFiles', 'cve_diffs', _atd_read_array(readDiffFile), x['cve_diffs'], x),
+  };
+}
+
+export function writeProfilingEntry(x: ProfilingEntry, context: any = x): any {
+  return {
+    'name': _atd_write_required_field('ProfilingEntry', 'name', _atd_write_string, x.name, x),
+    'total_time': _atd_write_required_field('ProfilingEntry', 'total_time', _atd_write_float, x.total_time, x),
+    'count': _atd_write_required_field('ProfilingEntry', 'count', _atd_write_int, x.count, x),
+  };
+}
+
+export function readProfilingEntry(x: any, context: any = x): ProfilingEntry {
+  return {
+    name: _atd_read_required_field('ProfilingEntry', 'name', _atd_read_string, x['name'], x),
+    total_time: _atd_read_required_field('ProfilingEntry', 'total_time', _atd_read_float, x['total_time'], x),
+    count: _atd_read_required_field('ProfilingEntry', 'count', _atd_read_int, x['count'], x),
   };
 }
 
