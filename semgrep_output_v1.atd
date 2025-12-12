@@ -3364,6 +3364,14 @@ type symbol_usage
 
 type symbol_analysis <ocaml attr="deriving show"> = symbol_usage list
 
+type upload_subproject_symbol_analysis_params = {
+  token: string;
+  scan_id: int;
+  manifest: fpath option;
+  lockfile: fpath option;
+  symbol_analysis: symbol_analysis;
+}
+
 type subproject_symbol_analysis_url_request = {
   scan_id: int;
   manifest: fpath option;
@@ -3404,6 +3412,7 @@ type function_call <python decorator="dataclass(frozen=True)"> = [
   | CallMatchSubprojects of fpath list
   (* run symbol analysis for the project rooted in the given directory *)
   | CallRunSymbolAnalysis of symbol_analysis_params
+  | CallUploadSubprojectSymbolAnalysis of upload_subproject_symbol_analysis_params
 ]
 
 (* ----------------------------- *)
@@ -3429,6 +3438,9 @@ type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetGetTargets of target_discovery_result
   | RetMatchSubprojects of subproject list
   | RetRunSymbolAnalysis of symbol_analysis
+  | RetUploadSubprojectSymbolAnalysis
+      <doc text="success msg">
+      of string
 ]
 
 type function_result = {

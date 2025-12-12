@@ -1283,6 +1283,14 @@ export type SymbolUsage = {
 
 export type SymbolAnalysis = SymbolUsage[]
 
+export type UploadSubprojectSymbolAnalysisParams = {
+  token: string;
+  scan_id: number /*int*/;
+  manifest: Option<Fpath>;
+  lockfile: Option<Fpath>;
+  symbol_analysis: SymbolAnalysis;
+}
+
 export type SubprojectSymbolAnalysisUrlRequest = {
   scan_id: number /*int*/;
   manifest: Option<Fpath>;
@@ -1302,6 +1310,7 @@ export type FunctionCall =
 | { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveReachabilityFilterParams }
 | { kind: 'CallMatchSubprojects'; value: Fpath[] }
 | { kind: 'CallRunSymbolAnalysis'; value: SymbolAnalysisParams }
+| { kind: 'CallUploadSubprojectSymbolAnalysis'; value: UploadSubprojectSymbolAnalysisParams }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -1317,6 +1326,7 @@ export type FunctionReturn =
 | { kind: 'RetGetTargets'; value: TargetDiscoveryResult }
 | { kind: 'RetMatchSubprojects'; value: Subproject[] }
 | { kind: 'RetRunSymbolAnalysis'; value: SymbolAnalysis }
+| { kind: 'RetUploadSubprojectSymbolAnalysis'; value: string }
 
 export type FunctionResult = {
   function_return: FunctionReturn;
@@ -5282,6 +5292,26 @@ export function readSymbolAnalysis(x: any, context: any = x): SymbolAnalysis {
   return _atd_read_array(readSymbolUsage)(x, context);
 }
 
+export function writeUploadSubprojectSymbolAnalysisParams(x: UploadSubprojectSymbolAnalysisParams, context: any = x): any {
+  return {
+    'token': _atd_write_required_field('UploadSubprojectSymbolAnalysisParams', 'token', _atd_write_string, x.token, x),
+    'scan_id': _atd_write_required_field('UploadSubprojectSymbolAnalysisParams', 'scan_id', _atd_write_int, x.scan_id, x),
+    'manifest': _atd_write_required_field('UploadSubprojectSymbolAnalysisParams', 'manifest', _atd_write_option(writeFpath), x.manifest, x),
+    'lockfile': _atd_write_required_field('UploadSubprojectSymbolAnalysisParams', 'lockfile', _atd_write_option(writeFpath), x.lockfile, x),
+    'symbol_analysis': _atd_write_required_field('UploadSubprojectSymbolAnalysisParams', 'symbol_analysis', writeSymbolAnalysis, x.symbol_analysis, x),
+  };
+}
+
+export function readUploadSubprojectSymbolAnalysisParams(x: any, context: any = x): UploadSubprojectSymbolAnalysisParams {
+  return {
+    token: _atd_read_required_field('UploadSubprojectSymbolAnalysisParams', 'token', _atd_read_string, x['token'], x),
+    scan_id: _atd_read_required_field('UploadSubprojectSymbolAnalysisParams', 'scan_id', _atd_read_int, x['scan_id'], x),
+    manifest: _atd_read_required_field('UploadSubprojectSymbolAnalysisParams', 'manifest', _atd_read_option(readFpath), x['manifest'], x),
+    lockfile: _atd_read_required_field('UploadSubprojectSymbolAnalysisParams', 'lockfile', _atd_read_option(readFpath), x['lockfile'], x),
+    symbol_analysis: _atd_read_required_field('UploadSubprojectSymbolAnalysisParams', 'symbol_analysis', readSymbolAnalysis, x['symbol_analysis'], x),
+  };
+}
+
 export function writeSubprojectSymbolAnalysisUrlRequest(x: SubprojectSymbolAnalysisUrlRequest, context: any = x): any {
   return {
     'scan_id': _atd_write_required_field('SubprojectSymbolAnalysisUrlRequest', 'scan_id', _atd_write_int, x.scan_id, x),
@@ -5324,6 +5354,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallMatchSubprojects', _atd_write_array(writeFpath)(x.value, x)]
     case 'CallRunSymbolAnalysis':
       return ['CallRunSymbolAnalysis', writeSymbolAnalysisParams(x.value, x)]
+    case 'CallUploadSubprojectSymbolAnalysis':
+      return ['CallUploadSubprojectSymbolAnalysis', writeUploadSubprojectSymbolAnalysisParams(x.value, x)]
   }
 }
 
@@ -5362,6 +5394,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallMatchSubprojects', value: _atd_read_array(readFpath)(x[1], x) }
       case 'CallRunSymbolAnalysis':
         return { kind: 'CallRunSymbolAnalysis', value: readSymbolAnalysisParams(x[1], x) }
+      case 'CallUploadSubprojectSymbolAnalysis':
+        return { kind: 'CallUploadSubprojectSymbolAnalysis', value: readUploadSubprojectSymbolAnalysisParams(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -5397,6 +5431,8 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
       return ['RetMatchSubprojects', _atd_write_array(writeSubproject)(x.value, x)]
     case 'RetRunSymbolAnalysis':
       return ['RetRunSymbolAnalysis', writeSymbolAnalysis(x.value, x)]
+    case 'RetUploadSubprojectSymbolAnalysis':
+      return ['RetUploadSubprojectSymbolAnalysis', _atd_write_string(x.value, x)]
   }
 }
 
@@ -5429,6 +5465,8 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
       return { kind: 'RetMatchSubprojects', value: _atd_read_array(readSubproject)(x[1], x) }
     case 'RetRunSymbolAnalysis':
       return { kind: 'RetRunSymbolAnalysis', value: readSymbolAnalysis(x[1], x) }
+    case 'RetUploadSubprojectSymbolAnalysis':
+      return { kind: 'RetUploadSubprojectSymbolAnalysis', value: _atd_read_string(x[1], x) }
     default:
       _atd_bad_json('FunctionReturn', x, context)
       throw new Error('impossible')

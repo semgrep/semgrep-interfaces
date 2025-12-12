@@ -816,6 +816,27 @@ type uuid = ATD_string_wrap.Uuidm.t [@@deriving ord]
 
 type uri = ATD_string_wrap.Uri.t [@@deriving ord]
 
+(** A symbol is a FQN. *)
+type symbol = { fqn: string list }
+  [@@deriving show]
+
+(**
+  We store the location of the usage, because we may want to be able to know
+  how many uses of the symbol there are, and where.
+*)
+type symbol_usage = { symbol: symbol; locs: location list }
+  [@@deriving show]
+
+type symbol_analysis = symbol_usage list [@@deriving show]
+
+type upload_subproject_symbol_analysis_params = {
+  token: string;
+  scan_id: int;
+  manifest: fpath option;
+  lockfile: fpath option;
+  symbol_analysis: symbol_analysis
+}
+
 type unresolved_reason = 
     UnresolvedFailed (** Resolution was attempted, but was unsuccessful. *)
   | UnresolvedSkipped
@@ -1463,17 +1484,6 @@ type tainting_time = {
 (** e.g. "webapp" *)
 type tag = string
 
-(** A symbol is a FQN. *)
-type symbol = { fqn: string list }
-  [@@deriving show]
-
-(**
-  We store the location of the usage, because we may want to be able to know
-  how many uses of the symbol there are, and where.
-*)
-type symbol_usage = { symbol: symbol; locs: location list }
-  [@@deriving show]
-
 type symbol_analysis_upload_response = {
   upload_url: uri (** Presigned AWS URL for uploading symbol analysis data *)
 }
@@ -1483,8 +1493,6 @@ type symbol_analysis_params = {
   lang: string option;
   files: fpath list
 }
-
-type symbol_analysis = symbol_usage list [@@deriving show]
 
 type resolution_method = [
     `LockfileParsing
@@ -2267,6 +2275,7 @@ type function_return = [
   | `RetGetTargets of target_discovery_result
   | `RetMatchSubprojects of subproject list
   | `RetRunSymbolAnalysis of symbol_analysis
+  | `RetUploadSubprojectSymbolAnalysis of string (** success msg *)
 ]
 
 type function_result = {
@@ -2381,6 +2390,8 @@ type function_call = [
       of transitive_reachability_filter_params
   | `CallMatchSubprojects of fpath list
   | `CallRunSymbolAnalysis of symbol_analysis_params
+  | `CallUploadSubprojectSymbolAnalysis
+      of upload_subproject_symbol_analysis_params
 ]
 
 type features = {
