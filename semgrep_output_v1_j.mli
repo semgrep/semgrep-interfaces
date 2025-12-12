@@ -1534,6 +1534,13 @@ type supply_chain_stats = Semgrep_output_v1_t.supply_chain_stats = {
   subprojects_stats: subproject_stats list
 }
 
+type subproject_symbol_analysis_url_request =
+  Semgrep_output_v1_t.subproject_symbol_analysis_url_request = {
+  scan_id: int;
+  manifest: fpath option;
+  lockfile: fpath option
+}
+
 type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
   rule_id: rule_id;
   details: string;
@@ -4832,6 +4839,26 @@ val read_supply_chain_stats :
 val supply_chain_stats_of_string :
   string -> supply_chain_stats
   (** Deserialize JSON data of type {!type:supply_chain_stats}. *)
+
+val write_subproject_symbol_analysis_url_request :
+  Buffer.t -> subproject_symbol_analysis_url_request -> unit
+  (** Output a JSON value of type {!type:subproject_symbol_analysis_url_request}. *)
+
+val string_of_subproject_symbol_analysis_url_request :
+  ?len:int -> subproject_symbol_analysis_url_request -> string
+  (** Serialize a value of type {!type:subproject_symbol_analysis_url_request}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_subproject_symbol_analysis_url_request :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> subproject_symbol_analysis_url_request
+  (** Input JSON data of type {!type:subproject_symbol_analysis_url_request}. *)
+
+val subproject_symbol_analysis_url_request_of_string :
+  string -> subproject_symbol_analysis_url_request
+  (** Deserialize JSON data of type {!type:subproject_symbol_analysis_url_request}. *)
 
 val write_skipped_rule :
   Buffer.t -> skipped_rule -> unit

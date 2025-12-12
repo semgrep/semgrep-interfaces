@@ -1535,6 +1535,12 @@ type subproject_stats = {
 
 type supply_chain_stats = { subprojects_stats: subproject_stats list }
 
+type subproject_symbol_analysis_url_request = {
+  scan_id: int;
+  manifest: fpath option;
+  lockfile: fpath option
+}
+
 type skipped_rule = {
   rule_id: rule_id;
   details: string;

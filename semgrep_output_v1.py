@@ -7856,6 +7856,40 @@ class SupplyChainStats:
 
 
 @dataclass
+class SubprojectSymbolAnalysisUrlRequest:
+    """Original type: subproject_symbol_analysis_url_request = { ... }"""
+
+    scan_id: int
+    manifest: Optional[Fpath]
+    lockfile: Optional[Fpath]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SubprojectSymbolAnalysisUrlRequest':
+        if isinstance(x, dict):
+            return cls(
+                scan_id=_atd_read_int(x['scan_id']) if 'scan_id' in x else _atd_missing_json_field('SubprojectSymbolAnalysisUrlRequest', 'scan_id'),
+                manifest=_atd_read_option(Fpath.from_json)(x['manifest']) if 'manifest' in x else _atd_missing_json_field('SubprojectSymbolAnalysisUrlRequest', 'manifest'),
+                lockfile=_atd_read_option(Fpath.from_json)(x['lockfile']) if 'lockfile' in x else _atd_missing_json_field('SubprojectSymbolAnalysisUrlRequest', 'lockfile'),
+            )
+        else:
+            _atd_bad_json('SubprojectSymbolAnalysisUrlRequest', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['scan_id'] = _atd_write_int(self.scan_id)
+        res['manifest'] = _atd_write_option((lambda x: x.to_json()))(self.manifest)
+        res['lockfile'] = _atd_write_option((lambda x: x.to_json()))(self.lockfile)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SubprojectSymbolAnalysisUrlRequest':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class SkippedRule:
     """Original type: skipped_rule = { ... }"""
 

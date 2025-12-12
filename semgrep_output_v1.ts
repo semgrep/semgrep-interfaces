@@ -1283,6 +1283,12 @@ export type SymbolUsage = {
 
 export type SymbolAnalysis = SymbolUsage[]
 
+export type SubprojectSymbolAnalysisUrlRequest = {
+  scan_id: number /*int*/;
+  manifest: Option<Fpath>;
+  lockfile: Option<Fpath>;
+}
+
 export type FunctionCall =
 | { kind: 'CallContributions' }
 | { kind: 'CallApplyFixes'; value: ApplyFixesParams }
@@ -5274,6 +5280,22 @@ export function writeSymbolAnalysis(x: SymbolAnalysis, context: any = x): any {
 
 export function readSymbolAnalysis(x: any, context: any = x): SymbolAnalysis {
   return _atd_read_array(readSymbolUsage)(x, context);
+}
+
+export function writeSubprojectSymbolAnalysisUrlRequest(x: SubprojectSymbolAnalysisUrlRequest, context: any = x): any {
+  return {
+    'scan_id': _atd_write_required_field('SubprojectSymbolAnalysisUrlRequest', 'scan_id', _atd_write_int, x.scan_id, x),
+    'manifest': _atd_write_required_field('SubprojectSymbolAnalysisUrlRequest', 'manifest', _atd_write_option(writeFpath), x.manifest, x),
+    'lockfile': _atd_write_required_field('SubprojectSymbolAnalysisUrlRequest', 'lockfile', _atd_write_option(writeFpath), x.lockfile, x),
+  };
+}
+
+export function readSubprojectSymbolAnalysisUrlRequest(x: any, context: any = x): SubprojectSymbolAnalysisUrlRequest {
+  return {
+    scan_id: _atd_read_required_field('SubprojectSymbolAnalysisUrlRequest', 'scan_id', _atd_read_int, x['scan_id'], x),
+    manifest: _atd_read_required_field('SubprojectSymbolAnalysisUrlRequest', 'manifest', _atd_read_option(readFpath), x['manifest'], x),
+    lockfile: _atd_read_required_field('SubprojectSymbolAnalysisUrlRequest', 'lockfile', _atd_read_option(readFpath), x['lockfile'], x),
+  };
 }
 
 export function writeFunctionCall(x: FunctionCall, context: any = x): any {

@@ -3364,6 +3364,12 @@ type symbol_usage
 
 type symbol_analysis <ocaml attr="deriving show"> = symbol_usage list
 
+type subproject_symbol_analysis_url_request = {
+  scan_id: int;
+  manifest: fpath option;
+  lockfile: fpath option;
+}
+
 (* ----------------------------- *)
 (* The call *)
 (* ----------------------------- *)
