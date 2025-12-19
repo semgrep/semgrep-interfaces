@@ -11133,6 +11133,12 @@ class CiScanDependencies:
 class CiScanResults:
     """Original type: ci_scan_results = { ... }
 
+    :param searched_paths: Files that were detected and attempted to scan.
+    Note that some of these may have been skipped due to errors (see
+    skipped_paths).
+    :param skipped_paths: Files detected but not scanned due to errors
+    (timeout, OOM, etc.). The app should NOT mark findings in these files as
+    fixed.
     :param contributions: since semgrep 1.34.0
     :param dependencies: since semgrep 1.38.0. This data was originally sent
     to /complete, but we want to start sending it to /results
@@ -12045,7 +12051,11 @@ class RetRunSymbolAnalysis:
 
 @dataclass(frozen=True)
 class RetShowSubprojects:
-    """Original type: function_return = [ ... | RetShowSubprojects of ... | ... ]"""
+    """Original type: function_return = [ ... | RetShowSubprojects of ... | ... ]
+
+    The text return here typically contains newlines but is not
+    newline-terminated i.e. it is suitable to pass as an argument to a logger.
+    """
 
     value: str
 
@@ -12681,7 +12691,11 @@ class CallRunSymbolAnalysis:
 
 @dataclass(frozen=True)
 class CallShowSubprojects:
-    """Original type: function_call = [ ... | CallShowSubprojects of ... | ... ]"""
+    """Original type: function_call = [ ... | CallShowSubprojects of ... | ... ]
+
+    Format human-readable text summarizing the subprojects that were
+    discovered in a project. This is meant to be printed in --verbose mode.
+    """
 
     value: List[Subproject]
 

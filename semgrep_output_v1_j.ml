@@ -332,11 +332,11 @@ type manifest = Semgrep_output_v1_t.manifest = {
   could be called rule_severity, or finding_severity.
   
 {v
-   Error = something wrong that must be fixed
-   Warning = something wrong that should be fixed
-   Info = some special condition worth knowing about
-   Experiment = deprecated: guess what
-   Inventory = deprecated: was used for the Code Asset Inventory (CAI) project
+  Error = something wrong that must be fixed
+  Warning = something wrong that should be fixed
+  Info = some special condition worth knowing about
+  Experiment = deprecated: guess what
+  Inventory = deprecated: was used for the Code Asset Inventory (CAI) project
 v}
 *)
 type match_severity = Semgrep_output_v1_t.match_severity
@@ -422,9 +422,9 @@ type match_intermediate_var = Semgrep_output_v1_t.match_intermediate_var = {
   the pro engine that they couldn't with the oss engine.
   
 {v
-    interproc_taint = requires interprocedural taint
-    interfile_taint = requires interfile taint
-    proprietary_language = requires some non-taint pro feature
+  interproc_taint = requires interprocedural taint
+  interfile_taint = requires interfile taint
+  proprietary_language = requires some non-taint pro feature
 v}
 *)
 type pro_feature = Semgrep_output_v1_t.pro_feature = {
@@ -441,10 +441,10 @@ type pro_feature = Semgrep_output_v1_t.pro_feature = {
   which feature is required.
   
 {v
-   OSS = ran with OSS
-   PRO = ran with PRO, but we didn't infer that OSS couldn't have found this
-   finding
-   PRO_REQUIRED = ran with PRO and requires a PRO feature (see pro_feature_used)
+  OSS = ran with OSS
+  PRO = ran with PRO, but we didn't infer that OSS couldn't have found this
+  finding
+  PRO_REQUIRED = ran with PRO and requires a PRO feature (see pro_feature_used)
 v}
   
   Note: OSS and PRO could have clearer names, but for backwards compatibility
@@ -958,9 +958,9 @@ type killing_parent_kind = Semgrep_output_v1_t.killing_parent_kind
   means that in the following pattern:
   
 {v
-    all:
-      - pattern: A
-      - not: B
+  all:
+    - pattern: A
+    - not: B
 v}
   
   the [not] node is a "parent" of the [pattern] node, even though they are
@@ -1098,18 +1098,18 @@ type todo = Semgrep_output_v1_t.todo
   For instance, suppose we have the rule:
   
 {v
-    1 | all:
-    2 | - pattern: foo(...)
-    3 | - not: foo(goood)
+  1 | all:
+  2 | - pattern: foo(...)
+  3 | - not: foo(goood)
 v}
   
   and the following Python annotated target:
   
 {v
-    1 | # ruleid: my_rule
-    2 | foo()
-    3 | # ok: my_rule
-    4 | foo(good)
+  1 | # ruleid: my_rule
+  2 | foo()
+  3 | # ok: my_rule
+  4 | foo(good)
 v}
   
   We would get an unexpected match on line 4, which would fail the test
@@ -1132,14 +1132,14 @@ v}
   form:
   
 {v
-    \{ matched_text = \{ line = 4; text = "foo(bad)" \};
-      originating_kind = Xpattern;
-      originating_text = \{ line = 2; text = "- pattern: foo(...)" \};
-      killing_parents = [
-        \{ killing_parent_kind = Negation;
-          snippet = \{ line = 3; text = "- not: foo(good)" \} \}
-      ]
-    \}
+  \{ matched_text = \{ line = 4; text = "foo(bad)" \};
+    originating_kind = Xpattern;
+    originating_text = \{ line = 2; text = "- pattern: foo(...)" \};
+    killing_parents = [
+      \{ killing_parent_kind = Negation;
+        snippet = \{ line = 3; text = "- not: foo(good)" \} \}
+    ]
+  \}
 v}
 *)
 type matching_diagnosis = Semgrep_output_v1_t.matching_diagnosis = {
@@ -1406,9 +1406,9 @@ type error_type = Semgrep_output_v1_t.error_type =
   Semgrep execution (e.g., a parse error).
   
 {v
-    Error = Always an error
-    Warning = Only an error if "strict" is set
-    Info = Nothing may be wrong
+  Error = Always an error
+  Warning = Only an error if "strict" is set
+  Info = Nothing may be wrong
 v}
   
   alt: could reuse match_severity but seems cleaner to define its own type
@@ -2545,25 +2545,7 @@ let string_of__bool_option ?(len = 1024) x =
 let read__bool_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_bool
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -2602,25 +2584,7 @@ let string_of__int_option ?(len = 1024) x =
 let read__int_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_int
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -2675,25 +2639,7 @@ let string_of__string_list_option ?(len = 1024) x =
 let read__string_list_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__string_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -2732,25 +2678,7 @@ let string_of__string_option ?(len = 1024) x =
 let read__string_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -3076,25 +3004,7 @@ let string_of__dependency_child_list_option ?(len = 1024) x =
 let read__dependency_child_list_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__dependency_child_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -3135,24 +3045,7 @@ let string_of_dependency_kind ?(len = 1024) x =
 let read_dependency_kind = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "direct" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Direct : dependency_kind)
-            | "transitive" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Transitive : dependency_kind)
-            | "unknown" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Unknown : dependency_kind)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "direct" ->
@@ -3197,68 +3090,7 @@ let string_of_ecosystem ?(len = 1024) x =
 let read_ecosystem = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "npm" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Npm : ecosystem)
-            | "pypi" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Pypi : ecosystem)
-            | "gem" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Gem : ecosystem)
-            | "gomod" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Gomod : ecosystem)
-            | "cargo" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Cargo : ecosystem)
-            | "maven" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Maven : ecosystem)
-            | "composer" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Composer : ecosystem)
-            | "nuget" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Nuget : ecosystem)
-            | "pub" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Pub : ecosystem)
-            | "swiftpm" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (SwiftPM : ecosystem)
-            | "cocoapods" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Cocoapods : ecosystem)
-            | "mix" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Mix : ecosystem)
-            | "hex" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Hex : ecosystem)
-            | "opam" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Opam : ecosystem)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "npm" ->
@@ -3324,25 +3156,7 @@ let string_of__fpath_option ?(len = 1024) x =
 let read__fpath_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_fpath
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -4030,100 +3844,7 @@ let string_of_lockfile_kind ?(len = 1024) x =
 let read_lockfile_kind = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "PipRequirementsTxt" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PipRequirementsTxt : lockfile_kind)
-            | "PoetryLock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PoetryLock : lockfile_kind)
-            | "PipfileLock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PipfileLock : lockfile_kind)
-            | "UvLock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (UvLock : lockfile_kind)
-            | "NpmPackageLockJson" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (NpmPackageLockJson : lockfile_kind)
-            | "YarnLock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (YarnLock : lockfile_kind)
-            | "PnpmLock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PnpmLock : lockfile_kind)
-            | "BunLock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (BunLock : lockfile_kind)
-            | "BunBinaryLock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (BunBinaryLock : lockfile_kind)
-            | "GemfileLock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (GemfileLock : lockfile_kind)
-            | "GoMod" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (GoModLock : lockfile_kind)
-            | "CargoLock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (CargoLock : lockfile_kind)
-            | "MavenDepTree" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (MavenDepTree : lockfile_kind)
-            | "GradleLockfile" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (GradleLockfile : lockfile_kind)
-            | "ComposerLock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (ComposerLock : lockfile_kind)
-            | "NugetPackagesLockJson" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (NugetPackagesLockJson : lockfile_kind)
-            | "PubspecLock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PubspecLock : lockfile_kind)
-            | "SwiftPackageResolved" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (SwiftPackageResolved : lockfile_kind)
-            | "PodfileLock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PodfileLock : lockfile_kind)
-            | "MixLock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (MixLock : lockfile_kind)
-            | "ConanLock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (ConanLock : lockfile_kind)
-            | "OpamLocked" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (OpamLocked : lockfile_kind)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "PipRequirementsTxt" ->
@@ -4378,104 +4099,7 @@ let string_of_manifest_kind ?(len = 1024) x =
 let read_manifest_kind = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "RequirementsIn" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (RequirementsIn : manifest_kind)
-            | "SetupPy" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (SetupPy : manifest_kind)
-            | "PackageJson" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PackageJson : manifest_kind)
-            | "Gemfile" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Gemfile : manifest_kind)
-            | "GoMod" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (GoModManifest : manifest_kind)
-            | "CargoToml" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (CargoToml : manifest_kind)
-            | "PomXml" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PomXml : manifest_kind)
-            | "BuildGradle" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (BuildGradle : manifest_kind)
-            | "BuildGradleKts" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (BuildGradleKts : manifest_kind)
-            | "SettingsGradle" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (SettingsGradle : manifest_kind)
-            | "ComposerJson" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (ComposerJson : manifest_kind)
-            | "NugetManifestJson" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (NugetManifestJson : manifest_kind)
-            | "PubspecYaml" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PubspecYaml : manifest_kind)
-            | "PackageSwift" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PackageSwift : manifest_kind)
-            | "Podfile" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Podfile : manifest_kind)
-            | "MixExs" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (MixExs : manifest_kind)
-            | "Pipfile" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Pipfile : manifest_kind)
-            | "PyprojectToml" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PyprojectToml : manifest_kind)
-            | "ConanFileTxt" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (ConanFileTxt : manifest_kind)
-            | "ConanFilePy" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (ConanFilePy : manifest_kind)
-            | "Csproj" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Csproj : manifest_kind)
-            | "OpamFile" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (OpamFile : manifest_kind)
-            | "BuildSbt" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (BuildSbt : manifest_kind)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "RequirementsIn" ->
@@ -4718,48 +4342,7 @@ let string_of_match_severity ?(len = 1024) x =
 let read_match_severity = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "ERROR" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Error
-            | "WARNING" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Warning
-            | "EXPERIMENT" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Experiment
-            | "INVENTORY" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Inventory
-            | "CRITICAL" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Critical
-            | "HIGH" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `High
-            | "MEDIUM" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Medium
-            | "LOW" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Low
-            | "INFO" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Info
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "ERROR" ->
@@ -4803,25 +4386,7 @@ let string_of__match_severity_option ?(len = 1024) x =
 let read__match_severity_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_match_severity
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -4882,74 +4447,7 @@ let string_of_matching_operation ?(len = 1024) x =
 let read_matching_operation = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "And" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (And : matching_operation)
-            | "Or" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Or : matching_operation)
-            | "Inside" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Inside : matching_operation)
-            | "Anywhere" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Anywhere : matching_operation)
-            | "XPat" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (XPat x : matching_operation)
-            | "Negation" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Negation : matching_operation)
-            | "Filter" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Filter x : matching_operation)
-            | "Taint" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Taint : matching_operation)
-            | "TaintSource" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (TaintSource : matching_operation)
-            | "TaintSink" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (TaintSink : matching_operation)
-            | "TaintSanitizer" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (TaintSanitizer : matching_operation)
-            | "EllipsisAndStmts" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (EllipsisAndStmts : matching_operation)
-            | "ClassHeaderAndElems" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (ClassHeaderAndElems : matching_operation)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "And" ->
@@ -5215,25 +4713,7 @@ let string_of__position_option ?(len = 1024) x =
 let read__position_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_position
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -5479,7 +4959,7 @@ let string_of_loc_and_content ?(len = 1024) x =
 let read_loc_and_content = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+    Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
     let len = ref 0 in
     let end_of_tuple = ref false in
     (try
@@ -5491,7 +4971,7 @@ let read_loc_and_content = (
         in
         incr len;
         Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+        Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
         x
       in
       let x1 =
@@ -5503,8 +4983,8 @@ let read_loc_and_content = (
         incr len;
         (try
           Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-        with Yojson.End_of_tuple -> end_of_tuple := true);
+          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+        with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
         x
       in
       if not !end_of_tuple then (
@@ -5512,12 +4992,12 @@ let read_loc_and_content = (
           while true do
             Yojson.Safe.skip_json p lb;
             Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
           done
-        with Yojson.End_of_tuple -> ()
+        with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
       );
       (x0, x1)
-    with Yojson.End_of_tuple ->
+    with Atdgen_runtime.Yojson_extra.End_of_tuple ->
       Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
 )
 let loc_and_content_of_string s =
@@ -5703,25 +5183,7 @@ let string_of__match_intermediate_var_list_option ?(len = 1024) x =
 let read__match_intermediate_var_list_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__match_intermediate_var_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -5985,29 +5447,7 @@ let string_of_engine_of_finding ?(len = 1024) x =
 let read_engine_of_finding = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "OSS" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `OSS
-            | "PRO" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `PRO
-            | "PRO_REQUIRED" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_pro_feature
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `PRO_REQUIRED x
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "OSS" ->
@@ -6048,25 +5488,7 @@ let string_of__engine_of_finding_option ?(len = 1024) x =
 let read__engine_of_finding_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_engine_of_finding
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -6117,25 +5539,7 @@ let string_of__raw_json_option ?(len = 1024) x =
 let read__raw_json_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_raw_json
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -6590,25 +5994,7 @@ let string_of__sha1_option ?(len = 1024) x =
 let read__sha1_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_sha1
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -6849,25 +6235,7 @@ let string_of__historical_info_option ?(len = 1024) x =
 let read__historical_info_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_historical_info
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -7114,25 +6482,7 @@ let string_of__svalue_value_option ?(len = 1024) x =
 let read__svalue_value_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_svalue_value
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -7460,25 +6810,7 @@ let string_of__metavars_option ?(len = 1024) x =
 let read__metavars_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_metavars
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -7771,28 +7103,7 @@ let string_of_validation_state ?(len = 1024) x =
 let read_validation_state = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "CONFIRMED_VALID" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Confirmed_valid
-            | "CONFIRMED_INVALID" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Confirmed_invalid
-            | "VALIDATION_ERROR" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Validation_error
-            | "NO_VALIDATOR" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `No_validator
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "CONFIRMED_VALID" ->
@@ -7826,25 +7137,7 @@ let string_of__validation_state_option ?(len = 1024) x =
 let read__validation_state_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_validation_state
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -7935,89 +7228,7 @@ and _dependency_source_list_of_string s =
 and read_dependency_source = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "ManifestOnly" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_manifest
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (ManifestOnly x : dependency_source)
-            | "LockfileOnly" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_lockfile
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (LockfileOnly x : dependency_source)
-            | "ManifestLockfile" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  fun p lb ->
-                    Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                    let len = ref 0 in
-                    let end_of_tuple = ref false in
-                    (try
-                      let x0 =
-                        let x =
-                          (
-                            read_manifest
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x1 =
-                        let x =
-                          (
-                            read_lockfile
-                          ) p lb
-                        in
-                        incr len;
-                        (try
-                          Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
-                        x
-                      in
-                      if not !end_of_tuple then (
-                        try
-                          while true do
-                            Yojson.Safe.skip_json p lb;
-                            Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                          done
-                        with Yojson.End_of_tuple -> ()
-                      );
-                      (x0, x1)
-                    with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (ManifestLockfile x : dependency_source)
-            | "MultiLockfile" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__dependency_source_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (MultiLockfile x : dependency_source)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | x ->
@@ -8054,7 +7265,7 @@ and read_dependency_source = (
               let x = (
                   fun p lb ->
                     Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
                     let len = ref 0 in
                     let end_of_tuple = ref false in
                     (try
@@ -8066,7 +7277,7 @@ and read_dependency_source = (
                         in
                         incr len;
                         Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                         x
                       in
                       let x1 =
@@ -8078,8 +7289,8 @@ and read_dependency_source = (
                         incr len;
                         (try
                           Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+                        with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
                         x
                       in
                       if not !end_of_tuple then (
@@ -8087,12 +7298,12 @@ and read_dependency_source = (
                           while true do
                             Yojson.Safe.skip_json p lb;
                             Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                           done
-                        with Yojson.End_of_tuple -> ()
+                        with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
                       );
                       (x0, x1)
-                    with Yojson.End_of_tuple ->
+                    with Atdgen_runtime.Yojson_extra.End_of_tuple ->
                       Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
                 ) p lb
               in
@@ -8158,82 +7369,7 @@ and string_of_match_call_trace ?(len = 1024) x =
 let rec read_match_call_trace = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "CliLoc" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_loc_and_content
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (CliLoc x : match_call_trace)
-            | "CliCall" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  fun p lb ->
-                    Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                    let len = ref 0 in
-                    let end_of_tuple = ref false in
-                    (try
-                      let x0 =
-                        let x =
-                          (
-                            read_loc_and_content
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x1 =
-                        let x =
-                          (
-                            read__match_intermediate_var_list
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x2 =
-                        let x =
-                          (
-                            read_match_call_trace
-                          ) p lb
-                        in
-                        incr len;
-                        (try
-                          Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
-                        x
-                      in
-                      if not !end_of_tuple then (
-                        try
-                          while true do
-                            Yojson.Safe.skip_json p lb;
-                            Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                          done
-                        with Yojson.End_of_tuple -> ()
-                      );
-                      (x0, x1, x2)
-                    with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1; 2 ]);
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (CliCall x : match_call_trace)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | x ->
@@ -8259,7 +7395,7 @@ let rec read_match_call_trace = (
               let x = (
                   fun p lb ->
                     Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
                     let len = ref 0 in
                     let end_of_tuple = ref false in
                     (try
@@ -8271,7 +7407,7 @@ let rec read_match_call_trace = (
                         in
                         incr len;
                         Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                         x
                       in
                       let x1 =
@@ -8282,7 +7418,7 @@ let rec read_match_call_trace = (
                         in
                         incr len;
                         Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                         x
                       in
                       let x2 =
@@ -8294,8 +7430,8 @@ let rec read_match_call_trace = (
                         incr len;
                         (try
                           Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+                        with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
                         x
                       in
                       if not !end_of_tuple then (
@@ -8303,12 +7439,12 @@ let rec read_match_call_trace = (
                           while true do
                             Yojson.Safe.skip_json p lb;
                             Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                           done
-                        with Yojson.End_of_tuple -> ()
+                        with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
                       );
                       (x0, x1, x2)
-                    with Yojson.End_of_tuple ->
+                    with Atdgen_runtime.Yojson_extra.End_of_tuple ->
                       Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1; 2 ]);
                 ) p lb
               in
@@ -8333,25 +7469,7 @@ let string_of__match_call_trace_option ?(len = 1024) x =
 let read__match_call_trace_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_match_call_trace
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -8604,25 +7722,7 @@ let string_of__match_dataflow_trace_option ?(len = 1024) x =
 let read__match_dataflow_trace_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_match_dataflow_trace
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -9056,7 +8156,7 @@ and read__list_caa51bb p lb = (
   Atdgen_runtime.Oj_run.read_list (
     fun p lb ->
       Yojson.Safe.read_space p lb;
-      let std_tuple = Yojson.Safe.start_any_tuple p lb in
+      Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
       let len = ref 0 in
       let end_of_tuple = ref false in
       (try
@@ -9068,7 +8168,7 @@ and read__list_caa51bb p lb = (
           in
           incr len;
           Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
           x
         in
         let x1 =
@@ -9080,8 +8180,8 @@ and read__list_caa51bb p lb = (
           incr len;
           (try
             Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          with Yojson.End_of_tuple -> end_of_tuple := true);
+            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+          with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
           x
         in
         if not !end_of_tuple then (
@@ -9089,12 +8189,12 @@ and read__list_caa51bb p lb = (
             while true do
               Yojson.Safe.skip_json p lb;
               Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+              Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
             done
-          with Yojson.End_of_tuple -> ()
+          with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
         );
         (x0, x1)
-      with Yojson.End_of_tuple ->
+      with Atdgen_runtime.Yojson_extra.End_of_tuple ->
         Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
   )
 ) p lb
@@ -9103,25 +8203,7 @@ and _list_caa51bb_of_string s =
 and read__sca_match_kind_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_sca_match_kind
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -9151,25 +8233,7 @@ and _sca_match_kind_option_of_string s =
 and read__sca_match_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_sca_match
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -10368,52 +9432,7 @@ and sca_match_of_string s =
 and read_sca_match_kind = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "LockfileOnlyMatch" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_dependency_kind
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (LockfileOnlyMatch x : sca_match_kind)
-            | "DirectReachable" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (DirectReachable : sca_match_kind)
-            | "TransitiveReachable" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_transitive_reachable
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (TransitiveReachable x : sca_match_kind)
-            | "TransitiveUnreachable" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_transitive_unreachable
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (TransitiveUnreachable x : sca_match_kind)
-            | "TransitiveUndetermined" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_transitive_undetermined
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (TransitiveUndetermined x : sca_match_kind)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "DirectReachable" ->
@@ -11647,25 +10666,7 @@ let string_of__core_match_list_option ?(len = 1024) x =
 let read__core_match_list_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__core_match_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -11857,25 +10858,7 @@ let string_of__matching_explanation_extra_option ?(len = 1024) x =
 let read__matching_explanation_extra_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_matching_explanation_extra
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -12448,28 +11431,7 @@ let string_of_unresolved_reason ?(len = 1024) x =
 let read_unresolved_reason = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "failed" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (UnresolvedFailed : unresolved_reason)
-            | "skipped" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (UnresolvedSkipped : unresolved_reason)
-            | "unsupported" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (UnresolvedUnsupported : unresolved_reason)
-            | "disabled" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (UnresolvedDisabled : unresolved_reason)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "failed" ->
@@ -12503,25 +11465,7 @@ let string_of__ecosystem_option ?(len = 1024) x =
 let read__ecosystem_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_ecosystem
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -12776,96 +11720,7 @@ let string_of_sca_parser_name ?(len = 1024) x =
 let read_sca_parser_name = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "gemfile_lock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PGemfile_lock : sca_parser_name)
-            | "go_mod" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PGo_mod : sca_parser_name)
-            | "go_sum" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PGo_sum : sca_parser_name)
-            | "gradle_lockfile" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PGradle_lockfile : sca_parser_name)
-            | "gradle_build" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PGradle_build : sca_parser_name)
-            | "jsondoc" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PJsondoc : sca_parser_name)
-            | "pipfile" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PPipfile : sca_parser_name)
-            | "pnpm_lock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PPnpm_lock : sca_parser_name)
-            | "poetry_lock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PPoetry_lock : sca_parser_name)
-            | "pyproject_toml" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PPyproject_toml : sca_parser_name)
-            | "requirements" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PRequirements : sca_parser_name)
-            | "yarn_1" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PYarn_1 : sca_parser_name)
-            | "yarn_2" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PYarn_2 : sca_parser_name)
-            | "pomtree" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PPomtree : sca_parser_name)
-            | "cargo" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PCargo_parser : sca_parser_name)
-            | "composer_lock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PComposer_lock : sca_parser_name)
-            | "pubspec_lock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PPubspec_lock : sca_parser_name)
-            | "package_swift" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PPackage_swift : sca_parser_name)
-            | "podfile_lock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PPodfile_lock : sca_parser_name)
-            | "package_resolved" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PPackage_resolved : sca_parser_name)
-            | "mix_lock" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PMix_lock : sca_parser_name)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "gemfile_lock" ->
@@ -13334,61 +12189,7 @@ let string_of_resolution_error_kind ?(len = 1024) x =
 let read_resolution_error_kind = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "UnsupportedManifest" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (UnsupportedManifest : resolution_error_kind)
-            | "MissingRequirement" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (MissingRequirement x : resolution_error_kind)
-            | "ResolutionCmdFailed" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_resolution_cmd_failed
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (ResolutionCmdFailed x : resolution_error_kind)
-            | "ParseDependenciesFailed" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (ParseDependenciesFailed x : resolution_error_kind)
-            | "ScaParseError" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_sca_parser_name
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (ScaParseError x : resolution_error_kind)
-            | "ResourceInaccessible" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_resource_inaccessible
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (ResourceInaccessible x : resolution_error_kind)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "UnsupportedManifest" ->
@@ -14002,30 +12803,7 @@ let string_of_sca_error ?(len = 1024) x =
 let read_sca_error = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "SCAParse" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_dependency_parser_error
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (SCAParse x : sca_error)
-            | "SCAResol" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_sca_resolution_error
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (SCAResol x : sca_error)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | x ->
@@ -14468,33 +13246,7 @@ let string_of_killing_parent_kind ?(len = 1024) x =
 let read_killing_parent_kind = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "And" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `And
-            | "Inside" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Inside
-            | "Negation" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Negation
-            | "Filter" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Filter x
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "And" ->
@@ -14712,25 +13464,7 @@ let string_of_unexpected_no_match_diagnosis_kind ?(len = 1024) x =
 let read_unexpected_no_match_diagnosis_kind = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "Never_matched" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Never_matched
-            | "Killed_by_nodes" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__killing_parent_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Killed_by_nodes x
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "Never_matched" ->
@@ -14933,20 +13667,7 @@ let string_of_originating_node_kind ?(len = 1024) x =
 let read_originating_node_kind = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "Focus" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Focus
-            | "Xpattern" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Xpattern
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "Focus" ->
@@ -15602,25 +14323,7 @@ let string_of__downloaded_dependency_option ?(len = 1024) x =
 let read__downloaded_dependency_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_downloaded_dependency
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -15670,7 +14373,7 @@ let string_of_resolved_dependency ?(len = 1024) x =
 let read_resolved_dependency = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+    Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
     let len = ref 0 in
     let end_of_tuple = ref false in
     (try
@@ -15682,7 +14385,7 @@ let read_resolved_dependency = (
         in
         incr len;
         Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+        Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
         x
       in
       let x1 =
@@ -15694,8 +14397,8 @@ let read_resolved_dependency = (
         incr len;
         (try
           Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-        with Yojson.End_of_tuple -> end_of_tuple := true);
+          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+        with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
         x
       in
       if not !end_of_tuple then (
@@ -15703,12 +14406,12 @@ let read_resolved_dependency = (
           while true do
             Yojson.Safe.skip_json p lb;
             Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
           done
-        with Yojson.End_of_tuple -> ()
+        with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
       );
       (x0, x1)
-    with Yojson.End_of_tuple ->
+    with Atdgen_runtime.Yojson_extra.End_of_tuple ->
       Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
 )
 let resolved_dependency_of_string s =
@@ -16390,7 +15093,7 @@ let read__list_b7af149 = (
   Atdgen_runtime.Oj_run.read_list (
     fun p lb ->
       Yojson.Safe.read_space p lb;
-      let std_tuple = Yojson.Safe.start_any_tuple p lb in
+      Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
       let len = ref 0 in
       let end_of_tuple = ref false in
       (try
@@ -16402,7 +15105,7 @@ let read__list_b7af149 = (
           in
           incr len;
           Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
           x
         in
         let x1 =
@@ -16414,8 +15117,8 @@ let read__list_b7af149 = (
           incr len;
           (try
             Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          with Yojson.End_of_tuple -> end_of_tuple := true);
+            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+          with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
           x
         in
         if not !end_of_tuple then (
@@ -16423,12 +15126,12 @@ let read__list_b7af149 = (
             while true do
               Yojson.Safe.skip_json p lb;
               Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+              Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
             done
-          with Yojson.End_of_tuple -> ()
+          with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
         );
         (x0, x1)
-      with Yojson.End_of_tuple ->
+      with Atdgen_runtime.Yojson_extra.End_of_tuple ->
         Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
   )
 )
@@ -17211,25 +15914,7 @@ let string_of__matching_diagnosis_option ?(len = 1024) x =
 let read__matching_diagnosis_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_matching_diagnosis
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -17623,16 +16308,7 @@ let string_of_config_error_reason ?(len = 1024) x =
 let read_config_error_reason = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "unparsable_rule" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (UnparsableRule : config_error_reason)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "unparsable_rule" ->
@@ -18280,30 +16956,7 @@ let string_of_project_root ?(len = 1024) x =
 let read_project_root = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "Filesystem" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Filesystem x
-            | "Git_remote" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Git_remote x
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | x ->
@@ -18351,25 +17004,7 @@ let string_of__project_root_option ?(len = 1024) x =
 let read__project_root_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_project_root
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -19041,24 +17676,7 @@ let string_of_product ?(len = 1024) x =
 let read_product = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "sast" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `SAST
-            | "sca" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `SCA
-            | "secrets" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Secrets
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "sast" ->
@@ -19331,25 +17949,7 @@ let string_of__dependency_source_option ?(len = 1024) x =
 let read__dependency_source_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_dependency_source
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -19656,30 +18256,7 @@ let string_of_target ?(len = 1024) x =
 let read_target = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "CodeTarget" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_code_target
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `CodeTarget x
-            | "DependencySourceTarget" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_dependency_source
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `DependencySourceTarget x
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | x ->
@@ -19907,30 +18484,7 @@ let string_of_targets ?(len = 1024) x =
 let read_targets = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "Scanning_roots" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_scanning_roots
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Scanning_roots x
-            | "Targets" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__target_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Targets x
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | x ->
@@ -20304,80 +18858,7 @@ let string_of_skip_reason ?(len = 1024) x =
 let read_skip_reason = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "always_skipped" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Always_skipped : skip_reason)
-            | "semgrepignore_patterns_match" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Semgrepignore_patterns_match : skip_reason)
-            | "cli_include_flags_do_not_match" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Cli_include_flags_do_not_match : skip_reason)
-            | "cli_exclude_flags_match" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Cli_exclude_flags_match : skip_reason)
-            | "exceeded_size_limit" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Exceeded_size_limit : skip_reason)
-            | "analysis_failed_parser_or_internal_error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Analysis_failed_parser_or_internal_error : skip_reason)
-            | "excluded_by_config" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Excluded_by_config : skip_reason)
-            | "wrong_language" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Wrong_language : skip_reason)
-            | "too_big" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Too_big : skip_reason)
-            | "minified" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Minified : skip_reason)
-            | "binary" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Binary : skip_reason)
-            | "irrelevant_rule" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Irrelevant_rule : skip_reason)
-            | "too_many_matches" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Too_many_matches : skip_reason)
-            | "Gitignore_patterns_match" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Gitignore_patterns_match : skip_reason)
-            | "Dotfile" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Dotfile : skip_reason)
-            | "Nonexistent_file" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Nonexistent_file : skip_reason)
-            | "insufficient_permissions" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Insufficient_permissions : skip_reason)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "always_skipped" ->
@@ -20437,25 +18918,7 @@ let string_of__rule_id_option ?(len = 1024) x =
 let read__rule_id_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_rule_id
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -20757,25 +19220,7 @@ let string_of__version_option ?(len = 1024) x =
 let read__version_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_version
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -21149,140 +19594,7 @@ let string_of_error_type ?(len = 1024) x =
 let read_error_type = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "Lexical error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (LexicalError : error_type)
-            | "Syntax error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (ParseError : error_type)
-            | "Other syntax error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (OtherParseError : error_type)
-            | "AST builder error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (AstBuilderError : error_type)
-            | "Rule parse error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (RuleParseError : error_type)
-            | "SemgrepWarning" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (SemgrepWarning : error_type)
-            | "SemgrepError" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (SemgrepError : error_type)
-            | "InvalidRuleSchemaError" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (InvalidRuleSchemaError : error_type)
-            | "UnknownLanguageError" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (UnknownLanguageError : error_type)
-            | "Invalid YAML" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (InvalidYaml : error_type)
-            | "Internal matching error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (MatchingError : error_type)
-            | "Semgrep match found" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (SemgrepMatchFound : error_type)
-            | "Too many matches" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (TooManyMatches : error_type)
-            | "Fatal error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (FatalError : error_type)
-            | "Timeout" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Timeout : error_type)
-            | "Out of memory" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (OutOfMemory : error_type)
-            | "Fixpoint timeout" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (FixpointTimeout : error_type)
-            | "Stack overflow" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (StackOverflow : error_type)
-            | "Timeout during interfile analysis" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (TimeoutDuringInterfile : error_type)
-            | "OOM during interfile analysis" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (OutOfMemoryDuringInterfile : error_type)
-            | "Missing plugin" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (MissingPlugin : error_type)
-            | "PatternParseError" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__string_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PatternParseError x : error_type)
-            | "PartialParsing" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__location_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PartialParsing x : error_type)
-            | "IncompatibleRule" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_incompatible_rule
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (IncompatibleRule x : error_type)
-            | "Pattern parse error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (PatternParseError0 : error_type)
-            | "Incompatible rule" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (IncompatibleRule0 : error_type)
-            | "DependencyResolutionError" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_resolution_error_kind
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (DependencyResolutionError x : error_type)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "Lexical error" ->
@@ -21400,24 +19712,7 @@ let string_of_error_severity ?(len = 1024) x =
 let read_error_severity = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "error" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Error
-            | "warn" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Warning
-            | "info" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Info
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "error" ->
@@ -21449,25 +19744,7 @@ let string_of__location_option ?(len = 1024) x =
 let read__location_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_location
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -23372,20 +21649,7 @@ let string_of_resolution_method ?(len = 1024) x =
 let read_resolution_method = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "LockfileParsing" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `LockfileParsing
-            | "DynamicResolution" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `DynamicResolution
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "LockfileParsing" ->
@@ -23426,30 +21690,7 @@ let string_of_dependency_source_file_kind ?(len = 1024) x =
 let read_dependency_source_file_kind = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "Lockfile" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_lockfile_kind
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Lockfile x
-            | "Manifest" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_manifest_kind
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Manifest x
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | x ->
@@ -23856,25 +22097,7 @@ let string_of__unresolved_reason_option ?(len = 1024) x =
 let read__unresolved_reason_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_unresolved_reason
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -23929,25 +22152,7 @@ let string_of__dependency_resolution_stats_option ?(len = 1024) x =
 let read__dependency_resolution_stats_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_dependency_resolution_stats
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -25042,25 +23247,7 @@ let string_of__skipped_target_list_option ?(len = 1024) x =
 let read__skipped_target_list_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__skipped_target_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -25843,7 +24030,7 @@ let read__x_c6e52f6 = (
   Atdgen_runtime.Oj_run.read_list (
     fun p lb ->
       Yojson.Safe.read_space p lb;
-      let std_tuple = Yojson.Safe.start_any_tuple p lb in
+      Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
       let len = ref 0 in
       let end_of_tuple = ref false in
       (try
@@ -25855,7 +24042,7 @@ let read__x_c6e52f6 = (
           in
           incr len;
           Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
           x
         in
         let x1 =
@@ -25867,8 +24054,8 @@ let read__x_c6e52f6 = (
           incr len;
           (try
             Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          with Yojson.End_of_tuple -> end_of_tuple := true);
+            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+          with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
           x
         in
         if not !end_of_tuple then (
@@ -25876,12 +24063,12 @@ let read__x_c6e52f6 = (
             while true do
               Yojson.Safe.skip_json p lb;
               Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+              Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
             done
-          with Yojson.End_of_tuple -> ()
+          with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
         );
         (x0, x1)
-      with Yojson.End_of_tuple ->
+      with Atdgen_runtime.Yojson_extra.End_of_tuple ->
         Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
   )
 )
@@ -26070,25 +24257,7 @@ let string_of__product_ignored_files_option ?(len = 1024) x =
 let read__product_ignored_files_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_product_ignored_files
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -26127,25 +24296,7 @@ let string_of__historical_configuration_option ?(len = 1024) x =
 let read__historical_configuration_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_historical_configuration
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -27430,25 +25581,7 @@ let string_of__datetime_option ?(len = 1024) x =
 let read__datetime_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_datetime
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -28958,25 +27091,7 @@ let string_of__tag_list_option ?(len = 1024) x =
 let read__tag_list_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__tag_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -29174,25 +27289,7 @@ let string_of__ci_config_from_repo_option ?(len = 1024) x =
 let read__ci_config_from_repo_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_ci_config_from_repo
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -29991,39 +28088,7 @@ let string_of_action ?(len = 1024) x =
 let read_action = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "Message" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Message x
-            | "Delay" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_number
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Delay x
-            | "Exit" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_int
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `Exit x
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | x ->
@@ -30096,7 +28161,7 @@ let read__fpath_ci_config_list = (
   Atdgen_runtime.Oj_run.read_list (
     fun p lb ->
       Yojson.Safe.read_space p lb;
-      let std_tuple = Yojson.Safe.start_any_tuple p lb in
+      Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
       let len = ref 0 in
       let end_of_tuple = ref false in
       (try
@@ -30108,7 +28173,7 @@ let read__fpath_ci_config_list = (
           in
           incr len;
           Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
           x
         in
         let x1 =
@@ -30120,8 +28185,8 @@ let read__fpath_ci_config_list = (
           incr len;
           (try
             Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          with Yojson.End_of_tuple -> end_of_tuple := true);
+            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+          with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
           x
         in
         if not !end_of_tuple then (
@@ -30129,12 +28194,12 @@ let read__fpath_ci_config_list = (
             while true do
               Yojson.Safe.skip_json p lb;
               Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+              Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
             done
-          with Yojson.End_of_tuple -> ()
+          with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
         );
         (x0, x1)
-      with Yojson.End_of_tuple ->
+      with Atdgen_runtime.Yojson_extra.End_of_tuple ->
         Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
   )
 )
@@ -30152,25 +28217,7 @@ let string_of__fpath_ci_config_list_option ?(len = 1024) x =
 let read__fpath_ci_config_list_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__fpath_ci_config_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -30209,25 +28256,7 @@ let string_of__ci_config_option ?(len = 1024) x =
 let read__ci_config_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_ci_config
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -30545,25 +28574,7 @@ let string_of__product_list_option ?(len = 1024) x =
 let read__product_list_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__product_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -30602,25 +28613,7 @@ let string_of__ci_config_from_cloud_option ?(len = 1024) x =
 let read__ci_config_from_cloud_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_ci_config_from_cloud
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -31748,20 +29741,7 @@ let string_of_engine_kind ?(len = 1024) x =
 let read_engine_kind = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "OSS" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `OSS
-            | "PRO" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `PRO
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "OSS" ->
@@ -31802,7 +29782,7 @@ let string_of_rule_id_and_engine_kind ?(len = 1024) x =
 let read_rule_id_and_engine_kind = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+    Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
     let len = ref 0 in
     let end_of_tuple = ref false in
     (try
@@ -31814,7 +29794,7 @@ let read_rule_id_and_engine_kind = (
         in
         incr len;
         Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+        Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
         x
       in
       let x1 =
@@ -31826,8 +29806,8 @@ let read_rule_id_and_engine_kind = (
         incr len;
         (try
           Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-        with Yojson.End_of_tuple -> end_of_tuple := true);
+          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+        with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
         x
       in
       if not !end_of_tuple then (
@@ -31835,12 +29815,12 @@ let read_rule_id_and_engine_kind = (
           while true do
             Yojson.Safe.skip_json p lb;
             Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
           done
-        with Yojson.End_of_tuple -> ()
+        with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
       );
       (x0, x1)
-    with Yojson.End_of_tuple ->
+    with Atdgen_runtime.Yojson_extra.End_of_tuple ->
       Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
 )
 let rule_id_and_engine_kind_of_string s =
@@ -31871,7 +29851,7 @@ let read__x_d93e7b4 = (
   Atdgen_runtime.Oj_run.read_list (
     fun p lb ->
       Yojson.Safe.read_space p lb;
-      let std_tuple = Yojson.Safe.start_any_tuple p lb in
+      Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
       let len = ref 0 in
       let end_of_tuple = ref false in
       (try
@@ -31883,7 +29863,7 @@ let read__x_d93e7b4 = (
           in
           incr len;
           Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
           x
         in
         let x1 =
@@ -31895,8 +29875,8 @@ let read__x_d93e7b4 = (
           incr len;
           (try
             Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          with Yojson.End_of_tuple -> end_of_tuple := true);
+            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+          with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
           x
         in
         if not !end_of_tuple then (
@@ -31904,12 +29884,12 @@ let read__x_d93e7b4 = (
             while true do
               Yojson.Safe.skip_json p lb;
               Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+              Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
             done
-          with Yojson.End_of_tuple -> ()
+          with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
         );
         (x0, x1)
-      with Yojson.End_of_tuple ->
+      with Atdgen_runtime.Yojson_extra.End_of_tuple ->
         Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
   )
 )
@@ -32457,71 +30437,7 @@ let string_of_resolution_result ?(len = 1024) x =
 let read_resolution_result = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "ResolutionOk" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  fun p lb ->
-                    Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                    let len = ref 0 in
-                    let end_of_tuple = ref false in
-                    (try
-                      let x0 =
-                        let x =
-                          (
-                            read__resolved_dependency_list
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x1 =
-                        let x =
-                          (
-                            read__resolution_error_kind_list
-                          ) p lb
-                        in
-                        incr len;
-                        (try
-                          Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
-                        x
-                      in
-                      if not !end_of_tuple then (
-                        try
-                          while true do
-                            Yojson.Safe.skip_json p lb;
-                            Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                          done
-                        with Yojson.End_of_tuple -> ()
-                      );
-                      (x0, x1)
-                    with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `ResolutionOk x
-            | "ResolutionError" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__resolution_error_kind_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `ResolutionError x
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | x ->
@@ -32536,7 +30452,7 @@ let read_resolution_result = (
               let x = (
                   fun p lb ->
                     Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
                     let len = ref 0 in
                     let end_of_tuple = ref false in
                     (try
@@ -32548,7 +30464,7 @@ let read_resolution_result = (
                         in
                         incr len;
                         Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                         x
                       in
                       let x1 =
@@ -32560,8 +30476,8 @@ let read_resolution_result = (
                         incr len;
                         (try
                           Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+                        with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
                         x
                       in
                       if not !end_of_tuple then (
@@ -32569,12 +30485,12 @@ let read_resolution_result = (
                           while true do
                             Yojson.Safe.skip_json p lb;
                             Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                           done
-                        with Yojson.End_of_tuple -> ()
+                        with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
                       );
                       (x0, x1)
-                    with Yojson.End_of_tuple ->
+                    with Atdgen_runtime.Yojson_extra.End_of_tuple ->
                       Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
                 ) p lb
               in
@@ -33131,25 +31047,7 @@ let string_of__very_slow_stats_option ?(len = 1024) x =
 let read__very_slow_stats_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_very_slow_stats
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -33942,25 +31840,7 @@ let string_of__tainting_time_option ?(len = 1024) x =
 let read__tainting_time_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_tainting_time
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -33999,25 +31879,7 @@ let string_of__scanning_time_option ?(len = 1024) x =
 let read__scanning_time_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_scanning_time
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -34072,25 +31934,7 @@ let string_of__prefiltering_stats_option ?(len = 1024) x =
 let read__prefiltering_stats_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_prefiltering_stats
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -34129,25 +31973,7 @@ let string_of__parsing_time_option ?(len = 1024) x =
 let read__parsing_time_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_parsing_time
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -34186,25 +32012,7 @@ let string_of__matching_time_option ?(len = 1024) x =
 let read__matching_time_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_matching_time
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -34243,25 +32051,7 @@ let string_of__core_error_list_option ?(len = 1024) x =
 let read__core_error_list_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__core_error_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -35449,25 +33239,7 @@ let string_of__finding_hashes_option ?(len = 1024) x =
 let read__finding_hashes_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_finding_hashes
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -36615,25 +34387,7 @@ let string_of__string_list_nullable_option ?(len = 1024) x =
 let read__string_list_nullable_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__string_list_nullable
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -36691,25 +34445,7 @@ let string_of__position_nullable_option ?(len = 1024) x =
 let read__position_nullable_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__position_nullable
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -37687,25 +35423,7 @@ let string_of__error_span_list_option ?(len = 1024) x =
 let read__error_span_list_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__error_span_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -38759,25 +36477,7 @@ let string_of__contributions_option ?(len = 1024) x =
 let read__contributions_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_contributions
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -38816,25 +36516,7 @@ let string_of__ci_scan_metadata_option ?(len = 1024) x =
 let read__ci_scan_metadata_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_ci_scan_metadata
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -38873,25 +36555,7 @@ let string_of__ci_scan_dependencies_option ?(len = 1024) x =
 let read__ci_scan_dependencies_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_ci_scan_dependencies
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -39662,25 +37326,7 @@ let string_of__x_122e274 ?(len = 1024) x =
 let read__x_122e274 = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__x_852c7ec
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -39719,25 +37365,7 @@ let string_of__supply_chain_stats_option ?(len = 1024) x =
 let read__supply_chain_stats_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_supply_chain_stats
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -40316,25 +37944,7 @@ let string_of__dependency_parser_error_list_option ?(len = 1024) x =
 let read__dependency_parser_error_list_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__dependency_parser_error_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -40746,71 +38356,7 @@ let string_of_partial_scan_result ?(len = 1024) x =
 let read_partial_scan_result = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "PartialScanOk" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  fun p lb ->
-                    Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                    let len = ref 0 in
-                    let end_of_tuple = ref false in
-                    (try
-                      let x0 =
-                        let x =
-                          (
-                            read_ci_scan_results
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x1 =
-                        let x =
-                          (
-                            read_ci_scan_complete
-                          ) p lb
-                        in
-                        incr len;
-                        (try
-                          Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
-                        x
-                      in
-                      if not !end_of_tuple then (
-                        try
-                          while true do
-                            Yojson.Safe.skip_json p lb;
-                            Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                          done
-                        with Yojson.End_of_tuple -> ()
-                      );
-                      (x0, x1)
-                    with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `PartialScanOk x
-            | "PartialScanError" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_ci_scan_failure
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `PartialScanError x
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | x ->
@@ -40825,7 +38371,7 @@ let read_partial_scan_result = (
               let x = (
                   fun p lb ->
                     Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
                     let len = ref 0 in
                     let end_of_tuple = ref false in
                     (try
@@ -40837,7 +38383,7 @@ let read_partial_scan_result = (
                         in
                         incr len;
                         Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                         x
                       in
                       let x1 =
@@ -40849,8 +38395,8 @@ let read_partial_scan_result = (
                         incr len;
                         (try
                           Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+                        with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
                         x
                       in
                       if not !end_of_tuple then (
@@ -40858,12 +38404,12 @@ let read_partial_scan_result = (
                           while true do
                             Yojson.Safe.skip_json p lb;
                             Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                           done
-                        with Yojson.End_of_tuple -> ()
+                        with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
                       );
                       (x0, x1)
-                    with Yojson.End_of_tuple ->
+                    with Atdgen_runtime.Yojson_extra.End_of_tuple ->
                       Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
                 ) p lb
               in
@@ -40908,52 +38454,7 @@ let string_of_output_format ?(len = 1024) x =
 let read_output_format = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "Text" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Text : output_format)
-            | "Json" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Json : output_format)
-            | "Emacs" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Emacs : output_format)
-            | "Vim" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Vim : output_format)
-            | "Sarif" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Sarif : output_format)
-            | "Gitlab_sast" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Gitlab_sast : output_format)
-            | "Gitlab_secrets" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Gitlab_secrets : output_format)
-            | "Junit_xml" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Junit_xml : output_format)
-            | "Files_with_matches" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Files_with_matches : output_format)
-            | "Incremental" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Incremental : output_format)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "Text" ->
@@ -41417,7 +38918,7 @@ let read__int_string_list_list = (
   Atdgen_runtime.Oj_run.read_list (
     fun p lb ->
       Yojson.Safe.read_space p lb;
-      let std_tuple = Yojson.Safe.start_any_tuple p lb in
+      Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
       let len = ref 0 in
       let end_of_tuple = ref false in
       (try
@@ -41429,7 +38930,7 @@ let read__int_string_list_list = (
           in
           incr len;
           Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
           x
         in
         let x1 =
@@ -41441,8 +38942,8 @@ let read__int_string_list_list = (
           incr len;
           (try
             Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          with Yojson.End_of_tuple -> end_of_tuple := true);
+            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+          with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
           x
         in
         if not !end_of_tuple then (
@@ -41450,12 +38951,12 @@ let read__int_string_list_list = (
             while true do
               Yojson.Safe.skip_json p lb;
               Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+              Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
             done
-          with Yojson.End_of_tuple -> ()
+          with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
         );
         (x0, x1)
-      with Yojson.End_of_tuple ->
+      with Atdgen_runtime.Yojson_extra.End_of_tuple ->
         Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
   )
 )
@@ -41656,7 +39157,7 @@ let read__dependency_source_resolution_result_list = (
   Atdgen_runtime.Oj_run.read_list (
     fun p lb ->
       Yojson.Safe.read_space p lb;
-      let std_tuple = Yojson.Safe.start_any_tuple p lb in
+      Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
       let len = ref 0 in
       let end_of_tuple = ref false in
       (try
@@ -41668,7 +39169,7 @@ let read__dependency_source_resolution_result_list = (
           in
           incr len;
           Yojson.Safe.read_space p lb;
-          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
           x
         in
         let x1 =
@@ -41680,8 +39181,8 @@ let read__dependency_source_resolution_result_list = (
           incr len;
           (try
             Yojson.Safe.read_space p lb;
-            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-          with Yojson.End_of_tuple -> end_of_tuple := true);
+            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+          with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
           x
         in
         if not !end_of_tuple then (
@@ -41689,12 +39190,12 @@ let read__dependency_source_resolution_result_list = (
             while true do
               Yojson.Safe.skip_json p lb;
               Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+              Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
             done
-          with Yojson.End_of_tuple -> ()
+          with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
         );
         (x0, x1)
-      with Yojson.End_of_tuple ->
+      with Atdgen_runtime.Yojson_extra.End_of_tuple ->
         Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
   )
 )
@@ -41712,25 +39213,7 @@ let string_of__core_error_option ?(len = 1024) x =
 let read__core_error_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_core_error
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -41852,138 +39335,7 @@ let string_of_function_return ?(len = 1024) x =
 let read_function_return = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "RetError" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `RetError x
-            | "RetApplyFixes" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_apply_fixes_return
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `RetApplyFixes x
-            | "RetContributions" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_contributions
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `RetContributions x
-            | "RetFormatter" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `RetFormatter x
-            | "RetSarifFormat" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `RetSarifFormat x
-            | "RetValidate" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__core_error_option
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `RetValidate x
-            | "RetResolveDependencies" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__dependency_source_resolution_result_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `RetResolveDependencies x
-            | "RetUploadSymbolAnalysis" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `RetUploadSymbolAnalysis x
-            | "RetDumpRulePartitions" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_bool
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `RetDumpRulePartitions x
-            | "RetTransitiveReachabilityFilter" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__transitive_finding_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `RetTransitiveReachabilityFilter x
-            | "RetGetTargets" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_target_discovery_result
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `RetGetTargets x
-            | "RetMatchSubprojects" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__subproject_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `RetMatchSubprojects x
-            | "RetRunSymbolAnalysis" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_symbol_analysis
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `RetRunSymbolAnalysis x
-            | "RetShowSubprojects" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `RetShowSubprojects x
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | x ->
@@ -43279,25 +40631,7 @@ let string_of__profile_option ?(len = 1024) x =
 let read__profile_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_profile
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -43352,25 +40686,7 @@ let string_of__option_d7f1ad8 ?(len = 1024) x =
 let read__option_d7f1ad8 = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__list_a3e89bb
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -43425,25 +40741,7 @@ let string_of__option_8ec09b5 ?(len = 1024) x =
 let read__option_8ec09b5 = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__cli_output_subproject_info_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -43482,25 +40780,7 @@ let string_of__mcp_scan_results_option ?(len = 1024) x =
 let read__mcp_scan_results_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_mcp_scan_results
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -43539,25 +40819,7 @@ let string_of__matching_explanation_list_option ?(len = 1024) x =
 let read__matching_explanation_list_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__matching_explanation_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -43596,25 +40858,7 @@ let string_of__engine_kind_option ?(len = 1024) x =
 let read__engine_kind_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_engine_kind
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -44649,280 +41893,7 @@ let string_of_function_call ?(len = 1024) x =
 let read_function_call = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "CallContributions" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `CallContributions
-            | "CallApplyFixes" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_apply_fixes_params
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `CallApplyFixes x
-            | "CallFormatter" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  fun p lb ->
-                    Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                    let len = ref 0 in
-                    let end_of_tuple = ref false in
-                    (try
-                      let x0 =
-                        let x =
-                          (
-                            read_output_format
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x1 =
-                        let x =
-                          (
-                            read_format_context
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x2 =
-                        let x =
-                          (
-                            read_cli_output
-                          ) p lb
-                        in
-                        incr len;
-                        (try
-                          Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
-                        x
-                      in
-                      if not !end_of_tuple then (
-                        try
-                          while true do
-                            Yojson.Safe.skip_json p lb;
-                            Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                          done
-                        with Yojson.End_of_tuple -> ()
-                      );
-                      (x0, x1, x2)
-                    with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1; 2 ]);
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `CallFormatter x
-            | "CallSarifFormat" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  fun p lb ->
-                    Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                    let len = ref 0 in
-                    let end_of_tuple = ref false in
-                    (try
-                      let x0 =
-                        let x =
-                          (
-                            read_sarif_format
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x1 =
-                        let x =
-                          (
-                            read_format_context
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x2 =
-                        let x =
-                          (
-                            read_cli_output
-                          ) p lb
-                        in
-                        incr len;
-                        (try
-                          Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
-                        x
-                      in
-                      if not !end_of_tuple then (
-                        try
-                          while true do
-                            Yojson.Safe.skip_json p lb;
-                            Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                          done
-                        with Yojson.End_of_tuple -> ()
-                      );
-                      (x0, x1, x2)
-                    with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1; 2 ]);
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `CallSarifFormat x
-            | "CallValidate" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_fpath
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `CallValidate x
-            | "CallResolveDependencies" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_resolve_dependencies_params
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `CallResolveDependencies x
-            | "CallUploadSymbolAnalysis" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  fun p lb ->
-                    Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
-                    let len = ref 0 in
-                    let end_of_tuple = ref false in
-                    (try
-                      let x0 =
-                        let x =
-                          (
-                            Atdgen_runtime.Oj_run.read_string
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x1 =
-                        let x =
-                          (
-                            Atdgen_runtime.Oj_run.read_int
-                          ) p lb
-                        in
-                        incr len;
-                        Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        x
-                      in
-                      let x2 =
-                        let x =
-                          (
-                            read_symbol_analysis
-                          ) p lb
-                        in
-                        incr len;
-                        (try
-                          Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
-                        x
-                      in
-                      if not !end_of_tuple then (
-                        try
-                          while true do
-                            Yojson.Safe.skip_json p lb;
-                            Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                          done
-                        with Yojson.End_of_tuple -> ()
-                      );
-                      (x0, x1, x2)
-                    with Yojson.End_of_tuple ->
-                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1; 2 ]);
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `CallUploadSymbolAnalysis x
-            | "CallDumpRulePartitions" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_dump_rule_partitions_params
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `CallDumpRulePartitions x
-            | "CallGetTargets" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_scanning_roots
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `CallGetTargets x
-            | "CallTransitiveReachabilityFilter" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_transitive_reachability_filter_params
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `CallTransitiveReachabilityFilter x
-            | "CallMatchSubprojects" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__fpath_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `CallMatchSubprojects x
-            | "CallRunSymbolAnalysis" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_symbol_analysis_params
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `CallRunSymbolAnalysis x
-            | "CallShowSubprojects" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__subproject_list
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              `CallShowSubprojects x
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "CallContributions" ->
@@ -44950,7 +41921,7 @@ let read_function_call = (
               let x = (
                   fun p lb ->
                     Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
                     let len = ref 0 in
                     let end_of_tuple = ref false in
                     (try
@@ -44962,7 +41933,7 @@ let read_function_call = (
                         in
                         incr len;
                         Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                         x
                       in
                       let x1 =
@@ -44973,7 +41944,7 @@ let read_function_call = (
                         in
                         incr len;
                         Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                         x
                       in
                       let x2 =
@@ -44985,8 +41956,8 @@ let read_function_call = (
                         incr len;
                         (try
                           Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+                        with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
                         x
                       in
                       if not !end_of_tuple then (
@@ -44994,12 +41965,12 @@ let read_function_call = (
                           while true do
                             Yojson.Safe.skip_json p lb;
                             Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                           done
-                        with Yojson.End_of_tuple -> ()
+                        with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
                       );
                       (x0, x1, x2)
-                    with Yojson.End_of_tuple ->
+                    with Atdgen_runtime.Yojson_extra.End_of_tuple ->
                       Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1; 2 ]);
                 ) p lb
               in
@@ -45013,7 +41984,7 @@ let read_function_call = (
               let x = (
                   fun p lb ->
                     Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
                     let len = ref 0 in
                     let end_of_tuple = ref false in
                     (try
@@ -45025,7 +41996,7 @@ let read_function_call = (
                         in
                         incr len;
                         Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                         x
                       in
                       let x1 =
@@ -45036,7 +42007,7 @@ let read_function_call = (
                         in
                         incr len;
                         Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                         x
                       in
                       let x2 =
@@ -45048,8 +42019,8 @@ let read_function_call = (
                         incr len;
                         (try
                           Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+                        with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
                         x
                       in
                       if not !end_of_tuple then (
@@ -45057,12 +42028,12 @@ let read_function_call = (
                           while true do
                             Yojson.Safe.skip_json p lb;
                             Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                           done
-                        with Yojson.End_of_tuple -> ()
+                        with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
                       );
                       (x0, x1, x2)
-                    with Yojson.End_of_tuple ->
+                    with Atdgen_runtime.Yojson_extra.End_of_tuple ->
                       Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1; 2 ]);
                 ) p lb
               in
@@ -45098,7 +42069,7 @@ let read_function_call = (
               let x = (
                   fun p lb ->
                     Yojson.Safe.read_space p lb;
-                    let std_tuple = Yojson.Safe.start_any_tuple p lb in
+                    Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
                     let len = ref 0 in
                     let end_of_tuple = ref false in
                     (try
@@ -45110,7 +42081,7 @@ let read_function_call = (
                         in
                         incr len;
                         Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                         x
                       in
                       let x1 =
@@ -45121,7 +42092,7 @@ let read_function_call = (
                         in
                         incr len;
                         Yojson.Safe.read_space p lb;
-                        Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                        Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                         x
                       in
                       let x2 =
@@ -45133,8 +42104,8 @@ let read_function_call = (
                         incr len;
                         (try
                           Yojson.Safe.read_space p lb;
-                          Yojson.Safe.read_tuple_sep2 p std_tuple lb;
-                        with Yojson.End_of_tuple -> end_of_tuple := true);
+                          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+                        with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
                         x
                       in
                       if not !end_of_tuple then (
@@ -45142,12 +42113,12 @@ let read_function_call = (
                           while true do
                             Yojson.Safe.skip_json p lb;
                             Yojson.Safe.read_space p lb;
-                            Yojson.Safe.read_tuple_sep2 p std_tuple lb;
+                            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
                           done
-                        with Yojson.End_of_tuple -> ()
+                        with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
                       );
                       (x0, x1, x2)
-                    with Yojson.End_of_tuple ->
+                    with Atdgen_runtime.Yojson_extra.End_of_tuple ->
                       Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1; 2 ]);
                 ) p lb
               in
@@ -46633,25 +43604,7 @@ let string_of__symbol_analysis_option ?(len = 1024) x =
 let read__symbol_analysis_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read_symbol_analysis
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
