@@ -38,8 +38,9 @@ force-build:
 .PHONY: build
 build: $(FILES)
 
-# need atdpy >= 2.11.0 to support parametrized types
+# need atdpy >= 3.0.0 to translate <doc text=...> into Python docstrings
 # need atdpy >= 2.12.0 for semgrep_metric.py
+# need atdpy >= 2.11.0 to support parametrized types
 %.py: %.atd
 	atdpy $<
 
