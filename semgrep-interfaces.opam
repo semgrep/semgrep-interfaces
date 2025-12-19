@@ -16,7 +16,7 @@ depends: [
   "atd" {>= "2.6.0"}
   "atdpy" {>= "3.0.0"}
   "atdts" {>= "2.13.0"}
-  "atdgen" {>= "2.10.0"}
+  "atdgen" {>= "3.0.1"}
 ]
 
 #TODO: we don't build on ubuntu or debian ever, and they are not packages there,
