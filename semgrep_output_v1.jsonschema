@@ -3818,8 +3818,16 @@
           ]
         },
         {
-          "description": "success msg",
-          "const": "RetUploadSubprojectSymbolAnalysis"
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            {
+              "description": "success msg",
+              "const": "RetUploadSubprojectSymbolAnalysis"
+            },
+            { "type": "string" }
+          ]
         },
         {
           "type": "array",

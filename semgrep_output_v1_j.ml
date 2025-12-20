@@ -42314,7 +42314,12 @@ let write_function_return = (
           write_symbol_analysis
         ) ob x;
         Buffer.add_char ob ']'
-      | `RetUploadSubprojectSymbolAnalysis -> Buffer.add_string ob "\"RetUploadSubprojectSymbolAnalysis\""
+      | `RetUploadSubprojectSymbolAnalysis x ->
+        Buffer.add_string ob "[\"RetUploadSubprojectSymbolAnalysis\",";
+        (
+          Yojson.Safe.write_string
+        ) ob x;
+        Buffer.add_char ob ']'
       | `RetShowSubprojects x ->
         Buffer.add_string ob "[\"RetShowSubprojects\",";
         (
@@ -42450,9 +42455,14 @@ let read_function_return = (
               Yojson.Safe.read_gt p lb;
               `RetRunSymbolAnalysis x
             | "RetUploadSubprojectSymbolAnalysis" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `RetUploadSubprojectSymbolAnalysis
+              `RetUploadSubprojectSymbolAnalysis x
             | "RetShowSubprojects" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
@@ -42467,8 +42477,6 @@ let read_function_return = (
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
-            | "RetUploadSubprojectSymbolAnalysis" ->
-              `RetUploadSubprojectSymbolAnalysis
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -42617,6 +42625,17 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `RetRunSymbolAnalysis x
+            | "RetUploadSubprojectSymbolAnalysis" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  Atdgen_runtime.Oj_run.read_string
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `RetUploadSubprojectSymbolAnalysis x
             | "RetShowSubprojects" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;

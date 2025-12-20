@@ -10621,16 +10621,17 @@ class RetRunSymbolAnalysis:
 
 @dataclass(frozen=True)
 class RetUploadSubprojectSymbolAnalysis:
-    """Original type: function_return = [ ... | RetUploadSubprojectSymbolAnalysis | ... ]"""
+    """Original type: function_return = [ ... | RetUploadSubprojectSymbolAnalysis of ... | ... ]"""
+
+    value: str
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
         return 'RetUploadSubprojectSymbolAnalysis'
 
-    @staticmethod
-    def to_json() -> Any:
-        return 'RetUploadSubprojectSymbolAnalysis'
+    def to_json(self) -> Any:
+        return ['RetUploadSubprojectSymbolAnalysis', _atd_write_string(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -10667,10 +10668,6 @@ class FunctionReturn:
 
     @classmethod
     def from_json(cls, x: Any) -> 'FunctionReturn':
-        if isinstance(x, str):
-            if x == 'RetUploadSubprojectSymbolAnalysis':
-                return cls(RetUploadSubprojectSymbolAnalysis())
-            _atd_bad_json('FunctionReturn', x)
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'RetError':
@@ -10699,6 +10696,8 @@ class FunctionReturn:
                 return cls(RetMatchSubprojects(_atd_read_list(Subproject.from_json)(x[1])))
             if cons == 'RetRunSymbolAnalysis':
                 return cls(RetRunSymbolAnalysis(SymbolAnalysis.from_json(x[1])))
+            if cons == 'RetUploadSubprojectSymbolAnalysis':
+                return cls(RetUploadSubprojectSymbolAnalysis(_atd_read_string(x[1])))
             if cons == 'RetShowSubprojects':
                 return cls(RetShowSubprojects(_atd_read_string(x[1])))
             _atd_bad_json('FunctionReturn', x)

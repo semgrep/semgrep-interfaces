@@ -2278,7 +2278,7 @@ type function_return = [
   | `RetGetTargets of target_discovery_result
   | `RetMatchSubprojects of subproject list
   | `RetRunSymbolAnalysis of symbol_analysis
-  | `RetUploadSubprojectSymbolAnalysis (** success msg *)
+  | `RetUploadSubprojectSymbolAnalysis of string (** success msg *)
   | `RetShowSubprojects of string
       (**
         The text return here typically contains newlines but is not

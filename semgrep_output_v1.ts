@@ -1326,7 +1326,7 @@ export type FunctionReturn =
 | { kind: 'RetGetTargets'; value: TargetDiscoveryResult }
 | { kind: 'RetMatchSubprojects'; value: Subproject[] }
 | { kind: 'RetRunSymbolAnalysis'; value: SymbolAnalysis }
-| { kind: 'RetUploadSubprojectSymbolAnalysis' }
+| { kind: 'RetUploadSubprojectSymbolAnalysis'; value: string }
 | { kind: 'RetShowSubprojects'; value: string }
 
 export type FunctionResult = {
@@ -5435,57 +5435,48 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
     case 'RetRunSymbolAnalysis':
       return ['RetRunSymbolAnalysis', writeSymbolAnalysis(x.value, x)]
     case 'RetUploadSubprojectSymbolAnalysis':
-      return 'RetUploadSubprojectSymbolAnalysis'
+      return ['RetUploadSubprojectSymbolAnalysis', _atd_write_string(x.value, x)]
     case 'RetShowSubprojects':
       return ['RetShowSubprojects', _atd_write_string(x.value, x)]
   }
 }
 
 export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
-  if (typeof x === 'string') {
-    switch (x) {
-      case 'RetUploadSubprojectSymbolAnalysis':
-        return { kind: 'RetUploadSubprojectSymbolAnalysis' }
-      default:
-        _atd_bad_json('FunctionReturn', x, context)
-        throw new Error('impossible')
-    }
-  }
-  else {
-    _atd_check_json_tuple(2, x, context)
-    switch (x[0]) {
-      case 'RetError':
-        return { kind: 'RetError', value: _atd_read_string(x[1], x) }
-      case 'RetApplyFixes':
-        return { kind: 'RetApplyFixes', value: readApplyFixesReturn(x[1], x) }
-      case 'RetContributions':
-        return { kind: 'RetContributions', value: readContributions(x[1], x) }
-      case 'RetFormatter':
-        return { kind: 'RetFormatter', value: _atd_read_string(x[1], x) }
-      case 'RetSarifFormat':
-        return { kind: 'RetSarifFormat', value: _atd_read_string(x[1], x) }
-      case 'RetValidate':
-        return { kind: 'RetValidate', value: _atd_read_option(readCoreError)(x[1], x) }
-      case 'RetResolveDependencies':
-        return { kind: 'RetResolveDependencies', value: _atd_read_array(((x, context): [DependencySource, ResolutionResult] => { _atd_check_json_tuple(2, x, context); return [readDependencySource(x[0], x), readResolutionResult(x[1], x)] }))(x[1], x) }
-      case 'RetUploadSymbolAnalysis':
-        return { kind: 'RetUploadSymbolAnalysis', value: _atd_read_string(x[1], x) }
-      case 'RetDumpRulePartitions':
-        return { kind: 'RetDumpRulePartitions', value: _atd_read_bool(x[1], x) }
-      case 'RetTransitiveReachabilityFilter':
-        return { kind: 'RetTransitiveReachabilityFilter', value: _atd_read_array(readTransitiveFinding)(x[1], x) }
-      case 'RetGetTargets':
-        return { kind: 'RetGetTargets', value: readTargetDiscoveryResult(x[1], x) }
-      case 'RetMatchSubprojects':
-        return { kind: 'RetMatchSubprojects', value: _atd_read_array(readSubproject)(x[1], x) }
-      case 'RetRunSymbolAnalysis':
-        return { kind: 'RetRunSymbolAnalysis', value: readSymbolAnalysis(x[1], x) }
-      case 'RetShowSubprojects':
-        return { kind: 'RetShowSubprojects', value: _atd_read_string(x[1], x) }
-      default:
-        _atd_bad_json('FunctionReturn', x, context)
-        throw new Error('impossible')
-    }
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'RetError':
+      return { kind: 'RetError', value: _atd_read_string(x[1], x) }
+    case 'RetApplyFixes':
+      return { kind: 'RetApplyFixes', value: readApplyFixesReturn(x[1], x) }
+    case 'RetContributions':
+      return { kind: 'RetContributions', value: readContributions(x[1], x) }
+    case 'RetFormatter':
+      return { kind: 'RetFormatter', value: _atd_read_string(x[1], x) }
+    case 'RetSarifFormat':
+      return { kind: 'RetSarifFormat', value: _atd_read_string(x[1], x) }
+    case 'RetValidate':
+      return { kind: 'RetValidate', value: _atd_read_option(readCoreError)(x[1], x) }
+    case 'RetResolveDependencies':
+      return { kind: 'RetResolveDependencies', value: _atd_read_array(((x, context): [DependencySource, ResolutionResult] => { _atd_check_json_tuple(2, x, context); return [readDependencySource(x[0], x), readResolutionResult(x[1], x)] }))(x[1], x) }
+    case 'RetUploadSymbolAnalysis':
+      return { kind: 'RetUploadSymbolAnalysis', value: _atd_read_string(x[1], x) }
+    case 'RetDumpRulePartitions':
+      return { kind: 'RetDumpRulePartitions', value: _atd_read_bool(x[1], x) }
+    case 'RetTransitiveReachabilityFilter':
+      return { kind: 'RetTransitiveReachabilityFilter', value: _atd_read_array(readTransitiveFinding)(x[1], x) }
+    case 'RetGetTargets':
+      return { kind: 'RetGetTargets', value: readTargetDiscoveryResult(x[1], x) }
+    case 'RetMatchSubprojects':
+      return { kind: 'RetMatchSubprojects', value: _atd_read_array(readSubproject)(x[1], x) }
+    case 'RetRunSymbolAnalysis':
+      return { kind: 'RetRunSymbolAnalysis', value: readSymbolAnalysis(x[1], x) }
+    case 'RetUploadSubprojectSymbolAnalysis':
+      return { kind: 'RetUploadSubprojectSymbolAnalysis', value: _atd_read_string(x[1], x) }
+    case 'RetShowSubprojects':
+      return { kind: 'RetShowSubprojects', value: _atd_read_string(x[1], x) }
+    default:
+      _atd_bad_json('FunctionReturn', x, context)
+      throw new Error('impossible')
   }
 }
 
