@@ -145,7 +145,7 @@ type ecosystem =
   | Hex
   | Opam
 
-  [@@deriving eq, ord, show]
+  [@@deriving eq, ord, show { with_path = false }]
 
 type fpath = ATD_string_wrap.Fpath.t [@@deriving eq, ord, show]
 
@@ -212,7 +212,7 @@ type lockfile_kind =
   | ConanLock
   | OpamLocked
 
-  [@@deriving show, eq, yojson]
+  [@@deriving show { with_path = false }, eq, yojson]
 
 type lockfile = { kind: lockfile_kind; path: fpath } [@@deriving show, eq]
 
@@ -311,7 +311,7 @@ type manifest_kind =
   | BuildSbt
       (** build.sbt - https://www.scala-sbt.org/1.x/docs/Basic-Def.html *)
 
-  [@@deriving show, eq]
+  [@@deriving show { with_path = false }, eq]
 
 type manifest = { kind: manifest_kind; path: fpath } [@@deriving show, eq]
 
@@ -1543,10 +1543,13 @@ type subproject_stats = {
 
 type supply_chain_stats = { subprojects_stats: subproject_stats list }
 
+(**
+  Sent by the CLI to the POST
+  /api/agent/scans/\{scan_id\}/subproject_symbols_upload_url/
+*)
 type subproject_symbol_analysis_url_request = {
-  scan_id: int;
-  manifest: fpath option;
-  lockfile: fpath option
+  manifest_path: fpath option;
+  lockfile_path: fpath option
 }
 
 type skipped_rule = {
@@ -2275,7 +2278,13 @@ type function_return = [
   | `RetGetTargets of target_discovery_result
   | `RetMatchSubprojects of subproject list
   | `RetRunSymbolAnalysis of symbol_analysis
-  | `RetUploadSubprojectSymbolAnalysis of string (** success msg *)
+  | `RetUploadSubprojectSymbolAnalysis (** success msg *)
+  | `RetShowSubprojects of string
+      (**
+        The text return here typically contains newlines but is not
+        newline-terminated i.e. it is suitable to pass as an argument to a
+        logger.
+      *)
 ]
 
 type function_result = {
@@ -2392,6 +2401,12 @@ type function_call = [
   | `CallRunSymbolAnalysis of symbol_analysis_params
   | `CallUploadSubprojectSymbolAnalysis
       of upload_subproject_symbol_analysis_params
+  | `CallShowSubprojects of subproject list
+      (**
+        Format human-readable text summarizing the subprojects that were
+        discovered in a project. This is meant to be printed in --verbose
+        mode.
+      *)
 ]
 
 type features = {

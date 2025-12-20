@@ -149,7 +149,7 @@ type ecosystem = Semgrep_output_v1_t.ecosystem =
   | Hex
   | Opam
 
-  [@@deriving eq, ord, show]
+  [@@deriving eq, ord, show { with_path = false }]
 
 type fpath = Semgrep_output_v1_t.fpath [@@deriving eq, ord, show]
 
@@ -216,7 +216,7 @@ type lockfile_kind = Semgrep_output_v1_t.lockfile_kind =
   | ConanLock
   | OpamLocked
 
-  [@@deriving show, eq, yojson]
+  [@@deriving show { with_path = false }, eq, yojson]
 
 type lockfile = Semgrep_output_v1_t.lockfile = {
   kind: lockfile_kind;
@@ -319,7 +319,7 @@ type manifest_kind = Semgrep_output_v1_t.manifest_kind =
   | BuildSbt
       (** build.sbt - https://www.scala-sbt.org/1.x/docs/Basic-Def.html *)
 
-  [@@deriving show, eq]
+  [@@deriving show { with_path = false }, eq]
 
 type manifest = Semgrep_output_v1_t.manifest = {
   kind: manifest_kind;
@@ -1543,11 +1543,14 @@ type supply_chain_stats = Semgrep_output_v1_t.supply_chain_stats = {
   subprojects_stats: subproject_stats list
 }
 
+(**
+  Sent by the CLI to the POST
+  /api/agent/scans/\{scan_id\}/subproject_symbols_upload_url/
+*)
 type subproject_symbol_analysis_url_request =
   Semgrep_output_v1_t.subproject_symbol_analysis_url_request = {
-  scan_id: int;
-  manifest: fpath option;
-  lockfile: fpath option
+  manifest_path: fpath option;
+  lockfile_path: fpath option
 }
 
 type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
@@ -24700,29 +24703,20 @@ let write_subproject_symbol_analysis_url_request : _ -> subproject_symbol_analys
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"scan_id\":";
+      Buffer.add_string ob "\"manifest_path\":";
     (
-      Yojson.Safe.write_int
+      write__fpath_option
     )
-      ob x.scan_id;
+      ob x.manifest_path;
     if !is_first then
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"manifest\":";
+      Buffer.add_string ob "\"lockfile_path\":";
     (
       write__fpath_option
     )
-      ob x.manifest;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"lockfile\":";
-    (
-      write__fpath_option
-    )
-      ob x.lockfile;
+      ob x.lockfile_path;
     Buffer.add_char ob '}';
 )
 let string_of_subproject_symbol_analysis_url_request ?(len = 1024) x =
@@ -24733,9 +24727,8 @@ let read_subproject_symbol_analysis_url_request = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
-    let field_scan_id = ref (None) in
-    let field_manifest = ref (None) in
-    let field_lockfile = ref (None) in
+    let field_manifest_path = ref (None) in
+    let field_lockfile_path = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -24744,63 +24737,46 @@ let read_subproject_symbol_analysis_url_request = (
         fun s pos len ->
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          match len with
-            | 7 -> (
-                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
-                  0
+          if len = 13 then (
+            match String.unsafe_get s pos with
+              | 'l' -> (
+                  if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'k' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = 'h' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
                 )
-                else (
+              | 'm' -> (
+                  if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = 'h' then (
+                    0
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
                   -1
                 )
-              )
-            | 8 -> (
-                match String.unsafe_get s pos with
-                  | 'l' -> (
-                      if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'k' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'e' then (
-                        2
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | 'm' -> (
-                      if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 't' then (
-                        1
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | _ -> (
-                      -1
-                    )
-              )
-            | _ -> (
-                -1
-              )
+          )
+          else (
+            -1
+          )
       in
       let i = Yojson.Safe.map_ident p f lb in
       Atdgen_runtime.Oj_run.read_until_field_value p lb;
       (
         match i with
           | 0 ->
-            field_scan_id := (
-              Some (
-                (
-                  Atdgen_runtime.Oj_run.read_int
-                ) p lb
-              )
-            );
-          | 1 ->
-            field_manifest := (
+            field_manifest_path := (
               Some (
                 (
                   read__fpath_option
                 ) p lb
               )
             );
-          | 2 ->
-            field_lockfile := (
+          | 1 ->
+            field_lockfile_path := (
               Some (
                 (
                   read__fpath_option
@@ -24819,63 +24795,46 @@ let read_subproject_symbol_analysis_url_request = (
           fun s pos len ->
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            match len with
-              | 7 -> (
-                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'c' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'd' then (
-                    0
+            if len = 13 then (
+              match String.unsafe_get s pos with
+                | 'l' -> (
+                    if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'k' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = 'h' then (
+                      1
+                    )
+                    else (
+                      -1
+                    )
                   )
-                  else (
+                | 'm' -> (
+                    if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = 'h' then (
+                      0
+                    )
+                    else (
+                      -1
+                    )
+                  )
+                | _ -> (
                     -1
                   )
-                )
-              | 8 -> (
-                  match String.unsafe_get s pos with
-                    | 'l' -> (
-                        if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'k' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'e' then (
-                          2
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 'm' -> (
-                        if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 't' then (
-                          1
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
-                )
-              | _ -> (
-                  -1
-                )
+            )
+            else (
+              -1
+            )
         in
         let i = Yojson.Safe.map_ident p f lb in
         Atdgen_runtime.Oj_run.read_until_field_value p lb;
         (
           match i with
             | 0 ->
-              field_scan_id := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_int
-                  ) p lb
-                )
-              );
-            | 1 ->
-              field_manifest := (
+              field_manifest_path := (
                 Some (
                   (
                     read__fpath_option
                   ) p lb
                 )
               );
-            | 2 ->
-              field_lockfile := (
+            | 1 ->
+              field_lockfile_path := (
                 Some (
                   (
                     read__fpath_option
@@ -24891,9 +24850,8 @@ let read_subproject_symbol_analysis_url_request = (
     with Yojson.End_of_object -> (
         (
           {
-            scan_id = (match !field_scan_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "scan_id");
-            manifest = (match !field_manifest with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "manifest");
-            lockfile = (match !field_lockfile with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "lockfile");
+            manifest_path = (match !field_manifest_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "manifest_path");
+            lockfile_path = (match !field_lockfile_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "lockfile_path");
           }
          : subproject_symbol_analysis_url_request)
       )
@@ -42356,8 +42314,9 @@ let write_function_return = (
           write_symbol_analysis
         ) ob x;
         Buffer.add_char ob ']'
-      | `RetUploadSubprojectSymbolAnalysis x ->
-        Buffer.add_string ob "[\"RetUploadSubprojectSymbolAnalysis\",";
+      | `RetUploadSubprojectSymbolAnalysis -> Buffer.add_string ob "\"RetUploadSubprojectSymbolAnalysis\""
+      | `RetShowSubprojects x ->
+        Buffer.add_string ob "[\"RetShowSubprojects\",";
         (
           Yojson.Safe.write_string
         ) ob x;
@@ -42491,6 +42450,10 @@ let read_function_return = (
               Yojson.Safe.read_gt p lb;
               `RetRunSymbolAnalysis x
             | "RetUploadSubprojectSymbolAnalysis" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `RetUploadSubprojectSymbolAnalysis
+            | "RetShowSubprojects" ->
               Atdgen_runtime.Oj_run.read_until_field_value p lb;
               let x = (
                   Atdgen_runtime.Oj_run.read_string
@@ -42498,12 +42461,14 @@ let read_function_return = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
-              `RetUploadSubprojectSymbolAnalysis x
+              `RetShowSubprojects x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
+            | "RetUploadSubprojectSymbolAnalysis" ->
+              `RetUploadSubprojectSymbolAnalysis
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -42652,7 +42617,7 @@ let read_function_return = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `RetRunSymbolAnalysis x
-            | "RetUploadSubprojectSymbolAnalysis" ->
+            | "RetShowSubprojects" ->
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
@@ -42662,7 +42627,7 @@ let read_function_return = (
               in
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
-              `RetUploadSubprojectSymbolAnalysis x
+              `RetShowSubprojects x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -45159,6 +45124,12 @@ let write_function_call = (
           write_upload_subproject_symbol_analysis_params
         ) ob x;
         Buffer.add_char ob ']'
+      | `CallShowSubprojects x ->
+        Buffer.add_string ob "[\"CallShowSubprojects\",";
+        (
+          write__subproject_list
+        ) ob x;
+        Buffer.add_char ob ']'
 )
 let string_of_function_call ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -45438,6 +45409,15 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_gt p lb;
               `CallUploadSubprojectSymbolAnalysis x
+            | "CallShowSubprojects" ->
+              Atdgen_runtime.Oj_run.read_until_field_value p lb;
+              let x = (
+                  read__subproject_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_gt p lb;
+              `CallShowSubprojects x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -45738,6 +45718,17 @@ let read_function_call = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               `CallUploadSubprojectSymbolAnalysis x
+            | "CallShowSubprojects" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__subproject_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              `CallShowSubprojects x
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

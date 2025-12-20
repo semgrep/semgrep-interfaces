@@ -1292,9 +1292,8 @@ export type UploadSubprojectSymbolAnalysisParams = {
 }
 
 export type SubprojectSymbolAnalysisUrlRequest = {
-  scan_id: number /*int*/;
-  manifest: Option<Fpath>;
-  lockfile: Option<Fpath>;
+  manifest_path: Option<Fpath>;
+  lockfile_path: Option<Fpath>;
 }
 
 export type FunctionCall =
@@ -1311,6 +1310,7 @@ export type FunctionCall =
 | { kind: 'CallMatchSubprojects'; value: Fpath[] }
 | { kind: 'CallRunSymbolAnalysis'; value: SymbolAnalysisParams }
 | { kind: 'CallUploadSubprojectSymbolAnalysis'; value: UploadSubprojectSymbolAnalysisParams }
+| { kind: 'CallShowSubprojects'; value: Subproject[] }
 
 export type FunctionReturn =
 | { kind: 'RetError'; value: string }
@@ -1326,7 +1326,8 @@ export type FunctionReturn =
 | { kind: 'RetGetTargets'; value: TargetDiscoveryResult }
 | { kind: 'RetMatchSubprojects'; value: Subproject[] }
 | { kind: 'RetRunSymbolAnalysis'; value: SymbolAnalysis }
-| { kind: 'RetUploadSubprojectSymbolAnalysis'; value: string }
+| { kind: 'RetUploadSubprojectSymbolAnalysis' }
+| { kind: 'RetShowSubprojects'; value: string }
 
 export type FunctionResult = {
   function_return: FunctionReturn;
@@ -5314,17 +5315,15 @@ export function readUploadSubprojectSymbolAnalysisParams(x: any, context: any = 
 
 export function writeSubprojectSymbolAnalysisUrlRequest(x: SubprojectSymbolAnalysisUrlRequest, context: any = x): any {
   return {
-    'scan_id': _atd_write_required_field('SubprojectSymbolAnalysisUrlRequest', 'scan_id', _atd_write_int, x.scan_id, x),
-    'manifest': _atd_write_required_field('SubprojectSymbolAnalysisUrlRequest', 'manifest', _atd_write_option(writeFpath), x.manifest, x),
-    'lockfile': _atd_write_required_field('SubprojectSymbolAnalysisUrlRequest', 'lockfile', _atd_write_option(writeFpath), x.lockfile, x),
+    'manifest_path': _atd_write_required_field('SubprojectSymbolAnalysisUrlRequest', 'manifest_path', _atd_write_option(writeFpath), x.manifest_path, x),
+    'lockfile_path': _atd_write_required_field('SubprojectSymbolAnalysisUrlRequest', 'lockfile_path', _atd_write_option(writeFpath), x.lockfile_path, x),
   };
 }
 
 export function readSubprojectSymbolAnalysisUrlRequest(x: any, context: any = x): SubprojectSymbolAnalysisUrlRequest {
   return {
-    scan_id: _atd_read_required_field('SubprojectSymbolAnalysisUrlRequest', 'scan_id', _atd_read_int, x['scan_id'], x),
-    manifest: _atd_read_required_field('SubprojectSymbolAnalysisUrlRequest', 'manifest', _atd_read_option(readFpath), x['manifest'], x),
-    lockfile: _atd_read_required_field('SubprojectSymbolAnalysisUrlRequest', 'lockfile', _atd_read_option(readFpath), x['lockfile'], x),
+    manifest_path: _atd_read_required_field('SubprojectSymbolAnalysisUrlRequest', 'manifest_path', _atd_read_option(readFpath), x['manifest_path'], x),
+    lockfile_path: _atd_read_required_field('SubprojectSymbolAnalysisUrlRequest', 'lockfile_path', _atd_read_option(readFpath), x['lockfile_path'], x),
   };
 }
 
@@ -5356,6 +5355,8 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
       return ['CallRunSymbolAnalysis', writeSymbolAnalysisParams(x.value, x)]
     case 'CallUploadSubprojectSymbolAnalysis':
       return ['CallUploadSubprojectSymbolAnalysis', writeUploadSubprojectSymbolAnalysisParams(x.value, x)]
+    case 'CallShowSubprojects':
+      return ['CallShowSubprojects', _atd_write_array(writeSubproject)(x.value, x)]
   }
 }
 
@@ -5396,6 +5397,8 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
         return { kind: 'CallRunSymbolAnalysis', value: readSymbolAnalysisParams(x[1], x) }
       case 'CallUploadSubprojectSymbolAnalysis':
         return { kind: 'CallUploadSubprojectSymbolAnalysis', value: readUploadSubprojectSymbolAnalysisParams(x[1], x) }
+      case 'CallShowSubprojects':
+        return { kind: 'CallShowSubprojects', value: _atd_read_array(readSubproject)(x[1], x) }
       default:
         _atd_bad_json('FunctionCall', x, context)
         throw new Error('impossible')
@@ -5432,44 +5435,57 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
     case 'RetRunSymbolAnalysis':
       return ['RetRunSymbolAnalysis', writeSymbolAnalysis(x.value, x)]
     case 'RetUploadSubprojectSymbolAnalysis':
-      return ['RetUploadSubprojectSymbolAnalysis', _atd_write_string(x.value, x)]
+      return 'RetUploadSubprojectSymbolAnalysis'
+    case 'RetShowSubprojects':
+      return ['RetShowSubprojects', _atd_write_string(x.value, x)]
   }
 }
 
 export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
-  _atd_check_json_tuple(2, x, context)
-  switch (x[0]) {
-    case 'RetError':
-      return { kind: 'RetError', value: _atd_read_string(x[1], x) }
-    case 'RetApplyFixes':
-      return { kind: 'RetApplyFixes', value: readApplyFixesReturn(x[1], x) }
-    case 'RetContributions':
-      return { kind: 'RetContributions', value: readContributions(x[1], x) }
-    case 'RetFormatter':
-      return { kind: 'RetFormatter', value: _atd_read_string(x[1], x) }
-    case 'RetSarifFormat':
-      return { kind: 'RetSarifFormat', value: _atd_read_string(x[1], x) }
-    case 'RetValidate':
-      return { kind: 'RetValidate', value: _atd_read_option(readCoreError)(x[1], x) }
-    case 'RetResolveDependencies':
-      return { kind: 'RetResolveDependencies', value: _atd_read_array(((x, context): [DependencySource, ResolutionResult] => { _atd_check_json_tuple(2, x, context); return [readDependencySource(x[0], x), readResolutionResult(x[1], x)] }))(x[1], x) }
-    case 'RetUploadSymbolAnalysis':
-      return { kind: 'RetUploadSymbolAnalysis', value: _atd_read_string(x[1], x) }
-    case 'RetDumpRulePartitions':
-      return { kind: 'RetDumpRulePartitions', value: _atd_read_bool(x[1], x) }
-    case 'RetTransitiveReachabilityFilter':
-      return { kind: 'RetTransitiveReachabilityFilter', value: _atd_read_array(readTransitiveFinding)(x[1], x) }
-    case 'RetGetTargets':
-      return { kind: 'RetGetTargets', value: readTargetDiscoveryResult(x[1], x) }
-    case 'RetMatchSubprojects':
-      return { kind: 'RetMatchSubprojects', value: _atd_read_array(readSubproject)(x[1], x) }
-    case 'RetRunSymbolAnalysis':
-      return { kind: 'RetRunSymbolAnalysis', value: readSymbolAnalysis(x[1], x) }
-    case 'RetUploadSubprojectSymbolAnalysis':
-      return { kind: 'RetUploadSubprojectSymbolAnalysis', value: _atd_read_string(x[1], x) }
-    default:
-      _atd_bad_json('FunctionReturn', x, context)
-      throw new Error('impossible')
+  if (typeof x === 'string') {
+    switch (x) {
+      case 'RetUploadSubprojectSymbolAnalysis':
+        return { kind: 'RetUploadSubprojectSymbolAnalysis' }
+      default:
+        _atd_bad_json('FunctionReturn', x, context)
+        throw new Error('impossible')
+    }
+  }
+  else {
+    _atd_check_json_tuple(2, x, context)
+    switch (x[0]) {
+      case 'RetError':
+        return { kind: 'RetError', value: _atd_read_string(x[1], x) }
+      case 'RetApplyFixes':
+        return { kind: 'RetApplyFixes', value: readApplyFixesReturn(x[1], x) }
+      case 'RetContributions':
+        return { kind: 'RetContributions', value: readContributions(x[1], x) }
+      case 'RetFormatter':
+        return { kind: 'RetFormatter', value: _atd_read_string(x[1], x) }
+      case 'RetSarifFormat':
+        return { kind: 'RetSarifFormat', value: _atd_read_string(x[1], x) }
+      case 'RetValidate':
+        return { kind: 'RetValidate', value: _atd_read_option(readCoreError)(x[1], x) }
+      case 'RetResolveDependencies':
+        return { kind: 'RetResolveDependencies', value: _atd_read_array(((x, context): [DependencySource, ResolutionResult] => { _atd_check_json_tuple(2, x, context); return [readDependencySource(x[0], x), readResolutionResult(x[1], x)] }))(x[1], x) }
+      case 'RetUploadSymbolAnalysis':
+        return { kind: 'RetUploadSymbolAnalysis', value: _atd_read_string(x[1], x) }
+      case 'RetDumpRulePartitions':
+        return { kind: 'RetDumpRulePartitions', value: _atd_read_bool(x[1], x) }
+      case 'RetTransitiveReachabilityFilter':
+        return { kind: 'RetTransitiveReachabilityFilter', value: _atd_read_array(readTransitiveFinding)(x[1], x) }
+      case 'RetGetTargets':
+        return { kind: 'RetGetTargets', value: readTargetDiscoveryResult(x[1], x) }
+      case 'RetMatchSubprojects':
+        return { kind: 'RetMatchSubprojects', value: _atd_read_array(readSubproject)(x[1], x) }
+      case 'RetRunSymbolAnalysis':
+        return { kind: 'RetRunSymbolAnalysis', value: readSymbolAnalysis(x[1], x) }
+      case 'RetShowSubprojects':
+        return { kind: 'RetShowSubprojects', value: _atd_read_string(x[1], x) }
+      default:
+        _atd_bad_json('FunctionReturn', x, context)
+        throw new Error('impossible')
+    }
   }
 }
 

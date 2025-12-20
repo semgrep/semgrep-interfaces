@@ -7899,26 +7899,23 @@ class SupplyChainStats:
 class SubprojectSymbolAnalysisUrlRequest:
     """Original type: subproject_symbol_analysis_url_request = { ... }"""
 
-    scan_id: int
-    manifest: Optional[Fpath]
-    lockfile: Optional[Fpath]
+    manifest_path: Optional[Fpath]
+    lockfile_path: Optional[Fpath]
 
     @classmethod
     def from_json(cls, x: Any) -> 'SubprojectSymbolAnalysisUrlRequest':
         if isinstance(x, dict):
             return cls(
-                scan_id=_atd_read_int(x['scan_id']) if 'scan_id' in x else _atd_missing_json_field('SubprojectSymbolAnalysisUrlRequest', 'scan_id'),
-                manifest=_atd_read_option(Fpath.from_json)(x['manifest']) if 'manifest' in x else _atd_missing_json_field('SubprojectSymbolAnalysisUrlRequest', 'manifest'),
-                lockfile=_atd_read_option(Fpath.from_json)(x['lockfile']) if 'lockfile' in x else _atd_missing_json_field('SubprojectSymbolAnalysisUrlRequest', 'lockfile'),
+                manifest_path=_atd_read_option(Fpath.from_json)(x['manifest_path']) if 'manifest_path' in x else _atd_missing_json_field('SubprojectSymbolAnalysisUrlRequest', 'manifest_path'),
+                lockfile_path=_atd_read_option(Fpath.from_json)(x['lockfile_path']) if 'lockfile_path' in x else _atd_missing_json_field('SubprojectSymbolAnalysisUrlRequest', 'lockfile_path'),
             )
         else:
             _atd_bad_json('SubprojectSymbolAnalysisUrlRequest', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['scan_id'] = _atd_write_int(self.scan_id)
-        res['manifest'] = _atd_write_option((lambda x: x.to_json()))(self.manifest)
-        res['lockfile'] = _atd_write_option((lambda x: x.to_json()))(self.lockfile)
+        res['manifest_path'] = _atd_write_option((lambda x: x.to_json()))(self.manifest_path)
+        res['lockfile_path'] = _atd_write_option((lambda x: x.to_json()))(self.lockfile_path)
         return res
 
     @classmethod
@@ -10624,17 +10621,34 @@ class RetRunSymbolAnalysis:
 
 @dataclass(frozen=True)
 class RetUploadSubprojectSymbolAnalysis:
-    """Original type: function_return = [ ... | RetUploadSubprojectSymbolAnalysis of ... | ... ]"""
-
-    value: str
+    """Original type: function_return = [ ... | RetUploadSubprojectSymbolAnalysis | ... ]"""
 
     @property
     def kind(self) -> str:
         """Name of the class representing this variant."""
         return 'RetUploadSubprojectSymbolAnalysis'
 
+    @staticmethod
+    def to_json() -> Any:
+        return 'RetUploadSubprojectSymbolAnalysis'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class RetShowSubprojects:
+    """Original type: function_return = [ ... | RetShowSubprojects of ... | ... ]"""
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetShowSubprojects'
+
     def to_json(self) -> Any:
-        return ['RetUploadSubprojectSymbolAnalysis', _atd_write_string(self.value)]
+        return ['RetShowSubprojects', _atd_write_string(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -10644,7 +10658,7 @@ class RetUploadSubprojectSymbolAnalysis:
 class FunctionReturn:
     """Original type: function_return = [ ... ]"""
 
-    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetUploadSymbolAnalysis, RetDumpRulePartitions, RetTransitiveReachabilityFilter, RetGetTargets, RetMatchSubprojects, RetRunSymbolAnalysis, RetUploadSubprojectSymbolAnalysis]
+    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetUploadSymbolAnalysis, RetDumpRulePartitions, RetTransitiveReachabilityFilter, RetGetTargets, RetMatchSubprojects, RetRunSymbolAnalysis, RetUploadSubprojectSymbolAnalysis, RetShowSubprojects]
 
     @property
     def kind(self) -> str:
@@ -10653,6 +10667,10 @@ class FunctionReturn:
 
     @classmethod
     def from_json(cls, x: Any) -> 'FunctionReturn':
+        if isinstance(x, str):
+            if x == 'RetUploadSubprojectSymbolAnalysis':
+                return cls(RetUploadSubprojectSymbolAnalysis())
+            _atd_bad_json('FunctionReturn', x)
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'RetError':
@@ -10681,8 +10699,8 @@ class FunctionReturn:
                 return cls(RetMatchSubprojects(_atd_read_list(Subproject.from_json)(x[1])))
             if cons == 'RetRunSymbolAnalysis':
                 return cls(RetRunSymbolAnalysis(SymbolAnalysis.from_json(x[1])))
-            if cons == 'RetUploadSubprojectSymbolAnalysis':
-                return cls(RetUploadSubprojectSymbolAnalysis(_atd_read_string(x[1])))
+            if cons == 'RetShowSubprojects':
+                return cls(RetShowSubprojects(_atd_read_string(x[1])))
             _atd_bad_json('FunctionReturn', x)
         _atd_bad_json('FunctionReturn', x)
 
@@ -11213,10 +11231,28 @@ class CallUploadSubprojectSymbolAnalysis:
 
 
 @dataclass(frozen=True)
+class CallShowSubprojects:
+    """Original type: function_call = [ ... | CallShowSubprojects of ... | ... ]"""
+
+    value: List[Subproject]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallShowSubprojects'
+
+    def to_json(self) -> Any:
+        return ['CallShowSubprojects', _atd_write_list((lambda x: x.to_json()))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class FunctionCall:
     """Original type: function_call = [ ... ]"""
 
-    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallGetTargets, CallTransitiveReachabilityFilter, CallMatchSubprojects, CallRunSymbolAnalysis, CallUploadSubprojectSymbolAnalysis]
+    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallGetTargets, CallTransitiveReachabilityFilter, CallMatchSubprojects, CallRunSymbolAnalysis, CallUploadSubprojectSymbolAnalysis, CallShowSubprojects]
 
     @property
     def kind(self) -> str:
@@ -11255,6 +11291,8 @@ class FunctionCall:
                 return cls(CallRunSymbolAnalysis(SymbolAnalysisParams.from_json(x[1])))
             if cons == 'CallUploadSubprojectSymbolAnalysis':
                 return cls(CallUploadSubprojectSymbolAnalysis(UploadSubprojectSymbolAnalysisParams.from_json(x[1])))
+            if cons == 'CallShowSubprojects':
+                return cls(CallShowSubprojects(_atd_read_list(Subproject.from_json)(x[1])))
             _atd_bad_json('FunctionCall', x)
         _atd_bad_json('FunctionCall', x)
 

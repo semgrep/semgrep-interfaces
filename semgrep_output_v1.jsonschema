@@ -3473,11 +3473,11 @@
       }
     },
     "subproject_symbol_analysis_url_request": {
+      "description": "Sent by the CLI to the POST /api/agent/scans/{scan_id}/subproject_symbols_upload_url/",
       "type": "object",
-      "required": [ "scan_id", "manifest", "lockfile" ],
+      "required": [ "manifest_path", "lockfile_path" ],
       "properties": {
-        "scan_id": { "type": "integer" },
-        "manifest": {
+        "manifest_path": {
           "oneOf": [
             {
               "type": "array",
@@ -3490,7 +3490,7 @@
             { "const": "None" }
           ]
         },
-        "lockfile": {
+        "lockfile_path": {
           "oneOf": [
             {
               "type": "array",
@@ -3650,6 +3650,21 @@
               "$ref": "#/definitions/upload_subproject_symbol_analysis_params"
             }
           ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            {
+              "description": "Format human-readable text summarizing the subprojects that were discovered in a project. This is meant to be printed in --verbose mode.",
+              "const": "CallShowSubprojects"
+            },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/subproject" }
+            }
+          ]
         }
       ]
     },
@@ -3803,13 +3818,17 @@
           ]
         },
         {
+          "description": "success msg",
+          "const": "RetUploadSubprojectSymbolAnalysis"
+        },
+        {
           "type": "array",
           "minItems": 2,
           "items": false,
           "prefixItems": [
             {
-              "description": "success msg",
-              "const": "RetUploadSubprojectSymbolAnalysis"
+              "description": "The text return here typically contains newlines but is not newline-terminated i.e. it is suitable to pass as an argument to a logger.",
+              "const": "RetShowSubprojects"
             },
             { "type": "string" }
           ]
