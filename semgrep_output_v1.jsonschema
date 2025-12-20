@@ -2652,6 +2652,10 @@
         "max_target_bytes": { "type": "integer" },
         "respect_gitignore": { "type": "boolean" },
         "respect_semgrepignore_files": { "type": "boolean" },
+        "extra_gitignore_patterns_to_exclude_git_untracked_files": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
         "semgrepignore_filename": { "type": "string" },
         "always_select_explicit_targets": { "type": "boolean" },
         "explicit_targets": {

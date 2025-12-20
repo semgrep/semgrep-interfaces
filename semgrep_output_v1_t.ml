@@ -1220,6 +1220,7 @@ type targeting_conf = {
   max_target_bytes: int;
   respect_gitignore: bool;
   respect_semgrepignore_files: bool;
+  extra_gitignore_patterns_to_exclude_git_untracked_files: string list;
   semgrepignore_filename: string option;
   always_select_explicit_targets: bool;
   explicit_targets: string list

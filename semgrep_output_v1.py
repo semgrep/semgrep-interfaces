@@ -6688,6 +6688,7 @@ class TargetingConf:
     force_novcs_project: bool
     exclude_minified_files: bool
     include_: Optional[List[str]] = None
+    extra_gitignore_patterns_to_exclude_git_untracked_files: List[str] = field(default_factory=lambda: [])
     semgrepignore_filename: Optional[str] = None
     force_project_root: Optional[ProjectRoot] = None
     baseline_commit: Optional[str] = None
@@ -6705,6 +6706,7 @@ class TargetingConf:
                 force_novcs_project=_atd_read_bool(x['force_novcs_project']) if 'force_novcs_project' in x else _atd_missing_json_field('TargetingConf', 'force_novcs_project'),
                 exclude_minified_files=_atd_read_bool(x['exclude_minified_files']) if 'exclude_minified_files' in x else _atd_missing_json_field('TargetingConf', 'exclude_minified_files'),
                 include_=_atd_read_list(_atd_read_string)(x['include_']) if 'include_' in x else None,
+                extra_gitignore_patterns_to_exclude_git_untracked_files=_atd_read_list(_atd_read_string)(x['extra_gitignore_patterns_to_exclude_git_untracked_files']) if 'extra_gitignore_patterns_to_exclude_git_untracked_files' in x else [],
                 semgrepignore_filename=_atd_read_string(x['semgrepignore_filename']) if 'semgrepignore_filename' in x else None,
                 force_project_root=ProjectRoot.from_json(x['force_project_root']) if 'force_project_root' in x else None,
                 baseline_commit=_atd_read_string(x['baseline_commit']) if 'baseline_commit' in x else None,
@@ -6724,6 +6726,7 @@ class TargetingConf:
         res['exclude_minified_files'] = _atd_write_bool(self.exclude_minified_files)
         if self.include_ is not None:
             res['include_'] = _atd_write_list(_atd_write_string)(self.include_)
+        res['extra_gitignore_patterns_to_exclude_git_untracked_files'] = _atd_write_list(_atd_write_string)(self.extra_gitignore_patterns_to_exclude_git_untracked_files)
         if self.semgrepignore_filename is not None:
             res['semgrepignore_filename'] = _atd_write_string(self.semgrepignore_filename)
         if self.force_project_root is not None:
