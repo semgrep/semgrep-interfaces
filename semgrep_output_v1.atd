@@ -3450,6 +3450,7 @@ type function_return <python decorator="dataclass(frozen=True)"> = [
   | RetRunSymbolAnalysis of symbol_analysis
   | RetUploadSubprojectSymbolAnalysis
       <doc text="success msg">
+      of string
   (*************************************************************************)
   (* Text output formatting *)
   (*************************************************************************)
