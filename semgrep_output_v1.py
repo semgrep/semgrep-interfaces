@@ -2,91 +2,6 @@
 
 This implements classes for the types defined in 'semgrep_output_v1.atd', providing
 methods and functions to convert data from/to JSON.
-
-Specification of the Semgrep CLI JSON output formats using ATD (see
-https://atd.readthedocs.io/en/latest/ for information on ATD).
-
-This file specifies mainly the JSON formats of:
-
-- the output of the ``semgrep scan --json`` command
-
-- the output of the ``semgrep test --json`` command
-
-- the messages exchanged with the Semgrep backend by the ``semgrep ci``
-command
-
-It's also (ab)used to specify the JSON input and output of semgrep-core,
-some RPC between pysemgrep and semgrep-core, and a few more internal
-things. We should use separate .atd for those different purposes but ATD
-does not have a proper module system yet and many types are shared so it
-is simpler for now to have everything in one file.
-
-There are other important form of outputs which are not specified here:
-
-- The semgrep metrics sent to https://metrics.semgrep.dev in
-semgrep_metrics.atd
-
-- The parsing stats of semgrep-core -parsing_stats -json have its own
-Parsing_stats.atd
-
-For the definition of the Semgrep input (the rules), see
-rule_schema_v2.atd
-
-This file has the _v1 suffix to explicitely represent the version of this
-JSON format. If you need to extend this file, please be careful because
-you may break consumers of this format (e.g., the Semgrep playground or
-Semgrep backend or external users of this JSON). See
-https://atd.readthedocs.io/en/latest/atdgen-tutorial.html#smooth-protocol-upgrades
-for more information on how to smoothly extend the types in this file.
-
-Any backward incompatible changes should require to upgrade the major
-version of Semgrep as this JSON output is part of the "API" of Semgrep
-(any incompatible changes to the rule format should also require a major
-version upgrade). Hopefully, we will always be backward compatible.
-However, a few fields are tagged with [EXPERIMENTAL] meaning external
-users should not rely on them as those fields may be changed or removed.
-They are not part of the "API" of Semgrep.
-
-Again, keep in mind that this file is used both by the CLI to *produce* a
-JSON output, and by our backends to *consume* the JSON, including to
-consume the JSON produced by old versions of the CLI. As of Nov 2024, our
-backend is still supporting as far as Semgrep 1.50.0 released Nov 2023.
-(see server/semgrep_app/util/cli_version_support.py in the semgrep-app
-repo)
-
-This file is translated in OCaml modules by atdgen. Look for the
-corresponding Semgrep_output_v1_[tj].ml[i] generated files under dune's
-_build/ folder. A few types below have the 'deriving show' decorator
-because those types are reused in semgrep core data structures and we make
-heavy use of 'deriving show' in OCaml to help debug things.
-
-This file is also translated in Python modules by atdpy. For Python, a few
-types have the 'dataclass(frozen=True)' decorator so that the class can be
-hashed and put in set. Indeed, with 'Frozen=True' the class is immutable
-and dataclass can autogenerate a hash function for it.
-
-Finally this file is translated in jsonschema/openapi spec by atdcat, and
-in Typescript modules by atdts.
-
-History:
-
-- the types in this file were originally inferred from JSON_report.ml for
-use by spacegrep when it was separate from semgrep-core. It's now also
-useds in JSON_report.ml (now called Core_json_output.ml)
-
-- it was extended to not only support semgrep-core JSON output but also
-(py)semgrep CLI output!
-
-- it was then simplified with the osemgrep migration effort by removing
-gradually the semgrep-core JSON output.
-
-- it was extended to support 'semgrep ci' output to type most messages
-sent between the Semgrep CLI and the Semgrep backend
-
-- we use this file to specify RPCs between pysemgrep and semgrep-core for
-the gradual migration effort of osemgrep
-
-- merged what was in Input_to_core.atd here
 """
 
 # Disable flake8 entirely on this file:
@@ -347,10 +262,7 @@ def _atd_write_option(write_elt: Callable[[Any], Any]) \
 
 @dataclass
 class Datetime:
-    """Original type: datetime
-
-    RFC 3339 format
-    """
+    """Original type: datetime"""
 
     value: str
 
@@ -371,8 +283,7 @@ class Datetime:
 
 @dataclass(frozen=True)
 class DependencyChild:
-    """Original type: dependency_child = { ... }
-    """
+    """Original type: dependency_child = { ... }"""
 
     package: str
     version: str
@@ -403,12 +314,7 @@ class DependencyChild:
 
 @dataclass(frozen=True)
 class Direct:
-    """Original type: dependency_kind = [ ... | Direct | ... ]
-
-    we depend directly on the 3rd-party library mentioned in the lockfile
-    (e.g., use of log4j library and concrete calls to log4j in 1st-party
-    code). log4j must be declared as a direct dependency in the manifest file.
-    """
+    """Original type: dependency_kind = [ ... | Direct | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -425,14 +331,7 @@ class Direct:
 
 @dataclass(frozen=True)
 class Transitive:
-    """Original type: dependency_kind = [ ... | Transitive | ... ]
-
-    we depend indirectly (transitively) on the 3rd-party library (e.g., if we
-    use lodash which itself uses internally log4j then lodash is a Direct
-    dependency and log4j a Transitive one)
-
-    alt: Indirect
-    """
+    """Original type: dependency_kind = [ ... | Transitive | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -449,12 +348,7 @@ class Transitive:
 
 @dataclass(frozen=True)
 class Unknown:
-    """Original type: dependency_kind = [ ... | Unknown | ... ]
-
-    If there is insufficient information to determine the transitivity, such
-    as a requirements.txt file without a requirements.in manifest, we leave it
-    Unknown.
-    """
+    """Original type: dependency_kind = [ ... | Unknown | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -471,8 +365,7 @@ class Unknown:
 
 @dataclass(frozen=True)
 class DependencyKind:
-    """Original type: dependency_kind = [ ... ]
-    """
+    """Original type: dependency_kind = [ ... ]"""
 
     value: Union[Direct, Transitive, Unknown]
 
@@ -506,8 +399,7 @@ class DependencyKind:
 
 @dataclass(frozen=True)
 class Npm:
-    """Original type: ecosystem = [ ... | Npm | ... ]
-    """
+    """Original type: ecosystem = [ ... | Npm | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -524,8 +416,7 @@ class Npm:
 
 @dataclass(frozen=True)
 class Pypi:
-    """Original type: ecosystem = [ ... | Pypi | ... ]
-    """
+    """Original type: ecosystem = [ ... | Pypi | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -542,8 +433,7 @@ class Pypi:
 
 @dataclass(frozen=True)
 class Gem:
-    """Original type: ecosystem = [ ... | Gem | ... ]
-    """
+    """Original type: ecosystem = [ ... | Gem | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -560,8 +450,7 @@ class Gem:
 
 @dataclass(frozen=True)
 class Gomod:
-    """Original type: ecosystem = [ ... | Gomod | ... ]
-    """
+    """Original type: ecosystem = [ ... | Gomod | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -578,8 +467,7 @@ class Gomod:
 
 @dataclass(frozen=True)
 class Cargo:
-    """Original type: ecosystem = [ ... | Cargo | ... ]
-    """
+    """Original type: ecosystem = [ ... | Cargo | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -596,8 +484,7 @@ class Cargo:
 
 @dataclass(frozen=True)
 class Maven:
-    """Original type: ecosystem = [ ... | Maven | ... ]
-    """
+    """Original type: ecosystem = [ ... | Maven | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -614,8 +501,7 @@ class Maven:
 
 @dataclass(frozen=True)
 class Composer:
-    """Original type: ecosystem = [ ... | Composer | ... ]
-    """
+    """Original type: ecosystem = [ ... | Composer | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -632,8 +518,7 @@ class Composer:
 
 @dataclass(frozen=True)
 class Nuget:
-    """Original type: ecosystem = [ ... | Nuget | ... ]
-    """
+    """Original type: ecosystem = [ ... | Nuget | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -650,8 +535,7 @@ class Nuget:
 
 @dataclass(frozen=True)
 class Pub:
-    """Original type: ecosystem = [ ... | Pub | ... ]
-    """
+    """Original type: ecosystem = [ ... | Pub | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -668,8 +552,7 @@ class Pub:
 
 @dataclass(frozen=True)
 class SwiftPM:
-    """Original type: ecosystem = [ ... | SwiftPM | ... ]
-    """
+    """Original type: ecosystem = [ ... | SwiftPM | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -686,8 +569,7 @@ class SwiftPM:
 
 @dataclass(frozen=True)
 class Cocoapods:
-    """Original type: ecosystem = [ ... | Cocoapods | ... ]
-    """
+    """Original type: ecosystem = [ ... | Cocoapods | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -704,10 +586,7 @@ class Cocoapods:
 
 @dataclass(frozen=True)
 class Mix:
-    """Original type: ecosystem = [ ... | Mix | ... ]
-
-    Deprecated: Mix is a build system, should use Hex, which is the ecosystem
-    """
+    """Original type: ecosystem = [ ... | Mix | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -724,8 +603,7 @@ class Mix:
 
 @dataclass(frozen=True)
 class Hex:
-    """Original type: ecosystem = [ ... | Hex | ... ]
-    """
+    """Original type: ecosystem = [ ... | Hex | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -742,8 +620,7 @@ class Hex:
 
 @dataclass(frozen=True)
 class Opam:
-    """Original type: ecosystem = [ ... | Opam | ... ]
-    """
+    """Original type: ecosystem = [ ... | Opam | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -760,14 +637,7 @@ class Opam:
 
 @dataclass(frozen=True)
 class Ecosystem:
-    """Original type: ecosystem = [ ... ]
-
-    both ecosystem and transitivity below have frozen=True so the generated
-    classes can be hashed and put in sets (see calls to reachable_deps.add()
-    in semgrep SCA code)
-
-    alt: type package_manager
-    """
+    """Original type: ecosystem = [ ... ]"""
 
     value: Union[Npm, Pypi, Gem, Gomod, Cargo, Maven, Composer, Nuget, Pub, SwiftPM, Cocoapods, Mix, Hex, Opam]
 
@@ -823,8 +693,7 @@ class Ecosystem:
 
 @dataclass(frozen=True, order=True)
 class Fpath:
-    """Original type: fpath
-    """
+    """Original type: fpath"""
 
     value: str
 
@@ -845,26 +714,7 @@ class Fpath:
 
 @dataclass
 class FoundDependency:
-    """Original type: found_dependency = { ... }
-
-    :param allowed_hashes: ???
-    :param manifest_path: Path to the manifest file that defines the project
-    containing this dependency. Examples: package.json, nested/folder/pom.xml
-    :param lockfile_path: Path to the lockfile that contains this dependency.
-    Examples: package-lock.json, nested/folder/requirements.txt, go.mod. Since
-    1.87.0
-    :param line_number: The line number of the dependency in the lockfile.
-    When combined with the lockfile_path, this can identify the location of
-    the dependency in the lockfile.
-    :param children: If we have dependency relationship information for this
-    dependency, this field will include the name and version of other
-    found_dependency items that this dependency requires. These fields must
-    match values in `package` and `version` of another `found_dependency` in
-    the same set
-    :param git_ref: Git ref of the dependency if the dependency comes directly
-    from a git repo. Examples: refs/heads/main, refs/tags/v1.0.0,
-    e5c704df4d308690fed696faf4c86453b4d88a95. Since 1.66.0
-    """
+    """Original type: found_dependency = { ... }"""
 
     package: str
     version: str
@@ -928,8 +778,7 @@ class FoundDependency:
 
 @dataclass(frozen=True)
 class PipRequirementsTxt:
-    """Original type: lockfile_kind = [ ... | PipRequirementsTxt | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | PipRequirementsTxt | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -946,8 +795,7 @@ class PipRequirementsTxt:
 
 @dataclass(frozen=True)
 class PoetryLock:
-    """Original type: lockfile_kind = [ ... | PoetryLock | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | PoetryLock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -964,8 +812,7 @@ class PoetryLock:
 
 @dataclass(frozen=True)
 class PipfileLock:
-    """Original type: lockfile_kind = [ ... | PipfileLock | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | PipfileLock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -982,8 +829,7 @@ class PipfileLock:
 
 @dataclass(frozen=True)
 class UvLock:
-    """Original type: lockfile_kind = [ ... | UvLock | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | UvLock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1000,8 +846,7 @@ class UvLock:
 
 @dataclass(frozen=True)
 class NpmPackageLockJson:
-    """Original type: lockfile_kind = [ ... | NpmPackageLockJson | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | NpmPackageLockJson | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1018,8 +863,7 @@ class NpmPackageLockJson:
 
 @dataclass(frozen=True)
 class YarnLock:
-    """Original type: lockfile_kind = [ ... | YarnLock | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | YarnLock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1036,8 +880,7 @@ class YarnLock:
 
 @dataclass(frozen=True)
 class PnpmLock:
-    """Original type: lockfile_kind = [ ... | PnpmLock | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | PnpmLock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1054,8 +897,7 @@ class PnpmLock:
 
 @dataclass(frozen=True)
 class BunLock:
-    """Original type: lockfile_kind = [ ... | BunLock | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | BunLock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1072,10 +914,7 @@ class BunLock:
 
 @dataclass(frozen=True)
 class BunBinaryLock:
-    """Original type: lockfile_kind = [ ... | BunBinaryLock | ... ]
-
-    Bun's deprecated binary bun.lockb format
-    """
+    """Original type: lockfile_kind = [ ... | BunBinaryLock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1092,8 +931,7 @@ class BunBinaryLock:
 
 @dataclass(frozen=True)
 class GemfileLock:
-    """Original type: lockfile_kind = [ ... | GemfileLock | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | GemfileLock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1110,8 +948,7 @@ class GemfileLock:
 
 @dataclass(frozen=True)
 class GoModLock:
-    """Original type: lockfile_kind = [ ... | GoModLock | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | GoModLock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1128,8 +965,7 @@ class GoModLock:
 
 @dataclass(frozen=True)
 class CargoLock:
-    """Original type: lockfile_kind = [ ... | CargoLock | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | CargoLock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1146,10 +982,7 @@ class CargoLock:
 
 @dataclass(frozen=True)
 class MavenDepTree:
-    """Original type: lockfile_kind = [ ... | MavenDepTree | ... ]
-
-    Not a real lockfile
-    """
+    """Original type: lockfile_kind = [ ... | MavenDepTree | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1166,8 +999,7 @@ class MavenDepTree:
 
 @dataclass(frozen=True)
 class GradleLockfile:
-    """Original type: lockfile_kind = [ ... | GradleLockfile | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | GradleLockfile | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1184,8 +1016,7 @@ class GradleLockfile:
 
 @dataclass(frozen=True)
 class ComposerLock:
-    """Original type: lockfile_kind = [ ... | ComposerLock | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | ComposerLock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1202,8 +1033,7 @@ class ComposerLock:
 
 @dataclass(frozen=True)
 class NugetPackagesLockJson:
-    """Original type: lockfile_kind = [ ... | NugetPackagesLockJson | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | NugetPackagesLockJson | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1220,8 +1050,7 @@ class NugetPackagesLockJson:
 
 @dataclass(frozen=True)
 class PubspecLock:
-    """Original type: lockfile_kind = [ ... | PubspecLock | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | PubspecLock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1238,10 +1067,7 @@ class PubspecLock:
 
 @dataclass(frozen=True)
 class SwiftPackageResolved:
-    """Original type: lockfile_kind = [ ... | SwiftPackageResolved | ... ]
-
-    not a real lockfile
-    """
+    """Original type: lockfile_kind = [ ... | SwiftPackageResolved | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1258,8 +1084,7 @@ class SwiftPackageResolved:
 
 @dataclass(frozen=True)
 class PodfileLock:
-    """Original type: lockfile_kind = [ ... | PodfileLock | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | PodfileLock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1276,8 +1101,7 @@ class PodfileLock:
 
 @dataclass(frozen=True)
 class MixLock:
-    """Original type: lockfile_kind = [ ... | MixLock | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | MixLock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1294,8 +1118,7 @@ class MixLock:
 
 @dataclass(frozen=True)
 class ConanLock:
-    """Original type: lockfile_kind = [ ... | ConanLock | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | ConanLock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1312,8 +1135,7 @@ class ConanLock:
 
 @dataclass(frozen=True)
 class OpamLocked:
-    """Original type: lockfile_kind = [ ... | OpamLocked | ... ]
-    """
+    """Original type: lockfile_kind = [ ... | OpamLocked | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1330,8 +1152,7 @@ class OpamLocked:
 
 @dataclass(frozen=True)
 class LockfileKind:
-    """Original type: lockfile_kind = [ ... ]
-    """
+    """Original type: lockfile_kind = [ ... ]"""
 
     value: Union[PipRequirementsTxt, PoetryLock, PipfileLock, UvLock, NpmPackageLockJson, YarnLock, PnpmLock, BunLock, BunBinaryLock, GemfileLock, GoModLock, CargoLock, MavenDepTree, GradleLockfile, ComposerLock, NugetPackagesLockJson, PubspecLock, SwiftPackageResolved, PodfileLock, MixLock, ConanLock, OpamLocked]
 
@@ -1403,8 +1224,7 @@ class LockfileKind:
 
 @dataclass(frozen=True)
 class Lockfile:
-    """Original type: lockfile = { ... }
-    """
+    """Original type: lockfile = { ... }"""
 
     kind: LockfileKind
     path: Fpath
@@ -1435,12 +1255,7 @@ class Lockfile:
 
 @dataclass(frozen=True)
 class RequirementsIn:
-    """Original type: manifest_kind = [ ... | RequirementsIn | ... ]
-
-    A Pip Requirements.in in file, which follows the format of
-    requirements.txt
-    https://pip.pypa.io/en/stable/reference/requirements-file-format/
-    """
+    """Original type: manifest_kind = [ ... | RequirementsIn | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1457,12 +1272,7 @@ class RequirementsIn:
 
 @dataclass(frozen=True)
 class SetupPy:
-    """Original type: manifest_kind = [ ... | SetupPy | ... ]
-
-    A setup.py file, which is a Python file that contains the setup
-    configuration for a Python project.
-    https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#setup-py
-    """
+    """Original type: manifest_kind = [ ... | SetupPy | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1479,11 +1289,7 @@ class SetupPy:
 
 @dataclass(frozen=True)
 class PackageJson:
-    """Original type: manifest_kind = [ ... | PackageJson | ... ]
-
-    An NPM package.json manifest file
-    https://docs.npmjs.com/cli/v10/configuring-npm/package-json
-    """
+    """Original type: manifest_kind = [ ... | PackageJson | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1500,10 +1306,7 @@ class PackageJson:
 
 @dataclass(frozen=True)
 class Gemfile:
-    """Original type: manifest_kind = [ ... | Gemfile | ... ]
-
-    A Ruby Gemfile manifest https://bundler.io/v2.5/man/gemfile.5.html
-    """
+    """Original type: manifest_kind = [ ... | Gemfile | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1520,10 +1323,7 @@ class Gemfile:
 
 @dataclass(frozen=True)
 class GoModManifest:
-    """Original type: manifest_kind = [ ... | GoModManifest | ... ]
-
-    go.mod https://go.dev/doc/modules/gomod-ref
-    """
+    """Original type: manifest_kind = [ ... | GoModManifest | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1540,10 +1340,7 @@ class GoModManifest:
 
 @dataclass(frozen=True)
 class CargoToml:
-    """Original type: manifest_kind = [ ... | CargoToml | ... ]
-
-    cargo.toml - https://doc.rust-lang.org/cargo/reference/manifest.html
-    """
+    """Original type: manifest_kind = [ ... | CargoToml | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1560,11 +1357,7 @@ class CargoToml:
 
 @dataclass(frozen=True)
 class PomXml:
-    """Original type: manifest_kind = [ ... | PomXml | ... ]
-
-    A Maven pom.xml manifest file
-    https://maven.apache.org/guides/introduction/introduction-to-the-pom.html
-    """
+    """Original type: manifest_kind = [ ... | PomXml | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1581,11 +1374,7 @@ class PomXml:
 
 @dataclass(frozen=True)
 class BuildGradle:
-    """Original type: manifest_kind = [ ... | BuildGradle | ... ]
-
-    A Gradle build.gradle build file
-    https://docs.gradle.org/current/userguide/build_file_basics.html
-    """
+    """Original type: manifest_kind = [ ... | BuildGradle | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1602,10 +1391,7 @@ class BuildGradle:
 
 @dataclass(frozen=True)
 class BuildGradleKts:
-    """Original type: manifest_kind = [ ... | BuildGradleKts | ... ]
-
-    A Gradle build.gradle.kts file, which uses Kotlin instead of Groovy.
-    """
+    """Original type: manifest_kind = [ ... | BuildGradleKts | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1622,14 +1408,7 @@ class BuildGradleKts:
 
 @dataclass(frozen=True)
 class SettingsGradle:
-    """Original type: manifest_kind = [ ... | SettingsGradle | ... ]
-
-    A Gradle settings.gradle file
-    https://docs.gradle.org/current/userguide/settings_file_basics.html.
-    Multi-project builds are defined by settings.gradle rather than
-    build.gradle:
-    https://docs.gradle.org/current/userguide/multi_project_builds.html#multi_project_builds
-    """
+    """Original type: manifest_kind = [ ... | SettingsGradle | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1646,10 +1425,7 @@ class SettingsGradle:
 
 @dataclass(frozen=True)
 class ComposerJson:
-    """Original type: manifest_kind = [ ... | ComposerJson | ... ]
-
-    composer.json - https://getcomposer.org/doc/04-schema.md
-    """
+    """Original type: manifest_kind = [ ... | ComposerJson | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1666,11 +1442,7 @@ class ComposerJson:
 
 @dataclass(frozen=True)
 class NugetManifestJson:
-    """Original type: manifest_kind = [ ... | NugetManifestJson | ... ]
-
-    manifest for nuget. Could not find a reference; this may not actually
-    exist
-    """
+    """Original type: manifest_kind = [ ... | NugetManifestJson | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1687,10 +1459,7 @@ class NugetManifestJson:
 
 @dataclass(frozen=True)
 class PubspecYaml:
-    """Original type: manifest_kind = [ ... | PubspecYaml | ... ]
-
-    pubspec.yaml - https://dart.dev/tools/pub/pubspec
-    """
+    """Original type: manifest_kind = [ ... | PubspecYaml | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1707,11 +1476,7 @@ class PubspecYaml:
 
 @dataclass(frozen=True)
 class PackageSwift:
-    """Original type: manifest_kind = [ ... | PackageSwift | ... ]
-
-    Package.swift
-    https://docs.swift.org/package-manager/PackageDescription/PackageDescription.html
-    """
+    """Original type: manifest_kind = [ ... | PackageSwift | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1728,10 +1493,7 @@ class PackageSwift:
 
 @dataclass(frozen=True)
 class Podfile:
-    """Original type: manifest_kind = [ ... | Podfile | ... ]
-
-    Podfile - https://guides.cocoapods.org/using/the-podfile.html
-    """
+    """Original type: manifest_kind = [ ... | Podfile | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1748,11 +1510,7 @@ class Podfile:
 
 @dataclass(frozen=True)
 class MixExs:
-    """Original type: manifest_kind = [ ... | MixExs | ... ]
-
-    mix.exs
-    https://hexdocs.pm/elixir/introduction-to-mix.html#project-compilation
-    """
+    """Original type: manifest_kind = [ ... | MixExs | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1769,10 +1527,7 @@ class MixExs:
 
 @dataclass(frozen=True)
 class Pipfile:
-    """Original type: manifest_kind = [ ... | Pipfile | ... ]
-
-    Pipfile - https://pipenv.pypa.io/en/latest/pipfile.html
-    """
+    """Original type: manifest_kind = [ ... | Pipfile | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1789,11 +1544,7 @@ class Pipfile:
 
 @dataclass(frozen=True)
 class PyprojectToml:
-    """Original type: manifest_kind = [ ... | PyprojectToml | ... ]
-
-    pyproject.toml
-    https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
-    """
+    """Original type: manifest_kind = [ ... | PyprojectToml | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1810,11 +1561,7 @@ class PyprojectToml:
 
 @dataclass(frozen=True)
 class ConanFileTxt:
-    """Original type: manifest_kind = [ ... | ConanFileTxt | ... ]
-
-    conanfile.txt
-    https://docs.conan.io/2.9/reference/conanfile_txt.html#conanfile-txt
-    """
+    """Original type: manifest_kind = [ ... | ConanFileTxt | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1831,10 +1578,7 @@ class ConanFileTxt:
 
 @dataclass(frozen=True)
 class ConanFilePy:
-    """Original type: manifest_kind = [ ... | ConanFilePy | ... ]
-
-    conanfile.py - https://docs.conan.io/2.9/reference/conanfile.html
-    """
+    """Original type: manifest_kind = [ ... | ConanFilePy | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1851,10 +1595,7 @@ class ConanFilePy:
 
 @dataclass(frozen=True)
 class Csproj:
-    """Original type: manifest_kind = [ ... | Csproj | ... ]
-
-    .csproj - https://docs.microsoft.com/en-us/dotnet/core/tools/csproj
-    """
+    """Original type: manifest_kind = [ ... | Csproj | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1871,10 +1612,7 @@ class Csproj:
 
 @dataclass(frozen=True)
 class OpamFile:
-    """Original type: manifest_kind = [ ... | OpamFile | ... ]
-
-    opam - https://opam.ocaml.org/doc/Manual.html#Package-definitions
-    """
+    """Original type: manifest_kind = [ ... | OpamFile | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1891,10 +1629,7 @@ class OpamFile:
 
 @dataclass(frozen=True)
 class BuildSbt:
-    """Original type: manifest_kind = [ ... | BuildSbt | ... ]
-
-    build.sbt - https://www.scala-sbt.org/1.x/docs/Basic-Def.html
-    """
+    """Original type: manifest_kind = [ ... | BuildSbt | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -1911,8 +1646,7 @@ class BuildSbt:
 
 @dataclass(frozen=True)
 class ManifestKind:
-    """Original type: manifest_kind = [ ... ]
-    """
+    """Original type: manifest_kind = [ ... ]"""
 
     value: Union[RequirementsIn, SetupPy, PackageJson, Gemfile, GoModManifest, CargoToml, PomXml, BuildGradle, BuildGradleKts, SettingsGradle, ComposerJson, NugetManifestJson, PubspecYaml, PackageSwift, Podfile, MixExs, Pipfile, PyprojectToml, ConanFileTxt, ConanFilePy, Csproj, OpamFile, BuildSbt]
 
@@ -1986,8 +1720,7 @@ class ManifestKind:
 
 @dataclass(frozen=True)
 class Manifest:
-    """Original type: manifest = { ... }
-    """
+    """Original type: manifest = { ... }"""
 
     kind: ManifestKind
     path: Fpath
@@ -2018,8 +1751,7 @@ class Manifest:
 
 @dataclass(frozen=True)
 class Error:
-    """Original type: match_severity = [ ... | Error | ... ]
-    """
+    """Original type: match_severity = [ ... | Error | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2036,8 +1768,7 @@ class Error:
 
 @dataclass(frozen=True)
 class Warning:
-    """Original type: match_severity = [ ... | Warning | ... ]
-    """
+    """Original type: match_severity = [ ... | Warning | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2054,8 +1785,7 @@ class Warning:
 
 @dataclass(frozen=True)
 class Experiment:
-    """Original type: match_severity = [ ... | Experiment | ... ]
-    """
+    """Original type: match_severity = [ ... | Experiment | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2072,8 +1802,7 @@ class Experiment:
 
 @dataclass(frozen=True)
 class Inventory:
-    """Original type: match_severity = [ ... | Inventory | ... ]
-    """
+    """Original type: match_severity = [ ... | Inventory | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2090,13 +1819,7 @@ class Inventory:
 
 @dataclass(frozen=True)
 class Critical:
-    """Original type: match_severity = [ ... | Critical | ... ]
-
-    since 1.72.0, meant to replace the cases above where Error -> High,
-    Warning -> Medium. Critical/Low are the only really new category here
-    without equivalent before. Experiment and Inventory above should be
-    removed. Info can be kept.
-    """
+    """Original type: match_severity = [ ... | Critical | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2113,8 +1836,7 @@ class Critical:
 
 @dataclass(frozen=True)
 class High:
-    """Original type: match_severity = [ ... | High | ... ]
-    """
+    """Original type: match_severity = [ ... | High | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2131,8 +1853,7 @@ class High:
 
 @dataclass(frozen=True)
 class Medium:
-    """Original type: match_severity = [ ... | Medium | ... ]
-    """
+    """Original type: match_severity = [ ... | Medium | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2149,8 +1870,7 @@ class Medium:
 
 @dataclass(frozen=True)
 class Low:
-    """Original type: match_severity = [ ... | Low | ... ]
-    """
+    """Original type: match_severity = [ ... | Low | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2167,10 +1887,7 @@ class Low:
 
 @dataclass(frozen=True)
 class Info:
-    """Original type: match_severity = [ ... | Info | ... ]
-
-    generic placeholder for non-risky things (including experiments)
-    """
+    """Original type: match_severity = [ ... | Info | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2187,17 +1904,7 @@ class Info:
 
 @dataclass(frozen=True)
 class MatchSeverity:
-    """Original type: match_severity = [ ... ]
-
-    This is used in rules to specify the severity of matches/findings. alt:
-    could be called rule_severity, or finding_severity.
-
-        Error = something wrong that must be fixed
-        Warning = something wrong that should be fixed
-        Info = some special condition worth knowing about
-        Experiment = deprecated: guess what
-        Inventory = deprecated: was used for the Code Asset Inventory (CAI) project
-    """
+    """Original type: match_severity = [ ... ]"""
 
     value: Union[Error, Warning, Experiment, Inventory, Critical, High, Medium, Low, Info]
 
@@ -2243,8 +1950,7 @@ class MatchSeverity:
 
 @dataclass
 class And:
-    """Original type: matching_operation = [ ... | And | ... ]
-    """
+    """Original type: matching_operation = [ ... | And | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2261,8 +1967,7 @@ class And:
 
 @dataclass
 class Or:
-    """Original type: matching_operation = [ ... | Or | ... ]
-    """
+    """Original type: matching_operation = [ ... | Or | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2279,8 +1984,7 @@ class Or:
 
 @dataclass
 class Inside:
-    """Original type: matching_operation = [ ... | Inside | ... ]
-    """
+    """Original type: matching_operation = [ ... | Inside | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2297,8 +2001,7 @@ class Inside:
 
 @dataclass
 class Anywhere:
-    """Original type: matching_operation = [ ... | Anywhere | ... ]
-    """
+    """Original type: matching_operation = [ ... | Anywhere | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2315,11 +2018,7 @@ class Anywhere:
 
 @dataclass
 class XPat:
-    """Original type: matching_operation = [ ... | XPat of ... | ... ]
-
-    XPat for eXtended pattern. Can be a spacegrep pattern, a regexp pattern,
-    or a proper semgrep pattern. see semgrep-core/src/core/XPattern.ml
-    """
+    """Original type: matching_operation = [ ... | XPat of ... | ... ]"""
 
     value: str
 
@@ -2337,8 +2036,7 @@ class XPat:
 
 @dataclass
 class Negation:
-    """Original type: matching_operation = [ ... | Negation | ... ]
-    """
+    """Original type: matching_operation = [ ... | Negation | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2355,8 +2053,7 @@ class Negation:
 
 @dataclass
 class Filter:
-    """Original type: matching_operation = [ ... | Filter of ... | ... ]
-    """
+    """Original type: matching_operation = [ ... | Filter of ... | ... ]"""
 
     value: str
 
@@ -2374,8 +2071,7 @@ class Filter:
 
 @dataclass
 class Taint:
-    """Original type: matching_operation = [ ... | Taint | ... ]
-    """
+    """Original type: matching_operation = [ ... | Taint | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2392,8 +2088,7 @@ class Taint:
 
 @dataclass
 class TaintSource:
-    """Original type: matching_operation = [ ... | TaintSource | ... ]
-    """
+    """Original type: matching_operation = [ ... | TaintSource | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2410,8 +2105,7 @@ class TaintSource:
 
 @dataclass
 class TaintSink:
-    """Original type: matching_operation = [ ... | TaintSink | ... ]
-    """
+    """Original type: matching_operation = [ ... | TaintSink | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2428,8 +2122,7 @@ class TaintSink:
 
 @dataclass
 class TaintSanitizer:
-    """Original type: matching_operation = [ ... | TaintSanitizer | ... ]
-    """
+    """Original type: matching_operation = [ ... | TaintSanitizer | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2446,8 +2139,7 @@ class TaintSanitizer:
 
 @dataclass
 class EllipsisAndStmts:
-    """Original type: matching_operation = [ ... | EllipsisAndStmts | ... ]
-    """
+    """Original type: matching_operation = [ ... | EllipsisAndStmts | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2464,8 +2156,7 @@ class EllipsisAndStmts:
 
 @dataclass
 class ClassHeaderAndElems:
-    """Original type: matching_operation = [ ... | ClassHeaderAndElems | ... ]
-    """
+    """Original type: matching_operation = [ ... | ClassHeaderAndElems | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2482,11 +2173,7 @@ class ClassHeaderAndElems:
 
 @dataclass
 class MatchingOperation:
-    """Original type: matching_operation = [ ... ]
-
-    Note that this type is used in Matching_explanation.ml hence the need for
-    deriving show below.
-    """
+    """Original type: matching_operation = [ ... ]"""
 
     value: Union[And, Or, Inside, Anywhere, XPat, Negation, Filter, Taint, TaintSource, TaintSink, TaintSanitizer, EllipsisAndStmts, ClassHeaderAndElems]
 
@@ -2543,17 +2230,7 @@ class MatchingOperation:
 
 @dataclass(frozen=True, order=True)
 class Position:
-    """Original type: position = { ... }
-
-    Note that there is no filename here like in 'location' below
-
-    :param offset: Byte position from the beginning of the file, starts at 0.
-    OCaml code sets it correctly. Python code sets it to a dummy value (-1).
-    This uses '~' because pysemgrep < 1.30? was *producing* positions without
-    offset sometimes, and we want the backend to still *consume* such
-    positions. Note that pysemgrep 1.97 was still producing dummy positions
-    without an offset so we might need this ~offset longer than expected?
-    """
+    """Original type: position = { ... }"""
 
     line: int
     col: int
@@ -2587,10 +2264,7 @@ class Position:
 
 @dataclass(frozen=True)
 class Location:
-    """Original type: location = { ... }
-
-    a.k.a range
-    """
+    """Original type: location = { ... }"""
 
     path: Fpath
     start: Position
@@ -2624,15 +2298,7 @@ class Location:
 
 @dataclass
 class LocAndContent:
-    """Original type: loc_and_content
-
-    The string attached to the location is the actual code from the file. This
-    can contain sensitive information so be careful!
-
-    TODO: the type seems redundant since location already specifies a range.
-    maybe this saves some effort to the user of this type which do not need to
-    read the file to get the content.
-    """
+    """Original type: loc_and_content"""
 
     value: Tuple[Location, str]
 
@@ -2653,14 +2319,7 @@ class LocAndContent:
 
 @dataclass(frozen=True)
 class MatchIntermediateVar:
-    """Original type: match_intermediate_var = { ... }
-
-    This type happens to be mostly the same as a loc_and_content for now, but
-    it's split out because Iago has plans to extend this with more information
-
-    :param content: Unlike abstract_content, this is the actual text read from
-    the corresponding source file
-    """
+    """Original type: match_intermediate_var = { ... }"""
 
     location: Location
     content: str
@@ -2691,15 +2350,7 @@ class MatchIntermediateVar:
 
 @dataclass(frozen=True)
 class ProFeature:
-    """Original type: pro_feature = { ... }
-
-    Used for a best-effort report to users about what findings they get with
-    the pro engine that they couldn't with the oss engine.
-
-        interproc_taint = requires interprocedural taint
-        interfile_taint = requires interfile taint
-        proprietary_language = requires some non-taint pro feature
-    """
+    """Original type: pro_feature = { ... }"""
 
     interproc_taint: bool
     interfile_taint: bool
@@ -2733,8 +2384,7 @@ class ProFeature:
 
 @dataclass(frozen=True)
 class OSS:
-    """Original type: engine_of_finding = [ ... | OSS | ... ]
-    """
+    """Original type: engine_of_finding = [ ... | OSS | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2751,8 +2401,7 @@ class OSS:
 
 @dataclass(frozen=True)
 class PRO:
-    """Original type: engine_of_finding = [ ... | PRO | ... ]
-    """
+    """Original type: engine_of_finding = [ ... | PRO | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -2769,10 +2418,7 @@ class PRO:
 
 @dataclass(frozen=True)
 class PROREQUIRED:
-    """Original type: engine_of_finding = [ ... | PRO_REQUIRED of ... | ... ]
-
-    Semgrep 1.64.0 or later
-    """
+    """Original type: engine_of_finding = [ ... | PRO_REQUIRED of ... | ... ]"""
 
     value: ProFeature
 
@@ -2790,21 +2436,7 @@ class PROREQUIRED:
 
 @dataclass(frozen=True)
 class EngineOfFinding:
-    """Original type: engine_of_finding = [ ... ]
-
-    Report the engine used to detect each finding. Additionally, if we are
-    able to infer that the finding could only be detected using the pro
-    engine, report that the pro engine is required and include basic
-    information about which feature is required.
-
-        OSS = ran with OSS
-        PRO = ran with PRO, but we didn't infer that OSS couldn't have found this
-        finding
-        PRO_REQUIRED = ran with PRO and requires a PRO feature (see pro_feature_used)
-
-    Note: OSS and PRO could have clearer names, but for backwards
-    compatibility we're leaving them as is
-    """
+    """Original type: engine_of_finding = [ ... ]"""
 
     value: Union[OSS, PRO, PROREQUIRED]
 
@@ -2841,10 +2473,7 @@ class EngineOfFinding:
 
 @dataclass
 class RawJson:
-    """Original type: raw_json
-
-    escape hatch
-    """
+    """Original type: raw_json"""
 
     value: Any
 
@@ -2865,10 +2494,7 @@ class RawJson:
 
 @dataclass(frozen=True)
 class RuleId:
-    """Original type: rule_id
-
-    e.g., "javascript.security.do-not-use-eval"
-    """
+    """Original type: rule_id"""
 
     value: str
 
@@ -2889,8 +2515,7 @@ class RuleId:
 
 @dataclass
 class ScaPattern:
-    """Original type: sca_pattern = { ... }
-    """
+    """Original type: sca_pattern = { ... }"""
 
     ecosystem: Ecosystem
     package: str
@@ -2924,8 +2549,7 @@ class ScaPattern:
 
 @dataclass
 class DependencyMatch:
-    """Original type: dependency_match = { ... }
-    """
+    """Original type: dependency_match = { ... }"""
 
     dependency_pattern: ScaPattern
     found_dependency: FoundDependency
@@ -2959,8 +2583,7 @@ class DependencyMatch:
 
 @dataclass
 class Sha1:
-    """Original type: sha1
-    """
+    """Original type: sha1"""
 
     value: str
 
@@ -2981,18 +2604,7 @@ class Sha1:
 
 @dataclass
 class HistoricalInfo:
-    """Original type: historical_info = { ... }
-
-    part of cli_match_extra
-
-    :param git_commit: Git commit at which the finding is present. Used by
-    "historical" scans, which scan non-HEAD commits in the git history.
-    Relevant for finding, e.g., secrets which are buried in the git history
-    which we wouldn't find at HEAD
-    :param git_blob: Git blob at which the finding is present. Sent in
-    addition to the commit since some SCMs have permalinks which use the blob
-    sha, so this information is useful when generating links back to the SCM.
-    """
+    """Original type: historical_info = { ... }"""
 
     git_commit: Sha1
     git_commit_timestamp: Datetime
@@ -3027,10 +2639,7 @@ class HistoricalInfo:
 
 @dataclass(frozen=True)
 class SvalueValue:
-    """Original type: svalue_value = { ... }
-
-    :param svalue_abstract_content: value?
-    """
+    """Original type: svalue_value = { ... }"""
 
     svalue_abstract_content: str
     svalue_start: Optional[Position] = None
@@ -3066,14 +2675,7 @@ class SvalueValue:
 
 @dataclass(frozen=True)
 class MetavarValue:
-    """Original type: metavar_value = { ... }
-
-    :param start: for certain metavariable like $...ARGS, 'end' may be equal
-    to 'start' to represent an empty metavariable value. The rest of the
-    Python code (message metavariable substitution and autofix) works without
-    change for empty ranges (when end = start).
-    :param abstract_content: value?
-    """
+    """Original type: metavar_value = { ... }"""
 
     start: Position
     end: Position
@@ -3111,11 +2713,7 @@ class MetavarValue:
 
 @dataclass
 class Metavars:
-    """Original type: metavars
-
-    Name/value map of the matched metavariables. The leading '$' must be
-    included in the metavariable name.
-    """
+    """Original type: metavars"""
 
     value: Dict[str, MetavarValue]
 
@@ -3136,8 +2734,7 @@ class Metavars:
 
 @dataclass
 class TransitiveUndetermined:
-    """Original type: transitive_undetermined = { ... }
-    """
+    """Original type: transitive_undetermined = { ... }"""
 
     explanation: Optional[str]
 
@@ -3165,13 +2762,7 @@ class TransitiveUndetermined:
 
 @dataclass
 class TransitiveUnreachable:
-    """Original type: transitive_unreachable = { ... }
-
-    :param analyzed_packages: We didn't find any findings in all the 3rd party
-    libraries that are using the 3rd party vulnerable library. This is a
-    "proof of work".
-    :param explanation: some extra explanation that the user can understand
-    """
+    """Original type: transitive_unreachable = { ... }"""
 
     analyzed_packages: List[FoundDependency]
     explanation: Optional[str]
@@ -3202,8 +2793,7 @@ class TransitiveUnreachable:
 
 @dataclass(frozen=True)
 class ConfirmedValid:
-    """Original type: validation_state = [ ... | Confirmed_valid | ... ]
-    """
+    """Original type: validation_state = [ ... | Confirmed_valid | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -3220,8 +2810,7 @@ class ConfirmedValid:
 
 @dataclass(frozen=True)
 class ConfirmedInvalid:
-    """Original type: validation_state = [ ... | Confirmed_invalid | ... ]
-    """
+    """Original type: validation_state = [ ... | Confirmed_invalid | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -3238,8 +2827,7 @@ class ConfirmedInvalid:
 
 @dataclass(frozen=True)
 class ValidationError:
-    """Original type: validation_state = [ ... | Validation_error | ... ]
-    """
+    """Original type: validation_state = [ ... | Validation_error | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -3256,8 +2844,7 @@ class ValidationError:
 
 @dataclass(frozen=True)
 class NoValidator:
-    """Original type: validation_state = [ ... | No_validator | ... ]
-    """
+    """Original type: validation_state = [ ... | No_validator | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -3274,13 +2861,7 @@ class NoValidator:
 
 @dataclass(frozen=True)
 class ValidationState:
-    """Original type: validation_state = [ ... ]
-
-    This type is used by postprocessors for secrets to report back the
-    validity of a finding. No_validator is currently also used when no
-    validation has yet occurred, which if that becomes confusing we could
-    adjust that, by adding another state.
-    """
+    """Original type: validation_state = [ ... ]"""
 
     value: Union[ConfirmedValid, ConfirmedInvalid, ValidationError, NoValidator]
 
@@ -3316,8 +2897,7 @@ class ValidationState:
 
 @dataclass(frozen=True)
 class ManifestOnly:
-    """Original type: dependency_source = [ ... | ManifestOnly of ... | ... ]
-    """
+    """Original type: dependency_source = [ ... | ManifestOnly of ... | ... ]"""
 
     value: Manifest
 
@@ -3335,8 +2915,7 @@ class ManifestOnly:
 
 @dataclass(frozen=True)
 class LockfileOnly:
-    """Original type: dependency_source = [ ... | LockfileOnly of ... | ... ]
-    """
+    """Original type: dependency_source = [ ... | LockfileOnly of ... | ... ]"""
 
     value: Lockfile
 
@@ -3354,8 +2933,7 @@ class LockfileOnly:
 
 @dataclass(frozen=True)
 class ManifestLockfile:
-    """Original type: dependency_source = [ ... | ManifestLockfile of ... | ... ]
-    """
+    """Original type: dependency_source = [ ... | ManifestLockfile of ... | ... ]"""
 
     value: Tuple[Manifest, Lockfile]
 
@@ -3373,16 +2951,7 @@ class ManifestLockfile:
 
 @dataclass(frozen=True)
 class MultiLockfile:
-    """Original type: dependency_source = [ ... | MultiLockfile of ... | ... ]
-
-    The dependency_source should be LockfileOnly or ManifestLockfile, but not
-    ManifestOnlyDependencySource. Right now this variant is only used by
-    pysemgrep; it is deconstructed in multiple LockfileXxx when calling the
-    dynamic resolver. Note that this variant introduces a series of problems
-    in the Python code because atdpy generates a List[DependencySource] and
-    List are not hashable in Python. We had to define a special hash function
-    for Subproject to avoid hashing the dependency_source.
-    """
+    """Original type: dependency_source = [ ... | MultiLockfile of ... | ... ]"""
 
     value: List[DependencySource]
 
@@ -3400,8 +2969,7 @@ class MultiLockfile:
 
 @dataclass(frozen=True)
 class DependencySource:
-    """Original type: dependency_source = [ ... ]
-    """
+    """Original type: dependency_source = [ ... ]"""
 
     value: Union[ManifestOnly, LockfileOnly, ManifestLockfile, MultiLockfile]
 
@@ -3438,8 +3006,7 @@ class DependencySource:
 
 @dataclass(frozen=True, order=True)
 class CliLoc:
-    """Original type: match_call_trace = [ ... | CliLoc of ... | ... ]
-    """
+    """Original type: match_call_trace = [ ... | CliLoc of ... | ... ]"""
 
     value: LocAndContent
 
@@ -3457,8 +3024,7 @@ class CliLoc:
 
 @dataclass(frozen=True, order=True)
 class CliCall:
-    """Original type: match_call_trace = [ ... | CliCall of ... | ... ]
-    """
+    """Original type: match_call_trace = [ ... | CliCall of ... | ... ]"""
 
     value: Tuple[LocAndContent, List[MatchIntermediateVar], MatchCallTrace]
 
@@ -3476,8 +3042,7 @@ class CliCall:
 
 @dataclass(frozen=True, order=True)
 class MatchCallTrace:
-    """Original type: match_call_trace = [ ... ]
-    """
+    """Original type: match_call_trace = [ ... ]"""
 
     value: Union[CliLoc, CliCall]
 
@@ -3510,11 +3075,7 @@ class MatchCallTrace:
 
 @dataclass(frozen=True)
 class MatchDataflowTrace:
-    """Original type: match_dataflow_trace = { ... }
-
-    :param intermediate_vars: Intermediate variables which are involved in the
-    dataflow. This explains how the taint flows from the source to the sink.
-    """
+    """Original type: match_dataflow_trace = { ... }"""
 
     taint_source: Optional[MatchCallTrace] = None
     intermediate_vars: Optional[List[MatchIntermediateVar]] = None
@@ -3551,8 +3112,7 @@ class MatchDataflowTrace:
 
 @dataclass
 class CliMatch:
-    """Original type: cli_match = { ... }
-    """
+    """Original type: cli_match = { ... }"""
 
     check_id: RuleId
     path: Fpath
@@ -3591,30 +3151,7 @@ class CliMatch:
 
 @dataclass
 class CliMatchExtra:
-    """Original type: cli_match_extra = { ... }
-
-    :param message: Those fields are derived from the rule but the
-    metavariables they contain have been expanded to their concrete value.
-    :param metadata: fields coming from the rule
-    :param fingerprint: Since 1.98.0, you need to be logged in to get those
-    fields
-    :param metavars: Since 1.98.0, you need to be logged in to get this field.
-    note: we also need ?metavars because dependency_aware code
-    :param fix: If present, semgrep was able to compute a string that should
-    be inserted in place of the text in the matched range in order to fix the
-    finding. Note that this is the result of applying both the fix: or
-    fix_regex: in a rule.
-    :param is_ignored: for nosemgrep
-    :param sca_info: EXPERIMENTAL: added by dependency_aware code
-    :param validation_state: EXPERIMENTAL: If present indicates the status of
-    postprocessor validation. This field not being present should be
-    equivalent to No_validator. Added in semgrep 1.37.0
-    :param historical_info: EXPERIMENTAL: added by secrets post-processing &
-    historical scanning code Since 1.60.0.
-    :param dataflow_trace: EXPERIMENTAL: For now, present only for taint
-    findings. May be extended to others later on.
-    :param extra_extra: EXPERIMENTAL: see core_match_extra.extra_extra
-    """
+    """Original type: cli_match_extra = { ... }"""
 
     message: str
     metadata: RawJson
@@ -3693,14 +3230,7 @@ class CliMatchExtra:
 
 @dataclass
 class ScaMatch:
-    """Original type: sca_match = { ... }
-
-    part of cli_match_extra, core_match_extra, and finding
-
-    :param reachability_rule: does the rule has a pattern part; otherwise it's
-    a "parity" or "upgrade-only" rule.
-    :param kind: EXPERIMENTAL since 1.108.0
-    """
+    """Original type: sca_match = { ... }"""
 
     reachability_rule: bool
     sca_finding_schema: int
@@ -3740,13 +3270,7 @@ class ScaMatch:
 
 @dataclass
 class LockfileOnlyMatch:
-    """Original type: sca_match_kind = [ ... | LockfileOnlyMatch of ... | ... ]
-
-    This is used for "parity" or "upgrade-only" rules. transitivity indicates
-    whether the match is for a direct or transitive usage of the dependency;
-    for a dependency that is both direct and transitive two findings should be
-    generated.
-    """
+    """Original type: sca_match_kind = [ ... | LockfileOnlyMatch of ... | ... ]"""
 
     value: DependencyKind
 
@@ -3764,12 +3288,7 @@ class LockfileOnlyMatch:
 
 @dataclass
 class DirectReachable:
-    """Original type: sca_match_kind = [ ... | DirectReachable | ... ]
-
-    found the pattern-part of the SCA rule in 1st-party code (reachable as
-    originally defined by Semgrep Inc.) the match location will be in some
-    target code.
-    """
+    """Original type: sca_match_kind = [ ... | DirectReachable | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -3786,14 +3305,7 @@ class DirectReachable:
 
 @dataclass
 class TransitiveReachable_:
-    """Original type: sca_match_kind = [ ... | TransitiveReachable of ... | ... ]
-
-    found the pattern-part of the SCA rule in third-party code and ultimately
-    found a path from 1st party code to this vulnerable third-party code. The
-    goal of transitive reachability analysis is to change some Undetermined or
-    (LockfileOnlyMatch Transitive) into TransitiveReachable or
-    TransitiveUnreachable
-    """
+    """Original type: sca_match_kind = [ ... | TransitiveReachable of ... | ... ]"""
 
     value: TransitiveReachable
 
@@ -3811,17 +3323,7 @@ class TransitiveReachable_:
 
 @dataclass
 class TransitiveUnreachable_:
-    """Original type: sca_match_kind = [ ... | TransitiveUnreachable of ... | ... ]
-
-    This is a "positive" finding in the sense that semgrep was able to prove
-    that the transitive finding is "safe" and can be ignored because either
-    there is no call to the pattern-part of the SCA rule in 3rd party code, or
-    if there is it's in third-party code that is not accessed from the
-    1st-party code (e.g., via callgraph analysis) Note that there is no need
-    for DirectUnreachable because semgrep would never generate such a finding.
-    We have TransitiveUnreachable because semgrep first generates some
-    Undetermined that we then retag as DirectUnreachable.
-    """
+    """Original type: sca_match_kind = [ ... | TransitiveUnreachable of ... | ... ]"""
 
     value: TransitiveUnreachable
 
@@ -3839,13 +3341,7 @@ class TransitiveUnreachable_:
 
 @dataclass
 class TransitiveUndetermined_:
-    """Original type: sca_match_kind = [ ... | TransitiveUndetermined of ... | ... ]
-
-    could not decide because of the engine limitations (e.g., found the use of
-    a vulnerable library in the lockfile but could not find the pattern in
-    first party code and could not access third-party code for further
-    investigation (similar to (LockfileOnlyMatch Transitive))
-    """
+    """Original type: sca_match_kind = [ ... | TransitiveUndetermined of ... | ... ]"""
 
     value: TransitiveUndetermined
 
@@ -3863,11 +3359,7 @@ class TransitiveUndetermined_:
 
 @dataclass
 class ScaMatchKind:
-    """Original type: sca_match_kind = [ ... ]
-
-    Note that in addition to "reachable" there are also the notions of
-    "vulnerable" and "exploitable".
-    """
+    """Original type: sca_match_kind = [ ... ]"""
 
     value: Union[LockfileOnlyMatch, DirectReachable, TransitiveReachable_, TransitiveUnreachable_, TransitiveUndetermined_]
 
@@ -3907,16 +3399,7 @@ class ScaMatchKind:
 
 @dataclass
 class TransitiveReachable:
-    """Original type: transitive_reachable = { ... }
-
-    :param matches: The matches we found in 3rd party libraries. Ideally the
-    location in cli_match are relative to the root of the project so one can
-    display matches as package@/path/to/finding.py
-    :param callgraph_reachable: LATER: add callgraph information so one can
-    see the path from 1st party code to the vulnerable intermediate 3rd party
-    function. This is set to None for now.
-    :param explanation: some extra explanation that the user can understand
-    """
+    """Original type: transitive_reachable = { ... }"""
 
     matches: List[Tuple[FoundDependency, List[CliMatch]]]
     callgraph_reachable: Optional[bool]
@@ -3950,19 +3433,7 @@ class TransitiveReachable:
 
 @dataclass(frozen=True)
 class CoreMatchExtra:
-    """Original type: core_match_extra = { ... }
-
-    See the corresponding comment in cli_match_extra for more information
-    about the fields below.
-
-    :param message: These fields generally come from the rule, but may be set
-    here if they're being overriden for that particular finding. This would
-    currently occur for rule with a validator for secrets, depending on what
-    the validator might match, but could be expanded in the future.
-    :param extra_extra: Escape hatch to pass untyped info from semgrep-core to
-    the semgrep output. Useful for quick experiments, especially when combined
-    with semgrep --core-opts flag.
-    """
+    """Original type: core_match_extra = { ... }"""
 
     metavars: Metavars
     engine_kind: EngineOfFinding
@@ -4032,8 +3503,7 @@ class CoreMatchExtra:
 
 @dataclass(frozen=True)
 class CoreMatch:
-    """Original type: core_match = { ... }
-    """
+    """Original type: core_match = { ... }"""
 
     check_id: RuleId
     path: Fpath
@@ -4073,20 +3543,7 @@ class CoreMatch:
 
 @dataclass
 class MatchingExplanationExtra:
-    """Original type: matching_explanation_extra = { ... }
-
-    For any "extra" information that we cannot fit at the node itself. This is
-    useful for kind-specific information, which we cannot put in the operation
-    itself without giving up our ability to derive `show` (needed for
-    `matching_operation` below).
-
-    :param before_negation_matches: Only present in And kind. This information
-    is useful for determining the input matches to the first Negation node.
-    :param before_filter_matches: Only present in nodes which have children
-    Filter nodes. This information is useful for determining the input matches
-    to the first Filter node, as there is otherwise no way of obtaining the
-    post-intersection matches in an And node, for instance
-    """
+    """Original type: matching_explanation_extra = { ... }"""
 
     before_negation_matches: Optional[List[CoreMatch]]
     before_filter_matches: Optional[List[CoreMatch]]
@@ -4117,17 +3574,7 @@ class MatchingExplanationExtra:
 
 @dataclass
 class MatchingExplanation:
-    """Original type: matching_explanation = { ... }
-
-    EXPERIMENTAL
-
-    :param matches: result matches at this node (can be empty when we reach a
-    nomatch)
-    :param loc: location in the rule file! not target file. This tries to
-    delimit the part of the rule relevant to the current operation (e.g., the
-    position of the 'patterns:' token in the rule for the And operation).
-    :param extra: NEW: since v1.79
-    """
+    """Original type: matching_explanation = { ... }"""
 
     op: MatchingOperation
     children: List[MatchingExplanation]
@@ -4168,17 +3615,7 @@ class MatchingExplanation:
 
 @dataclass
 class VerySlowStats:
-    """Original type: very_slow_stats = { ... }
-
-    These ratios are numbers in [0, 1], and we would hope that both
-    'time_ratio' and 'count_ratio' are very close to 0. In bad cases, we may
-    see the 'count_ratio' being close to 0 while the 'time_ratio' is above
-    0.5, meaning that a small number of very slow files/etc represent a large
-    amount of the total processing time. EXPERIMENTAL
-
-    :param time_ratio: Ratio "sum of very slow time" / "total time"
-    :param count_ratio: Ratio "very slow count" / "total count"
-    """
+    """Original type: very_slow_stats = { ... }"""
 
     time_ratio: float
     count_ratio: float
@@ -4209,10 +3646,7 @@ class VerySlowStats:
 
 @dataclass
 class Version:
-    """Original type: version
-
-    e.g., '1.1.0'
-    """
+    """Original type: version"""
 
     value: str
 
@@ -4233,8 +3667,7 @@ class Version:
 
 @dataclass
 class Uuid:
-    """Original type: uuid
-    """
+    """Original type: uuid"""
 
     value: str
 
@@ -4255,8 +3688,7 @@ class Uuid:
 
 @dataclass
 class Uri:
-    """Original type: uri
-    """
+    """Original type: uri"""
 
     value: str
 
@@ -4275,12 +3707,129 @@ class Uri:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class Symbol:
+    """Original type: symbol = { ... }"""
+
+    fqn: List[str]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Symbol':
+        if isinstance(x, dict):
+            return cls(
+                fqn=_atd_read_list(_atd_read_string)(x['fqn']) if 'fqn' in x else _atd_missing_json_field('Symbol', 'fqn'),
+            )
+        else:
+            _atd_bad_json('Symbol', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['fqn'] = _atd_write_list(_atd_write_string)(self.fqn)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Symbol':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class SymbolUsage:
+    """Original type: symbol_usage = { ... }"""
+
+    symbol: Symbol
+    locs: List[Location]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SymbolUsage':
+        if isinstance(x, dict):
+            return cls(
+                symbol=Symbol.from_json(x['symbol']) if 'symbol' in x else _atd_missing_json_field('SymbolUsage', 'symbol'),
+                locs=_atd_read_list(Location.from_json)(x['locs']) if 'locs' in x else _atd_missing_json_field('SymbolUsage', 'locs'),
+            )
+        else:
+            _atd_bad_json('SymbolUsage', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['symbol'] = (lambda x: x.to_json())(self.symbol)
+        res['locs'] = _atd_write_list((lambda x: x.to_json()))(self.locs)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SymbolUsage':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class SymbolAnalysis:
+    """Original type: symbol_analysis"""
+
+    value: List[SymbolUsage]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SymbolAnalysis':
+        return cls(_atd_read_list(SymbolUsage.from_json)(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_list((lambda x: x.to_json()))(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SymbolAnalysis':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class UploadSubprojectSymbolAnalysisParams:
+    """Original type: upload_subproject_symbol_analysis_params = { ... }"""
+
+    token: str
+    scan_id: int
+    manifest: Optional[Fpath]
+    lockfile: Optional[Fpath]
+    symbol_analysis: SymbolAnalysis
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'UploadSubprojectSymbolAnalysisParams':
+        if isinstance(x, dict):
+            return cls(
+                token=_atd_read_string(x['token']) if 'token' in x else _atd_missing_json_field('UploadSubprojectSymbolAnalysisParams', 'token'),
+                scan_id=_atd_read_int(x['scan_id']) if 'scan_id' in x else _atd_missing_json_field('UploadSubprojectSymbolAnalysisParams', 'scan_id'),
+                manifest=_atd_read_option(Fpath.from_json)(x['manifest']) if 'manifest' in x else _atd_missing_json_field('UploadSubprojectSymbolAnalysisParams', 'manifest'),
+                lockfile=_atd_read_option(Fpath.from_json)(x['lockfile']) if 'lockfile' in x else _atd_missing_json_field('UploadSubprojectSymbolAnalysisParams', 'lockfile'),
+                symbol_analysis=SymbolAnalysis.from_json(x['symbol_analysis']) if 'symbol_analysis' in x else _atd_missing_json_field('UploadSubprojectSymbolAnalysisParams', 'symbol_analysis'),
+            )
+        else:
+            _atd_bad_json('UploadSubprojectSymbolAnalysisParams', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['token'] = _atd_write_string(self.token)
+        res['scan_id'] = _atd_write_int(self.scan_id)
+        res['manifest'] = _atd_write_option((lambda x: x.to_json()))(self.manifest)
+        res['lockfile'] = _atd_write_option((lambda x: x.to_json()))(self.lockfile)
+        res['symbol_analysis'] = (lambda x: x.to_json())(self.symbol_analysis)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'UploadSubprojectSymbolAnalysisParams':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class UnresolvedFailed:
-    """Original type: unresolved_reason = [ ... | UnresolvedFailed | ... ]
-
-    Resolution was attempted, but was unsuccessful.
-    """
+    """Original type: unresolved_reason = [ ... | UnresolvedFailed | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4297,11 +3846,7 @@ class UnresolvedFailed:
 
 @dataclass(frozen=True)
 class UnresolvedSkipped:
-    """Original type: unresolved_reason = [ ... | UnresolvedSkipped | ... ]
-
-    Resolution was skipped because the dependency source was not relevant to
-    the scanned targets.
-    """
+    """Original type: unresolved_reason = [ ... | UnresolvedSkipped | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4318,10 +3863,7 @@ class UnresolvedSkipped:
 
 @dataclass(frozen=True)
 class UnresolvedUnsupported:
-    """Original type: unresolved_reason = [ ... | UnresolvedUnsupported | ... ]
-
-    Resolution was skipped because the dependency source is not supported.
-    """
+    """Original type: unresolved_reason = [ ... | UnresolvedUnsupported | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4338,11 +3880,7 @@ class UnresolvedUnsupported:
 
 @dataclass(frozen=True)
 class UnresolvedDisabled:
-    """Original type: unresolved_reason = [ ... | UnresolvedDisabled | ... ]
-
-    Resolution was not attempted because a required feature (such as local
-    builds) was disabled.
-    """
+    """Original type: unresolved_reason = [ ... | UnresolvedDisabled | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4359,8 +3897,7 @@ class UnresolvedDisabled:
 
 @dataclass(frozen=True)
 class UnresolvedReason:
-    """Original type: unresolved_reason = [ ... ]
-    """
+    """Original type: unresolved_reason = [ ... ]"""
 
     value: Union[UnresolvedFailed, UnresolvedSkipped, UnresolvedUnsupported, UnresolvedDisabled]
 
@@ -4396,23 +3933,7 @@ class UnresolvedReason:
 
 @dataclass(frozen=True, order=True)
 class Subproject:
-    """Original type: subproject = { ... }
-
-    A subproject defined by some kind of manifest file (e.g., pyproject.toml,
-    package.json, ...). This may be at the root of the repo being scanned or
-    may be some other folder. Used as the unit of analysis for supply chain.
-
-    :param ecosystem: This is used to match code files with subprojects. It is
-    necessary to have it here, even before a subproject's dependencies are
-    resolved, in order to decide whether a certain subproject must be resolved
-    given the changes included in a certain diff scan. It can be None if this
-    subproject is for a package manager whose ecosystem is not yet supported
-    (i.e. one that is identified only for tracking purposes)
-    :param dependency_source: The dependency source is how we resolved the
-    dependencies. This might be a lockfile/manifest pair (the only current
-    one), but in the future it might also be dynamic resolution based on a
-    manifest, an SBOM, or something else
-    """
+    """Original type: subproject = { ... }"""
 
     root_dir: Fpath
     ecosystem: Optional[Ecosystem]
@@ -4446,8 +3967,7 @@ class Subproject:
 
 @dataclass
 class PGemfileLock:
-    """Original type: sca_parser_name = [ ... | PGemfile_lock | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PGemfile_lock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4464,8 +3984,7 @@ class PGemfileLock:
 
 @dataclass
 class PGoMod:
-    """Original type: sca_parser_name = [ ... | PGo_mod | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PGo_mod | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4482,8 +4001,7 @@ class PGoMod:
 
 @dataclass
 class PGoSum:
-    """Original type: sca_parser_name = [ ... | PGo_sum | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PGo_sum | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4500,8 +4018,7 @@ class PGoSum:
 
 @dataclass
 class PGradleLockfile:
-    """Original type: sca_parser_name = [ ... | PGradle_lockfile | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PGradle_lockfile | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4518,8 +4035,7 @@ class PGradleLockfile:
 
 @dataclass
 class PGradleBuild:
-    """Original type: sca_parser_name = [ ... | PGradle_build | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PGradle_build | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4536,8 +4052,7 @@ class PGradleBuild:
 
 @dataclass
 class PJsondoc:
-    """Original type: sca_parser_name = [ ... | PJsondoc | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PJsondoc | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4554,8 +4069,7 @@ class PJsondoc:
 
 @dataclass
 class PPipfile:
-    """Original type: sca_parser_name = [ ... | PPipfile | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PPipfile | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4572,8 +4086,7 @@ class PPipfile:
 
 @dataclass
 class PPnpmLock:
-    """Original type: sca_parser_name = [ ... | PPnpm_lock | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PPnpm_lock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4590,8 +4103,7 @@ class PPnpmLock:
 
 @dataclass
 class PPoetryLock:
-    """Original type: sca_parser_name = [ ... | PPoetry_lock | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PPoetry_lock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4608,8 +4120,7 @@ class PPoetryLock:
 
 @dataclass
 class PPyprojectToml:
-    """Original type: sca_parser_name = [ ... | PPyproject_toml | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PPyproject_toml | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4626,8 +4137,7 @@ class PPyprojectToml:
 
 @dataclass
 class PRequirements:
-    """Original type: sca_parser_name = [ ... | PRequirements | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PRequirements | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4644,8 +4154,7 @@ class PRequirements:
 
 @dataclass
 class PYarn1:
-    """Original type: sca_parser_name = [ ... | PYarn_1 | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PYarn_1 | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4662,8 +4171,7 @@ class PYarn1:
 
 @dataclass
 class PYarn2:
-    """Original type: sca_parser_name = [ ... | PYarn_2 | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PYarn_2 | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4680,8 +4188,7 @@ class PYarn2:
 
 @dataclass
 class PPomtree:
-    """Original type: sca_parser_name = [ ... | PPomtree | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PPomtree | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4698,8 +4205,7 @@ class PPomtree:
 
 @dataclass
 class PCargoParser:
-    """Original type: sca_parser_name = [ ... | PCargo_parser | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PCargo_parser | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4716,8 +4222,7 @@ class PCargoParser:
 
 @dataclass
 class PComposerLock:
-    """Original type: sca_parser_name = [ ... | PComposer_lock | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PComposer_lock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4734,8 +4239,7 @@ class PComposerLock:
 
 @dataclass
 class PPubspecLock:
-    """Original type: sca_parser_name = [ ... | PPubspec_lock | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PPubspec_lock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4752,8 +4256,7 @@ class PPubspecLock:
 
 @dataclass
 class PPackageSwift:
-    """Original type: sca_parser_name = [ ... | PPackage_swift | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PPackage_swift | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4770,8 +4273,7 @@ class PPackageSwift:
 
 @dataclass
 class PPodfileLock:
-    """Original type: sca_parser_name = [ ... | PPodfile_lock | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PPodfile_lock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4788,8 +4290,7 @@ class PPodfileLock:
 
 @dataclass
 class PPackageResolved:
-    """Original type: sca_parser_name = [ ... | PPackage_resolved | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PPackage_resolved | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4806,8 +4307,7 @@ class PPackageResolved:
 
 @dataclass
 class PMixLock:
-    """Original type: sca_parser_name = [ ... | PMix_lock | ... ]
-    """
+    """Original type: sca_parser_name = [ ... | PMix_lock | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4824,12 +4324,7 @@ class PMixLock:
 
 @dataclass
 class ScaParserName:
-    """Original type: sca_parser_name = [ ... ]
-
-    JSON names are to maintain backwards compatibility with the python enum it
-    is replacing. The P prefix (for parser) is to avoid ambiguity with similar
-    construtor names in the manifest and ecosystem types.
-    """
+    """Original type: sca_parser_name = [ ... ]"""
 
     value: Union[PGemfileLock, PGoMod, PGoSum, PGradleLockfile, PGradleBuild, PJsondoc, PPipfile, PPnpmLock, PPoetryLock, PPyprojectToml, PRequirements, PYarn1, PYarn2, PPomtree, PCargoParser, PComposerLock, PPubspecLock, PPackageSwift, PPodfileLock, PPackageResolved, PMixLock]
 
@@ -4899,13 +4394,7 @@ class ScaParserName:
 
 @dataclass(frozen=True)
 class ResourceInaccessible:
-    """Original type: resource_inaccessible = { ... }
-
-    :param registry_url: we attempt to parse out the actual registry URL that
-    we tried to access
-    :param message: and just include the entire error message too, just in
-    case
-    """
+    """Original type: resource_inaccessible = { ... }"""
 
     command: str
     registry_url: Optional[str]
@@ -4939,8 +4428,7 @@ class ResourceInaccessible:
 
 @dataclass(frozen=True)
 class ResolutionCmdFailed:
-    """Original type: resolution_cmd_failed = { ... }
-    """
+    """Original type: resolution_cmd_failed = { ... }"""
 
     command: str
     message: str
@@ -4971,8 +4459,7 @@ class ResolutionCmdFailed:
 
 @dataclass(frozen=True)
 class UnsupportedManifest:
-    """Original type: resolution_error_kind = [ ... | UnsupportedManifest | ... ]
-    """
+    """Original type: resolution_error_kind = [ ... | UnsupportedManifest | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -4989,8 +4476,7 @@ class UnsupportedManifest:
 
 @dataclass(frozen=True)
 class MissingRequirement:
-    """Original type: resolution_error_kind = [ ... | MissingRequirement of ... | ... ]
-    """
+    """Original type: resolution_error_kind = [ ... | MissingRequirement of ... | ... ]"""
 
     value: str
 
@@ -5008,8 +4494,7 @@ class MissingRequirement:
 
 @dataclass(frozen=True)
 class ResolutionCmdFailed_:
-    """Original type: resolution_error_kind = [ ... | ResolutionCmdFailed of ... | ... ]
-    """
+    """Original type: resolution_error_kind = [ ... | ResolutionCmdFailed of ... | ... ]"""
 
     value: ResolutionCmdFailed
 
@@ -5027,11 +4512,7 @@ class ResolutionCmdFailed_:
 
 @dataclass(frozen=True)
 class ParseDependenciesFailed:
-    """Original type: resolution_error_kind = [ ... | ParseDependenciesFailed of ... | ... ]
-
-    when we produce some dependency list in lockfileless scanning (by talking
-    to the package manager) but fail to parse it correctly
-    """
+    """Original type: resolution_error_kind = [ ... | ParseDependenciesFailed of ... | ... ]"""
 
     value: str
 
@@ -5049,11 +4530,7 @@ class ParseDependenciesFailed:
 
 @dataclass(frozen=True)
 class ScaParseError:
-    """Original type: resolution_error_kind = [ ... | ScaParseError of ... | ... ]
-
-    a lockfile parser failed since semgrep 1.109.0 (to replace
-    dependency_parser_error)
-    """
+    """Original type: resolution_error_kind = [ ... | ScaParseError of ... | ... ]"""
 
     value: ScaParserName
 
@@ -5071,10 +4548,7 @@ class ScaParseError:
 
 @dataclass(frozen=True)
 class ResourceInaccessible_:
-    """Original type: resolution_error_kind = [ ... | ResourceInaccessible of ... | ... ]
-
-    unable to access private registry, likely due to missing credentials
-    """
+    """Original type: resolution_error_kind = [ ... | ResourceInaccessible of ... | ... ]"""
 
     value: ResourceInaccessible
 
@@ -5092,8 +4566,7 @@ class ResourceInaccessible_:
 
 @dataclass(frozen=True)
 class ResolutionErrorKind:
-    """Original type: resolution_error_kind = [ ... ]
-    """
+    """Original type: resolution_error_kind = [ ... ]"""
 
     value: Union[UnsupportedManifest, MissingRequirement, ResolutionCmdFailed_, ParseDependenciesFailed, ScaParseError, ResourceInaccessible_]
 
@@ -5136,10 +4609,7 @@ class ResolutionErrorKind:
 
 @dataclass
 class ScaResolutionError:
-    """Original type: sca_resolution_error = { ... }
-
-    used only from pysemgrep for now
-    """
+    """Original type: sca_resolution_error = { ... }"""
 
     type_: ResolutionErrorKind
     dependency_source_file: Fpath
@@ -5170,11 +4640,7 @@ class ScaResolutionError:
 
 @dataclass
 class DependencyParserError:
-    """Original type: dependency_parser_error = { ... }
-
-    :param line: Not using `position` because this type must be backwards
-    compatible with the python class it is replacing.
-    """
+    """Original type: dependency_parser_error = { ... }"""
 
     path: Fpath
     parser: ScaParserName
@@ -5220,8 +4686,7 @@ class DependencyParserError:
 
 @dataclass
 class SCAParse:
-    """Original type: sca_error = [ ... | SCAParse of ... | ... ]
-    """
+    """Original type: sca_error = [ ... | SCAParse of ... | ... ]"""
 
     value: DependencyParserError
 
@@ -5239,8 +4704,7 @@ class SCAParse:
 
 @dataclass
 class SCAResol:
-    """Original type: sca_error = [ ... | SCAResol of ... | ... ]
-    """
+    """Original type: sca_error = [ ... | SCAResol of ... | ... ]"""
 
     value: ScaResolutionError
 
@@ -5258,8 +4722,7 @@ class SCAResol:
 
 @dataclass
 class ScaError:
-    """Original type: sca_error = [ ... ]
-    """
+    """Original type: sca_error = [ ... ]"""
 
     value: Union[SCAParse, SCAResol]
 
@@ -5292,10 +4755,7 @@ class ScaError:
 
 @dataclass(frozen=True)
 class UnresolvedSubproject:
-    """Original type: unresolved_subproject = { ... }
-
-    :param errors: this is set only when the reason is UnresolvedFailed
-    """
+    """Original type: unresolved_subproject = { ... }"""
 
     info: Subproject
     reason: UnresolvedReason
@@ -5329,12 +4789,7 @@ class UnresolvedSubproject:
 
 @dataclass
 class Snippet:
-    """Original type: snippet = { ... }
-
-    Instead of serving snippets here, we could just give the locations of the
-    patterns and matches. For convenience when scripting with this in rule
-    generation, we will just get the source text here.
-    """
+    """Original type: snippet = { ... }"""
 
     line: int
     text: str
@@ -5365,8 +4820,7 @@ class Snippet:
 
 @dataclass
 class And_:
-    """Original type: killing_parent_kind = [ ... | And | ... ]
-    """
+    """Original type: killing_parent_kind = [ ... | And | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -5383,8 +4837,7 @@ class And_:
 
 @dataclass
 class Inside_:
-    """Original type: killing_parent_kind = [ ... | Inside | ... ]
-    """
+    """Original type: killing_parent_kind = [ ... | Inside | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -5401,8 +4854,7 @@ class Inside_:
 
 @dataclass
 class Negation_:
-    """Original type: killing_parent_kind = [ ... | Negation | ... ]
-    """
+    """Original type: killing_parent_kind = [ ... | Negation | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -5419,8 +4871,7 @@ class Negation_:
 
 @dataclass
 class Filter_:
-    """Original type: killing_parent_kind = [ ... | Filter of ... | ... ]
-    """
+    """Original type: killing_parent_kind = [ ... | Filter of ... | ... ]"""
 
     value: str
 
@@ -5438,8 +4889,7 @@ class Filter_:
 
 @dataclass
 class KillingParentKind:
-    """Original type: killing_parent_kind = [ ... ]
-    """
+    """Original type: killing_parent_kind = [ ... ]"""
 
     value: Union[And_, Inside_, Negation_, Filter_]
 
@@ -5478,22 +4928,7 @@ class KillingParentKind:
 
 @dataclass
 class KillingParent:
-    """Original type: killing_parent = { ... }
-
-    a "killing parent" is a parent operator that could have killed the
-    unexpected match along its way to being returned Intuitively, these are
-    all the sites at which the rule could have removed the unexpected match,
-    but didn't. Note that because of the order of operations, this technically
-    means that in the following pattern:
-
-        all:
-          - pattern: A
-          - not: B
-
-    the ``not`` node is a "parent" of the ``pattern`` node, even though they
-    are siblings in the actual tree. This is because the ranges of the
-    ``pattern`` are input to the ``not`` node.
-    """
+    """Original type: killing_parent = { ... }"""
 
     killing_parent_kind: KillingParentKind
     snippet: Snippet
@@ -5524,8 +4959,7 @@ class KillingParent:
 
 @dataclass
 class NeverMatched:
-    """Original type: unexpected_no_match_diagnosis_kind = [ ... | Never_matched | ... ]
-    """
+    """Original type: unexpected_no_match_diagnosis_kind = [ ... | Never_matched | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -5542,8 +4976,7 @@ class NeverMatched:
 
 @dataclass
 class KilledByNodes:
-    """Original type: unexpected_no_match_diagnosis_kind = [ ... | Killed_by_nodes of ... | ... ]
-    """
+    """Original type: unexpected_no_match_diagnosis_kind = [ ... | Killed_by_nodes of ... | ... ]"""
 
     value: List[KillingParent]
 
@@ -5561,8 +4994,7 @@ class KilledByNodes:
 
 @dataclass
 class UnexpectedNoMatchDiagnosisKind:
-    """Original type: unexpected_no_match_diagnosis_kind = [ ... ]
-    """
+    """Original type: unexpected_no_match_diagnosis_kind = [ ... ]"""
 
     value: Union[NeverMatched, KilledByNodes]
 
@@ -5597,8 +5029,7 @@ class UnexpectedNoMatchDiagnosisKind:
 
 @dataclass
 class UnexpectedNoMatchDiagnosis:
-    """Original type: unexpected_no_match_diagnosis = { ... }
-    """
+    """Original type: unexpected_no_match_diagnosis = { ... }"""
 
     line: int
     kind: UnexpectedNoMatchDiagnosisKind
@@ -5629,8 +5060,7 @@ class UnexpectedNoMatchDiagnosis:
 
 @dataclass
 class Focus:
-    """Original type: originating_node_kind = [ ... | Focus | ... ]
-    """
+    """Original type: originating_node_kind = [ ... | Focus | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -5647,8 +5077,7 @@ class Focus:
 
 @dataclass
 class Xpattern:
-    """Original type: originating_node_kind = [ ... | Xpattern | ... ]
-    """
+    """Original type: originating_node_kind = [ ... | Xpattern | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -5665,8 +5094,7 @@ class Xpattern:
 
 @dataclass
 class OriginatingNodeKind:
-    """Original type: originating_node_kind = [ ... ]
-    """
+    """Original type: originating_node_kind = [ ... ]"""
 
     value: Union[Focus, Xpattern]
 
@@ -5698,11 +5126,7 @@ class OriginatingNodeKind:
 
 @dataclass
 class UnexpectedMatchDiagnosis:
-    """Original type: unexpected_match_diagnosis = { ... }
-
-    :param originating_kind: information about the originating pattern in the
-    rule file. This is where the unexpected match came from.
-    """
+    """Original type: unexpected_match_diagnosis = { ... }"""
 
     matched_text: Snippet
     originating_kind: OriginatingNodeKind
@@ -5739,8 +5163,7 @@ class UnexpectedMatchDiagnosis:
 
 @dataclass
 class TriageIgnored:
-    """Original type: triage_ignored = { ... }
-    """
+    """Original type: triage_ignored = { ... }"""
 
     triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
     triage_ignored_match_based_ids: List[str] = field(default_factory=lambda: [])
@@ -5771,11 +5194,7 @@ class TriageIgnored:
 
 @dataclass
 class TransitiveFinding:
-    """Original type: transitive_finding = { ... }
-
-    :param m: the important part is the sca_match in core_match_extra that we
-    need to adjust and especially the sca_match_kind.
-    """
+    """Original type: transitive_finding = { ... }"""
 
     m: CoreMatch
 
@@ -5803,16 +5222,7 @@ class TransitiveFinding:
 
 @dataclass
 class DownloadedDependency:
-    """Original type: downloaded_dependency = { ... }
-
-    Information about a 3rd-party lib downloaded for Transitive Reachability.
-    To accompany a found_dependency within the Semgrep CLI, passed back and
-    forth from OCaml to Python via RPC. See also SCA_dependency.t in OCaml.
-
-    Source paths is a list of paths to either folders containing source code
-    or source code files. It is necessary to use a list here because package
-    managers like pip may unpack a package into multiple folders.
-    """
+    """Original type: downloaded_dependency = { ... }"""
 
     source_paths: List[Fpath]
 
@@ -5840,8 +5250,7 @@ class DownloadedDependency:
 
 @dataclass
 class ResolvedDependency:
-    """Original type: resolved_dependency
-    """
+    """Original type: resolved_dependency"""
 
     value: Tuple[FoundDependency, Optional[DownloadedDependency]]
 
@@ -5862,8 +5271,7 @@ class ResolvedDependency:
 
 @dataclass
 class TransitiveReachabilityFilterParams:
-    """Original type: transitive_reachability_filter_params = { ... }
-    """
+    """Original type: transitive_reachability_filter_params = { ... }"""
 
     rules_path: Fpath
     findings: List[TransitiveFinding]
@@ -5900,10 +5308,7 @@ class TransitiveReachabilityFilterParams:
 
 @dataclass
 class TrCacheMatchResult:
-    """Original type: tr_cache_match_result = { ... }
-
-    The "value"
-    """
+    """Original type: tr_cache_match_result = { ... }"""
 
     matches: List[CliMatch]
 
@@ -5931,32 +5336,7 @@ class TrCacheMatchResult:
 
 @dataclass
 class TrCacheKey:
-    """Original type: tr_cache_key = { ... }
-
-    We want essentially to cache semgrep computation on third party packages
-    to quickly know (rule_id x package_version) -> sca_transitive_match_kind
-    to avoid downloading and recomputing each time the same thing.
-
-    The "key". The rule_id and resolved_url should form a valid key for our TR
-    cache database table. Indeed, semgrep should always return the same result
-    when using the same rule and same resolved_url package. The content at the
-    URL should hopefully not change (we could md5sum it just in case) and the
-    content of the rule_id should also not change (could md5sum it maybe too).
-
-    I've added tr_version below just in case we want to invalidate past cached
-    entries (e.g., the semgrep engine itself changed enough that some past
-    cached results might be wrong and should be recomputed.
-
-    :param rule_version: this can be the checksum of the content of the rule
-    (JSON or YAML form)
-    :param engine_version: does not have to match the Semgrep CLI version; can
-    be bumped only when we think the match should be recomputed
-    :param package_url: e.g. http://some-website/hello-world.0.1.2.tgz like in
-    found_dependency ``resolved_url`` field, but could be anything to describe
-    a particular package. We could rely on
-    https://github.com/package-url/purl-spec
-    :param extra: extra key just in case (e.g., "prod" vs "dev")
-    """
+    """Original type: tr_cache_key = { ... }"""
 
     rule_id: RuleId
     rule_version: str
@@ -5996,10 +5376,7 @@ class TrCacheKey:
 
 @dataclass
 class TrQueryCacheResponse:
-    """Original type: tr_query_cache_response = { ... }
-
-    Response by the backend the the POST /api/cli/tr_cache/lookup
-    """
+    """Original type: tr_query_cache_response = { ... }"""
 
     cached: List[Tuple[TrCacheKey, TrCacheMatchResult]]
 
@@ -6027,10 +5404,7 @@ class TrQueryCacheResponse:
 
 @dataclass
 class TrQueryCacheRequest:
-    """Original type: tr_query_cache_request = { ... }
-
-    Sent by the CLI to the POST /api/cli/tr_cache/lookup
-    """
+    """Original type: tr_query_cache_request = { ... }"""
 
     entries: List[TrCacheKey]
 
@@ -6058,10 +5432,7 @@ class TrQueryCacheRequest:
 
 @dataclass
 class TrAddCacheRequest:
-    """Original type: tr_add_cache_request = { ... }
-
-    Sent by the CLI to the POST /api/cli/tr_cache
-    """
+    """Original type: tr_add_cache_request = { ... }"""
 
     new_entries: List[Tuple[TrCacheKey, TrCacheMatchResult]]
 
@@ -6089,8 +5460,7 @@ class TrAddCacheRequest:
 
 @dataclass
 class Todo:
-    """Original type: todo
-    """
+    """Original type: todo"""
 
     value: int
 
@@ -6111,56 +5481,7 @@ class Todo:
 
 @dataclass
 class MatchingDiagnosis:
-    """Original type: matching_diagnosis = { ... }
-
-    EXPERIMENTAL
-
-    A "matching diagnosis" is a postprocessed interpretation of matching
-    explanations, specific to a particular test-annotated target file.
-
-    For instance, suppose we have the rule:
-
-        1 | all:
-        2 | - pattern: foo(...)
-        3 | - not: foo(goood)
-
-    and the following Python annotated target:
-
-        1 | # ruleid: my_rule
-        2 | foo()
-        3 | # ok: my_rule
-        4 | foo(good)
-
-    We would get an unexpected match on line 4, which would fail the test
-    assertion.
-
-    By looking at the matching explanation, we can deduce that the match on
-    line 4 must clearly have been introduced by the positive ``foo(..)``
-    pattern. The rule-writer probably meant to kill ``foo(good)`` with the
-    negative ``foo(goood)`` pattern.
-
-    This is essentially what matching diagnoses are -- using matching
-    explanations to point out where the erroneous parts of the rule _may_ be.
-
-    Note that this is a _may_, because an unexpected match could have been
-    killed by the ``foo(bad)``, but if there were more negative patterns, it
-    could have been killed elsewhere too. All we can do is point out places
-    where the rule-writer _may_ have messed up.
-
-    So in this case, we would expect an ``unexpected_match_diagnosis`` with
-    the form:
-
-        { matched_text = { line = 4; text = "foo(bad)" };
-          originating_kind = Xpattern;
-          originating_text = { line = 2; text = "- pattern: foo(...)" };
-          killing_parents = [
-            { killing_parent_kind = Negation;
-              snippet = { line = 3; text = "- not: foo(good)" } }
-          ]
-        }
-
-    :param target: specifically, the test target
-    """
+    """Original type: matching_diagnosis = { ... }"""
 
     target: Fpath
     unexpected_match_diagnoses: List[UnexpectedMatchDiagnosis]
@@ -6194,8 +5515,7 @@ class MatchingDiagnosis:
 
 @dataclass
 class ExpectedReported:
-    """Original type: expected_reported = { ... }
-    """
+    """Original type: expected_reported = { ... }"""
 
     expected_lines: List[int]
     reported_lines: List[int]
@@ -6226,11 +5546,7 @@ class ExpectedReported:
 
 @dataclass
 class RuleResult:
-    """Original type: rule_result = { ... }
-
-    :param matches: (target filename, expected_reported) list
-    :param diagnosis: NEW: since 1.79
-    """
+    """Original type: rule_result = { ... }"""
 
     passed: bool
     matches: List[Tuple[str, ExpectedReported]]
@@ -6268,8 +5584,7 @@ class RuleResult:
 
 @dataclass
 class FixtestResult:
-    """Original type: fixtest_result = { ... }
-    """
+    """Original type: fixtest_result = { ... }"""
 
     passed: bool
 
@@ -6297,8 +5612,7 @@ class FixtestResult:
 
 @dataclass
 class UnparsableRule:
-    """Original type: config_error_reason = [ ... | UnparsableRule | ... ]
-    """
+    """Original type: config_error_reason = [ ... | UnparsableRule | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -6315,8 +5629,7 @@ class UnparsableRule:
 
 @dataclass
 class ConfigErrorReason:
-    """Original type: config_error_reason = [ ... ]
-    """
+    """Original type: config_error_reason = [ ... ]"""
 
     value: Union[UnparsableRule]
 
@@ -6346,8 +5659,7 @@ class ConfigErrorReason:
 
 @dataclass
 class ConfigError:
-    """Original type: config_error = { ... }
-    """
+    """Original type: config_error = { ... }"""
 
     file: Fpath
     reason: ConfigErrorReason
@@ -6378,10 +5690,7 @@ class ConfigError:
 
 @dataclass
 class Checks:
-    """Original type: checks = { ... }
-
-    :param checks: (rule ID, rule_result) list
-    """
+    """Original type: checks = { ... }"""
 
     checks: List[Tuple[str, RuleResult]]
 
@@ -6409,11 +5718,7 @@ class Checks:
 
 @dataclass
 class TestsResult:
-    """Original type: tests_result = { ... }
-
-    :param results: (rule file, checks) list
-    :param fixtest_results: (target file, fixtest_result) list
-    """
+    """Original type: tests_result = { ... }"""
 
     results: List[Tuple[str, Checks]]
     fixtest_results: List[Tuple[str, FixtestResult]]
@@ -6453,10 +5758,7 @@ class TestsResult:
 
 @dataclass
 class Filesystem:
-    """Original type: project_root = [ ... | Filesystem of ... | ... ]
-
-    path
-    """
+    """Original type: project_root = [ ... | Filesystem of ... | ... ]"""
 
     value: str
 
@@ -6474,10 +5776,7 @@ class Filesystem:
 
 @dataclass
 class GitRemote:
-    """Original type: project_root = [ ... | Git_remote of ... | ... ]
-
-    URL
-    """
+    """Original type: project_root = [ ... | Git_remote of ... | ... ]"""
 
     value: str
 
@@ -6495,10 +5794,7 @@ class GitRemote:
 
 @dataclass
 class ProjectRoot:
-    """Original type: project_root = [ ... ]
-
-    See Scan_CLI.ml on how to convert command-line options to this
-    """
+    """Original type: project_root = [ ... ]"""
 
     value: Union[Filesystem, GitRemote]
 
@@ -6531,24 +5827,7 @@ class ProjectRoot:
 
 @dataclass
 class TargetingConf:
-    """Original type: targeting_conf = { ... }
-
-    This type is similar to the type Find_targets.conf used by osemgrep.
-
-    We could share the type but it would be slightly more complicated. This
-    solution will be easier to undo when we're fully migrated to osemgrep.
-
-    It encodes options derived from the pysemgrep command line. Upon receiving
-    this record, semgrep-core will discover the target files like osemgrep
-    does.
-
-    See Find_targets.mli for the meaning of each field. See Scan_CLI.ml for
-    the mapping between semgrep CLI and this type.
-
-    :param explicit_targets: This is a hash table in Find_targets.conf
-    :param force_project_root: osemgrep-only option (is it still the case?)
-    (see Git_project.ml and the force_root parameter)
-    """
+    """Original type: targeting_conf = { ... }"""
 
     exclude: List[str]
     max_target_bytes: int
@@ -6613,10 +5892,7 @@ class TargetingConf:
 
 @dataclass(frozen=True)
 class SAST:
-    """Original type: product = [ ... | SAST | ... ]
-
-    a.k.a. Code
-    """
+    """Original type: product = [ ... | SAST | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -6633,10 +5909,7 @@ class SAST:
 
 @dataclass(frozen=True)
 class SCA:
-    """Original type: product = [ ... | SCA | ... ]
-
-    a.k.a. SSC
-    """
+    """Original type: product = [ ... | SCA | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -6653,8 +5926,7 @@ class SCA:
 
 @dataclass(frozen=True)
 class Secrets:
-    """Original type: product = [ ... | Secrets | ... ]
-    """
+    """Original type: product = [ ... | Secrets | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -6671,8 +5943,7 @@ class Secrets:
 
 @dataclass(frozen=True)
 class Product:
-    """Original type: product = [ ... ]
-    """
+    """Original type: product = [ ... ]"""
 
     value: Union[SAST, SCA, Secrets]
 
@@ -6706,8 +5977,7 @@ class Product:
 
 @dataclass(frozen=True, order=True)
 class Ppath:
-    """Original type: ppath
-    """
+    """Original type: ppath"""
 
     value: str
 
@@ -6728,11 +5998,7 @@ class Ppath:
 
 @dataclass
 class Fppath:
-    """Original type: fppath = { ... }
-
-    Same as Fppath.t: a nice filesystem path + the path relative to the
-    project root provided for pattern-based filtering purposes.
-    """
+    """Original type: fppath = { ... }"""
 
     fpath: Fpath
     ppath: Ppath
@@ -6763,8 +6029,7 @@ class Fppath:
 
 @dataclass
 class Analyzer:
-    """Original type: analyzer
-    """
+    """Original type: analyzer"""
 
     value: str
 
@@ -6785,19 +6050,7 @@ class Analyzer:
 
 @dataclass
 class CodeTarget:
-    """Original type: code_target = { ... }
-
-    A normal semgrep target, optionally with an associated [lockfile] The
-    lockfile means: the code in this file has its dependencies specified by
-    this lockfile We don't want to commit to a specific way of associating
-    these in semgrep-core, so we leave it up to the caller (pysemgrep or
-    osemgrep) to do it.
-
-    :param path: source file
-    :param analyzer: Must be a valid target analyzer as defined in
-    Analyzer.mli. examples: "ocaml", "python", but also "spacegrep" or
-    "regexp".
-    """
+    """Original type: code_target = { ... }"""
 
     path: Fppath
     analyzer: Analyzer
@@ -6835,8 +6088,7 @@ class CodeTarget:
 
 @dataclass
 class CodeTarget_:
-    """Original type: target = [ ... | CodeTarget of ... | ... ]
-    """
+    """Original type: target = [ ... | CodeTarget of ... | ... ]"""
 
     value: CodeTarget
 
@@ -6854,8 +6106,7 @@ class CodeTarget_:
 
 @dataclass
 class DependencySourceTarget:
-    """Original type: target = [ ... | DependencySourceTarget of ... | ... ]
-    """
+    """Original type: target = [ ... | DependencySourceTarget of ... | ... ]"""
 
     value: DependencySource
 
@@ -6873,13 +6124,7 @@ class DependencySourceTarget:
 
 @dataclass
 class Target:
-    """Original type: target = [ ... ]
-
-    A target can either be a traditional code target (now with optional
-    associated lockfile) or it can be a lockfile target, which will be used to
-    generate lockfile-only findings. Currently *ALL TARGETS FROM PYSEMGREP ARE
-    CODETARGETS*
-    """
+    """Original type: target = [ ... ]"""
 
     value: Union[CodeTarget_, DependencySourceTarget]
 
@@ -6912,8 +6157,7 @@ class Target:
 
 @dataclass
 class ScanningRoots:
-    """Original type: scanning_roots = { ... }
-    """
+    """Original type: scanning_roots = { ... }"""
 
     root_paths: List[Fpath]
     targeting_conf: TargetingConf
@@ -6944,10 +6188,7 @@ class ScanningRoots:
 
 @dataclass
 class ScanningRoots_:
-    """Original type: targets = [ ... | Scanning_roots of ... | ... ]
-
-    list of paths used to discover targets
-    """
+    """Original type: targets = [ ... | Scanning_roots of ... | ... ]"""
 
     value: ScanningRoots
 
@@ -6965,10 +6206,7 @@ class ScanningRoots_:
 
 @dataclass
 class Targets_:
-    """Original type: targets = [ ... | Targets of ... | ... ]
-
-    targets already discovered from the scanning roots by pysemgrep
-    """
+    """Original type: targets = [ ... | Targets of ... | ... ]"""
 
     value: List[Target]
 
@@ -6986,17 +6224,7 @@ class Targets_:
 
 @dataclass
 class Targets:
-    """Original type: targets = [ ... ]
-
-    The same path can be present multiple times in targets below, with
-    different languages each time, so a Python file can be both analyzed with
-    Python rules, but also with generic/regexp rules.
-
-    alt: we could have a list of languages instead in target above, but
-    because of the way semgrep-core is designed (with its file_and_more type),
-    you could have at most one PL language, and then possibly "generic" and
-    "regexp".
-    """
+    """Original type: targets = [ ... ]"""
 
     value: Union[ScanningRoots_, Targets_]
 
@@ -7029,11 +6257,7 @@ class Targets:
 
 @dataclass
 class TargetTimes:
-    """Original type: target_times = { ... }
-
-    :param match_times: each elt in the list refers to a rule in profile.rules
-    :param run_time: run time for all rules on target
-    """
+    """Original type: target_times = { ... }"""
 
     path: Fpath
     num_bytes: int
@@ -7073,8 +6297,7 @@ class TargetTimes:
 
 @dataclass
 class AlwaysSkipped:
-    """Original type: skip_reason = [ ... | Always_skipped | ... ]
-    """
+    """Original type: skip_reason = [ ... | Always_skipped | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7091,8 +6314,7 @@ class AlwaysSkipped:
 
 @dataclass
 class SemgrepignorePatternsMatch:
-    """Original type: skip_reason = [ ... | Semgrepignore_patterns_match | ... ]
-    """
+    """Original type: skip_reason = [ ... | Semgrepignore_patterns_match | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7109,8 +6331,7 @@ class SemgrepignorePatternsMatch:
 
 @dataclass
 class CliIncludeFlagsDoNotMatch:
-    """Original type: skip_reason = [ ... | Cli_include_flags_do_not_match | ... ]
-    """
+    """Original type: skip_reason = [ ... | Cli_include_flags_do_not_match | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7127,8 +6348,7 @@ class CliIncludeFlagsDoNotMatch:
 
 @dataclass
 class CliExcludeFlagsMatch:
-    """Original type: skip_reason = [ ... | Cli_exclude_flags_match | ... ]
-    """
+    """Original type: skip_reason = [ ... | Cli_exclude_flags_match | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7145,8 +6365,7 @@ class CliExcludeFlagsMatch:
 
 @dataclass
 class ExceededSizeLimit:
-    """Original type: skip_reason = [ ... | Exceeded_size_limit | ... ]
-    """
+    """Original type: skip_reason = [ ... | Exceeded_size_limit | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7163,8 +6382,7 @@ class ExceededSizeLimit:
 
 @dataclass
 class AnalysisFailedParserOrInternalError:
-    """Original type: skip_reason = [ ... | Analysis_failed_parser_or_internal_error | ... ]
-    """
+    """Original type: skip_reason = [ ... | Analysis_failed_parser_or_internal_error | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7181,8 +6399,7 @@ class AnalysisFailedParserOrInternalError:
 
 @dataclass
 class ExcludedByConfig:
-    """Original type: skip_reason = [ ... | Excluded_by_config | ... ]
-    """
+    """Original type: skip_reason = [ ... | Excluded_by_config | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7199,8 +6416,7 @@ class ExcludedByConfig:
 
 @dataclass
 class WrongLanguage:
-    """Original type: skip_reason = [ ... | Wrong_language | ... ]
-    """
+    """Original type: skip_reason = [ ... | Wrong_language | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7217,8 +6433,7 @@ class WrongLanguage:
 
 @dataclass
 class TooBig:
-    """Original type: skip_reason = [ ... | Too_big | ... ]
-    """
+    """Original type: skip_reason = [ ... | Too_big | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7235,8 +6450,7 @@ class TooBig:
 
 @dataclass
 class Minified:
-    """Original type: skip_reason = [ ... | Minified | ... ]
-    """
+    """Original type: skip_reason = [ ... | Minified | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7253,8 +6467,7 @@ class Minified:
 
 @dataclass
 class Binary:
-    """Original type: skip_reason = [ ... | Binary | ... ]
-    """
+    """Original type: skip_reason = [ ... | Binary | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7271,8 +6484,7 @@ class Binary:
 
 @dataclass
 class IrrelevantRule:
-    """Original type: skip_reason = [ ... | Irrelevant_rule | ... ]
-    """
+    """Original type: skip_reason = [ ... | Irrelevant_rule | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7289,8 +6501,7 @@ class IrrelevantRule:
 
 @dataclass
 class TooManyMatches:
-    """Original type: skip_reason = [ ... | Too_many_matches | ... ]
-    """
+    """Original type: skip_reason = [ ... | Too_many_matches | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7307,8 +6518,7 @@ class TooManyMatches:
 
 @dataclass
 class GitignorePatternsMatch:
-    """Original type: skip_reason = [ ... | Gitignore_patterns_match | ... ]
-    """
+    """Original type: skip_reason = [ ... | Gitignore_patterns_match | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7325,10 +6535,7 @@ class GitignorePatternsMatch:
 
 @dataclass
 class Dotfile:
-    """Original type: skip_reason = [ ... | Dotfile | ... ]
-
-    since 1.40.0. They were always ignored, but not shown in the skip report
-    """
+    """Original type: skip_reason = [ ... | Dotfile | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7345,10 +6552,7 @@ class Dotfile:
 
 @dataclass
 class NonexistentFile:
-    """Original type: skip_reason = [ ... | Nonexistent_file | ... ]
-
-    since 1.44.0
-    """
+    """Original type: skip_reason = [ ... | Nonexistent_file | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7365,10 +6569,7 @@ class NonexistentFile:
 
 @dataclass
 class InsufficientPermissions:
-    """Original type: skip_reason = [ ... | Insufficient_permissions | ... ]
-
-    since 1.94.0
-    """
+    """Original type: skip_reason = [ ... | Insufficient_permissions | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7385,15 +6586,7 @@ class InsufficientPermissions:
 
 @dataclass
 class SkipReason:
-    """Original type: skip_reason = [ ... ]
-
-    A reason for skipping a target file or a pair (target, rule). Note that
-    this type is also used in Report.ml hence the need for deriving show here.
-
-    For consistency, please make sure all the JSON constructors use the same
-    case rules (lowercase, underscores). This is hard to fix later! Please
-    review your code carefully before committing to interface changes.
-    """
+    """Original type: skip_reason = [ ... ]"""
 
     value: Union[AlwaysSkipped, SemgrepignorePatternsMatch, CliIncludeFlagsDoNotMatch, CliExcludeFlagsMatch, ExceededSizeLimit, AnalysisFailedParserOrInternalError, ExcludedByConfig, WrongLanguage, TooBig, Minified, Binary, IrrelevantRule, TooManyMatches, GitignorePatternsMatch, Dotfile, NonexistentFile, InsufficientPermissions]
 
@@ -7455,15 +6648,7 @@ class SkipReason:
 
 @dataclass
 class SkippedTarget:
-    """Original type: skipped_target = { ... }
-
-    coupling: ugly: with yield_json_objects() in target_manager.py
-
-    :param details: since semgrep 1.39.0 (used to be return only by
-    semgrep-core)
-    :param rule_id: If the 'rule_id' field is missing, the target is assumed
-    to have been skipped for all the rules
-    """
+    """Original type: skipped_target = { ... }"""
 
     path: Fpath
     reason: SkipReason
@@ -7502,8 +6687,7 @@ class SkippedTarget:
 
 @dataclass(frozen=True)
 class IncompatibleRule:
-    """Original type: incompatible_rule = { ... }
-    """
+    """Original type: incompatible_rule = { ... }"""
 
     rule_id: RuleId
     this_version: Version
@@ -7542,12 +6726,7 @@ class IncompatibleRule:
 
 @dataclass(frozen=True, order=True)
 class LexicalError:
-    """Original type: error_type = [ ... | LexicalError | ... ]
-
-    File parsing related errors; coupling: if you add a target parse error
-    then metrics for cli need to be updated. See
-    cli/src/semgrep/parsing_data.py.
-    """
+    """Original type: error_type = [ ... | LexicalError | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7564,10 +6743,7 @@ class LexicalError:
 
 @dataclass(frozen=True, order=True)
 class ParseError:
-    """Original type: error_type = [ ... | ParseError | ... ]
-
-    a.k.a SyntaxError
-    """
+    """Original type: error_type = [ ... | ParseError | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7584,8 +6760,7 @@ class ParseError:
 
 @dataclass(frozen=True, order=True)
 class OtherParseError:
-    """Original type: error_type = [ ... | OtherParseError | ... ]
-    """
+    """Original type: error_type = [ ... | OtherParseError | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7602,8 +6777,7 @@ class OtherParseError:
 
 @dataclass(frozen=True, order=True)
 class AstBuilderError:
-    """Original type: error_type = [ ... | AstBuilderError | ... ]
-    """
+    """Original type: error_type = [ ... | AstBuilderError | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7620,11 +6794,7 @@ class AstBuilderError:
 
 @dataclass(frozen=True, order=True)
 class RuleParseError:
-    """Original type: error_type = [ ... | RuleParseError | ... ]
-
-    Pattern parsing related errors. There are more precise info about the
-    error in Rule.invalid_rule_error_kind in Rule.ml.
-    """
+    """Original type: error_type = [ ... | RuleParseError | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7641,10 +6811,7 @@ class RuleParseError:
 
 @dataclass(frozen=True, order=True)
 class SemgrepWarning:
-    """Original type: error_type = [ ... | SemgrepWarning | ... ]
-
-    generated in pysemgrep only
-    """
+    """Original type: error_type = [ ... | SemgrepWarning | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7661,8 +6828,7 @@ class SemgrepWarning:
 
 @dataclass(frozen=True, order=True)
 class SemgrepError:
-    """Original type: error_type = [ ... | SemgrepError | ... ]
-    """
+    """Original type: error_type = [ ... | SemgrepError | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7679,8 +6845,7 @@ class SemgrepError:
 
 @dataclass(frozen=True, order=True)
 class InvalidRuleSchemaError:
-    """Original type: error_type = [ ... | InvalidRuleSchemaError | ... ]
-    """
+    """Original type: error_type = [ ... | InvalidRuleSchemaError | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7697,8 +6862,7 @@ class InvalidRuleSchemaError:
 
 @dataclass(frozen=True, order=True)
 class UnknownLanguageError:
-    """Original type: error_type = [ ... | UnknownLanguageError | ... ]
-    """
+    """Original type: error_type = [ ... | UnknownLanguageError | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7715,8 +6879,7 @@ class UnknownLanguageError:
 
 @dataclass(frozen=True, order=True)
 class InvalidYaml:
-    """Original type: error_type = [ ... | InvalidYaml | ... ]
-    """
+    """Original type: error_type = [ ... | InvalidYaml | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7733,10 +6896,7 @@ class InvalidYaml:
 
 @dataclass(frozen=True, order=True)
 class MatchingError:
-    """Original type: error_type = [ ... | MatchingError | ... ]
-
-    internal error, e.g., NoTokenLocation
-    """
+    """Original type: error_type = [ ... | MatchingError | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7753,8 +6913,7 @@ class MatchingError:
 
 @dataclass(frozen=True, order=True)
 class SemgrepMatchFound:
-    """Original type: error_type = [ ... | SemgrepMatchFound | ... ]
-    """
+    """Original type: error_type = [ ... | SemgrepMatchFound | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7771,8 +6930,7 @@ class SemgrepMatchFound:
 
 @dataclass(frozen=True, order=True)
 class TooManyMatches_:
-    """Original type: error_type = [ ... | TooManyMatches | ... ]
-    """
+    """Original type: error_type = [ ... | TooManyMatches | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7789,10 +6947,7 @@ class TooManyMatches_:
 
 @dataclass(frozen=True, order=True)
 class FatalError:
-    """Original type: error_type = [ ... | FatalError | ... ]
-
-    missing file, OCaml errors, etc.
-    """
+    """Original type: error_type = [ ... | FatalError | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7809,8 +6964,7 @@ class FatalError:
 
 @dataclass(frozen=True, order=True)
 class Timeout:
-    """Original type: error_type = [ ... | Timeout | ... ]
-    """
+    """Original type: error_type = [ ... | Timeout | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7827,8 +6981,7 @@ class Timeout:
 
 @dataclass(frozen=True, order=True)
 class OutOfMemory:
-    """Original type: error_type = [ ... | OutOfMemory | ... ]
-    """
+    """Original type: error_type = [ ... | OutOfMemory | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7845,10 +6998,7 @@ class OutOfMemory:
 
 @dataclass(frozen=True, order=True)
 class FixpointTimeout:
-    """Original type: error_type = [ ... | FixpointTimeout | ... ]
-
-    since semgrep 1.132.0
-    """
+    """Original type: error_type = [ ... | FixpointTimeout | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7865,10 +7015,7 @@ class FixpointTimeout:
 
 @dataclass(frozen=True, order=True)
 class StackOverflow:
-    """Original type: error_type = [ ... | StackOverflow | ... ]
-
-    since semgrep 1.86.0
-    """
+    """Original type: error_type = [ ... | StackOverflow | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7885,8 +7032,7 @@ class StackOverflow:
 
 @dataclass(frozen=True, order=True)
 class TimeoutDuringInterfile:
-    """Original type: error_type = [ ... | TimeoutDuringInterfile | ... ]
-    """
+    """Original type: error_type = [ ... | TimeoutDuringInterfile | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7903,8 +7049,7 @@ class TimeoutDuringInterfile:
 
 @dataclass(frozen=True, order=True)
 class OutOfMemoryDuringInterfile:
-    """Original type: error_type = [ ... | OutOfMemoryDuringInterfile | ... ]
-    """
+    """Original type: error_type = [ ... | OutOfMemoryDuringInterfile | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7921,10 +7066,7 @@ class OutOfMemoryDuringInterfile:
 
 @dataclass(frozen=True, order=True)
 class MissingPlugin:
-    """Original type: error_type = [ ... | MissingPlugin | ... ]
-
-    since semgrep 1.40.0
-    """
+    """Original type: error_type = [ ... | MissingPlugin | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -7941,11 +7083,7 @@ class MissingPlugin:
 
 @dataclass(frozen=True, order=True)
 class PatternParseError:
-    """Original type: error_type = [ ... | PatternParseError of ... | ... ]
-
-    the string list is the "YAML path" of the pattern, e.g. ``["rules"; "1";
-    ...]``
-    """
+    """Original type: error_type = [ ... | PatternParseError of ... | ... ]"""
 
     value: List[str]
 
@@ -7963,10 +7101,7 @@ class PatternParseError:
 
 @dataclass(frozen=True, order=True)
 class PartialParsing:
-    """Original type: error_type = [ ... | PartialParsing of ... | ... ]
-
-    list of skipped tokens. Since semgrep 0.97.
-    """
+    """Original type: error_type = [ ... | PartialParsing of ... | ... ]"""
 
     value: List[Location]
 
@@ -7984,10 +7119,7 @@ class PartialParsing:
 
 @dataclass(frozen=True, order=True)
 class IncompatibleRule_:
-    """Original type: error_type = [ ... | IncompatibleRule of ... | ... ]
-
-    since semgrep 1.38.0
-    """
+    """Original type: error_type = [ ... | IncompatibleRule of ... | ... ]"""
 
     value: IncompatibleRule
 
@@ -8005,15 +7137,7 @@ class IncompatibleRule_:
 
 @dataclass(frozen=True, order=True)
 class PatternParseError0:
-    """Original type: error_type = [ ... | PatternParseError0 | ... ]
-
-    Those Xxx0 variants were introduced in semgrep 1.45.0, but actually they
-    are here so that our backend can read the cli_error.type_ from old semgrep
-    versions that were translating the PatternParseError _ and
-    IncompatibleRule _ above as a single string (instead of a list
-    ["PatternParseError", ...] now). There is no PartialParsing0 because this
-    was encoded as a ParseError instead.
-    """
+    """Original type: error_type = [ ... | PatternParseError0 | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -8030,8 +7154,7 @@ class PatternParseError0:
 
 @dataclass(frozen=True, order=True)
 class IncompatibleRule0:
-    """Original type: error_type = [ ... | IncompatibleRule0 | ... ]
-    """
+    """Original type: error_type = [ ... | IncompatibleRule0 | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -8048,10 +7171,7 @@ class IncompatibleRule0:
 
 @dataclass(frozen=True, order=True)
 class DependencyResolutionError:
-    """Original type: error_type = [ ... | DependencyResolutionError of ... | ... ]
-
-    since semgrep 1.94.0
-    """
+    """Original type: error_type = [ ... | DependencyResolutionError of ... | ... ]"""
 
     value: ResolutionErrorKind
 
@@ -8069,8 +7189,7 @@ class DependencyResolutionError:
 
 @dataclass(frozen=True, order=True)
 class ErrorType:
-    """Original type: error_type = [ ... ]
-    """
+    """Original type: error_type = [ ... ]"""
 
     value: Union[LexicalError, ParseError, OtherParseError, AstBuilderError, RuleParseError, SemgrepWarning, SemgrepError, InvalidRuleSchemaError, UnknownLanguageError, InvalidYaml, MatchingError, SemgrepMatchFound, TooManyMatches_, FatalError, Timeout, OutOfMemory, FixpointTimeout, StackOverflow, TimeoutDuringInterfile, OutOfMemoryDuringInterfile, MissingPlugin, PatternParseError, PartialParsing, IncompatibleRule_, PatternParseError0, IncompatibleRule0, DependencyResolutionError]
 
@@ -8155,8 +7274,7 @@ class ErrorType:
 
 @dataclass(frozen=True)
 class Error_:
-    """Original type: error_severity = [ ... | Error | ... ]
-    """
+    """Original type: error_severity = [ ... | Error | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -8173,8 +7291,7 @@ class Error_:
 
 @dataclass(frozen=True)
 class Warning_:
-    """Original type: error_severity = [ ... | Warning | ... ]
-    """
+    """Original type: error_severity = [ ... | Warning | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -8191,8 +7308,7 @@ class Warning_:
 
 @dataclass(frozen=True)
 class Info_:
-    """Original type: error_severity = [ ... | Info | ... ]
-    """
+    """Original type: error_severity = [ ... | Info | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -8209,17 +7325,7 @@ class Info_:
 
 @dataclass(frozen=True)
 class ErrorSeverity:
-    """Original type: error_severity = [ ... ]
-
-    This is used to specify the severity of errors which happened during
-    Semgrep execution (e.g., a parse error).
-
-        Error = Always an error
-        Warning = Only an error if "strict" is set
-        Info = Nothing may be wrong
-
-    alt: could reuse match_severity but seems cleaner to define its own type
-    """
+    """Original type: error_severity = [ ... ]"""
 
     value: Union[Error_, Warning_, Info_]
 
@@ -8253,10 +7359,7 @@ class ErrorSeverity:
 
 @dataclass(frozen=True)
 class CoreError:
-    """Original type: core_error = { ... }
-
-    See Semgrep_error_code.ml
-    """
+    """Original type: core_error = { ... }"""
 
     error_type: ErrorType
     severity: ErrorSeverity
@@ -8302,11 +7405,7 @@ class CoreError:
 
 @dataclass
 class TargetDiscoveryResult:
-    """Original type: target_discovery_result = { ... }
-
-    Result of get_targets internal RPC, similar to scanned_and_skipped but
-    more complete
-    """
+    """Original type: target_discovery_result = { ... }"""
 
     target_paths: List[Fppath]
     errors: List[CoreError]
@@ -8340,10 +7439,7 @@ class TargetDiscoveryResult:
 
 @dataclass
 class SummaryStats:
-    """Original type: summary_stats = { ... }
-
-    EXPERIMENTAL
-    """
+    """Original type: summary_stats = { ... }"""
 
     mean: float
     std_dev: float
@@ -8374,10 +7470,7 @@ class SummaryStats:
 
 @dataclass
 class DefRuleTime:
-    """Original type: def_rule_time = { ... }
-
-    EXPERIMENTAL
-    """
+    """Original type: def_rule_time = { ... }"""
 
     fpath: Fpath
     fline: int
@@ -8414,12 +7507,7 @@ class DefRuleTime:
 
 @dataclass
 class TaintingTime:
-    """Original type: tainting_time = { ... }
-
-    EXPERIMENTAL
-
-    :param very_slow_rules_on_defs: ascending order
-    """
+    """Original type: tainting_time = { ... }"""
 
     total_time: float
     per_def_and_rule_time: SummaryStats
@@ -8456,10 +7544,7 @@ class TaintingTime:
 
 @dataclass
 class Tag:
-    """Original type: tag
-
-    e.g. "webapp"
-    """
+    """Original type: tag"""
 
     value: str
 
@@ -8479,77 +7564,8 @@ class Tag:
 
 
 @dataclass
-class Symbol:
-    """Original type: symbol = { ... }
-
-    A symbol is a FQN.
-    """
-
-    fqn: List[str]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Symbol':
-        if isinstance(x, dict):
-            return cls(
-                fqn=_atd_read_list(_atd_read_string)(x['fqn']) if 'fqn' in x else _atd_missing_json_field('Symbol', 'fqn'),
-            )
-        else:
-            _atd_bad_json('Symbol', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['fqn'] = _atd_write_list(_atd_write_string)(self.fqn)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Symbol':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class SymbolUsage:
-    """Original type: symbol_usage = { ... }
-
-    We store the location of the usage, because we may want to be able to know
-    how many uses of the symbol there are, and where.
-    """
-
-    symbol: Symbol
-    locs: List[Location]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'SymbolUsage':
-        if isinstance(x, dict):
-            return cls(
-                symbol=Symbol.from_json(x['symbol']) if 'symbol' in x else _atd_missing_json_field('SymbolUsage', 'symbol'),
-                locs=_atd_read_list(Location.from_json)(x['locs']) if 'locs' in x else _atd_missing_json_field('SymbolUsage', 'locs'),
-            )
-        else:
-            _atd_bad_json('SymbolUsage', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['symbol'] = (lambda x: x.to_json())(self.symbol)
-        res['locs'] = _atd_write_list((lambda x: x.to_json()))(self.locs)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'SymbolUsage':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class SymbolAnalysisUploadResponse:
-    """Original type: symbol_analysis_upload_response = { ... }
-
-    :param upload_url: Presigned AWS URL for uploading symbol analysis data
-    """
+    """Original type: symbol_analysis_upload_response = { ... }"""
 
     upload_url: Uri
 
@@ -8577,8 +7593,7 @@ class SymbolAnalysisUploadResponse:
 
 @dataclass
 class SymbolAnalysisParams:
-    """Original type: symbol_analysis_params = { ... }
-    """
+    """Original type: symbol_analysis_params = { ... }"""
 
     root_path: Fpath
     lang: Optional[str]
@@ -8610,34 +7625,9 @@ class SymbolAnalysisParams:
         return json.dumps(self.to_json(), **kw)
 
 
-@dataclass
-class SymbolAnalysis:
-    """Original type: symbol_analysis
-    """
-
-    value: List[SymbolUsage]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'SymbolAnalysis':
-        return cls(_atd_read_list(SymbolUsage.from_json)(x))
-
-    def to_json(self) -> Any:
-        return _atd_write_list((lambda x: x.to_json()))(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'SymbolAnalysis':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
 @dataclass(frozen=True, order=True)
 class LockfileParsing:
-    """Original type: resolution_method = [ ... | LockfileParsing | ... ]
-
-    we parsed a lockfile that was already included in the repository
-    """
+    """Original type: resolution_method = [ ... | LockfileParsing | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -8654,10 +7644,7 @@ class LockfileParsing:
 
 @dataclass(frozen=True, order=True)
 class DynamicResolution:
-    """Original type: resolution_method = [ ... | DynamicResolution | ... ]
-
-    we communicated with the package manager to resolve dependencies
-    """
+    """Original type: resolution_method = [ ... | DynamicResolution | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -8674,8 +7661,7 @@ class DynamicResolution:
 
 @dataclass(frozen=True, order=True)
 class ResolutionMethod:
-    """Original type: resolution_method = [ ... ]
-    """
+    """Original type: resolution_method = [ ... ]"""
 
     value: Union[LockfileParsing, DynamicResolution]
 
@@ -8707,8 +7693,7 @@ class ResolutionMethod:
 
 @dataclass(frozen=True)
 class Lockfile_:
-    """Original type: dependency_source_file_kind = [ ... | Lockfile of ... | ... ]
-    """
+    """Original type: dependency_source_file_kind = [ ... | Lockfile of ... | ... ]"""
 
     value: LockfileKind
 
@@ -8726,8 +7711,7 @@ class Lockfile_:
 
 @dataclass(frozen=True)
 class Manifest_:
-    """Original type: dependency_source_file_kind = [ ... | Manifest of ... | ... ]
-    """
+    """Original type: dependency_source_file_kind = [ ... | Manifest of ... | ... ]"""
 
     value: ManifestKind
 
@@ -8745,8 +7729,7 @@ class Manifest_:
 
 @dataclass(frozen=True)
 class DependencySourceFileKind:
-    """Original type: dependency_source_file_kind = [ ... ]
-    """
+    """Original type: dependency_source_file_kind = [ ... ]"""
 
     value: Union[Lockfile_, Manifest_]
 
@@ -8779,8 +7762,7 @@ class DependencySourceFileKind:
 
 @dataclass
 class DependencySourceFile:
-    """Original type: dependency_source_file = { ... }
-    """
+    """Original type: dependency_source_file = { ... }"""
 
     kind: DependencySourceFileKind
     path: Fpath
@@ -8811,8 +7793,7 @@ class DependencySourceFile:
 
 @dataclass
 class DependencyResolutionStats:
-    """Original type: dependency_resolution_stats = { ... }
-    """
+    """Original type: dependency_resolution_stats = { ... }"""
 
     resolution_method: ResolutionMethod
     dependency_count: int
@@ -8846,21 +7827,7 @@ class DependencyResolutionStats:
 
 @dataclass
 class SubprojectStats:
-    """Original type: subproject_stats = { ... }
-
-    :param subproject_id: The ``subproject_id`` is derived as a stable hash of
-    the sorted paths of ``dependency_source_file``s. Any change to the set of
-    dependency sources (addition, removal, or modification) results in a new
-    ``subproject_id``, as different dependency sources indicate a different
-    subproject context.
-    :param dependency_sources: Files used to determine the subproject's
-    dependencies (lockfiles, manifest files, etc
-    :param resolved_stats: Results of dependency resolution, empty if
-    resolution failed
-    :param unresolved_reason: Reason why resolution failed, empty if
-    resolution succeeded
-    :param errors: Errors encountered during subproject resolution
-    """
+    """Original type: subproject_stats = { ... }"""
 
     subproject_id: str
     dependency_sources: List[DependencySourceFile]
@@ -8902,8 +7869,7 @@ class SubprojectStats:
 
 @dataclass
 class SupplyChainStats:
-    """Original type: supply_chain_stats = { ... }
-    """
+    """Original type: supply_chain_stats = { ... }"""
 
     subprojects_stats: List[SubprojectStats]
 
@@ -8930,11 +7896,39 @@ class SupplyChainStats:
 
 
 @dataclass
-class SkippedRule:
-    """Original type: skipped_rule = { ... }
+class SubprojectSymbolAnalysisUrlRequest:
+    """Original type: subproject_symbol_analysis_url_request = { ... }"""
 
-    :param position: position of the error in the rule file
-    """
+    manifest_path: Optional[Fpath]
+    lockfile_path: Optional[Fpath]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SubprojectSymbolAnalysisUrlRequest':
+        if isinstance(x, dict):
+            return cls(
+                manifest_path=_atd_read_option(Fpath.from_json)(x['manifest_path']) if 'manifest_path' in x else _atd_missing_json_field('SubprojectSymbolAnalysisUrlRequest', 'manifest_path'),
+                lockfile_path=_atd_read_option(Fpath.from_json)(x['lockfile_path']) if 'lockfile_path' in x else _atd_missing_json_field('SubprojectSymbolAnalysisUrlRequest', 'lockfile_path'),
+            )
+        else:
+            _atd_bad_json('SubprojectSymbolAnalysisUrlRequest', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['manifest_path'] = _atd_write_option((lambda x: x.to_json()))(self.manifest_path)
+        res['lockfile_path'] = _atd_write_option((lambda x: x.to_json()))(self.lockfile_path)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SubprojectSymbolAnalysisUrlRequest':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class SkippedRule:
+    """Original type: skipped_rule = { ... }"""
 
     rule_id: RuleId
     details: str
@@ -8968,10 +7962,7 @@ class SkippedRule:
 
 @dataclass
 class FileTime:
-    """Original type: file_time = { ... }
-
-    EXPERIMENTAL
-    """
+    """Original type: file_time = { ... }"""
 
     fpath: Fpath
     ftime: float
@@ -9002,12 +7993,7 @@ class FileTime:
 
 @dataclass
 class ScanningTime:
-    """Original type: scanning_time = { ... }
-
-    Scanning time (includes matching and tainting) EXPERIMENTAL
-
-    :param very_slow_files: ascending order
-    """
+    """Original type: scanning_time = { ... }"""
 
     total_time: float
     per_file_time: SummaryStats
@@ -9044,8 +8030,7 @@ class ScanningTime:
 
 @dataclass
 class ScannedAndSkipped:
-    """Original type: scanned_and_skipped = { ... }
-    """
+    """Original type: scanned_and_skipped = { ... }"""
 
     scanned: List[Fpath]
     skipped: Optional[List[SkippedTarget]] = None
@@ -9077,12 +8062,7 @@ class ScannedAndSkipped:
 
 @dataclass
 class ScanInfo:
-    """Original type: scan_info = { ... }
-
-    meta info about the scan
-
-    :param id: the scan id, null for dry-runs
-    """
+    """Original type: scan_info = { ... }"""
 
     enabled_products: List[Product]
     deployment_id: int
@@ -9120,16 +8100,7 @@ class ScanInfo:
 
 @dataclass
 class ScanConfiguration:
-    """Original type: scan_configuration = { ... }
-
-    config specific to the scan
-
-    :param project_merge_base: From 1.131.0, tells us what merge base to use
-    if it's a diff scan
-    :param fips_mode: From 1.126.0. Customers in FIPS environments have
-    specific hash function requirements that this flag will override. See
-    SAF-2057 for details.
-    """
+    """Original type: scan_configuration = { ... }"""
 
     rules: RawJson
     triage_ignored_syntactic_ids: List[str] = field(default_factory=lambda: [])
@@ -9170,8 +8141,7 @@ class ScanConfiguration:
 
 @dataclass
 class Glob:
-    """Original type: glob
-    """
+    """Original type: glob"""
 
     value: str
 
@@ -9192,8 +8162,7 @@ class Glob:
 
 @dataclass
 class ProductIgnoredFiles:
-    """Original type: product_ignored_files
-    """
+    """Original type: product_ignored_files"""
 
     value: Dict[Product, List[Glob]]
 
@@ -9214,11 +8183,7 @@ class ProductIgnoredFiles:
 
 @dataclass
 class HistoricalConfiguration:
-    """Original type: historical_configuration = { ... }
-
-    configuration for scanning version control history, e.g., looking back at
-    past git commits for committed credentials which may have been removed
-    """
+    """Original type: historical_configuration = { ... }"""
 
     enabled: bool
     lookback_days: Optional[int] = None
@@ -9250,26 +8215,7 @@ class HistoricalConfiguration:
 
 @dataclass
 class EngineConfiguration:
-    """Original type: engine_configuration = { ... }
-
-    settings for the cli
-
-    :param path_to_transitivity: a.k.a. dependency path
-    :param scan_all_deps_in_diff_scan: normally we resolve dependencies for
-    changed subprojects only in diff scans. This flag causes all subprojects
-    to be resolved in diff scans
-    :param symbol_analysis: Whether to collect "symbol analysis" info from the
-    repo being scanned See
-    https://www.notion.so/semgrep/Semgrep-Code-Reconnaissance-Toolbox-18a3009241a880f2a439eed6b2cffe66?pvs=4
-    :param transitive_reachability_enabled: Whether to enable transitive
-    reachability analysis for SCA findings
-    :param product_ignored_files: from 1.71.0
-    :param generic_slow_rollout: for features we only want to turn on for
-    select customers
-    :param historical_config: from 1.63.0
-    :param always_suppress_errors: from 1.93. Indicate that fail-open should
-    always be enabled, overriding the CLI flag.
-    """
+    """Original type: engine_configuration = { ... }"""
 
     autofix: bool = field(default_factory=lambda: False)
     deepsemgrep: bool = field(default_factory=lambda: False)
@@ -9332,10 +8278,7 @@ class EngineConfiguration:
 
 @dataclass
 class ScanResponse:
-    """Original type: scan_response = { ... }
-
-    Response from the backend to the CLI to the POST /api/cli/scans
-    """
+    """Original type: scan_response = { ... }"""
 
     info: ScanInfo
     config: ScanConfiguration
@@ -9369,15 +8312,7 @@ class ScanResponse:
 
 @dataclass
 class ScanMetadata:
-    """Original type: scan_metadata = { ... }
-
-    Scan metadata generated by the CLI during the scan process.
-
-    :param unique_id: client generated uuid for the scan
-    :param dry_run: since 1.47.0
-    :param sms_scan_id: unique id associated with the scan in Semgrep Managed
-    Scanning. Since 1.96.0
-    """
+    """Original type: scan_metadata = { ... }"""
 
     cli_version: Version
     unique_id: Uuid
@@ -9424,40 +8359,7 @@ class ScanMetadata:
 
 @dataclass
 class ProjectMetadata:
-    """Original type: project_metadata = { ... }
-
-    Collect information about a project from the environment, filesystem, git
-    repo, etc. See also semgrep_metrics.atd and PRIVACY.md
-
-    :param scan_environment: TODO: use enum with ``<json name="...">``
-    :param on: CI event name
-    ("pull_request"|"pull_request_target"|"push"|"unknown"|...)
-
-    TODO: use enum
-    :param is_full_scan: Check if the current Git repository has enough to
-    determine the merge_base_ref.
-    :param repo_id: The two fields below are stable across repository renaming
-    and even org renaming, which can be useful to not report new findings on a
-    repo just because this repo was renamed. Since Semgrep 1.46.0. The string
-    is usually an int, but more general to use a string.
-    :param org_id: a.k.a repository owner id
-    :param repo_display_name: Users can set a different name for display and
-    for PR comments. This allows monorepos to be scanned as separate projects.
-    :param commit_timestamp: since 1.38.0
-    :param base_branch_head_commit: the latest commit in the base branch of a
-    PR, used to determine the git merge base on the app side if needed. This
-    should really be called base_sha but that term is already misused below
-    for something that's gitlab only
-    :param base_sha: This is gitlab only, and is actually only the baseline
-    commit sha if provided, OR it's the git merge-base if not provided. It is
-    NOT the head commit of the base branch
-    :param start_sha: this is CI_MERGE_REQUEST_DIFF_BASE_SHA which is strictly
-    the git merge base
-    :param is_sca_scan: added later in ci.py (not from meta.py)
-    :param is_code_scan: since 1.40.0
-    :param is_secrets_scan: since 1.41.0
-    :param project_id: Identifies a semgrep project where findings belong to.
-    """
+    """Original type: project_metadata = { ... }"""
 
     scan_environment: str
     repository: str
@@ -9577,18 +8479,7 @@ class ProjectMetadata:
 
 @dataclass
 class CiConfigFromRepo:
-    """Original type: ci_config_from_repo = { ... }
-
-    Content of a possible .semgrepconfig.yml in the repository.
-
-    This config allows to configure Semgrep per repo, e.g., to store a
-    category/tag like "webapp" in a repo so that the Semgrep WebApp can return
-    a set of relevant rules automatically for this repo in scan_config later
-    when given this ci_config_from_repo in the scan_request.
-
-    :param version: version of the .semgrepconfig.yml format. "v1" right now
-    (useful?)
-    """
+    """Original type: ci_config_from_repo = { ... }"""
 
     version: Version = field(default_factory=lambda: Version('v1'))
     tags: Optional[List[Tag]] = None
@@ -9620,10 +8511,7 @@ class CiConfigFromRepo:
 
 @dataclass
 class ScanRequest:
-    """Original type: scan_request = { ... }
-
-    Sent by the CLI to the POST /api/cli/scans to create a scan.
-    """
+    """Original type: scan_request = { ... }"""
 
     project_metadata: ProjectMetadata
     scan_metadata: ScanMetadata
@@ -9658,8 +8546,7 @@ class ScanRequest:
 
 @dataclass
 class CiEnv:
-    """Original type: ci_env
-    """
+    """Original type: ci_env"""
 
     value: Dict[str, str]
 
@@ -9680,27 +8567,7 @@ class CiEnv:
 
 @dataclass
 class CiConfig:
-    """Original type: ci_config = { ... }
-
-    Note that we should use very simple types below for the configuration of
-    Semgrep: booleans or small enums. No int, as people often don't understand
-    how to set values. For example even if we documented very well the
-    --timeout option in Semgrep, people still didn't know which value to use.
-
-    :param env: to override environment variables, as lots of the
-    configuration of 'semgrep ci' comes from environment variables (e.g.,
-    SEMGREP_REPO_URL)
-    :param ignored_files: glob patterns
-    :param path_to_transitivity: a.k.a. dependency path
-    :param scan_all_deps_in_diff_scan: normally we resolve dependencies for
-    changed subprojects only in diff scans. This flag causes all subprojects
-    to be resolved in diff scans
-    :param symbol_analysis: Whether to collect "symbol analysis" info from the
-    repo being scanned See
-    https://www.notion.so/semgrep/Semgrep-Code-Reconnaissance-Toolbox-18a3009241a880f2a439eed6b2cffe66?pvs=4
-    :param transitive_reachability_enabled: Whether to enable transitive
-    reachability analysis for SCA findings
-    """
+    """Original type: ci_config = { ... }"""
 
     env: CiEnv
     enabled_products: List[Product]
@@ -9755,8 +8622,7 @@ class CiConfig:
 
 @dataclass
 class Message:
-    """Original type: action = [ ... | Message of ... | ... ]
-    """
+    """Original type: action = [ ... | Message of ... | ... ]"""
 
     value: str
 
@@ -9774,10 +8640,7 @@ class Message:
 
 @dataclass
 class Delay:
-    """Original type: action = [ ... | Delay of ... | ... ]
-
-    in seconds
-    """
+    """Original type: action = [ ... | Delay of ... | ... ]"""
 
     value: float
 
@@ -9795,10 +8658,7 @@ class Delay:
 
 @dataclass
 class Exit:
-    """Original type: action = [ ... | Exit of ... | ... ]
-
-    process exit code
-    """
+    """Original type: action = [ ... | Exit of ... | ... ]"""
 
     value: int
 
@@ -9816,19 +8676,7 @@ class Exit:
 
 @dataclass
 class Action:
-    """Original type: action = [ ... ]
-
-    The actions below allow the WebApp to modify the behavior of the CLI
-    dynamically, which is especially useful for old versions of the CLI (e.g.,
-    insist on the deprecation of an old version of the CLI). The action below
-    will be executed by the CLI just after receiving the scan configuration.
-    It's a bit similar to injecting code dynamically, except the possible
-    actions are clearly delimited here (this is not eval()).
-
-    Note that the version of the CLI is sent to the WebApp in project_metadata
-    so the backend has all the necessary information to send back an
-    appropriate action depending on the CLI version.
-    """
+    """Original type: action = [ ... ]"""
 
     value: Union[Message, Delay, Exit]
 
@@ -9863,13 +8711,7 @@ class Action:
 
 @dataclass
 class CiConfigFromCloud:
-    """Original type: ci_config_from_cloud = { ... }
-
-    Semgrep config from the WebApp
-
-    :param dirs_config: for monorepos, to be "monorepo-friendly" like they say
-    in Ruff
-    """
+    """Original type: ci_config_from_cloud = { ... }"""
 
     repo_config: CiConfig
     org_config: Optional[CiConfig] = None
@@ -9908,29 +8750,7 @@ class CiConfigFromCloud:
 
 @dataclass
 class ScanConfig:
-    """Original type: scan_config = { ... }
-
-    Response by the backend to the CLI to the POST deployments/scans/config
-    The record is similar to scan_response.
-
-    :param policy_names: e.g. "audit", "comment", "block"
-    :param rule_config: rules raw content in JSON format (but still sent as a
-    string)
-    :param path_to_transitivity: a.k.a. dependency path
-    :param scan_all_deps_in_diff_scan: normally we resolve dependencies for
-    changed subprojects only in diff scans. This flag causes all subprojects
-    to be resolved in diff scans
-    :param symbol_analysis: Whether to collect "symbol analysis" info from the
-    repo being scanned See
-    https://www.notion.so/semgrep/Semgrep-Code-Reconnaissance-Toolbox-18a3009241a880f2a439eed6b2cffe66?pvs=4
-    :param transitive_reachability_enabled: Whether to enable transitive
-    reachability analysis for SCA findings
-    :param ignored_files: glob patterns
-    :param enabled_products: since 1.37.0
-    :param actions: since 1.64.0
-    :param ci_config_from_cloud: since 1.47.0 but not created by the backend
-    (nor used by the CLI)
-    """
+    """Original type: scan_config = { ... }"""
 
     deployment_id: int
     deployment_name: str
@@ -10008,12 +8828,7 @@ class ScanConfig:
 
 @dataclass(frozen=True)
 class SarifFormat:
-    """Original type: sarif_format = { ... }
-
-    :param rules: Path to the rules file. We need it because rules can't be
-    reconstructed from cli_output (which is one of the other param of
-    CallSarifFormat)
-    """
+    """Original type: sarif_format = { ... }"""
 
     rules: Fpath
     is_pro: bool
@@ -10047,8 +8862,7 @@ class SarifFormat:
 
 @dataclass(frozen=True)
 class OSS_:
-    """Original type: engine_kind = [ ... | OSS | ... ]
-    """
+    """Original type: engine_kind = [ ... | OSS | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -10065,8 +8879,7 @@ class OSS_:
 
 @dataclass(frozen=True)
 class PRO_:
-    """Original type: engine_kind = [ ... | PRO | ... ]
-    """
+    """Original type: engine_kind = [ ... | PRO | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -10083,8 +8896,7 @@ class PRO_:
 
 @dataclass(frozen=True)
 class EngineKind:
-    """Original type: engine_kind = [ ... ]
-    """
+    """Original type: engine_kind = [ ... ]"""
 
     value: Union[OSS_, PRO_]
 
@@ -10116,8 +8928,7 @@ class EngineKind:
 
 @dataclass(frozen=True)
 class RuleIdAndEngineKind:
-    """Original type: rule_id_and_engine_kind
-    """
+    """Original type: rule_id_and_engine_kind"""
 
     value: Tuple[RuleId, EngineKind]
 
@@ -10138,20 +8949,7 @@ class RuleIdAndEngineKind:
 
 @dataclass(frozen=True)
 class ResolvedSubproject:
-    """Original type: resolved_subproject = { ... }
-
-    A subproject plus its resolved set of dependencies
-
-    :param resolution_method: The resolution method is how we determined the
-    dependencies from the dependency source. This might be lockfile parsing,
-    dependency resolution, SBOM ingest, or something else.
-    :param ecosystem: should be similar to info.ecosystem but this time it
-    can't be None
-    :param resolved_dependencies: We use this mapping to efficiently find
-    child dependencies from a FoundDependency. We need to store multiple
-    FoundDependencies per package/version pair because a package might come
-    from multiple places in a lockfile
-    """
+    """Original type: resolved_subproject = { ... }"""
 
     info: Subproject
     resolution_method: ResolutionMethod
@@ -10191,11 +8989,7 @@ class ResolvedSubproject:
 
 @dataclass(frozen=True)
 class ResolveDependenciesParams:
-    """Original type: resolve_dependencies_params = { ... }
-
-    :param allow_local_builds: whether to allow executing package manager
-    commands
-    """
+    """Original type: resolve_dependencies_params = { ... }"""
 
     dependency_sources: List[DependencySource]
     download_dependency_source_code: bool
@@ -10229,8 +9023,7 @@ class ResolveDependenciesParams:
 
 @dataclass
 class ResolutionOk:
-    """Original type: resolution_result = [ ... | ResolutionOk of ... | ... ]
-    """
+    """Original type: resolution_result = [ ... | ResolutionOk of ... | ... ]"""
 
     value: Tuple[List[ResolvedDependency], List[ResolutionErrorKind]]
 
@@ -10248,8 +9041,7 @@ class ResolutionOk:
 
 @dataclass
 class ResolutionError:
-    """Original type: resolution_result = [ ... | ResolutionError of ... | ... ]
-    """
+    """Original type: resolution_result = [ ... | ResolutionError of ... | ... ]"""
 
     value: List[ResolutionErrorKind]
 
@@ -10267,17 +9059,7 @@ class ResolutionError:
 
 @dataclass
 class ResolutionResult:
-    """Original type: resolution_result = [ ... ]
-
-    Resolution can either succeed or fail, but in either case errors can be
-    produced (e.g. one resolution method might fail while a worse one
-    succeeds, lockfile parsing might partially fail but recover and still
-    produce results).
-
-    Resolution can optionally include a ``downloaded_dependency`` alongside
-    each ``found_dependency``. This should be included if the source code for
-    the dependency was downloaded and is available to scan later.
-    """
+    """Original type: resolution_result = [ ... ]"""
 
     value: Union[ResolutionOk, ResolutionError]
 
@@ -10310,16 +9092,7 @@ class ResolutionResult:
 
 @dataclass
 class ProfilingEntry:
-    """Original type: profiling_entry = { ... }
-
-    Profiling info obtained from the OCaml executable, to be aggregated
-    further in pysemgrep.
-
-    :param name: The name given to piece of code for which we measured how
-    long it took.
-    :param total_time: Total clock time in seconds. Divide by the count to get
-    the mean.
-    """
+    """Original type: profiling_entry = { ... }"""
 
     name: str
     total_time: float
@@ -10353,21 +9126,7 @@ class ProfilingEntry:
 
 @dataclass
 class PrefilteringStats:
-    """Original type: prefiltering_stats = { ... }
-
-    :param project_level_time: The time (seconds) it took to execute
-    project-level prefilters
-    :param file_level_time: The time (seconds) it took to execute file-level
-    prefilters
-    :param rules_with_project_prefilters_ratio: The ratio of rules which the
-    engine generated a project-level prefilter for
-    :param rules_with_file_prefilters_ratio: The ratio of rules which the
-    engine generated a file-level prefilter for
-    :param rules_selected_ratio: The ratio of rules which executed beyond
-    prefiltering on at least one target
-    :param rules_matched_ratio: The ratio of rules which generated at least
-    one match
-    """
+    """Original type: prefiltering_stats = { ... }"""
 
     project_level_time: float
     file_level_time: float
@@ -10410,12 +9169,7 @@ class PrefilteringStats:
 
 @dataclass
 class ParsingTime:
-    """Original type: parsing_time = { ... }
-
-    EXPERIMENTAL
-
-    :param very_slow_files: ascending order
-    """
+    """Original type: parsing_time = { ... }"""
 
     total_time: float
     per_file_time: SummaryStats
@@ -10453,10 +9207,7 @@ class ParsingTime:
 
 @dataclass
 class FileRuleTime:
-    """Original type: file_rule_time = { ... }
-
-    EXPERIMENTAL
-    """
+    """Original type: file_rule_time = { ... }"""
 
     fpath: Fpath
     rule_id: RuleId
@@ -10490,12 +9241,7 @@ class FileRuleTime:
 
 @dataclass
 class MatchingTime:
-    """Original type: matching_time = { ... }
-
-    EXPERIMENTAL
-
-    :param very_slow_rules_on_files: ascending order
-    """
+    """Original type: matching_time = { ... }"""
 
     total_time: float
     per_file_and_rule_time: SummaryStats
@@ -10532,33 +9278,7 @@ class MatchingTime:
 
 @dataclass
 class Profile:
-    """Original type: profile = { ... }
-
-    Run locally $ ./run-benchmarks --dummy --upload
-
-    :param rules: List of rules, including the one read but not run on any
-    target. This list is actually more an array which allows other fields to
-    reference rule by number instead of rule_id (e.g., match_times further
-    below) saving space in the JSON.
-
-    Upgrade note: this used to be defined as a rule_id_dict where each rule_id
-    was inside a {id: rule_id; ...} record so we could give parsing time info
-    about each rule, but parsing one rule was never the slow part, so now we
-    just juse the aggregated rules_parse_time below and do not need a complex
-    rule_id_dict record anymore.
-    :param parsing_time: EXPERIMENTAL
-    :param scanning_time: EXPERIMENTAL
-    :param matching_time: EXPERIMENTAL
-    :param tainting_time: EXPERIMENTAL
-    :param fixpoint_timeouts: EXPERIMENTAL: Dafatlow fixpoint-function
-    timeouts
-
-    Happen more often than we would like, and it's mainly Semgrep devs that
-    will use this info for debugging, so for now we are reporting these
-    timeouts as part of the profiling report.
-    :param max_memory_bytes: maximum amount of memory used by Semgrep(-core)
-    during its execution
-    """
+    """Original type: profile = { ... }"""
 
     rules: List[RuleId]
     rules_parse_time: float
@@ -10626,8 +9346,7 @@ class Profile:
 
 @dataclass
 class ParsingStats:
-    """Original type: parsing_stats = { ... }
-    """
+    """Original type: parsing_stats = { ... }"""
 
     targets_parsed: int
     num_targets: int
@@ -10664,20 +9383,7 @@ class ParsingStats:
 
 @dataclass
 class FindingHashes:
-    """Original type: finding_hashes = { ... }
-
-    The goal is to hash findings independently of their precise location so if
-    a file is moved around or the line numbers change in a file, we do not
-    report new findings but instead detect that the finding actually hashes to
-    a previous old finding. See also match_based_id which is yet another way
-    to hash a finding. See also
-    https://www.notion.so/semgrep/Identifying-unique-findings-match_based_id-and-syntactic_id
-
-    :param code_hash: hash of the syntactic_context/code contents from
-    start_line through end_line
-    :param pattern_hash: hash of the rule pattern with metavariables
-    substituted in
-    """
+    """Original type: finding_hashes = { ... }"""
 
     start_line_hash: str
     end_line_hash: str
@@ -10714,20 +9420,7 @@ class FindingHashes:
 
 @dataclass
 class Finding:
-    """Original type: finding = { ... }
-
-    :param severity: int|string until minimum version exceeds 1.32.0. After
-    1.32.0 we're always using an int.
-    :param metadata: metadata from the rule
-    :param match_based_id: since semgrep 0.98 TODO: use match_based_id option
-    :param hashes: since semgrep 1.14.0
-    :param dataflow_trace: Note that this contains code!
-    :param validation_state: Added in semgrep 1.39.0 see comments in
-    cli_match_extra
-    :param historical_info: Added in semgrep 1.65.0 see comments in
-    cli_match_extra
-    :param engine_kind: Added in semgrep 1.70.0
-    """
+    """Original type: finding = { ... }"""
 
     check_id: RuleId
     path: Fpath
@@ -10823,13 +9516,7 @@ class Finding:
 
 @dataclass
 class ErrorSpan:
-    """Original type: error_span = { ... }
-
-    :param file: for InvalidRuleSchemaError
-    :param config_start: The path to the pattern in the yaml rule and an
-    adjusted start/end within just the pattern. Used to report playground
-    parse errors in the simple editor
-    """
+    """Original type: error_span = { ... }"""
 
     file: Fpath
     start: Position
@@ -10887,10 +9574,7 @@ class ErrorSpan:
 
 @dataclass
 class Contributor:
-    """Original type: contributor = { ... }
-
-    See https://semgrep.dev/docs/usage-limits
-    """
+    """Original type: contributor = { ... }"""
 
     commit_author_name: str
     commit_author_email: str
@@ -10921,8 +9605,7 @@ class Contributor:
 
 @dataclass
 class Contribution:
-    """Original type: contribution = { ... }
-    """
+    """Original type: contribution = { ... }"""
 
     commit_hash: str
     commit_timestamp: Datetime
@@ -10956,11 +9639,7 @@ class Contribution:
 
 @dataclass
 class Contributions:
-    """Original type: contributions
-
-    We keep this alias because we need to generate code to parse and write
-    list of contributions.
-    """
+    """Original type: contributions"""
 
     value: List[Contribution]
 
@@ -10981,20 +9660,7 @@ class Contributions:
 
 @dataclass
 class CliError:
-    """Original type: cli_error = { ... }
-
-    (called SemgrepError in error.py)
-
-    :param code: exit code for the type_ of error
-    :param type_: before 1.45.0 the type below was 'string', but was the
-    result of converting error_type into a string, so using directly
-    'error_type' below should be mostly backward compatible thx to the <json
-    name> annotations in error_type. To be fully backward compatible, we
-    actually introduced the PatternParseError0 and IncompatibleRule0 cases in
-    error_type.
-    :param message: contains error location
-    :param long_msg: for invalid rules, for ErrorWithSpan
-    """
+    """Original type: cli_error = { ... }"""
 
     code: int
     level: ErrorSeverity
@@ -11056,14 +9722,7 @@ class CliError:
 
 @dataclass
 class CiScanMetadata:
-    """Original type: ci_scan_metadata = { ... }
-
-    Scan metadata populated by the backend after receiving the scan results
-    from the CLI via POST request to /scans/<int:scan_id>/results
-
-    :param repository_id: stored as int in our app db
-    :param repository_ref_id: stored id for a branch or tag
-    """
+    """Original type: ci_scan_metadata = { ... }"""
 
     scan_id: int
     deployment_id: int
@@ -11109,8 +9768,7 @@ class CiScanMetadata:
 
 @dataclass
 class CiScanDependencies:
-    """Original type: ci_scan_dependencies
-    """
+    """Original type: ci_scan_dependencies"""
 
     value: Dict[str, List[FoundDependency]]
 
@@ -11131,20 +9789,7 @@ class CiScanDependencies:
 
 @dataclass
 class CiScanResults:
-    """Original type: ci_scan_results = { ... }
-
-    :param searched_paths: Files that were detected and attempted to scan.
-    Note that some of these may have been skipped due to errors (see
-    skipped_paths).
-    :param skipped_paths: Files detected but not scanned due to errors
-    (timeout, OOM, etc.). The app should NOT mark findings in these files as
-    fixed.
-    :param contributions: since semgrep 1.34.0
-    :param dependencies: since semgrep 1.38.0. This data was originally sent
-    to /complete, but we want to start sending it to /results
-    :param metadata: filled in by the backend to associate scan results with
-    the driving scan
-    """
+    """Original type: ci_scan_results = { ... }"""
 
     findings: List[Finding]
     ignores: List[Finding]
@@ -11202,10 +9847,7 @@ class CiScanResults:
 
 @dataclass
 class CiScanFailure:
-    """Original type: ci_scan_failure = { ... }
-
-    Sent by the CLI to /scans/<scan_id>/error
-    """
+    """Original type: ci_scan_failure = { ... }"""
 
     exit_code: int
     stderr: str
@@ -11236,23 +9878,7 @@ class CiScanFailure:
 
 @dataclass
 class CiScanCompleteStats:
-    """Original type: ci_scan_complete_stats = { ... }
-
-    :param engine_requested: This is EngineType from python, which is
-    different from engine_kind used in this file.
-    :param findings_by_product: Mirrors numFindingsByProduct in metrics.py See
-    PA-3312 and GROW-104.
-
-    NOTE: As of 1.56.0 the string used as the mapping key is currently a
-    human-readable product name (i.e. code) vs our typed product enum
-    representation (i.e. sast).
-    :param supply_chain_stats: since 1.98.0.
-
-    In collaboration with the Data Science team, it was suggested that we
-    start to group stats by product for organizational purposes.
-
-    This field will only be defined for SCA scans.
-    """
+    """Original type: ci_scan_complete_stats = { ... }"""
 
     findings: int
     errors: List[CliError]
@@ -11307,12 +9933,7 @@ class CiScanCompleteStats:
 
 @dataclass
 class CiScanComplete:
-    """Original type: ci_scan_complete = { ... }
-
-    Sent by the CLI to /complete
-
-    :param task_id: since 1.31.0
-    """
+    """Original type: ci_scan_complete = { ... }"""
 
     exit_code: int
     stats: CiScanCompleteStats
@@ -11359,8 +9980,7 @@ class CiScanComplete:
 
 @dataclass(frozen=True)
 class PartialScanOk:
-    """Original type: partial_scan_result = [ ... | PartialScanOk of ... | ... ]
-    """
+    """Original type: partial_scan_result = [ ... | PartialScanOk of ... | ... ]"""
 
     value: Tuple[CiScanResults, CiScanComplete]
 
@@ -11378,8 +9998,7 @@ class PartialScanOk:
 
 @dataclass(frozen=True)
 class PartialScanError:
-    """Original type: partial_scan_result = [ ... | PartialScanError of ... | ... ]
-    """
+    """Original type: partial_scan_result = [ ... | PartialScanError of ... | ... ]"""
 
     value: CiScanFailure
 
@@ -11397,10 +10016,7 @@ class PartialScanError:
 
 @dataclass(frozen=True)
 class PartialScanResult:
-    """Original type: partial_scan_result = [ ... ]
-
-    Partial scans. Experimental and for internal use only.
-    """
+    """Original type: partial_scan_result = [ ... ]"""
 
     value: Union[PartialScanOk, PartialScanError]
 
@@ -11433,8 +10049,7 @@ class PartialScanResult:
 
 @dataclass(frozen=True)
 class Text:
-    """Original type: output_format = [ ... | Text | ... ]
-    """
+    """Original type: output_format = [ ... | Text | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -11451,8 +10066,7 @@ class Text:
 
 @dataclass(frozen=True)
 class Json:
-    """Original type: output_format = [ ... | Json | ... ]
-    """
+    """Original type: output_format = [ ... | Json | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -11469,8 +10083,7 @@ class Json:
 
 @dataclass(frozen=True)
 class Emacs:
-    """Original type: output_format = [ ... | Emacs | ... ]
-    """
+    """Original type: output_format = [ ... | Emacs | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -11487,8 +10100,7 @@ class Emacs:
 
 @dataclass(frozen=True)
 class Vim:
-    """Original type: output_format = [ ... | Vim | ... ]
-    """
+    """Original type: output_format = [ ... | Vim | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -11505,8 +10117,7 @@ class Vim:
 
 @dataclass(frozen=True)
 class Sarif:
-    """Original type: output_format = [ ... | Sarif | ... ]
-    """
+    """Original type: output_format = [ ... | Sarif | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -11523,8 +10134,7 @@ class Sarif:
 
 @dataclass(frozen=True)
 class GitlabSast:
-    """Original type: output_format = [ ... | Gitlab_sast | ... ]
-    """
+    """Original type: output_format = [ ... | Gitlab_sast | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -11541,8 +10151,7 @@ class GitlabSast:
 
 @dataclass(frozen=True)
 class GitlabSecrets:
-    """Original type: output_format = [ ... | Gitlab_secrets | ... ]
-    """
+    """Original type: output_format = [ ... | Gitlab_secrets | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -11559,8 +10168,7 @@ class GitlabSecrets:
 
 @dataclass(frozen=True)
 class JunitXml:
-    """Original type: output_format = [ ... | Junit_xml | ... ]
-    """
+    """Original type: output_format = [ ... | Junit_xml | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -11577,10 +10185,7 @@ class JunitXml:
 
 @dataclass(frozen=True)
 class FilesWithMatches:
-    """Original type: output_format = [ ... | Files_with_matches | ... ]
-
-    osemgrep-only
-    """
+    """Original type: output_format = [ ... | Files_with_matches | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -11597,11 +10202,7 @@ class FilesWithMatches:
 
 @dataclass(frozen=True)
 class Incremental:
-    """Original type: output_format = [ ... | Incremental | ... ]
-
-    used to disable the final display of match results because we displayed
-    them incrementally instead
-    """
+    """Original type: output_format = [ ... | Incremental | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -11618,8 +10219,7 @@ class Incremental:
 
 @dataclass(frozen=True)
 class OutputFormat:
-    """Original type: output_format = [ ... ]
-    """
+    """Original type: output_format = [ ... ]"""
 
     value: Union[Text, Json, Emacs, Vim, Sarif, GitlabSast, GitlabSecrets, JunitXml, FilesWithMatches, Incremental]
 
@@ -11667,8 +10267,7 @@ class OutputFormat:
 
 @dataclass
 class McpScanResults:
-    """Original type: mcp_scan_results = { ... }
-    """
+    """Original type: mcp_scan_results = { ... }"""
 
     rules: List[str]
     total_bytes_scanned: int
@@ -11699,10 +10298,7 @@ class McpScanResults:
 
 @dataclass
 class MatchBasedId:
-    """Original type: match_based_id
-
-    e.g. "ab023_1"
-    """
+    """Original type: match_based_id"""
 
     value: str
 
@@ -11723,10 +10319,7 @@ class MatchBasedId:
 
 @dataclass
 class HasFeatures:
-    """Original type: has_features = { ... }
-
-    whether a certain feature is available for a deployment
-    """
+    """Original type: has_features = { ... }"""
 
     has_autofix: bool = field(default_factory=lambda: False)
     has_deepsemgrep: bool = field(default_factory=lambda: False)
@@ -11763,13 +10356,7 @@ class HasFeatures:
 
 @dataclass(frozen=True)
 class ApplyFixesReturn:
-    """Original type: apply_fixes_return = { ... }
-
-    :param modified_file_count: Number of files modified
-    :param fixed_lines: Each item is a pair, where the first item is the index
-    of the associated edit in the input list and the second item is the list
-    of fixed lines associated with that edit.
-    """
+    """Original type: apply_fixes_return = { ... }"""
 
     modified_file_count: int
     fixed_lines: List[Tuple[int, List[str]]]
@@ -11800,8 +10387,7 @@ class ApplyFixesReturn:
 
 @dataclass(frozen=True)
 class RetError:
-    """Original type: function_return = [ ... | RetError of ... | ... ]
-    """
+    """Original type: function_return = [ ... | RetError of ... | ... ]"""
 
     value: str
 
@@ -11819,8 +10405,7 @@ class RetError:
 
 @dataclass(frozen=True)
 class RetApplyFixes:
-    """Original type: function_return = [ ... | RetApplyFixes of ... | ... ]
-    """
+    """Original type: function_return = [ ... | RetApplyFixes of ... | ... ]"""
 
     value: ApplyFixesReturn
 
@@ -11838,8 +10423,7 @@ class RetApplyFixes:
 
 @dataclass(frozen=True)
 class RetContributions:
-    """Original type: function_return = [ ... | RetContributions of ... | ... ]
-    """
+    """Original type: function_return = [ ... | RetContributions of ... | ... ]"""
 
     value: Contributions
 
@@ -11857,8 +10441,7 @@ class RetContributions:
 
 @dataclass(frozen=True)
 class RetFormatter:
-    """Original type: function_return = [ ... | RetFormatter of ... | ... ]
-    """
+    """Original type: function_return = [ ... | RetFormatter of ... | ... ]"""
 
     value: str
 
@@ -11876,8 +10459,7 @@ class RetFormatter:
 
 @dataclass(frozen=True)
 class RetSarifFormat:
-    """Original type: function_return = [ ... | RetSarifFormat of ... | ... ]
-    """
+    """Original type: function_return = [ ... | RetSarifFormat of ... | ... ]"""
 
     value: str
 
@@ -11895,10 +10477,7 @@ class RetSarifFormat:
 
 @dataclass(frozen=True)
 class RetValidate:
-    """Original type: function_return = [ ... | RetValidate of ... | ... ]
-
-    rule validation error, if validation failed
-    """
+    """Original type: function_return = [ ... | RetValidate of ... | ... ]"""
 
     value: Optional[CoreError]
 
@@ -11916,8 +10495,7 @@ class RetValidate:
 
 @dataclass(frozen=True)
 class RetResolveDependencies:
-    """Original type: function_return = [ ... | RetResolveDependencies of ... | ... ]
-    """
+    """Original type: function_return = [ ... | RetResolveDependencies of ... | ... ]"""
 
     value: List[Tuple[DependencySource, ResolutionResult]]
 
@@ -11935,10 +10513,7 @@ class RetResolveDependencies:
 
 @dataclass(frozen=True)
 class RetUploadSymbolAnalysis:
-    """Original type: function_return = [ ... | RetUploadSymbolAnalysis of ... | ... ]
-
-    success msg
-    """
+    """Original type: function_return = [ ... | RetUploadSymbolAnalysis of ... | ... ]"""
 
     value: str
 
@@ -11956,8 +10531,7 @@ class RetUploadSymbolAnalysis:
 
 @dataclass(frozen=True)
 class RetDumpRulePartitions:
-    """Original type: function_return = [ ... | RetDumpRulePartitions of ... | ... ]
-    """
+    """Original type: function_return = [ ... | RetDumpRulePartitions of ... | ... ]"""
 
     value: bool
 
@@ -11975,8 +10549,7 @@ class RetDumpRulePartitions:
 
 @dataclass(frozen=True)
 class RetTransitiveReachabilityFilter:
-    """Original type: function_return = [ ... | RetTransitiveReachabilityFilter of ... | ... ]
-    """
+    """Original type: function_return = [ ... | RetTransitiveReachabilityFilter of ... | ... ]"""
 
     value: List[TransitiveFinding]
 
@@ -11994,8 +10567,7 @@ class RetTransitiveReachabilityFilter:
 
 @dataclass(frozen=True)
 class RetGetTargets:
-    """Original type: function_return = [ ... | RetGetTargets of ... | ... ]
-    """
+    """Original type: function_return = [ ... | RetGetTargets of ... | ... ]"""
 
     value: TargetDiscoveryResult
 
@@ -12013,8 +10585,7 @@ class RetGetTargets:
 
 @dataclass(frozen=True)
 class RetMatchSubprojects:
-    """Original type: function_return = [ ... | RetMatchSubprojects of ... | ... ]
-    """
+    """Original type: function_return = [ ... | RetMatchSubprojects of ... | ... ]"""
 
     value: List[Subproject]
 
@@ -12032,8 +10603,7 @@ class RetMatchSubprojects:
 
 @dataclass(frozen=True)
 class RetRunSymbolAnalysis:
-    """Original type: function_return = [ ... | RetRunSymbolAnalysis of ... | ... ]
-    """
+    """Original type: function_return = [ ... | RetRunSymbolAnalysis of ... | ... ]"""
 
     value: SymbolAnalysis
 
@@ -12050,12 +10620,26 @@ class RetRunSymbolAnalysis:
 
 
 @dataclass(frozen=True)
-class RetShowSubprojects:
-    """Original type: function_return = [ ... | RetShowSubprojects of ... | ... ]
+class RetUploadSubprojectSymbolAnalysis:
+    """Original type: function_return = [ ... | RetUploadSubprojectSymbolAnalysis of ... | ... ]"""
 
-    The text return here typically contains newlines but is not
-    newline-terminated i.e. it is suitable to pass as an argument to a logger.
-    """
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetUploadSubprojectSymbolAnalysis'
+
+    def to_json(self) -> Any:
+        return ['RetUploadSubprojectSymbolAnalysis', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class RetShowSubprojects:
+    """Original type: function_return = [ ... | RetShowSubprojects of ... | ... ]"""
 
     value: str
 
@@ -12073,10 +10657,9 @@ class RetShowSubprojects:
 
 @dataclass(frozen=True)
 class FunctionReturn:
-    """Original type: function_return = [ ... ]
-    """
+    """Original type: function_return = [ ... ]"""
 
-    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetUploadSymbolAnalysis, RetDumpRulePartitions, RetTransitiveReachabilityFilter, RetGetTargets, RetMatchSubprojects, RetRunSymbolAnalysis, RetShowSubprojects]
+    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetUploadSymbolAnalysis, RetDumpRulePartitions, RetTransitiveReachabilityFilter, RetGetTargets, RetMatchSubprojects, RetRunSymbolAnalysis, RetUploadSubprojectSymbolAnalysis, RetShowSubprojects]
 
     @property
     def kind(self) -> str:
@@ -12113,6 +10696,8 @@ class FunctionReturn:
                 return cls(RetMatchSubprojects(_atd_read_list(Subproject.from_json)(x[1])))
             if cons == 'RetRunSymbolAnalysis':
                 return cls(RetRunSymbolAnalysis(SymbolAnalysis.from_json(x[1])))
+            if cons == 'RetUploadSubprojectSymbolAnalysis':
+                return cls(RetUploadSubprojectSymbolAnalysis(_atd_read_string(x[1])))
             if cons == 'RetShowSubprojects':
                 return cls(RetShowSubprojects(_atd_read_string(x[1])))
             _atd_bad_json('FunctionReturn', x)
@@ -12131,8 +10716,7 @@ class FunctionReturn:
 
 @dataclass
 class FunctionResult:
-    """Original type: function_result = { ... }
-    """
+    """Original type: function_result = { ... }"""
 
     function_return: FunctionReturn
     profiling_results: List[ProfilingEntry]
@@ -12163,8 +10747,7 @@ class FunctionResult:
 
 @dataclass(frozen=True)
 class FormatContext:
-    """Original type: format_context = { ... }
-    """
+    """Original type: format_context = { ... }"""
 
     is_ci_invocation: bool
     is_logged_in: bool
@@ -12198,8 +10781,7 @@ class FormatContext:
 
 @dataclass(frozen=True)
 class Edit:
-    """Original type: edit = { ... }
-    """
+    """Original type: edit = { ... }"""
 
     path: Fpath
     start_offset: int
@@ -12236,8 +10818,7 @@ class Edit:
 
 @dataclass
 class DumpRulePartitionsParams:
-    """Original type: dump_rule_partitions_params = { ... }
-    """
+    """Original type: dump_rule_partitions_params = { ... }"""
 
     rules: RawJson
     n_partitions: int
@@ -12275,23 +10856,7 @@ class DumpRulePartitionsParams:
 
 @dataclass
 class CliOutputSubprojectInfo:
-    """Original type: cli_output_subproject_info = { ... }
-
-    This is the public version of subproject_stats, which is used in the CLI
-    output. This is distinguised from subproject_stats below in order to
-    produce more normal-looking JSON and to avoid including unnecessary
-    fields.
-
-    :param dependency_sources: We use fpath here rather than the
-    dependency_source_file type because ATD makes strange-looking JSON output
-    for the dependency_source_file type.
-    :param resolved: true if the subproject's dependencies were resolved
-    successfully
-    :param unresolved_reason: Reason why resolution failed, empty if
-    resolution succeeded
-    :param resolved_stats: Results of dependency resolution, empty if
-    resolution failed
-    """
+    """Original type: cli_output_subproject_info = { ... }"""
 
     dependency_sources: List[Fpath]
     resolved: bool
@@ -12330,29 +10895,7 @@ class CliOutputSubprojectInfo:
 
 @dataclass
 class CliOutput:
-    """Original type: cli_output = { ... }
-
-    :param paths: targeting information
-    :param version: since: 0.92
-    :param time: profiling information
-    :param explanations: debugging (rule writing) information. Note that as
-    opposed to the dataflow trace, the explanations are not embedded inside a
-    match because we give also explanations when things are not matching.
-    EXPERIMENTAL: since semgrep 0.109
-    :param rules_by_engine: These rules, classified by engine used, will let
-    us be transparent in the CLI output over what rules were run with what.
-    EXPERIMENTAL: since: 1.11.0
-    :param interfile_languages_used: Reporting just the requested engine isn't
-    granular enough. We want to know what languages had rules that invoked
-    interfile. This is particularly important for tracking the performance
-    impact of new interfile languages EXPERIMENTAL: since 1.49.0
-    :param skipped_rules: EXPERIMENTAL: since: 1.37.0
-    :param subprojects: SCA subproject resolution results. Note: this is only
-    available when logged in. EXPERIMENTAL: since: 1.125.0
-    :param mcp_scan_results: MCP scan results.
-    :param profiling_results: How long it took to execute this or that piece
-    of code in semgrep-core
-    """
+    """Original type: cli_output = { ... }"""
 
     results: List[CliMatch]
     errors: List[CliError]
@@ -12424,8 +10967,7 @@ class CliOutput:
 
 @dataclass(frozen=True)
 class ApplyFixesParams:
-    """Original type: apply_fixes_params = { ... }
-    """
+    """Original type: apply_fixes_params = { ... }"""
 
     dryrun: bool
     edits: List[Edit]
@@ -12456,8 +10998,7 @@ class ApplyFixesParams:
 
 @dataclass(frozen=True)
 class CallContributions:
-    """Original type: function_call = [ ... | CallContributions | ... ]
-    """
+    """Original type: function_call = [ ... | CallContributions | ... ]"""
 
     @property
     def kind(self) -> str:
@@ -12474,8 +11015,7 @@ class CallContributions:
 
 @dataclass(frozen=True)
 class CallApplyFixes:
-    """Original type: function_call = [ ... | CallApplyFixes of ... | ... ]
-    """
+    """Original type: function_call = [ ... | CallApplyFixes of ... | ... ]"""
 
     value: ApplyFixesParams
 
@@ -12493,8 +11033,7 @@ class CallApplyFixes:
 
 @dataclass(frozen=True)
 class CallFormatter:
-    """Original type: function_call = [ ... | CallFormatter of ... | ... ]
-    """
+    """Original type: function_call = [ ... | CallFormatter of ... | ... ]"""
 
     value: Tuple[OutputFormat, FormatContext, CliOutput]
 
@@ -12512,8 +11051,7 @@ class CallFormatter:
 
 @dataclass(frozen=True)
 class CallSarifFormat:
-    """Original type: function_call = [ ... | CallSarifFormat of ... | ... ]
-    """
+    """Original type: function_call = [ ... | CallSarifFormat of ... | ... ]"""
 
     value: Tuple[SarifFormat, FormatContext, CliOutput]
 
@@ -12531,12 +11069,7 @@ class CallSarifFormat:
 
 @dataclass(frozen=True)
 class CallValidate:
-    """Original type: function_call = [ ... | CallValidate of ... | ... ]
-
-    NOTE: fpath is most likely a temporary file that contains all the rules in
-    JSON format. In the future, we could send the rules via a big string
-    through the RPC pipe.
-    """
+    """Original type: function_call = [ ... | CallValidate of ... | ... ]"""
 
     value: Fpath
 
@@ -12554,8 +11087,7 @@ class CallValidate:
 
 @dataclass(frozen=True)
 class CallResolveDependencies:
-    """Original type: function_call = [ ... | CallResolveDependencies of ... | ... ]
-    """
+    """Original type: function_call = [ ... | CallResolveDependencies of ... | ... ]"""
 
     value: ResolveDependenciesParams
 
@@ -12573,8 +11105,7 @@ class CallResolveDependencies:
 
 @dataclass(frozen=True)
 class CallUploadSymbolAnalysis:
-    """Original type: function_call = [ ... | CallUploadSymbolAnalysis of ... | ... ]
-    """
+    """Original type: function_call = [ ... | CallUploadSymbolAnalysis of ... | ... ]"""
 
     value: Tuple[str, int, SymbolAnalysis]
 
@@ -12592,8 +11123,7 @@ class CallUploadSymbolAnalysis:
 
 @dataclass(frozen=True)
 class CallDumpRulePartitions:
-    """Original type: function_call = [ ... | CallDumpRulePartitions of ... | ... ]
-    """
+    """Original type: function_call = [ ... | CallDumpRulePartitions of ... | ... ]"""
 
     value: DumpRulePartitionsParams
 
@@ -12611,12 +11141,7 @@ class CallDumpRulePartitions:
 
 @dataclass(frozen=True)
 class CallGetTargets:
-    """Original type: function_call = [ ... | CallGetTargets of ... | ... ]
-
-    For now, the transitive reachability filter takes only a single dependency
-    graph as input. It is up to the caller to call it several times, one for
-    each subproject.
-    """
+    """Original type: function_call = [ ... | CallGetTargets of ... | ... ]"""
 
     value: ScanningRoots
 
@@ -12634,8 +11159,7 @@ class CallGetTargets:
 
 @dataclass(frozen=True)
 class CallTransitiveReachabilityFilter:
-    """Original type: function_call = [ ... | CallTransitiveReachabilityFilter of ... | ... ]
-    """
+    """Original type: function_call = [ ... | CallTransitiveReachabilityFilter of ... | ... ]"""
 
     value: TransitiveReachabilityFilterParams
 
@@ -12653,8 +11177,7 @@ class CallTransitiveReachabilityFilter:
 
 @dataclass(frozen=True)
 class CallMatchSubprojects:
-    """Original type: function_call = [ ... | CallMatchSubprojects of ... | ... ]
-    """
+    """Original type: function_call = [ ... | CallMatchSubprojects of ... | ... ]"""
 
     value: List[Fpath]
 
@@ -12672,8 +11195,7 @@ class CallMatchSubprojects:
 
 @dataclass(frozen=True)
 class CallRunSymbolAnalysis:
-    """Original type: function_call = [ ... | CallRunSymbolAnalysis of ... | ... ]
-    """
+    """Original type: function_call = [ ... | CallRunSymbolAnalysis of ... | ... ]"""
 
     value: SymbolAnalysisParams
 
@@ -12690,12 +11212,26 @@ class CallRunSymbolAnalysis:
 
 
 @dataclass(frozen=True)
-class CallShowSubprojects:
-    """Original type: function_call = [ ... | CallShowSubprojects of ... | ... ]
+class CallUploadSubprojectSymbolAnalysis:
+    """Original type: function_call = [ ... | CallUploadSubprojectSymbolAnalysis of ... | ... ]"""
 
-    Format human-readable text summarizing the subprojects that were
-    discovered in a project. This is meant to be printed in --verbose mode.
-    """
+    value: UploadSubprojectSymbolAnalysisParams
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallUploadSubprojectSymbolAnalysis'
+
+    def to_json(self) -> Any:
+        return ['CallUploadSubprojectSymbolAnalysis', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class CallShowSubprojects:
+    """Original type: function_call = [ ... | CallShowSubprojects of ... | ... ]"""
 
     value: List[Subproject]
 
@@ -12713,10 +11249,9 @@ class CallShowSubprojects:
 
 @dataclass(frozen=True)
 class FunctionCall:
-    """Original type: function_call = [ ... ]
-    """
+    """Original type: function_call = [ ... ]"""
 
-    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallGetTargets, CallTransitiveReachabilityFilter, CallMatchSubprojects, CallRunSymbolAnalysis, CallShowSubprojects]
+    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallGetTargets, CallTransitiveReachabilityFilter, CallMatchSubprojects, CallRunSymbolAnalysis, CallUploadSubprojectSymbolAnalysis, CallShowSubprojects]
 
     @property
     def kind(self) -> str:
@@ -12753,6 +11288,8 @@ class FunctionCall:
                 return cls(CallMatchSubprojects(_atd_read_list(Fpath.from_json)(x[1])))
             if cons == 'CallRunSymbolAnalysis':
                 return cls(CallRunSymbolAnalysis(SymbolAnalysisParams.from_json(x[1])))
+            if cons == 'CallUploadSubprojectSymbolAnalysis':
+                return cls(CallUploadSubprojectSymbolAnalysis(UploadSubprojectSymbolAnalysisParams.from_json(x[1])))
             if cons == 'CallShowSubprojects':
                 return cls(CallShowSubprojects(_atd_read_list(Subproject.from_json)(x[1])))
             _atd_bad_json('FunctionCall', x)
@@ -12771,18 +11308,7 @@ class FunctionCall:
 
 @dataclass
 class Features:
-    """Original type: features = { ... }
-
-    :param path_to_transitivity: a.k.a. dependency path
-    :param scan_all_deps_in_diff_scan: normally we resolve dependencies for
-    changed subprojects only in diff scans. This flag causes all subprojects
-    to be resolved in diff scans
-    :param symbol_analysis: Whether to collect "symbol analysis" info from the
-    repo being scanned See
-    https://www.notion.so/semgrep/Semgrep-Code-Reconnaissance-Toolbox-18a3009241a880f2a439eed6b2cffe66?pvs=4
-    :param transitive_reachability_enabled: Whether to enable transitive
-    reachability analysis for SCA findings
-    """
+    """Original type: features = { ... }"""
 
     autofix: bool = field(default_factory=lambda: False)
     deepsemgrep: bool = field(default_factory=lambda: False)
@@ -12828,14 +11354,7 @@ class Features:
 
 @dataclass
 class DiffFile:
-    """Original type: diff_file = { ... }
-
-    Synthesizing from diffs (see locate_patched_functions in
-    Synthesizing.mli). Was in Input_to_core.atd before.
-
-    :param diffs: start_line-end_line
-    :param url: metadata to help SCA rule generation
-    """
+    """Original type: diff_file = { ... }"""
 
     filename: Fpath
     diffs: List[str]
@@ -12869,8 +11388,7 @@ class DiffFile:
 
 @dataclass
 class DiffFiles:
-    """Original type: diff_files = { ... }
-    """
+    """Original type: diff_files = { ... }"""
 
     cve_diffs: List[DiffFile]
 
@@ -12898,20 +11416,7 @@ class DiffFiles:
 
 @dataclass
 class DeploymentConfig:
-    """Original type: deployment_config = { ... }
-
-    Response by the backend to the CLI to the POST
-    api/agent/deployments/current. Some of the information in
-    deployment_config is now returned directly in scan_response (e.g., the
-    deployment_name)
-
-    :param name: the important piece, the deployment name (e.g.,
-    "returntocorp")
-    :param display_name: All three below seem similar to 'name' mostly (e.g.,
-    "returntocorp")
-    :param source_type: e.g. "github"
-    :param default_user_role: e.g. "member"
-    """
+    """Original type: deployment_config = { ... }"""
 
     id: int
     name: str
@@ -12972,8 +11477,7 @@ class DeploymentConfig:
 
 @dataclass
 class DeploymentResponse:
-    """Original type: deployment_response = { ... }
-    """
+    """Original type: deployment_response = { ... }"""
 
     deployment: DeploymentConfig
 
@@ -13001,13 +11505,7 @@ class DeploymentResponse:
 
 @dataclass
 class CoreOutputExtra:
-    """Original type: core_output_extra = { ... }
-
-    For extra information to put into the `core_output` that we do not
-    necessarily want to share with the cli_output.
-
-    :param symbol_analysis: since semgrep 1.108.0
-    """
+    """Original type: core_output_extra = { ... }"""
 
     symbol_analysis: Optional[SymbolAnalysis] = None
 
@@ -13036,31 +11534,7 @@ class CoreOutputExtra:
 
 @dataclass
 class CoreOutput:
-    """Original type: core_output = { ... }
-
-    :param errors: errors are guaranteed to be duplicate free; see also
-    Report.ml
-    :param paths: targeting information
-    :param time: profiling information
-    :param explanations: debugging (rule writing) information. Note that as
-    opposed to the dataflow trace, the explanations are not embedded inside a
-    match because we give also explanations when things are not matching.
-    EXPERIMENTAL: since semgrep 0.109
-    :param rules_by_engine: These rules, classified by engine used, will let
-    us be transparent in the CLI output over what rules were run with what.
-    EXPERIMENTAL: since: 1.11.0
-    :param interfile_languages_used: Reporting just the requested engine isn't
-    granular enough. We want to know what languages had rules that invoked
-    interfile. This is particularly important for tracking the performance
-    impact of new interfile languages EXPERIMENTAL: since 1.49.0
-    :param skipped_rules: EXPERIMENTAL: since: 1.37.0
-    :param subprojects: SCA subproject resolution results. Note: this is only
-    available when logged in. EXPERIMENTAL: since: 1.125.0
-    :param mcp_scan_results: MCP scan results.
-    :param profiling_results: How long it took to execute this or that piece
-    of code in semgrep-core
-    :param symbol_analysis: since semgrep 1.108.0
-    """
+    """Original type: core_output = { ... }"""
 
     version: Version
     results: List[CoreMatch]
@@ -13135,28 +11609,7 @@ class CoreOutput:
 
 @dataclass
 class CliOutputExtra:
-    """Original type: cli_output_extra = { ... }
-
-    :param paths: targeting information
-    :param time: profiling information
-    :param explanations: debugging (rule writing) information. Note that as
-    opposed to the dataflow trace, the explanations are not embedded inside a
-    match because we give also explanations when things are not matching.
-    EXPERIMENTAL: since semgrep 0.109
-    :param rules_by_engine: These rules, classified by engine used, will let
-    us be transparent in the CLI output over what rules were run with what.
-    EXPERIMENTAL: since: 1.11.0
-    :param interfile_languages_used: Reporting just the requested engine isn't
-    granular enough. We want to know what languages had rules that invoked
-    interfile. This is particularly important for tracking the performance
-    impact of new interfile languages EXPERIMENTAL: since 1.49.0
-    :param skipped_rules: EXPERIMENTAL: since: 1.37.0
-    :param subprojects: SCA subproject resolution results. Note: this is only
-    available when logged in. EXPERIMENTAL: since: 1.125.0
-    :param mcp_scan_results: MCP scan results.
-    :param profiling_results: How long it took to execute this or that piece
-    of code in semgrep-core
-    """
+    """Original type: cli_output_extra = { ... }"""
 
     paths: ScannedAndSkipped
     time: Optional[Profile] = None
@@ -13218,8 +11671,7 @@ class CliOutputExtra:
 
 @dataclass
 class CiScanResultsResponseError:
-    """Original type: ci_scan_results_response_error = { ... }
-    """
+    """Original type: ci_scan_results_response_error = { ... }"""
 
     message: str
 
@@ -13247,10 +11699,7 @@ class CiScanResultsResponseError:
 
 @dataclass
 class CiScanResultsResponse:
-    """Original type: ci_scan_results_response = { ... }
-
-    Response by the backend to the CLI to the POST /results
-    """
+    """Original type: ci_scan_results_response = { ... }"""
 
     errors: List[CiScanResultsResponseError]
     task_id: Optional[str] = None
@@ -13282,14 +11731,7 @@ class CiScanResultsResponse:
 
 @dataclass
 class CiScanCompleteResponse:
-    """Original type: ci_scan_complete_response = { ... }
-
-    Response by the backend to the CLI to the POST /complete
-
-    :param app_block_reason: only when app_block_override is true
-    :param app_blocking_match_based_ids: since 1.100.0. match_based_ids of
-    findings that semgrep-app determined should cause the scan to block
-    """
+    """Original type: ci_scan_complete_response = { ... }"""
 
     success: bool
     app_block_override: bool = field(default_factory=lambda: False)

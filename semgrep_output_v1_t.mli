@@ -320,11 +320,11 @@ type manifest = { kind: manifest_kind; path: fpath } [@@deriving show, eq]
   could be called rule_severity, or finding_severity.
   
 {v
-  Error = something wrong that must be fixed
-  Warning = something wrong that should be fixed
-  Info = some special condition worth knowing about
-  Experiment = deprecated: guess what
-  Inventory = deprecated: was used for the Code Asset Inventory (CAI) project
+   Error = something wrong that must be fixed
+   Warning = something wrong that should be fixed
+   Info = some special condition worth knowing about
+   Experiment = deprecated: guess what
+   Inventory = deprecated: was used for the Code Asset Inventory (CAI) project
 v}
 *)
 type match_severity = [
@@ -423,9 +423,9 @@ type match_intermediate_var = {
   the pro engine that they couldn't with the oss engine.
   
 {v
-  interproc_taint = requires interprocedural taint
-  interfile_taint = requires interfile taint
-  proprietary_language = requires some non-taint pro feature
+    interproc_taint = requires interprocedural taint
+    interfile_taint = requires interfile taint
+    proprietary_language = requires some non-taint pro feature
 v}
 *)
 type pro_feature = {
@@ -442,10 +442,10 @@ type pro_feature = {
   which feature is required.
   
 {v
-  OSS = ran with OSS
-  PRO = ran with PRO, but we didn't infer that OSS couldn't have found this
-  finding
-  PRO_REQUIRED = ran with PRO and requires a PRO feature (see pro_feature_used)
+   OSS = ran with OSS
+   PRO = ran with PRO, but we didn't infer that OSS couldn't have found this
+   finding
+   PRO_REQUIRED = ran with PRO and requires a PRO feature (see pro_feature_used)
 v}
   
   Note: OSS and PRO could have clearer names, but for backwards compatibility
@@ -816,6 +816,27 @@ type uuid = ATD_string_wrap.Uuidm.t [@@deriving ord]
 
 type uri = ATD_string_wrap.Uri.t [@@deriving ord]
 
+(** A symbol is a FQN. *)
+type symbol = { fqn: string list }
+  [@@deriving show]
+
+(**
+  We store the location of the usage, because we may want to be able to know
+  how many uses of the symbol there are, and where.
+*)
+type symbol_usage = { symbol: symbol; locs: location list }
+  [@@deriving show]
+
+type symbol_analysis = symbol_usage list [@@deriving show]
+
+type upload_subproject_symbol_analysis_params = {
+  token: string;
+  scan_id: int;
+  manifest: fpath option;
+  lockfile: fpath option;
+  symbol_analysis: symbol_analysis
+}
+
 type unresolved_reason = 
     UnresolvedFailed (** Resolution was attempted, but was unsuccessful. *)
   | UnresolvedSkipped
@@ -958,9 +979,9 @@ type killing_parent_kind = [ `And | `Inside | `Negation | `Filter of string ]
   means that in the following pattern:
   
 {v
-  all:
-    - pattern: A
-    - not: B
+    all:
+      - pattern: A
+      - not: B
 v}
   
   the [not] node is a "parent" of the [pattern] node, even though they are
@@ -1091,18 +1112,18 @@ type todo = int
   For instance, suppose we have the rule:
   
 {v
-  1 | all:
-  2 | - pattern: foo(...)
-  3 | - not: foo(goood)
+    1 | all:
+    2 | - pattern: foo(...)
+    3 | - not: foo(goood)
 v}
   
   and the following Python annotated target:
   
 {v
-  1 | # ruleid: my_rule
-  2 | foo()
-  3 | # ok: my_rule
-  4 | foo(good)
+    1 | # ruleid: my_rule
+    2 | foo()
+    3 | # ok: my_rule
+    4 | foo(good)
 v}
   
   We would get an unexpected match on line 4, which would fail the test
@@ -1125,14 +1146,14 @@ v}
   form:
   
 {v
-  \{ matched_text = \{ line = 4; text = "foo(bad)" \};
-    originating_kind = Xpattern;
-    originating_text = \{ line = 2; text = "- pattern: foo(...)" \};
-    killing_parents = [
-      \{ killing_parent_kind = Negation;
-        snippet = \{ line = 3; text = "- not: foo(good)" \} \}
-    ]
-  \}
+    \{ matched_text = \{ line = 4; text = "foo(bad)" \};
+      originating_kind = Xpattern;
+      originating_text = \{ line = 2; text = "- pattern: foo(...)" \};
+      killing_parents = [
+        \{ killing_parent_kind = Negation;
+          snippet = \{ line = 3; text = "- not: foo(good)" \} \}
+      ]
+    \}
 v}
 *)
 type matching_diagnosis = {
@@ -1410,9 +1431,9 @@ type error_type =
   Semgrep execution (e.g., a parse error).
   
 {v
-  Error = Always an error
-  Warning = Only an error if "strict" is set
-  Info = Nothing may be wrong
+    Error = Always an error
+    Warning = Only an error if "strict" is set
+    Info = Nothing may be wrong
 v}
   
   alt: could reuse match_severity but seems cleaner to define its own type
@@ -1463,17 +1484,6 @@ type tainting_time = {
 (** e.g. "webapp" *)
 type tag = string
 
-(** A symbol is a FQN. *)
-type symbol = { fqn: string list }
-  [@@deriving show]
-
-(**
-  We store the location of the usage, because we may want to be able to know
-  how many uses of the symbol there are, and where.
-*)
-type symbol_usage = { symbol: symbol; locs: location list }
-  [@@deriving show]
-
 type symbol_analysis_upload_response = {
   upload_url: uri (** Presigned AWS URL for uploading symbol analysis data *)
 }
@@ -1483,8 +1493,6 @@ type symbol_analysis_params = {
   lang: string option;
   files: fpath list
 }
-
-type symbol_analysis = symbol_usage list [@@deriving show]
 
 type resolution_method = [
     `LockfileParsing
@@ -1534,6 +1542,15 @@ type subproject_stats = {
 }
 
 type supply_chain_stats = { subprojects_stats: subproject_stats list }
+
+(**
+  Sent by the CLI to the POST
+  /api/agent/scans/\{scan_id\}/subproject_symbols_upload_url/
+*)
+type subproject_symbol_analysis_url_request = {
+  manifest_path: fpath option;
+  lockfile_path: fpath option
+}
 
 type skipped_rule = {
   rule_id: rule_id;
@@ -2261,6 +2278,7 @@ type function_return = [
   | `RetGetTargets of target_discovery_result
   | `RetMatchSubprojects of subproject list
   | `RetRunSymbolAnalysis of symbol_analysis
+  | `RetUploadSubprojectSymbolAnalysis of string (** success msg *)
   | `RetShowSubprojects of string
       (**
         The text return here typically contains newlines but is not
@@ -2381,6 +2399,8 @@ type function_call = [
       of transitive_reachability_filter_params
   | `CallMatchSubprojects of fpath list
   | `CallRunSymbolAnalysis of symbol_analysis_params
+  | `CallUploadSubprojectSymbolAnalysis
+      of upload_subproject_symbol_analysis_params
   | `CallShowSubprojects of subproject list
       (**
         Format human-readable text summarizing the subprojects that were
