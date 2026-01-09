@@ -4275,6 +4275,135 @@ class Uri:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass
+class Symbol:
+    """Original type: symbol = { ... }
+
+    A symbol is a FQN.
+    """
+
+    fqn: List[str]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Symbol':
+        if isinstance(x, dict):
+            return cls(
+                fqn=_atd_read_list(_atd_read_string)(x['fqn']) if 'fqn' in x else _atd_missing_json_field('Symbol', 'fqn'),
+            )
+        else:
+            _atd_bad_json('Symbol', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['fqn'] = _atd_write_list(_atd_write_string)(self.fqn)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Symbol':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class SymbolUsage:
+    """Original type: symbol_usage = { ... }
+
+    We store the location of the usage, because we may want to be able to know
+    how many uses of the symbol there are, and where.
+    """
+
+    symbol: Symbol
+    locs: List[Location]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SymbolUsage':
+        if isinstance(x, dict):
+            return cls(
+                symbol=Symbol.from_json(x['symbol']) if 'symbol' in x else _atd_missing_json_field('SymbolUsage', 'symbol'),
+                locs=_atd_read_list(Location.from_json)(x['locs']) if 'locs' in x else _atd_missing_json_field('SymbolUsage', 'locs'),
+            )
+        else:
+            _atd_bad_json('SymbolUsage', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['symbol'] = (lambda x: x.to_json())(self.symbol)
+        res['locs'] = _atd_write_list((lambda x: x.to_json()))(self.locs)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SymbolUsage':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class SymbolAnalysis:
+    """Original type: symbol_analysis
+    """
+
+    value: List[SymbolUsage]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SymbolAnalysis':
+        return cls(_atd_read_list(SymbolUsage.from_json)(x))
+
+    def to_json(self) -> Any:
+        return _atd_write_list((lambda x: x.to_json()))(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SymbolAnalysis':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class UploadSubprojectSymbolAnalysisParams:
+    """Original type: upload_subproject_symbol_analysis_params = { ... }
+    """
+
+    token: str
+    scan_id: int
+    manifest: Optional[Fpath]
+    lockfile: Optional[Fpath]
+    symbol_analysis: SymbolAnalysis
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'UploadSubprojectSymbolAnalysisParams':
+        if isinstance(x, dict):
+            return cls(
+                token=_atd_read_string(x['token']) if 'token' in x else _atd_missing_json_field('UploadSubprojectSymbolAnalysisParams', 'token'),
+                scan_id=_atd_read_int(x['scan_id']) if 'scan_id' in x else _atd_missing_json_field('UploadSubprojectSymbolAnalysisParams', 'scan_id'),
+                manifest=_atd_read_option(Fpath.from_json)(x['manifest']) if 'manifest' in x else _atd_missing_json_field('UploadSubprojectSymbolAnalysisParams', 'manifest'),
+                lockfile=_atd_read_option(Fpath.from_json)(x['lockfile']) if 'lockfile' in x else _atd_missing_json_field('UploadSubprojectSymbolAnalysisParams', 'lockfile'),
+                symbol_analysis=SymbolAnalysis.from_json(x['symbol_analysis']) if 'symbol_analysis' in x else _atd_missing_json_field('UploadSubprojectSymbolAnalysisParams', 'symbol_analysis'),
+            )
+        else:
+            _atd_bad_json('UploadSubprojectSymbolAnalysisParams', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['token'] = _atd_write_string(self.token)
+        res['scan_id'] = _atd_write_int(self.scan_id)
+        res['manifest'] = _atd_write_option((lambda x: x.to_json()))(self.manifest)
+        res['lockfile'] = _atd_write_option((lambda x: x.to_json()))(self.lockfile)
+        res['symbol_analysis'] = (lambda x: x.to_json())(self.symbol_analysis)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'UploadSubprojectSymbolAnalysisParams':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass(frozen=True)
 class UnresolvedFailed:
     """Original type: unresolved_reason = [ ... | UnresolvedFailed | ... ]
@@ -8479,72 +8608,6 @@ class Tag:
 
 
 @dataclass
-class Symbol:
-    """Original type: symbol = { ... }
-
-    A symbol is a FQN.
-    """
-
-    fqn: List[str]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'Symbol':
-        if isinstance(x, dict):
-            return cls(
-                fqn=_atd_read_list(_atd_read_string)(x['fqn']) if 'fqn' in x else _atd_missing_json_field('Symbol', 'fqn'),
-            )
-        else:
-            _atd_bad_json('Symbol', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['fqn'] = _atd_write_list(_atd_write_string)(self.fqn)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'Symbol':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class SymbolUsage:
-    """Original type: symbol_usage = { ... }
-
-    We store the location of the usage, because we may want to be able to know
-    how many uses of the symbol there are, and where.
-    """
-
-    symbol: Symbol
-    locs: List[Location]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'SymbolUsage':
-        if isinstance(x, dict):
-            return cls(
-                symbol=Symbol.from_json(x['symbol']) if 'symbol' in x else _atd_missing_json_field('SymbolUsage', 'symbol'),
-                locs=_atd_read_list(Location.from_json)(x['locs']) if 'locs' in x else _atd_missing_json_field('SymbolUsage', 'locs'),
-            )
-        else:
-            _atd_bad_json('SymbolUsage', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['symbol'] = (lambda x: x.to_json())(self.symbol)
-        res['locs'] = _atd_write_list((lambda x: x.to_json()))(self.locs)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'SymbolUsage':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class SymbolAnalysisUploadResponse:
     """Original type: symbol_analysis_upload_response = { ... }
 
@@ -8604,28 +8667,6 @@ class SymbolAnalysisParams:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'SymbolAnalysisParams':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class SymbolAnalysis:
-    """Original type: symbol_analysis
-    """
-
-    value: List[SymbolUsage]
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'SymbolAnalysis':
-        return cls(_atd_read_list(SymbolUsage.from_json)(x))
-
-    def to_json(self) -> Any:
-        return _atd_write_list((lambda x: x.to_json()))(self.value)
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'SymbolAnalysis':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -8923,6 +8964,41 @@ class SupplyChainStats:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'SupplyChainStats':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class SubprojectSymbolAnalysisUrlRequest:
+    """Original type: subproject_symbol_analysis_url_request = { ... }
+
+    Sent by the CLI to the POST
+    /api/agent/scans/{scan_id}/subproject_symbols_upload_url/
+    """
+
+    manifest_path: Optional[Fpath]
+    lockfile_path: Optional[Fpath]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SubprojectSymbolAnalysisUrlRequest':
+        if isinstance(x, dict):
+            return cls(
+                manifest_path=_atd_read_option(Fpath.from_json)(x['manifest_path']) if 'manifest_path' in x else _atd_missing_json_field('SubprojectSymbolAnalysisUrlRequest', 'manifest_path'),
+                lockfile_path=_atd_read_option(Fpath.from_json)(x['lockfile_path']) if 'lockfile_path' in x else _atd_missing_json_field('SubprojectSymbolAnalysisUrlRequest', 'lockfile_path'),
+            )
+        else:
+            _atd_bad_json('SubprojectSymbolAnalysisUrlRequest', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['manifest_path'] = _atd_write_option((lambda x: x.to_json()))(self.manifest_path)
+        res['lockfile_path'] = _atd_write_option((lambda x: x.to_json()))(self.lockfile_path)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SubprojectSymbolAnalysisUrlRequest':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -12050,6 +12126,27 @@ class RetRunSymbolAnalysis:
 
 
 @dataclass(frozen=True)
+class RetUploadSubprojectSymbolAnalysis:
+    """Original type: function_return = [ ... | RetUploadSubprojectSymbolAnalysis of ... | ... ]
+
+    success msg
+    """
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetUploadSubprojectSymbolAnalysis'
+
+    def to_json(self) -> Any:
+        return ['RetUploadSubprojectSymbolAnalysis', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class RetShowSubprojects:
     """Original type: function_return = [ ... | RetShowSubprojects of ... | ... ]
 
@@ -12076,7 +12173,7 @@ class FunctionReturn:
     """Original type: function_return = [ ... ]
     """
 
-    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetUploadSymbolAnalysis, RetDumpRulePartitions, RetTransitiveReachabilityFilter, RetGetTargets, RetMatchSubprojects, RetRunSymbolAnalysis, RetShowSubprojects]
+    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetUploadSymbolAnalysis, RetDumpRulePartitions, RetTransitiveReachabilityFilter, RetGetTargets, RetMatchSubprojects, RetRunSymbolAnalysis, RetUploadSubprojectSymbolAnalysis, RetShowSubprojects]
 
     @property
     def kind(self) -> str:
@@ -12113,6 +12210,8 @@ class FunctionReturn:
                 return cls(RetMatchSubprojects(_atd_read_list(Subproject.from_json)(x[1])))
             if cons == 'RetRunSymbolAnalysis':
                 return cls(RetRunSymbolAnalysis(SymbolAnalysis.from_json(x[1])))
+            if cons == 'RetUploadSubprojectSymbolAnalysis':
+                return cls(RetUploadSubprojectSymbolAnalysis(_atd_read_string(x[1])))
             if cons == 'RetShowSubprojects':
                 return cls(RetShowSubprojects(_atd_read_string(x[1])))
             _atd_bad_json('FunctionReturn', x)
@@ -12690,6 +12789,25 @@ class CallRunSymbolAnalysis:
 
 
 @dataclass(frozen=True)
+class CallUploadSubprojectSymbolAnalysis:
+    """Original type: function_call = [ ... | CallUploadSubprojectSymbolAnalysis of ... | ... ]
+    """
+
+    value: UploadSubprojectSymbolAnalysisParams
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallUploadSubprojectSymbolAnalysis'
+
+    def to_json(self) -> Any:
+        return ['CallUploadSubprojectSymbolAnalysis', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class CallShowSubprojects:
     """Original type: function_call = [ ... | CallShowSubprojects of ... | ... ]
 
@@ -12716,7 +12834,7 @@ class FunctionCall:
     """Original type: function_call = [ ... ]
     """
 
-    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallGetTargets, CallTransitiveReachabilityFilter, CallMatchSubprojects, CallRunSymbolAnalysis, CallShowSubprojects]
+    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallGetTargets, CallTransitiveReachabilityFilter, CallMatchSubprojects, CallRunSymbolAnalysis, CallUploadSubprojectSymbolAnalysis, CallShowSubprojects]
 
     @property
     def kind(self) -> str:
@@ -12753,6 +12871,8 @@ class FunctionCall:
                 return cls(CallMatchSubprojects(_atd_read_list(Fpath.from_json)(x[1])))
             if cons == 'CallRunSymbolAnalysis':
                 return cls(CallRunSymbolAnalysis(SymbolAnalysisParams.from_json(x[1])))
+            if cons == 'CallUploadSubprojectSymbolAnalysis':
+                return cls(CallUploadSubprojectSymbolAnalysis(UploadSubprojectSymbolAnalysisParams.from_json(x[1])))
             if cons == 'CallShowSubprojects':
                 return cls(CallShowSubprojects(_atd_read_list(Subproject.from_json)(x[1])))
             _atd_bad_json('FunctionCall', x)

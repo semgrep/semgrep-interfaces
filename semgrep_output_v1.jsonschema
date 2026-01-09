@@ -3435,6 +3435,76 @@
       "type": "array",
       "items": { "$ref": "#/definitions/symbol_usage" }
     },
+    "upload_subproject_symbol_analysis_params": {
+      "type": "object",
+      "required": [
+        "token", "scan_id", "manifest", "lockfile", "symbol_analysis"
+      ],
+      "properties": {
+        "token": { "type": "string" },
+        "scan_id": { "type": "integer" },
+        "manifest": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" }, { "$ref": "#/definitions/fpath" }
+              ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "lockfile": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" }, { "$ref": "#/definitions/fpath" }
+              ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "symbol_analysis": { "$ref": "#/definitions/symbol_analysis" }
+      }
+    },
+    "subproject_symbol_analysis_url_request": {
+      "description": "Sent by the CLI to the POST /api/agent/scans/{scan_id}/subproject_symbols_upload_url/",
+      "type": "object",
+      "required": [ "manifest_path", "lockfile_path" ],
+      "properties": {
+        "manifest_path": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" }, { "$ref": "#/definitions/fpath" }
+              ]
+            },
+            { "const": "None" }
+          ]
+        },
+        "lockfile_path": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "const": "Some" }, { "$ref": "#/definitions/fpath" }
+              ]
+            },
+            { "const": "None" }
+          ]
+        }
+      }
+    },
     "function_call": {
       "oneOf": [
         { "const": "CallContributions" },
@@ -3568,6 +3638,17 @@
           "prefixItems": [
             { "const": "CallRunSymbolAnalysis" },
             { "$ref": "#/definitions/symbol_analysis_params" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "CallUploadSubprojectSymbolAnalysis" },
+            {
+              "$ref": "#/definitions/upload_subproject_symbol_analysis_params"
+            }
           ]
         },
         {
@@ -3734,6 +3815,18 @@
           "prefixItems": [
             { "const": "RetRunSymbolAnalysis" },
             { "$ref": "#/definitions/symbol_analysis" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            {
+              "description": "success msg",
+              "const": "RetUploadSubprojectSymbolAnalysis"
+            },
+            { "type": "string" }
           ]
         },
         {
