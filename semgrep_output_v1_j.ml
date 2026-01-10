@@ -22904,24 +22904,28 @@ let write_subproject_symbol_analysis_url_request : _ -> subproject_symbol_analys
   fun ob (x : subproject_symbol_analysis_url_request) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"manifest_path\":";
-    (
-      write__fpath_option
-    )
-      ob x.manifest_path;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"lockfile_path\":";
-    (
-      write__fpath_option
-    )
-      ob x.lockfile_path;
+    (match x.manifest_path with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"manifest_path\":";
+      (
+        write_fpath
+      )
+        ob x;
+    );
+    (match x.lockfile_path with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"lockfile_path\":";
+      (
+        write_fpath
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_subproject_symbol_analysis_url_request ?(len = 1024) x =
@@ -22973,21 +22977,25 @@ let read_subproject_symbol_analysis_url_request = (
       (
         match i with
           | 0 ->
-            field_manifest_path := (
-              Some (
-                (
-                  read__fpath_option
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_manifest_path := (
+                Some (
+                  (
+                    read_fpath
+                  ) p lb
+                )
+              );
+            )
           | 1 ->
-            field_lockfile_path := (
-              Some (
-                (
-                  read__fpath_option
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_lockfile_path := (
+                Some (
+                  (
+                    read_fpath
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -23031,21 +23039,25 @@ let read_subproject_symbol_analysis_url_request = (
         (
           match i with
             | 0 ->
-              field_manifest_path := (
-                Some (
-                  (
-                    read__fpath_option
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_manifest_path := (
+                  Some (
+                    (
+                      read_fpath
+                    ) p lb
+                  )
+                );
+              )
             | 1 ->
-              field_lockfile_path := (
-                Some (
-                  (
-                    read__fpath_option
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_lockfile_path := (
+                  Some (
+                    (
+                      read_fpath
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -23055,8 +23067,8 @@ let read_subproject_symbol_analysis_url_request = (
     with Yojson.End_of_object -> (
         (
           {
-            manifest_path = (match !field_manifest_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "manifest_path");
-            lockfile_path = (match !field_lockfile_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "lockfile_path");
+            manifest_path = !field_manifest_path;
+            lockfile_path = !field_lockfile_path;
           }
          : subproject_symbol_analysis_url_request)
       )
