@@ -8978,23 +8978,25 @@ class SubprojectSymbolAnalysisUrlRequest:
     /api/agent/scans/{scan_id}/subproject_symbols_upload_url/
     """
 
-    manifest_path: Optional[Fpath]
-    lockfile_path: Optional[Fpath]
+    manifest_path: Optional[Fpath] = None
+    lockfile_path: Optional[Fpath] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'SubprojectSymbolAnalysisUrlRequest':
         if isinstance(x, dict):
             return cls(
-                manifest_path=_atd_read_option(Fpath.from_json)(x['manifest_path']) if 'manifest_path' in x else _atd_missing_json_field('SubprojectSymbolAnalysisUrlRequest', 'manifest_path'),
-                lockfile_path=_atd_read_option(Fpath.from_json)(x['lockfile_path']) if 'lockfile_path' in x else _atd_missing_json_field('SubprojectSymbolAnalysisUrlRequest', 'lockfile_path'),
+                manifest_path=Fpath.from_json(x['manifest_path']) if 'manifest_path' in x else None,
+                lockfile_path=Fpath.from_json(x['lockfile_path']) if 'lockfile_path' in x else None,
             )
         else:
             _atd_bad_json('SubprojectSymbolAnalysisUrlRequest', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['manifest_path'] = _atd_write_option((lambda x: x.to_json()))(self.manifest_path)
-        res['lockfile_path'] = _atd_write_option((lambda x: x.to_json()))(self.lockfile_path)
+        if self.manifest_path is not None:
+            res['manifest_path'] = (lambda x: x.to_json())(self.manifest_path)
+        if self.lockfile_path is not None:
+            res['lockfile_path'] = (lambda x: x.to_json())(self.lockfile_path)
         return res
 
     @classmethod

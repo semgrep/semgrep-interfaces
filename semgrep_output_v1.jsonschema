@@ -3475,34 +3475,10 @@
     "subproject_symbol_analysis_url_request": {
       "description": "Sent by the CLI to the POST /api/agent/scans/{scan_id}/subproject_symbols_upload_url/",
       "type": "object",
-      "required": [ "manifest_path", "lockfile_path" ],
+      "required": [],
       "properties": {
-        "manifest_path": {
-          "oneOf": [
-            {
-              "type": "array",
-              "minItems": 2,
-              "items": false,
-              "prefixItems": [
-                { "const": "Some" }, { "$ref": "#/definitions/fpath" }
-              ]
-            },
-            { "const": "None" }
-          ]
-        },
-        "lockfile_path": {
-          "oneOf": [
-            {
-              "type": "array",
-              "minItems": 2,
-              "items": false,
-              "prefixItems": [
-                { "const": "Some" }, { "$ref": "#/definitions/fpath" }
-              ]
-            },
-            { "const": "None" }
-          ]
-        }
+        "manifest_path": { "$ref": "#/definitions/fpath" },
+        "lockfile_path": { "$ref": "#/definitions/fpath" }
       }
     },
     "function_call": {

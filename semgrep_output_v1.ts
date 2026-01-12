@@ -1292,8 +1292,8 @@ export type UploadSubprojectSymbolAnalysisParams = {
 }
 
 export type SubprojectSymbolAnalysisUrlRequest = {
-  manifest_path: Option<Fpath>;
-  lockfile_path: Option<Fpath>;
+  manifest_path?: Fpath;
+  lockfile_path?: Fpath;
 }
 
 export type FunctionCall =
@@ -5315,15 +5315,15 @@ export function readUploadSubprojectSymbolAnalysisParams(x: any, context: any = 
 
 export function writeSubprojectSymbolAnalysisUrlRequest(x: SubprojectSymbolAnalysisUrlRequest, context: any = x): any {
   return {
-    'manifest_path': _atd_write_required_field('SubprojectSymbolAnalysisUrlRequest', 'manifest_path', _atd_write_option(writeFpath), x.manifest_path, x),
-    'lockfile_path': _atd_write_required_field('SubprojectSymbolAnalysisUrlRequest', 'lockfile_path', _atd_write_option(writeFpath), x.lockfile_path, x),
+    'manifest_path': _atd_write_optional_field(writeFpath, x.manifest_path, x),
+    'lockfile_path': _atd_write_optional_field(writeFpath, x.lockfile_path, x),
   };
 }
 
 export function readSubprojectSymbolAnalysisUrlRequest(x: any, context: any = x): SubprojectSymbolAnalysisUrlRequest {
   return {
-    manifest_path: _atd_read_required_field('SubprojectSymbolAnalysisUrlRequest', 'manifest_path', _atd_read_option(readFpath), x['manifest_path'], x),
-    lockfile_path: _atd_read_required_field('SubprojectSymbolAnalysisUrlRequest', 'lockfile_path', _atd_read_option(readFpath), x['lockfile_path'], x),
+    manifest_path: _atd_read_optional_field(readFpath, x['manifest_path'], x),
+    lockfile_path: _atd_read_optional_field(readFpath, x['lockfile_path'], x),
   };
 }
 

@@ -3375,8 +3375,8 @@ type upload_subproject_symbol_analysis_params = {
 type subproject_symbol_analysis_url_request
   <doc text="Sent by the CLI to the POST /api/agent/scans/{scan_id}/subproject_symbols_upload_url/">
   = {
-  manifest_path: fpath option;
-  lockfile_path: fpath option;
+  ?manifest_path: fpath option;
+  ?lockfile_path: fpath option;
 }
 
 (* ----------------------------- *)
