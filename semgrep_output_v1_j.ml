@@ -1669,7 +1669,12 @@ type scan_metadata = Semgrep_output_v1_t.scan_metadata = {
       1.96.0
     *);
   ecosystems: string list;
-  packages: string list
+  packages: string list;
+  enable_mal_deps: bool option
+    (**
+      Override to enable malicious dependency rules for this scan, even if
+      disabled at the deployment level.
+    *)
 }
 
 (**
@@ -25727,6 +25732,17 @@ let write_scan_metadata : _ -> scan_metadata -> _ = (
       write__string_list
     )
       ob x.packages;
+    (match x.enable_mal_deps with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"enable_mal_deps\":";
+      (
+        Yojson.Safe.write_bool
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_scan_metadata ?(len = 1024) x =
@@ -25744,6 +25760,7 @@ let read_scan_metadata = (
     let field_sms_scan_id = ref (None) in
     let field_ecosystems = ref ([]) in
     let field_packages = ref ([]) in
+    let field_enable_mal_deps = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -25806,6 +25823,14 @@ let read_scan_metadata = (
                   | _ -> (
                       -1
                     )
+              )
+            | 15 -> (
+                if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'l' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'p' && String.unsafe_get s (pos+14) = 's' then (
+                  7
+                )
+                else (
+                  -1
+                )
               )
             | 18 -> (
                 if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'q' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'p' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 't' && String.unsafe_get s (pos+17) = 's' then (
@@ -25881,6 +25906,16 @@ let read_scan_metadata = (
                 ) p lb
               );
             )
+          | 7 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_enable_mal_deps := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -25947,6 +25982,14 @@ let read_scan_metadata = (
                     | _ -> (
                         -1
                       )
+                )
+              | 15 -> (
+                  if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'b' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'l' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'p' && String.unsafe_get s (pos+14) = 's' then (
+                    7
+                  )
+                  else (
+                    -1
+                  )
                 )
               | 18 -> (
                   if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'q' && String.unsafe_get s (pos+3) = 'u' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = 's' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = '_' && String.unsafe_get s (pos+10) = 'p' && String.unsafe_get s (pos+11) = 'r' && String.unsafe_get s (pos+12) = 'o' && String.unsafe_get s (pos+13) = 'd' && String.unsafe_get s (pos+14) = 'u' && String.unsafe_get s (pos+15) = 'c' && String.unsafe_get s (pos+16) = 't' && String.unsafe_get s (pos+17) = 's' then (
@@ -26022,6 +26065,16 @@ let read_scan_metadata = (
                   ) p lb
                 );
               )
+            | 7 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_enable_mal_deps := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_bool
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -26038,6 +26091,7 @@ let read_scan_metadata = (
             sms_scan_id = !field_sms_scan_id;
             ecosystems = !field_ecosystems;
             packages = !field_packages;
+            enable_mal_deps = !field_enable_mal_deps;
           }
          : scan_metadata)
       )

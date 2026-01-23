@@ -1766,7 +1766,11 @@
           "type": "string"
         },
         "ecosystems": { "type": "array", "items": { "type": "string" } },
-        "packages": { "type": "array", "items": { "type": "string" } }
+        "packages": { "type": "array", "items": { "type": "string" } },
+        "enable_mal_deps": {
+          "description": "Override to enable malicious dependency rules for this scan, even if disabled at the deployment level.",
+          "type": "boolean"
+        }
       }
     },
     "ci_config_from_repo": {

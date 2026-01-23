@@ -9458,6 +9458,8 @@ class ScanMetadata:
     :param dry_run: since 1.47.0
     :param sms_scan_id: unique id associated with the scan in Semgrep Managed
     Scanning. Since 1.96.0
+    :param enable_mal_deps: Override to enable malicious dependency rules for
+    this scan, even if disabled at the deployment level.
     """
 
     cli_version: Version
@@ -9467,6 +9469,7 @@ class ScanMetadata:
     sms_scan_id: Optional[str] = None
     ecosystems: List[str] = field(default_factory=lambda: [])
     packages: List[str] = field(default_factory=lambda: [])
+    enable_mal_deps: Optional[bool] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ScanMetadata':
@@ -9479,6 +9482,7 @@ class ScanMetadata:
                 sms_scan_id=_atd_read_string(x['sms_scan_id']) if 'sms_scan_id' in x else None,
                 ecosystems=_atd_read_list(_atd_read_string)(x['ecosystems']) if 'ecosystems' in x else [],
                 packages=_atd_read_list(_atd_read_string)(x['packages']) if 'packages' in x else [],
+                enable_mal_deps=_atd_read_bool(x['enable_mal_deps']) if 'enable_mal_deps' in x else None,
             )
         else:
             _atd_bad_json('ScanMetadata', x)
@@ -9493,6 +9497,8 @@ class ScanMetadata:
             res['sms_scan_id'] = _atd_write_string(self.sms_scan_id)
         res['ecosystems'] = _atd_write_list(_atd_write_string)(self.ecosystems)
         res['packages'] = _atd_write_list(_atd_write_string)(self.packages)
+        if self.enable_mal_deps is not None:
+            res['enable_mal_deps'] = _atd_write_bool(self.enable_mal_deps)
         return res
 
     @classmethod
