@@ -1908,6 +1908,11 @@ type scan_metadata
   : string option;
   ~ecosystems: string list;
   ~packages: string list;
+  ?enable_mal_deps
+    <doc text="
+    Override to enable malicious dependency rules for this scan,
+    even if disabled at the deployment level.">
+  : bool option;
 }
 
 type ci_config_from_repo

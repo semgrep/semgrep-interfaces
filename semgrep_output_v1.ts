@@ -685,6 +685,7 @@ export type ScanMetadata = {
   sms_scan_id?: string;
   ecosystems: string[];
   packages: string[];
+  enable_mal_deps?: boolean;
 }
 
 export type CiConfigFromRepo = {
@@ -3464,6 +3465,7 @@ export function writeScanMetadata(x: ScanMetadata, context: any = x): any {
     'sms_scan_id': _atd_write_optional_field(_atd_write_string, x.sms_scan_id, x),
     'ecosystems': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ecosystems, x),
     'packages': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.packages, x),
+    'enable_mal_deps': _atd_write_optional_field(_atd_write_bool, x.enable_mal_deps, x),
   };
 }
 
@@ -3476,6 +3478,7 @@ export function readScanMetadata(x: any, context: any = x): ScanMetadata {
     sms_scan_id: _atd_read_optional_field(_atd_read_string, x['sms_scan_id'], x),
     ecosystems: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ecosystems'], x),
     packages: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['packages'], x),
+    enable_mal_deps: _atd_read_optional_field(_atd_read_bool, x['enable_mal_deps'], x),
   };
 }
 

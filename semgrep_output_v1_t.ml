@@ -1661,7 +1661,12 @@ type scan_metadata = {
       1.96.0
     *);
   ecosystems: string list;
-  packages: string list
+  packages: string list;
+  enable_mal_deps: bool option
+    (**
+      Override to enable malicious dependency rules for this scan, even if
+      disabled at the deployment level.
+    *)
 }
 
 (**
