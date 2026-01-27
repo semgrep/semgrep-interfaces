@@ -299,6 +299,10 @@ type mcp = {
     ?fps <ocaml mutable>: (string (* rule_id *) * finding) list <json repr="object"> option;
     ?num_skips <ocaml mutable>: int option;
     ?skips <ocaml mutable>: (string (* rule_id *) * finding) list <json repr="object"> option;
+    (* NEW: since OAuth *)
+    ?oauth_id <ocaml mutable>: string option;
+    ?oauth_name <ocaml mutable>: string option;
+    ?oauth_email <ocaml mutable>: string option;
 }
 
 (*****************************************************************************)

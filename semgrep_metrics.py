@@ -949,6 +949,9 @@ class Mcp:
     fps: Optional[List[Tuple[str, Finding]]] = None
     num_skips: Optional[int] = None
     skips: Optional[List[Tuple[str, Finding]]] = None
+    oauth_id: Optional[str] = None
+    oauth_name: Optional[str] = None
+    oauth_email: Optional[str] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'Mcp':
@@ -973,6 +976,9 @@ class Mcp:
                 fps=_atd_read_assoc_object_into_list(Finding.from_json)(x['fps']) if 'fps' in x else None,
                 num_skips=_atd_read_int(x['num_skips']) if 'num_skips' in x else None,
                 skips=_atd_read_assoc_object_into_list(Finding.from_json)(x['skips']) if 'skips' in x else None,
+                oauth_id=_atd_read_string(x['oauth_id']) if 'oauth_id' in x else None,
+                oauth_name=_atd_read_string(x['oauth_name']) if 'oauth_name' in x else None,
+                oauth_email=_atd_read_string(x['oauth_email']) if 'oauth_email' in x else None,
             )
         else:
             _atd_bad_json('Mcp', x)
@@ -1017,6 +1023,12 @@ class Mcp:
             res['num_skips'] = _atd_write_int(self.num_skips)
         if self.skips is not None:
             res['skips'] = _atd_write_assoc_list_to_object((lambda x: x.to_json()))(self.skips)
+        if self.oauth_id is not None:
+            res['oauth_id'] = _atd_write_string(self.oauth_id)
+        if self.oauth_name is not None:
+            res['oauth_name'] = _atd_write_string(self.oauth_name)
+        if self.oauth_email is not None:
+            res['oauth_email'] = _atd_write_string(self.oauth_email)
         return res
 
     @classmethod
