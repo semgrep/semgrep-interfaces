@@ -297,6 +297,16 @@ not ambiguous is welcome here.
     ),
     Language(
         comment="",
+        id_="fga",
+        name="Fga",
+        keys=["fga", "openfga"],
+        exts=[".fga"],
+        example_ext=".fga",
+        maturity=Maturity.ALPHA,
+        shebangs=[]
+    ),
+    Language(
+        comment="",
         id_="elixir",
         name="Elixir",
         keys=["ex", "elixir"],
