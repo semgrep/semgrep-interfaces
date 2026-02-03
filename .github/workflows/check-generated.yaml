@@ -1,0 +1,42 @@
+name: Check Generated Files
+
+on:
+  pull_request: {}
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-generated:
+    runs-on: ubuntu-latest
+    container: returntocorp/ocaml:alpine
+    steps:
+      - name: Checkout tree
+        uses: actions/checkout@v4
+
+      - name: Setup
+        shell: bash
+        run: |
+          git config --global --add safe.directory "$(pwd)"
+          eval $(HOME=/root opam env)
+          apk add py3-pip
+          pip install check-jsonschema mypy --break-system-packages
+          make setup
+
+      - name: Regenerate files
+        shell: bash
+        run: |
+          eval $(HOME=/root opam env)
+          make
+
+      - name: Check for changes
+        run: |
+          git diff --exit-code || {
+            echo "::error::Generated files are out of date. Please run 'make setup && make' and commit the changes."
+            git diff --stat
+            exit 1
+          }
