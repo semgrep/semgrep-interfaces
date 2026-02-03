@@ -1,5 +1,7 @@
 (* Semgrep metrics.
  *
+ * Test change to verify CI check works.
+ *
  * The goal of this module is to specify the schema for the metrics
  * data sent by the Semgrep CLI to https://metrics.semgrep.dev.
  *
