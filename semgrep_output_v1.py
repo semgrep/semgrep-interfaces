@@ -11854,7 +11854,7 @@ class GetConfigResponseV2:
     """Original type: get_config_response_v2 = { ... }
 
     Response from the backend to the CLI for GET
-    /api/cli/v2/scans/<scan_id>/config
+    /api/cli/v2/scans/<scan_request_id>/config
     """
 
     config: ScanConfiguration

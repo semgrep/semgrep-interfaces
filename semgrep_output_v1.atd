@@ -1600,7 +1600,7 @@ type killing_parent
    The sequence of HTTP requests for 'semgrep ci' is:
     - /api/cli/v2/scans when starting a scan, with information about the project
       and response with scan_id
-    - /api/cli/v2/scans/<scan_id>/config when getting the config (e.g. rules) to use for a
+    - /api/cli/v2/scans/<scan_request_id>/config when getting the config (e.g. rules) to use for a
       particular scan
     - /api/agent/scans/<scan_id>/results to send the findings to the backend
       and response with errors and task_id
@@ -1686,7 +1686,7 @@ type create_scan_response_v2
 
 type get_config_response_v2
      <doc text="
-     Response from the backend to the CLI for GET /api/cli/v2/scans/<scan_id>/config
+     Response from the backend to the CLI for GET /api/cli/v2/scans/<scan_request_id>/config
      ">
    = {
     config: scan_configuration;

@@ -2276,7 +2276,7 @@ type has_features = Semgrep_output_v1_t.has_features = {
 
 (**
   Response from the backend to the CLI for GET
-  /api/cli/v2/scans/<scan_id>/config
+  /api/cli/v2/scans/<scan_request_id>/config
 *)
 type get_config_response_v2 = Semgrep_output_v1_t.get_config_response_v2 = {
   config: scan_configuration;

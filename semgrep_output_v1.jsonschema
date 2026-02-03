@@ -1547,7 +1547,7 @@
       "properties": { "info": { "$ref": "#/definitions/scan_info" } }
     },
     "get_config_response_v2": {
-      "description": "Response from the backend to the CLI for GET /api/cli/v2/scans/<scan_id>/config",
+      "description": "Response from the backend to the CLI for GET /api/cli/v2/scans/<scan_request_id>/config",
       "type": "object",
       "required": [ "config", "engine_params" ],
       "properties": {
