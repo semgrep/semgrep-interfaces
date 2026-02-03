@@ -332,11 +332,11 @@ type manifest = Semgrep_output_v1_t.manifest = {
   could be called rule_severity, or finding_severity.
   
 {v
-  Error = something wrong that must be fixed
-  Warning = something wrong that should be fixed
-  Info = some special condition worth knowing about
-  Experiment = deprecated: guess what
-  Inventory = deprecated: was used for the Code Asset Inventory (CAI) project
+   Error = something wrong that must be fixed
+   Warning = something wrong that should be fixed
+   Info = some special condition worth knowing about
+   Experiment = deprecated: guess what
+   Inventory = deprecated: was used for the Code Asset Inventory (CAI) project
 v}
 *)
 type match_severity = Semgrep_output_v1_t.match_severity
@@ -422,9 +422,9 @@ type match_intermediate_var = Semgrep_output_v1_t.match_intermediate_var = {
   the pro engine that they couldn't with the oss engine.
   
 {v
-  interproc_taint = requires interprocedural taint
-  interfile_taint = requires interfile taint
-  proprietary_language = requires some non-taint pro feature
+    interproc_taint = requires interprocedural taint
+    interfile_taint = requires interfile taint
+    proprietary_language = requires some non-taint pro feature
 v}
 *)
 type pro_feature = Semgrep_output_v1_t.pro_feature = {
@@ -441,10 +441,10 @@ type pro_feature = Semgrep_output_v1_t.pro_feature = {
   which feature is required.
   
 {v
-  OSS = ran with OSS
-  PRO = ran with PRO, but we didn't infer that OSS couldn't have found this
-  finding
-  PRO_REQUIRED = ran with PRO and requires a PRO feature (see pro_feature_used)
+   OSS = ran with OSS
+   PRO = ran with PRO, but we didn't infer that OSS couldn't have found this
+   finding
+   PRO_REQUIRED = ran with PRO and requires a PRO feature (see pro_feature_used)
 v}
   
   Note: OSS and PRO could have clearer names, but for backwards compatibility
@@ -983,9 +983,9 @@ type killing_parent_kind = Semgrep_output_v1_t.killing_parent_kind
   means that in the following pattern:
   
 {v
-  all:
-    - pattern: A
-    - not: B
+    all:
+      - pattern: A
+      - not: B
 v}
   
   the [not] node is a "parent" of the [pattern] node, even though they are
@@ -1123,18 +1123,18 @@ type todo = Semgrep_output_v1_t.todo
   For instance, suppose we have the rule:
   
 {v
-  1 | all:
-  2 | - pattern: foo(...)
-  3 | - not: foo(goood)
+    1 | all:
+    2 | - pattern: foo(...)
+    3 | - not: foo(goood)
 v}
   
   and the following Python annotated target:
   
 {v
-  1 | # ruleid: my_rule
-  2 | foo()
-  3 | # ok: my_rule
-  4 | foo(good)
+    1 | # ruleid: my_rule
+    2 | foo()
+    3 | # ok: my_rule
+    4 | foo(good)
 v}
   
   We would get an unexpected match on line 4, which would fail the test
@@ -1157,14 +1157,14 @@ v}
   form:
   
 {v
-  \{ matched_text = \{ line = 4; text = "foo(bad)" \};
-    originating_kind = Xpattern;
-    originating_text = \{ line = 2; text = "- pattern: foo(...)" \};
-    killing_parents = [
-      \{ killing_parent_kind = Negation;
-        snippet = \{ line = 3; text = "- not: foo(good)" \} \}
-    ]
-  \}
+    \{ matched_text = \{ line = 4; text = "foo(bad)" \};
+      originating_kind = Xpattern;
+      originating_text = \{ line = 2; text = "- pattern: foo(...)" \};
+      killing_parents = [
+        \{ killing_parent_kind = Negation;
+          snippet = \{ line = 3; text = "- not: foo(good)" \} \}
+      ]
+    \}
 v}
 *)
 type matching_diagnosis = Semgrep_output_v1_t.matching_diagnosis = {
@@ -1432,9 +1432,9 @@ type error_type = Semgrep_output_v1_t.error_type =
   Semgrep execution (e.g., a parse error).
   
 {v
-  Error = Always an error
-  Warning = Only an error if "strict" is set
-  Info = Nothing may be wrong
+    Error = Always an error
+    Warning = Only an error if "strict" is set
+    Info = Nothing may be wrong
 v}
   
   alt: could reuse match_severity but seems cleaner to define its own type
@@ -1650,7 +1650,10 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
     *)
 }
 
-(** Response from the backend to the CLI to the POST /api/cli/scans *)
+(**
+  Response from the backend to the CLI to the (deprecated) POST
+  /api/cli/scans
+*)
 type scan_response = Semgrep_output_v1_t.scan_response = {
   info: scan_info;
   config: scan_configuration;
@@ -1762,7 +1765,9 @@ type ci_config_from_repo = Semgrep_output_v1_t.ci_config_from_repo = {
   tags: tag list option
 }
 
-(** Sent by the CLI to the POST /api/cli/scans to create a scan. *)
+(**
+  Sent by the CLI to the (deprecated) POST /api/cli/scans to create a scan.
+*)
 type scan_request = Semgrep_output_v1_t.scan_request = {
   project_metadata: project_metadata;
   scan_metadata: scan_metadata;
@@ -2269,6 +2274,15 @@ type has_features = Semgrep_output_v1_t.has_features = {
   has_dependency_query: bool
 }
 
+(**
+  Response from the backend to the CLI for GET
+  /api/cli/v2/scans/<scan_id>/config
+*)
+type get_config_response_v2 = Semgrep_output_v1_t.get_config_response_v2 = {
+  config: scan_configuration;
+  engine_params: engine_configuration
+}
+
 type apply_fixes_return = Semgrep_output_v1_t.apply_fixes_return = {
   modified_file_count: int (** Number of files modified *);
   fixed_lines: (int * string list) list
@@ -2441,6 +2455,18 @@ type deployment_config = Semgrep_output_v1_t.deployment_config = {
 
 type deployment_response = Semgrep_output_v1_t.deployment_response = {
   deployment: deployment_config
+}
+
+(** Response from the backend to the CLI for POST /api/cli/v2/scans *)
+type create_scan_response_v2 = Semgrep_output_v1_t.create_scan_response_v2 = {
+  info: scan_info
+}
+
+(** Sent by the CLI to backend in POST /api/cli/v2/scans to create a scan. *)
+type create_scan_request_v2 = Semgrep_output_v1_t.create_scan_request_v2 = {
+  project_metadata: project_metadata;
+  scan_metadata: scan_metadata;
+  project_config: ci_config_from_repo option
 }
 
 (**
@@ -5918,6 +5944,26 @@ val has_features_of_string :
   string -> has_features
   (** Deserialize JSON data of type {!type:has_features}. *)
 
+val write_get_config_response_v2 :
+  Buffer.t -> get_config_response_v2 -> unit
+  (** Output a JSON value of type {!type:get_config_response_v2}. *)
+
+val string_of_get_config_response_v2 :
+  ?len:int -> get_config_response_v2 -> string
+  (** Serialize a value of type {!type:get_config_response_v2}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_get_config_response_v2 :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> get_config_response_v2
+  (** Input JSON data of type {!type:get_config_response_v2}. *)
+
+val get_config_response_v2_of_string :
+  string -> get_config_response_v2
+  (** Deserialize JSON data of type {!type:get_config_response_v2}. *)
+
 val write_apply_fixes_return :
   Buffer.t -> apply_fixes_return -> unit
   (** Output a JSON value of type {!type:apply_fixes_return}. *)
@@ -6217,6 +6263,46 @@ val read_deployment_response :
 val deployment_response_of_string :
   string -> deployment_response
   (** Deserialize JSON data of type {!type:deployment_response}. *)
+
+val write_create_scan_response_v2 :
+  Buffer.t -> create_scan_response_v2 -> unit
+  (** Output a JSON value of type {!type:create_scan_response_v2}. *)
+
+val string_of_create_scan_response_v2 :
+  ?len:int -> create_scan_response_v2 -> string
+  (** Serialize a value of type {!type:create_scan_response_v2}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_create_scan_response_v2 :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> create_scan_response_v2
+  (** Input JSON data of type {!type:create_scan_response_v2}. *)
+
+val create_scan_response_v2_of_string :
+  string -> create_scan_response_v2
+  (** Deserialize JSON data of type {!type:create_scan_response_v2}. *)
+
+val write_create_scan_request_v2 :
+  Buffer.t -> create_scan_request_v2 -> unit
+  (** Output a JSON value of type {!type:create_scan_request_v2}. *)
+
+val string_of_create_scan_request_v2 :
+  ?len:int -> create_scan_request_v2 -> string
+  (** Serialize a value of type {!type:create_scan_request_v2}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_create_scan_request_v2 :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> create_scan_request_v2
+  (** Input JSON data of type {!type:create_scan_request_v2}. *)
+
+val create_scan_request_v2_of_string :
+  string -> create_scan_request_v2
+  (** Deserialize JSON data of type {!type:create_scan_request_v2}. *)
 
 val write_core_output_extra :
   Buffer.t -> core_output_extra -> unit

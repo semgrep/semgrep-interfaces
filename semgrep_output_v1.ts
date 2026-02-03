@@ -597,6 +597,15 @@ export type Action =
 | { kind: 'Delay'; value: number }
 | { kind: 'Exit'; value: number /*int*/ }
 
+export type CreateScanResponseV2 = {
+  info: ScanInfo;
+}
+
+export type GetConfigResponseV2 = {
+  config: ScanConfiguration;
+  engine_params: EngineConfiguration;
+}
+
 export type ScanResponse = {
   info: ScanInfo;
   config: ScanConfiguration;
@@ -638,6 +647,12 @@ export type ProductIgnoredFiles = Map<Product, Glob[]>
 export type HistoricalConfiguration = {
   enabled: boolean;
   lookback_days?: number /*int*/;
+}
+
+export type CreateScanRequestV2 = {
+  project_metadata: ProjectMetadata;
+  scan_metadata: ScanMetadata;
+  project_config?: CiConfigFromRepo;
 }
 
 export type ScanRequest = {
@@ -3264,6 +3279,32 @@ export function readAction(x: any, context: any = x): Action {
   }
 }
 
+export function writeCreateScanResponseV2(x: CreateScanResponseV2, context: any = x): any {
+  return {
+    'info': _atd_write_required_field('CreateScanResponseV2', 'info', writeScanInfo, x.info, x),
+  };
+}
+
+export function readCreateScanResponseV2(x: any, context: any = x): CreateScanResponseV2 {
+  return {
+    info: _atd_read_required_field('CreateScanResponseV2', 'info', readScanInfo, x['info'], x),
+  };
+}
+
+export function writeGetConfigResponseV2(x: GetConfigResponseV2, context: any = x): any {
+  return {
+    'config': _atd_write_required_field('GetConfigResponseV2', 'config', writeScanConfiguration, x.config, x),
+    'engine_params': _atd_write_required_field('GetConfigResponseV2', 'engine_params', writeEngineConfiguration, x.engine_params, x),
+  };
+}
+
+export function readGetConfigResponseV2(x: any, context: any = x): GetConfigResponseV2 {
+  return {
+    config: _atd_read_required_field('GetConfigResponseV2', 'config', readScanConfiguration, x['config'], x),
+    engine_params: _atd_read_required_field('GetConfigResponseV2', 'engine_params', readEngineConfiguration, x['engine_params'], x),
+  };
+}
+
 export function writeScanResponse(x: ScanResponse, context: any = x): any {
   return {
     'info': _atd_write_required_field('ScanResponse', 'info', writeScanInfo, x.info, x),
@@ -3371,6 +3412,22 @@ export function readHistoricalConfiguration(x: any, context: any = x): Historica
   return {
     enabled: _atd_read_required_field('HistoricalConfiguration', 'enabled', _atd_read_bool, x['enabled'], x),
     lookback_days: _atd_read_optional_field(_atd_read_int, x['lookback_days'], x),
+  };
+}
+
+export function writeCreateScanRequestV2(x: CreateScanRequestV2, context: any = x): any {
+  return {
+    'project_metadata': _atd_write_required_field('CreateScanRequestV2', 'project_metadata', writeProjectMetadata, x.project_metadata, x),
+    'scan_metadata': _atd_write_required_field('CreateScanRequestV2', 'scan_metadata', writeScanMetadata, x.scan_metadata, x),
+    'project_config': _atd_write_optional_field(writeCiConfigFromRepo, x.project_config, x),
+  };
+}
+
+export function readCreateScanRequestV2(x: any, context: any = x): CreateScanRequestV2 {
+  return {
+    project_metadata: _atd_read_required_field('CreateScanRequestV2', 'project_metadata', readProjectMetadata, x['project_metadata'], x),
+    scan_metadata: _atd_read_required_field('CreateScanRequestV2', 'scan_metadata', readScanMetadata, x['scan_metadata'], x),
+    project_config: _atd_read_optional_field(readCiConfigFromRepo, x['project_config'], x),
   };
 }
 
