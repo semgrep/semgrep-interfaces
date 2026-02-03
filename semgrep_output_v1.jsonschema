@@ -108,7 +108,7 @@
       "type": "string"
     },
     "match_severity": {
-      "description": "This is used in rules to specify the severity of matches/findings. alt: could be called rule_severity, or finding_severity.\n\n{{{\n   Error = something wrong that must be fixed\n   Warning = something wrong that should be fixed\n   Info = some special condition worth knowing about\n   Experiment = deprecated: guess what\n   Inventory = deprecated: was used for the Code Asset Inventory (CAI) project\n}}}",
+      "description": "This is used in rules to specify the severity of matches/findings. alt: could be called rule_severity, or finding_severity.\n\n{{{\nError = something wrong that must be fixed\nWarning = something wrong that should be fixed\nInfo = some special condition worth knowing about\nExperiment = deprecated: guess what\nInventory = deprecated: was used for the Code Asset Inventory (CAI) project\n}}}",
       "oneOf": [
         { "const": "ERROR" },
         { "const": "WARNING" },
@@ -128,13 +128,13 @@
       ]
     },
     "error_severity": {
-      "description": "This is used to specify the severity of errors which happened during Semgrep execution (e.g., a parse error).\n\n{{{\n    Error = Always an error\n    Warning = Only an error if \"strict\" is set\n    Info = Nothing may be wrong\n}}}\n\nalt: could reuse match_severity but seems cleaner to define its own type",
+      "description": "This is used to specify the severity of errors which happened during Semgrep execution (e.g., a parse error).\n\n{{{\nError = Always an error\nWarning = Only an error if \"strict\" is set\nInfo = Nothing may be wrong\n}}}\n\nalt: could reuse match_severity but seems cleaner to define its own type",
       "oneOf": [
         { "const": "error" }, { "const": "warn" }, { "const": "info" }
       ]
     },
     "pro_feature": {
-      "description": "Used for a best-effort report to users about what findings they get with the pro engine that they couldn't with the oss engine.\n\n{{{\n    interproc_taint = requires interprocedural taint\n    interfile_taint = requires interfile taint\n    proprietary_language = requires some non-taint pro feature\n}}}",
+      "description": "Used for a best-effort report to users about what findings they get with the pro engine that they couldn't with the oss engine.\n\n{{{\ninterproc_taint = requires interprocedural taint\ninterfile_taint = requires interfile taint\nproprietary_language = requires some non-taint pro feature\n}}}",
       "type": "object",
       "required": [
         "interproc_taint", "interfile_taint", "proprietary_language"
@@ -146,7 +146,7 @@
       }
     },
     "engine_of_finding": {
-      "description": "Report the engine used to detect each finding. Additionally, if we are able to infer that the finding could only be detected using the pro engine, report that the pro engine is required and include basic information about which feature is required.\n\n{{{\n   OSS = ran with OSS\n   PRO = ran with PRO, but we didn't infer that OSS couldn't have found this\n   finding\n   PRO_REQUIRED = ran with PRO and requires a PRO feature (see pro_feature_used)\n}}}\n\nNote: OSS and PRO could have clearer names, but for backwards compatibility we're leaving them as is",
+      "description": "Report the engine used to detect each finding. Additionally, if we are able to infer that the finding could only be detected using the pro engine, report that the pro engine is required and include basic information about which feature is required.\n\n{{{\nOSS = ran with OSS\nPRO = ran with PRO, but we didn't infer that OSS couldn't have found this\nfinding\nPRO_REQUIRED = ran with PRO and requires a PRO feature (see pro_feature_used)\n}}}\n\nNote: OSS and PRO could have clearer names, but for backwards compatibility we're leaving them as is",
       "oneOf": [
         { "const": "OSS" },
         { "const": "PRO" },
@@ -1369,7 +1369,7 @@
     },
     "todo": { "type": "integer" },
     "matching_diagnosis": {
-      "description": "EXPERIMENTAL\n\nA \"matching diagnosis\" is a postprocessed interpretation of matching explanations, specific to a particular test-annotated target file.\n\nFor instance, suppose we have the rule:\n\n{{{\n    1 | all:\n    2 | - pattern: foo(...)\n    3 | - not: foo(goood)\n}}}\n\nand the following Python annotated target:\n\n{{{\n    1 | # ruleid: my_rule\n    2 | foo()\n    3 | # ok: my_rule\n    4 | foo(good)\n}}}\n\nWe would get an unexpected match on line 4, which would fail the test assertion.\n\nBy looking at the matching explanation, we can deduce that the match on line 4 must clearly have been introduced by the positive {{foo(..)}} pattern. The rule-writer probably meant to kill {{foo(good)}} with the negative {{foo(goood)}} pattern.\n\nThis is essentially what matching diagnoses are -- using matching explanations to point out where the erroneous parts of the rule _may_ be.\n\nNote that this is a _may_, because an unexpected match could have been killed by the {{foo(bad)}} , but if there were more negative patterns, it could have been killed elsewhere too. All we can do is point out places where the rule-writer _may_ have messed up.\n\nSo in this case, we would expect an {{unexpected_match_diagnosis}} with the form:\n\n{{{\n    { matched_text = { line = 4; text = \"foo(bad)\" };\n      originating_kind = Xpattern;\n      originating_text = { line = 2; text = \"- pattern: foo(...)\" };\n      killing_parents = [\n        { killing_parent_kind = Negation;\n          snippet = { line = 3; text = \"- not: foo(good)\" } }\n      ]\n    }\n}}}",
+      "description": "EXPERIMENTAL\n\nA \"matching diagnosis\" is a postprocessed interpretation of matching explanations, specific to a particular test-annotated target file.\n\nFor instance, suppose we have the rule:\n\n{{{\n1 | all:\n2 | - pattern: foo(...)\n3 | - not: foo(goood)\n}}}\n\nand the following Python annotated target:\n\n{{{\n1 | # ruleid: my_rule\n2 | foo()\n3 | # ok: my_rule\n4 | foo(good)\n}}}\n\nWe would get an unexpected match on line 4, which would fail the test assertion.\n\nBy looking at the matching explanation, we can deduce that the match on line 4 must clearly have been introduced by the positive {{foo(..)}} pattern. The rule-writer probably meant to kill {{foo(good)}} with the negative {{foo(goood)}} pattern.\n\nThis is essentially what matching diagnoses are -- using matching explanations to point out where the erroneous parts of the rule _may_ be.\n\nNote that this is a _may_, because an unexpected match could have been killed by the {{foo(bad)}} , but if there were more negative patterns, it could have been killed elsewhere too. All we can do is point out places where the rule-writer _may_ have messed up.\n\nSo in this case, we would expect an {{unexpected_match_diagnosis}} with the form:\n\n{{{\n{ matched_text = { line = 4; text = \"foo(bad)\" };\n  originating_kind = Xpattern;\n  originating_text = { line = 2; text = \"- pattern: foo(...)\" };\n  killing_parents = [\n    { killing_parent_kind = Negation;\n      snippet = { line = 3; text = \"- not: foo(good)\" } }\n  ]\n}\n}}}",
       "type": "object",
       "required": [
         "target", "unexpected_match_diagnoses",
@@ -1462,7 +1462,7 @@
       }
     },
     "killing_parent": {
-      "description": "a \"killing parent\" is a parent operator that could have killed the unexpected match along its way to being returned Intuitively, these are all the sites at which the rule could have removed the unexpected match, but didn't. Note that because of the order of operations, this technically means that in the following pattern:\n\n{{{\n    all:\n      - pattern: A\n      - not: B\n}}}\n\nthe {{not}} node is a \"parent\" of the {{pattern}} node, even though they are siblings in the actual tree. This is because the ranges of the {{pattern}} are input to the {{not}} node.",
+      "description": "a \"killing parent\" is a parent operator that could have killed the unexpected match along its way to being returned Intuitively, these are all the sites at which the rule could have removed the unexpected match, but didn't. Note that because of the order of operations, this technically means that in the following pattern:\n\n{{{\nall:\n  - pattern: A\n  - not: B\n}}}\n\nthe {{not}} node is a \"parent\" of the {{pattern}} node, even though they are siblings in the actual tree. This is because the ranges of the {{pattern}} are input to the {{not}} node.",
       "type": "object",
       "required": [ "killing_parent_kind", "snippet" ],
       "properties": {

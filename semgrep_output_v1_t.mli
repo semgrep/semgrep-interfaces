@@ -320,11 +320,11 @@ type manifest = { kind: manifest_kind; path: fpath } [@@deriving show, eq]
   could be called rule_severity, or finding_severity.
   
 {v
-   Error = something wrong that must be fixed
-   Warning = something wrong that should be fixed
-   Info = some special condition worth knowing about
-   Experiment = deprecated: guess what
-   Inventory = deprecated: was used for the Code Asset Inventory (CAI) project
+  Error = something wrong that must be fixed
+  Warning = something wrong that should be fixed
+  Info = some special condition worth knowing about
+  Experiment = deprecated: guess what
+  Inventory = deprecated: was used for the Code Asset Inventory (CAI) project
 v}
 *)
 type match_severity = [
@@ -423,9 +423,9 @@ type match_intermediate_var = {
   the pro engine that they couldn't with the oss engine.
   
 {v
-    interproc_taint = requires interprocedural taint
-    interfile_taint = requires interfile taint
-    proprietary_language = requires some non-taint pro feature
+  interproc_taint = requires interprocedural taint
+  interfile_taint = requires interfile taint
+  proprietary_language = requires some non-taint pro feature
 v}
 *)
 type pro_feature = {
@@ -442,10 +442,10 @@ type pro_feature = {
   which feature is required.
   
 {v
-   OSS = ran with OSS
-   PRO = ran with PRO, but we didn't infer that OSS couldn't have found this
-   finding
-   PRO_REQUIRED = ran with PRO and requires a PRO feature (see pro_feature_used)
+  OSS = ran with OSS
+  PRO = ran with PRO, but we didn't infer that OSS couldn't have found this
+  finding
+  PRO_REQUIRED = ran with PRO and requires a PRO feature (see pro_feature_used)
 v}
   
   Note: OSS and PRO could have clearer names, but for backwards compatibility
@@ -979,9 +979,9 @@ type killing_parent_kind = [ `And | `Inside | `Negation | `Filter of string ]
   means that in the following pattern:
   
 {v
-    all:
-      - pattern: A
-      - not: B
+  all:
+    - pattern: A
+    - not: B
 v}
   
   the [not] node is a "parent" of the [pattern] node, even though they are
@@ -1112,18 +1112,18 @@ type todo = int
   For instance, suppose we have the rule:
   
 {v
-    1 | all:
-    2 | - pattern: foo(...)
-    3 | - not: foo(goood)
+  1 | all:
+  2 | - pattern: foo(...)
+  3 | - not: foo(goood)
 v}
   
   and the following Python annotated target:
   
 {v
-    1 | # ruleid: my_rule
-    2 | foo()
-    3 | # ok: my_rule
-    4 | foo(good)
+  1 | # ruleid: my_rule
+  2 | foo()
+  3 | # ok: my_rule
+  4 | foo(good)
 v}
   
   We would get an unexpected match on line 4, which would fail the test
@@ -1146,14 +1146,14 @@ v}
   form:
   
 {v
-    \{ matched_text = \{ line = 4; text = "foo(bad)" \};
-      originating_kind = Xpattern;
-      originating_text = \{ line = 2; text = "- pattern: foo(...)" \};
-      killing_parents = [
-        \{ killing_parent_kind = Negation;
-          snippet = \{ line = 3; text = "- not: foo(good)" \} \}
-      ]
-    \}
+  \{ matched_text = \{ line = 4; text = "foo(bad)" \};
+    originating_kind = Xpattern;
+    originating_text = \{ line = 2; text = "- pattern: foo(...)" \};
+    killing_parents = [
+      \{ killing_parent_kind = Negation;
+        snippet = \{ line = 3; text = "- not: foo(good)" \} \}
+    ]
+  \}
 v}
 *)
 type matching_diagnosis = {
@@ -1432,9 +1432,9 @@ type error_type =
   Semgrep execution (e.g., a parse error).
   
 {v
-    Error = Always an error
-    Warning = Only an error if "strict" is set
-    Info = Nothing may be wrong
+  Error = Always an error
+  Warning = Only an error if "strict" is set
+  Info = Nothing may be wrong
 v}
   
   alt: could reuse match_severity but seems cleaner to define its own type
