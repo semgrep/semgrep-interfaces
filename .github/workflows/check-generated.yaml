@@ -22,7 +22,7 @@ jobs:
         shell: bash
         run: |
           git config --global --add safe.directory "$(pwd)"
-          opam init --disable-sandboxing --yes --bare
+          opam init --disable-sandboxing --yes
           eval $(opam env)
           apk add py3-pip
           pip install check-jsonschema mypy --break-system-packages
