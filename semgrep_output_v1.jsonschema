@@ -3316,6 +3316,16 @@
         "allow_local_builds": {
           "description": "whether to allow executing package manager commands",
           "type": "boolean"
+        },
+        "package_manager_env": {
+          "description": "extra environment variables to pass to package manager subprocesses",
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "items": false,
+            "prefixItems": [ { "type": "string" }, { "type": "string" } ]
+          }
         }
       }
     },
