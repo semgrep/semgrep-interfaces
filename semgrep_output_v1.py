@@ -10282,11 +10282,14 @@ class ResolveDependenciesParams:
 
     :param allow_local_builds: whether to allow executing package manager
     commands
+    :param package_manager_env: extra environment variables to pass to package
+    manager subprocesses
     """
 
     dependency_sources: List[DependencySource]
     download_dependency_source_code: bool
     allow_local_builds: bool
+    package_manager_env: Optional[List[Tuple[str, str]]] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'ResolveDependenciesParams':
@@ -10295,6 +10298,7 @@ class ResolveDependenciesParams:
                 dependency_sources=_atd_read_list(DependencySource.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('ResolveDependenciesParams', 'dependency_sources'),
                 download_dependency_source_code=_atd_read_bool(x['download_dependency_source_code']) if 'download_dependency_source_code' in x else _atd_missing_json_field('ResolveDependenciesParams', 'download_dependency_source_code'),
                 allow_local_builds=_atd_read_bool(x['allow_local_builds']) if 'allow_local_builds' in x else _atd_missing_json_field('ResolveDependenciesParams', 'allow_local_builds'),
+                package_manager_env=_atd_read_list((lambda x: (_atd_read_string(x[0]), _atd_read_string(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['package_manager_env']) if 'package_manager_env' in x else None,
             )
         else:
             _atd_bad_json('ResolveDependenciesParams', x)
@@ -10304,6 +10308,8 @@ class ResolveDependenciesParams:
         res['dependency_sources'] = _atd_write_list((lambda x: x.to_json()))(self.dependency_sources)
         res['download_dependency_source_code'] = _atd_write_bool(self.download_dependency_source_code)
         res['allow_local_builds'] = _atd_write_bool(self.allow_local_builds)
+        if self.package_manager_env is not None:
+            res['package_manager_env'] = _atd_write_list((lambda x: [_atd_write_string(x[0]), _atd_write_string(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.package_manager_env)
         return res
 
     @classmethod

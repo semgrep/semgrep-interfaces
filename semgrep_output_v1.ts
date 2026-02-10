@@ -1247,6 +1247,7 @@ export type ResolveDependenciesParams = {
   dependency_sources: DependencySource[];
   download_dependency_source_code: boolean;
   allow_local_builds: boolean;
+  package_manager_env?: [string, string][];
 }
 
 export type ResolutionResult =
@@ -5174,6 +5175,7 @@ export function writeResolveDependenciesParams(x: ResolveDependenciesParams, con
     'dependency_sources': _atd_write_required_field('ResolveDependenciesParams', 'dependency_sources', _atd_write_array(writeDependencySource), x.dependency_sources, x),
     'download_dependency_source_code': _atd_write_required_field('ResolveDependenciesParams', 'download_dependency_source_code', _atd_write_bool, x.download_dependency_source_code, x),
     'allow_local_builds': _atd_write_required_field('ResolveDependenciesParams', 'allow_local_builds', _atd_write_bool, x.allow_local_builds, x),
+    'package_manager_env': _atd_write_optional_field(_atd_write_array(((x, context) => [_atd_write_string(x[0], x), _atd_write_string(x[1], x)])), x.package_manager_env, x),
   };
 }
 
@@ -5182,6 +5184,7 @@ export function readResolveDependenciesParams(x: any, context: any = x): Resolve
     dependency_sources: _atd_read_required_field('ResolveDependenciesParams', 'dependency_sources', _atd_read_array(readDependencySource), x['dependency_sources'], x),
     download_dependency_source_code: _atd_read_required_field('ResolveDependenciesParams', 'download_dependency_source_code', _atd_read_bool, x['download_dependency_source_code'], x),
     allow_local_builds: _atd_read_required_field('ResolveDependenciesParams', 'allow_local_builds', _atd_read_bool, x['allow_local_builds'], x),
+    package_manager_env: _atd_read_optional_field(_atd_read_array(((x, context): [string, string] => { _atd_check_json_tuple(2, x, context); return [_atd_read_string(x[0], x), _atd_read_string(x[1], x)] })), x['package_manager_env'], x),
   };
 }
 
