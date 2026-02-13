@@ -200,6 +200,24 @@
     "tags": []
   },
   {
+    "id": "fga",
+    "name": "Fga",
+    "keys": [
+      "fga",
+      "openfga"
+    ],
+    "maturity": "alpha",
+    "exts": [
+      ".fga"
+    ],
+    "example_ext": ".fga",
+    "excluded_exts": [],
+    "reverse_exts": null,
+    "shebangs": [],
+    "is_target_language": true,
+    "tags": []
+  },
+  {
     "id": "elixir",
     "name": "Elixir",
     "keys": [
