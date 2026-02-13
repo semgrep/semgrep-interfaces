@@ -9010,6 +9010,72 @@ class SubprojectSymbolAnalysisUrlRequest:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class SingleSubprojectPlan:
+    """Original type: single_subproject_plan = { ... }
+    """
+
+    subproject_id: str
+    root_dir: Fpath
+    resolution_planned: bool
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SingleSubprojectPlan':
+        if isinstance(x, dict):
+            return cls(
+                subproject_id=_atd_read_string(x['subproject_id']) if 'subproject_id' in x else _atd_missing_json_field('SingleSubprojectPlan', 'subproject_id'),
+                root_dir=Fpath.from_json(x['root_dir']) if 'root_dir' in x else _atd_missing_json_field('SingleSubprojectPlan', 'root_dir'),
+                resolution_planned=_atd_read_bool(x['resolution_planned']) if 'resolution_planned' in x else _atd_missing_json_field('SingleSubprojectPlan', 'resolution_planned'),
+            )
+        else:
+            _atd_bad_json('SingleSubprojectPlan', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['subproject_id'] = _atd_write_string(self.subproject_id)
+        res['root_dir'] = (lambda x: x.to_json())(self.root_dir)
+        res['resolution_planned'] = _atd_write_bool(self.resolution_planned)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SingleSubprojectPlan':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class SubprojectResolutionPlan:
+    """Original type: subproject_resolution_plan = { ... }
+
+    Subproject dump output. Experimental and for internal use only.
+    """
+
+    subprojects: List[SingleSubprojectPlan]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SubprojectResolutionPlan':
+        if isinstance(x, dict):
+            return cls(
+                subprojects=_atd_read_list(SingleSubprojectPlan.from_json)(x['subprojects']) if 'subprojects' in x else _atd_missing_json_field('SubprojectResolutionPlan', 'subprojects'),
+            )
+        else:
+            _atd_bad_json('SubprojectResolutionPlan', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SubprojectResolutionPlan':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class SkippedRule:
     """Original type: skipped_rule = { ... }

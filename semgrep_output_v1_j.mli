@@ -1554,6 +1554,18 @@ type subproject_symbol_analysis_url_request =
   lockfile_path: fpath option
 }
 
+type single_subproject_plan = Semgrep_output_v1_t.single_subproject_plan = {
+  subproject_id: string;
+  root_dir: fpath;
+  resolution_planned: bool
+}
+
+(** Subproject dump output. Experimental and for internal use only. *)
+type subproject_resolution_plan =
+  Semgrep_output_v1_t.subproject_resolution_plan = {
+  subprojects: single_subproject_plan list
+}
+
 type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
   rule_id: rule_id;
   details: string;
@@ -4901,6 +4913,46 @@ val read_subproject_symbol_analysis_url_request :
 val subproject_symbol_analysis_url_request_of_string :
   string -> subproject_symbol_analysis_url_request
   (** Deserialize JSON data of type {!type:subproject_symbol_analysis_url_request}. *)
+
+val write_single_subproject_plan :
+  Buffer.t -> single_subproject_plan -> unit
+  (** Output a JSON value of type {!type:single_subproject_plan}. *)
+
+val string_of_single_subproject_plan :
+  ?len:int -> single_subproject_plan -> string
+  (** Serialize a value of type {!type:single_subproject_plan}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_single_subproject_plan :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> single_subproject_plan
+  (** Input JSON data of type {!type:single_subproject_plan}. *)
+
+val single_subproject_plan_of_string :
+  string -> single_subproject_plan
+  (** Deserialize JSON data of type {!type:single_subproject_plan}. *)
+
+val write_subproject_resolution_plan :
+  Buffer.t -> subproject_resolution_plan -> unit
+  (** Output a JSON value of type {!type:subproject_resolution_plan}. *)
+
+val string_of_subproject_resolution_plan :
+  ?len:int -> subproject_resolution_plan -> string
+  (** Serialize a value of type {!type:subproject_resolution_plan}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_subproject_resolution_plan :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> subproject_resolution_plan
+  (** Input JSON data of type {!type:subproject_resolution_plan}. *)
+
+val subproject_resolution_plan_of_string :
+  string -> subproject_resolution_plan
+  (** Deserialize JSON data of type {!type:subproject_resolution_plan}. *)
 
 val write_skipped_rule :
   Buffer.t -> skipped_rule -> unit

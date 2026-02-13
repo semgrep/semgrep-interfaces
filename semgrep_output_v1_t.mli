@@ -1553,6 +1553,17 @@ type subproject_symbol_analysis_url_request = {
   lockfile_path: fpath option
 }
 
+type single_subproject_plan = {
+  subproject_id: string;
+  root_dir: fpath;
+  resolution_planned: bool
+}
+
+(** Subproject dump output. Experimental and for internal use only. *)
+type subproject_resolution_plan = {
+  subprojects: single_subproject_plan list
+}
+
 type skipped_rule = {
   rule_id: rule_id;
   details: string;
