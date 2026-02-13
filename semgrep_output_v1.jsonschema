@@ -1540,8 +1540,23 @@
         }
       ]
     },
+    "create_scan_response_v2": {
+      "description": "Response from the backend to the CLI for POST /api/cli/v2/scans",
+      "type": "object",
+      "required": [ "info" ],
+      "properties": { "info": { "$ref": "#/definitions/scan_info" } }
+    },
+    "get_config_response_v2": {
+      "description": "Response from the backend to the CLI for GET /api/cli/v2/scans/<scan_request_id>/config",
+      "type": "object",
+      "required": [ "config", "engine_params" ],
+      "properties": {
+        "config": { "$ref": "#/definitions/scan_configuration" },
+        "engine_params": { "$ref": "#/definitions/engine_configuration" }
+      }
+    },
     "scan_response": {
-      "description": "Response from the backend to the CLI to the POST /api/cli/scans",
+      "description": "Response from the backend to the CLI to the (deprecated) POST /api/cli/scans",
       "type": "object",
       "required": [ "info", "config", "engine_params" ],
       "properties": {
@@ -1655,8 +1670,18 @@
         "lookback_days": { "type": "integer" }
       }
     },
+    "create_scan_request_v2": {
+      "description": "Sent by the CLI to backend in POST /api/cli/v2/scans to create a scan.",
+      "type": "object",
+      "required": [ "project_metadata", "scan_metadata" ],
+      "properties": {
+        "project_metadata": { "$ref": "#/definitions/project_metadata" },
+        "scan_metadata": { "$ref": "#/definitions/scan_metadata" },
+        "project_config": { "$ref": "#/definitions/ci_config_from_repo" }
+      }
+    },
     "scan_request": {
-      "description": "Sent by the CLI to the POST /api/cli/scans to create a scan.",
+      "description": "Sent by the CLI to the (deprecated) POST /api/cli/scans to create a scan.",
       "type": "object",
       "required": [ "project_metadata", "scan_metadata" ],
       "properties": {

@@ -1642,7 +1642,10 @@ type engine_configuration = {
     *)
 }
 
-(** Response from the backend to the CLI to the POST /api/cli/scans *)
+(**
+  Response from the backend to the CLI to the (deprecated) POST
+  /api/cli/scans
+*)
 type scan_response = {
   info: scan_info;
   config: scan_configuration;
@@ -1754,7 +1757,9 @@ type ci_config_from_repo = {
   tags: tag list option
 }
 
-(** Sent by the CLI to the POST /api/cli/scans to create a scan. *)
+(**
+  Sent by the CLI to the (deprecated) POST /api/cli/scans to create a scan.
+*)
 type scan_request = {
   project_metadata: project_metadata;
   scan_metadata: scan_metadata;
@@ -2263,6 +2268,15 @@ type has_features = {
   has_dependency_query: bool
 }
 
+(**
+  Response from the backend to the CLI for GET
+  /api/cli/v2/scans/<scan_request_id>/config
+*)
+type get_config_response_v2 = {
+  config: scan_configuration;
+  engine_params: engine_configuration
+}
+
 type apply_fixes_return = {
   modified_file_count: int (** Number of files modified *);
   fixed_lines: (int * string list) list
@@ -2480,6 +2494,16 @@ type deployment_config = {
   [@@deriving show]
 
 type deployment_response = { deployment: deployment_config }
+
+(** Response from the backend to the CLI for POST /api/cli/v2/scans *)
+type create_scan_response_v2 = { info: scan_info }
+
+(** Sent by the CLI to backend in POST /api/cli/v2/scans to create a scan. *)
+type create_scan_request_v2 = {
+  project_metadata: project_metadata;
+  scan_metadata: scan_metadata;
+  project_config: ci_config_from_repo option
+}
 
 (**
   For extra information to put into the `core_output` that we do not

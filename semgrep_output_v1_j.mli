@@ -1650,7 +1650,10 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
     *)
 }
 
-(** Response from the backend to the CLI to the POST /api/cli/scans *)
+(**
+  Response from the backend to the CLI to the (deprecated) POST
+  /api/cli/scans
+*)
 type scan_response = Semgrep_output_v1_t.scan_response = {
   info: scan_info;
   config: scan_configuration;
@@ -1762,7 +1765,9 @@ type ci_config_from_repo = Semgrep_output_v1_t.ci_config_from_repo = {
   tags: tag list option
 }
 
-(** Sent by the CLI to the POST /api/cli/scans to create a scan. *)
+(**
+  Sent by the CLI to the (deprecated) POST /api/cli/scans to create a scan.
+*)
 type scan_request = Semgrep_output_v1_t.scan_request = {
   project_metadata: project_metadata;
   scan_metadata: scan_metadata;
@@ -2273,6 +2278,15 @@ type has_features = Semgrep_output_v1_t.has_features = {
   has_dependency_query: bool
 }
 
+(**
+  Response from the backend to the CLI for GET
+  /api/cli/v2/scans/<scan_request_id>/config
+*)
+type get_config_response_v2 = Semgrep_output_v1_t.get_config_response_v2 = {
+  config: scan_configuration;
+  engine_params: engine_configuration
+}
+
 type apply_fixes_return = Semgrep_output_v1_t.apply_fixes_return = {
   modified_file_count: int (** Number of files modified *);
   fixed_lines: (int * string list) list
@@ -2445,6 +2459,18 @@ type deployment_config = Semgrep_output_v1_t.deployment_config = {
 
 type deployment_response = Semgrep_output_v1_t.deployment_response = {
   deployment: deployment_config
+}
+
+(** Response from the backend to the CLI for POST /api/cli/v2/scans *)
+type create_scan_response_v2 = Semgrep_output_v1_t.create_scan_response_v2 = {
+  info: scan_info
+}
+
+(** Sent by the CLI to backend in POST /api/cli/v2/scans to create a scan. *)
+type create_scan_request_v2 = Semgrep_output_v1_t.create_scan_request_v2 = {
+  project_metadata: project_metadata;
+  scan_metadata: scan_metadata;
+  project_config: ci_config_from_repo option
 }
 
 (**
@@ -5922,6 +5948,26 @@ val has_features_of_string :
   string -> has_features
   (** Deserialize JSON data of type {!type:has_features}. *)
 
+val write_get_config_response_v2 :
+  Buffer.t -> get_config_response_v2 -> unit
+  (** Output a JSON value of type {!type:get_config_response_v2}. *)
+
+val string_of_get_config_response_v2 :
+  ?len:int -> get_config_response_v2 -> string
+  (** Serialize a value of type {!type:get_config_response_v2}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_get_config_response_v2 :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> get_config_response_v2
+  (** Input JSON data of type {!type:get_config_response_v2}. *)
+
+val get_config_response_v2_of_string :
+  string -> get_config_response_v2
+  (** Deserialize JSON data of type {!type:get_config_response_v2}. *)
+
 val write_apply_fixes_return :
   Buffer.t -> apply_fixes_return -> unit
   (** Output a JSON value of type {!type:apply_fixes_return}. *)
@@ -6221,6 +6267,46 @@ val read_deployment_response :
 val deployment_response_of_string :
   string -> deployment_response
   (** Deserialize JSON data of type {!type:deployment_response}. *)
+
+val write_create_scan_response_v2 :
+  Buffer.t -> create_scan_response_v2 -> unit
+  (** Output a JSON value of type {!type:create_scan_response_v2}. *)
+
+val string_of_create_scan_response_v2 :
+  ?len:int -> create_scan_response_v2 -> string
+  (** Serialize a value of type {!type:create_scan_response_v2}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_create_scan_response_v2 :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> create_scan_response_v2
+  (** Input JSON data of type {!type:create_scan_response_v2}. *)
+
+val create_scan_response_v2_of_string :
+  string -> create_scan_response_v2
+  (** Deserialize JSON data of type {!type:create_scan_response_v2}. *)
+
+val write_create_scan_request_v2 :
+  Buffer.t -> create_scan_request_v2 -> unit
+  (** Output a JSON value of type {!type:create_scan_request_v2}. *)
+
+val string_of_create_scan_request_v2 :
+  ?len:int -> create_scan_request_v2 -> string
+  (** Serialize a value of type {!type:create_scan_request_v2}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_create_scan_request_v2 :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> create_scan_request_v2
+  (** Input JSON data of type {!type:create_scan_request_v2}. *)
+
+val create_scan_request_v2_of_string :
+  string -> create_scan_request_v2
+  (** Deserialize JSON data of type {!type:create_scan_request_v2}. *)
 
 val write_core_output_extra :
   Buffer.t -> core_output_extra -> unit
