@@ -3290,6 +3290,9 @@ type resolve_dependencies_params <python decorator="dataclass(frozen=True)"> = {
   allow_local_builds
     <doc text="whether to allow executing package manager commands">
   : bool;
+  ?package_manager_env
+    <doc text="extra environment variables to pass to package manager subprocesses">
+  : (string * string) list option;
 }
 
 type resolution_result

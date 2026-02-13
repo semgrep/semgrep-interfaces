@@ -1907,7 +1907,11 @@ type resolve_dependencies_params = {
   dependency_sources: dependency_source list;
   download_dependency_source_code: bool;
   allow_local_builds: bool
-    (** whether to allow executing package manager commands *)
+    (** whether to allow executing package manager commands *);
+  package_manager_env: (string * string) list option
+    (**
+      extra environment variables to pass to package manager subprocesses
+    *)
 }
 
 (**

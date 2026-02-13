@@ -1912,7 +1912,11 @@ type resolve_dependencies_params =
   dependency_sources: dependency_source list;
   download_dependency_source_code: bool;
   allow_local_builds: bool
-    (** whether to allow executing package manager commands *)
+    (** whether to allow executing package manager commands *);
+  package_manager_env: (string * string) list option
+    (**
+      extra environment variables to pass to package manager subprocesses
+    *)
 }
 
 (**
@@ -30789,6 +30793,115 @@ let read_resolved_subproject = (
 )
 let resolved_subproject_of_string s =
   read_resolved_subproject (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__string_string_list = (
+  Atdgen_runtime.Oj_run.write_list (
+    fun ob x ->
+      Buffer.add_char ob '[';
+      (let x, _ = x in
+      (
+        Yojson.Safe.write_string
+      ) ob x
+      );
+      Buffer.add_char ob ',';
+      (let _, x = x in
+      (
+        Yojson.Safe.write_string
+      ) ob x
+      );
+      Buffer.add_char ob ']';
+  )
+)
+let string_of__string_string_list ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__string_string_list ob x;
+  Buffer.contents ob
+let read__string_string_list = (
+  Atdgen_runtime.Oj_run.read_list (
+    fun p lb ->
+      Yojson.Safe.read_space p lb;
+      Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
+      let len = ref 0 in
+      let end_of_tuple = ref false in
+      (try
+        let x0 =
+          let x =
+            (
+              Atdgen_runtime.Oj_run.read_string
+            ) p lb
+          in
+          incr len;
+          Yojson.Safe.read_space p lb;
+          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+          x
+        in
+        let x1 =
+          let x =
+            (
+              Atdgen_runtime.Oj_run.read_string
+            ) p lb
+          in
+          incr len;
+          (try
+            Yojson.Safe.read_space p lb;
+            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+          with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
+          x
+        in
+        if not !end_of_tuple then (
+          try
+            while true do
+              Yojson.Safe.skip_json p lb;
+              Yojson.Safe.read_space p lb;
+              Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+            done
+          with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
+        );
+        (x0, x1)
+      with Atdgen_runtime.Yojson_extra.End_of_tuple ->
+        Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+  )
+)
+let _string_string_list_of_string s =
+  read__string_string_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__string_string_list_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write__string_string_list
+  )
+)
+let string_of__string_string_list_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__string_string_list_option ob x;
+  Buffer.contents ob
+let read__string_string_list_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read__string_string_list
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _string_string_list_option_of_string s =
+  read__string_string_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_resolve_dependencies_params : _ -> resolve_dependencies_params -> _ = (
   fun ob (x : resolve_dependencies_params) ->
     Buffer.add_char ob '{';
@@ -30820,6 +30933,17 @@ let write_resolve_dependencies_params : _ -> resolve_dependencies_params -> _ = 
       Yojson.Safe.write_bool
     )
       ob x.allow_local_builds;
+    (match x.package_manager_env with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"package_manager_env\":";
+      (
+        write__string_string_list
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_resolve_dependencies_params ?(len = 1024) x =
@@ -30833,6 +30957,7 @@ let read_resolve_dependencies_params = (
     let field_dependency_sources = ref (None) in
     let field_download_dependency_source_code = ref (None) in
     let field_allow_local_builds = ref (None) in
+    let field_package_manager_env = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -30863,6 +30988,14 @@ let read_resolve_dependencies_params = (
                   | _ -> (
                       -1
                     )
+              )
+            | 19 -> (
+                if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'k' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'm' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'g' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = '_' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 'n' && String.unsafe_get s (pos+18) = 'v' then (
+                  3
+                )
+                else (
+                  -1
+                )
               )
             | 31 -> (
                 if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'w' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'd' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 'd' && String.unsafe_get s (pos+15) = 'e' && String.unsafe_get s (pos+16) = 'n' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 'y' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 's' && String.unsafe_get s (pos+21) = 'o' && String.unsafe_get s (pos+22) = 'u' && String.unsafe_get s (pos+23) = 'r' && String.unsafe_get s (pos+24) = 'c' && String.unsafe_get s (pos+25) = 'e' && String.unsafe_get s (pos+26) = '_' && String.unsafe_get s (pos+27) = 'c' && String.unsafe_get s (pos+28) = 'o' && String.unsafe_get s (pos+29) = 'd' && String.unsafe_get s (pos+30) = 'e' then (
@@ -30904,6 +31037,16 @@ let read_resolve_dependencies_params = (
                 ) p lb
               )
             );
+          | 3 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_package_manager_env := (
+                Some (
+                  (
+                    read__string_string_list
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -30938,6 +31081,14 @@ let read_resolve_dependencies_params = (
                     | _ -> (
                         -1
                       )
+                )
+              | 19 -> (
+                  if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'k' && String.unsafe_get s (pos+4) = 'a' && String.unsafe_get s (pos+5) = 'g' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'm' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = 'a' && String.unsafe_get s (pos+12) = 'g' && String.unsafe_get s (pos+13) = 'e' && String.unsafe_get s (pos+14) = 'r' && String.unsafe_get s (pos+15) = '_' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 'n' && String.unsafe_get s (pos+18) = 'v' then (
+                    3
+                  )
+                  else (
+                    -1
+                  )
                 )
               | 31 -> (
                   if String.unsafe_get s pos = 'd' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'w' && String.unsafe_get s (pos+3) = 'n' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'a' && String.unsafe_get s (pos+7) = 'd' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'd' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'e' && String.unsafe_get s (pos+13) = 'n' && String.unsafe_get s (pos+14) = 'd' && String.unsafe_get s (pos+15) = 'e' && String.unsafe_get s (pos+16) = 'n' && String.unsafe_get s (pos+17) = 'c' && String.unsafe_get s (pos+18) = 'y' && String.unsafe_get s (pos+19) = '_' && String.unsafe_get s (pos+20) = 's' && String.unsafe_get s (pos+21) = 'o' && String.unsafe_get s (pos+22) = 'u' && String.unsafe_get s (pos+23) = 'r' && String.unsafe_get s (pos+24) = 'c' && String.unsafe_get s (pos+25) = 'e' && String.unsafe_get s (pos+26) = '_' && String.unsafe_get s (pos+27) = 'c' && String.unsafe_get s (pos+28) = 'o' && String.unsafe_get s (pos+29) = 'd' && String.unsafe_get s (pos+30) = 'e' then (
@@ -30979,6 +31130,16 @@ let read_resolve_dependencies_params = (
                   ) p lb
                 )
               );
+            | 3 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_package_manager_env := (
+                  Some (
+                    (
+                      read__string_string_list
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -30991,6 +31152,7 @@ let read_resolve_dependencies_params = (
             dependency_sources = (match !field_dependency_sources with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "dependency_sources");
             download_dependency_source_code = (match !field_download_dependency_source_code with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "download_dependency_source_code");
             allow_local_builds = (match !field_allow_local_builds with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "allow_local_builds");
+            package_manager_env = !field_package_manager_env;
           }
          : resolve_dependencies_params)
       )
