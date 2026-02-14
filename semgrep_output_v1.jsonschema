@@ -3921,6 +3921,26 @@
         },
         "count": { "type": "integer" }
       }
+    },
+    "single_subproject_plan": {
+      "type": "object",
+      "required": [ "subproject_id", "root_dir", "resolution_planned" ],
+      "properties": {
+        "subproject_id": { "type": "string" },
+        "root_dir": { "$ref": "#/definitions/fpath" },
+        "resolution_planned": { "type": "boolean" }
+      }
+    },
+    "subproject_resolution_plan": {
+      "description": "Subproject dump output. Experimental and for internal use only.",
+      "type": "object",
+      "required": [ "subprojects" ],
+      "properties": {
+        "subprojects": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/single_subproject_plan" }
+        }
+      }
     }
   }
 }

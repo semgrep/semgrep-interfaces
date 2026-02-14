@@ -1357,6 +1357,16 @@ export type ProfilingEntry = {
   count: number /*int*/;
 }
 
+export type SingleSubprojectPlan = {
+  subproject_id: string;
+  root_dir: Fpath;
+  resolution_planned: boolean;
+}
+
+export type SubprojectResolutionPlan = {
+  subprojects: SingleSubprojectPlan[];
+}
+
 export function writeRawJson(x: RawJson, context: any = x): any {
   return ((x: any, context): any => x)(x, context);
 }
@@ -5566,6 +5576,34 @@ export function readProfilingEntry(x: any, context: any = x): ProfilingEntry {
     name: _atd_read_required_field('ProfilingEntry', 'name', _atd_read_string, x['name'], x),
     total_time: _atd_read_required_field('ProfilingEntry', 'total_time', _atd_read_float, x['total_time'], x),
     count: _atd_read_required_field('ProfilingEntry', 'count', _atd_read_int, x['count'], x),
+  };
+}
+
+export function writeSingleSubprojectPlan(x: SingleSubprojectPlan, context: any = x): any {
+  return {
+    'subproject_id': _atd_write_required_field('SingleSubprojectPlan', 'subproject_id', _atd_write_string, x.subproject_id, x),
+    'root_dir': _atd_write_required_field('SingleSubprojectPlan', 'root_dir', writeFpath, x.root_dir, x),
+    'resolution_planned': _atd_write_required_field('SingleSubprojectPlan', 'resolution_planned', _atd_write_bool, x.resolution_planned, x),
+  };
+}
+
+export function readSingleSubprojectPlan(x: any, context: any = x): SingleSubprojectPlan {
+  return {
+    subproject_id: _atd_read_required_field('SingleSubprojectPlan', 'subproject_id', _atd_read_string, x['subproject_id'], x),
+    root_dir: _atd_read_required_field('SingleSubprojectPlan', 'root_dir', readFpath, x['root_dir'], x),
+    resolution_planned: _atd_read_required_field('SingleSubprojectPlan', 'resolution_planned', _atd_read_bool, x['resolution_planned'], x),
+  };
+}
+
+export function writeSubprojectResolutionPlan(x: SubprojectResolutionPlan, context: any = x): any {
+  return {
+    'subprojects': _atd_write_required_field('SubprojectResolutionPlan', 'subprojects', _atd_write_array(writeSingleSubprojectPlan), x.subprojects, x),
+  };
+}
+
+export function readSubprojectResolutionPlan(x: any, context: any = x): SubprojectResolutionPlan {
+  return {
+    subprojects: _atd_read_required_field('SubprojectResolutionPlan', 'subprojects', _atd_read_array(readSingleSubprojectPlan), x['subprojects'], x),
   };
 }
 

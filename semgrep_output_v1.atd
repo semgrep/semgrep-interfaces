@@ -451,7 +451,7 @@ type matching_explanation
     matches
       <doc text="result matches at this node (can be empty when we reach a nomatch)">
     : core_match list;
-    (* 
+    (*
      *)
     loc
       <doc text="location in the rule file! not target file.
@@ -462,7 +462,7 @@ type matching_explanation
     ?extra <doc text="NEW: since v1.79">: matching_explanation_extra option;
 }
 
-(* 
+(*
  *)
 type matching_explanation_extra
     <doc text="
@@ -561,7 +561,7 @@ type match_dataflow_trace
   ?taint_sink: match_call_trace option;
 }
 
-(* 
+(*
  *)
 type loc_and_content
      <ocaml attr="deriving ord">
@@ -583,7 +583,7 @@ type match_call_trace
 ] <ocaml repr="classic">
 
 
-(* 
+(*
 *)
 type match_intermediate_var
     <ocaml attr="deriving ord">
@@ -3525,4 +3525,20 @@ type profiling_entry
     ">
   : float;
   count: int;
+}
+
+(* can I just use subproject stats instead? *)
+type single_subproject_plan
+    <python decorator="dataclass(frozen=True)">
+= {
+  subproject_id: string;
+  root_dir: fpath;
+  resolution_planned: bool;
+}
+
+type subproject_resolution_plan
+    <python decorator="dataclass(frozen=True)">
+    <doc text="Subproject dump output. Experimental and for internal use only.">
+= {
+  subprojects: single_subproject_plan list;
 }
