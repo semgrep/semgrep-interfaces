@@ -11856,6 +11856,95 @@ class HasFeatures:
 
 
 @dataclass
+class Pending:
+    """Original type: get_config_response_status = [ ... | Pending | ... ]
+    """
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Pending'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'pending'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Success:
+    """Original type: get_config_response_status = [ ... | Success | ... ]
+    """
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Success'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'success'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Failure:
+    """Original type: get_config_response_status = [ ... | Failure | ... ]
+    """
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Failure'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'failure'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class GetConfigResponseStatus:
+    """Original type: get_config_response_status = [ ... ]
+    """
+
+    value: Union[Pending, Success, Failure]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'GetConfigResponseStatus':
+        if isinstance(x, str):
+            if x == 'pending':
+                return cls(Pending())
+            if x == 'success':
+                return cls(Success())
+            if x == 'failure':
+                return cls(Failure())
+            _atd_bad_json('GetConfigResponseStatus', x)
+        _atd_bad_json('GetConfigResponseStatus', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'GetConfigResponseStatus':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class GetConfigResponseBody:
     """Original type: get_config_response_body = { ... }
 
@@ -11863,23 +11952,28 @@ class GetConfigResponseBody:
     field.
     """
 
-    config: ScanConfiguration
-    engine_params: EngineConfiguration
+    status: GetConfigResponseStatus
+    config: Optional[ScanConfiguration] = None
+    engine_params: Optional[EngineConfiguration] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'GetConfigResponseBody':
         if isinstance(x, dict):
             return cls(
-                config=ScanConfiguration.from_json(x['config']) if 'config' in x else _atd_missing_json_field('GetConfigResponseBody', 'config'),
-                engine_params=EngineConfiguration.from_json(x['engine_params']) if 'engine_params' in x else _atd_missing_json_field('GetConfigResponseBody', 'engine_params'),
+                status=GetConfigResponseStatus.from_json(x['status']) if 'status' in x else _atd_missing_json_field('GetConfigResponseBody', 'status'),
+                config=ScanConfiguration.from_json(x['config']) if 'config' in x else None,
+                engine_params=EngineConfiguration.from_json(x['engine_params']) if 'engine_params' in x else None,
             )
         else:
             _atd_bad_json('GetConfigResponseBody', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['config'] = (lambda x: x.to_json())(self.config)
-        res['engine_params'] = (lambda x: x.to_json())(self.engine_params)
+        res['status'] = (lambda x: x.to_json())(self.status)
+        if self.config is not None:
+            res['config'] = (lambda x: x.to_json())(self.config)
+        if self.engine_params is not None:
+            res['engine_params'] = (lambda x: x.to_json())(self.engine_params)
         return res
 
     @classmethod

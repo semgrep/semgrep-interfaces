@@ -2278,14 +2278,20 @@ type has_features = Semgrep_output_v1_t.has_features = {
   has_dependency_query: bool
 }
 
+type get_config_response_status =
+  Semgrep_output_v1_t.get_config_response_status = 
+    Pending | Success | Failure
+
+
 (**
   Internal format of the /api/cli/v2/scans/<scan_request_id>/config body
   field.
 *)
 type get_config_response_body =
   Semgrep_output_v1_t.get_config_response_body = {
-  config: scan_configuration;
-  engine_params: engine_configuration
+  status: get_config_response_status;
+  config: scan_configuration option;
+  engine_params: engine_configuration option
 }
 
 (**
@@ -39694,6 +39700,118 @@ let read_has_features = (
 )
 let has_features_of_string s =
   read_has_features (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_get_config_response_status : _ -> get_config_response_status -> _ = (
+  fun ob (x : get_config_response_status) ->
+    match x with
+      | Pending -> Buffer.add_string ob "\"pending\""
+      | Success -> Buffer.add_string ob "\"success\""
+      | Failure -> Buffer.add_string ob "\"failure\""
+)
+let string_of_get_config_response_status ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_get_config_response_status ob x;
+  Buffer.contents ob
+let read_get_config_response_status = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "pending" ->
+              (Pending : get_config_response_status)
+            | "success" ->
+              (Success : get_config_response_status)
+            | "failure" ->
+              (Failure : get_config_response_status)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let get_config_response_status_of_string s =
+  read_get_config_response_status (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__scan_configuration_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_scan_configuration
+  )
+)
+let string_of__scan_configuration_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__scan_configuration_option ob x;
+  Buffer.contents ob
+let read__scan_configuration_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_scan_configuration
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _scan_configuration_option_of_string s =
+  read__scan_configuration_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__engine_configuration_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_engine_configuration
+  )
+)
+let string_of__engine_configuration_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__engine_configuration_option ob x;
+  Buffer.contents ob
+let read__engine_configuration_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_engine_configuration
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _engine_configuration_option_of_string s =
+  read__engine_configuration_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_get_config_response_body : _ -> get_config_response_body -> _ = (
   fun ob (x : get_config_response_body) ->
     Buffer.add_char ob '{';
@@ -39702,20 +39820,33 @@ let write_get_config_response_body : _ -> get_config_response_body -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"config\":";
+      Buffer.add_string ob "\"status\":";
     (
-      write_scan_configuration
+      write_get_config_response_status
     )
-      ob x.config;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"engine_params\":";
-    (
-      write_engine_configuration
-    )
-      ob x.engine_params;
+      ob x.status;
+    (match x.config with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"config\":";
+      (
+        write_scan_configuration
+      )
+        ob x;
+    );
+    (match x.engine_params with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"engine_params\":";
+      (
+        write_engine_configuration
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_get_config_response_body ?(len = 1024) x =
@@ -39726,6 +39857,7 @@ let read_get_config_response_body = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
+    let field_status = ref (None) in
     let field_config = ref (None) in
     let field_engine_params = ref (None) in
     try
@@ -39738,16 +39870,30 @@ let read_get_config_response_body = (
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
             | 6 -> (
-                if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' then (
-                  0
-                )
-                else (
-                  -1
-                )
+                match String.unsafe_get s pos with
+                  | 'c' -> (
+                      if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' then (
+                        1
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 's' -> (
+                      if String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 's' then (
+                        0
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
               )
             | 13 -> (
                 if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'm' && String.unsafe_get s (pos+12) = 's' then (
-                  1
+                  2
                 )
                 else (
                   -1
@@ -39762,21 +39908,33 @@ let read_get_config_response_body = (
       (
         match i with
           | 0 ->
-            field_config := (
+            field_status := (
               Some (
                 (
-                  read_scan_configuration
+                  read_get_config_response_status
                 ) p lb
               )
             );
           | 1 ->
-            field_engine_params := (
-              Some (
-                (
-                  read_engine_configuration
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_config := (
+                Some (
+                  (
+                    read_scan_configuration
+                  ) p lb
+                )
+              );
+            )
+          | 2 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_engine_params := (
+                Some (
+                  (
+                    read_engine_configuration
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -39791,16 +39949,30 @@ let read_get_config_response_body = (
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
               | 6 -> (
-                  if String.unsafe_get s pos = 'c' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' then (
-                    0
-                  )
-                  else (
-                    -1
-                  )
+                  match String.unsafe_get s pos with
+                    | 'c' -> (
+                        if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'f' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'g' then (
+                          1
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 's' -> (
+                        if String.unsafe_get s (pos+1) = 't' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = 'u' && String.unsafe_get s (pos+5) = 's' then (
+                          0
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
                 )
               | 13 -> (
                   if String.unsafe_get s pos = 'e' && String.unsafe_get s (pos+1) = 'n' && String.unsafe_get s (pos+2) = 'g' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 'p' && String.unsafe_get s (pos+8) = 'a' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'm' && String.unsafe_get s (pos+12) = 's' then (
-                    1
+                    2
                   )
                   else (
                     -1
@@ -39815,21 +39987,33 @@ let read_get_config_response_body = (
         (
           match i with
             | 0 ->
-              field_config := (
+              field_status := (
                 Some (
                   (
-                    read_scan_configuration
+                    read_get_config_response_status
                   ) p lb
                 )
               );
             | 1 ->
-              field_engine_params := (
-                Some (
-                  (
-                    read_engine_configuration
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_config := (
+                  Some (
+                    (
+                      read_scan_configuration
+                    ) p lb
+                  )
+                );
+              )
+            | 2 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_engine_params := (
+                  Some (
+                    (
+                      read_engine_configuration
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -39839,8 +40023,9 @@ let read_get_config_response_body = (
     with Yojson.End_of_object -> (
         (
           {
-            config = (match !field_config with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "config");
-            engine_params = (match !field_engine_params with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "engine_params");
+            status = (match !field_status with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "status");
+            config = !field_config;
+            engine_params = !field_engine_params;
           }
          : get_config_response_body)
       )

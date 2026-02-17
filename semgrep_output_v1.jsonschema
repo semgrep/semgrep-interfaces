@@ -1562,11 +1562,19 @@
         "body": { "$ref": "#/definitions/get_config_response_body" }
       }
     },
+    "get_config_response_status": {
+      "oneOf": [
+        { "const": "pending" },
+        { "const": "success" },
+        { "const": "failure" }
+      ]
+    },
     "get_config_response_body": {
       "description": "Internal format of the /api/cli/v2/scans/<scan_request_id>/config body field.",
       "type": "object",
-      "required": [ "config", "engine_params" ],
+      "required": [ "status" ],
       "properties": {
+        "status": { "$ref": "#/definitions/get_config_response_status" },
         "config": { "$ref": "#/definitions/scan_configuration" },
         "engine_params": { "$ref": "#/definitions/engine_configuration" }
       }
