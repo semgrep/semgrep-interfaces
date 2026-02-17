@@ -2279,12 +2279,22 @@ type has_features = Semgrep_output_v1_t.has_features = {
 }
 
 (**
-  Response from the backend to the CLI for GET
-  /api/cli/v2/scans/<scan_request_id>/config
+  Internal format of the /api/cli/v2/scans/<scan_request_id>/config body
+  field.
 *)
-type get_config_response_v2 = Semgrep_output_v1_t.get_config_response_v2 = {
+type get_config_response_body =
+  Semgrep_output_v1_t.get_config_response_body = {
   config: scan_configuration;
   engine_params: engine_configuration
+}
+
+(**
+  Response from the backend to the CLI for GET
+  /api/cli/v2/scans/<scan_request_id>/config. Keep in sync with the proto
+  that is controlled inside semgrep-app API Framework.
+*)
+type get_config_response_v2 = Semgrep_output_v1_t.get_config_response_v2 = {
+  body: get_config_response_body
 }
 
 type apply_fixes_return = Semgrep_output_v1_t.apply_fixes_return = {
@@ -2461,16 +2471,34 @@ type deployment_response = Semgrep_output_v1_t.deployment_response = {
   deployment: deployment_config
 }
 
-(** Response from the backend to the CLI for POST /api/cli/v2/scans *)
-type create_scan_response_v2 = Semgrep_output_v1_t.create_scan_response_v2 = {
+(** Internal format of the /api/cli/v2/scans response body field. *)
+type create_scan_response_body =
+  Semgrep_output_v1_t.create_scan_response_body = {
   info: scan_info
 }
 
-(** Sent by the CLI to backend in POST /api/cli/v2/scans to create a scan. *)
-type create_scan_request_v2 = Semgrep_output_v1_t.create_scan_request_v2 = {
+(**
+  Response from the backend to the CLI for POST /api/cli/v2/scans. Keep in
+  sync with the proto that is controlled inside semgrep-app API Framework.
+*)
+type create_scan_response_v2 = Semgrep_output_v1_t.create_scan_response_v2 = {
+  body: create_scan_response_body
+}
+
+(** Internal format of the /api/cli/v2/scans request body field. *)
+type create_scan_request_body =
+  Semgrep_output_v1_t.create_scan_request_body = {
   project_metadata: project_metadata;
   scan_metadata: scan_metadata;
   project_config: ci_config_from_repo option
+}
+
+(**
+  Sent by the CLI to the backend in POST /api/cli/v2/scans. Keep in sync with
+  the proto that is controlled inside semgrep-app API Framework.
+*)
+type create_scan_request_v2 = Semgrep_output_v1_t.create_scan_request_v2 = {
+  body: create_scan_request_body
 }
 
 (**
@@ -5948,6 +5976,26 @@ val has_features_of_string :
   string -> has_features
   (** Deserialize JSON data of type {!type:has_features}. *)
 
+val write_get_config_response_body :
+  Buffer.t -> get_config_response_body -> unit
+  (** Output a JSON value of type {!type:get_config_response_body}. *)
+
+val string_of_get_config_response_body :
+  ?len:int -> get_config_response_body -> string
+  (** Serialize a value of type {!type:get_config_response_body}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_get_config_response_body :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> get_config_response_body
+  (** Input JSON data of type {!type:get_config_response_body}. *)
+
+val get_config_response_body_of_string :
+  string -> get_config_response_body
+  (** Deserialize JSON data of type {!type:get_config_response_body}. *)
+
 val write_get_config_response_v2 :
   Buffer.t -> get_config_response_v2 -> unit
   (** Output a JSON value of type {!type:get_config_response_v2}. *)
@@ -6268,6 +6316,26 @@ val deployment_response_of_string :
   string -> deployment_response
   (** Deserialize JSON data of type {!type:deployment_response}. *)
 
+val write_create_scan_response_body :
+  Buffer.t -> create_scan_response_body -> unit
+  (** Output a JSON value of type {!type:create_scan_response_body}. *)
+
+val string_of_create_scan_response_body :
+  ?len:int -> create_scan_response_body -> string
+  (** Serialize a value of type {!type:create_scan_response_body}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_create_scan_response_body :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> create_scan_response_body
+  (** Input JSON data of type {!type:create_scan_response_body}. *)
+
+val create_scan_response_body_of_string :
+  string -> create_scan_response_body
+  (** Deserialize JSON data of type {!type:create_scan_response_body}. *)
+
 val write_create_scan_response_v2 :
   Buffer.t -> create_scan_response_v2 -> unit
   (** Output a JSON value of type {!type:create_scan_response_v2}. *)
@@ -6287,6 +6355,26 @@ val read_create_scan_response_v2 :
 val create_scan_response_v2_of_string :
   string -> create_scan_response_v2
   (** Deserialize JSON data of type {!type:create_scan_response_v2}. *)
+
+val write_create_scan_request_body :
+  Buffer.t -> create_scan_request_body -> unit
+  (** Output a JSON value of type {!type:create_scan_request_body}. *)
+
+val string_of_create_scan_request_body :
+  ?len:int -> create_scan_request_body -> string
+  (** Serialize a value of type {!type:create_scan_request_body}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_create_scan_request_body :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> create_scan_request_body
+  (** Input JSON data of type {!type:create_scan_request_body}. *)
+
+val create_scan_request_body_of_string :
+  string -> create_scan_request_body
+  (** Deserialize JSON data of type {!type:create_scan_request_body}. *)
 
 val write_create_scan_request_v2 :
   Buffer.t -> create_scan_request_v2 -> unit

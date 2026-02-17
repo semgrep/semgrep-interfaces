@@ -1678,7 +1678,16 @@ type action
 
 type create_scan_response_v2
      <doc text="
-     Response from the backend to the CLI for POST /api/cli/v2/scans
+     Response from the backend to the CLI for POST /api/cli/v2/scans.
+     Keep in sync with the proto that is controlled inside semgrep-app API Framework.
+     ">
+   = {
+    body: create_scan_response_body;
+}
+
+type create_scan_response_body
+     <doc text="
+     Internal format of the /api/cli/v2/scans response body field.
      ">
    = {
     info: scan_info;
@@ -1686,7 +1695,16 @@ type create_scan_response_v2
 
 type get_config_response_v2
      <doc text="
-     Response from the backend to the CLI for GET /api/cli/v2/scans/<scan_request_id>/config
+     Response from the backend to the CLI for GET /api/cli/v2/scans/<scan_request_id>/config.
+     Keep in sync with the proto that is controlled inside semgrep-app API Framework.
+     ">
+   = {
+     body: get_config_response_body
+}
+
+type get_config_response_body
+     <doc text="
+     Internal format of the /api/cli/v2/scans/<scan_request_id>/config body field.
      ">
    = {
     config: scan_configuration;
@@ -1783,12 +1801,20 @@ type historical_configuration
 (* ----------------------------- *)
 
 type create_scan_request_v2
-    <doc text="Sent by the CLI to backend in POST /api/cli/v2/scans to create a scan.">
+    <doc text="Sent by the CLI to the backend in POST /api/cli/v2/scans. Keep in sync with the proto that is controlled inside semgrep-app API Framework.
+">
+  = {
+    body: create_scan_request_body;
+}
+
+type create_scan_request_body
+    <doc text="Internal format of the /api/cli/v2/scans request body field.">
   = {
     project_metadata: project_metadata;
     scan_metadata: scan_metadata;
     ?project_config: ci_config_from_repo option;
 }
+
 
 type scan_request
     <doc text="Sent by the CLI to the (deprecated) POST /api/cli/scans to create a scan.">

@@ -2279,12 +2279,22 @@ type has_features = Semgrep_output_v1_t.has_features = {
 }
 
 (**
-  Response from the backend to the CLI for GET
-  /api/cli/v2/scans/<scan_request_id>/config
+  Internal format of the /api/cli/v2/scans/<scan_request_id>/config body
+  field.
 *)
-type get_config_response_v2 = Semgrep_output_v1_t.get_config_response_v2 = {
+type get_config_response_body =
+  Semgrep_output_v1_t.get_config_response_body = {
   config: scan_configuration;
   engine_params: engine_configuration
+}
+
+(**
+  Response from the backend to the CLI for GET
+  /api/cli/v2/scans/<scan_request_id>/config. Keep in sync with the proto
+  that is controlled inside semgrep-app API Framework.
+*)
+type get_config_response_v2 = Semgrep_output_v1_t.get_config_response_v2 = {
+  body: get_config_response_body
 }
 
 type apply_fixes_return = Semgrep_output_v1_t.apply_fixes_return = {
@@ -2461,16 +2471,34 @@ type deployment_response = Semgrep_output_v1_t.deployment_response = {
   deployment: deployment_config
 }
 
-(** Response from the backend to the CLI for POST /api/cli/v2/scans *)
-type create_scan_response_v2 = Semgrep_output_v1_t.create_scan_response_v2 = {
+(** Internal format of the /api/cli/v2/scans response body field. *)
+type create_scan_response_body =
+  Semgrep_output_v1_t.create_scan_response_body = {
   info: scan_info
 }
 
-(** Sent by the CLI to backend in POST /api/cli/v2/scans to create a scan. *)
-type create_scan_request_v2 = Semgrep_output_v1_t.create_scan_request_v2 = {
+(**
+  Response from the backend to the CLI for POST /api/cli/v2/scans. Keep in
+  sync with the proto that is controlled inside semgrep-app API Framework.
+*)
+type create_scan_response_v2 = Semgrep_output_v1_t.create_scan_response_v2 = {
+  body: create_scan_response_body
+}
+
+(** Internal format of the /api/cli/v2/scans request body field. *)
+type create_scan_request_body =
+  Semgrep_output_v1_t.create_scan_request_body = {
   project_metadata: project_metadata;
   scan_metadata: scan_metadata;
   project_config: ci_config_from_repo option
+}
+
+(**
+  Sent by the CLI to the backend in POST /api/cli/v2/scans. Keep in sync with
+  the proto that is controlled inside semgrep-app API Framework.
+*)
+type create_scan_request_v2 = Semgrep_output_v1_t.create_scan_request_v2 = {
+  body: create_scan_request_body
 }
 
 (**
@@ -39666,8 +39694,8 @@ let read_has_features = (
 )
 let has_features_of_string s =
   read_has_features (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_get_config_response_v2 : _ -> get_config_response_v2 -> _ = (
-  fun ob (x : get_config_response_v2) ->
+let write_get_config_response_body : _ -> get_config_response_body -> _ = (
+  fun ob (x : get_config_response_body) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
     if !is_first then
@@ -39690,11 +39718,11 @@ let write_get_config_response_v2 : _ -> get_config_response_v2 -> _ = (
       ob x.engine_params;
     Buffer.add_char ob '}';
 )
-let string_of_get_config_response_v2 ?(len = 1024) x =
+let string_of_get_config_response_body ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_get_config_response_v2 ob x;
+  write_get_config_response_body ob x;
   Buffer.contents ob
-let read_get_config_response_v2 = (
+let read_get_config_response_body = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
@@ -39813,6 +39841,104 @@ let read_get_config_response_v2 = (
           {
             config = (match !field_config with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "config");
             engine_params = (match !field_engine_params with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "engine_params");
+          }
+         : get_config_response_body)
+      )
+)
+let get_config_response_body_of_string s =
+  read_get_config_response_body (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_get_config_response_v2 : _ -> get_config_response_v2 -> _ = (
+  fun ob (x : get_config_response_v2) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"body\":";
+    (
+      write_get_config_response_body
+    )
+      ob x.body;
+    Buffer.add_char ob '}';
+)
+let string_of_get_config_response_v2 ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_get_config_response_v2 ob x;
+  Buffer.contents ob
+let read_get_config_response_v2 = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_body = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          if len = 4 && String.unsafe_get s pos = 'b' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'y' then (
+            0
+          )
+          else (
+            -1
+          )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_body := (
+              Some (
+                (
+                  read_get_config_response_body
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            if len = 4 && String.unsafe_get s pos = 'b' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'y' then (
+              0
+            )
+            else (
+              -1
+            )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_body := (
+                Some (
+                  (
+                    read_get_config_response_body
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            body = (match !field_body with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "body");
           }
          : get_config_response_v2)
       )
@@ -44553,8 +44679,8 @@ let read_deployment_response = (
 )
 let deployment_response_of_string s =
   read_deployment_response (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_create_scan_response_v2 : _ -> create_scan_response_v2 -> _ = (
-  fun ob (x : create_scan_response_v2) ->
+let write_create_scan_response_body : _ -> create_scan_response_body -> _ = (
+  fun ob (x : create_scan_response_body) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
     if !is_first then
@@ -44568,11 +44694,11 @@ let write_create_scan_response_v2 : _ -> create_scan_response_v2 -> _ = (
       ob x.info;
     Buffer.add_char ob '}';
 )
-let string_of_create_scan_response_v2 ?(len = 1024) x =
+let string_of_create_scan_response_body ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_create_scan_response_v2 ob x;
+  write_create_scan_response_body ob x;
   Buffer.contents ob
-let read_create_scan_response_v2 = (
+let read_create_scan_response_body = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
@@ -44646,13 +44772,111 @@ let read_create_scan_response_v2 = (
           {
             info = (match !field_info with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "info");
           }
+         : create_scan_response_body)
+      )
+)
+let create_scan_response_body_of_string s =
+  read_create_scan_response_body (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_create_scan_response_v2 : _ -> create_scan_response_v2 -> _ = (
+  fun ob (x : create_scan_response_v2) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"body\":";
+    (
+      write_create_scan_response_body
+    )
+      ob x.body;
+    Buffer.add_char ob '}';
+)
+let string_of_create_scan_response_v2 ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_create_scan_response_v2 ob x;
+  Buffer.contents ob
+let read_create_scan_response_v2 = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_body = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          if len = 4 && String.unsafe_get s pos = 'b' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'y' then (
+            0
+          )
+          else (
+            -1
+          )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_body := (
+              Some (
+                (
+                  read_create_scan_response_body
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            if len = 4 && String.unsafe_get s pos = 'b' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'y' then (
+              0
+            )
+            else (
+              -1
+            )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_body := (
+                Some (
+                  (
+                    read_create_scan_response_body
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            body = (match !field_body with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "body");
+          }
          : create_scan_response_v2)
       )
 )
 let create_scan_response_v2_of_string s =
   read_create_scan_response_v2 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_create_scan_request_v2 : _ -> create_scan_request_v2 -> _ = (
-  fun ob (x : create_scan_request_v2) ->
+let write_create_scan_request_body : _ -> create_scan_request_body -> _ = (
+  fun ob (x : create_scan_request_body) ->
     Buffer.add_char ob '{';
     let is_first = ref true in
     if !is_first then
@@ -44686,11 +44910,11 @@ let write_create_scan_request_v2 : _ -> create_scan_request_v2 -> _ = (
     );
     Buffer.add_char ob '}';
 )
-let string_of_create_scan_request_v2 ?(len = 1024) x =
+let string_of_create_scan_request_body ?(len = 1024) x =
   let ob = Buffer.create len in
-  write_create_scan_request_v2 ob x;
+  write_create_scan_request_body ob x;
   Buffer.contents ob
-let read_create_scan_request_v2 = (
+let read_create_scan_request_body = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
@@ -44847,6 +45071,104 @@ let read_create_scan_request_v2 = (
             project_metadata = (match !field_project_metadata with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "project_metadata");
             scan_metadata = (match !field_scan_metadata with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "scan_metadata");
             project_config = !field_project_config;
+          }
+         : create_scan_request_body)
+      )
+)
+let create_scan_request_body_of_string s =
+  read_create_scan_request_body (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_create_scan_request_v2 : _ -> create_scan_request_v2 -> _ = (
+  fun ob (x : create_scan_request_v2) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"body\":";
+    (
+      write_create_scan_request_body
+    )
+      ob x.body;
+    Buffer.add_char ob '}';
+)
+let string_of_create_scan_request_v2 ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_create_scan_request_v2 ob x;
+  Buffer.contents ob
+let read_create_scan_request_v2 = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_body = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          if len = 4 && String.unsafe_get s pos = 'b' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'y' then (
+            0
+          )
+          else (
+            -1
+          )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_body := (
+              Some (
+                (
+                  read_create_scan_request_body
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            if len = 4 && String.unsafe_get s pos = 'b' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'd' && String.unsafe_get s (pos+3) = 'y' then (
+              0
+            )
+            else (
+              -1
+            )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_body := (
+                Some (
+                  (
+                    read_create_scan_request_body
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            body = (match !field_body with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "body");
           }
          : create_scan_request_v2)
       )

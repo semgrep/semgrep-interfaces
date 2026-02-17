@@ -2269,13 +2269,20 @@ type has_features = {
 }
 
 (**
-  Response from the backend to the CLI for GET
-  /api/cli/v2/scans/<scan_request_id>/config
+  Internal format of the /api/cli/v2/scans/<scan_request_id>/config body
+  field.
 *)
-type get_config_response_v2 = {
+type get_config_response_body = {
   config: scan_configuration;
   engine_params: engine_configuration
 }
+
+(**
+  Response from the backend to the CLI for GET
+  /api/cli/v2/scans/<scan_request_id>/config. Keep in sync with the proto
+  that is controlled inside semgrep-app API Framework.
+*)
+type get_config_response_v2 = { body: get_config_response_body }
 
 type apply_fixes_return = {
   modified_file_count: int (** Number of files modified *);
@@ -2495,15 +2502,27 @@ type deployment_config = {
 
 type deployment_response = { deployment: deployment_config }
 
-(** Response from the backend to the CLI for POST /api/cli/v2/scans *)
-type create_scan_response_v2 = { info: scan_info }
+(** Internal format of the /api/cli/v2/scans response body field. *)
+type create_scan_response_body = { info: scan_info }
 
-(** Sent by the CLI to backend in POST /api/cli/v2/scans to create a scan. *)
-type create_scan_request_v2 = {
+(**
+  Response from the backend to the CLI for POST /api/cli/v2/scans. Keep in
+  sync with the proto that is controlled inside semgrep-app API Framework.
+*)
+type create_scan_response_v2 = { body: create_scan_response_body }
+
+(** Internal format of the /api/cli/v2/scans request body field. *)
+type create_scan_request_body = {
   project_metadata: project_metadata;
   scan_metadata: scan_metadata;
   project_config: ci_config_from_repo option
 }
+
+(**
+  Sent by the CLI to the backend in POST /api/cli/v2/scans. Keep in sync with
+  the proto that is controlled inside semgrep-app API Framework.
+*)
+type create_scan_request_v2 = { body: create_scan_request_body }
 
 (**
   For extra information to put into the `core_output` that we do not
