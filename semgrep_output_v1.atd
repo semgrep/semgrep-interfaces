@@ -1598,8 +1598,10 @@ type killing_parent
    to be consumed directly by Semgrep users or tools wrapping Semgrep.
 
    The sequence of HTTP requests for 'semgrep ci' is:
-    - /api/cli/scans when starting a scan, with information about the project
-      and response with scan_id and scan_response including the rules to use
+    - /api/cli/v2/scans when starting a scan, with information about the project
+      and response with scan_id
+    - /api/cli/v2/scans/<scan_request_id>/config when getting the config (e.g. rules) to use for a
+      particular scan
     - /api/agent/scans/<scan_id>/results to send the findings to the backend
       and response with errors and task_id
     - /api/agent/scans/<scan_id>/complete when done, with the exit code and a
@@ -1674,15 +1676,49 @@ type action
 (* CI scan response *)
 (* ----------------------------- *)
 
+type create_scan_response_v2
+     <doc text="
+     Response from the backend to the CLI for POST /api/cli/v2/scans.
+     Keep in sync with the proto that is controlled inside semgrep-app API Framework.
+     ">
+   = {
+    body: create_scan_response_body;
+}
+
+type create_scan_response_body
+     <doc text="
+     Internal format of the /api/cli/v2/scans response body field.
+     ">
+   = {
+    info: scan_info;
+}
+
+type get_config_response_v2
+     <doc text="
+     Response from the backend to the CLI for GET /api/cli/v2/scans/<scan_request_id>/config.
+     Keep in sync with the proto that is controlled inside semgrep-app API Framework.
+     ">
+   = {
+     body: get_config_response_body
+}
+
+type get_config_response_body
+     <doc text="
+     Internal format of the /api/cli/v2/scans/<scan_request_id>/config body field.
+     ">
+   = {
+    config: scan_configuration;
+    engine_params: engine_configuration;
+}
+
 type scan_response
      <doc text="
-     Response from the backend to the CLI to the POST /api/cli/scans
+     Response from the backend to the CLI to the (deprecated) POST /api/cli/scans
      ">
    = {
     info: scan_info;
     config: scan_configuration;
     engine_params: engine_configuration;
-    (* TODO: ~actions: action list; *)
 }
 
 type scan_info
@@ -1764,8 +1800,24 @@ type historical_configuration
 (* CI Scan request *)
 (* ----------------------------- *)
 
+type create_scan_request_v2
+    <doc text="Sent by the CLI to the backend in POST /api/cli/v2/scans. Keep in sync with the proto that is controlled inside semgrep-app API Framework.
+">
+  = {
+    body: create_scan_request_body;
+}
+
+type create_scan_request_body
+    <doc text="Internal format of the /api/cli/v2/scans request body field.">
+  = {
+    project_metadata: project_metadata;
+    scan_metadata: scan_metadata;
+    ?project_config: ci_config_from_repo option;
+}
+
+
 type scan_request
-    <doc text="Sent by the CLI to the POST /api/cli/scans to create a scan.">
+    <doc text="Sent by the CLI to the (deprecated) POST /api/cli/scans to create a scan.">
   = {
     project_metadata: project_metadata;
     scan_metadata: scan_metadata;
@@ -2413,7 +2465,7 @@ type deployment_response = {
 (* TODO: deprecate this endpoint/record. Is is used by semgrep lsp and possibly
    semgrep scan --config policy|supply-chain but we should remove
    those --config policy|supply-chain and migrate semgrep lsp to
-   /api/cli/scans with dryrun=true
+   /api/cli/scans or /api/cli/v2/scans with dryrun=true
  *)
 type scan_config
     <doc text="
