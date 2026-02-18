@@ -465,6 +465,23 @@ type raw_json = JSON.Yojson.t [@@deriving eq, ord, show]
 type rule_id = Rule_ID.t
   [@@deriving show, eq, ord]
 
+type sbom_kind = 
+  CycloneDXJson (** cyclonedx json - https://cyclonedx.org/docs/1.4/json/ *)
+
+  [@@deriving show { with_path = false }, eq]
+
+type sbom = {
+  kind: sbom_kind;
+  is_ephemeral: bool
+    (**
+      whether or not the SBOM is produced ephemerally, i.e. is not checked in
+      to version control. if true, references in resolved dependencies will
+      not point to the SBOM itself.
+    *);
+  path: fpath
+}
+  [@@deriving show, eq]
+
 type sca_pattern = {
   ecosystem: ecosystem;
   package: string;
@@ -567,6 +584,14 @@ type dependency_source =
         List\[DependencySource\] and List are not hashable in Python. We had
         to define a special hash function for Subproject to avoid hashing the
         dependency_source.
+      *)
+  | AuxillarySBOM of (sbom * dependency_source)
+      (**
+        An SBOM containing dependency information that is not part of the
+        dependency source files directly interpreted by the package manager.
+        This is connected to a standard dependency source. The attached
+        dependency source should not be another AuxillarySBOM. Ideally we
+        would restructure this type to encode this requirement.
       *)
 
   [@@deriving show]
@@ -1500,6 +1525,11 @@ type resolution_method = [
       (** we parsed a lockfile that was already included in the repository *)
   | `DynamicResolution
       (** we communicated with the package manager to resolve dependencies *)
+  | `SbomParsing
+      (**
+        We parsed an SBOM separate from the dependency source files, either
+        an ephemeral or a checked-in one.
+      *)
 ]
   [@@deriving show]
 
