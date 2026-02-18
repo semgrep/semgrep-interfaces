@@ -460,6 +460,23 @@ type raw_json = JSON.Yojson.t [@@deriving eq, ord, show]
 type rule_id = Semgrep_output_v1_t.rule_id
   [@@deriving show, eq, ord]
 
+type sbom_kind = Semgrep_output_v1_t.sbom_kind = 
+  CycloneDXJson (** cyclonedx json - https://cyclonedx.org/docs/1.4/json/ *)
+
+  [@@deriving show { with_path = false }, eq]
+
+type sbom = Semgrep_output_v1_t.sbom = {
+  kind: sbom_kind;
+  is_ephemeral: bool
+    (**
+      whether or not the SBOM is produced ephemerally, i.e. is not checked in
+      to version control. if true, references in resolved dependencies will
+      not point to the SBOM itself.
+    *);
+  path: fpath
+}
+  [@@deriving show, eq]
+
 type sca_pattern = Semgrep_output_v1_t.sca_pattern = {
   ecosystem: ecosystem;
   package: string;
@@ -562,6 +579,14 @@ type dependency_source = Semgrep_output_v1_t.dependency_source =
         List\[DependencySource\] and List are not hashable in Python. We had
         to define a special hash function for Subproject to avoid hashing the
         dependency_source.
+      *)
+  | AuxillarySBOM of (sbom * dependency_source)
+      (**
+        An SBOM containing dependency information that is not part of the
+        dependency source files directly interpreted by the package manager.
+        This is connected to a standard dependency source. The attached
+        dependency source should not be another AuxillarySBOM. Ideally we
+        would restructure this type to encode this requirement.
       *)
 
   [@@deriving show]
@@ -5619,6 +5644,242 @@ let read_rule_id = (
 )
 let rule_id_of_string s =
   read_rule_id (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_sbom_kind : _ -> sbom_kind -> _ = (
+  fun ob (x : sbom_kind) ->
+    match x with
+      | CycloneDXJson -> Buffer.add_string ob "\"CycloneDXJson\""
+)
+let string_of_sbom_kind ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_sbom_kind ob x;
+  Buffer.contents ob
+let read_sbom_kind = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "CycloneDXJson" ->
+              (CycloneDXJson : sbom_kind)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let sbom_kind_of_string s =
+  read_sbom_kind (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write_sbom : _ -> sbom -> _ = (
+  fun ob (x : sbom) ->
+    Buffer.add_char ob '{';
+    let is_first = ref true in
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"kind\":";
+    (
+      write_sbom_kind
+    )
+      ob x.kind;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"is_ephemeral\":";
+    (
+      Yojson.Safe.write_bool
+    )
+      ob x.is_ephemeral;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"path\":";
+    (
+      write_fpath
+    )
+      ob x.path;
+    Buffer.add_char ob '}';
+)
+let string_of_sbom ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write_sbom ob x;
+  Buffer.contents ob
+let read_sbom = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    Yojson.Safe.read_lcurl p lb;
+    let field_kind = ref (None) in
+    let field_is_ephemeral = ref (None) in
+    let field_path = ref (None) in
+    try
+      Yojson.Safe.read_space p lb;
+      Yojson.Safe.read_object_end lb;
+      Yojson.Safe.read_space p lb;
+      let f =
+        fun s pos len ->
+          if pos < 0 || len < 0 || pos + len > String.length s then
+            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+          match len with
+            | 4 -> (
+                match String.unsafe_get s pos with
+                  | 'k' -> (
+                      if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' then (
+                        0
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 'p' -> (
+                      if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
+                        2
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
+              )
+            | 12 -> (
+                if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'h' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'l' then (
+                  1
+                )
+                else (
+                  -1
+                )
+              )
+            | _ -> (
+                -1
+              )
+      in
+      let i = Yojson.Safe.map_ident p f lb in
+      Atdgen_runtime.Oj_run.read_until_field_value p lb;
+      (
+        match i with
+          | 0 ->
+            field_kind := (
+              Some (
+                (
+                  read_sbom_kind
+                ) p lb
+              )
+            );
+          | 1 ->
+            field_is_ephemeral := (
+              Some (
+                (
+                  Atdgen_runtime.Oj_run.read_bool
+                ) p lb
+              )
+            );
+          | 2 ->
+            field_path := (
+              Some (
+                (
+                  read_fpath
+                ) p lb
+              )
+            );
+          | _ -> (
+              Yojson.Safe.skip_json p lb
+            )
+      );
+      while true do
+        Yojson.Safe.read_space p lb;
+        Yojson.Safe.read_object_sep p lb;
+        Yojson.Safe.read_space p lb;
+        let f =
+          fun s pos len ->
+            if pos < 0 || len < 0 || pos + len > String.length s then
+              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
+            match len with
+              | 4 -> (
+                  match String.unsafe_get s pos with
+                    | 'k' -> (
+                        if String.unsafe_get s (pos+1) = 'i' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'd' then (
+                          0
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 'p' -> (
+                        if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 't' && String.unsafe_get s (pos+3) = 'h' then (
+                          2
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
+                )
+              | 12 -> (
+                  if String.unsafe_get s pos = 'i' && String.unsafe_get s (pos+1) = 's' && String.unsafe_get s (pos+2) = '_' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'p' && String.unsafe_get s (pos+5) = 'h' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'm' && String.unsafe_get s (pos+8) = 'e' && String.unsafe_get s (pos+9) = 'r' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'l' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
+                )
+              | _ -> (
+                  -1
+                )
+        in
+        let i = Yojson.Safe.map_ident p f lb in
+        Atdgen_runtime.Oj_run.read_until_field_value p lb;
+        (
+          match i with
+            | 0 ->
+              field_kind := (
+                Some (
+                  (
+                    read_sbom_kind
+                  ) p lb
+                )
+              );
+            | 1 ->
+              field_is_ephemeral := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_bool
+                  ) p lb
+                )
+              );
+            | 2 ->
+              field_path := (
+                Some (
+                  (
+                    read_fpath
+                  ) p lb
+                )
+              );
+            | _ -> (
+                Yojson.Safe.skip_json p lb
+              )
+        );
+      done;
+      assert false;
+    with Yojson.End_of_object -> (
+        (
+          {
+            kind = (match !field_kind with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "kind");
+            is_ephemeral = (match !field_is_ephemeral with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "is_ephemeral");
+            path = (match !field_path with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "path");
+          }
+         : sbom)
+      )
+)
+let sbom_of_string s =
+  read_sbom (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_sca_pattern : _ -> sca_pattern -> _ = (
   fun ob (x : sca_pattern) ->
     Buffer.add_char ob '{';
@@ -7254,6 +7515,25 @@ and write_dependency_source : _ -> dependency_source -> _ = (
           write__dependency_source_list
         ) ob x;
         Buffer.add_char ob ']'
+      | AuxillarySBOM x ->
+        Buffer.add_string ob "[\"AuxillarySBOM\",";
+        (
+          fun ob x ->
+            Buffer.add_char ob '[';
+            (let x, _ = x in
+            (
+              write_sbom
+            ) ob x
+            );
+            Buffer.add_char ob ',';
+            (let _, x = x in
+            (
+              write_dependency_source
+            ) ob x
+            );
+            Buffer.add_char ob ']';
+        ) ob x;
+        Buffer.add_char ob ']'
 )
 and string_of_dependency_source ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -7362,6 +7642,58 @@ and read_dependency_source = (
               Yojson.Safe.read_space p lb;
               Yojson.Safe.read_rbr p lb;
               (MultiLockfile x : dependency_source)
+            | "AuxillarySBOM" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  fun p lb ->
+                    Yojson.Safe.read_space p lb;
+                    Atdgen_runtime.Yojson_extra.start_any_tuple p lb;
+                    let len = ref 0 in
+                    let end_of_tuple = ref false in
+                    (try
+                      let x0 =
+                        let x =
+                          (
+                            read_sbom
+                          ) p lb
+                        in
+                        incr len;
+                        Yojson.Safe.read_space p lb;
+                        Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+                        x
+                      in
+                      let x1 =
+                        let x =
+                          (
+                            read_dependency_source
+                          ) p lb
+                        in
+                        incr len;
+                        (try
+                          Yojson.Safe.read_space p lb;
+                          Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+                        with Atdgen_runtime.Yojson_extra.End_of_tuple -> end_of_tuple := true);
+                        x
+                      in
+                      if not !end_of_tuple then (
+                        try
+                          while true do
+                            Yojson.Safe.skip_json p lb;
+                            Yojson.Safe.read_space p lb;
+                            Atdgen_runtime.Yojson_extra.read_tuple_sep2 p lb;
+                          done
+                        with Atdgen_runtime.Yojson_extra.End_of_tuple -> ()
+                      );
+                      (x0, x1)
+                    with Atdgen_runtime.Yojson_extra.End_of_tuple ->
+                      Atdgen_runtime.Oj_run.missing_tuple_fields p !len [ 0; 1 ]);
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (AuxillarySBOM x : dependency_source)
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
@@ -22019,6 +22351,7 @@ let write_resolution_method = (
     match x with
       | `LockfileParsing -> Buffer.add_string ob "\"LockfileParsing\""
       | `DynamicResolution -> Buffer.add_string ob "\"DynamicResolution\""
+      | `SbomParsing -> Buffer.add_string ob "\"SbomParsing\""
 )
 let string_of_resolution_method ?(len = 1024) x =
   let ob = Buffer.create len in
@@ -22034,6 +22367,8 @@ let read_resolution_method = (
               `LockfileParsing
             | "DynamicResolution" ->
               `DynamicResolution
+            | "SbomParsing" ->
+              `SbomParsing
             | x ->
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )

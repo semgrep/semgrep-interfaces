@@ -2217,6 +2217,10 @@
         {
           "description": "we communicated with the package manager to resolve dependencies",
           "const": "DynamicResolution"
+        },
+        {
+          "description": "We parsed an SBOM separate from the dependency source files, either an ephemeral or a checked-in one.",
+          "const": "SbomParsing"
         }
       ]
     },
@@ -2982,6 +2986,14 @@
         }
       ]
     },
+    "sbom_kind": {
+      "oneOf": [
+        {
+          "description": "cyclonedx json - https://cyclonedx.org/docs/1.4/json/",
+          "const": "CycloneDXJson"
+        }
+      ]
+    },
     "manifest": {
       "type": "object",
       "required": [ "kind", "path" ],
@@ -2995,6 +3007,18 @@
       "required": [ "kind", "path" ],
       "properties": {
         "kind": { "$ref": "#/definitions/lockfile_kind" },
+        "path": { "$ref": "#/definitions/fpath" }
+      }
+    },
+    "sbom": {
+      "type": "object",
+      "required": [ "kind", "is_ephemeral", "path" ],
+      "properties": {
+        "kind": { "$ref": "#/definitions/sbom_kind" },
+        "is_ephemeral": {
+          "description": "whether or not the SBOM is produced ephemerally, i.e. is not checked in to version control. if true, references in resolved dependencies will not point to the SBOM itself.",
+          "type": "boolean"
+        },
         "path": { "$ref": "#/definitions/fpath" }
       }
     },
@@ -3045,6 +3069,26 @@
             {
               "type": "array",
               "items": { "$ref": "#/definitions/dependency_source" }
+            }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            {
+              "description": "An SBOM containing dependency information that is not part of the dependency source files directly interpreted by the package manager. This is connected to a standard dependency source. The attached dependency source should not be another AuxillarySBOM. Ideally we would restructure this type to encode this requirement.",
+              "const": "AuxillarySBOM"
+            },
+            {
+              "type": "array",
+              "minItems": 2,
+              "items": false,
+              "prefixItems": [
+                { "$ref": "#/definitions/sbom" },
+                { "$ref": "#/definitions/dependency_source" }
+              ]
             }
           ]
         }

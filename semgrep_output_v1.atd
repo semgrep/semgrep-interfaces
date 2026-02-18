@@ -2346,6 +2346,11 @@ type resolution_method
       <doc text="
       we communicated with the package manager to resolve dependencies
       ">
+  | SbomParsing
+      <doc text="
+      We parsed an SBOM separate from the dependency source files, either
+      an ephemeral or a checked-in one.
+      ">
 ]
 
 (* ----------------------------- *)
@@ -3038,6 +3043,16 @@ type manifest_kind
       ">
 ] <ocaml repr="classic">
 
+type sbom_kind
+  <ocaml attr="deriving show { with_path = false }, eq">
+  <python decorator="dataclass(frozen=True)"> =
+[
+    | CycloneDXJson
+      <doc text="
+      cyclonedx json - https://cyclonedx.org/docs/1.4/json/
+      ">
+] <ocaml repr="classic">
+
 type manifest
     <ocaml attr="deriving show, eq">
     <python decorator="dataclass(frozen=True)"> =
@@ -3051,6 +3066,20 @@ type lockfile
     <python decorator="dataclass(frozen=True)"> =
 {
     kind: lockfile_kind;
+    path: fpath;
+}
+
+type sbom
+    <ocaml attr="deriving show, eq">
+    <python decorator="dataclass(frozen=True)"> =
+{
+    kind: sbom_kind;
+    is_ephemeral
+      <doc text="
+      whether or not the SBOM is produced ephemerally, i.e. is not checked in to version control.
+      if true, references in resolved dependencies will not point to the SBOM itself.
+      ">
+    : bool;
     path: fpath;
 }
 
@@ -3076,6 +3105,15 @@ type dependency_source
       for Subproject to avoid hashing the dependency_source.
       ">
       of dependency_source list
+  | AuxillarySBOM
+      <doc text="
+      An SBOM containing dependency information that is not part of the dependency
+      source files directly interpreted by the package manager. This is connected
+      to a standard dependency source. The attached dependency source should not be
+      another AuxillarySBOM. Ideally we would restructure this type to encode this
+      requirement.
+      ">
+      of (sbom * dependency_source)
 ] <ocaml repr="classic">
 
 (* alt: sca_error_kind *)

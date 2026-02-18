@@ -877,6 +877,7 @@ export type DependencyResolutionStats = {
 export type ResolutionMethod =
 | { kind: 'LockfileParsing' }
 | { kind: 'DynamicResolution' }
+| { kind: 'SbomParsing' }
 
 export type CiScanFailure = {
   exit_code: number /*int*/;
@@ -1167,6 +1168,9 @@ export type ManifestKind =
 | { kind: 'OpamFile' }
 | { kind: 'BuildSbt' }
 
+export type SbomKind =
+| { kind: 'CycloneDXJson' }
+
 export type Manifest = {
   kind: ManifestKind;
   path: Fpath;
@@ -1177,11 +1181,18 @@ export type Lockfile = {
   path: Fpath;
 }
 
+export type Sbom = {
+  kind: SbomKind;
+  is_ephemeral: boolean;
+  path: Fpath;
+}
+
 export type DependencySource =
 | { kind: 'ManifestOnly'; value: Manifest }
 | { kind: 'LockfileOnly'; value: Lockfile }
 | { kind: 'ManifestLockfile'; value: [Manifest, Lockfile] }
 | { kind: 'MultiLockfile'; value: DependencySource[] }
+| { kind: 'AuxillarySBOM'; value: [Sbom, DependencySource] }
 
 export type ResolutionErrorKind =
 | { kind: 'UnsupportedManifest' }
@@ -4024,6 +4035,8 @@ export function writeResolutionMethod(x: ResolutionMethod, context: any = x): an
       return 'LockfileParsing'
     case 'DynamicResolution':
       return 'DynamicResolution'
+    case 'SbomParsing':
+      return 'SbomParsing'
   }
 }
 
@@ -4033,6 +4046,8 @@ export function readResolutionMethod(x: any, context: any = x): ResolutionMethod
       return { kind: 'LockfileParsing' }
     case 'DynamicResolution':
       return { kind: 'DynamicResolution' }
+    case 'SbomParsing':
+      return { kind: 'SbomParsing' }
     default:
       _atd_bad_json('ResolutionMethod', x, context)
       throw new Error('impossible')
@@ -4908,6 +4923,23 @@ export function readManifestKind(x: any, context: any = x): ManifestKind {
   }
 }
 
+export function writeSbomKind(x: SbomKind, context: any = x): any {
+  switch (x.kind) {
+    case 'CycloneDXJson':
+      return 'CycloneDXJson'
+  }
+}
+
+export function readSbomKind(x: any, context: any = x): SbomKind {
+  switch (x) {
+    case 'CycloneDXJson':
+      return { kind: 'CycloneDXJson' }
+    default:
+      _atd_bad_json('SbomKind', x, context)
+      throw new Error('impossible')
+  }
+}
+
 export function writeManifest(x: Manifest, context: any = x): any {
   return {
     'kind': _atd_write_required_field('Manifest', 'kind', writeManifestKind, x.kind, x),
@@ -4936,6 +4968,22 @@ export function readLockfile(x: any, context: any = x): Lockfile {
   };
 }
 
+export function writeSbom(x: Sbom, context: any = x): any {
+  return {
+    'kind': _atd_write_required_field('Sbom', 'kind', writeSbomKind, x.kind, x),
+    'is_ephemeral': _atd_write_required_field('Sbom', 'is_ephemeral', _atd_write_bool, x.is_ephemeral, x),
+    'path': _atd_write_required_field('Sbom', 'path', writeFpath, x.path, x),
+  };
+}
+
+export function readSbom(x: any, context: any = x): Sbom {
+  return {
+    kind: _atd_read_required_field('Sbom', 'kind', readSbomKind, x['kind'], x),
+    is_ephemeral: _atd_read_required_field('Sbom', 'is_ephemeral', _atd_read_bool, x['is_ephemeral'], x),
+    path: _atd_read_required_field('Sbom', 'path', readFpath, x['path'], x),
+  };
+}
+
 export function writeDependencySource(x: DependencySource, context: any = x): any {
   switch (x.kind) {
     case 'ManifestOnly':
@@ -4946,6 +4994,8 @@ export function writeDependencySource(x: DependencySource, context: any = x): an
       return ['ManifestLockfile', ((x, context) => [writeManifest(x[0], x), writeLockfile(x[1], x)])(x.value, x)]
     case 'MultiLockfile':
       return ['MultiLockfile', _atd_write_array(writeDependencySource)(x.value, x)]
+    case 'AuxillarySBOM':
+      return ['AuxillarySBOM', ((x, context) => [writeSbom(x[0], x), writeDependencySource(x[1], x)])(x.value, x)]
   }
 }
 
@@ -4960,6 +5010,8 @@ export function readDependencySource(x: any, context: any = x): DependencySource
       return { kind: 'ManifestLockfile', value: ((x, context): [Manifest, Lockfile] => { _atd_check_json_tuple(2, x, context); return [readManifest(x[0], x), readLockfile(x[1], x)] })(x[1], x) }
     case 'MultiLockfile':
       return { kind: 'MultiLockfile', value: _atd_read_array(readDependencySource)(x[1], x) }
+    case 'AuxillarySBOM':
+      return { kind: 'AuxillarySBOM', value: ((x, context): [Sbom, DependencySource] => { _atd_check_json_tuple(2, x, context); return [readSbom(x[0], x), readDependencySource(x[1], x)] })(x[1], x) }
     default:
       _atd_bad_json('DependencySource', x, context)
       throw new Error('impossible')

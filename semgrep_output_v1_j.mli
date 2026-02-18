@@ -460,6 +460,23 @@ type raw_json = JSON.Yojson.t [@@deriving eq, ord, show]
 type rule_id = Semgrep_output_v1_t.rule_id
   [@@deriving show, eq, ord]
 
+type sbom_kind = Semgrep_output_v1_t.sbom_kind = 
+  CycloneDXJson (** cyclonedx json - https://cyclonedx.org/docs/1.4/json/ *)
+
+  [@@deriving show { with_path = false }, eq]
+
+type sbom = Semgrep_output_v1_t.sbom = {
+  kind: sbom_kind;
+  is_ephemeral: bool
+    (**
+      whether or not the SBOM is produced ephemerally, i.e. is not checked in
+      to version control. if true, references in resolved dependencies will
+      not point to the SBOM itself.
+    *);
+  path: fpath
+}
+  [@@deriving show, eq]
+
 type sca_pattern = Semgrep_output_v1_t.sca_pattern = {
   ecosystem: ecosystem;
   package: string;
@@ -562,6 +579,14 @@ type dependency_source = Semgrep_output_v1_t.dependency_source =
         List\[DependencySource\] and List are not hashable in Python. We had
         to define a special hash function for Subproject to avoid hashing the
         dependency_source.
+      *)
+  | AuxillarySBOM of (sbom * dependency_source)
+      (**
+        An SBOM containing dependency information that is not part of the
+        dependency source files directly interpreted by the package manager.
+        This is connected to a standard dependency source. The attached
+        dependency source should not be another AuxillarySBOM. Ideally we
+        would restructure this type to encode this requirement.
       *)
 
   [@@deriving show]
@@ -2973,6 +2998,46 @@ val read_rule_id :
 val rule_id_of_string :
   string -> rule_id
   (** Deserialize JSON data of type {!type:rule_id}. *)
+
+val write_sbom_kind :
+  Buffer.t -> sbom_kind -> unit
+  (** Output a JSON value of type {!type:sbom_kind}. *)
+
+val string_of_sbom_kind :
+  ?len:int -> sbom_kind -> string
+  (** Serialize a value of type {!type:sbom_kind}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sbom_kind :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sbom_kind
+  (** Input JSON data of type {!type:sbom_kind}. *)
+
+val sbom_kind_of_string :
+  string -> sbom_kind
+  (** Deserialize JSON data of type {!type:sbom_kind}. *)
+
+val write_sbom :
+  Buffer.t -> sbom -> unit
+  (** Output a JSON value of type {!type:sbom}. *)
+
+val string_of_sbom :
+  ?len:int -> sbom -> string
+  (** Serialize a value of type {!type:sbom}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sbom :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sbom
+  (** Input JSON data of type {!type:sbom}. *)
+
+val sbom_of_string :
+  string -> sbom
+  (** Deserialize JSON data of type {!type:sbom}. *)
 
 val write_sca_pattern :
   Buffer.t -> sca_pattern -> unit

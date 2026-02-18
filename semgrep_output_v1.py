@@ -2887,6 +2887,96 @@ class RuleId:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class CycloneDXJson:
+    """Original type: sbom_kind = [ ... | CycloneDXJson | ... ]
+
+    cyclonedx json - https://cyclonedx.org/docs/1.4/json/
+    """
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CycloneDXJson'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'CycloneDXJson'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class SbomKind:
+    """Original type: sbom_kind = [ ... ]
+    """
+
+    value: Union[CycloneDXJson]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SbomKind':
+        if isinstance(x, str):
+            if x == 'CycloneDXJson':
+                return cls(CycloneDXJson())
+            _atd_bad_json('SbomKind', x)
+        _atd_bad_json('SbomKind', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SbomKind':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class Sbom:
+    """Original type: sbom = { ... }
+
+    :param is_ephemeral: whether or not the SBOM is produced ephemerally, i.e.
+    is not checked in to version control. if true, references in resolved
+    dependencies will not point to the SBOM itself.
+    """
+
+    kind: SbomKind
+    is_ephemeral: bool
+    path: Fpath
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'Sbom':
+        if isinstance(x, dict):
+            return cls(
+                kind=SbomKind.from_json(x['kind']) if 'kind' in x else _atd_missing_json_field('Sbom', 'kind'),
+                is_ephemeral=_atd_read_bool(x['is_ephemeral']) if 'is_ephemeral' in x else _atd_missing_json_field('Sbom', 'is_ephemeral'),
+                path=Fpath.from_json(x['path']) if 'path' in x else _atd_missing_json_field('Sbom', 'path'),
+            )
+        else:
+            _atd_bad_json('Sbom', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['kind'] = (lambda x: x.to_json())(self.kind)
+        res['is_ephemeral'] = _atd_write_bool(self.is_ephemeral)
+        res['path'] = (lambda x: x.to_json())(self.path)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'Sbom':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class ScaPattern:
     """Original type: sca_pattern = { ... }
@@ -3399,11 +3489,36 @@ class MultiLockfile:
 
 
 @dataclass(frozen=True)
+class AuxillarySBOM:
+    """Original type: dependency_source = [ ... | AuxillarySBOM of ... | ... ]
+
+    An SBOM containing dependency information that is not part of the
+    dependency source files directly interpreted by the package manager. This
+    is connected to a standard dependency source. The attached dependency
+    source should not be another AuxillarySBOM. Ideally we would restructure
+    this type to encode this requirement.
+    """
+
+    value: Tuple[Sbom, DependencySource]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'AuxillarySBOM'
+
+    def to_json(self) -> Any:
+        return ['AuxillarySBOM', (lambda x: [(lambda x: x.to_json())(x[0]), (lambda x: x.to_json())(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class DependencySource:
     """Original type: dependency_source = [ ... ]
     """
 
-    value: Union[ManifestOnly, LockfileOnly, ManifestLockfile, MultiLockfile]
+    value: Union[ManifestOnly, LockfileOnly, ManifestLockfile, MultiLockfile, AuxillarySBOM]
 
     @property
     def kind(self) -> str:
@@ -3422,6 +3537,8 @@ class DependencySource:
                 return cls(ManifestLockfile((lambda x: (Manifest.from_json(x[0]), Lockfile.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
             if cons == 'MultiLockfile':
                 return cls(MultiLockfile(_atd_read_list(DependencySource.from_json)(x[1])))
+            if cons == 'AuxillarySBOM':
+                return cls(AuxillarySBOM((lambda x: (Sbom.from_json(x[0]), DependencySource.from_json(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
             _atd_bad_json('DependencySource', x)
         _atd_bad_json('DependencySource', x)
 
@@ -8717,11 +8834,32 @@ class DynamicResolution:
 
 
 @dataclass(frozen=True, order=True)
+class SbomParsing:
+    """Original type: resolution_method = [ ... | SbomParsing | ... ]
+
+    We parsed an SBOM separate from the dependency source files, either an
+    ephemeral or a checked-in one.
+    """
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'SbomParsing'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'SbomParsing'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
 class ResolutionMethod:
     """Original type: resolution_method = [ ... ]
     """
 
-    value: Union[LockfileParsing, DynamicResolution]
+    value: Union[LockfileParsing, DynamicResolution, SbomParsing]
 
     @property
     def kind(self) -> str:
@@ -8735,6 +8873,8 @@ class ResolutionMethod:
                 return cls(LockfileParsing())
             if x == 'DynamicResolution':
                 return cls(DynamicResolution())
+            if x == 'SbomParsing':
+                return cls(SbomParsing())
             _atd_bad_json('ResolutionMethod', x)
         _atd_bad_json('ResolutionMethod', x)
 
