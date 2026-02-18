@@ -609,9 +609,15 @@ export type GetConfigResponseV2 = {
   body: GetConfigResponseBody;
 }
 
+export type GetConfigResponseStatus =
+| { kind: 'Pending' /* JSON: "pending" */ }
+| { kind: 'Success' /* JSON: "success" */ }
+| { kind: 'Failure' /* JSON: "failure" */ }
+
 export type GetConfigResponseBody = {
-  config: ScanConfiguration;
-  engine_params: EngineConfiguration;
+  status: GetConfigResponseStatus;
+  config?: ScanConfiguration;
+  engine_params?: EngineConfiguration;
 }
 
 export type ScanResponse = {
@@ -3328,17 +3334,44 @@ export function readGetConfigResponseV2(x: any, context: any = x): GetConfigResp
   };
 }
 
+export function writeGetConfigResponseStatus(x: GetConfigResponseStatus, context: any = x): any {
+  switch (x.kind) {
+    case 'Pending':
+      return 'pending'
+    case 'Success':
+      return 'success'
+    case 'Failure':
+      return 'failure'
+  }
+}
+
+export function readGetConfigResponseStatus(x: any, context: any = x): GetConfigResponseStatus {
+  switch (x) {
+    case 'pending':
+      return { kind: 'Pending' }
+    case 'success':
+      return { kind: 'Success' }
+    case 'failure':
+      return { kind: 'Failure' }
+    default:
+      _atd_bad_json('GetConfigResponseStatus', x, context)
+      throw new Error('impossible')
+  }
+}
+
 export function writeGetConfigResponseBody(x: GetConfigResponseBody, context: any = x): any {
   return {
-    'config': _atd_write_required_field('GetConfigResponseBody', 'config', writeScanConfiguration, x.config, x),
-    'engine_params': _atd_write_required_field('GetConfigResponseBody', 'engine_params', writeEngineConfiguration, x.engine_params, x),
+    'status': _atd_write_required_field('GetConfigResponseBody', 'status', writeGetConfigResponseStatus, x.status, x),
+    'config': _atd_write_optional_field(writeScanConfiguration, x.config, x),
+    'engine_params': _atd_write_optional_field(writeEngineConfiguration, x.engine_params, x),
   };
 }
 
 export function readGetConfigResponseBody(x: any, context: any = x): GetConfigResponseBody {
   return {
-    config: _atd_read_required_field('GetConfigResponseBody', 'config', readScanConfiguration, x['config'], x),
-    engine_params: _atd_read_required_field('GetConfigResponseBody', 'engine_params', readEngineConfiguration, x['engine_params'], x),
+    status: _atd_read_required_field('GetConfigResponseBody', 'status', readGetConfigResponseStatus, x['status'], x),
+    config: _atd_read_optional_field(readScanConfiguration, x['config'], x),
+    engine_params: _atd_read_optional_field(readEngineConfiguration, x['engine_params'], x),
   };
 }
 

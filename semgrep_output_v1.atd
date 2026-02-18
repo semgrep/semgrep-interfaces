@@ -1702,13 +1702,20 @@ type get_config_response_v2
      body: get_config_response_body
 }
 
+type get_config_response_status = [
+    | Pending <json name="pending">
+    | Success <json name="success">
+    | Failure <json name="failure">
+] <ocaml repr="classic">
+
 type get_config_response_body
      <doc text="
      Internal format of the /api/cli/v2/scans/<scan_request_id>/config body field.
      ">
    = {
-    config: scan_configuration;
-    engine_params: engine_configuration;
+    status: get_config_response_status;
+    ?config: scan_configuration option;
+    ?engine_params: engine_configuration option;
 }
 
 type scan_response

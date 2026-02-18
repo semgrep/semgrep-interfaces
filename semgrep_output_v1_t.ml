@@ -2268,13 +2268,16 @@ type has_features = {
   has_dependency_query: bool
 }
 
+type get_config_response_status =  Pending | Success | Failure 
+
 (**
   Internal format of the /api/cli/v2/scans/<scan_request_id>/config body
   field.
 *)
 type get_config_response_body = {
-  config: scan_configuration;
-  engine_params: engine_configuration
+  status: get_config_response_status;
+  config: scan_configuration option;
+  engine_params: engine_configuration option
 }
 
 (**

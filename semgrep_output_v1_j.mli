@@ -2278,14 +2278,20 @@ type has_features = Semgrep_output_v1_t.has_features = {
   has_dependency_query: bool
 }
 
+type get_config_response_status =
+  Semgrep_output_v1_t.get_config_response_status = 
+    Pending | Success | Failure
+
+
 (**
   Internal format of the /api/cli/v2/scans/<scan_request_id>/config body
   field.
 *)
 type get_config_response_body =
   Semgrep_output_v1_t.get_config_response_body = {
-  config: scan_configuration;
-  engine_params: engine_configuration
+  status: get_config_response_status;
+  config: scan_configuration option;
+  engine_params: engine_configuration option
 }
 
 (**
@@ -5975,6 +5981,26 @@ val read_has_features :
 val has_features_of_string :
   string -> has_features
   (** Deserialize JSON data of type {!type:has_features}. *)
+
+val write_get_config_response_status :
+  Buffer.t -> get_config_response_status -> unit
+  (** Output a JSON value of type {!type:get_config_response_status}. *)
+
+val string_of_get_config_response_status :
+  ?len:int -> get_config_response_status -> string
+  (** Serialize a value of type {!type:get_config_response_status}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_get_config_response_status :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> get_config_response_status
+  (** Input JSON data of type {!type:get_config_response_status}. *)
+
+val get_config_response_status_of_string :
+  string -> get_config_response_status
+  (** Deserialize JSON data of type {!type:get_config_response_status}. *)
 
 val write_get_config_response_body :
   Buffer.t -> get_config_response_body -> unit
