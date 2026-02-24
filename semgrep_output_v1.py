@@ -11945,11 +11945,11 @@ class GetConfigResponseStatus:
 
 
 @dataclass
-class GetConfigResponseBody:
-    """Original type: get_config_response_body = { ... }
+class GetConfigResponseV2:
+    """Original type: get_config_response_v2 = { ... }
 
-    Internal format of the /api/cli/v2/scans/<scan_request_id>/config body
-    field.
+    Response from the backend to the CLI for GET
+    /api/cli/v2/scans/<scan_request_id>/config.
     """
 
     status: GetConfigResponseStatus
@@ -11957,15 +11957,15 @@ class GetConfigResponseBody:
     engine_params: Optional[EngineConfiguration] = None
 
     @classmethod
-    def from_json(cls, x: Any) -> 'GetConfigResponseBody':
+    def from_json(cls, x: Any) -> 'GetConfigResponseV2':
         if isinstance(x, dict):
             return cls(
-                status=GetConfigResponseStatus.from_json(x['status']) if 'status' in x else _atd_missing_json_field('GetConfigResponseBody', 'status'),
+                status=GetConfigResponseStatus.from_json(x['status']) if 'status' in x else _atd_missing_json_field('GetConfigResponseV2', 'status'),
                 config=ScanConfiguration.from_json(x['config']) if 'config' in x else None,
                 engine_params=EngineConfiguration.from_json(x['engine_params']) if 'engine_params' in x else None,
             )
         else:
-            _atd_bad_json('GetConfigResponseBody', x)
+            _atd_bad_json('GetConfigResponseV2', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
@@ -11974,39 +11974,6 @@ class GetConfigResponseBody:
             res['config'] = (lambda x: x.to_json())(self.config)
         if self.engine_params is not None:
             res['engine_params'] = (lambda x: x.to_json())(self.engine_params)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'GetConfigResponseBody':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class GetConfigResponseV2:
-    """Original type: get_config_response_v2 = { ... }
-
-    Response from the backend to the CLI for GET
-    /api/cli/v2/scans/<scan_request_id>/config. Keep in sync with the proto
-    that is controlled inside semgrep-app API Framework.
-    """
-
-    body: GetConfigResponseBody
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'GetConfigResponseV2':
-        if isinstance(x, dict):
-            return cls(
-                body=GetConfigResponseBody.from_json(x['body']) if 'body' in x else _atd_missing_json_field('GetConfigResponseV2', 'body'),
-            )
-        else:
-            _atd_bad_json('GetConfigResponseV2', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['body'] = (lambda x: x.to_json())(self.body)
         return res
 
     @classmethod
@@ -13300,58 +13267,26 @@ class DeploymentResponse:
 
 
 @dataclass
-class CreateScanResponseBody:
-    """Original type: create_scan_response_body = { ... }
+class CreateScanResponseV2:
+    """Original type: create_scan_response_v2 = { ... }
 
-    Internal format of the /api/cli/v2/scans response body field.
+    Response from the backend to the CLI for POST /api/cli/v2/scans.
     """
 
     info: ScanInfo
 
     @classmethod
-    def from_json(cls, x: Any) -> 'CreateScanResponseBody':
-        if isinstance(x, dict):
-            return cls(
-                info=ScanInfo.from_json(x['info']) if 'info' in x else _atd_missing_json_field('CreateScanResponseBody', 'info'),
-            )
-        else:
-            _atd_bad_json('CreateScanResponseBody', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['info'] = (lambda x: x.to_json())(self.info)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CreateScanResponseBody':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class CreateScanResponseV2:
-    """Original type: create_scan_response_v2 = { ... }
-
-    Response from the backend to the CLI for POST /api/cli/v2/scans. Keep in
-    sync with the proto that is controlled inside semgrep-app API Framework.
-    """
-
-    body: CreateScanResponseBody
-
-    @classmethod
     def from_json(cls, x: Any) -> 'CreateScanResponseV2':
         if isinstance(x, dict):
             return cls(
-                body=CreateScanResponseBody.from_json(x['body']) if 'body' in x else _atd_missing_json_field('CreateScanResponseV2', 'body'),
+                info=ScanInfo.from_json(x['info']) if 'info' in x else _atd_missing_json_field('CreateScanResponseV2', 'info'),
             )
         else:
             _atd_bad_json('CreateScanResponseV2', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
-        res['body'] = (lambda x: x.to_json())(self.body)
+        res['info'] = (lambda x: x.to_json())(self.info)
         return res
 
     @classmethod
@@ -13363,10 +13298,10 @@ class CreateScanResponseV2:
 
 
 @dataclass
-class CreateScanRequestBody:
-    """Original type: create_scan_request_body = { ... }
+class CreateScanRequestV2:
+    """Original type: create_scan_request_v2 = { ... }
 
-    Internal format of the /api/cli/v2/scans request body field.
+    Sent by the CLI to the backend in POST /api/cli/v2/scans.
     """
 
     project_metadata: ProjectMetadata
@@ -13374,15 +13309,15 @@ class CreateScanRequestBody:
     project_config: Optional[CiConfigFromRepo] = None
 
     @classmethod
-    def from_json(cls, x: Any) -> 'CreateScanRequestBody':
+    def from_json(cls, x: Any) -> 'CreateScanRequestV2':
         if isinstance(x, dict):
             return cls(
-                project_metadata=ProjectMetadata.from_json(x['project_metadata']) if 'project_metadata' in x else _atd_missing_json_field('CreateScanRequestBody', 'project_metadata'),
-                scan_metadata=ScanMetadata.from_json(x['scan_metadata']) if 'scan_metadata' in x else _atd_missing_json_field('CreateScanRequestBody', 'scan_metadata'),
+                project_metadata=ProjectMetadata.from_json(x['project_metadata']) if 'project_metadata' in x else _atd_missing_json_field('CreateScanRequestV2', 'project_metadata'),
+                scan_metadata=ScanMetadata.from_json(x['scan_metadata']) if 'scan_metadata' in x else _atd_missing_json_field('CreateScanRequestV2', 'scan_metadata'),
                 project_config=CiConfigFromRepo.from_json(x['project_config']) if 'project_config' in x else None,
             )
         else:
-            _atd_bad_json('CreateScanRequestBody', x)
+            _atd_bad_json('CreateScanRequestV2', x)
 
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
@@ -13390,38 +13325,6 @@ class CreateScanRequestBody:
         res['scan_metadata'] = (lambda x: x.to_json())(self.scan_metadata)
         if self.project_config is not None:
             res['project_config'] = (lambda x: x.to_json())(self.project_config)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'CreateScanRequestBody':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
-class CreateScanRequestV2:
-    """Original type: create_scan_request_v2 = { ... }
-
-    Sent by the CLI to the backend in POST /api/cli/v2/scans. Keep in sync
-    with the proto that is controlled inside semgrep-app API Framework.
-    """
-
-    body: CreateScanRequestBody
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'CreateScanRequestV2':
-        if isinstance(x, dict):
-            return cls(
-                body=CreateScanRequestBody.from_json(x['body']) if 'body' in x else _atd_missing_json_field('CreateScanRequestV2', 'body'),
-            )
-        else:
-            _atd_bad_json('CreateScanRequestV2', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        res['body'] = (lambda x: x.to_json())(self.body)
         return res
 
     @classmethod

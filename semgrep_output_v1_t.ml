@@ -2271,21 +2271,14 @@ type has_features = {
 type get_config_response_status =  Pending | Success | Failure 
 
 (**
-  Internal format of the /api/cli/v2/scans/<scan_request_id>/config body
-  field.
+  Response from the backend to the CLI for GET
+  /api/cli/v2/scans/<scan_request_id>/config.
 *)
-type get_config_response_body = {
+type get_config_response_v2 = {
   status: get_config_response_status;
   config: scan_configuration option;
   engine_params: engine_configuration option
 }
-
-(**
-  Response from the backend to the CLI for GET
-  /api/cli/v2/scans/<scan_request_id>/config. Keep in sync with the proto
-  that is controlled inside semgrep-app API Framework.
-*)
-type get_config_response_v2 = { body: get_config_response_body }
 
 type apply_fixes_return = {
   modified_file_count: int (** Number of files modified *);
@@ -2505,27 +2498,15 @@ type deployment_config = {
 
 type deployment_response = { deployment: deployment_config }
 
-(** Internal format of the /api/cli/v2/scans response body field. *)
-type create_scan_response_body = { info: scan_info }
+(** Response from the backend to the CLI for POST /api/cli/v2/scans. *)
+type create_scan_response_v2 = { info: scan_info }
 
-(**
-  Response from the backend to the CLI for POST /api/cli/v2/scans. Keep in
-  sync with the proto that is controlled inside semgrep-app API Framework.
-*)
-type create_scan_response_v2 = { body: create_scan_response_body }
-
-(** Internal format of the /api/cli/v2/scans request body field. *)
-type create_scan_request_body = {
+(** Sent by the CLI to the backend in POST /api/cli/v2/scans. *)
+type create_scan_request_v2 = {
   project_metadata: project_metadata;
   scan_metadata: scan_metadata;
   project_config: ci_config_from_repo option
 }
-
-(**
-  Sent by the CLI to the backend in POST /api/cli/v2/scans. Keep in sync with
-  the proto that is controlled inside semgrep-app API Framework.
-*)
-type create_scan_request_v2 = { body: create_scan_request_body }
 
 (**
   For extra information to put into the `core_output` that we do not
