@@ -1541,25 +1541,19 @@
       ]
     },
     "create_scan_response_v2": {
-      "description": "Response from the backend to the CLI for POST /api/cli/v2/scans. Keep in sync with the proto that is controlled inside semgrep-app API Framework.",
-      "type": "object",
-      "required": [ "body" ],
-      "properties": {
-        "body": { "$ref": "#/definitions/create_scan_response_body" }
-      }
-    },
-    "create_scan_response_body": {
-      "description": "Internal format of the /api/cli/v2/scans response body field.",
+      "description": "Response from the backend to the CLI for POST /api/cli/v2/scans.",
       "type": "object",
       "required": [ "info" ],
       "properties": { "info": { "$ref": "#/definitions/scan_info" } }
     },
     "get_config_response_v2": {
-      "description": "Response from the backend to the CLI for GET /api/cli/v2/scans/<scan_request_id>/config. Keep in sync with the proto that is controlled inside semgrep-app API Framework.",
+      "description": "Response from the backend to the CLI for GET /api/cli/v2/scans/<scan_request_id>/config.",
       "type": "object",
-      "required": [ "body" ],
+      "required": [ "status" ],
       "properties": {
-        "body": { "$ref": "#/definitions/get_config_response_body" }
+        "status": { "$ref": "#/definitions/get_config_response_status" },
+        "config": { "$ref": "#/definitions/scan_configuration" },
+        "engine_params": { "$ref": "#/definitions/engine_configuration" }
       }
     },
     "get_config_response_status": {
@@ -1568,16 +1562,6 @@
         { "const": "success" },
         { "const": "failure" }
       ]
-    },
-    "get_config_response_body": {
-      "description": "Internal format of the /api/cli/v2/scans/<scan_request_id>/config body field.",
-      "type": "object",
-      "required": [ "status" ],
-      "properties": {
-        "status": { "$ref": "#/definitions/get_config_response_status" },
-        "config": { "$ref": "#/definitions/scan_configuration" },
-        "engine_params": { "$ref": "#/definitions/engine_configuration" }
-      }
     },
     "scan_response": {
       "description": "Response from the backend to the CLI to the (deprecated) POST /api/cli/scans",
@@ -1695,15 +1679,7 @@
       }
     },
     "create_scan_request_v2": {
-      "description": "Sent by the CLI to the backend in POST /api/cli/v2/scans. Keep in sync with the proto that is controlled inside semgrep-app API Framework.",
-      "type": "object",
-      "required": [ "body" ],
-      "properties": {
-        "body": { "$ref": "#/definitions/create_scan_request_body" }
-      }
-    },
-    "create_scan_request_body": {
-      "description": "Internal format of the /api/cli/v2/scans request body field.",
+      "description": "Sent by the CLI to the backend in POST /api/cli/v2/scans.",
       "type": "object",
       "required": [ "project_metadata", "scan_metadata" ],
       "properties": {
