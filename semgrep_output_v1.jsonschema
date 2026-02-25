@@ -1549,11 +1549,25 @@
     "get_config_response_v2": {
       "description": "Response from the backend to the CLI for GET /api/cli/v2/scans/<scan_request_id>/config.",
       "type": "object",
-      "required": [ "status" ],
+      "required": [ "status", "polling" ],
       "properties": {
         "status": { "$ref": "#/definitions/get_config_response_status" },
+        "polling": { "$ref": "#/definitions/polling_information" },
         "config": { "$ref": "#/definitions/scan_configuration" },
         "engine_params": { "$ref": "#/definitions/engine_configuration" }
+      }
+    },
+    "polling_information": {
+      "description": "Recommendations for subsequent requests",
+      "type": "object",
+      "required": [
+        "recommended_wait_seconds", "polling_deadline_at",
+        "max_remaining_polls"
+      ],
+      "properties": {
+        "recommended_wait_seconds": { "type": "integer" },
+        "polling_deadline_at": { "$ref": "#/definitions/datetime" },
+        "max_remaining_polls": { "type": "integer" }
       }
     },
     "get_config_response_status": {

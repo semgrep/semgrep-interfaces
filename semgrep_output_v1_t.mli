@@ -2026,6 +2026,13 @@ type profile = {
     *)
 }
 
+(** Recommendations for subsequent requests *)
+type polling_information = {
+  recommended_wait_seconds: int;
+  polling_deadline_at: datetime;
+  max_remaining_polls: int
+}
+
 type parsing_stats = {
   targets_parsed: int;
   num_targets: int;
@@ -2276,6 +2283,7 @@ type get_config_response_status =  Pending | Success | Failure
 *)
 type get_config_response_v2 = {
   status: get_config_response_status;
+  polling: polling_information;
   config: scan_configuration option;
   engine_params: engine_configuration option
 }

@@ -2032,6 +2032,13 @@ type profile = Semgrep_output_v1_t.profile = {
     *)
 }
 
+(** Recommendations for subsequent requests *)
+type polling_information = Semgrep_output_v1_t.polling_information = {
+  recommended_wait_seconds: int;
+  polling_deadline_at: datetime;
+  max_remaining_polls: int
+}
+
 type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
   targets_parsed: int;
   num_targets: int;
@@ -2289,6 +2296,7 @@ type get_config_response_status =
 *)
 type get_config_response_v2 = Semgrep_output_v1_t.get_config_response_v2 = {
   status: get_config_response_status;
+  polling: polling_information;
   config: scan_configuration option;
   engine_params: engine_configuration option
 }
@@ -5573,6 +5581,26 @@ val read_profile :
 val profile_of_string :
   string -> profile
   (** Deserialize JSON data of type {!type:profile}. *)
+
+val write_polling_information :
+  Buffer.t -> polling_information -> unit
+  (** Output a JSON value of type {!type:polling_information}. *)
+
+val string_of_polling_information :
+  ?len:int -> polling_information -> string
+  (** Serialize a value of type {!type:polling_information}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_polling_information :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> polling_information
+  (** Input JSON data of type {!type:polling_information}. *)
+
+val polling_information_of_string :
+  string -> polling_information
+  (** Deserialize JSON data of type {!type:polling_information}. *)
 
 val write_parsing_stats :
   Buffer.t -> parsing_stats -> unit
