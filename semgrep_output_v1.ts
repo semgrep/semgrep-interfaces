@@ -603,7 +603,7 @@ export type CreateScanResponseV2 = {
 
 export type GetConfigResponseV2 = {
   status: GetConfigResponseStatus;
-  polling: PollingInformation;
+  polling?: PollingInformation;
   config?: ScanConfiguration;
   engine_params?: EngineConfiguration;
 }
@@ -3308,7 +3308,7 @@ export function readCreateScanResponseV2(x: any, context: any = x): CreateScanRe
 export function writeGetConfigResponseV2(x: GetConfigResponseV2, context: any = x): any {
   return {
     'status': _atd_write_required_field('GetConfigResponseV2', 'status', writeGetConfigResponseStatus, x.status, x),
-    'polling': _atd_write_required_field('GetConfigResponseV2', 'polling', writePollingInformation, x.polling, x),
+    'polling': _atd_write_optional_field(writePollingInformation, x.polling, x),
     'config': _atd_write_optional_field(writeScanConfiguration, x.config, x),
     'engine_params': _atd_write_optional_field(writeEngineConfiguration, x.engine_params, x),
   };
@@ -3317,7 +3317,7 @@ export function writeGetConfigResponseV2(x: GetConfigResponseV2, context: any = 
 export function readGetConfigResponseV2(x: any, context: any = x): GetConfigResponseV2 {
   return {
     status: _atd_read_required_field('GetConfigResponseV2', 'status', readGetConfigResponseStatus, x['status'], x),
-    polling: _atd_read_required_field('GetConfigResponseV2', 'polling', readPollingInformation, x['polling'], x),
+    polling: _atd_read_optional_field(readPollingInformation, x['polling'], x),
     config: _atd_read_optional_field(readScanConfiguration, x['config'], x),
     engine_params: _atd_read_optional_field(readEngineConfiguration, x['engine_params'], x),
   };

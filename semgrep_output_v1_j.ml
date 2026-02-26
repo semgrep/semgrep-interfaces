@@ -2296,7 +2296,7 @@ type get_config_response_status =
 *)
 type get_config_response_v2 = Semgrep_output_v1_t.get_config_response_v2 = {
   status: get_config_response_status;
-  polling: polling_information;
+  polling: polling_information option;
   config: scan_configuration option;
   engine_params: engine_configuration option
 }
@@ -39961,6 +39961,45 @@ let read__scan_configuration_option = (
 )
 let _scan_configuration_option_of_string s =
   read__scan_configuration_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__polling_information_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_polling_information
+  )
+)
+let string_of__polling_information_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__polling_information_option ob x;
+  Buffer.contents ob
+let read__polling_information_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_polling_information
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _polling_information_option_of_string s =
+  read__polling_information_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write__engine_configuration_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     write_engine_configuration
@@ -40013,15 +40052,17 @@ let write_get_config_response_v2 : _ -> get_config_response_v2 -> _ = (
       write_get_config_response_status
     )
       ob x.status;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"polling\":";
-    (
-      write_polling_information
-    )
-      ob x.polling;
+    (match x.polling with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"polling\":";
+      (
+        write_polling_information
+      )
+        ob x;
+    );
     (match x.config with None -> () | Some x ->
       if !is_first then
         is_first := false
@@ -40122,13 +40163,15 @@ let read_get_config_response_v2 = (
               )
             );
           | 1 ->
-            field_polling := (
-              Some (
-                (
-                  read_polling_information
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_polling := (
+                Some (
+                  (
+                    read_polling_information
+                  ) p lb
+                )
+              );
+            )
           | 2 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_config := (
@@ -40217,13 +40260,15 @@ let read_get_config_response_v2 = (
                 )
               );
             | 1 ->
-              field_polling := (
-                Some (
-                  (
-                    read_polling_information
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_polling := (
+                  Some (
+                    (
+                      read_polling_information
+                    ) p lb
+                  )
+                );
+              )
             | 2 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_config := (
@@ -40254,7 +40299,7 @@ let read_get_config_response_v2 = (
         (
           {
             status = (match !field_status with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "status");
-            polling = (match !field_polling with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "polling");
+            polling = !field_polling;
             config = !field_config;
             engine_params = !field_engine_params;
           }

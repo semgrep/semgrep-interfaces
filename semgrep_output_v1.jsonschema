@@ -1549,7 +1549,7 @@
     "get_config_response_v2": {
       "description": "Response from the backend to the CLI for GET /api/cli/v2/scans/<scan_request_id>/config.",
       "type": "object",
-      "required": [ "status", "polling" ],
+      "required": [ "status" ],
       "properties": {
         "status": { "$ref": "#/definitions/get_config_response_status" },
         "polling": { "$ref": "#/definitions/polling_information" },

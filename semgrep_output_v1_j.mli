@@ -2296,7 +2296,7 @@ type get_config_response_status =
 *)
 type get_config_response_v2 = Semgrep_output_v1_t.get_config_response_v2 = {
   status: get_config_response_status;
-  polling: polling_information;
+  polling: polling_information option;
   config: scan_configuration option;
   engine_params: engine_configuration option
 }

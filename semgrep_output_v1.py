@@ -11990,7 +11990,7 @@ class GetConfigResponseV2:
     """
 
     status: GetConfigResponseStatus
-    polling: PollingInformation
+    polling: Optional[PollingInformation] = None
     config: Optional[ScanConfiguration] = None
     engine_params: Optional[EngineConfiguration] = None
 
@@ -11999,7 +11999,7 @@ class GetConfigResponseV2:
         if isinstance(x, dict):
             return cls(
                 status=GetConfigResponseStatus.from_json(x['status']) if 'status' in x else _atd_missing_json_field('GetConfigResponseV2', 'status'),
-                polling=PollingInformation.from_json(x['polling']) if 'polling' in x else _atd_missing_json_field('GetConfigResponseV2', 'polling'),
+                polling=PollingInformation.from_json(x['polling']) if 'polling' in x else None,
                 config=ScanConfiguration.from_json(x['config']) if 'config' in x else None,
                 engine_params=EngineConfiguration.from_json(x['engine_params']) if 'engine_params' in x else None,
             )
@@ -12009,7 +12009,8 @@ class GetConfigResponseV2:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['status'] = (lambda x: x.to_json())(self.status)
-        res['polling'] = (lambda x: x.to_json())(self.polling)
+        if self.polling is not None:
+            res['polling'] = (lambda x: x.to_json())(self.polling)
         if self.config is not None:
             res['config'] = (lambda x: x.to_json())(self.config)
         if self.engine_params is not None:
