@@ -2029,8 +2029,7 @@ type profile = {
 (** Recommendations for subsequent requests *)
 type polling_information = {
   recommended_wait_seconds: int;
-  polling_deadline_at: datetime;
-  max_remaining_polls: int
+  seconds_until_timeout: int
 }
 
 type parsing_stats = {

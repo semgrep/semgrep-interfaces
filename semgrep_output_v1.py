@@ -10726,16 +10726,14 @@ class PollingInformation:
     """
 
     recommended_wait_seconds: int
-    polling_deadline_at: Datetime
-    max_remaining_polls: int
+    seconds_until_timeout: int
 
     @classmethod
     def from_json(cls, x: Any) -> 'PollingInformation':
         if isinstance(x, dict):
             return cls(
                 recommended_wait_seconds=_atd_read_int(x['recommended_wait_seconds']) if 'recommended_wait_seconds' in x else _atd_missing_json_field('PollingInformation', 'recommended_wait_seconds'),
-                polling_deadline_at=Datetime.from_json(x['polling_deadline_at']) if 'polling_deadline_at' in x else _atd_missing_json_field('PollingInformation', 'polling_deadline_at'),
-                max_remaining_polls=_atd_read_int(x['max_remaining_polls']) if 'max_remaining_polls' in x else _atd_missing_json_field('PollingInformation', 'max_remaining_polls'),
+                seconds_until_timeout=_atd_read_int(x['seconds_until_timeout']) if 'seconds_until_timeout' in x else _atd_missing_json_field('PollingInformation', 'seconds_until_timeout'),
             )
         else:
             _atd_bad_json('PollingInformation', x)
@@ -10743,8 +10741,7 @@ class PollingInformation:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['recommended_wait_seconds'] = _atd_write_int(self.recommended_wait_seconds)
-        res['polling_deadline_at'] = (lambda x: x.to_json())(self.polling_deadline_at)
-        res['max_remaining_polls'] = _atd_write_int(self.max_remaining_polls)
+        res['seconds_until_timeout'] = _atd_write_int(self.seconds_until_timeout)
         return res
 
     @classmethod

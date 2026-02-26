@@ -2035,8 +2035,7 @@ type profile = Semgrep_output_v1_t.profile = {
 (** Recommendations for subsequent requests *)
 type polling_information = Semgrep_output_v1_t.polling_information = {
   recommended_wait_seconds: int;
-  polling_deadline_at: datetime;
-  max_remaining_polls: int
+  seconds_until_timeout: int
 }
 
 type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
@@ -33554,20 +33553,11 @@ let write_polling_information : _ -> polling_information -> _ = (
       is_first := false
     else
       Buffer.add_char ob ',';
-      Buffer.add_string ob "\"polling_deadline_at\":";
-    (
-      write_datetime
-    )
-      ob x.polling_deadline_at;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"max_remaining_polls\":";
+      Buffer.add_string ob "\"seconds_until_timeout\":";
     (
       Yojson.Safe.write_int
     )
-      ob x.max_remaining_polls;
+      ob x.seconds_until_timeout;
     Buffer.add_char ob '}';
 )
 let string_of_polling_information ?(len = 1024) x =
@@ -33579,8 +33569,7 @@ let read_polling_information = (
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
     let field_recommended_wait_seconds = ref (None) in
-    let field_polling_deadline_at = ref (None) in
-    let field_max_remaining_polls = ref (None) in
+    let field_seconds_until_timeout = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -33590,27 +33579,13 @@ let read_polling_information = (
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
-            | 19 -> (
-                match String.unsafe_get s pos with
-                  | 'm' -> (
-                      if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 'g' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'p' && String.unsafe_get s (pos+15) = 'o' && String.unsafe_get s (pos+16) = 'l' && String.unsafe_get s (pos+17) = 'l' && String.unsafe_get s (pos+18) = 's' then (
-                        2
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | 'p' -> (
-                      if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 'e' && String.unsafe_get s (pos+16) = '_' && String.unsafe_get s (pos+17) = 'a' && String.unsafe_get s (pos+18) = 't' then (
-                        1
-                      )
-                      else (
-                        -1
-                      )
-                    )
-                  | _ -> (
-                      -1
-                    )
+            | 21 -> (
+                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'i' && String.unsafe_get s (pos+16) = 'm' && String.unsafe_get s (pos+17) = 'e' && String.unsafe_get s (pos+18) = 'o' && String.unsafe_get s (pos+19) = 'u' && String.unsafe_get s (pos+20) = 't' then (
+                  1
+                )
+                else (
+                  -1
+                )
               )
             | 24 -> (
                 if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'm' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'd' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'w' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 't' && String.unsafe_get s (pos+16) = '_' && String.unsafe_get s (pos+17) = 's' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = 'c' && String.unsafe_get s (pos+20) = 'o' && String.unsafe_get s (pos+21) = 'n' && String.unsafe_get s (pos+22) = 'd' && String.unsafe_get s (pos+23) = 's' then (
@@ -33637,15 +33612,7 @@ let read_polling_information = (
               )
             );
           | 1 ->
-            field_polling_deadline_at := (
-              Some (
-                (
-                  read_datetime
-                ) p lb
-              )
-            );
-          | 2 ->
-            field_max_remaining_polls := (
+            field_seconds_until_timeout := (
               Some (
                 (
                   Atdgen_runtime.Oj_run.read_int
@@ -33665,27 +33632,13 @@ let read_polling_information = (
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
-              | 19 -> (
-                  match String.unsafe_get s pos with
-                    | 'm' -> (
-                        if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'x' && String.unsafe_get s (pos+3) = '_' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 'm' && String.unsafe_get s (pos+7) = 'a' && String.unsafe_get s (pos+8) = 'i' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 'g' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 'p' && String.unsafe_get s (pos+15) = 'o' && String.unsafe_get s (pos+16) = 'l' && String.unsafe_get s (pos+17) = 'l' && String.unsafe_get s (pos+18) = 's' then (
-                          2
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | 'p' -> (
-                        if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'l' && String.unsafe_get s (pos+3) = 'l' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'n' && String.unsafe_get s (pos+6) = 'g' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 'd' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'i' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 'e' && String.unsafe_get s (pos+16) = '_' && String.unsafe_get s (pos+17) = 'a' && String.unsafe_get s (pos+18) = 't' then (
-                          1
-                        )
-                        else (
-                          -1
-                        )
-                      )
-                    | _ -> (
-                        -1
-                      )
+              | 21 -> (
+                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 'u' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = 't' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = '_' && String.unsafe_get s (pos+14) = 't' && String.unsafe_get s (pos+15) = 'i' && String.unsafe_get s (pos+16) = 'm' && String.unsafe_get s (pos+17) = 'e' && String.unsafe_get s (pos+18) = 'o' && String.unsafe_get s (pos+19) = 'u' && String.unsafe_get s (pos+20) = 't' then (
+                    1
+                  )
+                  else (
+                    -1
+                  )
                 )
               | 24 -> (
                   if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'm' && String.unsafe_get s (pos+5) = 'm' && String.unsafe_get s (pos+6) = 'e' && String.unsafe_get s (pos+7) = 'n' && String.unsafe_get s (pos+8) = 'd' && String.unsafe_get s (pos+9) = 'e' && String.unsafe_get s (pos+10) = 'd' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'w' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 't' && String.unsafe_get s (pos+16) = '_' && String.unsafe_get s (pos+17) = 's' && String.unsafe_get s (pos+18) = 'e' && String.unsafe_get s (pos+19) = 'c' && String.unsafe_get s (pos+20) = 'o' && String.unsafe_get s (pos+21) = 'n' && String.unsafe_get s (pos+22) = 'd' && String.unsafe_get s (pos+23) = 's' then (
@@ -33712,15 +33665,7 @@ let read_polling_information = (
                 )
               );
             | 1 ->
-              field_polling_deadline_at := (
-                Some (
-                  (
-                    read_datetime
-                  ) p lb
-                )
-              );
-            | 2 ->
-              field_max_remaining_polls := (
+              field_seconds_until_timeout := (
                 Some (
                   (
                     Atdgen_runtime.Oj_run.read_int
@@ -33737,8 +33682,7 @@ let read_polling_information = (
         (
           {
             recommended_wait_seconds = (match !field_recommended_wait_seconds with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "recommended_wait_seconds");
-            polling_deadline_at = (match !field_polling_deadline_at with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "polling_deadline_at");
-            max_remaining_polls = (match !field_max_remaining_polls with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "max_remaining_polls");
+            seconds_until_timeout = (match !field_seconds_until_timeout with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "seconds_until_timeout");
           }
          : polling_information)
       )

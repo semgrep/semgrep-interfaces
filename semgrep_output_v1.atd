@@ -1699,8 +1699,7 @@ type polling_information
     <doc text="Recommendations for subsequent requests">
   = {
     recommended_wait_seconds: int;
-    polling_deadline_at: datetime;
-    max_remaining_polls: int;
+    seconds_until_timeout: int;
 }
 
 type get_config_response_status = [

@@ -1560,14 +1560,10 @@
     "polling_information": {
       "description": "Recommendations for subsequent requests",
       "type": "object",
-      "required": [
-        "recommended_wait_seconds", "polling_deadline_at",
-        "max_remaining_polls"
-      ],
+      "required": [ "recommended_wait_seconds", "seconds_until_timeout" ],
       "properties": {
         "recommended_wait_seconds": { "type": "integer" },
-        "polling_deadline_at": { "$ref": "#/definitions/datetime" },
-        "max_remaining_polls": { "type": "integer" }
+        "seconds_until_timeout": { "type": "integer" }
       }
     },
     "get_config_response_status": {

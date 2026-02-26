@@ -610,8 +610,7 @@ export type GetConfigResponseV2 = {
 
 export type PollingInformation = {
   recommended_wait_seconds: number /*int*/;
-  polling_deadline_at: Datetime;
-  max_remaining_polls: number /*int*/;
+  seconds_until_timeout: number /*int*/;
 }
 
 export type GetConfigResponseStatus =
@@ -3326,16 +3325,14 @@ export function readGetConfigResponseV2(x: any, context: any = x): GetConfigResp
 export function writePollingInformation(x: PollingInformation, context: any = x): any {
   return {
     'recommended_wait_seconds': _atd_write_required_field('PollingInformation', 'recommended_wait_seconds', _atd_write_int, x.recommended_wait_seconds, x),
-    'polling_deadline_at': _atd_write_required_field('PollingInformation', 'polling_deadline_at', writeDatetime, x.polling_deadline_at, x),
-    'max_remaining_polls': _atd_write_required_field('PollingInformation', 'max_remaining_polls', _atd_write_int, x.max_remaining_polls, x),
+    'seconds_until_timeout': _atd_write_required_field('PollingInformation', 'seconds_until_timeout', _atd_write_int, x.seconds_until_timeout, x),
   };
 }
 
 export function readPollingInformation(x: any, context: any = x): PollingInformation {
   return {
     recommended_wait_seconds: _atd_read_required_field('PollingInformation', 'recommended_wait_seconds', _atd_read_int, x['recommended_wait_seconds'], x),
-    polling_deadline_at: _atd_read_required_field('PollingInformation', 'polling_deadline_at', readDatetime, x['polling_deadline_at'], x),
-    max_remaining_polls: _atd_read_required_field('PollingInformation', 'max_remaining_polls', _atd_read_int, x['max_remaining_polls'], x),
+    seconds_until_timeout: _atd_read_required_field('PollingInformation', 'seconds_until_timeout', _atd_read_int, x['seconds_until_timeout'], x),
   };
 }
 

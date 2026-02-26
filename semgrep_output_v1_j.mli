@@ -2035,8 +2035,7 @@ type profile = Semgrep_output_v1_t.profile = {
 (** Recommendations for subsequent requests *)
 type polling_information = Semgrep_output_v1_t.polling_information = {
   recommended_wait_seconds: int;
-  polling_deadline_at: datetime;
-  max_remaining_polls: int
+  seconds_until_timeout: int
 }
 
 type parsing_stats = Semgrep_output_v1_t.parsing_stats = {
