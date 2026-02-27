@@ -1552,8 +1552,18 @@
       "required": [ "status" ],
       "properties": {
         "status": { "$ref": "#/definitions/get_config_response_status" },
+        "polling": { "$ref": "#/definitions/polling_information" },
         "config": { "$ref": "#/definitions/scan_configuration" },
         "engine_params": { "$ref": "#/definitions/engine_configuration" }
+      }
+    },
+    "polling_information": {
+      "description": "Recommendations for subsequent requests",
+      "type": "object",
+      "required": [ "recommended_wait_seconds", "seconds_until_timeout" ],
+      "properties": {
+        "recommended_wait_seconds": { "type": "integer" },
+        "seconds_until_timeout": { "type": "integer" }
       }
     },
     "get_config_response_status": {

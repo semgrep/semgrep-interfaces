@@ -10719,6 +10719,40 @@ class Profile:
 
 
 @dataclass
+class PollingInformation:
+    """Original type: polling_information = { ... }
+
+    Recommendations for subsequent requests
+    """
+
+    recommended_wait_seconds: int
+    seconds_until_timeout: int
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'PollingInformation':
+        if isinstance(x, dict):
+            return cls(
+                recommended_wait_seconds=_atd_read_int(x['recommended_wait_seconds']) if 'recommended_wait_seconds' in x else _atd_missing_json_field('PollingInformation', 'recommended_wait_seconds'),
+                seconds_until_timeout=_atd_read_int(x['seconds_until_timeout']) if 'seconds_until_timeout' in x else _atd_missing_json_field('PollingInformation', 'seconds_until_timeout'),
+            )
+        else:
+            _atd_bad_json('PollingInformation', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['recommended_wait_seconds'] = _atd_write_int(self.recommended_wait_seconds)
+        res['seconds_until_timeout'] = _atd_write_int(self.seconds_until_timeout)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'PollingInformation':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class ParsingStats:
     """Original type: parsing_stats = { ... }
     """
@@ -11953,6 +11987,7 @@ class GetConfigResponseV2:
     """
 
     status: GetConfigResponseStatus
+    polling: Optional[PollingInformation] = None
     config: Optional[ScanConfiguration] = None
     engine_params: Optional[EngineConfiguration] = None
 
@@ -11961,6 +11996,7 @@ class GetConfigResponseV2:
         if isinstance(x, dict):
             return cls(
                 status=GetConfigResponseStatus.from_json(x['status']) if 'status' in x else _atd_missing_json_field('GetConfigResponseV2', 'status'),
+                polling=PollingInformation.from_json(x['polling']) if 'polling' in x else None,
                 config=ScanConfiguration.from_json(x['config']) if 'config' in x else None,
                 engine_params=EngineConfiguration.from_json(x['engine_params']) if 'engine_params' in x else None,
             )
@@ -11970,6 +12006,8 @@ class GetConfigResponseV2:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['status'] = (lambda x: x.to_json())(self.status)
+        if self.polling is not None:
+            res['polling'] = (lambda x: x.to_json())(self.polling)
         if self.config is not None:
             res['config'] = (lambda x: x.to_json())(self.config)
         if self.engine_params is not None:

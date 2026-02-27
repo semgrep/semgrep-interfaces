@@ -1690,8 +1690,16 @@ type get_config_response_v2
      ">
    = {
     status: get_config_response_status;
+    ?polling: polling_information option;
     ?config: scan_configuration option;
     ?engine_params: engine_configuration option;
+}
+
+type polling_information
+    <doc text="Recommendations for subsequent requests">
+  = {
+    recommended_wait_seconds: int;
+    seconds_until_timeout: int;
 }
 
 type get_config_response_status = [
