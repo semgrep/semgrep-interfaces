@@ -469,6 +469,14 @@ not ambiguous is welcome here.
     ),
     Language(
         comment="",
+        id_="powershell",
+        name="Powershell",
+        keys=["powershell"],
+        exts=[".ps1"],
+        maturity=Maturity.ALPHA,
+    ),
+    Language(
+        comment="",
         id_="promql",
         name="Prometheus Query Language",
         keys=["promql"],

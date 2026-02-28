@@ -550,6 +550,23 @@
     "tags": []
   },
   {
+    "id": "powershell",
+    "name": "Powershell",
+    "keys": [
+      "powershell"
+    ],
+    "maturity": "alpha",
+    "exts": [
+      ".ps1"
+    ],
+    "example_ext": null,
+    "excluded_exts": [],
+    "reverse_exts": null,
+    "shebangs": [],
+    "is_target_language": true,
+    "tags": []
+  },
+  {
     "id": "promql",
     "name": "Prometheus Query Language",
     "keys": [
