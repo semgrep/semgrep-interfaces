@@ -30,6 +30,7 @@ type t =
 | Move_on_aptos
 | Ocaml
 | Php
+| Powershell
 | Promql
 | Protobuf
 | Python2
@@ -454,6 +455,19 @@ let list = [
   excluded_exts = [];
   reverse_exts = None;
   shebangs = [{|php|}];
+  tags = [];
+};
+{
+  id = Powershell;
+  id_string = "powershell";
+  name = "Powershell";
+  keys = [{|powershell|}];
+  exts = [{|.ps1|}];
+  maturity = Alpha;
+  example_ext = None;
+  excluded_exts = [];
+  reverse_exts = None;
+  shebangs = [];
   tags = [];
 };
 {
