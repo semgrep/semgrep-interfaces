@@ -1364,6 +1364,12 @@ export type FunctionResult = {
   profiling_results: ProfilingEntry[];
 }
 
+export type RpcCall = {
+  call: FunctionCall;
+  trace_id?: string;
+  parent_span_id?: string;
+}
+
 export type PartialScanResult =
 | { kind: 'PartialScanOk'; value: [CiScanResults, CiScanComplete] }
 | { kind: 'PartialScanError'; value: CiScanFailure }
@@ -5612,6 +5618,22 @@ export function readFunctionResult(x: any, context: any = x): FunctionResult {
   return {
     function_return: _atd_read_required_field('FunctionResult', 'function_return', readFunctionReturn, x['function_return'], x),
     profiling_results: _atd_read_required_field('FunctionResult', 'profiling_results', _atd_read_array(readProfilingEntry), x['profiling_results'], x),
+  };
+}
+
+export function writeRpcCall(x: RpcCall, context: any = x): any {
+  return {
+    'call': _atd_write_required_field('RpcCall', 'call', writeFunctionCall, x.call, x),
+    'trace_id': _atd_write_optional_field(_atd_write_string, x.trace_id, x),
+    'parent_span_id': _atd_write_optional_field(_atd_write_string, x.parent_span_id, x),
+  };
+}
+
+export function readRpcCall(x: any, context: any = x): RpcCall {
+  return {
+    call: _atd_read_required_field('RpcCall', 'call', readFunctionCall, x['call'], x),
+    trace_id: _atd_read_optional_field(_atd_read_string, x['trace_id'], x),
+    parent_span_id: _atd_read_optional_field(_atd_read_string, x['parent_span_id'], x),
   };
 }
 

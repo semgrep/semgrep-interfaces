@@ -3891,6 +3891,15 @@
         }
       }
     },
+    "rpc_call": {
+      "type": "object",
+      "required": [ "call" ],
+      "properties": {
+        "call": { "$ref": "#/definitions/function_call" },
+        "trace_id": { "type": "string" },
+        "parent_span_id": { "type": "string" }
+      }
+    },
     "partial_scan_result": {
       "description": "Partial scans. Experimental and for internal use only.",
       "oneOf": [
