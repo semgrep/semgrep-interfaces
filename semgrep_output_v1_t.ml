@@ -2166,11 +2166,7 @@ type function_call = [
       *)
 ]
 
-type rpc_call = {
-  call: function_call;
-  trace_id: string option;
-  parent_span_id: string option
-}
+type rpc_call = { call: function_call; parent_span_id: string option }
 
 (** A subproject plus its resolved set of dependencies *)
 type resolved_subproject = {

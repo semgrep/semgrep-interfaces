@@ -11624,7 +11624,6 @@ class RpcCall:
     """
 
     call: FunctionCall
-    trace_id: Optional[str] = None
     parent_span_id: Optional[str] = None
 
     @classmethod
@@ -11632,7 +11631,6 @@ class RpcCall:
         if isinstance(x, dict):
             return cls(
                 call=FunctionCall.from_json(x['call']) if 'call' in x else _atd_missing_json_field('RpcCall', 'call'),
-                trace_id=_atd_read_string(x['trace_id']) if 'trace_id' in x else None,
                 parent_span_id=_atd_read_string(x['parent_span_id']) if 'parent_span_id' in x else None,
             )
         else:
@@ -11641,8 +11639,6 @@ class RpcCall:
     def to_json(self) -> Any:
         res: Dict[str, Any] = {}
         res['call'] = (lambda x: x.to_json())(self.call)
-        if self.trace_id is not None:
-            res['trace_id'] = _atd_write_string(self.trace_id)
         if self.parent_span_id is not None:
             res['parent_span_id'] = _atd_write_string(self.parent_span_id)
         return res

@@ -3896,7 +3896,6 @@
       "required": [ "call" ],
       "properties": {
         "call": { "$ref": "#/definitions/function_call" },
-        "trace_id": { "type": "string" },
         "parent_span_id": { "type": "string" }
       }
     },

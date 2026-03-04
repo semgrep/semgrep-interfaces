@@ -2153,7 +2153,6 @@ type function_call = Semgrep_output_v1_t.function_call
 
 type rpc_call = Semgrep_output_v1_t.rpc_call = {
   call: function_call;
-  trace_id: string option;
   parent_span_id: string option
 }
 
@@ -37142,17 +37141,6 @@ let write_rpc_call : _ -> rpc_call -> _ = (
       write_function_call
     )
       ob x.call;
-    (match x.trace_id with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"trace_id\":";
-      (
-        Yojson.Safe.write_string
-      )
-        ob x;
-    );
     (match x.parent_span_id with None -> () | Some x ->
       if !is_first then
         is_first := false
@@ -37175,7 +37163,6 @@ let read_rpc_call = (
     Yojson.Safe.read_space p lb;
     Yojson.Safe.read_lcurl p lb;
     let field_call = ref (None) in
-    let field_trace_id = ref (None) in
     let field_parent_span_id = ref (None) in
     try
       Yojson.Safe.read_space p lb;
@@ -37194,17 +37181,9 @@ let read_rpc_call = (
                   -1
                 )
               )
-            | 8 -> (
-                if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'd' then (
-                  1
-                )
-                else (
-                  -1
-                )
-              )
             | 14 -> (
                 if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'd' then (
-                  2
+                  1
                 )
                 else (
                   -1
@@ -37227,16 +37206,6 @@ let read_rpc_call = (
               )
             );
           | 1 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_trace_id := (
-                Some (
-                  (
-                    Atdgen_runtime.Oj_run.read_string
-                  ) p lb
-                )
-              );
-            )
-          | 2 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_parent_span_id := (
                 Some (
@@ -37267,17 +37236,9 @@ let read_rpc_call = (
                     -1
                   )
                 )
-              | 8 -> (
-                  if String.unsafe_get s pos = 't' && String.unsafe_get s (pos+1) = 'r' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 'c' && String.unsafe_get s (pos+4) = 'e' && String.unsafe_get s (pos+5) = '_' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'd' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
               | 14 -> (
                   if String.unsafe_get s pos = 'p' && String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 'e' && String.unsafe_get s (pos+4) = 'n' && String.unsafe_get s (pos+5) = 't' && String.unsafe_get s (pos+6) = '_' && String.unsafe_get s (pos+7) = 's' && String.unsafe_get s (pos+8) = 'p' && String.unsafe_get s (pos+9) = 'a' && String.unsafe_get s (pos+10) = 'n' && String.unsafe_get s (pos+11) = '_' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'd' then (
-                    2
+                    1
                   )
                   else (
                     -1
@@ -37301,16 +37262,6 @@ let read_rpc_call = (
               );
             | 1 ->
               if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_trace_id := (
-                  Some (
-                    (
-                      Atdgen_runtime.Oj_run.read_string
-                    ) p lb
-                  )
-                );
-              )
-            | 2 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
                 field_parent_span_id := (
                   Some (
                     (
@@ -37329,7 +37280,6 @@ let read_rpc_call = (
         (
           {
             call = (match !field_call with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "call");
-            trace_id = !field_trace_id;
             parent_span_id = !field_parent_span_id;
           }
          : rpc_call)

@@ -2153,7 +2153,6 @@ type function_call = Semgrep_output_v1_t.function_call
 
 type rpc_call = Semgrep_output_v1_t.rpc_call = {
   call: function_call;
-  trace_id: string option;
   parent_span_id: string option
 }
 
