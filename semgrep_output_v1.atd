@@ -3520,6 +3520,13 @@ type function_result = {
   profiling_results: profiling_entry list;
 }
 
+(* Wraps a function_call with the caller's OpenTelemetry span ID for per-request tracing.
+   The trace ID is read from the environment (set by the Python process before starting OCaml). *)
+type rpc_call = {
+  call: function_call;
+  ?parent_span_id: string option;
+}
+
 (*****************************************************************************)
 (* Misc *)
 (*****************************************************************************)

@@ -1886,27 +1886,6 @@ type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving ord, show]
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
 
-(** A subproject plus its resolved set of dependencies *)
-type resolved_subproject = Semgrep_output_v1_t.resolved_subproject = {
-  info: subproject;
-  resolution_method: resolution_method
-    (**
-      The resolution method is how we determined the dependencies from the
-      dependency source. This might be lockfile parsing, dependency
-      resolution, SBOM ingest, or something else.
-    *);
-  ecosystem: ecosystem
-    (** should be similar to info.ecosystem but this time it can't be None *);
-  resolved_dependencies: (dependency_child * resolved_dependency list) list
-    (**
-      We use this mapping to efficiently find child dependencies from a
-      FoundDependency. We need to store multiple FoundDependencies per
-      package/version pair because a package might come from multiple places
-      in a lockfile
-    *);
-  errors: sca_error list
-}
-
 type resolve_dependencies_params =
   Semgrep_output_v1_t.resolve_dependencies_params = {
   dependency_sources: dependency_source list;
@@ -1918,18 +1897,6 @@ type resolve_dependencies_params =
       extra environment variables to pass to package manager subprocesses
     *)
 }
-
-(**
-  Resolution can either succeed or fail, but in either case errors can be
-  produced (e.g. one resolution method might fail while a worse one succeeds,
-  lockfile parsing might partially fail but recover and still produce
-  results).
-  
-  Resolution can optionally include a [downloaded_dependency] alongside each
-  [found_dependency]. This should be included if the source code for the
-  dependency was downloaded and is available to scan later.
-*)
-type resolution_result = Semgrep_output_v1_t.resolution_result
 
 (**
   Profiling info obtained from the OCaml executable, to be aggregated further
@@ -2032,6 +1999,196 @@ type profile = Semgrep_output_v1_t.profile = {
     *)
 }
 
+type output_format = Semgrep_output_v1_t.output_format = 
+    Text
+  | Json
+  | Emacs
+  | Vim
+  | Sarif
+  | Gitlab_sast
+  | Gitlab_secrets
+  | Junit_xml
+  | Files_with_matches (** osemgrep-only *)
+  | Incremental
+      (**
+        used to disable the final display of match results because we
+        displayed them incrementally instead
+      *)
+
+  [@@deriving show]
+
+type mcp_scan_results = Semgrep_output_v1_t.mcp_scan_results = {
+  rules: string list;
+  total_bytes_scanned: int
+}
+
+type format_context = Semgrep_output_v1_t.format_context = {
+  is_ci_invocation: bool;
+  is_logged_in: bool;
+  is_using_registry: bool
+}
+  [@@deriving show]
+
+type error_span = Semgrep_output_v1_t.error_span = {
+  file: fpath (** for InvalidRuleSchemaError *);
+  start: position;
+  end_ (*atd end *): position;
+  source_hash: string option;
+  config_start: position option option
+    (**
+      The path to the pattern in the yaml rule and an adjusted start/end
+      within just the pattern. Used to report playground parse errors in the
+      simple editor
+    *);
+  config_end: position option option;
+  config_path: string list option option;
+  context_start: position option option;
+  context_end: position option option
+}
+
+type edit = Semgrep_output_v1_t.edit = {
+  path: fpath;
+  start_offset: int;
+  end_offset: int;
+  replacement_text: string
+}
+
+type dump_rule_partitions_params =
+  Semgrep_output_v1_t.dump_rule_partitions_params = {
+  rules: raw_json;
+  n_partitions: int;
+  output_dir: fpath;
+  strategy: string option
+}
+
+(**
+  This is the public version of subproject_stats, which is used in the CLI
+  output. This is distinguised from subproject_stats below in order to
+  produce more normal-looking JSON and to avoid including unnecessary fields.
+*)
+type cli_output_subproject_info =
+  Semgrep_output_v1_t.cli_output_subproject_info = {
+  dependency_sources: fpath list
+    (**
+      We use fpath here rather than the dependency_source_file type because
+      ATD makes strange-looking JSON output for the dependency_source_file
+      type.
+    *);
+  resolved: bool
+    (** true if the subproject's dependencies were resolved successfully *);
+  unresolved_reason: unresolved_reason option
+    (** Reason why resolution failed, empty if resolution succeeded *);
+  resolved_stats: dependency_resolution_stats option
+    (** Results of dependency resolution, empty if resolution failed *)
+}
+
+(** (called SemgrepError in error.py) *)
+type cli_error = Semgrep_output_v1_t.cli_error = {
+  code: int (** exit code for the type_ of error *);
+  level: error_severity;
+  type_: error_type
+    (**
+      before 1.45.0 the type below was 'string', but was the result of
+      converting error_type into a string, so using directly 'error_type'
+      below should be mostly backward compatible thx to the <json name>
+      annotations in error_type. To be fully backward compatible, we actually
+      introduced the PatternParseError0 and IncompatibleRule0 cases in
+      error_type.
+    *);
+  rule_id: rule_id option;
+  message: string option (** contains error location *);
+  path: fpath option;
+  long_msg: string option (** for invalid rules, for ErrorWithSpan *);
+  short_msg: string option;
+  spans: error_span list option;
+  help: string option
+}
+
+type cli_output = Semgrep_output_v1_t.cli_output = {
+  version: version option (** since: 0.92 *);
+  results: cli_match list;
+  errors: cli_error list;
+  paths: scanned_and_skipped (** targeting information *);
+  time: profile option (** profiling information *);
+  explanations: matching_explanation list option
+    (**
+      debugging (rule writing) information. Note that as opposed to the
+      dataflow trace, the explanations are not embedded inside a match
+      because we give also explanations when things are not matching.
+      EXPERIMENTAL: since semgrep 0.109
+    *);
+  rules_by_engine: rule_id_and_engine_kind list option
+    (**
+      These rules, classified by engine used, will let us be transparent in
+      the CLI output over what rules were run with what. EXPERIMENTAL: since:
+      1.11.0
+    *);
+  engine_requested: engine_kind option;
+  interfile_languages_used: string list option
+    (**
+      Reporting just the requested engine isn't granular enough. We want to
+      know what languages had rules that invoked interfile. This is
+      particularly important for tracking the performance impact of new
+      interfile languages EXPERIMENTAL: since 1.49.0
+    *);
+  skipped_rules: skipped_rule list (** EXPERIMENTAL: since: 1.37.0 *);
+  subprojects: cli_output_subproject_info list option
+    (**
+      SCA subproject resolution results. Note: this is only available when
+      logged in. EXPERIMENTAL: since: 1.125.0
+    *);
+  mcp_scan_results: mcp_scan_results option (** MCP scan results. *);
+  profiling_results: profiling_entry list
+    (**
+      How long it took to execute this or that piece of code in semgrep-core
+    *)
+}
+
+type apply_fixes_params = Semgrep_output_v1_t.apply_fixes_params = {
+  dryrun: bool;
+  edits: edit list
+}
+
+type function_call = Semgrep_output_v1_t.function_call
+
+type rpc_call = Semgrep_output_v1_t.rpc_call = {
+  call: function_call;
+  parent_span_id: string option
+}
+
+(** A subproject plus its resolved set of dependencies *)
+type resolved_subproject = Semgrep_output_v1_t.resolved_subproject = {
+  info: subproject;
+  resolution_method: resolution_method
+    (**
+      The resolution method is how we determined the dependencies from the
+      dependency source. This might be lockfile parsing, dependency
+      resolution, SBOM ingest, or something else.
+    *);
+  ecosystem: ecosystem
+    (** should be similar to info.ecosystem but this time it can't be None *);
+  resolved_dependencies: (dependency_child * resolved_dependency list) list
+    (**
+      We use this mapping to efficiently find child dependencies from a
+      FoundDependency. We need to store multiple FoundDependencies per
+      package/version pair because a package might come from multiple places
+      in a lockfile
+    *);
+  errors: sca_error list
+}
+
+(**
+  Resolution can either succeed or fail, but in either case errors can be
+  produced (e.g. one resolution method might fail while a worse one succeeds,
+  lockfile parsing might partially fail but recover and still produce
+  results).
+  
+  Resolution can optionally include a [downloaded_dependency] alongside each
+  [found_dependency]. This should be included if the source code for the
+  dependency was downloaded and is available to scan later.
+*)
+type resolution_result = Semgrep_output_v1_t.resolution_result
+
 (** Recommendations for subsequent requests *)
 type polling_information = Semgrep_output_v1_t.polling_information = {
   recommended_wait_seconds: int;
@@ -2097,23 +2254,6 @@ type finding = Semgrep_output_v1_t.finding = {
   engine_kind: engine_of_finding option (** Added in semgrep 1.70.0 *)
 }
 
-type error_span = Semgrep_output_v1_t.error_span = {
-  file: fpath (** for InvalidRuleSchemaError *);
-  start: position;
-  end_ (*atd end *): position;
-  source_hash: string option;
-  config_start: position option option
-    (**
-      The path to the pattern in the yaml rule and an adjusted start/end
-      within just the pattern. Used to report playground parse errors in the
-      simple editor
-    *);
-  config_end: position option option;
-  config_path: string list option option;
-  context_start: position option option;
-  context_end: position option option
-}
-
 (** See https://semgrep.dev/docs/usage-limits *)
 type contributor = Semgrep_output_v1_t.contributor = {
   commit_author_name: string;
@@ -2131,28 +2271,6 @@ type contribution = Semgrep_output_v1_t.contribution = {
   of contributions.
 *)
 type contributions = Semgrep_output_v1_t.contributions
-
-(** (called SemgrepError in error.py) *)
-type cli_error = Semgrep_output_v1_t.cli_error = {
-  code: int (** exit code for the type_ of error *);
-  level: error_severity;
-  type_: error_type
-    (**
-      before 1.45.0 the type below was 'string', but was the result of
-      converting error_type into a string, so using directly 'error_type'
-      below should be mostly backward compatible thx to the <json name>
-      annotations in error_type. To be fully backward compatible, we actually
-      introduced the PatternParseError0 and IncompatibleRule0 cases in
-      error_type.
-    *);
-  rule_id: rule_id option;
-  message: string option (** contains error location *);
-  path: fpath option;
-  long_msg: string option (** for invalid rules, for ErrorWithSpan *);
-  short_msg: string option;
-  spans: error_span list option;
-  help: string option
-}
 
 (**
   Scan metadata populated by the backend after receiving the scan results
@@ -2249,29 +2367,6 @@ type ci_scan_complete = Semgrep_output_v1_t.ci_scan_complete = {
 (** Partial scans. Experimental and for internal use only. *)
 type partial_scan_result = Semgrep_output_v1_t.partial_scan_result
 
-type output_format = Semgrep_output_v1_t.output_format = 
-    Text
-  | Json
-  | Emacs
-  | Vim
-  | Sarif
-  | Gitlab_sast
-  | Gitlab_secrets
-  | Junit_xml
-  | Files_with_matches (** osemgrep-only *)
-  | Incremental
-      (**
-        used to disable the final display of match results because we
-        displayed them incrementally instead
-      *)
-
-  [@@deriving show]
-
-type mcp_scan_results = Semgrep_output_v1_t.mcp_scan_results = {
-  rules: string list;
-  total_bytes_scanned: int
-}
-
 (** e.g. "ab023_1" *)
 type match_based_id = Semgrep_output_v1_t.match_based_id
   [@@deriving show, eq]
@@ -2316,96 +2411,6 @@ type function_result = Semgrep_output_v1_t.function_result = {
   function_return: function_return;
   profiling_results: profiling_entry list
 }
-
-type format_context = Semgrep_output_v1_t.format_context = {
-  is_ci_invocation: bool;
-  is_logged_in: bool;
-  is_using_registry: bool
-}
-  [@@deriving show]
-
-type edit = Semgrep_output_v1_t.edit = {
-  path: fpath;
-  start_offset: int;
-  end_offset: int;
-  replacement_text: string
-}
-
-type dump_rule_partitions_params =
-  Semgrep_output_v1_t.dump_rule_partitions_params = {
-  rules: raw_json;
-  n_partitions: int;
-  output_dir: fpath;
-  strategy: string option
-}
-
-(**
-  This is the public version of subproject_stats, which is used in the CLI
-  output. This is distinguised from subproject_stats below in order to
-  produce more normal-looking JSON and to avoid including unnecessary fields.
-*)
-type cli_output_subproject_info =
-  Semgrep_output_v1_t.cli_output_subproject_info = {
-  dependency_sources: fpath list
-    (**
-      We use fpath here rather than the dependency_source_file type because
-      ATD makes strange-looking JSON output for the dependency_source_file
-      type.
-    *);
-  resolved: bool
-    (** true if the subproject's dependencies were resolved successfully *);
-  unresolved_reason: unresolved_reason option
-    (** Reason why resolution failed, empty if resolution succeeded *);
-  resolved_stats: dependency_resolution_stats option
-    (** Results of dependency resolution, empty if resolution failed *)
-}
-
-type cli_output = Semgrep_output_v1_t.cli_output = {
-  version: version option (** since: 0.92 *);
-  results: cli_match list;
-  errors: cli_error list;
-  paths: scanned_and_skipped (** targeting information *);
-  time: profile option (** profiling information *);
-  explanations: matching_explanation list option
-    (**
-      debugging (rule writing) information. Note that as opposed to the
-      dataflow trace, the explanations are not embedded inside a match
-      because we give also explanations when things are not matching.
-      EXPERIMENTAL: since semgrep 0.109
-    *);
-  rules_by_engine: rule_id_and_engine_kind list option
-    (**
-      These rules, classified by engine used, will let us be transparent in
-      the CLI output over what rules were run with what. EXPERIMENTAL: since:
-      1.11.0
-    *);
-  engine_requested: engine_kind option;
-  interfile_languages_used: string list option
-    (**
-      Reporting just the requested engine isn't granular enough. We want to
-      know what languages had rules that invoked interfile. This is
-      particularly important for tracking the performance impact of new
-      interfile languages EXPERIMENTAL: since 1.49.0
-    *);
-  skipped_rules: skipped_rule list (** EXPERIMENTAL: since: 1.37.0 *);
-  subprojects: cli_output_subproject_info list option
-    (**
-      SCA subproject resolution results. Note: this is only available when
-      logged in. EXPERIMENTAL: since: 1.125.0
-    *);
-  mcp_scan_results: mcp_scan_results option (** MCP scan results. *);
-  profiling_results: profiling_entry list
-    (**
-      How long it took to execute this or that piece of code in semgrep-core
-    *)
-}
-
-type apply_fixes_params = Semgrep_output_v1_t.apply_fixes_params = {
-  dryrun: bool;
-  edits: edit list
-}
-
-type function_call = Semgrep_output_v1_t.function_call
 
 type features = Semgrep_output_v1_t.features = {
   autofix: bool;
@@ -5401,26 +5406,6 @@ val rule_id_and_engine_kind_of_string :
   string -> rule_id_and_engine_kind
   (** Deserialize JSON data of type {!type:rule_id_and_engine_kind}. *)
 
-val write_resolved_subproject :
-  Buffer.t -> resolved_subproject -> unit
-  (** Output a JSON value of type {!type:resolved_subproject}. *)
-
-val string_of_resolved_subproject :
-  ?len:int -> resolved_subproject -> string
-  (** Serialize a value of type {!type:resolved_subproject}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_resolved_subproject :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolved_subproject
-  (** Input JSON data of type {!type:resolved_subproject}. *)
-
-val resolved_subproject_of_string :
-  string -> resolved_subproject
-  (** Deserialize JSON data of type {!type:resolved_subproject}. *)
-
 val write_resolve_dependencies_params :
   Buffer.t -> resolve_dependencies_params -> unit
   (** Output a JSON value of type {!type:resolve_dependencies_params}. *)
@@ -5440,26 +5425,6 @@ val read_resolve_dependencies_params :
 val resolve_dependencies_params_of_string :
   string -> resolve_dependencies_params
   (** Deserialize JSON data of type {!type:resolve_dependencies_params}. *)
-
-val write_resolution_result :
-  Buffer.t -> resolution_result -> unit
-  (** Output a JSON value of type {!type:resolution_result}. *)
-
-val string_of_resolution_result :
-  ?len:int -> resolution_result -> string
-  (** Serialize a value of type {!type:resolution_result}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_resolution_result :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_result
-  (** Input JSON data of type {!type:resolution_result}. *)
-
-val resolution_result_of_string :
-  string -> resolution_result
-  (** Deserialize JSON data of type {!type:resolution_result}. *)
 
 val write_profiling_entry :
   Buffer.t -> profiling_entry -> unit
@@ -5581,6 +5546,286 @@ val profile_of_string :
   string -> profile
   (** Deserialize JSON data of type {!type:profile}. *)
 
+val write_output_format :
+  Buffer.t -> output_format -> unit
+  (** Output a JSON value of type {!type:output_format}. *)
+
+val string_of_output_format :
+  ?len:int -> output_format -> string
+  (** Serialize a value of type {!type:output_format}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_output_format :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> output_format
+  (** Input JSON data of type {!type:output_format}. *)
+
+val output_format_of_string :
+  string -> output_format
+  (** Deserialize JSON data of type {!type:output_format}. *)
+
+val write_mcp_scan_results :
+  Buffer.t -> mcp_scan_results -> unit
+  (** Output a JSON value of type {!type:mcp_scan_results}. *)
+
+val string_of_mcp_scan_results :
+  ?len:int -> mcp_scan_results -> string
+  (** Serialize a value of type {!type:mcp_scan_results}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_mcp_scan_results :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> mcp_scan_results
+  (** Input JSON data of type {!type:mcp_scan_results}. *)
+
+val mcp_scan_results_of_string :
+  string -> mcp_scan_results
+  (** Deserialize JSON data of type {!type:mcp_scan_results}. *)
+
+val write_format_context :
+  Buffer.t -> format_context -> unit
+  (** Output a JSON value of type {!type:format_context}. *)
+
+val string_of_format_context :
+  ?len:int -> format_context -> string
+  (** Serialize a value of type {!type:format_context}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_format_context :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> format_context
+  (** Input JSON data of type {!type:format_context}. *)
+
+val format_context_of_string :
+  string -> format_context
+  (** Deserialize JSON data of type {!type:format_context}. *)
+
+val write_error_span :
+  Buffer.t -> error_span -> unit
+  (** Output a JSON value of type {!type:error_span}. *)
+
+val string_of_error_span :
+  ?len:int -> error_span -> string
+  (** Serialize a value of type {!type:error_span}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_error_span :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> error_span
+  (** Input JSON data of type {!type:error_span}. *)
+
+val error_span_of_string :
+  string -> error_span
+  (** Deserialize JSON data of type {!type:error_span}. *)
+
+val write_edit :
+  Buffer.t -> edit -> unit
+  (** Output a JSON value of type {!type:edit}. *)
+
+val string_of_edit :
+  ?len:int -> edit -> string
+  (** Serialize a value of type {!type:edit}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_edit :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> edit
+  (** Input JSON data of type {!type:edit}. *)
+
+val edit_of_string :
+  string -> edit
+  (** Deserialize JSON data of type {!type:edit}. *)
+
+val write_dump_rule_partitions_params :
+  Buffer.t -> dump_rule_partitions_params -> unit
+  (** Output a JSON value of type {!type:dump_rule_partitions_params}. *)
+
+val string_of_dump_rule_partitions_params :
+  ?len:int -> dump_rule_partitions_params -> string
+  (** Serialize a value of type {!type:dump_rule_partitions_params}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_dump_rule_partitions_params :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dump_rule_partitions_params
+  (** Input JSON data of type {!type:dump_rule_partitions_params}. *)
+
+val dump_rule_partitions_params_of_string :
+  string -> dump_rule_partitions_params
+  (** Deserialize JSON data of type {!type:dump_rule_partitions_params}. *)
+
+val write_cli_output_subproject_info :
+  Buffer.t -> cli_output_subproject_info -> unit
+  (** Output a JSON value of type {!type:cli_output_subproject_info}. *)
+
+val string_of_cli_output_subproject_info :
+  ?len:int -> cli_output_subproject_info -> string
+  (** Serialize a value of type {!type:cli_output_subproject_info}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_cli_output_subproject_info :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_output_subproject_info
+  (** Input JSON data of type {!type:cli_output_subproject_info}. *)
+
+val cli_output_subproject_info_of_string :
+  string -> cli_output_subproject_info
+  (** Deserialize JSON data of type {!type:cli_output_subproject_info}. *)
+
+val write_cli_error :
+  Buffer.t -> cli_error -> unit
+  (** Output a JSON value of type {!type:cli_error}. *)
+
+val string_of_cli_error :
+  ?len:int -> cli_error -> string
+  (** Serialize a value of type {!type:cli_error}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_cli_error :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_error
+  (** Input JSON data of type {!type:cli_error}. *)
+
+val cli_error_of_string :
+  string -> cli_error
+  (** Deserialize JSON data of type {!type:cli_error}. *)
+
+val write_cli_output :
+  Buffer.t -> cli_output -> unit
+  (** Output a JSON value of type {!type:cli_output}. *)
+
+val string_of_cli_output :
+  ?len:int -> cli_output -> string
+  (** Serialize a value of type {!type:cli_output}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_cli_output :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_output
+  (** Input JSON data of type {!type:cli_output}. *)
+
+val cli_output_of_string :
+  string -> cli_output
+  (** Deserialize JSON data of type {!type:cli_output}. *)
+
+val write_apply_fixes_params :
+  Buffer.t -> apply_fixes_params -> unit
+  (** Output a JSON value of type {!type:apply_fixes_params}. *)
+
+val string_of_apply_fixes_params :
+  ?len:int -> apply_fixes_params -> string
+  (** Serialize a value of type {!type:apply_fixes_params}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_apply_fixes_params :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> apply_fixes_params
+  (** Input JSON data of type {!type:apply_fixes_params}. *)
+
+val apply_fixes_params_of_string :
+  string -> apply_fixes_params
+  (** Deserialize JSON data of type {!type:apply_fixes_params}. *)
+
+val write_function_call :
+  Buffer.t -> function_call -> unit
+  (** Output a JSON value of type {!type:function_call}. *)
+
+val string_of_function_call :
+  ?len:int -> function_call -> string
+  (** Serialize a value of type {!type:function_call}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_function_call :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> function_call
+  (** Input JSON data of type {!type:function_call}. *)
+
+val function_call_of_string :
+  string -> function_call
+  (** Deserialize JSON data of type {!type:function_call}. *)
+
+val write_rpc_call :
+  Buffer.t -> rpc_call -> unit
+  (** Output a JSON value of type {!type:rpc_call}. *)
+
+val string_of_rpc_call :
+  ?len:int -> rpc_call -> string
+  (** Serialize a value of type {!type:rpc_call}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_rpc_call :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> rpc_call
+  (** Input JSON data of type {!type:rpc_call}. *)
+
+val rpc_call_of_string :
+  string -> rpc_call
+  (** Deserialize JSON data of type {!type:rpc_call}. *)
+
+val write_resolved_subproject :
+  Buffer.t -> resolved_subproject -> unit
+  (** Output a JSON value of type {!type:resolved_subproject}. *)
+
+val string_of_resolved_subproject :
+  ?len:int -> resolved_subproject -> string
+  (** Serialize a value of type {!type:resolved_subproject}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolved_subproject :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolved_subproject
+  (** Input JSON data of type {!type:resolved_subproject}. *)
+
+val resolved_subproject_of_string :
+  string -> resolved_subproject
+  (** Deserialize JSON data of type {!type:resolved_subproject}. *)
+
+val write_resolution_result :
+  Buffer.t -> resolution_result -> unit
+  (** Output a JSON value of type {!type:resolution_result}. *)
+
+val string_of_resolution_result :
+  ?len:int -> resolution_result -> string
+  (** Serialize a value of type {!type:resolution_result}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolution_result :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_result
+  (** Input JSON data of type {!type:resolution_result}. *)
+
+val resolution_result_of_string :
+  string -> resolution_result
+  (** Deserialize JSON data of type {!type:resolution_result}. *)
+
 val write_polling_information :
   Buffer.t -> polling_information -> unit
   (** Output a JSON value of type {!type:polling_information}. *)
@@ -5661,26 +5906,6 @@ val finding_of_string :
   string -> finding
   (** Deserialize JSON data of type {!type:finding}. *)
 
-val write_error_span :
-  Buffer.t -> error_span -> unit
-  (** Output a JSON value of type {!type:error_span}. *)
-
-val string_of_error_span :
-  ?len:int -> error_span -> string
-  (** Serialize a value of type {!type:error_span}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_error_span :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> error_span
-  (** Input JSON data of type {!type:error_span}. *)
-
-val error_span_of_string :
-  string -> error_span
-  (** Deserialize JSON data of type {!type:error_span}. *)
-
 val write_contributor :
   Buffer.t -> contributor -> unit
   (** Output a JSON value of type {!type:contributor}. *)
@@ -5740,26 +5965,6 @@ val read_contributions :
 val contributions_of_string :
   string -> contributions
   (** Deserialize JSON data of type {!type:contributions}. *)
-
-val write_cli_error :
-  Buffer.t -> cli_error -> unit
-  (** Output a JSON value of type {!type:cli_error}. *)
-
-val string_of_cli_error :
-  ?len:int -> cli_error -> string
-  (** Serialize a value of type {!type:cli_error}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cli_error :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_error
-  (** Input JSON data of type {!type:cli_error}. *)
-
-val cli_error_of_string :
-  string -> cli_error
-  (** Deserialize JSON data of type {!type:cli_error}. *)
 
 val write_ci_scan_metadata :
   Buffer.t -> ci_scan_metadata -> unit
@@ -5901,46 +6106,6 @@ val partial_scan_result_of_string :
   string -> partial_scan_result
   (** Deserialize JSON data of type {!type:partial_scan_result}. *)
 
-val write_output_format :
-  Buffer.t -> output_format -> unit
-  (** Output a JSON value of type {!type:output_format}. *)
-
-val string_of_output_format :
-  ?len:int -> output_format -> string
-  (** Serialize a value of type {!type:output_format}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_output_format :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> output_format
-  (** Input JSON data of type {!type:output_format}. *)
-
-val output_format_of_string :
-  string -> output_format
-  (** Deserialize JSON data of type {!type:output_format}. *)
-
-val write_mcp_scan_results :
-  Buffer.t -> mcp_scan_results -> unit
-  (** Output a JSON value of type {!type:mcp_scan_results}. *)
-
-val string_of_mcp_scan_results :
-  ?len:int -> mcp_scan_results -> string
-  (** Serialize a value of type {!type:mcp_scan_results}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_mcp_scan_results :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> mcp_scan_results
-  (** Input JSON data of type {!type:mcp_scan_results}. *)
-
-val mcp_scan_results_of_string :
-  string -> mcp_scan_results
-  (** Deserialize JSON data of type {!type:mcp_scan_results}. *)
-
 val write_match_based_id :
   Buffer.t -> match_based_id -> unit
   (** Output a JSON value of type {!type:match_based_id}. *)
@@ -6080,146 +6245,6 @@ val read_function_result :
 val function_result_of_string :
   string -> function_result
   (** Deserialize JSON data of type {!type:function_result}. *)
-
-val write_format_context :
-  Buffer.t -> format_context -> unit
-  (** Output a JSON value of type {!type:format_context}. *)
-
-val string_of_format_context :
-  ?len:int -> format_context -> string
-  (** Serialize a value of type {!type:format_context}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_format_context :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> format_context
-  (** Input JSON data of type {!type:format_context}. *)
-
-val format_context_of_string :
-  string -> format_context
-  (** Deserialize JSON data of type {!type:format_context}. *)
-
-val write_edit :
-  Buffer.t -> edit -> unit
-  (** Output a JSON value of type {!type:edit}. *)
-
-val string_of_edit :
-  ?len:int -> edit -> string
-  (** Serialize a value of type {!type:edit}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_edit :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> edit
-  (** Input JSON data of type {!type:edit}. *)
-
-val edit_of_string :
-  string -> edit
-  (** Deserialize JSON data of type {!type:edit}. *)
-
-val write_dump_rule_partitions_params :
-  Buffer.t -> dump_rule_partitions_params -> unit
-  (** Output a JSON value of type {!type:dump_rule_partitions_params}. *)
-
-val string_of_dump_rule_partitions_params :
-  ?len:int -> dump_rule_partitions_params -> string
-  (** Serialize a value of type {!type:dump_rule_partitions_params}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_dump_rule_partitions_params :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dump_rule_partitions_params
-  (** Input JSON data of type {!type:dump_rule_partitions_params}. *)
-
-val dump_rule_partitions_params_of_string :
-  string -> dump_rule_partitions_params
-  (** Deserialize JSON data of type {!type:dump_rule_partitions_params}. *)
-
-val write_cli_output_subproject_info :
-  Buffer.t -> cli_output_subproject_info -> unit
-  (** Output a JSON value of type {!type:cli_output_subproject_info}. *)
-
-val string_of_cli_output_subproject_info :
-  ?len:int -> cli_output_subproject_info -> string
-  (** Serialize a value of type {!type:cli_output_subproject_info}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cli_output_subproject_info :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_output_subproject_info
-  (** Input JSON data of type {!type:cli_output_subproject_info}. *)
-
-val cli_output_subproject_info_of_string :
-  string -> cli_output_subproject_info
-  (** Deserialize JSON data of type {!type:cli_output_subproject_info}. *)
-
-val write_cli_output :
-  Buffer.t -> cli_output -> unit
-  (** Output a JSON value of type {!type:cli_output}. *)
-
-val string_of_cli_output :
-  ?len:int -> cli_output -> string
-  (** Serialize a value of type {!type:cli_output}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_cli_output :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> cli_output
-  (** Input JSON data of type {!type:cli_output}. *)
-
-val cli_output_of_string :
-  string -> cli_output
-  (** Deserialize JSON data of type {!type:cli_output}. *)
-
-val write_apply_fixes_params :
-  Buffer.t -> apply_fixes_params -> unit
-  (** Output a JSON value of type {!type:apply_fixes_params}. *)
-
-val string_of_apply_fixes_params :
-  ?len:int -> apply_fixes_params -> string
-  (** Serialize a value of type {!type:apply_fixes_params}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_apply_fixes_params :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> apply_fixes_params
-  (** Input JSON data of type {!type:apply_fixes_params}. *)
-
-val apply_fixes_params_of_string :
-  string -> apply_fixes_params
-  (** Deserialize JSON data of type {!type:apply_fixes_params}. *)
-
-val write_function_call :
-  Buffer.t -> function_call -> unit
-  (** Output a JSON value of type {!type:function_call}. *)
-
-val string_of_function_call :
-  ?len:int -> function_call -> string
-  (** Serialize a value of type {!type:function_call}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_function_call :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> function_call
-  (** Input JSON data of type {!type:function_call}. *)
-
-val function_call_of_string :
-  string -> function_call
-  (** Deserialize JSON data of type {!type:function_call}. *)
 
 val write_features :
   Buffer.t -> features -> unit

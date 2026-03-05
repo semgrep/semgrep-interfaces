@@ -1882,27 +1882,6 @@ type engine_kind = [ `OSS | `PRO ] [@@deriving ord, show]
 
 type rule_id_and_engine_kind = (rule_id * engine_kind)
 
-(** A subproject plus its resolved set of dependencies *)
-type resolved_subproject = {
-  info: subproject;
-  resolution_method: resolution_method
-    (**
-      The resolution method is how we determined the dependencies from the
-      dependency source. This might be lockfile parsing, dependency
-      resolution, SBOM ingest, or something else.
-    *);
-  ecosystem: ecosystem
-    (** should be similar to info.ecosystem but this time it can't be None *);
-  resolved_dependencies: (dependency_child * resolved_dependency list) list
-    (**
-      We use this mapping to efficiently find child dependencies from a
-      FoundDependency. We need to store multiple FoundDependencies per
-      package/version pair because a package might come from multiple places
-      in a lockfile
-    *);
-  errors: sca_error list
-}
-
 type resolve_dependencies_params = {
   dependency_sources: dependency_source list;
   download_dependency_source_code: bool;
@@ -1913,21 +1892,6 @@ type resolve_dependencies_params = {
       extra environment variables to pass to package manager subprocesses
     *)
 }
-
-(**
-  Resolution can either succeed or fail, but in either case errors can be
-  produced (e.g. one resolution method might fail while a worse one succeeds,
-  lockfile parsing might partially fail but recover and still produce
-  results).
-  
-  Resolution can optionally include a [downloaded_dependency] alongside each
-  [found_dependency]. This should be included if the source code for the
-  dependency was downloaded and is available to scan later.
-*)
-type resolution_result = [
-    `ResolutionOk of (resolved_dependency list * resolution_error_kind list)
-  | `ResolutionError of resolution_error_kind list
-]
 
 (**
   Profiling info obtained from the OCaml executable, to be aggregated further
@@ -2026,6 +1990,220 @@ type profile = {
     *)
 }
 
+type output_format = 
+    Text
+  | Json
+  | Emacs
+  | Vim
+  | Sarif
+  | Gitlab_sast
+  | Gitlab_secrets
+  | Junit_xml
+  | Files_with_matches (** osemgrep-only *)
+  | Incremental
+      (**
+        used to disable the final display of match results because we
+        displayed them incrementally instead
+      *)
+
+  [@@deriving show]
+
+type mcp_scan_results = { rules: string list; total_bytes_scanned: int }
+
+type format_context = {
+  is_ci_invocation: bool;
+  is_logged_in: bool;
+  is_using_registry: bool
+}
+  [@@deriving show]
+
+type error_span = {
+  file: fpath (** for InvalidRuleSchemaError *);
+  start: position;
+  end_ (*atd end *): position;
+  source_hash: string option;
+  config_start: position option option
+    (**
+      The path to the pattern in the yaml rule and an adjusted start/end
+      within just the pattern. Used to report playground parse errors in the
+      simple editor
+    *);
+  config_end: position option option;
+  config_path: string list option option;
+  context_start: position option option;
+  context_end: position option option
+}
+
+type edit = {
+  path: fpath;
+  start_offset: int;
+  end_offset: int;
+  replacement_text: string
+}
+
+type dump_rule_partitions_params = {
+  rules: raw_json;
+  n_partitions: int;
+  output_dir: fpath;
+  strategy: string option
+}
+
+(**
+  This is the public version of subproject_stats, which is used in the CLI
+  output. This is distinguised from subproject_stats below in order to
+  produce more normal-looking JSON and to avoid including unnecessary fields.
+*)
+type cli_output_subproject_info = {
+  dependency_sources: fpath list
+    (**
+      We use fpath here rather than the dependency_source_file type because
+      ATD makes strange-looking JSON output for the dependency_source_file
+      type.
+    *);
+  resolved: bool
+    (** true if the subproject's dependencies were resolved successfully *);
+  unresolved_reason: unresolved_reason option
+    (** Reason why resolution failed, empty if resolution succeeded *);
+  resolved_stats: dependency_resolution_stats option
+    (** Results of dependency resolution, empty if resolution failed *)
+}
+
+(** (called SemgrepError in error.py) *)
+type cli_error = {
+  code: int (** exit code for the type_ of error *);
+  level: error_severity;
+  type_: error_type
+    (**
+      before 1.45.0 the type below was 'string', but was the result of
+      converting error_type into a string, so using directly 'error_type'
+      below should be mostly backward compatible thx to the <json name>
+      annotations in error_type. To be fully backward compatible, we actually
+      introduced the PatternParseError0 and IncompatibleRule0 cases in
+      error_type.
+    *);
+  rule_id: rule_id option;
+  message: string option (** contains error location *);
+  path: fpath option;
+  long_msg: string option (** for invalid rules, for ErrorWithSpan *);
+  short_msg: string option;
+  spans: error_span list option;
+  help: string option
+}
+
+type cli_output = {
+  version: version option (** since: 0.92 *);
+  results: cli_match list;
+  errors: cli_error list;
+  paths: scanned_and_skipped (** targeting information *);
+  time: profile option (** profiling information *);
+  explanations: matching_explanation list option
+    (**
+      debugging (rule writing) information. Note that as opposed to the
+      dataflow trace, the explanations are not embedded inside a match
+      because we give also explanations when things are not matching.
+      EXPERIMENTAL: since semgrep 0.109
+    *);
+  rules_by_engine: rule_id_and_engine_kind list option
+    (**
+      These rules, classified by engine used, will let us be transparent in
+      the CLI output over what rules were run with what. EXPERIMENTAL: since:
+      1.11.0
+    *);
+  engine_requested: engine_kind option;
+  interfile_languages_used: string list option
+    (**
+      Reporting just the requested engine isn't granular enough. We want to
+      know what languages had rules that invoked interfile. This is
+      particularly important for tracking the performance impact of new
+      interfile languages EXPERIMENTAL: since 1.49.0
+    *);
+  skipped_rules: skipped_rule list (** EXPERIMENTAL: since: 1.37.0 *);
+  subprojects: cli_output_subproject_info list option
+    (**
+      SCA subproject resolution results. Note: this is only available when
+      logged in. EXPERIMENTAL: since: 1.125.0
+    *);
+  mcp_scan_results: mcp_scan_results option (** MCP scan results. *);
+  profiling_results: profiling_entry list
+    (**
+      How long it took to execute this or that piece of code in semgrep-core
+    *)
+}
+
+type apply_fixes_params = { dryrun: bool; edits: edit list }
+
+type function_call = [
+    `CallContributions
+  | `CallApplyFixes of apply_fixes_params
+  | `CallFormatter of (output_format * format_context * cli_output)
+  | `CallSarifFormat of (sarif_format * format_context * cli_output)
+  | `CallValidate of fpath
+      (**
+        NOTE: fpath is most likely a temporary file that contains all the
+        rules in JSON format. In the future, we could send the rules via a
+        big string through the RPC pipe.
+      *)
+  | `CallResolveDependencies of resolve_dependencies_params
+  | `CallUploadSymbolAnalysis of (string * int * symbol_analysis)
+  | `CallDumpRulePartitions of dump_rule_partitions_params
+  | `CallGetTargets of scanning_roots
+      (**
+        For now, the transitive reachability filter takes only a single
+        dependency graph as input. It is up to the caller to call it several
+        times, one for each subproject.
+      *)
+  | `CallTransitiveReachabilityFilter
+      of transitive_reachability_filter_params
+  | `CallMatchSubprojects of fpath list
+  | `CallRunSymbolAnalysis of symbol_analysis_params
+  | `CallUploadSubprojectSymbolAnalysis
+      of upload_subproject_symbol_analysis_params
+  | `CallShowSubprojects of subproject list
+      (**
+        Format human-readable text summarizing the subprojects that were
+        discovered in a project. This is meant to be printed in --verbose
+        mode.
+      *)
+]
+
+type rpc_call = { call: function_call; parent_span_id: string option }
+
+(** A subproject plus its resolved set of dependencies *)
+type resolved_subproject = {
+  info: subproject;
+  resolution_method: resolution_method
+    (**
+      The resolution method is how we determined the dependencies from the
+      dependency source. This might be lockfile parsing, dependency
+      resolution, SBOM ingest, or something else.
+    *);
+  ecosystem: ecosystem
+    (** should be similar to info.ecosystem but this time it can't be None *);
+  resolved_dependencies: (dependency_child * resolved_dependency list) list
+    (**
+      We use this mapping to efficiently find child dependencies from a
+      FoundDependency. We need to store multiple FoundDependencies per
+      package/version pair because a package might come from multiple places
+      in a lockfile
+    *);
+  errors: sca_error list
+}
+
+(**
+  Resolution can either succeed or fail, but in either case errors can be
+  produced (e.g. one resolution method might fail while a worse one succeeds,
+  lockfile parsing might partially fail but recover and still produce
+  results).
+  
+  Resolution can optionally include a [downloaded_dependency] alongside each
+  [found_dependency]. This should be included if the source code for the
+  dependency was downloaded and is available to scan later.
+*)
+type resolution_result = [
+    `ResolutionOk of (resolved_dependency list * resolution_error_kind list)
+  | `ResolutionError of resolution_error_kind list
+]
+
 (** Recommendations for subsequent requests *)
 type polling_information = {
   recommended_wait_seconds: int;
@@ -2091,23 +2269,6 @@ type finding = {
   engine_kind: engine_of_finding option (** Added in semgrep 1.70.0 *)
 }
 
-type error_span = {
-  file: fpath (** for InvalidRuleSchemaError *);
-  start: position;
-  end_ (*atd end *): position;
-  source_hash: string option;
-  config_start: position option option
-    (**
-      The path to the pattern in the yaml rule and an adjusted start/end
-      within just the pattern. Used to report playground parse errors in the
-      simple editor
-    *);
-  config_end: position option option;
-  config_path: string list option option;
-  context_start: position option option;
-  context_end: position option option
-}
-
 (** See https://semgrep.dev/docs/usage-limits *)
 type contributor = {
   commit_author_name: string;
@@ -2125,28 +2286,6 @@ type contribution = {
   of contributions.
 *)
 type contributions = contribution list
-
-(** (called SemgrepError in error.py) *)
-type cli_error = {
-  code: int (** exit code for the type_ of error *);
-  level: error_severity;
-  type_: error_type
-    (**
-      before 1.45.0 the type below was 'string', but was the result of
-      converting error_type into a string, so using directly 'error_type'
-      below should be mostly backward compatible thx to the <json name>
-      annotations in error_type. To be fully backward compatible, we actually
-      introduced the PatternParseError0 and IncompatibleRule0 cases in
-      error_type.
-    *);
-  rule_id: rule_id option;
-  message: string option (** contains error location *);
-  path: fpath option;
-  long_msg: string option (** for invalid rules, for ErrorWithSpan *);
-  short_msg: string option;
-  spans: error_span list option;
-  help: string option
-}
 
 (**
   Scan metadata populated by the backend after receiving the scan results
@@ -2243,26 +2382,6 @@ type partial_scan_result = [
   | `PartialScanError of ci_scan_failure
 ]
 
-type output_format = 
-    Text
-  | Json
-  | Emacs
-  | Vim
-  | Sarif
-  | Gitlab_sast
-  | Gitlab_secrets
-  | Junit_xml
-  | Files_with_matches (** osemgrep-only *)
-  | Incremental
-      (**
-        used to disable the final display of match results because we
-        displayed them incrementally instead
-      *)
-
-  [@@deriving show]
-
-type mcp_scan_results = { rules: string list; total_bytes_scanned: int }
-
 (** e.g. "ab023_1" *)
 type match_based_id = string [@@deriving show, eq]
 
@@ -2325,123 +2444,6 @@ type function_result = {
   function_return: function_return;
   profiling_results: profiling_entry list
 }
-
-type format_context = {
-  is_ci_invocation: bool;
-  is_logged_in: bool;
-  is_using_registry: bool
-}
-  [@@deriving show]
-
-type edit = {
-  path: fpath;
-  start_offset: int;
-  end_offset: int;
-  replacement_text: string
-}
-
-type dump_rule_partitions_params = {
-  rules: raw_json;
-  n_partitions: int;
-  output_dir: fpath;
-  strategy: string option
-}
-
-(**
-  This is the public version of subproject_stats, which is used in the CLI
-  output. This is distinguised from subproject_stats below in order to
-  produce more normal-looking JSON and to avoid including unnecessary fields.
-*)
-type cli_output_subproject_info = {
-  dependency_sources: fpath list
-    (**
-      We use fpath here rather than the dependency_source_file type because
-      ATD makes strange-looking JSON output for the dependency_source_file
-      type.
-    *);
-  resolved: bool
-    (** true if the subproject's dependencies were resolved successfully *);
-  unresolved_reason: unresolved_reason option
-    (** Reason why resolution failed, empty if resolution succeeded *);
-  resolved_stats: dependency_resolution_stats option
-    (** Results of dependency resolution, empty if resolution failed *)
-}
-
-type cli_output = {
-  version: version option (** since: 0.92 *);
-  results: cli_match list;
-  errors: cli_error list;
-  paths: scanned_and_skipped (** targeting information *);
-  time: profile option (** profiling information *);
-  explanations: matching_explanation list option
-    (**
-      debugging (rule writing) information. Note that as opposed to the
-      dataflow trace, the explanations are not embedded inside a match
-      because we give also explanations when things are not matching.
-      EXPERIMENTAL: since semgrep 0.109
-    *);
-  rules_by_engine: rule_id_and_engine_kind list option
-    (**
-      These rules, classified by engine used, will let us be transparent in
-      the CLI output over what rules were run with what. EXPERIMENTAL: since:
-      1.11.0
-    *);
-  engine_requested: engine_kind option;
-  interfile_languages_used: string list option
-    (**
-      Reporting just the requested engine isn't granular enough. We want to
-      know what languages had rules that invoked interfile. This is
-      particularly important for tracking the performance impact of new
-      interfile languages EXPERIMENTAL: since 1.49.0
-    *);
-  skipped_rules: skipped_rule list (** EXPERIMENTAL: since: 1.37.0 *);
-  subprojects: cli_output_subproject_info list option
-    (**
-      SCA subproject resolution results. Note: this is only available when
-      logged in. EXPERIMENTAL: since: 1.125.0
-    *);
-  mcp_scan_results: mcp_scan_results option (** MCP scan results. *);
-  profiling_results: profiling_entry list
-    (**
-      How long it took to execute this or that piece of code in semgrep-core
-    *)
-}
-
-type apply_fixes_params = { dryrun: bool; edits: edit list }
-
-type function_call = [
-    `CallContributions
-  | `CallApplyFixes of apply_fixes_params
-  | `CallFormatter of (output_format * format_context * cli_output)
-  | `CallSarifFormat of (sarif_format * format_context * cli_output)
-  | `CallValidate of fpath
-      (**
-        NOTE: fpath is most likely a temporary file that contains all the
-        rules in JSON format. In the future, we could send the rules via a
-        big string through the RPC pipe.
-      *)
-  | `CallResolveDependencies of resolve_dependencies_params
-  | `CallUploadSymbolAnalysis of (string * int * symbol_analysis)
-  | `CallDumpRulePartitions of dump_rule_partitions_params
-  | `CallGetTargets of scanning_roots
-      (**
-        For now, the transitive reachability filter takes only a single
-        dependency graph as input. It is up to the caller to call it several
-        times, one for each subproject.
-      *)
-  | `CallTransitiveReachabilityFilter
-      of transitive_reachability_filter_params
-  | `CallMatchSubprojects of fpath list
-  | `CallRunSymbolAnalysis of symbol_analysis_params
-  | `CallUploadSubprojectSymbolAnalysis
-      of upload_subproject_symbol_analysis_params
-  | `CallShowSubprojects of subproject list
-      (**
-        Format human-readable text summarizing the subprojects that were
-        discovered in a project. This is meant to be printed in --verbose
-        mode.
-      *)
-]
 
 type features = {
   autofix: bool;
