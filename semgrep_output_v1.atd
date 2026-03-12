@@ -3588,7 +3588,7 @@ type single_subproject_plan
      Ideally this interface would be agnostic of dependency source type;
      this field exists because defaults are currently keyed by manifest kind.
   *)
-  manifest_kind: manifest_kind option;
+  ?manifest_kind: manifest_kind option;
 }
 
 type subproject_resolution_plan
