@@ -3979,8 +3979,7 @@
       "properties": {
         "subproject_id": { "type": "string" },
         "root_dir": { "$ref": "#/definitions/fpath" },
-        "resolution_planned": { "type": "boolean" },
-        "manifest_kind": { "$ref": "#/definitions/manifest_kind" }
+        "resolution_planned": { "type": "boolean" }
       }
     },
     "subproject_resolution_plan": {
