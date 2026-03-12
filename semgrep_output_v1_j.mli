@@ -1557,8 +1557,7 @@ type subproject_symbol_analysis_url_request =
 type single_subproject_plan = Semgrep_output_v1_t.single_subproject_plan = {
   subproject_id: string;
   root_dir: fpath;
-  resolution_planned: bool;
-  manifest_kind: manifest_kind option
+  resolution_planned: bool
 }
 
 (** Subproject dump output. Experimental and for internal use only. *)
