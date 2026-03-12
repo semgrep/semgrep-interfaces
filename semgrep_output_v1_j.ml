@@ -23255,15 +23255,17 @@ let write_single_subproject_plan : _ -> single_subproject_plan -> _ = (
       Yojson.Safe.write_bool
     )
       ob x.resolution_planned;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"manifest_kind\":";
-    (
-      write__manifest_kind_option
-    )
-      ob x.manifest_kind;
+    (match x.manifest_kind with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"manifest_kind\":";
+      (
+        write_manifest_kind
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_single_subproject_plan ?(len = 1024) x =
@@ -23358,13 +23360,15 @@ let read_single_subproject_plan = (
               )
             );
           | 3 ->
-            field_manifest_kind := (
-              Some (
-                (
-                  read__manifest_kind_option
-                ) p lb
-              )
-            );
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_manifest_kind := (
+                Some (
+                  (
+                    read_manifest_kind
+                  ) p lb
+                )
+              );
+            )
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -23449,13 +23453,15 @@ let read_single_subproject_plan = (
                 )
               );
             | 3 ->
-              field_manifest_kind := (
-                Some (
-                  (
-                    read__manifest_kind_option
-                  ) p lb
-                )
-              );
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_manifest_kind := (
+                  Some (
+                    (
+                      read_manifest_kind
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -23468,7 +23474,7 @@ let read_single_subproject_plan = (
             subproject_id = (match !field_subproject_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "subproject_id");
             root_dir = (match !field_root_dir with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "root_dir");
             resolution_planned = (match !field_resolution_planned with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "resolution_planned");
-            manifest_kind = (match !field_manifest_kind with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "manifest_kind");
+            manifest_kind = !field_manifest_kind;
           }
          : single_subproject_plan)
       )

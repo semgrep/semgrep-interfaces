@@ -1393,7 +1393,7 @@ export type SingleSubprojectPlan = {
   subproject_id: string;
   root_dir: Fpath;
   resolution_planned: boolean;
-  manifest_kind: Option<ManifestKind>;
+  manifest_kind?: ManifestKind;
 }
 
 export type SubprojectResolutionPlan = {
@@ -5716,7 +5716,7 @@ export function writeSingleSubprojectPlan(x: SingleSubprojectPlan, context: any 
     'subproject_id': _atd_write_required_field('SingleSubprojectPlan', 'subproject_id', _atd_write_string, x.subproject_id, x),
     'root_dir': _atd_write_required_field('SingleSubprojectPlan', 'root_dir', writeFpath, x.root_dir, x),
     'resolution_planned': _atd_write_required_field('SingleSubprojectPlan', 'resolution_planned', _atd_write_bool, x.resolution_planned, x),
-    'manifest_kind': _atd_write_required_field('SingleSubprojectPlan', 'manifest_kind', _atd_write_option(writeManifestKind), x.manifest_kind, x),
+    'manifest_kind': _atd_write_optional_field(writeManifestKind, x.manifest_kind, x),
   };
 }
 
@@ -5725,7 +5725,7 @@ export function readSingleSubprojectPlan(x: any, context: any = x): SingleSubpro
     subproject_id: _atd_read_required_field('SingleSubprojectPlan', 'subproject_id', _atd_read_string, x['subproject_id'], x),
     root_dir: _atd_read_required_field('SingleSubprojectPlan', 'root_dir', readFpath, x['root_dir'], x),
     resolution_planned: _atd_read_required_field('SingleSubprojectPlan', 'resolution_planned', _atd_read_bool, x['resolution_planned'], x),
-    manifest_kind: _atd_read_required_field('SingleSubprojectPlan', 'manifest_kind', _atd_read_option(readManifestKind), x['manifest_kind'], x),
+    manifest_kind: _atd_read_optional_field(readManifestKind, x['manifest_kind'], x),
   };
 }
 
