@@ -9018,6 +9018,7 @@ class SingleSubprojectPlan:
     subproject_id: str
     root_dir: Fpath
     resolution_planned: bool
+    manifest_kind: Optional[ManifestKind]
 
     @classmethod
     def from_json(cls, x: Any) -> 'SingleSubprojectPlan':
@@ -9026,6 +9027,7 @@ class SingleSubprojectPlan:
                 subproject_id=_atd_read_string(x['subproject_id']) if 'subproject_id' in x else _atd_missing_json_field('SingleSubprojectPlan', 'subproject_id'),
                 root_dir=Fpath.from_json(x['root_dir']) if 'root_dir' in x else _atd_missing_json_field('SingleSubprojectPlan', 'root_dir'),
                 resolution_planned=_atd_read_bool(x['resolution_planned']) if 'resolution_planned' in x else _atd_missing_json_field('SingleSubprojectPlan', 'resolution_planned'),
+                manifest_kind=_atd_read_option(ManifestKind.from_json)(x['manifest_kind']) if 'manifest_kind' in x else _atd_missing_json_field('SingleSubprojectPlan', 'manifest_kind'),
             )
         else:
             _atd_bad_json('SingleSubprojectPlan', x)
@@ -9035,6 +9037,7 @@ class SingleSubprojectPlan:
         res['subproject_id'] = _atd_write_string(self.subproject_id)
         res['root_dir'] = (lambda x: x.to_json())(self.root_dir)
         res['resolution_planned'] = _atd_write_bool(self.resolution_planned)
+        res['manifest_kind'] = _atd_write_option((lambda x: x.to_json()))(self.manifest_kind)
         return res
 
     @classmethod
