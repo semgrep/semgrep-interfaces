@@ -1557,7 +1557,8 @@ type subproject_symbol_analysis_url_request =
 type single_subproject_plan = Semgrep_output_v1_t.single_subproject_plan = {
   subproject_id: string;
   root_dir: fpath;
-  resolution_planned: bool
+  resolution_planned: bool;
+  manifest_kind: manifest_kind option
 }
 
 (** Subproject dump output. Experimental and for internal use only. *)
@@ -23184,6 +23185,45 @@ let read_subproject_symbol_analysis_url_request = (
 )
 let subproject_symbol_analysis_url_request_of_string s =
   read_subproject_symbol_analysis_url_request (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__manifest_kind_option = (
+  Atdgen_runtime.Oj_run.write_std_option (
+    write_manifest_kind
+  )
+)
+let string_of__manifest_kind_option ?(len = 1024) x =
+  let ob = Buffer.create len in
+  write__manifest_kind_option ob x;
+  Buffer.contents ob
+let read__manifest_kind_option = (
+  fun p lb ->
+    Yojson.Safe.read_space p lb;
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
+      | `Double_quote -> (
+          match Yojson.Safe.finish_string p lb with
+            | "None" ->
+              (None : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+      | `Square_bracket -> (
+          match Atdgen_runtime.Oj_run.read_string p lb with
+            | "Some" ->
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_comma p lb;
+              Yojson.Safe.read_space p lb;
+              let x = (
+                  read_manifest_kind
+                ) p lb
+              in
+              Yojson.Safe.read_space p lb;
+              Yojson.Safe.read_rbr p lb;
+              (Some x : _ option)
+            | x ->
+              Atdgen_runtime.Oj_run.invalid_variant_tag p x
+        )
+)
+let _manifest_kind_option_of_string s =
+  read__manifest_kind_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_single_subproject_plan : _ -> single_subproject_plan -> _ = (
   fun ob (x : single_subproject_plan) ->
     Buffer.add_char ob '{';
@@ -23215,6 +23255,15 @@ let write_single_subproject_plan : _ -> single_subproject_plan -> _ = (
       Yojson.Safe.write_bool
     )
       ob x.resolution_planned;
+    if !is_first then
+      is_first := false
+    else
+      Buffer.add_char ob ',';
+      Buffer.add_string ob "\"manifest_kind\":";
+    (
+      write__manifest_kind_option
+    )
+      ob x.manifest_kind;
     Buffer.add_char ob '}';
 )
 let string_of_single_subproject_plan ?(len = 1024) x =
@@ -23228,6 +23277,7 @@ let read_single_subproject_plan = (
     let field_subproject_id = ref (None) in
     let field_root_dir = ref (None) in
     let field_resolution_planned = ref (None) in
+    let field_manifest_kind = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -23246,12 +23296,26 @@ let read_single_subproject_plan = (
                 )
               )
             | 13 -> (
-                if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'b' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'j' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'd' then (
-                  0
-                )
-                else (
-                  -1
-                )
+                match String.unsafe_get s pos with
+                  | 'm' -> (
+                      if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'k' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 'd' then (
+                        3
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | 's' -> (
+                      if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'b' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'j' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'd' then (
+                        0
+                      )
+                      else (
+                        -1
+                      )
+                    )
+                  | _ -> (
+                      -1
+                    )
               )
             | 18 -> (
                 if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'u' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 'n' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 'd' then (
@@ -23293,6 +23357,14 @@ let read_single_subproject_plan = (
                 ) p lb
               )
             );
+          | 3 ->
+            field_manifest_kind := (
+              Some (
+                (
+                  read__manifest_kind_option
+                ) p lb
+              )
+            );
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -23315,12 +23387,26 @@ let read_single_subproject_plan = (
                   )
                 )
               | 13 -> (
-                  if String.unsafe_get s pos = 's' && String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'b' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'j' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'd' then (
-                    0
-                  )
-                  else (
-                    -1
-                  )
+                  match String.unsafe_get s pos with
+                    | 'm' -> (
+                        if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'k' && String.unsafe_get s (pos+10) = 'i' && String.unsafe_get s (pos+11) = 'n' && String.unsafe_get s (pos+12) = 'd' then (
+                          3
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | 's' -> (
+                        if String.unsafe_get s (pos+1) = 'u' && String.unsafe_get s (pos+2) = 'b' && String.unsafe_get s (pos+3) = 'p' && String.unsafe_get s (pos+4) = 'r' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'j' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = 'c' && String.unsafe_get s (pos+9) = 't' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'i' && String.unsafe_get s (pos+12) = 'd' then (
+                          0
+                        )
+                        else (
+                          -1
+                        )
+                      )
+                    | _ -> (
+                        -1
+                      )
                 )
               | 18 -> (
                   if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 's' && String.unsafe_get s (pos+3) = 'o' && String.unsafe_get s (pos+4) = 'l' && String.unsafe_get s (pos+5) = 'u' && String.unsafe_get s (pos+6) = 't' && String.unsafe_get s (pos+7) = 'i' && String.unsafe_get s (pos+8) = 'o' && String.unsafe_get s (pos+9) = 'n' && String.unsafe_get s (pos+10) = '_' && String.unsafe_get s (pos+11) = 'p' && String.unsafe_get s (pos+12) = 'l' && String.unsafe_get s (pos+13) = 'a' && String.unsafe_get s (pos+14) = 'n' && String.unsafe_get s (pos+15) = 'n' && String.unsafe_get s (pos+16) = 'e' && String.unsafe_get s (pos+17) = 'd' then (
@@ -23362,6 +23448,14 @@ let read_single_subproject_plan = (
                   ) p lb
                 )
               );
+            | 3 ->
+              field_manifest_kind := (
+                Some (
+                  (
+                    read__manifest_kind_option
+                  ) p lb
+                )
+              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -23374,6 +23468,7 @@ let read_single_subproject_plan = (
             subproject_id = (match !field_subproject_id with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "subproject_id");
             root_dir = (match !field_root_dir with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "root_dir");
             resolution_planned = (match !field_resolution_planned with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "resolution_planned");
+            manifest_kind = (match !field_manifest_kind with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "manifest_kind");
           }
          : single_subproject_plan)
       )
