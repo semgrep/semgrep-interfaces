@@ -188,6 +188,14 @@ type found_dependency = Semgrep_output_v1_t.found_dependency = {
       Git ref of the dependency if the dependency comes directly from a git
       repo. Examples: refs/heads/main, refs/tags/v1.0.0,
       e5c704df4d308690fed696faf4c86453b4d88a95. Since 1.66.0
+    *);
+  version_specifier: string option
+    (**
+      The version constraint string from the manifest/lockfile when the
+      dependency is not pinned to an exact version. E.g. '>=2.0' or
+      '>=1.0,<3.0'. When present, indicates the dependency version is a range
+      rather than a pinned version, and matching should use range overlap
+      instead of exact version comparison.
     *)
 }
   [@@deriving ord]
@@ -3371,6 +3379,17 @@ let write_found_dependency : _ -> found_dependency -> _ = (
       )
         ob x;
     );
+    (match x.version_specifier with None -> () | Some x ->
+      if !is_first then
+        is_first := false
+      else
+        Buffer.add_char ob ',';
+        Buffer.add_string ob "\"version_specifier\":";
+      (
+        Yojson.Safe.write_string
+      )
+        ob x;
+    );
     Buffer.add_char ob '}';
 )
 let string_of_found_dependency ?(len = 1024) x =
@@ -3392,6 +3411,7 @@ let read_found_dependency = (
     let field_line_number = ref (None) in
     let field_children = ref (None) in
     let field_git_ref = ref (None) in
+    let field_version_specifier = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -3507,6 +3527,14 @@ let read_found_dependency = (
                   -1
                 )
               )
+            | 17 -> (
+                if String.unsafe_get s pos = 'v' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 'c' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'f' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 'e' && String.unsafe_get s (pos+16) = 'r' then (
+                  11
+                )
+                else (
+                  -1
+                )
+              )
             | _ -> (
                 -1
               )
@@ -3608,6 +3636,16 @@ let read_found_dependency = (
           | 10 ->
             if not (Yojson.Safe.read_null_if_possible p lb) then (
               field_git_ref := (
+                Some (
+                  (
+                    Atdgen_runtime.Oj_run.read_string
+                  ) p lb
+                )
+              );
+            )
+          | 11 ->
+            if not (Yojson.Safe.read_null_if_possible p lb) then (
+              field_version_specifier := (
                 Some (
                   (
                     Atdgen_runtime.Oj_run.read_string
@@ -3734,6 +3772,14 @@ let read_found_dependency = (
                     -1
                   )
                 )
+              | 17 -> (
+                  if String.unsafe_get s pos = 'v' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'r' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'i' && String.unsafe_get s (pos+5) = 'o' && String.unsafe_get s (pos+6) = 'n' && String.unsafe_get s (pos+7) = '_' && String.unsafe_get s (pos+8) = 's' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'e' && String.unsafe_get s (pos+11) = 'c' && String.unsafe_get s (pos+12) = 'i' && String.unsafe_get s (pos+13) = 'f' && String.unsafe_get s (pos+14) = 'i' && String.unsafe_get s (pos+15) = 'e' && String.unsafe_get s (pos+16) = 'r' then (
+                    11
+                  )
+                  else (
+                    -1
+                  )
+                )
               | _ -> (
                   -1
                 )
@@ -3842,6 +3888,16 @@ let read_found_dependency = (
                   )
                 );
               )
+            | 11 ->
+              if not (Yojson.Safe.read_null_if_possible p lb) then (
+                field_version_specifier := (
+                  Some (
+                    (
+                      Atdgen_runtime.Oj_run.read_string
+                    ) p lb
+                  )
+                );
+              )
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -3862,6 +3918,7 @@ let read_found_dependency = (
             line_number = !field_line_number;
             children = !field_children;
             git_ref = !field_git_ref;
+            version_specifier = !field_version_specifier;
           }
          : found_dependency)
       )
