@@ -9,10 +9,14 @@ This repository is meant to be used as a submodule.
 
 You may need to install opam and mypy as pre-requisites for contributing to this repository.
 
+To get setup in this repositoty:
+1. install [uv](https://docs.astral.sh/uv/getting-started/installation/)
+2. Run `make dev-setup`
+
 To update an interface:
-1. Run `make dev-setup`
-2. Make changes to the appropriate .atd file or edit `generate.py`
-3. Run `make`. This will propagate that change to the respective .py, .ts, .ml, etc.
+1. Make changes to the appropriate .atd file or edit `generate.py`
+2. Run `make`. This will propagate that change to the respective .py, .ts, .ml, etc.
+3. Run `make test`. This will check backwards compatibility, validate schemas, and typecheck python files
 
 ---
 
