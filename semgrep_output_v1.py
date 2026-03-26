@@ -864,6 +864,11 @@ class FoundDependency:
     :param git_ref: Git ref of the dependency if the dependency comes directly
     from a git repo. Examples: refs/heads/main, refs/tags/v1.0.0,
     e5c704df4d308690fed696faf4c86453b4d88a95. Since 1.66.0
+    :param version_specifier: The version constraint string from the
+    manifest/lockfile when the dependency is not pinned to an exact version.
+    E.g. '>=2.0' or '>=1.0,<3.0'. When present, indicates the dependency
+    version is a range rather than a pinned version, and matching should use
+    range overlap instead of exact version comparison.
     """
 
     package: str
@@ -877,6 +882,7 @@ class FoundDependency:
     line_number: Optional[int] = None
     children: Optional[List[DependencyChild]] = None
     git_ref: Optional[str] = None
+    version_specifier: Optional[str] = None
 
     @classmethod
     def from_json(cls, x: Any) -> 'FoundDependency':
@@ -893,6 +899,7 @@ class FoundDependency:
                 line_number=_atd_read_int(x['line_number']) if 'line_number' in x else None,
                 children=_atd_read_list(DependencyChild.from_json)(x['children']) if 'children' in x else None,
                 git_ref=_atd_read_string(x['git_ref']) if 'git_ref' in x else None,
+                version_specifier=_atd_read_string(x['version_specifier']) if 'version_specifier' in x else None,
             )
         else:
             _atd_bad_json('FoundDependency', x)
@@ -916,6 +923,8 @@ class FoundDependency:
             res['children'] = _atd_write_list((lambda x: x.to_json()))(self.children)
         if self.git_ref is not None:
             res['git_ref'] = _atd_write_string(self.git_ref)
+        if self.version_specifier is not None:
+            res['version_specifier'] = _atd_write_string(self.version_specifier)
         return res
 
     @classmethod

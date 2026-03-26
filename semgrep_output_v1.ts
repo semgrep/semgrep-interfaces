@@ -252,6 +252,7 @@ export type FoundDependency = {
   line_number?: number /*int*/;
   children?: DependencyChild[];
   git_ref?: string;
+  version_specifier?: string;
 }
 
 export type DependencyChild = {
@@ -2217,6 +2218,7 @@ export function writeFoundDependency(x: FoundDependency, context: any = x): any 
     'line_number': _atd_write_optional_field(_atd_write_int, x.line_number, x),
     'children': _atd_write_optional_field(_atd_write_array(writeDependencyChild), x.children, x),
     'git_ref': _atd_write_optional_field(_atd_write_string, x.git_ref, x),
+    'version_specifier': _atd_write_optional_field(_atd_write_string, x.version_specifier, x),
   };
 }
 
@@ -2233,6 +2235,7 @@ export function readFoundDependency(x: any, context: any = x): FoundDependency {
     line_number: _atd_read_optional_field(_atd_read_int, x['line_number'], x),
     children: _atd_read_optional_field(_atd_read_array(readDependencyChild), x['children'], x),
     git_ref: _atd_read_optional_field(_atd_read_string, x['git_ref'], x),
+    version_specifier: _atd_read_optional_field(_atd_read_string, x['version_specifier'], x),
   };
 }
 

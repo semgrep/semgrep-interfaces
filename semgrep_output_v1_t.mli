@@ -184,6 +184,14 @@ type found_dependency = {
       Git ref of the dependency if the dependency comes directly from a git
       repo. Examples: refs/heads/main, refs/tags/v1.0.0,
       e5c704df4d308690fed696faf4c86453b4d88a95. Since 1.66.0
+    *);
+  version_specifier: string option
+    (**
+      The version constraint string from the manifest/lockfile when the
+      dependency is not pinned to an exact version. E.g. '>=2.0' or
+      '>=1.0,<3.0'. When present, indicates the dependency version is a range
+      rather than a pinned version, and matching should use range overlap
+      instead of exact version comparison.
     *)
 }
   [@@deriving ord]
