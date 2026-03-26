@@ -3577,7 +3577,6 @@ type profiling_entry
   count: int;
 }
 
-(* can I just use subproject stats instead? *)
 type single_subproject_plan
     <python decorator="dataclass(frozen=True)">
 = {
