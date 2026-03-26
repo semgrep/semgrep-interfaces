@@ -10,10 +10,9 @@ This repository is meant to be used as a submodule.
 You may need to install opam and mypy as pre-requisites for contributing to this repository.
 
 To update an interface:
-1. Run `make setup`
-2. Run `eval $(opam env)`
-3. Make changes to the appropriate .atd file or edit `generate.py`
-4. Run `make`. This will propagate that change to the respective .py, .ts, .ml, etc.
+1. Run `make dev-setup`
+2. Make changes to the appropriate .atd file or edit `generate.py`
+3. Run `make`. This will propagate that change to the respective .py, .ts, .ml, etc.
 
 ---
 

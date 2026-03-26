@@ -15,10 +15,11 @@ set -euo pipefail
 version_url="https://semgrep.dev/api/check-version"
 min_version=$(curl -s "$version_url" | jq -r '.versions.minimum')
 if [[ -z "$min_version" ]]; then
-  echo "Failed to obtain minimum supported version from $version_url" >&2
-  exit 1
+    echo "Failed to obtain minimum supported version from $version_url" >&2
+    exit 1
 fi
 
+printf "Backwards compatibility summary:\n"
 minimum="v${min_version}"
 tags=$(git log --simplify-by-decoration --pretty=format:%D "${minimum}^!" origin/main | grep -o 'tag: [^,)]\+' | sed 's/^tag: //' | sort -n)
 
@@ -26,7 +27,7 @@ checked=("dummy")
 errors=0
 for tag in $tags; do
     commit=$(git rev-list -n 1 "$tag")
-    if [[ "${checked[*]}" =~ "$commit" ]]; then
+    if [[ "${checked[*]}" =~ $commit ]]; then
         echo "Skipping $tag because commit $commit has already been checked"
         continue
     fi
@@ -50,7 +51,7 @@ for tag in $tags; do
     atddiff_options="--exit-success --no-locations --backward --types ci_scan_complete,ci_scan_complete_response,ci_scan_failure,ci_scan_results,ci_scan_results_response,cli_output,datetime,deployment_response,diff_files,partial_scan_result,scan_config,scan_request,scan_response,tests_result"
 
     git difftool --trust-exit-code -x "atddiff $atddiff_options" -y \
-        "$tag" "origin/main" -- semgrep_output_v1.atd > before.txt
+        "$tag" "origin/main" -- semgrep_output_v1.atd >before.txt
     # The exit code is 0 if atddiff's exit code is 0, and it's an
     # unspecified nonzero value if atddiff's exit code is not 0 (but
     # not the same nonzero value!)
@@ -61,7 +62,7 @@ for tag in $tags; do
         exit 1
     fi
     git difftool --trust-exit-code -x "atddiff $atddiff_options" -y \
-        "$tag" "HEAD" -- semgrep_output_v1.atd > after.txt
+        "$tag" "HEAD" -- semgrep_output_v1.atd >after.txt
     ret=$?
     if [[ "$ret" -ne 0 ]]; then
         echo "ERROR: atddiff had an error: git difftool exit $ret"
