@@ -17,15 +17,5 @@ depends: [
   "atdpy" {>= "3.0.0"}
   "atdts" {>= "2.13.0"}
   "atdgen" {>= "3.0.1"}
-]
-
-#TODO: we don't build on ubuntu or debian ever, and they are not packages there,
-# so let's just ignore it for now
-#["check-jsonschema"] {os-family = "debian"}
-#["check-jsonschema"] {os-family = "ubuntu"}
-depexts: [
-   ["check-jsonschema"] {os-distribution = "alpine"}
-   ["check-jsonschema"] {os = "macos" & os-distribution = "homebrew"}
-   ["check-jsonschema"] {os = "macos" & os-distribution = "macports"}
-   ["check-jsonschema"] {os = "win32" & os-distribution = "macports"}
+  "conf-jq"
 ]
