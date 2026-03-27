@@ -11,6 +11,8 @@ Language
 before.txt
 after.txt
 
+# ignore files created by the schema validation tests
 *.ast.json
 
+# ignore files created by the typecheck test
 typecheck
