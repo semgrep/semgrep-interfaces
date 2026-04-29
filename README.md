@@ -1,5 +1,7 @@
 # semgrep-interfaces
 
+a
+
 This repository contains IDL (Interface Definition Language) files specifying
 the interface between different Semgrep components (e.g., between
 the semgrep CLI and the playground). It also includes the schema for Semgrep rules,
