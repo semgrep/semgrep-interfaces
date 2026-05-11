@@ -5,7 +5,8 @@ the interface between different Semgrep components (e.g., between
 the semgrep CLI and the playground). It also includes the schema for Semgrep rules,
 as both Semgrep and Semgrep App rely on this.
 
-This repository is meant to be used as a submodule.
+This repository is meant to be used as a submodule, however it is included in the CLI repos
+and are sync'd via a script.
 
 You may need to install opam and mypy as pre-requisites for contributing to this repository.
 
