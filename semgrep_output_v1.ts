@@ -18,6 +18,12 @@ export type RawJson = any
 
 export type Fpath = string
 
+export type FpathRepr =
+| { kind: 'Utf8'; value: string }
+| { kind: 'Base64'; value: string }
+
+export type FpathB = FpathRepr
+
 export type Ppath = string
 
 export type Fppath = {
@@ -1294,11 +1300,39 @@ export type ResolveDependenciesParams = {
   download_dependency_source_code: boolean;
   allow_local_builds: boolean;
   package_manager_env?: [string, string][];
+  ptt_enabled: boolean;
+  use_experimental_ocaml_parsers: boolean;
+}
+
+export type DependencyParserErrorB = {
+  path: FpathB;
+  parser: ScaParserName;
+  reason: string;
+  line?: number /*int*/;
+  col?: number /*int*/;
+  text?: string;
+}
+
+export type ResolutionResultError =
+| { kind: 'ResolutionKind'; value: ResolutionErrorKind }
+| { kind: 'ResolutionParseError'; value: DependencyParserErrorB }
+
+export type ResolvedSource = {
+  resolution_method: ResolutionMethod;
+  resolved: ResolvedDependency[];
+  errors: ResolutionResultError[];
+}
+
+export type UnresolvedSource = {
+  reason: UnresolvedReason;
+  errors: ResolutionResultError[];
 }
 
 export type ResolutionResult =
-| { kind: 'ResolutionOk'; value: [ResolvedDependency[], ResolutionErrorKind[]] }
-| { kind: 'ResolutionError'; value: ResolutionErrorKind[] }
+| { kind: 'ResolutionOk'; value: [ResolvedDependency[], ResolutionResultError[]] }
+| { kind: 'ResolutionError'; value: ResolutionResultError[] }
+| { kind: 'ResolutionResolved'; value: ResolvedSource }
+| { kind: 'ResolutionUnresolved'; value: UnresolvedSource }
 
 export type TransitiveFinding = {
   m: CoreMatch;
@@ -1309,6 +1343,77 @@ export type TransitiveReachabilityFilterParams = {
   findings: TransitiveFinding[];
   dependencies: ResolvedDependency[];
   write_to_cache: boolean;
+}
+
+export type SubprojectRelevanceFilter = {
+  directly_targeted_files: FpathB[];
+  loaded_rule_ecosystems: [string, Ecosystem[]][];
+  code_files_by_language: [string, FpathB[]][];
+}
+
+export type SubprojectFileAssociation = {
+  path: FpathB;
+  ecosystem: Ecosystem;
+  subproject_root: FpathB;
+}
+
+export type MatchSubprojectsParams = {
+  dependency_source_files: FpathB[];
+  files_only: boolean;
+  return_glob_filters: boolean;
+  relevance_filter?: SubprojectRelevanceFilter;
+  precomputed_dependencies_dir?: FpathB;
+  is_baseline_scan: boolean;
+  return_file_associations: boolean;
+}
+
+export type MatchSubprojectsResult = {
+  subprojects: Subproject[];
+  kept_dependency_source_files: FpathB[];
+  glob_filters: string[];
+  skipped_subprojects: UnresolvedSubproject[];
+  file_associations?: SubprojectFileAssociation[];
+}
+
+export type ScaMatchQuery =
+| { kind: 'LockfileOnlyMatching' }
+| { kind: 'ReachableCandidateMatching' }
+
+export type ScaMatchRulePatterns = {
+  rule_id: RuleId;
+  patterns: ScaPattern[];
+}
+
+export type ScaMatchSubproject = {
+  dependencies: FoundDependency[];
+}
+
+export type ScaMatchDependenciesParams = {
+  query: ScaMatchQuery;
+  rules: ScaMatchRulePatterns[];
+  subprojects: ScaMatchSubproject[];
+  compute_dependency_paths: boolean;
+}
+
+export type ScaMatchError =
+| { kind: 'ScaMatchSemgrepError'; value: string }
+| { kind: 'ScaMatchInvalidVersion'; value: string }
+
+export type ScaDependencyMatchRecord = {
+  dependency_match: DependencyMatch;
+  position: Position;
+}
+
+export type ScaDependencyMatchCell = {
+  rule: number /*int*/;
+  subproject: number /*int*/;
+  matches: ScaDependencyMatchRecord[];
+  skipped_no_lockfile: string[];
+  error?: ScaMatchError;
+}
+
+export type ScaMatchDependenciesResult = {
+  cells: ScaDependencyMatchCell[];
 }
 
 export type SymbolAnalysisUploadResponse = {
@@ -1356,7 +1461,8 @@ export type FunctionCall =
 | { kind: 'CallDumpRulePartitions'; value: DumpRulePartitionsParams }
 | { kind: 'CallGetTargets'; value: ScanningRoots }
 | { kind: 'CallTransitiveReachabilityFilter'; value: TransitiveReachabilityFilterParams }
-| { kind: 'CallMatchSubprojects'; value: Fpath[] }
+| { kind: 'CallMatchSubprojects'; value: MatchSubprojectsParams }
+| { kind: 'CallScaMatchDependencies'; value: ScaMatchDependenciesParams }
 | { kind: 'CallRunSymbolAnalysis'; value: SymbolAnalysisParams }
 | { kind: 'CallUploadSubprojectSymbolAnalysis'; value: UploadSubprojectSymbolAnalysisParams }
 | { kind: 'CallShowSubprojects'; value: Subproject[] }
@@ -1373,7 +1479,8 @@ export type FunctionReturn =
 | { kind: 'RetDumpRulePartitions'; value: boolean }
 | { kind: 'RetTransitiveReachabilityFilter'; value: TransitiveFinding[] }
 | { kind: 'RetGetTargets'; value: TargetDiscoveryResult }
-| { kind: 'RetMatchSubprojects'; value: Subproject[] }
+| { kind: 'RetMatchSubprojects'; value: MatchSubprojectsResult }
+| { kind: 'RetScaMatchDependencies'; value: ScaMatchDependenciesResult }
 | { kind: 'RetRunSymbolAnalysis'; value: SymbolAnalysis }
 | { kind: 'RetUploadSubprojectSymbolAnalysis'; value: string }
 | { kind: 'RetShowSubprojects'; value: string }
@@ -1432,6 +1539,36 @@ export function writeFpath(x: Fpath, context: any = x): any {
 
 export function readFpath(x: any, context: any = x): Fpath {
   return _atd_read_string(x, context);
+}
+
+export function writeFpathRepr(x: FpathRepr, context: any = x): any {
+  switch (x.kind) {
+    case 'Utf8':
+      return ['Utf8', _atd_write_string(x.value, x)]
+    case 'Base64':
+      return ['Base64', _atd_write_string(x.value, x)]
+  }
+}
+
+export function readFpathRepr(x: any, context: any = x): FpathRepr {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'Utf8':
+      return { kind: 'Utf8', value: _atd_read_string(x[1], x) }
+    case 'Base64':
+      return { kind: 'Base64', value: _atd_read_string(x[1], x) }
+    default:
+      _atd_bad_json('FpathRepr', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeFpathB(x: FpathB, context: any = x): any {
+  return writeFpathRepr(x, context);
+}
+
+export function readFpathB(x: any, context: any = x): FpathB {
+  return readFpathRepr(x, context);
 }
 
 export function writePpath(x: Ppath, context: any = x): any {
@@ -5383,6 +5520,8 @@ export function writeResolveDependenciesParams(x: ResolveDependenciesParams, con
     'download_dependency_source_code': _atd_write_required_field('ResolveDependenciesParams', 'download_dependency_source_code', _atd_write_bool, x.download_dependency_source_code, x),
     'allow_local_builds': _atd_write_required_field('ResolveDependenciesParams', 'allow_local_builds', _atd_write_bool, x.allow_local_builds, x),
     'package_manager_env': _atd_write_optional_field(_atd_write_array(((x, context) => [_atd_write_string(x[0], x), _atd_write_string(x[1], x)])), x.package_manager_env, x),
+    'ptt_enabled': _atd_write_field_with_default(_atd_write_bool, false, x.ptt_enabled, x),
+    'use_experimental_ocaml_parsers': _atd_write_field_with_default(_atd_write_bool, false, x.use_experimental_ocaml_parsers, x),
   };
 }
 
@@ -5392,15 +5531,95 @@ export function readResolveDependenciesParams(x: any, context: any = x): Resolve
     download_dependency_source_code: _atd_read_required_field('ResolveDependenciesParams', 'download_dependency_source_code', _atd_read_bool, x['download_dependency_source_code'], x),
     allow_local_builds: _atd_read_required_field('ResolveDependenciesParams', 'allow_local_builds', _atd_read_bool, x['allow_local_builds'], x),
     package_manager_env: _atd_read_optional_field(_atd_read_array(((x, context): [string, string] => { _atd_check_json_tuple(2, x, context); return [_atd_read_string(x[0], x), _atd_read_string(x[1], x)] })), x['package_manager_env'], x),
+    ptt_enabled: _atd_read_field_with_default(_atd_read_bool, false, x['ptt_enabled'], x),
+    use_experimental_ocaml_parsers: _atd_read_field_with_default(_atd_read_bool, false, x['use_experimental_ocaml_parsers'], x),
+  };
+}
+
+export function writeDependencyParserErrorB(x: DependencyParserErrorB, context: any = x): any {
+  return {
+    'path': _atd_write_required_field('DependencyParserErrorB', 'path', writeFpathB, x.path, x),
+    'parser': _atd_write_required_field('DependencyParserErrorB', 'parser', writeScaParserName, x.parser, x),
+    'reason': _atd_write_required_field('DependencyParserErrorB', 'reason', _atd_write_string, x.reason, x),
+    'line': _atd_write_optional_field(_atd_write_int, x.line, x),
+    'col': _atd_write_optional_field(_atd_write_int, x.col, x),
+    'text': _atd_write_optional_field(_atd_write_string, x.text, x),
+  };
+}
+
+export function readDependencyParserErrorB(x: any, context: any = x): DependencyParserErrorB {
+  return {
+    path: _atd_read_required_field('DependencyParserErrorB', 'path', readFpathB, x['path'], x),
+    parser: _atd_read_required_field('DependencyParserErrorB', 'parser', readScaParserName, x['parser'], x),
+    reason: _atd_read_required_field('DependencyParserErrorB', 'reason', _atd_read_string, x['reason'], x),
+    line: _atd_read_optional_field(_atd_read_int, x['line'], x),
+    col: _atd_read_optional_field(_atd_read_int, x['col'], x),
+    text: _atd_read_optional_field(_atd_read_string, x['text'], x),
+  };
+}
+
+export function writeResolutionResultError(x: ResolutionResultError, context: any = x): any {
+  switch (x.kind) {
+    case 'ResolutionKind':
+      return ['ResolutionKind', writeResolutionErrorKind(x.value, x)]
+    case 'ResolutionParseError':
+      return ['ResolutionParseError', writeDependencyParserErrorB(x.value, x)]
+  }
+}
+
+export function readResolutionResultError(x: any, context: any = x): ResolutionResultError {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'ResolutionKind':
+      return { kind: 'ResolutionKind', value: readResolutionErrorKind(x[1], x) }
+    case 'ResolutionParseError':
+      return { kind: 'ResolutionParseError', value: readDependencyParserErrorB(x[1], x) }
+    default:
+      _atd_bad_json('ResolutionResultError', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeResolvedSource(x: ResolvedSource, context: any = x): any {
+  return {
+    'resolution_method': _atd_write_required_field('ResolvedSource', 'resolution_method', writeResolutionMethod, x.resolution_method, x),
+    'resolved': _atd_write_required_field('ResolvedSource', 'resolved', _atd_write_array(writeResolvedDependency), x.resolved, x),
+    'errors': _atd_write_required_field('ResolvedSource', 'errors', _atd_write_array(writeResolutionResultError), x.errors, x),
+  };
+}
+
+export function readResolvedSource(x: any, context: any = x): ResolvedSource {
+  return {
+    resolution_method: _atd_read_required_field('ResolvedSource', 'resolution_method', readResolutionMethod, x['resolution_method'], x),
+    resolved: _atd_read_required_field('ResolvedSource', 'resolved', _atd_read_array(readResolvedDependency), x['resolved'], x),
+    errors: _atd_read_required_field('ResolvedSource', 'errors', _atd_read_array(readResolutionResultError), x['errors'], x),
+  };
+}
+
+export function writeUnresolvedSource(x: UnresolvedSource, context: any = x): any {
+  return {
+    'reason': _atd_write_required_field('UnresolvedSource', 'reason', writeUnresolvedReason, x.reason, x),
+    'errors': _atd_write_required_field('UnresolvedSource', 'errors', _atd_write_array(writeResolutionResultError), x.errors, x),
+  };
+}
+
+export function readUnresolvedSource(x: any, context: any = x): UnresolvedSource {
+  return {
+    reason: _atd_read_required_field('UnresolvedSource', 'reason', readUnresolvedReason, x['reason'], x),
+    errors: _atd_read_required_field('UnresolvedSource', 'errors', _atd_read_array(readResolutionResultError), x['errors'], x),
   };
 }
 
 export function writeResolutionResult(x: ResolutionResult, context: any = x): any {
   switch (x.kind) {
     case 'ResolutionOk':
-      return ['ResolutionOk', ((x, context) => [_atd_write_array(writeResolvedDependency)(x[0], x), _atd_write_array(writeResolutionErrorKind)(x[1], x)])(x.value, x)]
+      return ['ResolutionOk', ((x, context) => [_atd_write_array(writeResolvedDependency)(x[0], x), _atd_write_array(writeResolutionResultError)(x[1], x)])(x.value, x)]
     case 'ResolutionError':
-      return ['ResolutionError', _atd_write_array(writeResolutionErrorKind)(x.value, x)]
+      return ['ResolutionError', _atd_write_array(writeResolutionResultError)(x.value, x)]
+    case 'ResolutionResolved':
+      return ['ResolutionResolved', writeResolvedSource(x.value, x)]
+    case 'ResolutionUnresolved':
+      return ['ResolutionUnresolved', writeUnresolvedSource(x.value, x)]
   }
 }
 
@@ -5408,9 +5627,13 @@ export function readResolutionResult(x: any, context: any = x): ResolutionResult
   _atd_check_json_tuple(2, x, context)
   switch (x[0]) {
     case 'ResolutionOk':
-      return { kind: 'ResolutionOk', value: ((x, context): [ResolvedDependency[], ResolutionErrorKind[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_array(readResolvedDependency)(x[0], x), _atd_read_array(readResolutionErrorKind)(x[1], x)] })(x[1], x) }
+      return { kind: 'ResolutionOk', value: ((x, context): [ResolvedDependency[], ResolutionResultError[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_array(readResolvedDependency)(x[0], x), _atd_read_array(readResolutionResultError)(x[1], x)] })(x[1], x) }
     case 'ResolutionError':
-      return { kind: 'ResolutionError', value: _atd_read_array(readResolutionErrorKind)(x[1], x) }
+      return { kind: 'ResolutionError', value: _atd_read_array(readResolutionResultError)(x[1], x) }
+    case 'ResolutionResolved':
+      return { kind: 'ResolutionResolved', value: readResolvedSource(x[1], x) }
+    case 'ResolutionUnresolved':
+      return { kind: 'ResolutionUnresolved', value: readUnresolvedSource(x[1], x) }
     default:
       _atd_bad_json('ResolutionResult', x, context)
       throw new Error('impossible')
@@ -5444,6 +5667,215 @@ export function readTransitiveReachabilityFilterParams(x: any, context: any = x)
     findings: _atd_read_required_field('TransitiveReachabilityFilterParams', 'findings', _atd_read_array(readTransitiveFinding), x['findings'], x),
     dependencies: _atd_read_required_field('TransitiveReachabilityFilterParams', 'dependencies', _atd_read_array(readResolvedDependency), x['dependencies'], x),
     write_to_cache: _atd_read_required_field('TransitiveReachabilityFilterParams', 'write_to_cache', _atd_read_bool, x['write_to_cache'], x),
+  };
+}
+
+export function writeSubprojectRelevanceFilter(x: SubprojectRelevanceFilter, context: any = x): any {
+  return {
+    'directly_targeted_files': _atd_write_required_field('SubprojectRelevanceFilter', 'directly_targeted_files', _atd_write_array(writeFpathB), x.directly_targeted_files, x),
+    'loaded_rule_ecosystems': _atd_write_required_field('SubprojectRelevanceFilter', 'loaded_rule_ecosystems', _atd_write_array(((x, context) => [_atd_write_string(x[0], x), _atd_write_array(writeEcosystem)(x[1], x)])), x.loaded_rule_ecosystems, x),
+    'code_files_by_language': _atd_write_required_field('SubprojectRelevanceFilter', 'code_files_by_language', _atd_write_array(((x, context) => [_atd_write_string(x[0], x), _atd_write_array(writeFpathB)(x[1], x)])), x.code_files_by_language, x),
+  };
+}
+
+export function readSubprojectRelevanceFilter(x: any, context: any = x): SubprojectRelevanceFilter {
+  return {
+    directly_targeted_files: _atd_read_required_field('SubprojectRelevanceFilter', 'directly_targeted_files', _atd_read_array(readFpathB), x['directly_targeted_files'], x),
+    loaded_rule_ecosystems: _atd_read_required_field('SubprojectRelevanceFilter', 'loaded_rule_ecosystems', _atd_read_array(((x, context): [string, Ecosystem[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_string(x[0], x), _atd_read_array(readEcosystem)(x[1], x)] })), x['loaded_rule_ecosystems'], x),
+    code_files_by_language: _atd_read_required_field('SubprojectRelevanceFilter', 'code_files_by_language', _atd_read_array(((x, context): [string, FpathB[]] => { _atd_check_json_tuple(2, x, context); return [_atd_read_string(x[0], x), _atd_read_array(readFpathB)(x[1], x)] })), x['code_files_by_language'], x),
+  };
+}
+
+export function writeSubprojectFileAssociation(x: SubprojectFileAssociation, context: any = x): any {
+  return {
+    'path': _atd_write_required_field('SubprojectFileAssociation', 'path', writeFpathB, x.path, x),
+    'ecosystem': _atd_write_required_field('SubprojectFileAssociation', 'ecosystem', writeEcosystem, x.ecosystem, x),
+    'subproject_root': _atd_write_required_field('SubprojectFileAssociation', 'subproject_root', writeFpathB, x.subproject_root, x),
+  };
+}
+
+export function readSubprojectFileAssociation(x: any, context: any = x): SubprojectFileAssociation {
+  return {
+    path: _atd_read_required_field('SubprojectFileAssociation', 'path', readFpathB, x['path'], x),
+    ecosystem: _atd_read_required_field('SubprojectFileAssociation', 'ecosystem', readEcosystem, x['ecosystem'], x),
+    subproject_root: _atd_read_required_field('SubprojectFileAssociation', 'subproject_root', readFpathB, x['subproject_root'], x),
+  };
+}
+
+export function writeMatchSubprojectsParams(x: MatchSubprojectsParams, context: any = x): any {
+  return {
+    'dependency_source_files': _atd_write_required_field('MatchSubprojectsParams', 'dependency_source_files', _atd_write_array(writeFpathB), x.dependency_source_files, x),
+    'files_only': _atd_write_field_with_default(_atd_write_bool, false, x.files_only, x),
+    'return_glob_filters': _atd_write_field_with_default(_atd_write_bool, false, x.return_glob_filters, x),
+    'relevance_filter': _atd_write_optional_field(writeSubprojectRelevanceFilter, x.relevance_filter, x),
+    'precomputed_dependencies_dir': _atd_write_optional_field(writeFpathB, x.precomputed_dependencies_dir, x),
+    'is_baseline_scan': _atd_write_field_with_default(_atd_write_bool, false, x.is_baseline_scan, x),
+    'return_file_associations': _atd_write_field_with_default(_atd_write_bool, false, x.return_file_associations, x),
+  };
+}
+
+export function readMatchSubprojectsParams(x: any, context: any = x): MatchSubprojectsParams {
+  return {
+    dependency_source_files: _atd_read_required_field('MatchSubprojectsParams', 'dependency_source_files', _atd_read_array(readFpathB), x['dependency_source_files'], x),
+    files_only: _atd_read_field_with_default(_atd_read_bool, false, x['files_only'], x),
+    return_glob_filters: _atd_read_field_with_default(_atd_read_bool, false, x['return_glob_filters'], x),
+    relevance_filter: _atd_read_optional_field(readSubprojectRelevanceFilter, x['relevance_filter'], x),
+    precomputed_dependencies_dir: _atd_read_optional_field(readFpathB, x['precomputed_dependencies_dir'], x),
+    is_baseline_scan: _atd_read_field_with_default(_atd_read_bool, false, x['is_baseline_scan'], x),
+    return_file_associations: _atd_read_field_with_default(_atd_read_bool, false, x['return_file_associations'], x),
+  };
+}
+
+export function writeMatchSubprojectsResult(x: MatchSubprojectsResult, context: any = x): any {
+  return {
+    'subprojects': _atd_write_required_field('MatchSubprojectsResult', 'subprojects', _atd_write_array(writeSubproject), x.subprojects, x),
+    'kept_dependency_source_files': _atd_write_field_with_default(_atd_write_array(writeFpathB), [], x.kept_dependency_source_files, x),
+    'glob_filters': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.glob_filters, x),
+    'skipped_subprojects': _atd_write_field_with_default(_atd_write_array(writeUnresolvedSubproject), [], x.skipped_subprojects, x),
+    'file_associations': _atd_write_optional_field(_atd_write_array(writeSubprojectFileAssociation), x.file_associations, x),
+  };
+}
+
+export function readMatchSubprojectsResult(x: any, context: any = x): MatchSubprojectsResult {
+  return {
+    subprojects: _atd_read_required_field('MatchSubprojectsResult', 'subprojects', _atd_read_array(readSubproject), x['subprojects'], x),
+    kept_dependency_source_files: _atd_read_field_with_default(_atd_read_array(readFpathB), [], x['kept_dependency_source_files'], x),
+    glob_filters: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['glob_filters'], x),
+    skipped_subprojects: _atd_read_field_with_default(_atd_read_array(readUnresolvedSubproject), [], x['skipped_subprojects'], x),
+    file_associations: _atd_read_optional_field(_atd_read_array(readSubprojectFileAssociation), x['file_associations'], x),
+  };
+}
+
+export function writeScaMatchQuery(x: ScaMatchQuery, context: any = x): any {
+  switch (x.kind) {
+    case 'LockfileOnlyMatching':
+      return 'LockfileOnlyMatching'
+    case 'ReachableCandidateMatching':
+      return 'ReachableCandidateMatching'
+  }
+}
+
+export function readScaMatchQuery(x: any, context: any = x): ScaMatchQuery {
+  switch (x) {
+    case 'LockfileOnlyMatching':
+      return { kind: 'LockfileOnlyMatching' }
+    case 'ReachableCandidateMatching':
+      return { kind: 'ReachableCandidateMatching' }
+    default:
+      _atd_bad_json('ScaMatchQuery', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeScaMatchRulePatterns(x: ScaMatchRulePatterns, context: any = x): any {
+  return {
+    'rule_id': _atd_write_required_field('ScaMatchRulePatterns', 'rule_id', writeRuleId, x.rule_id, x),
+    'patterns': _atd_write_required_field('ScaMatchRulePatterns', 'patterns', _atd_write_array(writeScaPattern), x.patterns, x),
+  };
+}
+
+export function readScaMatchRulePatterns(x: any, context: any = x): ScaMatchRulePatterns {
+  return {
+    rule_id: _atd_read_required_field('ScaMatchRulePatterns', 'rule_id', readRuleId, x['rule_id'], x),
+    patterns: _atd_read_required_field('ScaMatchRulePatterns', 'patterns', _atd_read_array(readScaPattern), x['patterns'], x),
+  };
+}
+
+export function writeScaMatchSubproject(x: ScaMatchSubproject, context: any = x): any {
+  return {
+    'dependencies': _atd_write_required_field('ScaMatchSubproject', 'dependencies', _atd_write_array(writeFoundDependency), x.dependencies, x),
+  };
+}
+
+export function readScaMatchSubproject(x: any, context: any = x): ScaMatchSubproject {
+  return {
+    dependencies: _atd_read_required_field('ScaMatchSubproject', 'dependencies', _atd_read_array(readFoundDependency), x['dependencies'], x),
+  };
+}
+
+export function writeScaMatchDependenciesParams(x: ScaMatchDependenciesParams, context: any = x): any {
+  return {
+    'query': _atd_write_required_field('ScaMatchDependenciesParams', 'query', writeScaMatchQuery, x.query, x),
+    'rules': _atd_write_required_field('ScaMatchDependenciesParams', 'rules', _atd_write_array(writeScaMatchRulePatterns), x.rules, x),
+    'subprojects': _atd_write_required_field('ScaMatchDependenciesParams', 'subprojects', _atd_write_array(writeScaMatchSubproject), x.subprojects, x),
+    'compute_dependency_paths': _atd_write_field_with_default(_atd_write_bool, false, x.compute_dependency_paths, x),
+  };
+}
+
+export function readScaMatchDependenciesParams(x: any, context: any = x): ScaMatchDependenciesParams {
+  return {
+    query: _atd_read_required_field('ScaMatchDependenciesParams', 'query', readScaMatchQuery, x['query'], x),
+    rules: _atd_read_required_field('ScaMatchDependenciesParams', 'rules', _atd_read_array(readScaMatchRulePatterns), x['rules'], x),
+    subprojects: _atd_read_required_field('ScaMatchDependenciesParams', 'subprojects', _atd_read_array(readScaMatchSubproject), x['subprojects'], x),
+    compute_dependency_paths: _atd_read_field_with_default(_atd_read_bool, false, x['compute_dependency_paths'], x),
+  };
+}
+
+export function writeScaMatchError(x: ScaMatchError, context: any = x): any {
+  switch (x.kind) {
+    case 'ScaMatchSemgrepError':
+      return ['ScaMatchSemgrepError', _atd_write_string(x.value, x)]
+    case 'ScaMatchInvalidVersion':
+      return ['ScaMatchInvalidVersion', _atd_write_string(x.value, x)]
+  }
+}
+
+export function readScaMatchError(x: any, context: any = x): ScaMatchError {
+  _atd_check_json_tuple(2, x, context)
+  switch (x[0]) {
+    case 'ScaMatchSemgrepError':
+      return { kind: 'ScaMatchSemgrepError', value: _atd_read_string(x[1], x) }
+    case 'ScaMatchInvalidVersion':
+      return { kind: 'ScaMatchInvalidVersion', value: _atd_read_string(x[1], x) }
+    default:
+      _atd_bad_json('ScaMatchError', x, context)
+      throw new Error('impossible')
+  }
+}
+
+export function writeScaDependencyMatchRecord(x: ScaDependencyMatchRecord, context: any = x): any {
+  return {
+    'dependency_match': _atd_write_required_field('ScaDependencyMatchRecord', 'dependency_match', writeDependencyMatch, x.dependency_match, x),
+    'position': _atd_write_required_field('ScaDependencyMatchRecord', 'position', writePosition, x.position, x),
+  };
+}
+
+export function readScaDependencyMatchRecord(x: any, context: any = x): ScaDependencyMatchRecord {
+  return {
+    dependency_match: _atd_read_required_field('ScaDependencyMatchRecord', 'dependency_match', readDependencyMatch, x['dependency_match'], x),
+    position: _atd_read_required_field('ScaDependencyMatchRecord', 'position', readPosition, x['position'], x),
+  };
+}
+
+export function writeScaDependencyMatchCell(x: ScaDependencyMatchCell, context: any = x): any {
+  return {
+    'rule': _atd_write_required_field('ScaDependencyMatchCell', 'rule', _atd_write_int, x.rule, x),
+    'subproject': _atd_write_required_field('ScaDependencyMatchCell', 'subproject', _atd_write_int, x.subproject, x),
+    'matches': _atd_write_required_field('ScaDependencyMatchCell', 'matches', _atd_write_array(writeScaDependencyMatchRecord), x.matches, x),
+    'skipped_no_lockfile': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.skipped_no_lockfile, x),
+    'error': _atd_write_optional_field(writeScaMatchError, x.error, x),
+  };
+}
+
+export function readScaDependencyMatchCell(x: any, context: any = x): ScaDependencyMatchCell {
+  return {
+    rule: _atd_read_required_field('ScaDependencyMatchCell', 'rule', _atd_read_int, x['rule'], x),
+    subproject: _atd_read_required_field('ScaDependencyMatchCell', 'subproject', _atd_read_int, x['subproject'], x),
+    matches: _atd_read_required_field('ScaDependencyMatchCell', 'matches', _atd_read_array(readScaDependencyMatchRecord), x['matches'], x),
+    skipped_no_lockfile: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['skipped_no_lockfile'], x),
+    error: _atd_read_optional_field(readScaMatchError, x['error'], x),
+  };
+}
+
+export function writeScaMatchDependenciesResult(x: ScaMatchDependenciesResult, context: any = x): any {
+  return {
+    'cells': _atd_write_required_field('ScaMatchDependenciesResult', 'cells', _atd_write_array(writeScaDependencyMatchCell), x.cells, x),
+  };
+}
+
+export function readScaMatchDependenciesResult(x: any, context: any = x): ScaMatchDependenciesResult {
+  return {
+    cells: _atd_read_required_field('ScaMatchDependenciesResult', 'cells', _atd_read_array(readScaDependencyMatchCell), x['cells'], x),
   };
 }
 
@@ -5566,7 +5998,9 @@ export function writeFunctionCall(x: FunctionCall, context: any = x): any {
     case 'CallTransitiveReachabilityFilter':
       return ['CallTransitiveReachabilityFilter', writeTransitiveReachabilityFilterParams(x.value, x)]
     case 'CallMatchSubprojects':
-      return ['CallMatchSubprojects', _atd_write_array(writeFpath)(x.value, x)]
+      return ['CallMatchSubprojects', writeMatchSubprojectsParams(x.value, x)]
+    case 'CallScaMatchDependencies':
+      return ['CallScaMatchDependencies', writeScaMatchDependenciesParams(x.value, x)]
     case 'CallRunSymbolAnalysis':
       return ['CallRunSymbolAnalysis', writeSymbolAnalysisParams(x.value, x)]
     case 'CallUploadSubprojectSymbolAnalysis':
@@ -5608,7 +6042,9 @@ export function readFunctionCall(x: any, context: any = x): FunctionCall {
       case 'CallTransitiveReachabilityFilter':
         return { kind: 'CallTransitiveReachabilityFilter', value: readTransitiveReachabilityFilterParams(x[1], x) }
       case 'CallMatchSubprojects':
-        return { kind: 'CallMatchSubprojects', value: _atd_read_array(readFpath)(x[1], x) }
+        return { kind: 'CallMatchSubprojects', value: readMatchSubprojectsParams(x[1], x) }
+      case 'CallScaMatchDependencies':
+        return { kind: 'CallScaMatchDependencies', value: readScaMatchDependenciesParams(x[1], x) }
       case 'CallRunSymbolAnalysis':
         return { kind: 'CallRunSymbolAnalysis', value: readSymbolAnalysisParams(x[1], x) }
       case 'CallUploadSubprojectSymbolAnalysis':
@@ -5647,7 +6083,9 @@ export function writeFunctionReturn(x: FunctionReturn, context: any = x): any {
     case 'RetGetTargets':
       return ['RetGetTargets', writeTargetDiscoveryResult(x.value, x)]
     case 'RetMatchSubprojects':
-      return ['RetMatchSubprojects', _atd_write_array(writeSubproject)(x.value, x)]
+      return ['RetMatchSubprojects', writeMatchSubprojectsResult(x.value, x)]
+    case 'RetScaMatchDependencies':
+      return ['RetScaMatchDependencies', writeScaMatchDependenciesResult(x.value, x)]
     case 'RetRunSymbolAnalysis':
       return ['RetRunSymbolAnalysis', writeSymbolAnalysis(x.value, x)]
     case 'RetUploadSubprojectSymbolAnalysis':
@@ -5683,7 +6121,9 @@ export function readFunctionReturn(x: any, context: any = x): FunctionReturn {
     case 'RetGetTargets':
       return { kind: 'RetGetTargets', value: readTargetDiscoveryResult(x[1], x) }
     case 'RetMatchSubprojects':
-      return { kind: 'RetMatchSubprojects', value: _atd_read_array(readSubproject)(x[1], x) }
+      return { kind: 'RetMatchSubprojects', value: readMatchSubprojectsResult(x[1], x) }
+    case 'RetScaMatchDependencies':
+      return { kind: 'RetScaMatchDependencies', value: readScaMatchDependenciesResult(x[1], x) }
     case 'RetRunSymbolAnalysis':
       return { kind: 'RetRunSymbolAnalysis', value: readSymbolAnalysis(x[1], x) }
     case 'RetUploadSubprojectSymbolAnalysis':

@@ -64,6 +64,23 @@
   "definitions": {
     "raw_json": { "description": "escape hatch" },
     "fpath": { "type": "string" },
+    "fpath_repr": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [ { "const": "Utf8" }, { "type": "string" } ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [ { "const": "Base64" }, { "type": "string" } ]
+        }
+      ]
+    },
+    "fpath_b": { "$ref": "#/definitions/fpath_repr" },
     "ppath": { "type": "string" },
     "fppath": {
       "description": "Same as Fppath.t: a nice filesystem path + the path relative to the project root provided for pattern-based filtering purposes.",
@@ -3415,6 +3432,7 @@
       }
     },
     "resolve_dependencies_params": {
+      "description": "Since semgrep 1.170.0 the boolean flags here are the RAW scan configuration (what the user asked for): the per-source effective arguments (e.g. the local-builds suppression guard, the TR download gate) and the resolution-method/unresolved-reason labels are computed engine-side from the routing tables that used to live in pysemgrep's sca_subproject_support.py.",
       "type": "object",
       "required": [
         "dependency_sources", "download_dependency_source_code",
@@ -3439,6 +3457,87 @@
             "items": false,
             "prefixItems": [ { "type": "string" }, { "type": "string" } ]
           }
+        },
+        "ptt_enabled": {
+          "description": "whether dependency path tracking is enabled for this scan; gates resolution behavior that only PTT scans get (currently the gradle build.gradle.kts manifest transitivity path — a file read, not a local build, hence independent of allow_local_builds). since semgrep 1.170.0",
+          "type": "boolean"
+        },
+        "use_experimental_ocaml_parsers": {
+          "description": "the CLI's --x-use-experimental-ocaml-parsers testing flag; feeds the engine-side routing decision exactly as it fed pysemgrep's (forces non-dynamic OCaml parsing and disables the local-builds suppression guard). since semgrep 1.170.0",
+          "type": "boolean"
+        }
+      }
+    },
+    "dependency_parser_error_b": {
+      "description": "A dependency-source parse error with location information, as transported over the pysemgrep <-> semgrep-core RPC (CallResolveDependencies). It mirrors dependency_parser_error field-for-field but carries the path losslessly (fpath_b), since paths need not be valid UTF-8; pysemgrep converts it back to dependency_parser_error for reporting. since semgrep 1.170.0",
+      "type": "object",
+      "required": [ "path", "parser", "reason" ],
+      "properties": {
+        "path": { "$ref": "#/definitions/fpath_b" },
+        "parser": { "$ref": "#/definitions/sca_parser_name" },
+        "reason": { "type": "string" },
+        "line": {
+          "description": "1-based, like dependency_parser_error.line",
+          "type": "integer"
+        },
+        "col": {
+          "description": "1-based, like dependency_parser_error.col",
+          "type": "integer"
+        },
+        "text": {
+          "description": "the offending source line, like dependency_parser_error.text",
+          "type": "string"
+        }
+      }
+    },
+    "resolution_result_error": {
+      "description": "An error produced during dependency resolution, as transported over the pysemgrep <-> semgrep-core RPC (CallResolveDependencies). ResolutionKind: an error without location information (pysemgrep reports it against the subproject's dependency source file). ResolutionParseError: a dependency-source parse error with location information. since semgrep 1.170.0 (before that, resolution_result carried bare resolution_error_kind lists)",
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ResolutionKind" },
+            { "$ref": "#/definitions/resolution_error_kind" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ResolutionParseError" },
+            { "$ref": "#/definitions/dependency_parser_error_b" }
+          ]
+        }
+      ]
+    },
+    "resolved_source": {
+      "description": "A successful per-source resolution outcome, including the resolution-method label that pysemgrep used to compute from its (now engine-side) routing tables. since semgrep 1.170.0",
+      "type": "object",
+      "required": [ "resolution_method", "resolved", "errors" ],
+      "properties": {
+        "resolution_method": { "$ref": "#/definitions/resolution_method" },
+        "resolved": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/resolved_dependency" }
+        },
+        "errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/resolution_result_error" }
+        }
+      }
+    },
+    "unresolved_source": {
+      "description": "A failed per-source resolution outcome, including the unresolved reason that pysemgrep used to compute from its (now engine-side) routing tables. since semgrep 1.170.0",
+      "type": "object",
+      "required": [ "reason", "errors" ],
+      "properties": {
+        "reason": { "$ref": "#/definitions/unresolved_reason" },
+        "errors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/resolution_result_error" }
         }
       }
     },
@@ -3462,7 +3561,9 @@
                 },
                 {
                   "type": "array",
-                  "items": { "$ref": "#/definitions/resolution_error_kind" }
+                  "items": {
+                    "$ref": "#/definitions/resolution_result_error"
+                  }
                 }
               ]
             }
@@ -3476,8 +3577,32 @@
             { "const": "ResolutionError" },
             {
               "type": "array",
-              "items": { "$ref": "#/definitions/resolution_error_kind" }
+              "items": { "$ref": "#/definitions/resolution_result_error" }
             }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            {
+              "description": "Success carrying the engine-computed resolution-method label. The sole produced success variant since semgrep 1.170.0 (ResolutionOk is retained for readers of older payloads).",
+              "const": "ResolutionResolved"
+            },
+            { "$ref": "#/definitions/resolved_source" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            {
+              "description": "Failure carrying the engine-computed unresolved reason. The sole produced failure variant since semgrep 1.170.0 (ResolutionError is retained for readers of older payloads).",
+              "const": "ResolutionUnresolved"
+            },
+            { "$ref": "#/definitions/unresolved_source" }
           ]
         }
       ]
@@ -3508,6 +3633,236 @@
           "items": { "$ref": "#/definitions/resolved_dependency" }
         },
         "write_to_cache": { "type": "boolean" }
+      }
+    },
+    "subproject_relevance_filter": {
+      "description": "The inputs of pysemgrep's deleted filter_changed_subprojects, made explicit so the engine can apply the ecosystem/changed-file relevance filter (see match_subprojects_params.relevance_filter). The string keys of loaded_rule_ecosystems and code_files_by_language are opaque per-language grouping keys (pysemgrep language names); the two lists must use the same keys. since semgrep 1.170.0",
+      "type": "object",
+      "required": [
+        "directly_targeted_files", "loaded_rule_ecosystems",
+        "code_files_by_language"
+      ],
+      "properties": {
+        "directly_targeted_files": {
+          "description": "the dependency source files that are scan targets (baseline filtering applied): a subproject whose source files intersect this list is relevant",
+          "type": "array",
+          "items": { "$ref": "#/definitions/fpath_b" }
+        },
+        "loaded_rule_ecosystems": {
+          "description": "for each rule language (in rule order), the ecosystems of the loaded dependency-aware rules for that language (first-seen order)",
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "items": false,
+            "prefixItems": [
+              { "type": "string" },
+              {
+                "type": "array",
+                "items": { "$ref": "#/definitions/ecosystem" }
+              }
+            ]
+          }
+        },
+        "code_files_by_language": {
+          "description": "for each rule language, the kept code files for that language: a subproject that is the closest subproject of such a file for one of the language's ecosystems is relevant",
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "items": false,
+            "prefixItems": [
+              { "type": "string" },
+              {
+                "type": "array",
+                "items": { "$ref": "#/definitions/fpath_b" }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "subproject_file_association": {
+      "description": "The (code file, ecosystem) -> closest-subproject association computed by the engine-side ClosestSubprojectFinder port. (subproject_root, ecosystem) is the subproject identity key (the same key pysemgrep's HashableSubproject used). since semgrep 1.170.0",
+      "type": "object",
+      "required": [ "path", "ecosystem", "subproject_root" ],
+      "properties": {
+        "path": { "$ref": "#/definitions/fpath_b" },
+        "ecosystem": { "$ref": "#/definitions/ecosystem" },
+        "subproject_root": { "$ref": "#/definitions/fpath_b" }
+      }
+    },
+    "match_subprojects_params": {
+      "type": "object",
+      "required": [ "dependency_source_files" ],
+      "properties": {
+        "dependency_source_files": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/fpath_b" }
+        },
+        "files_only": {
+          "description": "when true, only classify: return the candidate files that are dependency source files (kept_dependency_source_files) and no subprojects. since semgrep 1.170.0",
+          "type": "boolean"
+        },
+        "return_glob_filters": {
+          "description": "when true, also return the glob patterns that identify subproject dependency source files (the prefilter constant derived from the matcher set). since semgrep 1.170.0",
+          "type": "boolean"
+        },
+        "relevance_filter": {
+          "description": "when present, partition the matched subprojects into relevant ones (returned in subprojects) and skipped ones (returned in skipped_subprojects as UnresolvedSkipped), replicating pysemgrep's filter_changed_subprojects; when absent, every matched subproject is returned in subprojects (the resolve-untargeted-subprojects semantics). since semgrep 1.170.0",
+          "$ref": "#/definitions/subproject_relevance_filter"
+        },
+        "precomputed_dependencies_dir": {
+          "description": "when present, look up a precomputed CycloneDX SBOM at <dir>/<head|base>/<dependency-source id>.cdx.json for each relevant subproject and wrap its dependency source in AuxillarySBOM (pysemgrep's attach_auxillary_sboms). since semgrep 1.170.0",
+          "$ref": "#/definitions/fpath_b"
+        },
+        "is_baseline_scan": {
+          "description": "selects the base/ (true) vs head/ (false) subdirectory of precomputed_dependencies_dir. since semgrep 1.170.0",
+          "type": "boolean"
+        },
+        "return_file_associations": {
+          "description": "when true, also return the (code file, ecosystem) -> closest-subproject associations for the code files carried by relevance_filter. Unlike the relevance filter itself the association pass has no early exit, and it runs over ALL matched subprojects (the same pre-filter set the relevance filter's finder uses), not just the relevant ones. Guardrail surface for the ClosestSubprojectFinder port/Python twin (Phase 5 consumers). since semgrep 1.170.0",
+          "type": "boolean"
+        }
+      }
+    },
+    "match_subprojects_result": {
+      "type": "object",
+      "required": [ "subprojects" ],
+      "properties": {
+        "subprojects": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/subproject" }
+        },
+        "kept_dependency_source_files": {
+          "description": "the files_only answer: the subset of dependency_source_files recognized as dependency source files, in the input order. since semgrep 1.170.0",
+          "type": "array",
+          "items": { "$ref": "#/definitions/fpath_b" }
+        },
+        "glob_filters": {
+          "description": "the return_glob_filters answer: the union of every matcher's identifying glob patterns (gitignore-compatible, non-negated), sorted. since semgrep 1.170.0",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "skipped_subprojects": {
+          "description": "the relevance_filter answer: the subprojects deemed not relevant, as UnresolvedSkipped unresolved subprojects, in the matched (original) order. since semgrep 1.170.0",
+          "type": "array",
+          "items": { "$ref": "#/definitions/unresolved_subproject" }
+        },
+        "file_associations": {
+          "description": "the return_file_associations answer. since semgrep 1.170.0",
+          "type": "array",
+          "items": { "$ref": "#/definitions/subproject_file_association" }
+        }
+      }
+    },
+    "sca_match_query": {
+      "description": "Which of pysemgrep's two dependency-matching streams to compute (they differ in iteration order and first-error truncation, both of which are part of the fingerprint contract): LockfileOnlyMatching = the package-indexed, pattern-major SubprojectDependencyIndex.get_dependency_matches stream (lockfile-only findings); ReachableCandidateMatching = the dependency-major dependencies_range_match_any stream (the reachable path's version checks and the pre-scan rule filter). since semgrep 1.170.0",
+      "oneOf": [
+        { "const": "LockfileOnlyMatching" },
+        { "const": "ReachableCandidateMatching" }
+      ]
+    },
+    "sca_match_rule_patterns": {
+      "description": "One rule's parsed depends-on patterns (pysemgrep's parse_depends_on_yaml output; rules whose parse raises send no entry). since semgrep 1.170.0",
+      "type": "object",
+      "required": [ "rule_id", "patterns" ],
+      "properties": {
+        "rule_id": { "$ref": "#/definitions/rule_id" },
+        "patterns": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/sca_pattern" }
+        }
+      }
+    },
+    "sca_match_subproject": {
+      "description": "One subproject's flat found_dependency list (resolution order). A record rather than a bare inner list only because the protobuf generator cannot express list-of-list payloads. since semgrep 1.170.0",
+      "type": "object",
+      "required": [ "dependencies" ],
+      "properties": {
+        "dependencies": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/found_dependency" }
+        }
+      }
+    },
+    "sca_match_dependencies_params": {
+      "description": "One coarse post-scan matching call per (scan phase x query kind): every (rule x subproject) cell is computed in one round trip, never per rule or per finding. Subprojects are the flat found_dependency lists (resolution order); rules and subprojects are referenced by position in these lists in the returned cells. since semgrep 1.170.0",
+      "type": "object",
+      "required": [ "query", "rules", "subprojects" ],
+      "properties": {
+        "query": { "$ref": "#/definitions/sca_match_query" },
+        "rules": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/sca_match_rule_patterns" }
+        },
+        "subprojects": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/sca_match_subproject" }
+        },
+        "compute_dependency_paths": {
+          "description": "--x-dependency-paths: attach dependency_paths to matched records (absent when the computed path list is empty). since semgrep 1.170.0",
+          "type": "boolean"
+        }
+      }
+    },
+    "sca_match_error": {
+      "description": "The typed error class a cell's match stream raised in pysemgrep: ScaMatchSemgrepError = the is_in_range SemgrepError texts; ScaMatchInvalidVersion = the packaging InvalidVersion crash class escaping is_in_range (replicated bug-for-bug). The Python shim re-raises the corresponding class at the consumption point. since semgrep 1.170.0",
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ScaMatchSemgrepError" }, { "type": "string" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            { "const": "ScaMatchInvalidVersion" }, { "type": "string" }
+          ]
+        }
+      ]
+    },
+    "sca_dependency_match_record": {
+      "description": "One matched (pattern, dependency) pair, in stream order. position is the line/col pysemgrep put on both start and end of the CoreMatch (line_number-or-1 with the 0-is-falsy quirk, col 1, offset 0). since semgrep 1.170.0",
+      "type": "object",
+      "required": [ "dependency_match", "position" ],
+      "properties": {
+        "dependency_match": { "$ref": "#/definitions/dependency_match" },
+        "position": { "$ref": "#/definitions/position" }
+      }
+    },
+    "sca_dependency_match_cell": {
+      "description": "The matches of one (rule x subproject) pair; rule/subproject are positions into sca_match_dependencies_params' lists. When error is set, matches and skipped_no_lockfile are empty (pysemgrep's list() consumption discards partial results and never runs the skip loop). skipped_no_lockfile carries the package names of matched dependencies without a lockfile path, in encounter order (the shim replays the skip warnings). since semgrep 1.170.0",
+      "type": "object",
+      "required": [ "rule", "subproject", "matches" ],
+      "properties": {
+        "rule": { "type": "integer" },
+        "subproject": { "type": "integer" },
+        "matches": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/sca_dependency_match_record" }
+        },
+        "skipped_no_lockfile": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "error": { "$ref": "#/definitions/sca_match_error" }
+      }
+    },
+    "sca_match_dependencies_result": {
+      "description": "A cell for EVERY (rule x subproject) pair, rules-major. since semgrep 1.170.0",
+      "type": "object",
+      "required": [ "cells" ],
+      "properties": {
+        "cells": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/sca_dependency_match_cell" }
+        }
       }
     },
     "symbol_analysis_upload_response": {
@@ -3734,8 +4089,23 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "CallMatchSubprojects" },
-            { "type": "array", "items": { "$ref": "#/definitions/fpath" } }
+            {
+              "description": "Extended from a bare fpath list to match_subprojects_params. since semgrep 1.170.0",
+              "const": "CallMatchSubprojects"
+            },
+            { "$ref": "#/definitions/match_subprojects_params" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            {
+              "description": "SCA depends-on version matching (the matching halves of pysemgrep's dependency_aware_rule.py). One coarse call per (scan phase x query kind). since semgrep 1.170.0",
+              "const": "CallScaMatchDependencies"
+            },
+            { "$ref": "#/definitions/sca_match_dependencies_params" }
           ]
         },
         {
@@ -3908,11 +4278,23 @@
           "minItems": 2,
           "items": false,
           "prefixItems": [
-            { "const": "RetMatchSubprojects" },
             {
-              "type": "array",
-              "items": { "$ref": "#/definitions/subproject" }
-            }
+              "description": "Extended from a bare subproject list to match_subprojects_result. since semgrep 1.170.0",
+              "const": "RetMatchSubprojects"
+            },
+            { "$ref": "#/definitions/match_subprojects_result" }
+          ]
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": false,
+          "prefixItems": [
+            {
+              "description": "since semgrep 1.170.0",
+              "const": "RetScaMatchDependencies"
+            },
+            { "$ref": "#/definitions/sca_match_dependencies_result" }
           ]
         },
         {

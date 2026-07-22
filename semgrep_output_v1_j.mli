@@ -1007,6 +1007,55 @@ type unresolved_subproject = Semgrep_output_v1_t.unresolved_subproject = {
     (** this is set only when the reason is UnresolvedFailed *)
 }
 
+type fpath_repr = Semgrep_output_v1_t.fpath_repr
+
+type fpath_b = Semgrep_output_v1_t.fpath_b [@@deriving eq, ord, show]
+
+(**
+  A dependency-source parse error with location information, as transported
+  over the pysemgrep <-> semgrep-core RPC (CallResolveDependencies). It
+  mirrors dependency_parser_error field-for-field but carries the path
+  losslessly (fpath_b), since paths need not be valid UTF-8; pysemgrep
+  converts it back to dependency_parser_error for reporting. since semgrep
+  1.170.0
+*)
+type dependency_parser_error_b =
+  Semgrep_output_v1_t.dependency_parser_error_b = {
+  path: fpath_b;
+  parser: sca_parser_name;
+  reason: string;
+  line: int option (** 1-based, like dependency_parser_error.line *);
+  col: int option (** 1-based, like dependency_parser_error.col *);
+  text: string option
+    (** the offending source line, like dependency_parser_error.text *)
+}
+  [@@deriving show]
+
+(**
+  An error produced during dependency resolution, as transported over the
+  pysemgrep <-> semgrep-core RPC (CallResolveDependencies). ResolutionKind:
+  an error without location information (pysemgrep reports it against the
+  subproject's dependency source file). ResolutionParseError: a
+  dependency-source parse error with location information. since semgrep
+  1.170.0 (before that, resolution_result carried bare resolution_error_kind
+  lists)
+*)
+type resolution_result_error = Semgrep_output_v1_t.resolution_result_error = 
+    ResolutionKind of resolution_error_kind
+  | ResolutionParseError of dependency_parser_error_b
+
+  [@@deriving show]
+
+(**
+  A failed per-source resolution outcome, including the unresolved reason
+  that pysemgrep used to compute from its (now engine-side) routing tables.
+  since semgrep 1.170.0
+*)
+type unresolved_source = Semgrep_output_v1_t.unresolved_source = {
+  reason: unresolved_reason;
+  errors: resolution_result_error list
+}
+
 (**
   Instead of serving snippets here, we could just give the locations of the
   patterns and matches. For convenience when scripting with this in rule
@@ -1608,6 +1657,48 @@ type subproject_resolution_plan =
   subprojects: single_subproject_plan list
 }
 
+(**
+  The inputs of pysemgrep's deleted filter_changed_subprojects, made explicit
+  so the engine can apply the ecosystem/changed-file relevance filter (see
+  match_subprojects_params.relevance_filter). The string keys of
+  loaded_rule_ecosystems and code_files_by_language are opaque per-language
+  grouping keys (pysemgrep language names); the two lists must use the same
+  keys. since semgrep 1.170.0
+*)
+type subproject_relevance_filter =
+  Semgrep_output_v1_t.subproject_relevance_filter = {
+  directly_targeted_files: fpath_b list
+    (**
+      the dependency source files that are scan targets (baseline filtering
+      applied): a subproject whose source files intersect this list is
+      relevant
+    *);
+  loaded_rule_ecosystems: (string * ecosystem list) list
+    (**
+      for each rule language (in rule order), the ecosystems of the loaded
+      dependency-aware rules for that language (first-seen order)
+    *);
+  code_files_by_language: (string * fpath_b list) list
+    (**
+      for each rule language, the kept code files for that language: a
+      subproject that is the closest subproject of such a file for one of the
+      language's ecosystems is relevant
+    *)
+}
+
+(**
+  The (code file, ecosystem) -> closest-subproject association computed by
+  the engine-side ClosestSubprojectFinder port. (subproject_root, ecosystem)
+  is the subproject identity key (the same key pysemgrep's HashableSubproject
+  used). since semgrep 1.170.0
+*)
+type subproject_file_association =
+  Semgrep_output_v1_t.subproject_file_association = {
+  path: fpath_b;
+  ecosystem: ecosystem;
+  subproject_root: fpath_b
+}
+
 type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
   rule_id: rule_id;
   details: string;
@@ -1940,6 +2031,107 @@ type scan_config = Semgrep_output_v1_t.scan_config = {
     (** since 1.47.0 but not created by the backend (nor used by the CLI) *)
 }
 
+(**
+  One subproject's flat found_dependency list (resolution order). A record
+  rather than a bare inner list only because the protobuf generator cannot
+  express list-of-list payloads. since semgrep 1.170.0
+*)
+type sca_match_subproject = Semgrep_output_v1_t.sca_match_subproject = {
+  dependencies: found_dependency list
+}
+
+(**
+  One rule's parsed depends-on patterns (pysemgrep's parse_depends_on_yaml
+  output; rules whose parse raises send no entry). since semgrep 1.170.0
+*)
+type sca_match_rule_patterns = Semgrep_output_v1_t.sca_match_rule_patterns = {
+  rule_id: rule_id;
+  patterns: sca_pattern list
+}
+
+(**
+  Which of pysemgrep's two dependency-matching streams to compute (they
+  differ in iteration order and first-error truncation, both of which are
+  part of the fingerprint contract): LockfileOnlyMatching = the
+  package-indexed, pattern-major
+  SubprojectDependencyIndex.get_dependency_matches stream (lockfile-only
+  findings); ReachableCandidateMatching = the dependency-major
+  dependencies_range_match_any stream (the reachable path's version checks
+  and the pre-scan rule filter). since semgrep 1.170.0
+*)
+type sca_match_query = Semgrep_output_v1_t.sca_match_query = 
+    LockfileOnlyMatching | ReachableCandidateMatching
+
+
+(**
+  The typed error class a cell's match stream raised in pysemgrep:
+  ScaMatchSemgrepError = the is_in_range SemgrepError texts;
+  ScaMatchInvalidVersion = the packaging InvalidVersion crash class escaping
+  is_in_range (replicated bug-for-bug). The Python shim re-raises the
+  corresponding class at the consumption point. since semgrep 1.170.0
+*)
+type sca_match_error = Semgrep_output_v1_t.sca_match_error = 
+    ScaMatchSemgrepError of string
+  | ScaMatchInvalidVersion of string
+
+
+(**
+  One matched (pattern, dependency) pair, in stream order. position is the
+  line/col pysemgrep put on both start and end of the CoreMatch
+  (line_number-or-1 with the 0-is-falsy quirk, col 1, offset 0). since
+  semgrep 1.170.0
+*)
+type sca_dependency_match_record =
+  Semgrep_output_v1_t.sca_dependency_match_record = {
+  dependency_match: dependency_match;
+  position: position
+}
+
+(**
+  The matches of one (rule x subproject) pair; rule/subproject are positions
+  into sca_match_dependencies_params' lists. When error is set, matches and
+  skipped_no_lockfile are empty (pysemgrep's list() consumption discards
+  partial results and never runs the skip loop). skipped_no_lockfile carries
+  the package names of matched dependencies without a lockfile path, in
+  encounter order (the shim replays the skip warnings). since semgrep 1.170.0
+*)
+type sca_dependency_match_cell =
+  Semgrep_output_v1_t.sca_dependency_match_cell = {
+  rule: int;
+  subproject: int;
+  matches: sca_dependency_match_record list;
+  skipped_no_lockfile: string list;
+  error: sca_match_error option
+}
+
+(**
+  A cell for EVERY (rule x subproject) pair, rules-major. since semgrep
+  1.170.0
+*)
+type sca_match_dependencies_result =
+  Semgrep_output_v1_t.sca_match_dependencies_result = {
+  cells: sca_dependency_match_cell list
+}
+
+(**
+  One coarse post-scan matching call per (scan phase x query kind): every
+  (rule x subproject) cell is computed in one round trip, never per rule or
+  per finding. Subprojects are the flat found_dependency lists (resolution
+  order); rules and subprojects are referenced by position in these lists in
+  the returned cells. since semgrep 1.170.0
+*)
+type sca_match_dependencies_params =
+  Semgrep_output_v1_t.sca_match_dependencies_params = {
+  query: sca_match_query;
+  rules: sca_match_rule_patterns list;
+  subprojects: sca_match_subproject list;
+  compute_dependency_paths: bool
+    (**
+      --x-dependency-paths: attach dependency_paths to matched records
+      (absent when the computed path list is empty). since semgrep 1.170.0
+    *)
+}
+
 type sarif_format = Semgrep_output_v1_t.sarif_format = {
   rules: fpath
     (**
@@ -1954,6 +2146,14 @@ type engine_kind = Semgrep_output_v1_t.engine_kind [@@deriving ord, show]
 
 type rule_id_and_engine_kind = Semgrep_output_v1_t.rule_id_and_engine_kind
 
+(**
+  Since semgrep 1.170.0 the boolean flags here are the RAW scan configuration
+  (what the user asked for): the per-source effective arguments (e.g. the
+  local-builds suppression guard, the TR download gate) and the
+  resolution-method/unresolved-reason labels are computed engine-side from
+  the routing tables that used to live in pysemgrep's
+  sca_subproject_support.py.
+*)
 type resolve_dependencies_params =
   Semgrep_output_v1_t.resolve_dependencies_params = {
   dependency_sources: dependency_source list;
@@ -1963,6 +2163,21 @@ type resolve_dependencies_params =
   package_manager_env: (string * string) list option
     (**
       extra environment variables to pass to package manager subprocesses
+    *);
+  ptt_enabled: bool
+    (**
+      whether dependency path tracking is enabled for this scan; gates
+      resolution behavior that only PTT scans get (currently the gradle
+      build.gradle.kts manifest transitivity path — a file read, not a
+      local build, hence independent of allow_local_builds). since semgrep
+      1.170.0
+    *);
+  use_experimental_ocaml_parsers: bool
+    (**
+      the CLI's --x-use-experimental-ocaml-parsers testing flag; feeds the
+      engine-side routing decision exactly as it fed pysemgrep's (forces
+      non-dynamic OCaml parsing and disables the local-builds suppression
+      guard). since semgrep 1.170.0
     *)
 }
 
@@ -2088,6 +2303,54 @@ type output_format = Semgrep_output_v1_t.output_format =
 type mcp_scan_results = Semgrep_output_v1_t.mcp_scan_results = {
   rules: string list;
   total_bytes_scanned: int
+}
+
+type match_subprojects_params =
+  Semgrep_output_v1_t.match_subprojects_params = {
+  dependency_source_files: fpath_b list;
+  files_only: bool
+    (**
+      when true, only classify: return the candidate files that are
+      dependency source files (kept_dependency_source_files) and no
+      subprojects. since semgrep 1.170.0
+    *);
+  return_glob_filters: bool
+    (**
+      when true, also return the glob patterns that identify subproject
+      dependency source files (the prefilter constant derived from the
+      matcher set). since semgrep 1.170.0
+    *);
+  relevance_filter: subproject_relevance_filter option
+    (**
+      when present, partition the matched subprojects into relevant ones
+      (returned in subprojects) and skipped ones (returned in
+      skipped_subprojects as UnresolvedSkipped), replicating pysemgrep's
+      filter_changed_subprojects; when absent, every matched subproject is
+      returned in subprojects (the resolve-untargeted-subprojects semantics).
+      since semgrep 1.170.0
+    *);
+  precomputed_dependencies_dir: fpath_b option
+    (**
+      when present, look up a precomputed CycloneDX SBOM at
+      <dir>/<head|base>/<dependency-source id>.cdx.json for each relevant
+      subproject and wrap its dependency source in AuxillarySBOM (pysemgrep's
+      attach_auxillary_sboms). since semgrep 1.170.0
+    *);
+  is_baseline_scan: bool
+    (**
+      selects the base/ (true) vs head/ (false) subdirectory of
+      precomputed_dependencies_dir. since semgrep 1.170.0
+    *);
+  return_file_associations: bool
+    (**
+      when true, also return the (code file, ecosystem) -> closest-subproject
+      associations for the code files carried by relevance_filter. Unlike the
+      relevance filter itself the association pass has no early exit, and it
+      runs over ALL matched subprojects (the same pre-filter set the
+      relevance filter's finder uses), not just the relevant ones. Guardrail
+      surface for the ClosestSubprojectFinder port/Python twin (Phase 5
+      consumers). since semgrep 1.170.0
+    *)
 }
 
 type format_context = Semgrep_output_v1_t.format_context = {
@@ -2243,6 +2506,17 @@ type resolved_subproject = Semgrep_output_v1_t.resolved_subproject = {
       in a lockfile
     *);
   errors: sca_error list
+}
+
+(**
+  A successful per-source resolution outcome, including the resolution-method
+  label that pysemgrep used to compute from its (now engine-side) routing
+  tables. since semgrep 1.170.0
+*)
+type resolved_source = Semgrep_output_v1_t.resolved_source = {
+  resolution_method: resolution_method;
+  resolved: resolved_dependency list;
+  errors: resolution_result_error list
 }
 
 (**
@@ -2434,6 +2708,30 @@ type ci_scan_complete = Semgrep_output_v1_t.ci_scan_complete = {
 
 (** Partial scans. Experimental and for internal use only. *)
 type partial_scan_result = Semgrep_output_v1_t.partial_scan_result
+
+type match_subprojects_result =
+  Semgrep_output_v1_t.match_subprojects_result = {
+  subprojects: subproject list;
+  kept_dependency_source_files: fpath_b list
+    (**
+      the files_only answer: the subset of dependency_source_files recognized
+      as dependency source files, in the input order. since semgrep 1.170.0
+    *);
+  glob_filters: string list
+    (**
+      the return_glob_filters answer: the union of every matcher's
+      identifying glob patterns (gitignore-compatible, non-negated), sorted.
+      since semgrep 1.170.0
+    *);
+  skipped_subprojects: unresolved_subproject list
+    (**
+      the relevance_filter answer: the subprojects deemed not relevant, as
+      UnresolvedSkipped unresolved subprojects, in the matched (original)
+      order. since semgrep 1.170.0
+    *);
+  file_associations: subproject_file_association list option
+    (** the return_file_associations answer. since semgrep 1.170.0 *)
+}
 
 (** e.g. "ab023_1" *)
 type match_based_id = Semgrep_output_v1_t.match_based_id
@@ -3934,6 +4232,106 @@ val unresolved_subproject_of_string :
   string -> unresolved_subproject
   (** Deserialize JSON data of type {!type:unresolved_subproject}. *)
 
+val write_fpath_repr :
+  Buffer.t -> fpath_repr -> unit
+  (** Output a JSON value of type {!type:fpath_repr}. *)
+
+val string_of_fpath_repr :
+  ?len:int -> fpath_repr -> string
+  (** Serialize a value of type {!type:fpath_repr}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_fpath_repr :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> fpath_repr
+  (** Input JSON data of type {!type:fpath_repr}. *)
+
+val fpath_repr_of_string :
+  string -> fpath_repr
+  (** Deserialize JSON data of type {!type:fpath_repr}. *)
+
+val write_fpath_b :
+  Buffer.t -> fpath_b -> unit
+  (** Output a JSON value of type {!type:fpath_b}. *)
+
+val string_of_fpath_b :
+  ?len:int -> fpath_b -> string
+  (** Serialize a value of type {!type:fpath_b}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_fpath_b :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> fpath_b
+  (** Input JSON data of type {!type:fpath_b}. *)
+
+val fpath_b_of_string :
+  string -> fpath_b
+  (** Deserialize JSON data of type {!type:fpath_b}. *)
+
+val write_dependency_parser_error_b :
+  Buffer.t -> dependency_parser_error_b -> unit
+  (** Output a JSON value of type {!type:dependency_parser_error_b}. *)
+
+val string_of_dependency_parser_error_b :
+  ?len:int -> dependency_parser_error_b -> string
+  (** Serialize a value of type {!type:dependency_parser_error_b}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_dependency_parser_error_b :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_parser_error_b
+  (** Input JSON data of type {!type:dependency_parser_error_b}. *)
+
+val dependency_parser_error_b_of_string :
+  string -> dependency_parser_error_b
+  (** Deserialize JSON data of type {!type:dependency_parser_error_b}. *)
+
+val write_resolution_result_error :
+  Buffer.t -> resolution_result_error -> unit
+  (** Output a JSON value of type {!type:resolution_result_error}. *)
+
+val string_of_resolution_result_error :
+  ?len:int -> resolution_result_error -> string
+  (** Serialize a value of type {!type:resolution_result_error}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolution_result_error :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolution_result_error
+  (** Input JSON data of type {!type:resolution_result_error}. *)
+
+val resolution_result_error_of_string :
+  string -> resolution_result_error
+  (** Deserialize JSON data of type {!type:resolution_result_error}. *)
+
+val write_unresolved_source :
+  Buffer.t -> unresolved_source -> unit
+  (** Output a JSON value of type {!type:unresolved_source}. *)
+
+val string_of_unresolved_source :
+  ?len:int -> unresolved_source -> string
+  (** Serialize a value of type {!type:unresolved_source}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_unresolved_source :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> unresolved_source
+  (** Input JSON data of type {!type:unresolved_source}. *)
+
+val unresolved_source_of_string :
+  string -> unresolved_source
+  (** Deserialize JSON data of type {!type:unresolved_source}. *)
+
 val write_snippet :
   Buffer.t -> snippet -> unit
   (** Output a JSON value of type {!type:snippet}. *)
@@ -5114,6 +5512,46 @@ val subproject_resolution_plan_of_string :
   string -> subproject_resolution_plan
   (** Deserialize JSON data of type {!type:subproject_resolution_plan}. *)
 
+val write_subproject_relevance_filter :
+  Buffer.t -> subproject_relevance_filter -> unit
+  (** Output a JSON value of type {!type:subproject_relevance_filter}. *)
+
+val string_of_subproject_relevance_filter :
+  ?len:int -> subproject_relevance_filter -> string
+  (** Serialize a value of type {!type:subproject_relevance_filter}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_subproject_relevance_filter :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> subproject_relevance_filter
+  (** Input JSON data of type {!type:subproject_relevance_filter}. *)
+
+val subproject_relevance_filter_of_string :
+  string -> subproject_relevance_filter
+  (** Deserialize JSON data of type {!type:subproject_relevance_filter}. *)
+
+val write_subproject_file_association :
+  Buffer.t -> subproject_file_association -> unit
+  (** Output a JSON value of type {!type:subproject_file_association}. *)
+
+val string_of_subproject_file_association :
+  ?len:int -> subproject_file_association -> string
+  (** Serialize a value of type {!type:subproject_file_association}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_subproject_file_association :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> subproject_file_association
+  (** Input JSON data of type {!type:subproject_file_association}. *)
+
+val subproject_file_association_of_string :
+  string -> subproject_file_association
+  (** Deserialize JSON data of type {!type:subproject_file_association}. *)
+
 val write_skipped_rule :
   Buffer.t -> skipped_rule -> unit
   (** Output a JSON value of type {!type:skipped_rule}. *)
@@ -5514,6 +5952,166 @@ val scan_config_of_string :
   string -> scan_config
   (** Deserialize JSON data of type {!type:scan_config}. *)
 
+val write_sca_match_subproject :
+  Buffer.t -> sca_match_subproject -> unit
+  (** Output a JSON value of type {!type:sca_match_subproject}. *)
+
+val string_of_sca_match_subproject :
+  ?len:int -> sca_match_subproject -> string
+  (** Serialize a value of type {!type:sca_match_subproject}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_match_subproject :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_match_subproject
+  (** Input JSON data of type {!type:sca_match_subproject}. *)
+
+val sca_match_subproject_of_string :
+  string -> sca_match_subproject
+  (** Deserialize JSON data of type {!type:sca_match_subproject}. *)
+
+val write_sca_match_rule_patterns :
+  Buffer.t -> sca_match_rule_patterns -> unit
+  (** Output a JSON value of type {!type:sca_match_rule_patterns}. *)
+
+val string_of_sca_match_rule_patterns :
+  ?len:int -> sca_match_rule_patterns -> string
+  (** Serialize a value of type {!type:sca_match_rule_patterns}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_match_rule_patterns :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_match_rule_patterns
+  (** Input JSON data of type {!type:sca_match_rule_patterns}. *)
+
+val sca_match_rule_patterns_of_string :
+  string -> sca_match_rule_patterns
+  (** Deserialize JSON data of type {!type:sca_match_rule_patterns}. *)
+
+val write_sca_match_query :
+  Buffer.t -> sca_match_query -> unit
+  (** Output a JSON value of type {!type:sca_match_query}. *)
+
+val string_of_sca_match_query :
+  ?len:int -> sca_match_query -> string
+  (** Serialize a value of type {!type:sca_match_query}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_match_query :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_match_query
+  (** Input JSON data of type {!type:sca_match_query}. *)
+
+val sca_match_query_of_string :
+  string -> sca_match_query
+  (** Deserialize JSON data of type {!type:sca_match_query}. *)
+
+val write_sca_match_error :
+  Buffer.t -> sca_match_error -> unit
+  (** Output a JSON value of type {!type:sca_match_error}. *)
+
+val string_of_sca_match_error :
+  ?len:int -> sca_match_error -> string
+  (** Serialize a value of type {!type:sca_match_error}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_match_error :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_match_error
+  (** Input JSON data of type {!type:sca_match_error}. *)
+
+val sca_match_error_of_string :
+  string -> sca_match_error
+  (** Deserialize JSON data of type {!type:sca_match_error}. *)
+
+val write_sca_dependency_match_record :
+  Buffer.t -> sca_dependency_match_record -> unit
+  (** Output a JSON value of type {!type:sca_dependency_match_record}. *)
+
+val string_of_sca_dependency_match_record :
+  ?len:int -> sca_dependency_match_record -> string
+  (** Serialize a value of type {!type:sca_dependency_match_record}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_dependency_match_record :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_dependency_match_record
+  (** Input JSON data of type {!type:sca_dependency_match_record}. *)
+
+val sca_dependency_match_record_of_string :
+  string -> sca_dependency_match_record
+  (** Deserialize JSON data of type {!type:sca_dependency_match_record}. *)
+
+val write_sca_dependency_match_cell :
+  Buffer.t -> sca_dependency_match_cell -> unit
+  (** Output a JSON value of type {!type:sca_dependency_match_cell}. *)
+
+val string_of_sca_dependency_match_cell :
+  ?len:int -> sca_dependency_match_cell -> string
+  (** Serialize a value of type {!type:sca_dependency_match_cell}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_dependency_match_cell :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_dependency_match_cell
+  (** Input JSON data of type {!type:sca_dependency_match_cell}. *)
+
+val sca_dependency_match_cell_of_string :
+  string -> sca_dependency_match_cell
+  (** Deserialize JSON data of type {!type:sca_dependency_match_cell}. *)
+
+val write_sca_match_dependencies_result :
+  Buffer.t -> sca_match_dependencies_result -> unit
+  (** Output a JSON value of type {!type:sca_match_dependencies_result}. *)
+
+val string_of_sca_match_dependencies_result :
+  ?len:int -> sca_match_dependencies_result -> string
+  (** Serialize a value of type {!type:sca_match_dependencies_result}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_match_dependencies_result :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_match_dependencies_result
+  (** Input JSON data of type {!type:sca_match_dependencies_result}. *)
+
+val sca_match_dependencies_result_of_string :
+  string -> sca_match_dependencies_result
+  (** Deserialize JSON data of type {!type:sca_match_dependencies_result}. *)
+
+val write_sca_match_dependencies_params :
+  Buffer.t -> sca_match_dependencies_params -> unit
+  (** Output a JSON value of type {!type:sca_match_dependencies_params}. *)
+
+val string_of_sca_match_dependencies_params :
+  ?len:int -> sca_match_dependencies_params -> string
+  (** Serialize a value of type {!type:sca_match_dependencies_params}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_sca_match_dependencies_params :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> sca_match_dependencies_params
+  (** Input JSON data of type {!type:sca_match_dependencies_params}. *)
+
+val sca_match_dependencies_params_of_string :
+  string -> sca_match_dependencies_params
+  (** Deserialize JSON data of type {!type:sca_match_dependencies_params}. *)
+
 val write_sarif_format :
   Buffer.t -> sarif_format -> unit
   (** Output a JSON value of type {!type:sarif_format}. *)
@@ -5754,6 +6352,26 @@ val mcp_scan_results_of_string :
   string -> mcp_scan_results
   (** Deserialize JSON data of type {!type:mcp_scan_results}. *)
 
+val write_match_subprojects_params :
+  Buffer.t -> match_subprojects_params -> unit
+  (** Output a JSON value of type {!type:match_subprojects_params}. *)
+
+val string_of_match_subprojects_params :
+  ?len:int -> match_subprojects_params -> string
+  (** Serialize a value of type {!type:match_subprojects_params}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_match_subprojects_params :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> match_subprojects_params
+  (** Input JSON data of type {!type:match_subprojects_params}. *)
+
+val match_subprojects_params_of_string :
+  string -> match_subprojects_params
+  (** Deserialize JSON data of type {!type:match_subprojects_params}. *)
+
 val write_format_context :
   Buffer.t -> format_context -> unit
   (** Output a JSON value of type {!type:format_context}. *)
@@ -5973,6 +6591,26 @@ val read_resolved_subproject :
 val resolved_subproject_of_string :
   string -> resolved_subproject
   (** Deserialize JSON data of type {!type:resolved_subproject}. *)
+
+val write_resolved_source :
+  Buffer.t -> resolved_source -> unit
+  (** Output a JSON value of type {!type:resolved_source}. *)
+
+val string_of_resolved_source :
+  ?len:int -> resolved_source -> string
+  (** Serialize a value of type {!type:resolved_source}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_resolved_source :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> resolved_source
+  (** Input JSON data of type {!type:resolved_source}. *)
+
+val resolved_source_of_string :
+  string -> resolved_source
+  (** Deserialize JSON data of type {!type:resolved_source}. *)
 
 val write_resolution_result :
   Buffer.t -> resolution_result -> unit
@@ -6273,6 +6911,26 @@ val read_partial_scan_result :
 val partial_scan_result_of_string :
   string -> partial_scan_result
   (** Deserialize JSON data of type {!type:partial_scan_result}. *)
+
+val write_match_subprojects_result :
+  Buffer.t -> match_subprojects_result -> unit
+  (** Output a JSON value of type {!type:match_subprojects_result}. *)
+
+val string_of_match_subprojects_result :
+  ?len:int -> match_subprojects_result -> string
+  (** Serialize a value of type {!type:match_subprojects_result}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_match_subprojects_result :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> match_subprojects_result
+  (** Input JSON data of type {!type:match_subprojects_result}. *)
+
+val match_subprojects_result_of_string :
+  string -> match_subprojects_result
+  (** Deserialize JSON data of type {!type:match_subprojects_result}. *)
 
 val write_match_based_id :
   Buffer.t -> match_based_id -> unit

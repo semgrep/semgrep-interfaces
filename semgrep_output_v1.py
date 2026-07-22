@@ -5617,6 +5617,274 @@ class UnresolvedSubproject:
 
 
 @dataclass
+class Utf8:
+    """Original type: fpath_repr = [ ... | Utf8 of ... | ... ]
+    """
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Utf8'
+
+    def to_json(self) -> Any:
+        return ['Utf8', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class Base64:
+    """Original type: fpath_repr = [ ... | Base64 of ... | ... ]
+    """
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'Base64'
+
+    def to_json(self) -> Any:
+        return ['Base64', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class FpathRepr:
+    """Original type: fpath_repr = [ ... ]
+    """
+
+    value: Union[Utf8, Base64]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FpathRepr':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'Utf8':
+                return cls(Utf8(_atd_read_string(x[1])))
+            if cons == 'Base64':
+                return cls(Base64(_atd_read_string(x[1])))
+            _atd_bad_json('FpathRepr', x)
+        _atd_bad_json('FpathRepr', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FpathRepr':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True, order=True)
+class FpathB:
+    """Original type: fpath_b
+    """
+
+    value: FpathRepr
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'FpathB':
+        return cls(FpathRepr.from_json(x))
+
+    def to_json(self) -> Any:
+        return (lambda x: x.to_json())(self.value)
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'FpathB':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class DependencyParserErrorB:
+    """Original type: dependency_parser_error_b = { ... }
+
+    A dependency-source parse error with location information, as transported
+    over the pysemgrep <-> semgrep-core RPC (CallResolveDependencies). It
+    mirrors dependency_parser_error field-for-field but carries the path
+    losslessly (fpath_b), since paths need not be valid UTF-8; pysemgrep
+    converts it back to dependency_parser_error for reporting. since semgrep
+    1.170.0
+
+    :param line: 1-based, like dependency_parser_error.line
+    :param col: 1-based, like dependency_parser_error.col
+    :param text: the offending source line, like dependency_parser_error.text
+    """
+
+    path: FpathB
+    parser: ScaParserName
+    reason: str
+    line: Optional[int] = None
+    col: Optional[int] = None
+    text: Optional[str] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'DependencyParserErrorB':
+        if isinstance(x, dict):
+            return cls(
+                path=FpathB.from_json(x['path']) if 'path' in x else _atd_missing_json_field('DependencyParserErrorB', 'path'),
+                parser=ScaParserName.from_json(x['parser']) if 'parser' in x else _atd_missing_json_field('DependencyParserErrorB', 'parser'),
+                reason=_atd_read_string(x['reason']) if 'reason' in x else _atd_missing_json_field('DependencyParserErrorB', 'reason'),
+                line=_atd_read_int(x['line']) if 'line' in x else None,
+                col=_atd_read_int(x['col']) if 'col' in x else None,
+                text=_atd_read_string(x['text']) if 'text' in x else None,
+            )
+        else:
+            _atd_bad_json('DependencyParserErrorB', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['path'] = (lambda x: x.to_json())(self.path)
+        res['parser'] = (lambda x: x.to_json())(self.parser)
+        res['reason'] = _atd_write_string(self.reason)
+        if self.line is not None:
+            res['line'] = _atd_write_int(self.line)
+        if self.col is not None:
+            res['col'] = _atd_write_int(self.col)
+        if self.text is not None:
+            res['text'] = _atd_write_string(self.text)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'DependencyParserErrorB':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ResolutionKind:
+    """Original type: resolution_result_error = [ ... | ResolutionKind of ... | ... ]
+    """
+
+    value: ResolutionErrorKind
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ResolutionKind'
+
+    def to_json(self) -> Any:
+        return ['ResolutionKind', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ResolutionParseError:
+    """Original type: resolution_result_error = [ ... | ResolutionParseError of ... | ... ]
+    """
+
+    value: DependencyParserErrorB
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ResolutionParseError'
+
+    def to_json(self) -> Any:
+        return ['ResolutionParseError', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ResolutionResultError:
+    """Original type: resolution_result_error = [ ... ]
+
+    An error produced during dependency resolution, as transported over the
+    pysemgrep <-> semgrep-core RPC (CallResolveDependencies). ResolutionKind:
+    an error without location information (pysemgrep reports it against the
+    subproject's dependency source file). ResolutionParseError: a
+    dependency-source parse error with location information. since semgrep
+    1.170.0 (before that, resolution_result carried bare resolution_error_kind
+    lists)
+    """
+
+    value: Union[ResolutionKind, ResolutionParseError]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolutionResultError':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'ResolutionKind':
+                return cls(ResolutionKind(ResolutionErrorKind.from_json(x[1])))
+            if cons == 'ResolutionParseError':
+                return cls(ResolutionParseError(DependencyParserErrorB.from_json(x[1])))
+            _atd_bad_json('ResolutionResultError', x)
+        _atd_bad_json('ResolutionResultError', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolutionResultError':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class UnresolvedSource:
+    """Original type: unresolved_source = { ... }
+
+    A failed per-source resolution outcome, including the unresolved reason
+    that pysemgrep used to compute from its (now engine-side) routing tables.
+    since semgrep 1.170.0
+    """
+
+    reason: UnresolvedReason
+    errors: List[ResolutionResultError]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'UnresolvedSource':
+        if isinstance(x, dict):
+            return cls(
+                reason=UnresolvedReason.from_json(x['reason']) if 'reason' in x else _atd_missing_json_field('UnresolvedSource', 'reason'),
+                errors=_atd_read_list(ResolutionResultError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('UnresolvedSource', 'errors'),
+            )
+        else:
+            _atd_bad_json('UnresolvedSource', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['reason'] = (lambda x: x.to_json())(self.reason)
+        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'UnresolvedSource':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class Snippet:
     """Original type: snippet = { ... }
 
@@ -9262,6 +9530,98 @@ class SubprojectResolutionPlan:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class SubprojectRelevanceFilter:
+    """Original type: subproject_relevance_filter = { ... }
+
+    The inputs of pysemgrep's deleted filter_changed_subprojects, made
+    explicit so the engine can apply the ecosystem/changed-file relevance
+    filter (see match_subprojects_params.relevance_filter). The string keys of
+    loaded_rule_ecosystems and code_files_by_language are opaque per-language
+    grouping keys (pysemgrep language names); the two lists must use the same
+    keys. since semgrep 1.170.0
+
+    :param directly_targeted_files: the dependency source files that are scan
+    targets (baseline filtering applied): a subproject whose source files
+    intersect this list is relevant
+    :param loaded_rule_ecosystems: for each rule language (in rule order), the
+    ecosystems of the loaded dependency-aware rules for that language
+    (first-seen order)
+    :param code_files_by_language: for each rule language, the kept code files
+    for that language: a subproject that is the closest subproject of such a
+    file for one of the language's ecosystems is relevant
+    """
+
+    directly_targeted_files: List[FpathB]
+    loaded_rule_ecosystems: List[Tuple[str, List[Ecosystem]]]
+    code_files_by_language: List[Tuple[str, List[FpathB]]]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SubprojectRelevanceFilter':
+        if isinstance(x, dict):
+            return cls(
+                directly_targeted_files=_atd_read_list(FpathB.from_json)(x['directly_targeted_files']) if 'directly_targeted_files' in x else _atd_missing_json_field('SubprojectRelevanceFilter', 'directly_targeted_files'),
+                loaded_rule_ecosystems=_atd_read_list((lambda x: (_atd_read_string(x[0]), _atd_read_list(Ecosystem.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['loaded_rule_ecosystems']) if 'loaded_rule_ecosystems' in x else _atd_missing_json_field('SubprojectRelevanceFilter', 'loaded_rule_ecosystems'),
+                code_files_by_language=_atd_read_list((lambda x: (_atd_read_string(x[0]), _atd_read_list(FpathB.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['code_files_by_language']) if 'code_files_by_language' in x else _atd_missing_json_field('SubprojectRelevanceFilter', 'code_files_by_language'),
+            )
+        else:
+            _atd_bad_json('SubprojectRelevanceFilter', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['directly_targeted_files'] = _atd_write_list((lambda x: x.to_json()))(self.directly_targeted_files)
+        res['loaded_rule_ecosystems'] = _atd_write_list((lambda x: [_atd_write_string(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.loaded_rule_ecosystems)
+        res['code_files_by_language'] = _atd_write_list((lambda x: [_atd_write_string(x[0]), _atd_write_list((lambda x: x.to_json()))(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.code_files_by_language)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SubprojectRelevanceFilter':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class SubprojectFileAssociation:
+    """Original type: subproject_file_association = { ... }
+
+    The (code file, ecosystem) -> closest-subproject association computed by
+    the engine-side ClosestSubprojectFinder port. (subproject_root, ecosystem)
+    is the subproject identity key (the same key pysemgrep's
+    HashableSubproject used). since semgrep 1.170.0
+    """
+
+    path: FpathB
+    ecosystem: Ecosystem
+    subproject_root: FpathB
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'SubprojectFileAssociation':
+        if isinstance(x, dict):
+            return cls(
+                path=FpathB.from_json(x['path']) if 'path' in x else _atd_missing_json_field('SubprojectFileAssociation', 'path'),
+                ecosystem=Ecosystem.from_json(x['ecosystem']) if 'ecosystem' in x else _atd_missing_json_field('SubprojectFileAssociation', 'ecosystem'),
+                subproject_root=FpathB.from_json(x['subproject_root']) if 'subproject_root' in x else _atd_missing_json_field('SubprojectFileAssociation', 'subproject_root'),
+            )
+        else:
+            _atd_bad_json('SubprojectFileAssociation', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['path'] = (lambda x: x.to_json())(self.path)
+        res['ecosystem'] = (lambda x: x.to_json())(self.ecosystem)
+        res['subproject_root'] = (lambda x: x.to_json())(self.subproject_root)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'SubprojectFileAssociation':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class SkippedRule:
     """Original type: skipped_rule = { ... }
@@ -10363,6 +10723,397 @@ class ScanConfig:
 
 
 @dataclass(frozen=True)
+class ScaMatchSubproject:
+    """Original type: sca_match_subproject = { ... }
+
+    One subproject's flat found_dependency list (resolution order). A record
+    rather than a bare inner list only because the protobuf generator cannot
+    express list-of-list payloads. since semgrep 1.170.0
+    """
+
+    dependencies: List[FoundDependency]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaMatchSubproject':
+        if isinstance(x, dict):
+            return cls(
+                dependencies=_atd_read_list(FoundDependency.from_json)(x['dependencies']) if 'dependencies' in x else _atd_missing_json_field('ScaMatchSubproject', 'dependencies'),
+            )
+        else:
+            _atd_bad_json('ScaMatchSubproject', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['dependencies'] = _atd_write_list((lambda x: x.to_json()))(self.dependencies)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaMatchSubproject':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ScaMatchRulePatterns:
+    """Original type: sca_match_rule_patterns = { ... }
+
+    One rule's parsed depends-on patterns (pysemgrep's parse_depends_on_yaml
+    output; rules whose parse raises send no entry). since semgrep 1.170.0
+    """
+
+    rule_id: RuleId
+    patterns: List[ScaPattern]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaMatchRulePatterns':
+        if isinstance(x, dict):
+            return cls(
+                rule_id=RuleId.from_json(x['rule_id']) if 'rule_id' in x else _atd_missing_json_field('ScaMatchRulePatterns', 'rule_id'),
+                patterns=_atd_read_list(ScaPattern.from_json)(x['patterns']) if 'patterns' in x else _atd_missing_json_field('ScaMatchRulePatterns', 'patterns'),
+            )
+        else:
+            _atd_bad_json('ScaMatchRulePatterns', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['rule_id'] = (lambda x: x.to_json())(self.rule_id)
+        res['patterns'] = _atd_write_list((lambda x: x.to_json()))(self.patterns)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaMatchRulePatterns':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class LockfileOnlyMatching:
+    """Original type: sca_match_query = [ ... | LockfileOnlyMatching | ... ]
+    """
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'LockfileOnlyMatching'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'LockfileOnlyMatching'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ReachableCandidateMatching:
+    """Original type: sca_match_query = [ ... | ReachableCandidateMatching | ... ]
+    """
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ReachableCandidateMatching'
+
+    @staticmethod
+    def to_json() -> Any:
+        return 'ReachableCandidateMatching'
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ScaMatchQuery:
+    """Original type: sca_match_query = [ ... ]
+
+    Which of pysemgrep's two dependency-matching streams to compute (they
+    differ in iteration order and first-error truncation, both of which are
+    part of the fingerprint contract): LockfileOnlyMatching = the
+    package-indexed, pattern-major
+    SubprojectDependencyIndex.get_dependency_matches stream (lockfile-only
+    findings); ReachableCandidateMatching = the dependency-major
+    dependencies_range_match_any stream (the reachable path's version checks
+    and the pre-scan rule filter). since semgrep 1.170.0
+    """
+
+    value: Union[LockfileOnlyMatching, ReachableCandidateMatching]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaMatchQuery':
+        if isinstance(x, str):
+            if x == 'LockfileOnlyMatching':
+                return cls(LockfileOnlyMatching())
+            if x == 'ReachableCandidateMatching':
+                return cls(ReachableCandidateMatching())
+            _atd_bad_json('ScaMatchQuery', x)
+        _atd_bad_json('ScaMatchQuery', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaMatchQuery':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ScaMatchSemgrepError:
+    """Original type: sca_match_error = [ ... | ScaMatchSemgrepError of ... | ... ]
+    """
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ScaMatchSemgrepError'
+
+    def to_json(self) -> Any:
+        return ['ScaMatchSemgrepError', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ScaMatchInvalidVersion:
+    """Original type: sca_match_error = [ ... | ScaMatchInvalidVersion of ... | ... ]
+    """
+
+    value: str
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ScaMatchInvalidVersion'
+
+    def to_json(self) -> Any:
+        return ['ScaMatchInvalidVersion', _atd_write_string(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ScaMatchError:
+    """Original type: sca_match_error = [ ... ]
+
+    The typed error class a cell's match stream raised in pysemgrep:
+    ScaMatchSemgrepError = the is_in_range SemgrepError texts;
+    ScaMatchInvalidVersion = the packaging InvalidVersion crash class escaping
+    is_in_range (replicated bug-for-bug). The Python shim re-raises the
+    corresponding class at the consumption point. since semgrep 1.170.0
+    """
+
+    value: Union[ScaMatchSemgrepError, ScaMatchInvalidVersion]
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return self.value.kind
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaMatchError':
+        if isinstance(x, List) and len(x) == 2:
+            cons = x[0]
+            if cons == 'ScaMatchSemgrepError':
+                return cls(ScaMatchSemgrepError(_atd_read_string(x[1])))
+            if cons == 'ScaMatchInvalidVersion':
+                return cls(ScaMatchInvalidVersion(_atd_read_string(x[1])))
+            _atd_bad_json('ScaMatchError', x)
+        _atd_bad_json('ScaMatchError', x)
+
+    def to_json(self) -> Any:
+        return self.value.to_json()
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaMatchError':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ScaDependencyMatchRecord:
+    """Original type: sca_dependency_match_record = { ... }
+
+    One matched (pattern, dependency) pair, in stream order. position is the
+    line/col pysemgrep put on both start and end of the CoreMatch
+    (line_number-or-1 with the 0-is-falsy quirk, col 1, offset 0). since
+    semgrep 1.170.0
+    """
+
+    dependency_match: DependencyMatch
+    position: Position
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaDependencyMatchRecord':
+        if isinstance(x, dict):
+            return cls(
+                dependency_match=DependencyMatch.from_json(x['dependency_match']) if 'dependency_match' in x else _atd_missing_json_field('ScaDependencyMatchRecord', 'dependency_match'),
+                position=Position.from_json(x['position']) if 'position' in x else _atd_missing_json_field('ScaDependencyMatchRecord', 'position'),
+            )
+        else:
+            _atd_bad_json('ScaDependencyMatchRecord', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['dependency_match'] = (lambda x: x.to_json())(self.dependency_match)
+        res['position'] = (lambda x: x.to_json())(self.position)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaDependencyMatchRecord':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ScaDependencyMatchCell:
+    """Original type: sca_dependency_match_cell = { ... }
+
+    The matches of one (rule x subproject) pair; rule/subproject are positions
+    into sca_match_dependencies_params' lists. When error is set, matches and
+    skipped_no_lockfile are empty (pysemgrep's list() consumption discards
+    partial results and never runs the skip loop). skipped_no_lockfile carries
+    the package names of matched dependencies without a lockfile path, in
+    encounter order (the shim replays the skip warnings). since semgrep
+    1.170.0
+    """
+
+    rule: int
+    subproject: int
+    matches: List[ScaDependencyMatchRecord]
+    skipped_no_lockfile: List[str] = field(default_factory=lambda: [])
+    error: Optional[ScaMatchError] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaDependencyMatchCell':
+        if isinstance(x, dict):
+            return cls(
+                rule=_atd_read_int(x['rule']) if 'rule' in x else _atd_missing_json_field('ScaDependencyMatchCell', 'rule'),
+                subproject=_atd_read_int(x['subproject']) if 'subproject' in x else _atd_missing_json_field('ScaDependencyMatchCell', 'subproject'),
+                matches=_atd_read_list(ScaDependencyMatchRecord.from_json)(x['matches']) if 'matches' in x else _atd_missing_json_field('ScaDependencyMatchCell', 'matches'),
+                skipped_no_lockfile=_atd_read_list(_atd_read_string)(x['skipped_no_lockfile']) if 'skipped_no_lockfile' in x else [],
+                error=ScaMatchError.from_json(x['error']) if 'error' in x else None,
+            )
+        else:
+            _atd_bad_json('ScaDependencyMatchCell', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['rule'] = _atd_write_int(self.rule)
+        res['subproject'] = _atd_write_int(self.subproject)
+        res['matches'] = _atd_write_list((lambda x: x.to_json()))(self.matches)
+        res['skipped_no_lockfile'] = _atd_write_list(_atd_write_string)(self.skipped_no_lockfile)
+        if self.error is not None:
+            res['error'] = (lambda x: x.to_json())(self.error)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaDependencyMatchCell':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ScaMatchDependenciesResult:
+    """Original type: sca_match_dependencies_result = { ... }
+
+    A cell for EVERY (rule x subproject) pair, rules-major. since semgrep
+    1.170.0
+    """
+
+    cells: List[ScaDependencyMatchCell]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaMatchDependenciesResult':
+        if isinstance(x, dict):
+            return cls(
+                cells=_atd_read_list(ScaDependencyMatchCell.from_json)(x['cells']) if 'cells' in x else _atd_missing_json_field('ScaMatchDependenciesResult', 'cells'),
+            )
+        else:
+            _atd_bad_json('ScaMatchDependenciesResult', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['cells'] = _atd_write_list((lambda x: x.to_json()))(self.cells)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaMatchDependenciesResult':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class ScaMatchDependenciesParams:
+    """Original type: sca_match_dependencies_params = { ... }
+
+    One coarse post-scan matching call per (scan phase x query kind): every
+    (rule x subproject) cell is computed in one round trip, never per rule or
+    per finding. Subprojects are the flat found_dependency lists (resolution
+    order); rules and subprojects are referenced by position in these lists in
+    the returned cells. since semgrep 1.170.0
+
+    :param compute_dependency_paths: --x-dependency-paths: attach
+    dependency_paths to matched records (absent when the computed path list is
+    empty). since semgrep 1.170.0
+    """
+
+    query: ScaMatchQuery
+    rules: List[ScaMatchRulePatterns]
+    subprojects: List[ScaMatchSubproject]
+    compute_dependency_paths: bool = field(default_factory=lambda: False)
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ScaMatchDependenciesParams':
+        if isinstance(x, dict):
+            return cls(
+                query=ScaMatchQuery.from_json(x['query']) if 'query' in x else _atd_missing_json_field('ScaMatchDependenciesParams', 'query'),
+                rules=_atd_read_list(ScaMatchRulePatterns.from_json)(x['rules']) if 'rules' in x else _atd_missing_json_field('ScaMatchDependenciesParams', 'rules'),
+                subprojects=_atd_read_list(ScaMatchSubproject.from_json)(x['subprojects']) if 'subprojects' in x else _atd_missing_json_field('ScaMatchDependenciesParams', 'subprojects'),
+                compute_dependency_paths=_atd_read_bool(x['compute_dependency_paths']) if 'compute_dependency_paths' in x else False,
+            )
+        else:
+            _atd_bad_json('ScaMatchDependenciesParams', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['query'] = (lambda x: x.to_json())(self.query)
+        res['rules'] = _atd_write_list((lambda x: x.to_json()))(self.rules)
+        res['subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects)
+        res['compute_dependency_paths'] = _atd_write_bool(self.compute_dependency_paths)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ScaMatchDependenciesParams':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
 class SarifFormat:
     """Original type: sarif_format = { ... }
 
@@ -10496,16 +11247,35 @@ class RuleIdAndEngineKind:
 class ResolveDependenciesParams:
     """Original type: resolve_dependencies_params = { ... }
 
+    Since semgrep 1.170.0 the boolean flags here are the RAW scan
+    configuration (what the user asked for): the per-source effective
+    arguments (e.g. the local-builds suppression guard, the TR download gate)
+    and the resolution-method/unresolved-reason labels are computed
+    engine-side from the routing tables that used to live in pysemgrep's
+    sca_subproject_support.py.
+
     :param allow_local_builds: whether to allow executing package manager
     commands
     :param package_manager_env: extra environment variables to pass to package
     manager subprocesses
+    :param ptt_enabled: whether dependency path tracking is enabled for this
+    scan; gates resolution behavior that only PTT scans get (currently the
+    gradle build.gradle.kts manifest transitivity path — a file read, not a
+    local build, hence independent of allow_local_builds). since semgrep
+    1.170.0
+    :param use_experimental_ocaml_parsers: the CLI's
+    --x-use-experimental-ocaml-parsers testing flag; feeds the engine-side
+    routing decision exactly as it fed pysemgrep's (forces non-dynamic OCaml
+    parsing and disables the local-builds suppression guard). since semgrep
+    1.170.0
     """
 
     dependency_sources: List[DependencySource]
     download_dependency_source_code: bool
     allow_local_builds: bool
     package_manager_env: Optional[List[Tuple[str, str]]] = None
+    ptt_enabled: bool = field(default_factory=lambda: False)
+    use_experimental_ocaml_parsers: bool = field(default_factory=lambda: False)
 
     @classmethod
     def from_json(cls, x: Any) -> 'ResolveDependenciesParams':
@@ -10515,6 +11285,8 @@ class ResolveDependenciesParams:
                 download_dependency_source_code=_atd_read_bool(x['download_dependency_source_code']) if 'download_dependency_source_code' in x else _atd_missing_json_field('ResolveDependenciesParams', 'download_dependency_source_code'),
                 allow_local_builds=_atd_read_bool(x['allow_local_builds']) if 'allow_local_builds' in x else _atd_missing_json_field('ResolveDependenciesParams', 'allow_local_builds'),
                 package_manager_env=_atd_read_list((lambda x: (_atd_read_string(x[0]), _atd_read_string(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x)))(x['package_manager_env']) if 'package_manager_env' in x else None,
+                ptt_enabled=_atd_read_bool(x['ptt_enabled']) if 'ptt_enabled' in x else False,
+                use_experimental_ocaml_parsers=_atd_read_bool(x['use_experimental_ocaml_parsers']) if 'use_experimental_ocaml_parsers' in x else False,
             )
         else:
             _atd_bad_json('ResolveDependenciesParams', x)
@@ -10526,6 +11298,8 @@ class ResolveDependenciesParams:
         res['allow_local_builds'] = _atd_write_bool(self.allow_local_builds)
         if self.package_manager_env is not None:
             res['package_manager_env'] = _atd_write_list((lambda x: [_atd_write_string(x[0]), _atd_write_string(x[1])] if isinstance(x, tuple) and len(x) == 2 else _atd_bad_python('tuple of length 2', x)))(self.package_manager_env)
+        res['ptt_enabled'] = _atd_write_bool(self.ptt_enabled)
+        res['use_experimental_ocaml_parsers'] = _atd_write_bool(self.use_experimental_ocaml_parsers)
         return res
 
     @classmethod
@@ -11112,6 +11886,81 @@ class McpScanResults:
 
     @classmethod
     def from_json_string(cls, x: str) -> 'McpScanResults':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class MatchSubprojectsParams:
+    """Original type: match_subprojects_params = { ... }
+
+    :param files_only: when true, only classify: return the candidate files
+    that are dependency source files (kept_dependency_source_files) and no
+    subprojects. since semgrep 1.170.0
+    :param return_glob_filters: when true, also return the glob patterns that
+    identify subproject dependency source files (the prefilter constant
+    derived from the matcher set). since semgrep 1.170.0
+    :param relevance_filter: when present, partition the matched subprojects
+    into relevant ones (returned in subprojects) and skipped ones (returned in
+    skipped_subprojects as UnresolvedSkipped), replicating pysemgrep's
+    filter_changed_subprojects; when absent, every matched subproject is
+    returned in subprojects (the resolve-untargeted-subprojects semantics).
+    since semgrep 1.170.0
+    :param precomputed_dependencies_dir: when present, look up a precomputed
+    CycloneDX SBOM at <dir>/<head|base>/<dependency-source id>.cdx.json for
+    each relevant subproject and wrap its dependency source in AuxillarySBOM
+    (pysemgrep's attach_auxillary_sboms). since semgrep 1.170.0
+    :param is_baseline_scan: selects the base/ (true) vs head/ (false)
+    subdirectory of precomputed_dependencies_dir. since semgrep 1.170.0
+    :param return_file_associations: when true, also return the (code file,
+    ecosystem) -> closest-subproject associations for the code files carried
+    by relevance_filter. Unlike the relevance filter itself the association
+    pass has no early exit, and it runs over ALL matched subprojects (the same
+    pre-filter set the relevance filter's finder uses), not just the relevant
+    ones. Guardrail surface for the ClosestSubprojectFinder port/Python twin
+    (Phase 5 consumers). since semgrep 1.170.0
+    """
+
+    dependency_source_files: List[FpathB]
+    files_only: bool = field(default_factory=lambda: False)
+    return_glob_filters: bool = field(default_factory=lambda: False)
+    relevance_filter: Optional[SubprojectRelevanceFilter] = None
+    precomputed_dependencies_dir: Optional[FpathB] = None
+    is_baseline_scan: bool = field(default_factory=lambda: False)
+    return_file_associations: bool = field(default_factory=lambda: False)
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'MatchSubprojectsParams':
+        if isinstance(x, dict):
+            return cls(
+                dependency_source_files=_atd_read_list(FpathB.from_json)(x['dependency_source_files']) if 'dependency_source_files' in x else _atd_missing_json_field('MatchSubprojectsParams', 'dependency_source_files'),
+                files_only=_atd_read_bool(x['files_only']) if 'files_only' in x else False,
+                return_glob_filters=_atd_read_bool(x['return_glob_filters']) if 'return_glob_filters' in x else False,
+                relevance_filter=SubprojectRelevanceFilter.from_json(x['relevance_filter']) if 'relevance_filter' in x else None,
+                precomputed_dependencies_dir=FpathB.from_json(x['precomputed_dependencies_dir']) if 'precomputed_dependencies_dir' in x else None,
+                is_baseline_scan=_atd_read_bool(x['is_baseline_scan']) if 'is_baseline_scan' in x else False,
+                return_file_associations=_atd_read_bool(x['return_file_associations']) if 'return_file_associations' in x else False,
+            )
+        else:
+            _atd_bad_json('MatchSubprojectsParams', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['dependency_source_files'] = _atd_write_list((lambda x: x.to_json()))(self.dependency_source_files)
+        res['files_only'] = _atd_write_bool(self.files_only)
+        res['return_glob_filters'] = _atd_write_bool(self.return_glob_filters)
+        if self.relevance_filter is not None:
+            res['relevance_filter'] = (lambda x: x.to_json())(self.relevance_filter)
+        if self.precomputed_dependencies_dir is not None:
+            res['precomputed_dependencies_dir'] = (lambda x: x.to_json())(self.precomputed_dependencies_dir)
+        res['is_baseline_scan'] = _atd_write_bool(self.is_baseline_scan)
+        res['return_file_associations'] = _atd_write_bool(self.return_file_associations)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'MatchSubprojectsParams':
         return cls.from_json(json.loads(x))
 
     def to_json_string(self, **kw: Any) -> str:
@@ -11750,9 +12599,12 @@ class CallTransitiveReachabilityFilter:
 @dataclass(frozen=True)
 class CallMatchSubprojects:
     """Original type: function_call = [ ... | CallMatchSubprojects of ... | ... ]
+
+    Extended from a bare fpath list to match_subprojects_params. since semgrep
+    1.170.0
     """
 
-    value: List[Fpath]
+    value: MatchSubprojectsParams
 
     @property
     def kind(self) -> str:
@@ -11760,7 +12612,30 @@ class CallMatchSubprojects:
         return 'CallMatchSubprojects'
 
     def to_json(self) -> Any:
-        return ['CallMatchSubprojects', _atd_write_list((lambda x: x.to_json()))(self.value)]
+        return ['CallMatchSubprojects', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class CallScaMatchDependencies:
+    """Original type: function_call = [ ... | CallScaMatchDependencies of ... | ... ]
+
+    SCA depends-on version matching (the matching halves of pysemgrep's
+    dependency_aware_rule.py). One coarse call per (scan phase x query kind).
+    since semgrep 1.170.0
+    """
+
+    value: ScaMatchDependenciesParams
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'CallScaMatchDependencies'
+
+    def to_json(self) -> Any:
+        return ['CallScaMatchDependencies', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -11831,7 +12706,7 @@ class FunctionCall:
     """Original type: function_call = [ ... ]
     """
 
-    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallGetTargets, CallTransitiveReachabilityFilter, CallMatchSubprojects, CallRunSymbolAnalysis, CallUploadSubprojectSymbolAnalysis, CallShowSubprojects]
+    value: Union[CallContributions, CallApplyFixes, CallFormatter, CallSarifFormat, CallValidate, CallResolveDependencies, CallUploadSymbolAnalysis, CallDumpRulePartitions, CallGetTargets, CallTransitiveReachabilityFilter, CallMatchSubprojects, CallScaMatchDependencies, CallRunSymbolAnalysis, CallUploadSubprojectSymbolAnalysis, CallShowSubprojects]
 
     @property
     def kind(self) -> str:
@@ -11865,7 +12740,9 @@ class FunctionCall:
             if cons == 'CallTransitiveReachabilityFilter':
                 return cls(CallTransitiveReachabilityFilter(TransitiveReachabilityFilterParams.from_json(x[1])))
             if cons == 'CallMatchSubprojects':
-                return cls(CallMatchSubprojects(_atd_read_list(Fpath.from_json)(x[1])))
+                return cls(CallMatchSubprojects(MatchSubprojectsParams.from_json(x[1])))
+            if cons == 'CallScaMatchDependencies':
+                return cls(CallScaMatchDependencies(ScaMatchDependenciesParams.from_json(x[1])))
             if cons == 'CallRunSymbolAnalysis':
                 return cls(CallRunSymbolAnalysis(SymbolAnalysisParams.from_json(x[1])))
             if cons == 'CallUploadSubprojectSymbolAnalysis':
@@ -11972,12 +12849,51 @@ class ResolvedSubproject:
         return json.dumps(self.to_json(), **kw)
 
 
+@dataclass(frozen=True)
+class ResolvedSource:
+    """Original type: resolved_source = { ... }
+
+    A successful per-source resolution outcome, including the
+    resolution-method label that pysemgrep used to compute from its (now
+    engine-side) routing tables. since semgrep 1.170.0
+    """
+
+    resolution_method: ResolutionMethod
+    resolved: List[ResolvedDependency]
+    errors: List[ResolutionResultError]
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'ResolvedSource':
+        if isinstance(x, dict):
+            return cls(
+                resolution_method=ResolutionMethod.from_json(x['resolution_method']) if 'resolution_method' in x else _atd_missing_json_field('ResolvedSource', 'resolution_method'),
+                resolved=_atd_read_list(ResolvedDependency.from_json)(x['resolved']) if 'resolved' in x else _atd_missing_json_field('ResolvedSource', 'resolved'),
+                errors=_atd_read_list(ResolutionResultError.from_json)(x['errors']) if 'errors' in x else _atd_missing_json_field('ResolvedSource', 'errors'),
+            )
+        else:
+            _atd_bad_json('ResolvedSource', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['resolution_method'] = (lambda x: x.to_json())(self.resolution_method)
+        res['resolved'] = _atd_write_list((lambda x: x.to_json()))(self.resolved)
+        res['errors'] = _atd_write_list((lambda x: x.to_json()))(self.errors)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'ResolvedSource':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
 @dataclass
 class ResolutionOk:
     """Original type: resolution_result = [ ... | ResolutionOk of ... | ... ]
     """
 
-    value: Tuple[List[ResolvedDependency], List[ResolutionErrorKind]]
+    value: Tuple[List[ResolvedDependency], List[ResolutionResultError]]
 
     @property
     def kind(self) -> str:
@@ -11996,7 +12912,7 @@ class ResolutionError:
     """Original type: resolution_result = [ ... | ResolutionError of ... | ... ]
     """
 
-    value: List[ResolutionErrorKind]
+    value: List[ResolutionResultError]
 
     @property
     def kind(self) -> str:
@@ -12005,6 +12921,52 @@ class ResolutionError:
 
     def to_json(self) -> Any:
         return ['ResolutionError', _atd_write_list((lambda x: x.to_json()))(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ResolutionResolved:
+    """Original type: resolution_result = [ ... | ResolutionResolved of ... | ... ]
+
+    Success carrying the engine-computed resolution-method label. The sole
+    produced success variant since semgrep 1.170.0 (ResolutionOk is retained
+    for readers of older payloads).
+    """
+
+    value: ResolvedSource
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ResolutionResolved'
+
+    def to_json(self) -> Any:
+        return ['ResolutionResolved', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
+class ResolutionUnresolved:
+    """Original type: resolution_result = [ ... | ResolutionUnresolved of ... | ... ]
+
+    Failure carrying the engine-computed unresolved reason. The sole produced
+    failure variant since semgrep 1.170.0 (ResolutionError is retained for
+    readers of older payloads).
+    """
+
+    value: UnresolvedSource
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'ResolutionUnresolved'
+
+    def to_json(self) -> Any:
+        return ['ResolutionUnresolved', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -12024,7 +12986,7 @@ class ResolutionResult:
     the dependency was downloaded and is available to scan later.
     """
 
-    value: Union[ResolutionOk, ResolutionError]
+    value: Union[ResolutionOk, ResolutionError, ResolutionResolved, ResolutionUnresolved]
 
     @property
     def kind(self) -> str:
@@ -12036,9 +12998,13 @@ class ResolutionResult:
         if isinstance(x, List) and len(x) == 2:
             cons = x[0]
             if cons == 'ResolutionOk':
-                return cls(ResolutionOk((lambda x: (_atd_read_list(ResolvedDependency.from_json)(x[0]), _atd_read_list(ResolutionErrorKind.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
+                return cls(ResolutionOk((lambda x: (_atd_read_list(ResolvedDependency.from_json)(x[0]), _atd_read_list(ResolutionResultError.from_json)(x[1])) if isinstance(x, list) and len(x) == 2 else _atd_bad_json('array of length 2', x))(x[1])))
             if cons == 'ResolutionError':
-                return cls(ResolutionError(_atd_read_list(ResolutionErrorKind.from_json)(x[1])))
+                return cls(ResolutionError(_atd_read_list(ResolutionResultError.from_json)(x[1])))
+            if cons == 'ResolutionResolved':
+                return cls(ResolutionResolved(ResolvedSource.from_json(x[1])))
+            if cons == 'ResolutionUnresolved':
+                return cls(ResolutionUnresolved(UnresolvedSource.from_json(x[1])))
             _atd_bad_json('ResolutionResult', x)
         _atd_bad_json('ResolutionResult', x)
 
@@ -12756,6 +13722,60 @@ class PartialScanResult:
 
 
 @dataclass
+class MatchSubprojectsResult:
+    """Original type: match_subprojects_result = { ... }
+
+    :param kept_dependency_source_files: the files_only answer: the subset of
+    dependency_source_files recognized as dependency source files, in the
+    input order. since semgrep 1.170.0
+    :param glob_filters: the return_glob_filters answer: the union of every
+    matcher's identifying glob patterns (gitignore-compatible, non-negated),
+    sorted. since semgrep 1.170.0
+    :param skipped_subprojects: the relevance_filter answer: the subprojects
+    deemed not relevant, as UnresolvedSkipped unresolved subprojects, in the
+    matched (original) order. since semgrep 1.170.0
+    :param file_associations: the return_file_associations answer. since
+    semgrep 1.170.0
+    """
+
+    subprojects: List[Subproject]
+    kept_dependency_source_files: List[FpathB] = field(default_factory=lambda: [])
+    glob_filters: List[str] = field(default_factory=lambda: [])
+    skipped_subprojects: List[UnresolvedSubproject] = field(default_factory=lambda: [])
+    file_associations: Optional[List[SubprojectFileAssociation]] = None
+
+    @classmethod
+    def from_json(cls, x: Any) -> 'MatchSubprojectsResult':
+        if isinstance(x, dict):
+            return cls(
+                subprojects=_atd_read_list(Subproject.from_json)(x['subprojects']) if 'subprojects' in x else _atd_missing_json_field('MatchSubprojectsResult', 'subprojects'),
+                kept_dependency_source_files=_atd_read_list(FpathB.from_json)(x['kept_dependency_source_files']) if 'kept_dependency_source_files' in x else [],
+                glob_filters=_atd_read_list(_atd_read_string)(x['glob_filters']) if 'glob_filters' in x else [],
+                skipped_subprojects=_atd_read_list(UnresolvedSubproject.from_json)(x['skipped_subprojects']) if 'skipped_subprojects' in x else [],
+                file_associations=_atd_read_list(SubprojectFileAssociation.from_json)(x['file_associations']) if 'file_associations' in x else None,
+            )
+        else:
+            _atd_bad_json('MatchSubprojectsResult', x)
+
+    def to_json(self) -> Any:
+        res: Dict[str, Any] = {}
+        res['subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.subprojects)
+        res['kept_dependency_source_files'] = _atd_write_list((lambda x: x.to_json()))(self.kept_dependency_source_files)
+        res['glob_filters'] = _atd_write_list(_atd_write_string)(self.glob_filters)
+        res['skipped_subprojects'] = _atd_write_list((lambda x: x.to_json()))(self.skipped_subprojects)
+        if self.file_associations is not None:
+            res['file_associations'] = _atd_write_list((lambda x: x.to_json()))(self.file_associations)
+        return res
+
+    @classmethod
+    def from_json_string(cls, x: str) -> 'MatchSubprojectsResult':
+        return cls.from_json(json.loads(x))
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass
 class MatchBasedId:
     """Original type: match_based_id
 
@@ -13205,9 +14225,12 @@ class RetGetTargets:
 @dataclass(frozen=True)
 class RetMatchSubprojects:
     """Original type: function_return = [ ... | RetMatchSubprojects of ... | ... ]
+
+    Extended from a bare subproject list to match_subprojects_result. since
+    semgrep 1.170.0
     """
 
-    value: List[Subproject]
+    value: MatchSubprojectsResult
 
     @property
     def kind(self) -> str:
@@ -13215,7 +14238,28 @@ class RetMatchSubprojects:
         return 'RetMatchSubprojects'
 
     def to_json(self) -> Any:
-        return ['RetMatchSubprojects', _atd_write_list((lambda x: x.to_json()))(self.value)]
+        return ['RetMatchSubprojects', (lambda x: x.to_json())(self.value)]
+
+    def to_json_string(self, **kw: Any) -> str:
+        return json.dumps(self.to_json(), **kw)
+
+
+@dataclass(frozen=True)
+class RetScaMatchDependencies:
+    """Original type: function_return = [ ... | RetScaMatchDependencies of ... | ... ]
+
+    since semgrep 1.170.0
+    """
+
+    value: ScaMatchDependenciesResult
+
+    @property
+    def kind(self) -> str:
+        """Name of the class representing this variant."""
+        return 'RetScaMatchDependencies'
+
+    def to_json(self) -> Any:
+        return ['RetScaMatchDependencies', (lambda x: x.to_json())(self.value)]
 
     def to_json_string(self, **kw: Any) -> str:
         return json.dumps(self.to_json(), **kw)
@@ -13288,7 +14332,7 @@ class FunctionReturn:
     """Original type: function_return = [ ... ]
     """
 
-    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetUploadSymbolAnalysis, RetDumpRulePartitions, RetTransitiveReachabilityFilter, RetGetTargets, RetMatchSubprojects, RetRunSymbolAnalysis, RetUploadSubprojectSymbolAnalysis, RetShowSubprojects]
+    value: Union[RetError, RetApplyFixes, RetContributions, RetFormatter, RetSarifFormat, RetValidate, RetResolveDependencies, RetUploadSymbolAnalysis, RetDumpRulePartitions, RetTransitiveReachabilityFilter, RetGetTargets, RetMatchSubprojects, RetScaMatchDependencies, RetRunSymbolAnalysis, RetUploadSubprojectSymbolAnalysis, RetShowSubprojects]
 
     @property
     def kind(self) -> str:
@@ -13322,7 +14366,9 @@ class FunctionReturn:
             if cons == 'RetGetTargets':
                 return cls(RetGetTargets(TargetDiscoveryResult.from_json(x[1])))
             if cons == 'RetMatchSubprojects':
-                return cls(RetMatchSubprojects(_atd_read_list(Subproject.from_json)(x[1])))
+                return cls(RetMatchSubprojects(MatchSubprojectsResult.from_json(x[1])))
+            if cons == 'RetScaMatchDependencies':
+                return cls(RetScaMatchDependencies(ScaMatchDependenciesResult.from_json(x[1])))
             if cons == 'RetRunSymbolAnalysis':
                 return cls(RetRunSymbolAnalysis(SymbolAnalysis.from_json(x[1])))
             if cons == 'RetUploadSubprojectSymbolAnalysis':
