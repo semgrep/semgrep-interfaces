@@ -1608,6 +1608,34 @@ type subproject_resolution_plan = {
   subprojects: single_subproject_plan list
 }
 
+(**
+  One dependency source of a subproject, split so that each path can be
+  matched against the field it corresponds to in [found_dependency].
+*)
+type dependency_source_paths = {
+  manifest_path: fpath option;
+  lockfile_path: fpath option
+}
+
+(**
+  A subproject that was deliberately not resolved, and so contributed no
+  entries to [ci_scan_dependencies].
+  
+  This is deliberately not [unresolved_subproject]: that type embeds the
+  recursive [dependency_source] variant, which serializes to awkward nested
+  JSON.
+*)
+type skipped_subproject = {
+  root_dir: fpath (** usually the directory of the manifest file *);
+  dependency_sources: dependency_source_paths list
+    (**
+      The (manifest, lockfile) pairs that would have been used to resolve
+      this subproject. One entry per source; a subproject with several
+      lockfiles (MultiLockfile) produces several entries.
+    *);
+  reason: unresolved_reason (** why the subproject was not resolved *)
+}
+
 type skipped_rule = {
   rule_id: rule_id;
   details: string;
@@ -2394,6 +2422,14 @@ type ci_scan_results = {
       since semgrep 1.38.0. This data was originally sent to /complete, but
       we want to start sending it to /results
     *);
+  skipped_subprojects: skipped_subproject list option
+    (**
+      since semgrep 1.173.0. Subprojects whose dependencies were not
+      resolved, and so are absent from [dependencies]. The app should NOT
+      treat the dependencies of these subprojects as removed. Absent (rather
+      than empty) when sent by a CLI too old to report this, which is not the
+      same as a scan where nothing was skipped.
+    *);
   metadata: ci_scan_metadata option
     (**
       filled in by the backend to associate scan results with the driving
@@ -2440,6 +2476,12 @@ type ci_scan_complete = {
   exit_code: int;
   stats: ci_scan_complete_stats;
   dependencies: ci_scan_dependencies option;
+  skipped_subprojects: skipped_subproject list option
+    (**
+      since semgrep 1.173.0. See the identically-named field in
+      [ci_scan_results]. Sent to both endpoints for the same reason
+      [dependencies] is.
+    *);
   dependency_parser_errors: dependency_parser_error list option;
   task_id: string option (** since 1.31.0 *);
   final_attempt: bool option
