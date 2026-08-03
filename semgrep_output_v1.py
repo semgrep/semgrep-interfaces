@@ -9263,43 +9263,6 @@ class SubprojectResolutionPlan:
 
 
 @dataclass
-class DependencySourcePaths:
-    """Original type: dependency_source_paths = { ... }
-
-    One dependency source of a subproject, split so that each path can be
-    matched against the field it corresponds to in ``found_dependency``.
-    """
-
-    manifest_path: Optional[Fpath] = None
-    lockfile_path: Optional[Fpath] = None
-
-    @classmethod
-    def from_json(cls, x: Any) -> 'DependencySourcePaths':
-        if isinstance(x, dict):
-            return cls(
-                manifest_path=Fpath.from_json(x['manifest_path']) if 'manifest_path' in x else None,
-                lockfile_path=Fpath.from_json(x['lockfile_path']) if 'lockfile_path' in x else None,
-            )
-        else:
-            _atd_bad_json('DependencySourcePaths', x)
-
-    def to_json(self) -> Any:
-        res: Dict[str, Any] = {}
-        if self.manifest_path is not None:
-            res['manifest_path'] = (lambda x: x.to_json())(self.manifest_path)
-        if self.lockfile_path is not None:
-            res['lockfile_path'] = (lambda x: x.to_json())(self.lockfile_path)
-        return res
-
-    @classmethod
-    def from_json_string(cls, x: str) -> 'DependencySourcePaths':
-        return cls.from_json(json.loads(x))
-
-    def to_json_string(self, **kw: Any) -> str:
-        return json.dumps(self.to_json(), **kw)
-
-
-@dataclass
 class SkippedSubproject:
     """Original type: skipped_subproject = { ... }
 
@@ -9311,14 +9274,16 @@ class SkippedSubproject:
     nested JSON.
 
     :param root_dir: usually the directory of the manifest file
-    :param dependency_sources: The (manifest, lockfile) pairs that would have
-    been used to resolve this subproject. One entry per source; a subproject
-    with several lockfiles (MultiLockfile) produces several entries.
+    :param dependency_sources: The files that would have been used to resolve
+    this subproject, one entry per file. Each entry is tagged as a lockfile or
+    a manifest so that it can be matched against the corresponding field of
+    ``found_dependency``. A subproject with several lockfiles (MultiLockfile),
+    or one with both a manifest and a lockfile, produces several entries.
     :param reason: why the subproject was not resolved
     """
 
     root_dir: Fpath
-    dependency_sources: List[DependencySourcePaths]
+    dependency_sources: List[DependencySourceFile]
     reason: UnresolvedReason
 
     @classmethod
@@ -9326,7 +9291,7 @@ class SkippedSubproject:
         if isinstance(x, dict):
             return cls(
                 root_dir=Fpath.from_json(x['root_dir']) if 'root_dir' in x else _atd_missing_json_field('SkippedSubproject', 'root_dir'),
-                dependency_sources=_atd_read_list(DependencySourcePaths.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('SkippedSubproject', 'dependency_sources'),
+                dependency_sources=_atd_read_list(DependencySourceFile.from_json)(x['dependency_sources']) if 'dependency_sources' in x else _atd_missing_json_field('SkippedSubproject', 'dependency_sources'),
                 reason=UnresolvedReason.from_json(x['reason']) if 'reason' in x else _atd_missing_json_field('SkippedSubproject', 'reason'),
             )
         else:

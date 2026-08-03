@@ -2153,23 +2153,14 @@
           "$ref": "#/definitions/fpath"
         },
         "dependency_sources": {
-          "description": "The (manifest, lockfile) pairs that would have been used to resolve this subproject. One entry per source; a subproject with several lockfiles (MultiLockfile) produces several entries.",
+          "description": "The files that would have been used to resolve this subproject, one entry per file. Each entry is tagged as a lockfile or a manifest so that it can be matched against the corresponding field of {{found_dependency}} . A subproject with several lockfiles (MultiLockfile), or one with both a manifest and a lockfile, produces several entries.",
           "type": "array",
-          "items": { "$ref": "#/definitions/dependency_source_paths" }
+          "items": { "$ref": "#/definitions/dependency_source_file" }
         },
         "reason": {
           "description": "why the subproject was not resolved",
           "$ref": "#/definitions/unresolved_reason"
         }
-      }
-    },
-    "dependency_source_paths": {
-      "description": "One dependency source of a subproject, split so that each path can be matched against the field it corresponds to in {{found_dependency}} .",
-      "type": "object",
-      "required": [],
-      "properties": {
-        "manifest_path": { "$ref": "#/definitions/fpath" },
-        "lockfile_path": { "$ref": "#/definitions/fpath" }
       }
     },
     "dependency_parser_error": {

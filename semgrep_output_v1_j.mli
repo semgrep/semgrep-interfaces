@@ -1609,15 +1609,6 @@ type subproject_resolution_plan =
 }
 
 (**
-  One dependency source of a subproject, split so that each path can be
-  matched against the field it corresponds to in [found_dependency].
-*)
-type dependency_source_paths = Semgrep_output_v1_t.dependency_source_paths = {
-  manifest_path: fpath option;
-  lockfile_path: fpath option
-}
-
-(**
   A subproject that was deliberately not resolved, and so contributed no
   entries to [ci_scan_dependencies].
   
@@ -1627,11 +1618,14 @@ type dependency_source_paths = Semgrep_output_v1_t.dependency_source_paths = {
 *)
 type skipped_subproject = Semgrep_output_v1_t.skipped_subproject = {
   root_dir: fpath (** usually the directory of the manifest file *);
-  dependency_sources: dependency_source_paths list
+  dependency_sources: dependency_source_file list
     (**
-      The (manifest, lockfile) pairs that would have been used to resolve
-      this subproject. One entry per source; a subproject with several
-      lockfiles (MultiLockfile) produces several entries.
+      The files that would have been used to resolve this subproject, one
+      entry per file. Each entry is tagged as a lockfile or a manifest so
+      that it can be matched against the corresponding field of
+      [found_dependency]. A subproject with several lockfiles
+      (MultiLockfile), or one with both a manifest and a lockfile, produces
+      several entries.
     *);
   reason: unresolved_reason (** why the subproject was not resolved *)
 }
@@ -5155,26 +5149,6 @@ val read_subproject_resolution_plan :
 val subproject_resolution_plan_of_string :
   string -> subproject_resolution_plan
   (** Deserialize JSON data of type {!type:subproject_resolution_plan}. *)
-
-val write_dependency_source_paths :
-  Buffer.t -> dependency_source_paths -> unit
-  (** Output a JSON value of type {!type:dependency_source_paths}. *)
-
-val string_of_dependency_source_paths :
-  ?len:int -> dependency_source_paths -> string
-  (** Serialize a value of type {!type:dependency_source_paths}
-      into a JSON string.
-      @param len specifies the initial length
-                 of the buffer used internally.
-                 Default: 1024. *)
-
-val read_dependency_source_paths :
-  Yojson.Safe.lexer_state -> Lexing.lexbuf -> dependency_source_paths
-  (** Input JSON data of type {!type:dependency_source_paths}. *)
-
-val dependency_source_paths_of_string :
-  string -> dependency_source_paths
-  (** Deserialize JSON data of type {!type:dependency_source_paths}. *)
 
 val write_skipped_subproject :
   Buffer.t -> skipped_subproject -> unit

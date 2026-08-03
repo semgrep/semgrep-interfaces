@@ -1609,15 +1609,6 @@ type subproject_resolution_plan =
 }
 
 (**
-  One dependency source of a subproject, split so that each path can be
-  matched against the field it corresponds to in [found_dependency].
-*)
-type dependency_source_paths = Semgrep_output_v1_t.dependency_source_paths = {
-  manifest_path: fpath option;
-  lockfile_path: fpath option
-}
-
-(**
   A subproject that was deliberately not resolved, and so contributed no
   entries to [ci_scan_dependencies].
   
@@ -1627,11 +1618,14 @@ type dependency_source_paths = Semgrep_output_v1_t.dependency_source_paths = {
 *)
 type skipped_subproject = Semgrep_output_v1_t.skipped_subproject = {
   root_dir: fpath (** usually the directory of the manifest file *);
-  dependency_sources: dependency_source_paths list
+  dependency_sources: dependency_source_file list
     (**
-      The (manifest, lockfile) pairs that would have been used to resolve
-      this subproject. One entry per source; a subproject with several
-      lockfiles (MultiLockfile) produces several entries.
+      The files that would have been used to resolve this subproject, one
+      entry per file. Each entry is tagged as a lockfile or a manifest so
+      that it can be matched against the corresponding field of
+      [found_dependency]. A subproject with several lockfiles
+      (MultiLockfile), or one with both a manifest and a lockfile, produces
+      several entries.
     *);
   reason: unresolved_reason (** why the subproject was not resolved *)
 }
@@ -24159,197 +24153,6 @@ let read_subproject_resolution_plan = (
 )
 let subproject_resolution_plan_of_string s =
   read_subproject_resolution_plan (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write_dependency_source_paths : _ -> dependency_source_paths -> _ = (
-  fun ob (x : dependency_source_paths) ->
-    Buffer.add_char ob '{';
-    let is_first = ref true in
-    (match x.manifest_path with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"manifest_path\":";
-      (
-        write_fpath
-      )
-        ob x;
-    );
-    (match x.lockfile_path with None -> () | Some x ->
-      if !is_first then
-        is_first := false
-      else
-        Buffer.add_char ob ',';
-        Buffer.add_string ob "\"lockfile_path\":";
-      (
-        write_fpath
-      )
-        ob x;
-    );
-    Buffer.add_char ob '}';
-)
-let string_of_dependency_source_paths ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write_dependency_source_paths ob x;
-  Buffer.contents ob
-let read_dependency_source_paths = (
-  fun p lb ->
-    Yojson.Safe.read_space p lb;
-    Yojson.Safe.read_lcurl p lb;
-    let field_manifest_path = ref (None) in
-    let field_lockfile_path = ref (None) in
-    try
-      Yojson.Safe.read_space p lb;
-      Yojson.Safe.read_object_end lb;
-      Yojson.Safe.read_space p lb;
-      let f =
-        fun s pos len ->
-          if pos < 0 || len < 0 || pos + len > String.length s then
-            invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-          if len = 13 then (
-            match String.unsafe_get s pos with
-              | 'l' -> (
-                  if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'k' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = 'h' then (
-                    1
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | 'm' -> (
-                  if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = 'h' then (
-                    0
-                  )
-                  else (
-                    -1
-                  )
-                )
-              | _ -> (
-                  -1
-                )
-          )
-          else (
-            -1
-          )
-      in
-      let i = Yojson.Safe.map_ident p f lb in
-      Atdgen_runtime.Oj_run.read_until_field_value p lb;
-      (
-        match i with
-          | 0 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_manifest_path := (
-                Some (
-                  (
-                    read_fpath
-                  ) p lb
-                )
-              );
-            )
-          | 1 ->
-            if not (Yojson.Safe.read_null_if_possible p lb) then (
-              field_lockfile_path := (
-                Some (
-                  (
-                    read_fpath
-                  ) p lb
-                )
-              );
-            )
-          | _ -> (
-              Yojson.Safe.skip_json p lb
-            )
-      );
-      while true do
-        Yojson.Safe.read_space p lb;
-        Yojson.Safe.read_object_sep p lb;
-        Yojson.Safe.read_space p lb;
-        let f =
-          fun s pos len ->
-            if pos < 0 || len < 0 || pos + len > String.length s then
-              invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
-            if len = 13 then (
-              match String.unsafe_get s pos with
-                | 'l' -> (
-                    if String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'c' && String.unsafe_get s (pos+3) = 'k' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'i' && String.unsafe_get s (pos+6) = 'l' && String.unsafe_get s (pos+7) = 'e' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = 'h' then (
-                      1
-                    )
-                    else (
-                      -1
-                    )
-                  )
-                | 'm' -> (
-                    if String.unsafe_get s (pos+1) = 'a' && String.unsafe_get s (pos+2) = 'n' && String.unsafe_get s (pos+3) = 'i' && String.unsafe_get s (pos+4) = 'f' && String.unsafe_get s (pos+5) = 'e' && String.unsafe_get s (pos+6) = 's' && String.unsafe_get s (pos+7) = 't' && String.unsafe_get s (pos+8) = '_' && String.unsafe_get s (pos+9) = 'p' && String.unsafe_get s (pos+10) = 'a' && String.unsafe_get s (pos+11) = 't' && String.unsafe_get s (pos+12) = 'h' then (
-                      0
-                    )
-                    else (
-                      -1
-                    )
-                  )
-                | _ -> (
-                    -1
-                  )
-            )
-            else (
-              -1
-            )
-        in
-        let i = Yojson.Safe.map_ident p f lb in
-        Atdgen_runtime.Oj_run.read_until_field_value p lb;
-        (
-          match i with
-            | 0 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_manifest_path := (
-                  Some (
-                    (
-                      read_fpath
-                    ) p lb
-                  )
-                );
-              )
-            | 1 ->
-              if not (Yojson.Safe.read_null_if_possible p lb) then (
-                field_lockfile_path := (
-                  Some (
-                    (
-                      read_fpath
-                    ) p lb
-                  )
-                );
-              )
-            | _ -> (
-                Yojson.Safe.skip_json p lb
-              )
-        );
-      done;
-      assert false;
-    with Yojson.End_of_object -> (
-        (
-          {
-            manifest_path = !field_manifest_path;
-            lockfile_path = !field_lockfile_path;
-          }
-         : dependency_source_paths)
-      )
-)
-let dependency_source_paths_of_string s =
-  read_dependency_source_paths (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__dependency_source_paths_list = (
-  Atdgen_runtime.Oj_run.write_list (
-    write_dependency_source_paths
-  )
-)
-let string_of__dependency_source_paths_list ?(len = 1024) x =
-  let ob = Buffer.create len in
-  write__dependency_source_paths_list ob x;
-  Buffer.contents ob
-let read__dependency_source_paths_list = (
-  Atdgen_runtime.Oj_run.read_list (
-    read_dependency_source_paths
-  )
-)
-let _dependency_source_paths_list_of_string s =
-  read__dependency_source_paths_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_skipped_subproject : _ -> skipped_subproject -> _ = (
   fun ob (x : skipped_subproject) ->
     Buffer.add_char ob '{';
@@ -24369,7 +24172,7 @@ let write_skipped_subproject : _ -> skipped_subproject -> _ = (
       Buffer.add_char ob ',';
       Buffer.add_string ob "\"dependency_sources\":";
     (
-      write__dependency_source_paths_list
+      write__dependency_source_file_list
     )
       ob x.dependency_sources;
     if !is_first then
@@ -24447,7 +24250,7 @@ let read_skipped_subproject = (
             field_dependency_sources := (
               Some (
                 (
-                  read__dependency_source_paths_list
+                  read__dependency_source_file_list
                 ) p lb
               )
             );
@@ -24516,7 +24319,7 @@ let read_skipped_subproject = (
               field_dependency_sources := (
                 Some (
                   (
-                    read__dependency_source_paths_list
+                    read__dependency_source_file_list
                   ) p lb
                 )
               );

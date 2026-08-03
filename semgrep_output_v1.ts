@@ -846,13 +846,8 @@ export type CiScanDependencies = Map<string, FoundDependency[]>
 
 export type SkippedSubproject = {
   root_dir: Fpath;
-  dependency_sources: DependencySourcePaths[];
+  dependency_sources: DependencySourceFile[];
   reason: UnresolvedReason;
-}
-
-export type DependencySourcePaths = {
-  manifest_path?: Fpath;
-  lockfile_path?: Fpath;
 }
 
 export type DependencyParserError = {
@@ -3971,7 +3966,7 @@ export function readCiScanDependencies(x: any, context: any = x): CiScanDependen
 export function writeSkippedSubproject(x: SkippedSubproject, context: any = x): any {
   return {
     'root_dir': _atd_write_required_field('SkippedSubproject', 'root_dir', writeFpath, x.root_dir, x),
-    'dependency_sources': _atd_write_required_field('SkippedSubproject', 'dependency_sources', _atd_write_array(writeDependencySourcePaths), x.dependency_sources, x),
+    'dependency_sources': _atd_write_required_field('SkippedSubproject', 'dependency_sources', _atd_write_array(writeDependencySourceFile), x.dependency_sources, x),
     'reason': _atd_write_required_field('SkippedSubproject', 'reason', writeUnresolvedReason, x.reason, x),
   };
 }
@@ -3979,22 +3974,8 @@ export function writeSkippedSubproject(x: SkippedSubproject, context: any = x): 
 export function readSkippedSubproject(x: any, context: any = x): SkippedSubproject {
   return {
     root_dir: _atd_read_required_field('SkippedSubproject', 'root_dir', readFpath, x['root_dir'], x),
-    dependency_sources: _atd_read_required_field('SkippedSubproject', 'dependency_sources', _atd_read_array(readDependencySourcePaths), x['dependency_sources'], x),
+    dependency_sources: _atd_read_required_field('SkippedSubproject', 'dependency_sources', _atd_read_array(readDependencySourceFile), x['dependency_sources'], x),
     reason: _atd_read_required_field('SkippedSubproject', 'reason', readUnresolvedReason, x['reason'], x),
-  };
-}
-
-export function writeDependencySourcePaths(x: DependencySourcePaths, context: any = x): any {
-  return {
-    'manifest_path': _atd_write_optional_field(writeFpath, x.manifest_path, x),
-    'lockfile_path': _atd_write_optional_field(writeFpath, x.lockfile_path, x),
-  };
-}
-
-export function readDependencySourcePaths(x: any, context: any = x): DependencySourcePaths {
-  return {
-    manifest_path: _atd_read_optional_field(readFpath, x['manifest_path'], x),
-    lockfile_path: _atd_read_optional_field(readFpath, x['lockfile_path'], x),
   };
 }
 

@@ -1609,15 +1609,6 @@ type subproject_resolution_plan = {
 }
 
 (**
-  One dependency source of a subproject, split so that each path can be
-  matched against the field it corresponds to in [found_dependency].
-*)
-type dependency_source_paths = {
-  manifest_path: fpath option;
-  lockfile_path: fpath option
-}
-
-(**
   A subproject that was deliberately not resolved, and so contributed no
   entries to [ci_scan_dependencies].
   
@@ -1627,11 +1618,14 @@ type dependency_source_paths = {
 *)
 type skipped_subproject = {
   root_dir: fpath (** usually the directory of the manifest file *);
-  dependency_sources: dependency_source_paths list
+  dependency_sources: dependency_source_file list
     (**
-      The (manifest, lockfile) pairs that would have been used to resolve
-      this subproject. One entry per source; a subproject with several
-      lockfiles (MultiLockfile) produces several entries.
+      The files that would have been used to resolve this subproject, one
+      entry per file. Each entry is tagged as a lockfile or a manifest so
+      that it can be matched against the corresponding field of
+      [found_dependency]. A subproject with several lockfiles
+      (MultiLockfile), or one with both a manifest and a lockfile, produces
+      several entries.
     *);
   reason: unresolved_reason (** why the subproject was not resolved *)
 }
