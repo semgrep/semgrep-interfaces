@@ -2146,7 +2146,7 @@
     "skipped_subproject": {
       "description": "A subproject that was deliberately not resolved, and so contributed no entries to {{ci_scan_dependencies}} .\n\nThis is deliberately not {{unresolved_subproject}} : that type embeds the recursive {{dependency_source}} variant, which serializes to awkward nested JSON.",
       "type": "object",
-      "required": [ "root_dir", "dependency_sources", "reason" ],
+      "required": [ "root_dir", "dependency_sources" ],
       "properties": {
         "root_dir": {
           "description": "usually the directory of the manifest file",
@@ -2156,10 +2156,6 @@
           "description": "The files that would have been used to resolve this subproject, one entry per file. Each entry is tagged as a lockfile or a manifest so that it can be matched against the corresponding field of {{found_dependency}} . A subproject with several lockfiles (MultiLockfile), or one with both a manifest and a lockfile, produces several entries.",
           "type": "array",
           "items": { "$ref": "#/definitions/dependency_source_file" }
-        },
-        "reason": {
-          "description": "why the subproject was not resolved",
-          "$ref": "#/definitions/unresolved_reason"
         }
       }
     },

@@ -1626,8 +1626,7 @@ type skipped_subproject = Semgrep_output_v1_t.skipped_subproject = {
       [found_dependency]. A subproject with several lockfiles
       (MultiLockfile), or one with both a manifest and a lockfile, produces
       several entries.
-    *);
-  reason: unresolved_reason (** why the subproject was not resolved *)
+    *)
 }
 
 type skipped_rule = Semgrep_output_v1_t.skipped_rule = {

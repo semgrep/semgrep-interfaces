@@ -1626,8 +1626,7 @@ type skipped_subproject = Semgrep_output_v1_t.skipped_subproject = {
       [found_dependency]. A subproject with several lockfiles
       (MultiLockfile), or one with both a manifest and a lockfile, produces
       several entries.
-    *);
-  reason: unresolved_reason (** why the subproject was not resolved *)
+    *)
 }
 
 type skipped_rule = Semgrep_output_v1_t.skipped_rule = {
@@ -24175,15 +24174,6 @@ let write_skipped_subproject : _ -> skipped_subproject -> _ = (
       write__dependency_source_file_list
     )
       ob x.dependency_sources;
-    if !is_first then
-      is_first := false
-    else
-      Buffer.add_char ob ',';
-      Buffer.add_string ob "\"reason\":";
-    (
-      write_unresolved_reason
-    )
-      ob x.reason;
     Buffer.add_char ob '}';
 )
 let string_of_skipped_subproject ?(len = 1024) x =
@@ -24196,7 +24186,6 @@ let read_skipped_subproject = (
     Yojson.Safe.read_lcurl p lb;
     let field_root_dir = ref (None) in
     let field_dependency_sources = ref (None) in
-    let field_reason = ref (None) in
     try
       Yojson.Safe.read_space p lb;
       Yojson.Safe.read_object_end lb;
@@ -24206,14 +24195,6 @@ let read_skipped_subproject = (
           if pos < 0 || len < 0 || pos + len > String.length s then
             invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
           match len with
-            | 6 -> (
-                if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'n' then (
-                  2
-                )
-                else (
-                  -1
-                )
-              )
             | 8 -> (
                 if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'r' then (
                   0
@@ -24254,14 +24235,6 @@ let read_skipped_subproject = (
                 ) p lb
               )
             );
-          | 2 ->
-            field_reason := (
-              Some (
-                (
-                  read_unresolved_reason
-                ) p lb
-              )
-            );
           | _ -> (
               Yojson.Safe.skip_json p lb
             )
@@ -24275,14 +24248,6 @@ let read_skipped_subproject = (
             if pos < 0 || len < 0 || pos + len > String.length s then
               invalid_arg (Printf.sprintf "out-of-bounds substring position or length: string = %S, requested position = %i, requested length = %i" s pos len);
             match len with
-              | 6 -> (
-                  if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'e' && String.unsafe_get s (pos+2) = 'a' && String.unsafe_get s (pos+3) = 's' && String.unsafe_get s (pos+4) = 'o' && String.unsafe_get s (pos+5) = 'n' then (
-                    2
-                  )
-                  else (
-                    -1
-                  )
-                )
               | 8 -> (
                   if String.unsafe_get s pos = 'r' && String.unsafe_get s (pos+1) = 'o' && String.unsafe_get s (pos+2) = 'o' && String.unsafe_get s (pos+3) = 't' && String.unsafe_get s (pos+4) = '_' && String.unsafe_get s (pos+5) = 'd' && String.unsafe_get s (pos+6) = 'i' && String.unsafe_get s (pos+7) = 'r' then (
                     0
@@ -24323,14 +24288,6 @@ let read_skipped_subproject = (
                   ) p lb
                 )
               );
-            | 2 ->
-              field_reason := (
-                Some (
-                  (
-                    read_unresolved_reason
-                  ) p lb
-                )
-              );
             | _ -> (
                 Yojson.Safe.skip_json p lb
               )
@@ -24342,7 +24299,6 @@ let read_skipped_subproject = (
           {
             root_dir = (match !field_root_dir with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "root_dir");
             dependency_sources = (match !field_dependency_sources with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "dependency_sources");
-            reason = (match !field_reason with Some x -> x | None -> Atdgen_runtime.Oj_run.missing_field p "reason");
           }
          : skipped_subproject)
       )

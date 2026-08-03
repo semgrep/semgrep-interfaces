@@ -847,7 +847,6 @@ export type CiScanDependencies = Map<string, FoundDependency[]>
 export type SkippedSubproject = {
   root_dir: Fpath;
   dependency_sources: DependencySourceFile[];
-  reason: UnresolvedReason;
 }
 
 export type DependencyParserError = {
@@ -3967,7 +3966,6 @@ export function writeSkippedSubproject(x: SkippedSubproject, context: any = x): 
   return {
     'root_dir': _atd_write_required_field('SkippedSubproject', 'root_dir', writeFpath, x.root_dir, x),
     'dependency_sources': _atd_write_required_field('SkippedSubproject', 'dependency_sources', _atd_write_array(writeDependencySourceFile), x.dependency_sources, x),
-    'reason': _atd_write_required_field('SkippedSubproject', 'reason', writeUnresolvedReason, x.reason, x),
   };
 }
 
@@ -3975,7 +3973,6 @@ export function readSkippedSubproject(x: any, context: any = x): SkippedSubproje
   return {
     root_dir: _atd_read_required_field('SkippedSubproject', 'root_dir', readFpath, x['root_dir'], x),
     dependency_sources: _atd_read_required_field('SkippedSubproject', 'dependency_sources', _atd_read_array(readDependencySourceFile), x['dependency_sources'], x),
-    reason: _atd_read_required_field('SkippedSubproject', 'reason', readUnresolvedReason, x['reason'], x),
   };
 }
 
