@@ -450,6 +450,15 @@ not ambiguous is welcome here.
     ),
     Language(
         comment="",
+        id_="objc",
+        name="Objective-C",
+        keys=["objc", "objectivec", "objective-c"],
+        exts=[".m"],
+        maturity=Maturity.ALPHA,
+        shebangs=[]
+    ),
+    Language(
+        comment="",
         id_="ocaml",
         name="OCaml",
         keys=["ocaml"],
@@ -527,15 +536,6 @@ not ambiguous is welcome here.
         maturity=Maturity.GA,
         shebangs=["python", "python2", "python3"],
         tags=["is_python"]
-    ),
-    Language(
-        comment="",
-        id_="ql",
-        name="QL",
-        keys=["ql"],
-        exts=[".ql", ".qll"],
-        example_ext=".ql",
-        maturity=Maturity.ALPHA,
     ),
     Language(
         comment="",

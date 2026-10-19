@@ -28,6 +28,7 @@ type t =
 | Lua
 | Move_on_sui
 | Move_on_aptos
+| Objc
 | Ocaml
 | Php
 | Powershell
@@ -36,7 +37,6 @@ type t =
 | Python2
 | Python3
 | Python
-| Ql
 | R
 | Ruby
 | Rust
@@ -432,6 +432,19 @@ let list = [
   tags = [];
 };
 {
+  id = Objc;
+  id_string = "objc";
+  name = "Objective-C";
+  keys = [{|objc|}; {|objectivec|}; {|objective-c|}];
+  exts = [{|.m|}];
+  maturity = Alpha;
+  example_ext = None;
+  excluded_exts = [];
+  reverse_exts = None;
+  shebangs = [];
+  tags = [];
+};
+{
   id = Ocaml;
   id_string = "ocaml";
   name = "OCaml";
@@ -534,19 +547,6 @@ let list = [
   reverse_exts = None;
   shebangs = [{|python|}; {|python2|}; {|python3|}];
   tags = [{|is_python|}];
-};
-{
-  id = Ql;
-  id_string = "ql";
-  name = "QL";
-  keys = [{|ql|}];
-  exts = [{|.ql|}; {|.qll|}];
-  maturity = Alpha;
-  example_ext = Some {|.ql|};
-  excluded_exts = [];
-  reverse_exts = None;
-  shebangs = [];
-  tags = [];
 };
 {
   id = R;

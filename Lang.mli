@@ -53,6 +53,7 @@ type t = Language.t =
   | Lua
   | Move_on_sui
   | Move_on_aptos
+  | Objc
   | Ocaml
   | Php
   | Powershell
@@ -61,7 +62,6 @@ type t = Language.t =
   | Python2
   | Python3
   | Python
-  | Ql
   | R
   | Ruby
   | Rust
