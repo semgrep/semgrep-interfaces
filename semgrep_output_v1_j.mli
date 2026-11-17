@@ -524,6 +524,21 @@ type dependency_match = Semgrep_output_v1_t.dependency_match = {
 }
   [@@deriving ord]
 
+(**
+  A versioned, one-way hash identifying the "secret value" of a secrets
+  finding. The pre-image is the textual content of the metavariables used by
+  the rule's validator(s) (sorted by metavariable name), or the matched text
+  of the finding if the rule has no validator. The hash itself is FIPS
+  compliant (SHA-256). The version records which algorithm was used to derive
+  the pre-image, so consumers can tell hashes apart if the derivation
+  changes.
+*)
+type secret_hash = Semgrep_output_v1_t.secret_hash = {
+  hash: string (** hex-encoded SHA-256 digest of the secret value *);
+  version: int (** version of the secret-value derivation algorithm *)
+}
+  [@@deriving eq, ord, show]
+
 type sha1 = Semgrep_output_v1_t.sha1 [@@deriving ord]
 
 (** part of cli_match_extra *)
@@ -688,6 +703,12 @@ and cli_match_extra = Semgrep_output_v1_t.cli_match_extra = {
       EXPERIMENTAL: added by secrets post-processing & historical scanning
       code Since 1.60.0.
     *);
+  secret_hash: secret_hash option
+    (**
+      a versioned hash of the secret value of a secrets finding, added by
+      secrets post-processing. Absent for non-secrets findings or when
+      disabled. Since 1.186.0.
+    *);
   dataflow_trace: match_dataflow_trace option
     (**
       EXPERIMENTAL: For now, present only for taint findings. May be extended
@@ -798,6 +819,7 @@ type core_match_extra = Semgrep_output_v1_t.core_match_extra = {
   sca_match: sca_match option;
   validation_state: validation_state option;
   historical_info: historical_info option;
+  secret_hash: secret_hash option;
   extra_extra: raw_json option
     (**
       Escape hatch to pass untyped info from semgrep-core to the semgrep
@@ -1745,6 +1767,11 @@ type engine_configuration = Semgrep_output_v1_t.engine_configuration = {
     (**
       Whether to enable transitive reachability analysis for SCA findings
     *);
+  compute_secret_hash: bool
+    (**
+      Compute the secret_hash field for Secrets findings. Disabled by
+      default.
+    *);
   ignored_files: string list;
   product_ignored_files: product_ignored_files option (** from 1.71.0 *);
   gradle_module_attribution: bool
@@ -2208,7 +2235,8 @@ type dump_rule_partitions_params =
   rules: raw_json;
   n_partitions: int;
   output_dir: fpath;
-  strategy: string option
+  strategy: string option;
+  heavy_rule_ids: string list option
 }
 
 (**
@@ -2401,7 +2429,9 @@ type finding = Semgrep_output_v1_t.finding = {
     (** Added in semgrep 1.39.0 see comments in cli_match_extra *);
   historical_info: historical_info option
     (** Added in semgrep 1.65.0 see comments in cli_match_extra *);
-  engine_kind: engine_of_finding option (** Added in semgrep 1.70.0 *)
+  engine_kind: engine_of_finding option (** Added in semgrep 1.70.0 *);
+  secret_hash: secret_hash option
+    (** Added in semgrep 1.186.0 see comments in cli_match_extra *)
 }
 
 (** See https://semgrep.dev/docs/usage-limits *)
@@ -3283,6 +3313,26 @@ val read_dependency_match :
 val dependency_match_of_string :
   string -> dependency_match
   (** Deserialize JSON data of type {!type:dependency_match}. *)
+
+val write_secret_hash :
+  Buffer.t -> secret_hash -> unit
+  (** Output a JSON value of type {!type:secret_hash}. *)
+
+val string_of_secret_hash :
+  ?len:int -> secret_hash -> string
+  (** Serialize a value of type {!type:secret_hash}
+      into a JSON string.
+      @param len specifies the initial length
+                 of the buffer used internally.
+                 Default: 1024. *)
+
+val read_secret_hash :
+  Yojson.Safe.lexer_state -> Lexing.lexbuf -> secret_hash
+  (** Input JSON data of type {!type:secret_hash}. *)
+
+val secret_hash_of_string :
+  string -> secret_hash
+  (** Deserialize JSON data of type {!type:secret_hash}. *)
 
 val write_sha1 :
   Buffer.t -> sha1 -> unit

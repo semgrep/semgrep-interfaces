@@ -383,6 +383,12 @@ type cli_match_extra = {
      Since 1.60.0.">
   : historical_info option;
 
+  ?secret_hash
+    <doc text="a versioned hash of the secret value of a secrets finding, added by
+     secrets post-processing. Absent for non-secrets findings or when disabled.
+     Since 1.186.0.">
+  : secret_hash option;
+
   ?dataflow_trace
     <doc text="EXPERIMENTAL: For now, present only for taint findings. May be extended to
      others later on.">
@@ -881,6 +887,22 @@ type validation_state
   | Validation_error <json name="VALIDATION_ERROR">
   | No_validator <json name="NO_VALIDATOR">
 ]
+
+type secret_hash
+    <ocaml attr="deriving eq, ord, show">
+    <python decorator="dataclass(frozen=True)">
+    <doc text="
+   A versioned, one-way hash identifying the \"secret value\" of a secrets
+   finding. The pre-image is the textual content of the metavariables used by
+   the rule's validator(s) (sorted by metavariable name), or the matched text
+   of the finding if the rule has no validator. The hash itself is FIPS
+   compliant (SHA-256). The version records which algorithm was used to derive
+   the pre-image, so consumers can tell hashes apart if the derivation
+   changes.">
+  = {
+  hash <doc text="hex-encoded SHA-256 digest of the secret value">: string;
+  version <doc text="version of the secret-value derivation algorithm">: int;
+}
 
 type historical_info
     <ocaml attr="deriving ord">
@@ -1792,6 +1814,9 @@ type engine_configuration
     <doc text="settings for the cli">
   = {
     inherit features;
+    ~compute_secret_hash
+      <doc text="Compute the secret_hash field for Secrets findings. Disabled by default.">
+    : bool;
     (* TODO? glob list? fpath list? *)
     ~ignored_files: string list;
     ?product_ignored_files
@@ -2087,6 +2112,9 @@ type finding = {
   ?engine_kind
     <doc text="Added in semgrep 1.70.0">
   : engine_of_finding option;
+  ?secret_hash
+    <doc text="Added in semgrep 1.186.0 see comments in cli_match_extra">
+  : secret_hash option;
 }
 
 type finding_hashes
@@ -2805,6 +2833,7 @@ type core_match_extra
   ?sca_match: sca_match option;
   ?validation_state : validation_state option;
   ?historical_info: historical_info option;
+  ?secret_hash: secret_hash option;
   ?extra_extra
      <doc text="
      Escape hatch to pass untyped info from semgrep-core to the semgrep output.
@@ -3051,6 +3080,7 @@ type dump_rule_partitions_params = {
   n_partitions: int;
   output_dir: fpath;
   ?strategy: string option;
+  ?heavy_rule_ids: string list option;
 }
 
 type scan_params
