@@ -112,6 +112,7 @@ export type CliMatchExtra = {
   sca_info?: ScaMatch;
   validation_state?: ValidationState;
   historical_info?: HistoricalInfo;
+  secret_hash?: SecretHash;
   dataflow_trace?: MatchDataflowTrace;
   engine_kind?: EngineOfFinding;
   extra_extra?: RawJson;
@@ -270,6 +271,11 @@ export type ValidationState =
 | { kind: 'Confirmed_invalid' /* JSON: "CONFIRMED_INVALID" */ }
 | { kind: 'Validation_error' /* JSON: "VALIDATION_ERROR" */ }
 | { kind: 'No_validator' /* JSON: "NO_VALIDATOR" */ }
+
+export type SecretHash = {
+  hash: string;
+  version: number /*int*/;
+}
 
 export type HistoricalInfo = {
   git_commit: Sha1;
@@ -654,6 +660,7 @@ export type EngineConfiguration = {
   scan_all_deps_in_diff_scan: boolean;
   symbol_analysis: boolean;
   transitive_reachability_enabled: boolean;
+  compute_secret_hash: boolean;
   ignored_files: string[];
   product_ignored_files?: ProductIgnoredFiles;
   gradle_module_attribution: boolean;
@@ -753,6 +760,7 @@ export type Finding = {
   validation_state?: ValidationState;
   historical_info?: HistoricalInfo;
   engine_kind?: EngineOfFinding;
+  secret_hash?: SecretHash;
 }
 
 export type FindingHashes = {
@@ -1062,6 +1070,7 @@ export type CoreMatchExtra = {
   sca_match?: ScaMatch;
   validation_state?: ValidationState;
   historical_info?: HistoricalInfo;
+  secret_hash?: SecretHash;
   extra_extra?: RawJson;
 }
 
@@ -1163,6 +1172,7 @@ export type DumpRulePartitionsParams = {
   n_partitions: number /*int*/;
   output_dir: Fpath;
   strategy?: string;
+  heavy_rule_ids?: string[];
 }
 
 export type ScanParams = {
@@ -1794,6 +1804,7 @@ export function writeCliMatchExtra(x: CliMatchExtra, context: any = x): any {
     'sca_info': _atd_write_optional_field(writeScaMatch, x.sca_info, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
+    'secret_hash': _atd_write_optional_field(writeSecretHash, x.secret_hash, x),
     'dataflow_trace': _atd_write_optional_field(writeMatchDataflowTrace, x.dataflow_trace, x),
     'engine_kind': _atd_write_optional_field(writeEngineOfFinding, x.engine_kind, x),
     'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
@@ -1814,6 +1825,7 @@ export function readCliMatchExtra(x: any, context: any = x): CliMatchExtra {
     sca_info: _atd_read_optional_field(readScaMatch, x['sca_info'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),
+    secret_hash: _atd_read_optional_field(readSecretHash, x['secret_hash'], x),
     dataflow_trace: _atd_read_optional_field(readMatchDataflowTrace, x['dataflow_trace'], x),
     engine_kind: _atd_read_optional_field(readEngineOfFinding, x['engine_kind'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
@@ -2351,6 +2363,20 @@ export function readValidationState(x: any, context: any = x): ValidationState {
       _atd_bad_json('ValidationState', x, context)
       throw new Error('impossible')
   }
+}
+
+export function writeSecretHash(x: SecretHash, context: any = x): any {
+  return {
+    'hash': _atd_write_required_field('SecretHash', 'hash', _atd_write_string, x.hash, x),
+    'version': _atd_write_required_field('SecretHash', 'version', _atd_write_int, x.version, x),
+  };
+}
+
+export function readSecretHash(x: any, context: any = x): SecretHash {
+  return {
+    hash: _atd_read_required_field('SecretHash', 'hash', _atd_read_string, x['hash'], x),
+    version: _atd_read_required_field('SecretHash', 'version', _atd_read_int, x['version'], x),
+  };
 }
 
 export function writeHistoricalInfo(x: HistoricalInfo, context: any = x): any {
@@ -3505,6 +3531,7 @@ export function writeEngineConfiguration(x: EngineConfiguration, context: any = 
     'scan_all_deps_in_diff_scan': _atd_write_field_with_default(_atd_write_bool, false, x.scan_all_deps_in_diff_scan, x),
     'symbol_analysis': _atd_write_field_with_default(_atd_write_bool, false, x.symbol_analysis, x),
     'transitive_reachability_enabled': _atd_write_field_with_default(_atd_write_bool, false, x.transitive_reachability_enabled, x),
+    'compute_secret_hash': _atd_write_field_with_default(_atd_write_bool, false, x.compute_secret_hash, x),
     'ignored_files': _atd_write_field_with_default(_atd_write_array(_atd_write_string), [], x.ignored_files, x),
     'product_ignored_files': _atd_write_optional_field(writeProductIgnoredFiles, x.product_ignored_files, x),
     'gradle_module_attribution': _atd_write_field_with_default(_atd_write_bool, false, x.gradle_module_attribution, x),
@@ -3523,6 +3550,7 @@ export function readEngineConfiguration(x: any, context: any = x): EngineConfigu
     scan_all_deps_in_diff_scan: _atd_read_field_with_default(_atd_read_bool, false, x['scan_all_deps_in_diff_scan'], x),
     symbol_analysis: _atd_read_field_with_default(_atd_read_bool, false, x['symbol_analysis'], x),
     transitive_reachability_enabled: _atd_read_field_with_default(_atd_read_bool, false, x['transitive_reachability_enabled'], x),
+    compute_secret_hash: _atd_read_field_with_default(_atd_read_bool, false, x['compute_secret_hash'], x),
     ignored_files: _atd_read_field_with_default(_atd_read_array(_atd_read_string), [], x['ignored_files'], x),
     product_ignored_files: _atd_read_optional_field(readProductIgnoredFiles, x['product_ignored_files'], x),
     gradle_module_attribution: _atd_read_field_with_default(_atd_read_bool, false, x['gradle_module_attribution'], x),
@@ -3725,6 +3753,7 @@ export function writeFinding(x: Finding, context: any = x): any {
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
     'engine_kind': _atd_write_optional_field(writeEngineOfFinding, x.engine_kind, x),
+    'secret_hash': _atd_write_optional_field(writeSecretHash, x.secret_hash, x),
   };
 }
 
@@ -3751,6 +3780,7 @@ export function readFinding(x: any, context: any = x): Finding {
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),
     engine_kind: _atd_read_optional_field(readEngineOfFinding, x['engine_kind'], x),
+    secret_hash: _atd_read_optional_field(readSecretHash, x['secret_hash'], x),
   };
 }
 
@@ -4581,6 +4611,7 @@ export function writeCoreMatchExtra(x: CoreMatchExtra, context: any = x): any {
     'sca_match': _atd_write_optional_field(writeScaMatch, x.sca_match, x),
     'validation_state': _atd_write_optional_field(writeValidationState, x.validation_state, x),
     'historical_info': _atd_write_optional_field(writeHistoricalInfo, x.historical_info, x),
+    'secret_hash': _atd_write_optional_field(writeSecretHash, x.secret_hash, x),
     'extra_extra': _atd_write_optional_field(writeRawJson, x.extra_extra, x),
   };
 }
@@ -4598,6 +4629,7 @@ export function readCoreMatchExtra(x: any, context: any = x): CoreMatchExtra {
     sca_match: _atd_read_optional_field(readScaMatch, x['sca_match'], x),
     validation_state: _atd_read_optional_field(readValidationState, x['validation_state'], x),
     historical_info: _atd_read_optional_field(readHistoricalInfo, x['historical_info'], x),
+    secret_hash: _atd_read_optional_field(readSecretHash, x['secret_hash'], x),
     extra_extra: _atd_read_optional_field(readRawJson, x['extra_extra'], x),
   };
 }
@@ -4905,6 +4937,7 @@ export function writeDumpRulePartitionsParams(x: DumpRulePartitionsParams, conte
     'n_partitions': _atd_write_required_field('DumpRulePartitionsParams', 'n_partitions', _atd_write_int, x.n_partitions, x),
     'output_dir': _atd_write_required_field('DumpRulePartitionsParams', 'output_dir', writeFpath, x.output_dir, x),
     'strategy': _atd_write_optional_field(_atd_write_string, x.strategy, x),
+    'heavy_rule_ids': _atd_write_optional_field(_atd_write_array(_atd_write_string), x.heavy_rule_ids, x),
   };
 }
 
@@ -4914,6 +4947,7 @@ export function readDumpRulePartitionsParams(x: any, context: any = x): DumpRule
     n_partitions: _atd_read_required_field('DumpRulePartitionsParams', 'n_partitions', _atd_read_int, x['n_partitions'], x),
     output_dir: _atd_read_required_field('DumpRulePartitionsParams', 'output_dir', readFpath, x['output_dir'], x),
     strategy: _atd_read_optional_field(_atd_read_string, x['strategy'], x),
+    heavy_rule_ids: _atd_read_optional_field(_atd_read_array(_atd_read_string), x['heavy_rule_ids'], x),
   };
 }
 
